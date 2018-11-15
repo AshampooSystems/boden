@@ -15,10 +15,7 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
-            {
-                return newObj<TestContainerView>();
-            }
+            P<View> createView() override { return newObj<TestContainerView>(); }
 
             void setView(View *pView) override
             {
@@ -45,53 +42,36 @@ namespace bdn
                     // container view cores should call
                     // calcContainerPreferredSize from the outer object
 
-                    int initialCount =
-                        _pContainerView->getCalcContainerPreferredSizeCount();
+                    int initialCount = _pContainerView->getCalcContainerPreferredSizeCount();
 
                     SECTION("infinite availableSpace")
                     {
                         _pCore->calcPreferredSize();
 
-                        REQUIRE(_pContainerView
-                                    ->getCalcContainerPreferredSizeCount() ==
-                                initialCount + 1);
-                        REQUIRE(
-                            _pContainerView
-                                ->getLastCalcContainerPreferredSizeAvailableSpace() ==
-                            Size::none());
+                        REQUIRE(_pContainerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
+                        REQUIRE(_pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size::none());
                     }
 
                     SECTION("finite availableSpace")
                     {
                         _pCore->calcPreferredSize(Size(100, 200));
 
-                        REQUIRE(_pContainerView
-                                    ->getCalcContainerPreferredSizeCount() ==
-                                initialCount + 1);
-                        REQUIRE(
-                            _pContainerView
-                                ->getLastCalcContainerPreferredSizeAvailableSpace() ==
-                            Size(100, 200));
+                        REQUIRE(_pContainerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
+                        REQUIRE(_pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size(100, 200));
                     }
                 }
 
                 SECTION("layout forwarded to outer")
                 {
-                    int initialCount =
-                        _pContainerView->getCalcContainerLayoutCount();
+                    int initialCount = _pContainerView->getCalcContainerLayoutCount();
 
-                    _pContainerView->needLayout(
-                        View::InvalidateReason::customDataChanged);
+                    _pContainerView->needLayout(View::InvalidateReason::customDataChanged);
 
                     CONTINUE_SECTION_WHEN_IDLE(pThis, this, initialCount)
                     {
-                        int currLayoutCount =
-                            _pContainerView->getCalcContainerLayoutCount();
+                        int currLayoutCount = _pContainerView->getCalcContainerLayoutCount();
                         REQUIRE(currLayoutCount == initialCount + 1);
-                        REQUIRE(
-                            _pContainerView
-                                ->getLastCalcContainerLayoutContainerSize() ==
-                            _pContainerView->size());
+                        REQUIRE(_pContainerView->getLastCalcContainerLayoutContainerSize() == _pContainerView->size());
                     };
                 }
             }
@@ -108,29 +88,22 @@ namespace bdn
             class TestContainerView : public ColumnView
             {
               public:
-                Size calcContainerPreferredSize(
-                    const Size &availableSpace) const override
+                Size calcContainerPreferredSize(const Size &availableSpace) const override
                 {
                     _calcContainerPreferredSizeCount++;
-                    _lastCalcContainerPreferredSizeAvailableSpace =
-                        availableSpace;
+                    _lastCalcContainerPreferredSizeAvailableSpace = availableSpace;
 
-                    return ColumnView::calcContainerPreferredSize(
-                        availableSpace);
+                    return ColumnView::calcContainerPreferredSize(availableSpace);
                 }
 
-                int getCalcContainerPreferredSizeCount() const
-                {
-                    return _calcContainerPreferredSizeCount;
-                }
+                int getCalcContainerPreferredSizeCount() const { return _calcContainerPreferredSizeCount; }
 
                 Size getLastCalcContainerPreferredSizeAvailableSpace() const
                 {
                     return _lastCalcContainerPreferredSizeAvailableSpace;
                 }
 
-                P<ViewLayout>
-                calcContainerLayout(const Size &containerSize) const override
+                P<ViewLayout> calcContainerLayout(const Size &containerSize) const override
                 {
                     _calcContainerLayoutCount++;
                     _lastCalcContainerLayoutContainerSize = containerSize;
@@ -138,15 +111,9 @@ namespace bdn
                     return ColumnView::calcContainerLayout(containerSize);
                 }
 
-                int getCalcContainerLayoutCount() const
-                {
-                    return _calcContainerLayoutCount;
-                }
+                int getCalcContainerLayoutCount() const { return _calcContainerLayoutCount; }
 
-                Size getLastCalcContainerLayoutContainerSize() const
-                {
-                    return _lastCalcContainerLayoutContainerSize;
-                }
+                Size getLastCalcContainerLayoutContainerSize() const { return _lastCalcContainerLayoutContainerSize; }
 
               private:
                 mutable int _calcContainerPreferredSizeCount = 0;

@@ -67,10 +67,7 @@ namespace bdn
                     {
                         _pCheckbox->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreLabel();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
@@ -82,14 +79,11 @@ namespace bdn
 
                         Size prefSizeBefore = _pCheckbox->calcPreferredSize();
 
-                        _pCheckbox->setLabel(labelBefore + labelBefore +
-                                             labelBefore);
+                        _pCheckbox->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore,
-                                                   labelBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
                         {
-                            Size prefSize =
-                                pThis->_pCheckbox->calcPreferredSize();
+                            Size prefSize = pThis->_pCheckbox->calcPreferredSize();
 
                             // width must increase with a bigger label
                             REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -102,12 +96,9 @@ namespace bdn
                             // the preferred size should also be the same again
                             pThis->_pCheckbox->setLabel(labelBefore);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore,
-                                                       prefSizeBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
                             {
-                                REQUIRE(
-                                    pThis->_pCheckbox->calcPreferredSize() ==
-                                    prefSizeBefore);
+                                REQUIRE(pThis->_pCheckbox->calcPreferredSize() == prefSizeBefore);
                             };
                         };
                     }
@@ -120,30 +111,21 @@ namespace bdn
                     {
                         _pCheckbox->setState(TriState::on);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreState();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
                     }
 
                     SECTION("valueOff")
                     {
                         _pCheckbox->setState(TriState::off);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreState();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
                     }
 
                     SECTION("valueMixed")
                     {
                         _pCheckbox->setState(TriState::mixed);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreState();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
                     }
                 }
             }

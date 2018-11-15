@@ -9,14 +9,12 @@
 
 using namespace bdn;
 
-class TestMacButtonCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestButtonCore>
+class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestButtonCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin<
-            bdn::test::TestButtonCore>::initCore();
+        bdn::test::TestMacChildViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
         _pNSButton = (NSButton *)_pNSView;
         REQUIRE(_pNSButton != nullptr);

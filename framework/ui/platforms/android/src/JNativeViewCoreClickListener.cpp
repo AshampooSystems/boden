@@ -6,16 +6,14 @@
 
 #include <bdn/android/ViewCore.h>
 
-extern "C" JNIEXPORT void JNICALL
-Java_io_boden_android_NativeViewCoreClickListener_viewClicked(JNIEnv *pEnv,
-                                                              jobject rawSelf,
-                                                              jobject rawView)
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListener_viewClicked(JNIEnv *pEnv,
+                                                                                                jobject rawSelf,
+                                                                                                jobject rawView)
 {
     bdn::platformEntryWrapper(
         [&]() {
             bdn::android::ViewCore *pViewCore =
-                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                    bdn::java::Reference::convertExternalLocal(rawView));
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
 
             if (pViewCore == nullptr) {
                 // no view core is associated with the view => ignore the event

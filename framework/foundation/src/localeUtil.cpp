@@ -11,8 +11,7 @@ namespace bdn
     {
         // we need to replace the default codec facets with their utf-8
         // counterparts
-        std::locale loc =
-            std::locale(baseLocale, new std::codecvt_utf8<wchar_t>);
+        std::locale loc = std::locale(baseLocale, new std::codecvt_utf8<wchar_t>);
 
         loc = std::locale(loc, new CodecVtUtf8Utf16);
         loc = std::locale(loc, new CodecVtUtf8Utf32);
@@ -32,10 +31,8 @@ namespace bdn
         const std::codecvt<wchar_t, char, mbstate_t> &codec =
             std::use_facet<std::codecvt<wchar_t, char, mbstate_t>>(loc);
 
-        if (dynamic_cast<const std::codecvt_utf8<wchar_t> *>(&codec) !=
-                nullptr ||
-            dynamic_cast<const std::codecvt_utf8_utf16<wchar_t> *>(&codec) !=
-                nullptr) {
+        if (dynamic_cast<const std::codecvt_utf8<wchar_t> *>(&codec) != nullptr ||
+            dynamic_cast<const std::codecvt_utf8_utf16<wchar_t> *>(&codec) != nullptr) {
             // the codec is derived from std::codecvt_utf8 or
             // std::codecvt_utf8_utf16. So we know that it is a UTF-8 codec.
             return true;
@@ -76,11 +73,9 @@ namespace bdn
         std::mbstate_t state = std::mbstate_t();
 
         std::codecvt_base::result result =
-            codec.out(state, inData, inData + inElements, pInNext, outBuffer,
-                      outBuffer + outBufferSize, pOutNext);
+            codec.out(state, inData, inData + inElements, pInNext, outBuffer, outBuffer + outBufferSize, pOutNext);
 
-        return (result == std::codecvt_base::ok &&
-                pOutNext == outBuffer + expectedSize &&
+        return (result == std::codecvt_base::ok && pOutNext == outBuffer + expectedSize &&
                 std::memcmp(outBuffer, expectedUtf8, expectedSize) == 0);
     }
 }

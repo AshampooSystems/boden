@@ -22,9 +22,7 @@ namespace bdn
             }
 
           public:
-            JNativeEditTextTextWatcher(JTextView &textView)
-                : JNativeEditTextTextWatcher(newInstance_(textView))
-            {}
+            JNativeEditTextTextWatcher(JTextView &textView) : JNativeEditTextTextWatcher(newInstance_(textView)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -32,10 +30,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeEditTextTextWatcher(
-                const bdn::java::Reference &objectRef)
-                : JTextWatcher(objectRef)
-            {}
+            explicit JNativeEditTextTextWatcher(const bdn::java::Reference &objectRef) : JTextWatcher(objectRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -48,15 +43,11 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeEditTextTextWatcher");
+                static bdn::java::JClass cls("io/boden/android/NativeEditTextTextWatcher");
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

@@ -8,110 +8,69 @@ namespace bdn
     namespace java
     {
 
-        jobject callJavaStaticObjectMethodStoreExceptV(jclass cls,
-                                                       jmethodID methodId,
-                                                       va_list argList);
-        void callJavaStaticVoidMethodStoreExceptV(jclass cls,
-                                                  jmethodID methodId,
-                                                  va_list argList);
-        jint callJavaStaticIntMethodStoreExceptV(jclass cls, jmethodID methodId,
-                                                 va_list argList);
-        jboolean callJavaStaticBooleanMethodStoreExceptV(jclass cls,
-                                                         jmethodID methodId,
-                                                         va_list argList);
-        jshort callJavaStaticShortMethodStoreExceptV(jclass cls,
-                                                     jmethodID methodId,
-                                                     va_list argList);
-        jlong callJavaStaticLongMethodStoreExceptV(jclass cls,
-                                                   jmethodID methodId,
-                                                   va_list argList);
-        jchar callJavaStaticCharMethodStoreExceptV(jclass cls,
-                                                   jmethodID methodId,
-                                                   va_list argList);
-        jfloat callJavaStaticFloatMethodStoreExceptV(jclass cls,
-                                                     jmethodID methodId,
-                                                     va_list argList);
-        jdouble callJavaStaticDoubleMethodStoreExceptV(jclass cls,
-                                                       jmethodID methodId,
-                                                       va_list argList);
+        jobject callJavaStaticObjectMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        void callJavaStaticVoidMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jint callJavaStaticIntMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jboolean callJavaStaticBooleanMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jshort callJavaStaticShortMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jlong callJavaStaticLongMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jchar callJavaStaticCharMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jfloat callJavaStaticFloatMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
+        jdouble callJavaStaticDoubleMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
 
         template <typename JavaReturnType>
-        inline JavaReturnType
-        callJavaStaticMethodStoreExceptV(jclass cls, jmethodID methodId,
-                                         va_list argList);
+        inline JavaReturnType callJavaStaticMethodStoreExceptV(jclass cls, jmethodID methodId, va_list argList);
 
         template <>
-        inline jobject callJavaStaticMethodStoreExceptV<jobject>(
-            jclass cls, jmethodID methodId, va_list argList)
+        inline jobject callJavaStaticMethodStoreExceptV<jobject>(jclass cls, jmethodID methodId, va_list argList)
         {
-            return callJavaStaticObjectMethodStoreExceptV(cls, methodId,
-                                                          argList);
+            return callJavaStaticObjectMethodStoreExceptV(cls, methodId, argList);
         }
 
-        template <>
-        inline void callJavaStaticMethodStoreExceptV<void>(jclass cls,
-                                                           jmethodID methodId,
-                                                           va_list argList)
+        template <> inline void callJavaStaticMethodStoreExceptV<void>(jclass cls, jmethodID methodId, va_list argList)
         {
             callJavaStaticVoidMethodStoreExceptV(cls, methodId, argList);
         }
 
-        template <>
-        inline jint callJavaStaticMethodStoreExceptV<jint>(jclass cls,
-                                                           jmethodID methodId,
-                                                           va_list argList)
+        template <> inline jint callJavaStaticMethodStoreExceptV<jint>(jclass cls, jmethodID methodId, va_list argList)
         {
             return callJavaStaticIntMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jboolean callJavaStaticMethodStoreExceptV<jboolean>(
-            jclass cls, jmethodID methodId, va_list argList)
+        inline jboolean callJavaStaticMethodStoreExceptV<jboolean>(jclass cls, jmethodID methodId, va_list argList)
         {
-            return callJavaStaticBooleanMethodStoreExceptV(cls, methodId,
-                                                           argList);
+            return callJavaStaticBooleanMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jshort
-        callJavaStaticMethodStoreExceptV<jshort>(jclass cls, jmethodID methodId,
-                                                 va_list argList)
+        inline jshort callJavaStaticMethodStoreExceptV<jshort>(jclass cls, jmethodID methodId, va_list argList)
         {
-            return callJavaStaticShortMethodStoreExceptV(cls, methodId,
-                                                         argList);
+            return callJavaStaticShortMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jlong callJavaStaticMethodStoreExceptV<jlong>(jclass cls,
-                                                             jmethodID methodId,
-                                                             va_list argList)
+        inline jlong callJavaStaticMethodStoreExceptV<jlong>(jclass cls, jmethodID methodId, va_list argList)
         {
             return callJavaStaticLongMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jchar callJavaStaticMethodStoreExceptV<jchar>(jclass cls,
-                                                             jmethodID methodId,
-                                                             va_list argList)
+        inline jchar callJavaStaticMethodStoreExceptV<jchar>(jclass cls, jmethodID methodId, va_list argList)
         {
             return callJavaStaticCharMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jfloat
-        callJavaStaticMethodStoreExceptV<jfloat>(jclass cls, jmethodID methodId,
-                                                 va_list argList)
+        inline jfloat callJavaStaticMethodStoreExceptV<jfloat>(jclass cls, jmethodID methodId, va_list argList)
         {
-            return callJavaStaticFloatMethodStoreExceptV(cls, methodId,
-                                                         argList);
+            return callJavaStaticFloatMethodStoreExceptV(cls, methodId, argList);
         }
 
         template <>
-        inline jdouble callJavaStaticMethodStoreExceptV<jdouble>(
-            jclass cls, jmethodID methodId, va_list argList)
+        inline jdouble callJavaStaticMethodStoreExceptV<jdouble>(jclass cls, jmethodID methodId, va_list argList)
         {
-            return callJavaStaticDoubleMethodStoreExceptV(cls, methodId,
-                                                          argList);
+            return callJavaStaticDoubleMethodStoreExceptV(cls, methodId, argList);
         }
 
         /** Calls a Java-side method with the return type specified by the
@@ -129,15 +88,12 @@ namespace bdn
          *
          **/
         template <typename JavaReturnType>
-        inline JavaReturnType callJavaStaticMethod(jclass cls,
-                                                   jmethodID methodId, ...)
+        inline JavaReturnType callJavaStaticMethod(jclass cls, jmethodID methodId, ...)
         {
             va_list argList;
             va_start(argList, methodId);
 
-            JavaReturnType result =
-                callJavaStaticMethodStoreExceptV<JavaReturnType>(cls, methodId,
-                                                                 argList);
+            JavaReturnType result = callJavaStaticMethodStoreExceptV<JavaReturnType>(cls, methodId, argList);
 
             va_end(argList);
 
@@ -146,9 +102,7 @@ namespace bdn
             return result;
         }
 
-        template <>
-        inline void callJavaStaticMethod<void>(jclass cls, jmethodID methodId,
-                                               ...)
+        template <> inline void callJavaStaticMethod<void>(jclass cls, jmethodID methodId, ...)
         {
             va_list argList;
             va_start(argList, methodId);
@@ -182,17 +136,14 @@ namespace bdn
         template <typename NativeReturnType> class StaticMethodCaller
         {
           public:
-            typedef typename TypeConversion<NativeReturnType>::JavaType
-                JavaReturnType;
+            typedef typename TypeConversion<NativeReturnType>::JavaType JavaReturnType;
 
             template <typename... Arguments>
-            static NativeReturnType call(jclass cls, jmethodID methodId,
-                                         Arguments... args)
+            static NativeReturnType call(jclass cls, jmethodID methodId, Arguments... args)
             {
                 std::list<Reference> createdJavaObjects;
-                return takeOwnershipOfJavaValueAndConvertToNative<
-                    NativeReturnType>(callJavaStaticMethod<JavaReturnType>(
-                    cls, methodId, nativeToJava(args, createdJavaObjects)...));
+                return takeOwnershipOfJavaValueAndConvertToNative<NativeReturnType>(
+                    callJavaStaticMethod<JavaReturnType>(cls, methodId, nativeToJava(args, createdJavaObjects)...));
             }
         };
 
@@ -201,12 +152,10 @@ namespace bdn
           public:
             typedef void JavaReturnType;
 
-            template <typename... Arguments>
-            static void call(jclass cls, jmethodID methodId, Arguments... args)
+            template <typename... Arguments> static void call(jclass cls, jmethodID methodId, Arguments... args)
             {
                 std::list<Reference> createdJavaObjects;
-                callJavaStaticMethod<void>(
-                    cls, methodId, nativeToJava(args, createdJavaObjects)...);
+                callJavaStaticMethod<void>(cls, methodId, nativeToJava(args, createdJavaObjects)...);
             }
         };
     }

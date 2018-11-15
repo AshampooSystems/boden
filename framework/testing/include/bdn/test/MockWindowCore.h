@@ -17,10 +17,9 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockWindowCore
-            : public MockViewCore,
-              BDN_IMPLEMENTS IWindowCore,
-              BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+        class MockWindowCore : public MockViewCore,
+                               BDN_IMPLEMENTS IWindowCore,
+                               BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           public:
             MockWindowCore(Window *pWindow) : MockViewCore(pWindow)
@@ -58,15 +57,13 @@ namespace bdn
                 return Rect(100, 100, 800, 800);
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
                 P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                 if (pWindow != nullptr)
-                    return defaultWindowCalcPreferredSizeImpl(
-                        pWindow, availableSpace, getBorder(), getMinimumSize());
+                    return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, getBorder(), getMinimumSize());
                 else
                     return getMinimumSize();
             }
@@ -96,8 +93,7 @@ namespace bdn
                 _layoutCount++;
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<Window> pWindow =
-                        cast<Window>(getOuterViewIfStillAttached());
+                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                     if (pWindow != nullptr)
                         defaultWindowLayoutImpl(pWindow, getContentArea());
                 }
@@ -110,11 +106,9 @@ namespace bdn
                 _autoSizeCount++;
 
                 if (!_overrideAutoSizeFunc || !_overrideAutoSizeFunc()) {
-                    P<Window> pWindow =
-                        cast<Window>(getOuterViewIfStillAttached());
+                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                     if (pWindow != nullptr)
-                        defaultWindowAutoSizeImpl(
-                            pWindow, getScreenWorkArea().getSize());
+                        defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize());
                 }
             }
 
@@ -126,10 +120,7 @@ namespace bdn
                function. If the return value is true then the normal
                implementation is not run.
                 */
-            void setOverrideAutoSizeFunc(const std::function<bool()> func)
-            {
-                _overrideAutoSizeFunc = func;
-            }
+            void setOverrideAutoSizeFunc(const std::function<bool()> func) { _overrideAutoSizeFunc = func; }
 
             /** Returns the number of times that autoSize() was called.*/
             int getAutoSizeCount() const { return _autoSizeCount; }
@@ -141,8 +132,7 @@ namespace bdn
                 _centerCount++;
 
                 if (!_overrideCenterFunc || !_overrideCenterFunc()) {
-                    P<Window> pWindow =
-                        cast<Window>(getOuterViewIfStillAttached());
+                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                     if (pWindow != nullptr)
                         defaultWindowCenterImpl(pWindow, getScreenWorkArea());
                 }
@@ -156,10 +146,7 @@ namespace bdn
                function. If the return value is true then the normal
                implementation is not run.
                 */
-            void setOverrideCenterFunc(const std::function<bool()> func)
-            {
-                _overrideCenterFunc = func;
-            }
+            void setOverrideCenterFunc(const std::function<bool()> func) { _overrideCenterFunc = func; }
 
             /** Returns the number of times that center() was called.*/
             int getCenterCount() const { return _centerCount; }

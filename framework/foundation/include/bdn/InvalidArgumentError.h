@@ -28,8 +28,7 @@ namespace bdn
     \endcode
 */
 #ifdef BDN_GENERATING_DOCS
-    class InvalidArgumentError : public std::invalid_argument,
-                                 public ProgrammingError
+    class InvalidArgumentError : public std::invalid_argument, public ProgrammingError
     {
       public:
         explicit InvalidArgumentError(const std::string &message);

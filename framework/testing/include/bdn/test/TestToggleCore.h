@@ -67,10 +67,7 @@ namespace bdn
                     {
                         _pToggle->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreLabel();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
@@ -82,14 +79,11 @@ namespace bdn
 
                         Size prefSizeBefore = _pToggle->calcPreferredSize();
 
-                        _pToggle->setLabel(labelBefore + labelBefore +
-                                           labelBefore);
+                        _pToggle->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore,
-                                                   labelBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
                         {
-                            Size prefSize =
-                                pThis->_pToggle->calcPreferredSize();
+                            Size prefSize = pThis->_pToggle->calcPreferredSize();
 
                             // width must increase with a bigger label
                             REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -102,11 +96,9 @@ namespace bdn
                             // the preferred size should also be the same again
                             pThis->_pToggle->setLabel(labelBefore);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore,
-                                                       prefSizeBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
                             {
-                                REQUIRE(pThis->_pToggle->calcPreferredSize() ==
-                                        prefSizeBefore);
+                                REQUIRE(pThis->_pToggle->calcPreferredSize() == prefSizeBefore);
                             };
                         };
                     }
@@ -119,20 +111,14 @@ namespace bdn
                     {
                         _pToggle->setOn(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreOn();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
                     }
 
                     SECTION("valueFalse")
                     {
                         _pToggle->setOn(false);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreOn();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
                     }
                 }
             }

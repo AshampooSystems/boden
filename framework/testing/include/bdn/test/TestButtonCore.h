@@ -53,10 +53,7 @@ namespace bdn
                     {
                         _pButton->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreLabel();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
@@ -68,8 +65,7 @@ namespace bdn
 
                         Size prefSizeBefore = _pButton->calcPreferredSize();
 
-                        _pButton->setLabel(labelBefore + labelBefore +
-                                           labelBefore);
+                        _pButton->setLabel(labelBefore + labelBefore + labelBefore);
 
                         Size prefSize = pThis->_pButton->calcPreferredSize();
 
@@ -84,8 +80,7 @@ namespace bdn
                         // preferred size should also be the same again
                         pThis->_pButton->setLabel(labelBefore);
 
-                        REQUIRE(pThis->_pButton->calcPreferredSize() ==
-                                prefSizeBefore);
+                        REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
                     }
                 }
             }

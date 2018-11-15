@@ -87,9 +87,7 @@ namespace bdn
            exception.
 
             */
-        virtual void
-        handleException(const std::exception *pExceptionIfAvailable,
-                        const String &functionName);
+        virtual void handleException(const std::exception *pExceptionIfAvailable, const String &functionName);
 
         Set<P<View>> _layoutSet;
 

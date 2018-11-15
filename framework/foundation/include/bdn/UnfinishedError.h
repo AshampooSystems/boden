@@ -13,8 +13,7 @@ namespace bdn
       public:
         UnfinishedError(const String &message) : std::logic_error(message) {}
 
-        UnfinishedError() : std::logic_error("Operation has not finished yet")
-        {}
+        UnfinishedError() : std::logic_error("Operation has not finished yet") {}
     };
 }
 

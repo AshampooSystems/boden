@@ -37,22 +37,17 @@ namespace bdn
           public:
             typedef NATIVE_TYPE NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getObjectField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getObjectField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setObjectField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setObjectField(context, fieldId,
+                                                 TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -61,22 +56,17 @@ namespace bdn
           public:
             typedef bool NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getBooleanField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getBooleanField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, NativeType value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, NativeType value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setBooleanField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setBooleanField(context, fieldId,
+                                                  TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -85,22 +75,17 @@ namespace bdn
           public:
             typedef int NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getIntField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getIntField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setIntField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setIntField(context, fieldId,
+                                              TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -109,22 +94,17 @@ namespace bdn
           public:
             typedef short NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getShortField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getShortField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setShortField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setShortField(context, fieldId,
+                                                TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -133,22 +113,17 @@ namespace bdn
           public:
             typedef int64_t NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getLongField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getLongField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setLongField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setLongField(context, fieldId,
+                                               TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -157,22 +132,17 @@ namespace bdn
           public:
             typedef char32_t NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getCharField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getCharField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setCharField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setCharField(context, fieldId,
+                                               TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -181,22 +151,17 @@ namespace bdn
           public:
             typedef int8_t NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getByteField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getByteField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setByteField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setByteField(context, fieldId,
+                                               TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -205,22 +170,17 @@ namespace bdn
           public:
             typedef float NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getFloatField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getFloatField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setFloatField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setFloatField(context, fieldId,
+                                                TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
 
@@ -229,22 +189,17 @@ namespace bdn
           public:
             typedef float NativeType;
 
-            static NativeType getValue(typename FieldKind::ContextJType context,
-                                       jfieldID fieldId)
+            static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
             {
-                return TypeConversion<NativeType>::
-                    takeOwnershipOfJavaValueAndConvertToNative(
-                        FieldKind::getDoubleField(context, fieldId));
+                return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(
+                    FieldKind::getDoubleField(context, fieldId));
             }
 
-            static void setValue(typename FieldKind::ContextJType context,
-                                 jfieldID fieldId, const NativeType &value)
+            static void setValue(typename FieldKind::ContextJType context, jfieldID fieldId, const NativeType &value)
             {
                 std::list<Reference> createdJavaObjects;
-                return FieldKind::setDoubleField(
-                    context, fieldId,
-                    TypeConversion<NativeType>::nativeToJava(
-                        value, createdJavaObjects));
+                return FieldKind::setDoubleField(context, fieldId,
+                                                 TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects));
             }
         };
     }

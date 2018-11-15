@@ -70,16 +70,10 @@ namespace bdn
 
         /** Returns the value of a field. If the field is not defined then an
            empty string is returned.*/
-        String getField(const String &fieldName) const
-        {
-            return _fields.get(fieldName);
-        }
+        String getField(const String &fieldName) const { return _fields.get(fieldName); }
 
         /** Returns true if the specified field exists.*/
-        bool hasField(const String &fieldName) const
-        {
-            return _fields.contains(fieldName);
-        }
+        bool hasField(const String &fieldName) const { return _fields.contains(fieldName); }
 
         /** Returns the additional information fields as a name-value string map
            in the form of an ErrorFields object.*/

@@ -29,9 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JButton(const bdn::java::Reference &javaRef)
-                : JTextView(javaRef)
-            {}
+            explicit JButton(const bdn::java::Reference &javaRef) : JTextView(javaRef) {}
 
             JButton() {}
 

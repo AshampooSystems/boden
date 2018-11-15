@@ -35,8 +35,7 @@ namespace bdn
         \tparam PTR a string pointer type (for example char32_*, const char*,
        ...)
         */
-    template <class PTR>
-    PTR getStringEndPtr(PTR p, size_t length = std::string::npos)
+    template <class PTR> PTR getStringEndPtr(PTR p, size_t length = std::string::npos)
     {
         if (length == std::string::npos) {
             while ((*p) != 0)
@@ -99,9 +98,8 @@ namespace bdn
             Iterator(const typename EncodedString::const_iterator &encodedIt,
                      const typename EncodedString::const_iterator &encodedBegin,
                      const typename EncodedString::const_iterator &encodedEnd)
-                : Codec::template DecodingIterator<
-                      typename EncodedString::const_iterator>(
-                      encodedIt, encodedBegin, encodedEnd)
+                : Codec::template DecodingIterator<typename EncodedString::const_iterator>(encodedIt, encodedBegin,
+                                                                                           encodedEnd)
             {}
 
             Iterator() {}
@@ -153,9 +151,7 @@ namespace bdn
         {}
 
         /** Initializes the object from the specified UTF-8 encoded string.*/
-        StringData(const std::string &s)
-            : StringData(Utf8Codec(), s.begin(), s.end())
-        {}
+        StringData(const std::string &s) : StringData(Utf8Codec(), s.begin(), s.end()) {}
 
         /** Initializes the object from the specified UTF-16 encoded string.
 
@@ -169,9 +165,7 @@ namespace bdn
         {}
 
         /** Initializes the object from the specified UTF-16 encoded string.*/
-        StringData(const std::u16string &s)
-            : StringData(Utf16Codec(), s.begin(), s.end())
-        {}
+        StringData(const std::u16string &s) : StringData(Utf16Codec(), s.begin(), s.end()) {}
 
         /** Initializes the object from the specified wchar string.
 
@@ -190,9 +184,7 @@ namespace bdn
            be either UTF-16 or
             UTF-32 encoded (depending on whether wchar_t is	2 bytes long or 4
            bytes long).*/
-        StringData(const std::wstring &s)
-            : StringData(WideCodec(), s.begin(), s.end())
-        {}
+        StringData(const std::wstring &s) : StringData(WideCodec(), s.begin(), s.end()) {}
 
         /** Initializes the object from the specified UTF-32 encoded string.
 
@@ -212,27 +204,21 @@ namespace bdn
            iterators. The iterators must return fully decoded 32 bit Unicode
            characters.*/
         template <class InputDecodedCharIterator>
-        StringData(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt)
+        StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt)
         {
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingBeginIt(beginIt);
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingEndIt(endIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
 
             _encodedString.assign(encodingBeginIt, encodingEndIt);
         }
 
       private:
         template <class InputDecodedCharIterator>
-        StringData(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt, size_t charCount,
+        StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount,
                    const std::input_iterator_tag &tag)
         {
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingBeginIt(beginIt);
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingEndIt(endIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
 
             // we have input iterators. That means that the _encodedString
             // implementation cannot do multiple passes over the data - thus it
@@ -240,8 +226,7 @@ namespace bdn
             // copying the data multiple times we reserve the memory.
 
             if (charCount != (size_t)-1) {
-                size_t maxSize =
-                    charCount * Codec::getMaxEncodedElementsPerCharacter();
+                size_t maxSize = charCount * Codec::getMaxEncodedElementsPerCharacter();
                 _encodedString.reserve(maxSize);
 
                 _encodedString.assign(encodingBeginIt, encodingEndIt);
@@ -254,14 +239,11 @@ namespace bdn
         }
 
         template <class InputDecodedCharIterator>
-        StringData(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt, size_t charCount,
+        StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount,
                    const std::forward_iterator_tag &tag)
         {
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingBeginIt(beginIt);
-            typename Codec::template EncodingIterator<InputDecodedCharIterator>
-                encodingEndIt(endIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+            typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
 
             // the iterators are forward iterators or above. That means that the
             // String implementation can determine the memory requirements
@@ -281,18 +263,15 @@ namespace bdn
 
             */
         template <class InputDecodedCharIterator>
-        StringData(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt, size_t charCount)
+        StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount)
             : StringData(beginIt, endIt, charCount,
-                         typename std::iterator_traits<
-                             InputDecodedCharIterator>::iterator_category())
+                         typename std::iterator_traits<InputDecodedCharIterator>::iterator_category())
         {}
 
         /** Initializes the object with the data between two iterators whose
            data is encoded with the same codec as the StringData object.
         */
-        StringData(const Codec &codec,
-                   typename Codec::EncodedString::iterator inputEncodedBeginIt,
+        StringData(const Codec &codec, typename Codec::EncodedString::iterator inputEncodedBeginIt,
                    typename Codec::EncodedString::iterator inputEncodedEndIt)
         {
             _encodedString.assign(inputEncodedBeginIt, inputEncodedEndIt);
@@ -301,8 +280,7 @@ namespace bdn
         /** Initializes the object with the data between two data pointers whose
            data is encoded with the same codec as the StringData object.
         */
-        StringData(const Codec &codec, typename Codec::EncodedElement *pBegin,
-                   typename Codec::EncodedElement *pEnd)
+        StringData(const Codec &codec, typename Codec::EncodedElement *pBegin, typename Codec::EncodedElement *pEnd)
         {
             _encodedString.assign(pBegin, (pEnd - pBegin));
         }
@@ -316,24 +294,19 @@ namespace bdn
            the data will simply be copied as is.
             */
         template <class InputCodec, class InputEncodedIterator>
-        StringData(const InputCodec &codec,
-                   InputEncodedIterator inputEncodedBeginIt,
+        StringData(const InputCodec &codec, InputEncodedIterator inputEncodedBeginIt,
                    InputEncodedIterator inputEncodedEndIt)
         {
-            typename InputCodec::template DecodingIterator<InputEncodedIterator>
-                inputBeginIt(inputEncodedBeginIt, inputEncodedBeginIt,
-                             inputEncodedEndIt);
-            typename InputCodec::template DecodingIterator<InputEncodedIterator>
-                inputEndIt(inputEncodedEndIt, inputEncodedBeginIt,
-                           inputEncodedEndIt);
+            typename InputCodec::template DecodingIterator<InputEncodedIterator> inputBeginIt(
+                inputEncodedBeginIt, inputEncodedBeginIt, inputEncodedEndIt);
+            typename InputCodec::template DecodingIterator<InputEncodedIterator> inputEndIt(
+                inputEncodedEndIt, inputEncodedBeginIt, inputEncodedEndIt);
 
             typename Codec::template EncodingIterator<
-                typename InputCodec::template DecodingIterator<
-                    InputEncodedIterator>>
+                typename InputCodec::template DecodingIterator<InputEncodedIterator>>
                 encodingBeginIt(inputBeginIt);
             typename Codec::template EncodingIterator<
-                typename InputCodec::template DecodingIterator<
-                    InputEncodedIterator>>
+                typename InputCodec::template DecodingIterator<InputEncodedIterator>>
                 encodingEndIt(inputEndIt);
 
             _encodedString.assign(encodingBeginIt, encodingEndIt);
@@ -341,31 +314,19 @@ namespace bdn
 
         /** Conversion operator that returns a reference to the internal encoded
            data (as a std::basic_string).*/
-        operator const typename Codec::EncodedString &() const
-        {
-            return _encodedString;
-        }
+        operator const typename Codec::EncodedString &() const { return _encodedString; }
 
         /** Returns a reference to the internal encoded data
          * (std::basic_string).*/
-        const typename Codec::EncodedString &getEncodedString() const
-        {
-            return _encodedString;
-        }
+        const typename Codec::EncodedString &getEncodedString() const { return _encodedString; }
 
         /** Returns a reference to the internal encoded data
          * (std::basic_string).*/
-        typename Codec::EncodedString &getEncodedString()
-        {
-            return _encodedString;
-        }
+        typename Codec::EncodedString &getEncodedString() { return _encodedString; }
 
         /** Returns a pointer to a C-style zero terminated string. The string is
            encoded according to the Codec used by this StringData.*/
-        const typename Codec::EncodedElement *asPtr() const
-        {
-            return _encodedString.c_str();
-        }
+        const typename Codec::EncodedElement *asPtr() const { return _encodedString.c_str(); }
 
         /** Returns an iterator that points to the first character of the string
            data.
@@ -375,8 +336,7 @@ namespace bdn
         */
         Iterator begin() const
         {
-            return Iterator(_encodedString.begin(), _encodedString.begin(),
-                            _encodedString.end());
+            return Iterator(_encodedString.begin(), _encodedString.begin(), _encodedString.end());
         }
 
         /** Returns an iterator that points to the position just after the last
@@ -385,11 +345,7 @@ namespace bdn
             The iterator returns fully decoded 32 bit Unicode characters
            (char32_t).
         */
-        Iterator end() const
-        {
-            return Iterator(_encodedString.end(), _encodedString.begin(),
-                            _encodedString.end());
-        }
+        Iterator end() const { return Iterator(_encodedString.end(), _encodedString.begin(), _encodedString.end()); }
 
         /** Copies the encoded data from the specified StringData object into
          * this object.*/

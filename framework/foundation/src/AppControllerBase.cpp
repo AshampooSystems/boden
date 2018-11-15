@@ -10,7 +10,6 @@ namespace bdn
     {
         // log the problem and let the app terminate.
 
-        logError("TERMINATING app because of unhandled problem: " +
-                 problem.toString());
+        logError("TERMINATING app because of unhandled problem: " + problem.toString());
     }
 }

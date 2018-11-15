@@ -7,8 +7,7 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:CGRectMake(0, 0, BDN_IOS_CHECKBOX_WIDTH,
-                                           BDN_IOS_CHECKBOX_HEIGHT)];
+    self = [super initWithFrame:CGRectMake(0, 0, BDN_IOS_CHECKBOX_WIDTH, BDN_IOS_CHECKBOX_HEIGHT)];
     if (self) {
         self.opaque = NO;
     }
@@ -37,20 +36,16 @@
     CGPathMoveToPoint(path, NULL, innerRect.origin.x, outsideTop);
 
     CGPathAddLineToPoint(path, NULL, insideRight, outsideTop);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight,
-                        insideTop, radius);
+    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight, insideTop, radius);
 
     CGPathAddLineToPoint(path, NULL, outsideRight, insideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight,
-                        outsideBottom, radius);
+    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
 
     CGPathAddLineToPoint(path, NULL, innerRect.origin.x, outsideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft,
-                        insideBottom, radius);
+    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
 
     CGPathAddLineToPoint(path, NULL, outsideLeft, insideTop);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x,
-                        outsideTop, radius);
+    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
 
     CGPathCloseSubpath(path);
 
@@ -76,8 +71,7 @@
     CGContextRef context = UIGraphicsGetCurrentContext();
 
     // Draw checkbox body background
-    CGPathRef roundedRectPath =
-        [self roundedRectPathWithRect:outerRect radius:5];
+    CGPathRef roundedRectPath = [self roundedRectPathWithRect:outerRect radius:5];
     CGContextSetFillColorWithColor(context, backgroundColor.CGColor);
     CGContextAddPath(context, roundedRectPath);
     CGContextFillPath(context);
@@ -93,15 +87,12 @@
         CGContextSetLineCap(context, kCGLineCapRound);
         CGContextSetLineWidth(context, strokeWidth);
         CGContextBeginPath(context);
-        CGContextMoveToPoint(context,
-                             outerRect.origin.x + outerRect.size.width * 0.25,
+        CGContextMoveToPoint(context, outerRect.origin.x + outerRect.size.width * 0.25,
                              outerRect.origin.y + outerRect.size.height * 0.6);
-        CGContextAddLineToPoint(
-            context, outerRect.origin.x + outerRect.size.width * 0.4,
-            outerRect.origin.y + outerRect.size.height * 0.75);
-        CGContextAddLineToPoint(
-            context, outerRect.origin.x + outerRect.size.width * 0.75,
-            outerRect.origin.y + outerRect.size.height * 0.25);
+        CGContextAddLineToPoint(context, outerRect.origin.x + outerRect.size.width * 0.4,
+                                outerRect.origin.y + outerRect.size.height * 0.75);
+        CGContextAddLineToPoint(context, outerRect.origin.x + outerRect.size.width * 0.75,
+                                outerRect.origin.y + outerRect.size.height * 0.25);
         CGContextStrokePath(context);
     } else if (self.checkboxState == bdn::TriState::mixed) {
         // Draw dash indicating mixed state
@@ -109,12 +100,10 @@
         CGContextSetLineCap(context, kCGLineCapRound);
         CGContextSetLineWidth(context, strokeWidth);
         CGContextBeginPath(context);
-        CGContextMoveToPoint(context,
-                             outerRect.origin.x + outerRect.size.width * 0.25,
+        CGContextMoveToPoint(context, outerRect.origin.x + outerRect.size.width * 0.25,
                              outerRect.origin.y + outerRect.size.height * 0.5);
-        CGContextAddLineToPoint(
-            context, outerRect.origin.x + outerRect.size.width * 0.75,
-            outerRect.origin.y + outerRect.size.height * 0.5);
+        CGContextAddLineToPoint(context, outerRect.origin.x + outerRect.size.width * 0.75,
+                                outerRect.origin.y + outerRect.size.height * 0.5);
         CGContextStrokePath(context);
     }
 }

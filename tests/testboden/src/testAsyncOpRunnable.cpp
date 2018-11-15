@@ -47,10 +47,8 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
     P<TestAsyncOpData> pTestData = newObj<TestAsyncOpData>();
 
     if (withDoneListeners) {
-        pRunnable->onDone() +=
-            [pTestData](IAsyncOp<String> *pOp) { pTestData->done1CallCount++; };
-        pRunnable->onDone() +=
-            [pTestData](IAsyncOp<String> *pOp) { pTestData->done2CallCount++; };
+        pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) { pTestData->done1CallCount++; };
+        pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) { pTestData->done2CallCount++; };
     }
 
     SECTION("no exception")
@@ -83,10 +81,8 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
 
             CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount ==
-                        (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount ==
-                        (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
 
                 String result = pRunnable->getResult();
 
@@ -138,10 +134,8 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
             // but done listener notification should have been scheduled
             CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount ==
-                        (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount ==
-                        (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
 
                 REQUIRE(pRunnable->isDone());
                 REQUIRE_THROWS_AS(pRunnable->getResult(), AbortedError);
@@ -158,14 +152,11 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
                 // should be done and throw an AbortedError
                 REQUIRE(pRunnable->isDone());
 
-                CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData,
-                                           withDoneListeners)
+                CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
                 {
                     // still same call count
-                    REQUIRE(pTestData->done1CallCount ==
-                            (withDoneListeners ? 1 : 0));
-                    REQUIRE(pTestData->done2CallCount ==
-                            (withDoneListeners ? 1 : 0));
+                    REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
+                    REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
 
                     REQUIRE_THROWS_AS(pRunnable->getResult(), AbortedError);
                 };
@@ -199,10 +190,8 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
 
             CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount ==
-                        (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount ==
-                        (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
             };
         }
     }

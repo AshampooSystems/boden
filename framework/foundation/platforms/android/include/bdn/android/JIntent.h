@@ -19,9 +19,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JIntent(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JIntent(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             static String ACTION_MAIN;
             static String ACTION_VIEW;
@@ -33,8 +31,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<String>(getStaticClass_(), methodId,
-                                       "getAction");
+                return invoke_<String>(getStaticClass_(), methodId, "getAction");
             }
 
             /** Retrieves a map of extended data from the intent. */
@@ -42,8 +39,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JBundle>(getStaticClass_(), methodId,
-                                        "getExtras");
+                return invoke_<JBundle>(getStaticClass_(), methodId, "getExtras");
             }
 
             /** Returns the JClass object for this class.
@@ -62,10 +58,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

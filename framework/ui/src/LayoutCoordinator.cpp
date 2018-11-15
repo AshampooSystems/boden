@@ -108,9 +108,7 @@ namespace bdn
 
                 bool operator<(const ToDo &o) const
                 {
-                    return (level < o.level ||
-                            (level == o.level &&
-                             pView.getPtr() < o.pView.getPtr()));
+                    return (level < o.level || (level == o.level && pView.getPtr() < o.pView.getPtr()));
                 }
 
                 P<View> pView;
@@ -125,8 +123,7 @@ namespace bdn
 
                 Set<P<Window>> toDoSet;
                 while (true) {
-                    toDoSet.insert(_windowAutoSizeSet.begin(),
-                                   _windowAutoSizeSet.end());
+                    toDoSet.insert(_windowAutoSizeSet.begin(), _windowAutoSizeSet.end());
                     _windowAutoSizeSet.clear();
 
                     if (toDoSet.empty()) {
@@ -139,21 +136,18 @@ namespace bdn
 
                     anyWindowsAutoSized = true;
 
-                    P<IWindowCoreExtension> pCore =
-                        tryCast<IWindowCoreExtension>(pWindow->getViewCore());
+                    P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>(pWindow->getViewCore());
                     if (pCore != nullptr) {
                         try {
                             pCore->autoSize();
                         }
                         catch (std::exception &e) {
-                            handleException(&e,
-                                            "LayoutCoordinator::"
-                                            "IWindowCoreExtension::autoSize");
+                            handleException(&e, "LayoutCoordinator::"
+                                                "IWindowCoreExtension::autoSize");
                         }
                         catch (...) {
-                            handleException(nullptr,
-                                            "LayoutCoordinator::"
-                                            "IWindowCoreExtension::autoSize");
+                            handleException(nullptr, "LayoutCoordinator::"
+                                                     "IWindowCoreExtension::autoSize");
                         }
                     }
                 }
@@ -196,8 +190,7 @@ namespace bdn
                                 // level.
                                 ToDo toDo(pView);
 
-                                if (nextToDo.pView == nullptr ||
-                                    toDo < nextToDo)
+                                if (nextToDo.pView == nullptr || toDo < nextToDo)
                                     nextToDo = toDo;
                             }
                         }
@@ -212,9 +205,7 @@ namespace bdn
                         anyLayoutDone = true;
 
                         try {
-                            P<IViewCoreExtension> pCore =
-                                tryCast<IViewCoreExtension>(
-                                    nextToDo.pView->getViewCore());
+                            P<IViewCoreExtension> pCore = tryCast<IViewCoreExtension>(nextToDo.pView->getViewCore());
                             if (pCore != nullptr)
                                 pCore->layout();
                         }
@@ -223,9 +214,8 @@ namespace bdn
                                                 "IViewCoreExtension::layout");
                         }
                         catch (...) {
-                            handleException(nullptr,
-                                            "LayoutCoordinator::"
-                                            "IViewCoreExtension::layout");
+                            handleException(nullptr, "LayoutCoordinator::"
+                                                     "IViewCoreExtension::layout");
                         }
                     }
                 }
@@ -254,8 +244,7 @@ namespace bdn
 
                         Set<P<Window>> toDoSet;
                         while (true) {
-                            toDoSet.insert(_windowCenterSet.begin(),
-                                           _windowCenterSet.end());
+                            toDoSet.insert(_windowCenterSet.begin(), _windowCenterSet.end());
                             _windowCenterSet.clear();
 
                             if (toDoSet.empty()) {
@@ -266,23 +255,18 @@ namespace bdn
                             P<Window> pWindow = *toDoSet.begin();
                             toDoSet.erase(toDoSet.begin());
 
-                            P<IWindowCoreExtension> pCore =
-                                tryCast<IWindowCoreExtension>(
-                                    pWindow->getViewCore());
+                            P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>(pWindow->getViewCore());
                             if (pCore != nullptr) {
                                 try {
                                     pCore->center();
                                 }
                                 catch (std::exception &e) {
-                                    handleException(
-                                        &e, "LayoutCoordinator::"
-                                            "IWindowCoreExtension::center");
+                                    handleException(&e, "LayoutCoordinator::"
+                                                        "IWindowCoreExtension::center");
                                 }
                                 catch (...) {
-                                    handleException(
-                                        nullptr,
-                                        "LayoutCoordinator::"
-                                        "IWindowCoreExtension::center");
+                                    handleException(nullptr, "LayoutCoordinator::"
+                                                             "IWindowCoreExtension::center");
                                 }
                             }
                         }
@@ -298,16 +282,13 @@ namespace bdn
         _inUpdateNow = false;
     }
 
-    void LayoutCoordinator::handleException(
-        const std::exception *pExceptionIfAvailable, const String &functionName)
+    void LayoutCoordinator::handleException(const std::exception *pExceptionIfAvailable, const String &functionName)
     {
         // log and ignore
         if (pExceptionIfAvailable != nullptr)
             logError(*pExceptionIfAvailable,
-                     "Exception in " + functionName +
-                         " during LayoutCoordinator updating. Ignording.");
+                     "Exception in " + functionName + " during LayoutCoordinator updating. Ignording.");
         else
-            logError("Exception pf unknown type in " + functionName +
-                     " during LayoutCoordinator updating. Ignording.");
+            logError("Exception pf unknown type in " + functionName + " during LayoutCoordinator updating. Ignording.");
     }
 }

@@ -75,11 +75,9 @@ namespace bdn
 
         */
     template <class BaseSequence, class FilterFuncType>
-    SequenceFilter<BaseSequence, FilterFuncType>
-    filterSequence(BaseSequence &baseSequence, FilterFuncType filterFunc)
+    SequenceFilter<BaseSequence, FilterFuncType> filterSequence(BaseSequence &baseSequence, FilterFuncType filterFunc)
     {
-        return SequenceFilter<BaseSequence, FilterFuncType>(baseSequence,
-                                                            filterFunc);
+        return SequenceFilter<BaseSequence, FilterFuncType>(baseSequence, filterFunc);
     }
 }
 

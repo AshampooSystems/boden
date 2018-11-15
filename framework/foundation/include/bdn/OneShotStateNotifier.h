@@ -70,24 +70,21 @@ namespace bdn
       public:
         OneShotStateNotifier() {}
 
-        P<INotifierSubscription>
-        subscribe(const std::function<void(ArgTypes...)> &func) override
+        P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) override
         {
             int64_t subId = subscribeInternal(func);
 
             return newObj<Subscription_>(subId);
         }
 
-        INotifierBase<ArgTypes...> &
-        operator+=(const std::function<void(ArgTypes...)> &func) override
+        INotifierBase<ArgTypes...> &operator+=(const std::function<void(ArgTypes...)> &func) override
         {
             subscribeInternal(func);
 
             return *this;
         }
 
-        P<INotifierSubscription>
-        subscribeParamless(const std::function<void()> &func) override
+        P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
         {
             return subscribe(ParamlessFunctionAdapter(func));
         }
@@ -98,9 +95,8 @@ namespace bdn
 
             if (_postNotificationCalled) {
                 // should not happen
-                programmingError(
-                    "OneShotStateNotifier notification was triggered multiple "
-                    "times. It should only be done once.");
+                programmingError("OneShotStateNotifier notification was triggered multiple "
+                                 "times. It should only be done once.");
             }
 
             _postNotificationCalled = true;
@@ -108,16 +104,12 @@ namespace bdn
             // bind the arguments to our static function callFuncWithParams, so
             // that we can call newly added functions when they subscribe
             _subscribedFuncCaller =
-                std::bind(&OneShotStateNotifier::callFuncWithParams,
-                          std::placeholders::_1, args...);
+                std::bind(&OneShotStateNotifier::callFuncWithParams, std::placeholders::_1, args...);
 
             scheduleNotifyCall();
         }
 
-        void unsubscribe(INotifierSubscription *pSub) override
-        {
-            unsubscribeById(cast<Subscription_>(pSub)->subId());
-        }
+        void unsubscribe(INotifierSubscription *pSub) override { unsubscribeById(cast<Subscription_>(pSub)->subId()); }
 
         void unsubscribeAll() override
         {
@@ -130,9 +122,7 @@ namespace bdn
         }
 
       private:
-        static void
-        callFuncWithParams(const std::function<void(ArgTypes...)> &func,
-                           ArgTypes... args)
+        static void callFuncWithParams(const std::function<void(ArgTypes...)> &func, ArgTypes... args)
         {
             func(args...);
         }
@@ -169,8 +159,7 @@ namespace bdn
 
                     // We handle this case here.
 
-                    if (_pNotificationState != nullptr &&
-                        _pNotificationState->nextItemIt == _subMap.end()) {
+                    if (_pNotificationState != nullptr && _pNotificationState->nextItemIt == _subMap.end()) {
                         // set the next item to the newly added one.
                         _pNotificationState->nextItemIt = _subMap.find(subId);
                     }
@@ -194,8 +183,7 @@ namespace bdn
         void scheduleNotifyCall()
         {
             _notificationPending = true;
-            asyncCallFromMainThread(
-                strongMethod(this, &OneShotStateNotifier::doNotify));
+            asyncCallFromMainThread(strongMethod(this, &OneShotStateNotifier::doNotify));
         }
 
         struct Sub_
@@ -220,8 +208,7 @@ namespace bdn
             if (it != _subMap.end()) {
                 // for us there can only be one notification running because we
                 // only do one notification at all.
-                if (_pNotificationState != nullptr &&
-                    _pNotificationState->nextItemIt == it)
+                if (_pNotificationState != nullptr && _pNotificationState->nextItemIt == it)
                     _pNotificationState->nextItemIt++;
 
                 _subMap.erase(it);
@@ -308,10 +295,7 @@ namespace bdn
         class ParamlessFunctionAdapter
         {
           public:
-            ParamlessFunctionAdapter(std::function<void()> func)
-            {
-                _func = func;
-            }
+            ParamlessFunctionAdapter(std::function<void()> func) { _func = func; }
 
             void operator()(ArgTypes... args) { _func(); }
 
@@ -336,8 +320,7 @@ namespace bdn
         bool _postNotificationCalled = false;
         bool _notificationPending = false;
         NotificationState *_pNotificationState = nullptr;
-        std::function<void(const std::function<void(ArgTypes...)> &)>
-            _subscribedFuncCaller;
+        std::function<void(const std::function<void(ArgTypes...)> &)> _subscribedFuncCaller;
     };
 }
 

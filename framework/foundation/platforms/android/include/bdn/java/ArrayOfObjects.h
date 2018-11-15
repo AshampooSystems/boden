@@ -20,8 +20,7 @@ namespace bdn
 
                 JClass &elementClass = ELEMENT_TYPE::getStaticClass_();
 
-                jobjectArray result = pJniEnv->NewObjectArray(
-                    length, (jclass)elementClass.getJObject_(), (jobject)0);
+                jobjectArray result = pJniEnv->NewObjectArray(length, (jclass)elementClass.getJObject_(), (jobject)0);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
@@ -35,12 +34,9 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit ArrayOfObjects(const Reference &objectRef)
-                : JObject(objectRef)
-            {}
+            explicit ArrayOfObjects(const Reference &objectRef) : JObject(objectRef) {}
 
-            explicit ArrayOfObjects(size_t length) : JObject(_makeArray(length))
-            {}
+            explicit ArrayOfObjects(size_t length) : JObject(_makeArray(length)) {}
 
             size_t getLength()
             {
@@ -66,8 +62,7 @@ namespace bdn
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return ELEMENT_TYPE(
-                    Reference::convertAndDestroyOwnedLocal(result));
+                return ELEMENT_TYPE(Reference::convertAndDestroyOwnedLocal(result));
             }
 
             /** Sets the element at the specified index.*/
@@ -77,8 +72,7 @@ namespace bdn
                 JNIEnv *pJniEnv = env.getJniEnv();
 
                 jobjectArray javaRef = (jobjectArray)getJObject_();
-                pJniEnv->SetObjectArrayElement(javaRef, index,
-                                               element.getJObject_());
+                pJniEnv->SetObjectArrayElement(javaRef, index, element.getJObject_());
 
                 env.throwAndClearExceptionFromLastJavaCall();
             }
@@ -94,9 +88,7 @@ namespace bdn
              *  */
             static JClass &getStaticClass_()
             {
-                static JClass cls(
-                    ELEMENT_TYPE::getStaticClass_().getNameInSlashNotation_() +
-                    "[]");
+                static JClass cls(ELEMENT_TYPE::getStaticClass_().getNameInSlashNotation_() + "[]");
 
                 return cls;
             }

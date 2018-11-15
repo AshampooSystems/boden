@@ -107,8 +107,7 @@ namespace bdn
    functionally equivalent but a different type.
     */
 #if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
-    typedef std::codecvt<unsigned short, char, std::mbstate_t>
-        CodecVtChar16Char;
+    typedef std::codecvt<unsigned short, char, std::mbstate_t> CodecVtChar16Char;
 
 #else
     typedef std::codecvt<char16_t, char, std::mbstate_t> CodecVtChar16Char;

@@ -19,19 +19,15 @@ namespace bdn
             }
 
           public:
-            ContainerViewCore(ContainerView *pOuter)
-                : ViewCore(pOuter, _createContainer(pOuter))
-            {}
+            ContainerViewCore(ContainerView *pOuter) : ViewCore(pOuter, _createContainer(pOuter)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> pOuterView =
-                    cast<ContainerView>(getOuterViewIfStillAttached());
+                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(
-                        availableSpace);
+                    return pOuterView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -40,11 +36,9 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> pOuterView =
-                    cast<ContainerView>(getOuterViewIfStillAttached());
+                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr) {
-                    P<ViewLayout> pLayout =
-                        pOuterView->calcContainerLayout(pOuterView->size());
+                    P<ViewLayout> pLayout = pOuterView->calcContainerLayout(pOuterView->size());
                     pLayout->applyTo(pOuterView);
                 }
             }

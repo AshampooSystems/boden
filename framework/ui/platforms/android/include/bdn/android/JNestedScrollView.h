@@ -29,13 +29,9 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNestedScrollView(const bdn::java::Reference &objectRef)
-                : JViewGroup(objectRef)
-            {}
+            explicit JNestedScrollView(const bdn::java::Reference &objectRef) : JViewGroup(objectRef) {}
 
-            JNestedScrollView(JContext context)
-                : JNestedScrollView(newInstance_(context))
-            {}
+            JNestedScrollView(JContext context) : JNestedScrollView(newInstance_(context)) {}
 
             /** Returns the JClass object for this class.
              *
@@ -48,8 +44,7 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "android/support/v4/widget/NestedScrollView");
+                static bdn::java::JClass cls("android/support/v4/widget/NestedScrollView");
 
                 return cls;
             }

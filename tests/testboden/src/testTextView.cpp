@@ -15,12 +15,9 @@ TEST_CASE("TextView")
 
     SECTION("TextView-specific")
     {
-        P<bdn::test::ViewTestPreparer<TextView>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<TextView>>();
-        P<bdn::test::ViewWithTestExtensions<TextView>> pTextView =
-            pPreparer->createView();
-        P<bdn::test::MockTextViewCore> pCore =
-            cast<bdn::test::MockTextViewCore>(pTextView->getViewCore());
+        P<bdn::test::ViewTestPreparer<TextView>> pPreparer = newObj<bdn::test::ViewTestPreparer<TextView>>();
+        P<bdn::test::ViewWithTestExtensions<TextView>> pTextView = pPreparer->createView();
+        P<bdn::test::MockTextViewCore> pCore = cast<bdn::test::MockTextViewCore>(pTextView->getViewCore());
 
         REQUIRE(pCore != nullptr);
 
@@ -33,8 +30,7 @@ TEST_CASE("TextView")
             P<TextView> pNewView = newObj<TextView>();
             pPreparer->getWindow()->setContentView(pNewView);
 
-            P<bdn::test::MockTextViewCore> pNewCore =
-                cast<bdn::test::MockTextViewCore>(pNewView->getViewCore());
+            P<bdn::test::MockTextViewCore> pNewCore = cast<bdn::test::MockTextViewCore>(pNewView->getViewCore());
 
             SECTION("text")
             {
@@ -53,24 +49,18 @@ TEST_CASE("TextView")
                     int initialChangeCount = pCore->getTextChangeCount();
 
                     bdn::test::_testViewOp(
-                        pTextView, pPreparer,
-                        [pTextView, pPreparer]() {
-                            pTextView->setText("hello");
-                        },
+                        pTextView, pPreparer, [pTextView, pPreparer]() { pTextView->setText("hello"); },
                         [pCore, pTextView, pPreparer, initialChangeCount] {
                             REQUIRE(pCore->getText() == "hello");
-                            REQUIRE(pCore->getTextChangeCount() ==
-                                    initialChangeCount + 1);
+                            REQUIRE(pCore->getTextChangeCount() == initialChangeCount + 1);
                         },
-                        bdn::test::ExpectedSideEffect_::
-                                invalidateSizingInfo // should have caused
-                                                     // sizing info to be
-                                                     // invalidated
-                            | bdn::test::ExpectedSideEffect_::
-                                  invalidateParentLayout // should cause a
-                                                         // parent layout update
-                                                         // since sizing info
-                                                         // was invalidated
+                        bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused
+                                                                                     // sizing info to be
+                                                                                     // invalidated
+                            | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a
+                                                                                     // parent layout update
+                                                                                     // since sizing info
+                                                                                     // was invalidated
                     );
                 };
             }

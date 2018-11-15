@@ -6,8 +6,7 @@
 
 using namespace bdn;
 
-void verifyLocaleEncoderWithLocale(const String &inString,
-                                   const std::locale &loc, bool knowIsUtf8,
+void verifyLocaleEncoderWithLocale(const String &inString, const std::locale &loc, bool knowIsUtf8,
                                    bool containsSurrogatePairCharacters)
 {
     std::string expected;
@@ -22,8 +21,7 @@ void verifyLocaleEncoderWithLocale(const String &inString,
     // is simply buggy. So we must adapt our own expected string accordingly. We
     // do that by using wideToLocaleEncoding to generate it (which also uses the
     // codec).
-    if (knowIsUtf8 &&
-        (!containsSurrogatePairCharacters || sizeof(wchar_t) != 2))
+    if (knowIsUtf8 && (!containsSurrogatePairCharacters || sizeof(wchar_t) != 2))
         expected = inString.asUtf8();
     else {
         expected = wideToLocaleEncoding(inString.asWide(), loc);
@@ -60,8 +58,7 @@ void verifyLocaleEncoderWithLocale(const String &inString,
         }
     }
 
-    LocaleEncoder<String::Iterator> encoder(inString.begin(), inString.end(),
-                                            loc);
+    LocaleEncoder<String::Iterator> encoder(inString.begin(), inString.end(), loc);
 
     LocaleEncoder<String::Iterator>::Iterator localeCurr = encoder.begin();
     LocaleEncoder<String::Iterator>::Iterator localeEnd = encoder.end();
@@ -103,31 +100,25 @@ void verifyLocaleEncoderWithLocale(const String &inString,
     REQUIRE(checkEquality(localeCurr, localeEnd, true));
 }
 
-void verifyLocaleEncoder(const String &inString,
-                         bool containsSurrogatePairCharacters)
+void verifyLocaleEncoder(const String &inString, bool containsSurrogatePairCharacters)
 {
     SECTION("classic locale")
-    verifyLocaleEncoderWithLocale(inString, std::locale::classic(), false,
-                                  containsSurrogatePairCharacters);
+    verifyLocaleEncoderWithLocale(inString, std::locale::classic(), false, containsSurrogatePairCharacters);
 
     SECTION("classic utf8 locale")
-    verifyLocaleEncoderWithLocale(inString,
-                                  deriveUtf8Locale(std::locale::classic()),
-                                  true, containsSurrogatePairCharacters);
+    verifyLocaleEncoderWithLocale(inString, deriveUtf8Locale(std::locale::classic()), true,
+                                  containsSurrogatePairCharacters);
 
     SECTION("global locale")
-    verifyLocaleEncoderWithLocale(inString, std::locale(), false,
-                                  containsSurrogatePairCharacters);
+    verifyLocaleEncoderWithLocale(inString, std::locale(), false, containsSurrogatePairCharacters);
 }
 
 TEST_CASE("LocaleEncoder")
 {
     struct LocaleEncoderSubTestData
     {
-        LocaleEncoderSubTestData(String inString, const char *desc,
-                                 bool containsSurrogatePairCharacters = false)
-            : inString(inString), desc(desc),
-              containsSurrogatePairCharacters(containsSurrogatePairCharacters)
+        LocaleEncoderSubTestData(String inString, const char *desc, bool containsSurrogatePairCharacters = false)
+            : inString(inString), desc(desc), containsSurrogatePairCharacters(containsSurrogatePairCharacters)
         {}
 
         String inString;
@@ -135,20 +126,19 @@ TEST_CASE("LocaleEncoder")
         bool containsSurrogatePairCharacters;
     };
 
-    LocaleEncoderSubTestData allData[] = {
-        {L"", "empty"},
-        // note that gcc has a bug. \u0000 is represented as 1, not 0.
-        // Use \0 instead.
-        {String(L"\0", 1), "zero char"},
-        {String(L"he\0llo", 6), "zero char in middle"},
-        {L"h", "ascii char"},
-        {L"hx", "ascii 2 chars"},
-        {L"\u0345", "non-ascii below surrogate range"},
-        {L"\U00010437", "surrogate range A", true},
-        {L"\U00024B62", "surrogate range B", true},
-        {L"\uE000", "above surrogate range A"},
-        {L"\uF123", "above surrogate range B"},
-        {L"\uFFFF", "above surrogate range C"}};
+    LocaleEncoderSubTestData allData[] = {{L"", "empty"},
+                                          // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                          // Use \0 instead.
+                                          {String(L"\0", 1), "zero char"},
+                                          {String(L"he\0llo", 6), "zero char in middle"},
+                                          {L"h", "ascii char"},
+                                          {L"hx", "ascii 2 chars"},
+                                          {L"\u0345", "non-ascii below surrogate range"},
+                                          {L"\U00010437", "surrogate range A", true},
+                                          {L"\U00024B62", "surrogate range B", true},
+                                          {L"\uE000", "above surrogate range A"},
+                                          {L"\uF123", "above surrogate range B"},
+                                          {L"\uFFFF", "above surrogate range C"}};
 
     int dataCount = std::extent<decltype(allData)>().value;
 
@@ -157,14 +147,12 @@ TEST_CASE("LocaleEncoder")
 
         SECTION(pCurrData->desc)
         {
-            verifyLocaleEncoder(pCurrData->inString,
-                                pCurrData->containsSurrogatePairCharacters);
+            verifyLocaleEncoder(pCurrData->inString, pCurrData->containsSurrogatePairCharacters);
         }
 
         SECTION(std::string(pCurrData->desc) + " mixed")
         {
-            verifyLocaleEncoder(L"hello" + pCurrData->inString + L"wo" +
-                                    pCurrData->inString + pCurrData->inString +
+            verifyLocaleEncoder(L"hello" + pCurrData->inString + L"wo" + pCurrData->inString + pCurrData->inString +
                                     L"rld",
                                 pCurrData->containsSurrogatePairCharacters);
         }

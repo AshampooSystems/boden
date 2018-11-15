@@ -15,12 +15,9 @@ TEST_CASE("TextField")
 
     SECTION("TextField-specific")
     {
-        P<bdn::test::ViewTestPreparer<TextField>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<TextField>>();
-        P<bdn::test::ViewWithTestExtensions<TextField>> pTextField =
-            pPreparer->createView();
-        P<bdn::test::MockTextFieldCore> pCore =
-            cast<bdn::test::MockTextFieldCore>(pTextField->getViewCore());
+        P<bdn::test::ViewTestPreparer<TextField>> pPreparer = newObj<bdn::test::ViewTestPreparer<TextField>>();
+        P<bdn::test::ViewWithTestExtensions<TextField>> pTextField = pPreparer->createView();
+        P<bdn::test::MockTextFieldCore> pCore = cast<bdn::test::MockTextFieldCore>(pTextField->getViewCore());
 
         REQUIRE(pCore != nullptr);
 
@@ -38,22 +35,19 @@ TEST_CASE("TextField")
         {
             SECTION("text")
             {
-                bdn::test::_testViewOp(
-                    pTextField, pPreparer,
-                    [pTextField]() { pTextField->setText("hello"); },
-                    [pCore, pTextField] {
-                        REQUIRE(pCore->getText() == "hello");
-                        REQUIRE(pCore->getTextChangeCount() == 1);
-                    },
-                    0);
+                bdn::test::_testViewOp(pTextField, pPreparer, [pTextField]() { pTextField->setText("hello"); },
+                                       [pCore, pTextField] {
+                                           REQUIRE(pCore->getText() == "hello");
+                                           REQUIRE(pCore->getTextChangeCount() == 1);
+                                       },
+                                       0);
             }
         }
 
         SECTION("submit")
         {
             bool submitted = false;
-            pTextField->onSubmit().subscribeParamless(
-                [&submitted]() { submitted = true; });
+            pTextField->onSubmit().subscribeParamless([&submitted]() { submitted = true; });
 
             pTextField->submit();
 

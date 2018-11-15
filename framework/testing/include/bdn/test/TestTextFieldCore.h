@@ -52,10 +52,7 @@ namespace bdn
                     {
                         _pTextField->setText("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreText();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreText(); };
                     }
 
                     // Text should not affect preferred size
@@ -68,8 +65,7 @@ namespace bdn
 
                         Size prefSizeBefore = _pTextField->calcPreferredSize();
 
-                        _pTextField->setText(textBefore + textBefore +
-                                             textBefore);
+                        _pTextField->setText(textBefore + textBefore + textBefore);
 
                         Size prefSizeAfter = _pTextField->calcPreferredSize();
 

@@ -19,16 +19,12 @@ namespace bdn
 
         DummyUtf8TestIterator_ &operator++() { return *this; }
 
-        DummyUtf8TestIterator_ operator++(int)
-        {
-            return DummyUtf8TestIterator_();
-        }
+        DummyUtf8TestIterator_ operator++(int) { return DummyUtf8TestIterator_(); }
 
         reference operator*() const { return *(VALUE *)nullptr; }
     };
 
-    static void testUtf8CodecDecodeChar(const std::string &utf8,
-                                        const std::u32string &expectedDecoded)
+    static void testUtf8CodecDecodeChar(const std::string &utf8, const std::u32string &expectedDecoded)
     {
         std::u32string decoded;
 
@@ -61,27 +57,21 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf8Codec::DecodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       uint8_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<uint8_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf8Codec::DecodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       char, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<char, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
                 SECTION("inner bidir")
                 {
                     REQUIRE(typeid(typename Utf8Codec::DecodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       char, std::bidirectional_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<char, std::bidirectional_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
@@ -90,16 +80,13 @@ namespace bdn
                     // the result should still be bidir, since we do not support
                     // random access for utf-16
                     REQUIRE(typeid(typename Utf8Codec::DecodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       char, std::random_access_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<char, std::random_access_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf8Codec::DecodingIterator<
-                                   char *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf8Codec::DecodingIterator<char *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -109,18 +96,14 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf8Codec::EncodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       char32_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<char32_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf8Codec::EncodingIterator<
-                                   DummyUtf8TestIterator_<
-                                       char32_t, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf8TestIterator_<char32_t, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
@@ -128,9 +111,7 @@ namespace bdn
                 {
                     REQUIRE(
                         typeid(typename Utf8Codec::EncodingIterator<
-                               DummyUtf8TestIterator_<
-                                   char32_t, std::bidirectional_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyUtf8TestIterator_<char32_t, std::bidirectional_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
@@ -140,16 +121,13 @@ namespace bdn
                     // random access for utf-16
                     REQUIRE(
                         typeid(typename Utf8Codec::EncodingIterator<
-                               DummyUtf8TestIterator_<
-                                   char32_t, std::random_access_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyUtf8TestIterator_<char32_t, std::random_access_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf8Codec::EncodingIterator<
-                                   char32_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf8Codec::EncodingIterator<char32_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -181,33 +159,23 @@ namespace bdn
 
                 {"\xc2", U"\ufffd", "byte missing in 2 byte sequence"},
                 {"\xe2", U"\ufffd", "two bytes missing in 3 byte sequence"},
-                {"\xe2\x82", U"\ufffd\ufffd",
-                 "byte missing in 3 byte sequence"},
+                {"\xe2\x82", U"\ufffd\ufffd", "byte missing in 3 byte sequence"},
                 {"\x82\xa2", U"\ufffd\ufffd", "only top bit set in start byte"},
-                {"\xfe\xa2\xa2\xa2\xa2\xa2\xa2",
-                 U"\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+                {"\xfe\xa2\xa2\xa2\xa2\xa2\xa2", U"\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
                  "top 7 bits set in start byte"},
-                {"\xff\xa2\xa2\xa2\xa2\xa2\xa2\xa2",
-                 U"\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+                {"\xff\xa2\xa2\xa2\xa2\xa2\xa2\xa2", U"\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
                  "all bits set in start byte"},
-                {"\xc2hello", U"\ufffdhello",
-                 "byte missing at start of string"},
+                {"\xc2hello", U"\ufffdhello", "byte missing at start of string"},
                 {"hello\xc2", U"hello\ufffd", "byte missing at end of string"},
-                {"hell\xc2o", U"hell\ufffdo",
-                 "byte missing in middle of string"},
+                {"hell\xc2o", U"hell\ufffdo", "byte missing in middle of string"},
 
                 {"\xE0\xA4\x92", U"\u0912", "valid 3 byte sequence"},
-                {"\xE0\xA4\x12", U"\ufffd\ufffd\u0012",
-                 "last byte ascii in 3 byte sequence"},
-                {"\xE0\xA4\xd2", U"\ufffd\ufffd\ufffd",
-                 "last byte two top bits set in 3 byte sequence"},
-                {"\xE0\x24\x92", U"\ufffd\u0024\ufffd",
-                 "middle byte ascii in 3 byte sequence"},
-                {"\xE0\xe4\x92", U"\ufffd\ufffd\ufffd",
-                 "middle byte two top bits set in 3 byte sequence"},
+                {"\xE0\xA4\x12", U"\ufffd\ufffd\u0012", "last byte ascii in 3 byte sequence"},
+                {"\xE0\xA4\xd2", U"\ufffd\ufffd\ufffd", "last byte two top bits set in 3 byte sequence"},
+                {"\xE0\x24\x92", U"\ufffd\u0024\ufffd", "middle byte ascii in 3 byte sequence"},
+                {"\xE0\xe4\x92", U"\ufffd\ufffd\ufffd", "middle byte two top bits set in 3 byte sequence"},
 
-                {"\xc2\xe0\xa0\x90\xc2", U"\ufffd\u0810\ufffd",
-                 "valid sequence sandwiched between bad sequences"},
+                {"\xc2\xe0\xa0\x90\xc2", U"\ufffd\u0810\ufffd", "valid sequence sandwiched between bad sequences"},
             };
 
             int dataCount = std::extent<decltype(allData)>().value;
@@ -224,8 +192,7 @@ namespace bdn
                     testUtf8CodecDecodeChar(encoded, expectedDecoded);
 
                     SECTION("iterator")
-                    testCodecDecodingIterator<Utf8Codec>(encoded,
-                                                         expectedDecoded);
+                    testCodecDecodingIterator<Utf8Codec>(encoded, expectedDecoded);
                 }
             }
 

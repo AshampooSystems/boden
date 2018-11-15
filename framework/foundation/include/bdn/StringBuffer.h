@@ -61,8 +61,7 @@ namespace bdn
     class StringBuffer : public Base, public TextOutStream
     {
       private:
-        class StreamBuffer
-            : public std::basic_streambuf<char32_t, UnicodeCharTraits>
+        class StreamBuffer : public std::basic_streambuf<char32_t, UnicodeCharTraits>
         {
           public:
             StreamBuffer() : _totalCharsInFinishedChunks(0)
@@ -88,19 +87,16 @@ namespace bdn
 
                 // the end iterator of a list may get invalidated when it is
                 // swapped. So we need to manually transfer those.
-                bool otherWriteChunkItAtEnd =
-                    (other._writeChunkIt == other._chunkList.end());
+                bool otherWriteChunkItAtEnd = (other._writeChunkIt == other._chunkList.end());
                 bool writeChunkItAtEnd = (_writeChunkIt == _chunkList.end());
-                bool otherReadChunkItAtEnd =
-                    (other._readChunkIt == other._chunkList.end());
+                bool otherReadChunkItAtEnd = (other._readChunkIt == other._chunkList.end());
                 bool readChunkItAtEnd = (_readChunkIt == _chunkList.end());
 
                 std::swap(_chunkList, other._chunkList);
                 std::swap(_writeChunkIt, other._writeChunkIt);
                 std::swap(_writeChunkStartPos, other._writeChunkStartPos);
 
-                std::swap(_totalCharsInFinishedChunks,
-                          other._totalCharsInFinishedChunks);
+                std::swap(_totalCharsInFinishedChunks, other._totalCharsInFinishedChunks);
 
                 std::swap(_readChunkIt, other._readChunkIt);
                 std::swap(_readChunkStartPos, other._readChunkStartPos);
@@ -139,14 +135,9 @@ namespace bdn
               public:
                 Chunk() : _pData(nullptr), _capacity(0), _used(0) {}
 
-                Chunk(size_t capacity) : _capacity(capacity), _used(0)
-                {
-                    _pData = new char32_t[capacity];
-                }
+                Chunk(size_t capacity) : _capacity(capacity), _used(0) { _pData = new char32_t[capacity]; }
 
-                Chunk(Chunk &&other)
-                    : _pData(other._pData), _capacity(other._capacity),
-                      _used(other._used)
+                Chunk(Chunk &&other) : _pData(other._pData), _capacity(other._capacity), _used(other._used)
                 {
                     other._pData = nullptr;
                     other._capacity = 0;
@@ -176,8 +167,7 @@ namespace bdn
             };
 
           public:
-            template <typename CHAR32_TYPE, typename CHUNK_IT_TYPE>
-            class IteratorImpl_
+            template <typename CHAR32_TYPE, typename CHUNK_IT_TYPE> class IteratorImpl_
             {
               public:
                 using iterator_category = std::bidirectional_iterator_tag;
@@ -193,33 +183,20 @@ namespace bdn
                     : _chunkIt(chunkIt), _indexInChunk(indexInChunk)
                 {}
 
-                CHAR32_TYPE &operator*()
-                {
-                    return _chunkIt->data()[_indexInChunk];
-                }
+                CHAR32_TYPE &operator*() { return _chunkIt->data()[_indexInChunk]; }
 
-                const char32_t &operator*() const
-                {
-                    return _chunkIt->data()[_indexInChunk];
-                }
+                const char32_t &operator*() const { return _chunkIt->data()[_indexInChunk]; }
 
                 // accept other iterator types so that const and non-const
                 // iterators can be compared with each other
-                template <typename OTHER_CHAR32_TYPE,
-                          typename OTHER_CHUNK_IT_TYPE>
-                bool operator==(
-                    const IteratorImpl_<OTHER_CHAR32_TYPE, OTHER_CHUNK_IT_TYPE>
-                        &other) const
+                template <typename OTHER_CHAR32_TYPE, typename OTHER_CHUNK_IT_TYPE>
+                bool operator==(const IteratorImpl_<OTHER_CHAR32_TYPE, OTHER_CHUNK_IT_TYPE> &other) const
                 {
-                    return (_chunkIt == other._chunkIt &&
-                            _indexInChunk == other._indexInChunk);
+                    return (_chunkIt == other._chunkIt && _indexInChunk == other._indexInChunk);
                 }
 
-                template <typename OTHER_CHAR32_TYPE,
-                          typename OTHER_CHUNK_IT_TYPE>
-                bool operator!=(
-                    const IteratorImpl_<OTHER_CHAR32_TYPE, OTHER_CHUNK_IT_TYPE>
-                        &other) const
+                template <typename OTHER_CHAR32_TYPE, typename OTHER_CHUNK_IT_TYPE>
+                bool operator!=(const IteratorImpl_<OTHER_CHAR32_TYPE, OTHER_CHUNK_IT_TYPE> &other) const
                 {
                     return !operator==(other);
                 }
@@ -272,11 +249,8 @@ namespace bdn
                 size_t _indexInChunk;
             };
 
-            using Iterator =
-                IteratorImpl_<char32_t, typename List<Chunk>::Iterator>;
-            using ConstIterator =
-                IteratorImpl_<const char32_t,
-                              typename List<Chunk>::ConstIterator>;
+            using Iterator = IteratorImpl_<char32_t, typename List<Chunk>::Iterator>;
+            using ConstIterator = IteratorImpl_<const char32_t, typename List<Chunk>::ConstIterator>;
 
             Iterator begin()
             {
@@ -375,24 +349,19 @@ namespace bdn
 
                 char32_t *pChunkData = pChunk->data();
 
-                setg(pChunkData, pChunkData + chunkAlreadyRead,
-                     pChunkData + pChunk->used());
+                setg(pChunkData, pChunkData + chunkAlreadyRead, pChunkData + pChunk->used());
 
                 return traits_type::to_int_type(pChunkData[chunkAlreadyRead]);
             }
 
-            pos_type seekpos(pos_type pos,
-                             ios_base::openmode which = ios_base::in |
-                                                        ios_base::out) override
+            pos_type seekpos(pos_type pos, ios_base::openmode which = ios_base::in | ios_base::out) override
             {
                 return seekoff(pos, ios_base::beg, which);
             }
 
           private:
-            bool _moveToPosition(List<Chunk>::Iterator &chunkIt,
-                                 size_t &posInChunk,
-                                 std::streamoff &chunkStartPos, off_type offset,
-                                 std::ios_base::seekdir anchor)
+            bool _moveToPosition(List<Chunk>::Iterator &chunkIt, size_t &posInChunk, std::streamoff &chunkStartPos,
+                                 off_type offset, std::ios_base::seekdir anchor)
             {
                 if (anchor == ios_base::end) {
                     chunkIt = _chunkList.end();
@@ -459,16 +428,13 @@ namespace bdn
             }
 
           protected:
-            pos_type
-            seekoff(off_type off, std::ios_base::seekdir anchor,
-                    std::ios_base::openmode which = ios_base::in |
-                                                    ios_base::out) override
+            pos_type seekoff(off_type off, std::ios_base::seekdir anchor,
+                             std::ios_base::openmode which = ios_base::in | ios_base::out) override
             {
                 syncChunkUsed();
 
                 if (anchor == ios_base::cur &&
-                    ((which & (ios_base::in | ios_base::out)) ==
-                     (ios_base::in | ios_base::out))) {
+                    ((which & (ios_base::in | ios_base::out)) == (ios_base::in | ios_base::out))) {
                     // if both positions are modified at the same time then cur
                     // cannot be used, since the return value is not defined. We
                     // fail here, just like the normal std::basic_stringbuf.
@@ -496,24 +462,21 @@ namespace bdn
                     } else
                         posInChunk = gptr() - eback();
 
-                    if (_moveToPosition(_readChunkIt, posInChunk,
-                                        _readChunkStartPos, off, anchor))
+                    if (_moveToPosition(_readChunkIt, posInChunk, _readChunkStartPos, off, anchor))
                         result = _readChunkStartPos + posInChunk;
 
                     if (_readChunkIt == _chunkList.end())
                         setg(nullptr, nullptr, nullptr);
                     else {
                         Chunk &chunk = *_readChunkIt;
-                        setg(chunk.data(), chunk.data() + posInChunk,
-                             chunk.data() + chunk.used());
+                        setg(chunk.data(), chunk.data() + posInChunk, chunk.data() + chunk.used());
                     }
                 }
 
                 if ((which & ios_base::out) == ios_base::out) {
                     size_t posInChunk = getPosInChunk();
 
-                    if (_moveToPosition(_writeChunkIt, posInChunk,
-                                        _writeChunkStartPos, off, anchor))
+                    if (_moveToPosition(_writeChunkIt, posInChunk, _writeChunkStartPos, off, anchor))
                         result = _writeChunkStartPos + posInChunk;
 
                     Chunk &chunk = *_writeChunkIt;
@@ -547,9 +510,7 @@ namespace bdn
                         if (_readChunkIt == _writeChunkIt) {
                             // update the end of the read buffer, since the
                             // amount of valid data in this chunk has changed.
-                            const_cast<StreamBuffer *>(this)->setg(
-                                chunk.data(), gptr(),
-                                chunk.data() + chunk.used());
+                            const_cast<StreamBuffer *>(this)->setg(chunk.data(), gptr(), chunk.data() + chunk.used());
                         }
                     }
                 }

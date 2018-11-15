@@ -6,9 +6,7 @@
 
 using namespace bdn;
 
-void verifyLocaleDecoderWithLocale(const std::wstring &wide,
-                                   const std::locale &loc,
-                                   bool knowSupportsUnicode)
+void verifyLocaleDecoderWithLocale(const std::wstring &wide, const std::locale &loc, bool knowSupportsUnicode)
 {
     std::string localeEncoded = wideToLocaleEncoding(wide, loc);
 
@@ -20,10 +18,8 @@ void verifyLocaleDecoderWithLocale(const std::wstring &wide,
     LocaleDecoder::Iterator lastItCopy = localeCurr;
     REQUIRE(lastItCopy == localeCurr);
 
-    WideCodec::DecodingIterator<std::wstring::const_iterator> expectedIt(
-        wide.begin(), wide.begin(), wide.end());
-    WideCodec::DecodingIterator<std::wstring::const_iterator> expectedEnd(
-        wide.end(), wide.begin(), wide.end());
+    WideCodec::DecodingIterator<std::wstring::const_iterator> expectedIt(wide.begin(), wide.begin(), wide.end());
+    WideCodec::DecodingIterator<std::wstring::const_iterator> expectedEnd(wide.end(), wide.begin(), wide.end());
 
     while (expectedIt != expectedEnd) {
         lastItCopy = localeCurr;
@@ -41,8 +37,7 @@ void verifyLocaleDecoderWithLocale(const std::wstring &wide,
         if (knowSupportsUnicode || expectedChr <= 128)
             REQUIRE(actualChr == expectedChr);
         else
-            REQUIRE((actualChr == expectedChr || actualChr == 0xfffd ||
-                     actualChr == '?'));
+            REQUIRE((actualChr == expectedChr || actualChr == 0xfffd || actualChr == '?'));
 
         ++localeCurr;
 
@@ -79,8 +74,7 @@ void verifyLocaleDecoder(const std::wstring &wide)
     verifyLocaleDecoderWithLocale(wide, std::locale::classic(), false);
 
     SECTION("classic utf8 locale")
-    verifyLocaleDecoderWithLocale(
-        wide, deriveUtf8Locale(std::locale::classic()), true);
+    verifyLocaleDecoderWithLocale(wide, deriveUtf8Locale(std::locale::classic()), true);
 
     SECTION("global locale")
     verifyLocaleDecoderWithLocale(wide, deriveUtf8Locale(std::locale()), false);
@@ -95,20 +89,19 @@ TEST_CASE("LocaleDecoder")
         const char *desc;
     };
 
-    LocaleDecoderSubTestData allData[] = {
-        {L"", "empty"},
-        // note that gcc has a bug. \u0000 is represented as 1, not 0.
-        // Use \0 instead.
-        {std::wstring(L"\0", 1), "zero char"},
-        {std::wstring(L"he\0llo", 6), "zero char in middle"},
-        {L"h", "ascii char"},
-        {L"hx", "ascii 2 chars"},
-        {L"\u0345", "non-ascii below surrogate range"},
-        {L"\U00010437", "surrogate range A"},
-        {L"\U00024B62", "surrogate range B"},
-        {L"\uE000", "above surrogate range A"},
-        {L"\uF123", "above surrogate range B"},
-        {L"\uFFFF", "above surrogate range C"}};
+    LocaleDecoderSubTestData allData[] = {{L"", "empty"},
+                                          // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                          // Use \0 instead.
+                                          {std::wstring(L"\0", 1), "zero char"},
+                                          {std::wstring(L"he\0llo", 6), "zero char in middle"},
+                                          {L"h", "ascii char"},
+                                          {L"hx", "ascii 2 chars"},
+                                          {L"\u0345", "non-ascii below surrogate range"},
+                                          {L"\U00010437", "surrogate range A"},
+                                          {L"\U00024B62", "surrogate range B"},
+                                          {L"\uE000", "above surrogate range A"},
+                                          {L"\uF123", "above surrogate range B"},
+                                          {L"\uFFFF", "above surrogate range C"}};
 
     int dataCount = std::extent<decltype(allData)>().value;
 
@@ -119,8 +112,7 @@ TEST_CASE("LocaleDecoder")
 
         SECTION(std::string(pCurrData->desc) + " mixed")
         {
-            verifyLocaleDecoder(L"hello" + std::wstring(pCurrData->wide) +
-                                L"wo" + std::wstring(pCurrData->wide) +
+            verifyLocaleDecoder(L"hello" + std::wstring(pCurrData->wide) + L"wo" + std::wstring(pCurrData->wide) +
                                 std::wstring(pCurrData->wide) + L"rld");
         }
     }

@@ -10,10 +10,9 @@
 
 using namespace bdn;
 
-void testSizingWithContentView(
-    P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView,
-    P<IBase> pKeepAliveInContinuations,
-    P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView,
+                               P<IBase> pKeepAliveInContinuations, P<bdn::test::MockUiProvider> pUiProvider,
+                               std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
     P<Button> pButton = newObj<Button>();
@@ -28,8 +27,7 @@ void testSizingWithContentView(
 
     SECTION("semMargin")
     {
-        pButton->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2),
-                                    UiLength::sem(3), UiLength::sem(4)));
+        pButton->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -44,21 +42,18 @@ void testSizingWithContentView(
 
     pScrollView->setContentView(pButton);
 
-    P<bdn::test::MockButtonCore> pButtonCore =
-        cast<bdn::test::MockButtonCore>(pButton->getViewCore());
+    P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>(pButton->getViewCore());
 
     // Sanity check. Verify the fake button size. 9.75 , 19.60 per character,
     // rounded up to 1/3 pixel size, plus 10x8 for border
     Size buttonSize(std::ceil(10 * 9.75 * 3) / 3 + 10, 19 + 2.0 / 3 + 8);
-    REQUIRE_ALMOST_EQUAL(pButtonCore->calcPreferredSize(), buttonSize,
-                         Size(0.0000001, 0.0000001));
+    REQUIRE_ALMOST_EQUAL(pButtonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001));
 
     Size expectedSize = buttonSize + buttonMargin;
 
     // the sizing info will update asynchronously. So we need to do the
     // check async as well.
-    CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize,
-                               pKeepAliveInContinuations)
+    CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, pKeepAliveInContinuations)
     {
         Size size = getSizeFunc();
 
@@ -73,14 +68,11 @@ TEST_CASE("ScrollView", "[ui]")
 
     SECTION("ScrollView-specific")
     {
-        P<bdn::test::ViewTestPreparer<ScrollView>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<ScrollView>>();
+        P<bdn::test::ViewTestPreparer<ScrollView>> pPreparer = newObj<bdn::test::ViewTestPreparer<ScrollView>>();
 
-        P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView =
-            pPreparer->createView();
+        P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView = pPreparer->createView();
 
-        P<bdn::test::MockScrollViewCore> pCore =
-            cast<bdn::test::MockScrollViewCore>(pScrollView->getViewCore());
+        P<bdn::test::MockScrollViewCore> pCore = cast<bdn::test::MockScrollViewCore>(pScrollView->getViewCore());
         REQUIRE(pCore != nullptr);
 
         // continue testing after the async init has finished
@@ -89,26 +81,17 @@ TEST_CASE("ScrollView", "[ui]")
             // in View. So we only have to test the Window-specific things here.
             SECTION("constructWindowSpecific"){}
 
-            SECTION("changeWindowProperty"){SECTION("contentView"){
-                SECTION("!=null"){P<Button> pButton = newObj<Button>();
+            SECTION("changeWindowProperty"){
+                SECTION("contentView"){SECTION("!=null"){P<Button> pButton = newObj<Button>();
         bdn::test::_testViewOp(
-            pScrollView, pPreparer,
-            [pScrollView, pButton, pPreparer]() {
-                pScrollView->setContentView(pButton);
-            },
-            [pScrollView, pButton, pPreparer] {
-                REQUIRE(pScrollView->getContentView() == cast<View>(pButton));
-            },
-            bdn::test::ExpectedSideEffect_::
-                    invalidateSizingInfo // should have caused sizing info to be
-                                         // invalidated
-                | bdn::test::ExpectedSideEffect_::
-                      invalidateParentLayout // should cause a parent layout
-                                             // update since sizing info was
-                                             // invalidated
-                |
-                bdn::test::ExpectedSideEffect_::
-                    invalidateLayout // should have caused a layout invalidation
+            pScrollView, pPreparer, [pScrollView, pButton, pPreparer]() { pScrollView->setContentView(pButton); },
+            [pScrollView, pButton, pPreparer] { REQUIRE(pScrollView->getContentView() == cast<View>(pButton)); },
+            bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing info to be
+                                                                         // invalidated
+                | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout
+                                                                         // update since sizing info was
+                                                                         // invalidated
+                | bdn::test::ExpectedSideEffect_::invalidateLayout       // should have caused a layout invalidation
         );
     }
 
@@ -120,14 +103,10 @@ TEST_CASE("ScrollView", "[ui]")
         // basically we only test here that there is no crash when the content
         // view is set to null and that it does not result in a sizing info
         // update.
-        bdn::test::_testViewOp(
-            pScrollView, pPreparer,
-            [pScrollView]() { pScrollView->setContentView(nullptr); },
-            [pScrollView] {
-                REQUIRE(pScrollView->getContentView() == nullptr);
-            },
-            0 // should not have caused a sizing info update (since there was no
-              // change) should not have caused parent layout update
+        bdn::test::_testViewOp(pScrollView, pPreparer, [pScrollView]() { pScrollView->setContentView(nullptr); },
+                               [pScrollView] { REQUIRE(pScrollView->getContentView() == nullptr); },
+                               0 // should not have caused a sizing info update (since there was no
+                                 // change) should not have caused parent layout update
         );
     }
 
@@ -140,21 +119,14 @@ TEST_CASE("ScrollView", "[ui]")
         // view is set to null and that it does not result in a sizing info
         // update.
         bdn::test::_testViewOp(
-            pScrollView, pPreparer,
-            [pScrollView]() { pScrollView->setContentView(nullptr); },
-            [pScrollView]() {
-                REQUIRE(pScrollView->getContentView() == nullptr);
-            },
-            bdn::test::ExpectedSideEffect_::
-                    invalidateSizingInfo // should have caused sizing info to be
-                                         // invalidated
-                | bdn::test::ExpectedSideEffect_::
-                      invalidateParentLayout // should cause a parent layout
-                                             // update since sizing info was
-                                             // invalidated
-                |
-                bdn::test::ExpectedSideEffect_::
-                    invalidateLayout // should have caused a layout invalidation
+            pScrollView, pPreparer, [pScrollView]() { pScrollView->setContentView(nullptr); },
+            [pScrollView]() { REQUIRE(pScrollView->getContentView() == nullptr); },
+            bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing info to be
+                                                                         // invalidated
+                | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout
+                                                                         // update since sizing info was
+                                                                         // invalidated
+                | bdn::test::ExpectedSideEffect_::invalidateLayout       // should have caused a layout invalidation
         );
     }
 }
@@ -176,8 +148,7 @@ SECTION("contentViewParent")
         {
             bdn::test::ViewTestPreparer<ScrollView> preparer2;
 
-            P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView2 =
-                preparer2.createView();
+            P<bdn::test::ViewWithTestExtensions<ScrollView>> pScrollView2 = preparer2.createView();
 
             pScrollView2->setContentView(pChild);
         }
@@ -188,8 +159,7 @@ SECTION("contentViewParent")
         // destroyed, we do the remaining test asynchronously after all pending
         // operations are done.
 
-        CONTINUE_SECTION_WHEN_IDLE_WITH(
-            [pChild]() { BDN_REQUIRE(pChild->getParentView() == nullptr); });
+        CONTINUE_SECTION_WHEN_IDLE_WITH([pChild]() { BDN_REQUIRE(pChild->getParentView() == nullptr); });
     }
 }
 
@@ -204,9 +174,8 @@ SECTION("sizing")
     SECTION("with contentView")
     {
         SECTION("calcPreferredSize")
-        testSizingWithContentView(
-            pScrollView, pPreparer, pPreparer->getUiProvider(),
-            [pScrollView]() { return pScrollView->calcPreferredSize(); });
+        testSizingWithContentView(pScrollView, pPreparer, pPreparer->getUiProvider(),
+                                  [pScrollView]() { return pScrollView->calcPreferredSize(); });
     }
 }
 
@@ -230,16 +199,12 @@ SECTION("contentView aligned on full pixels")
 
         Point pos = pChild->position();
 
-        REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip,
-                             std::round(pos.x * pixelsPerDip), 0.000001);
-        REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip,
-                             std::round(pos.y * pixelsPerDip), 0.000001);
+        REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip, std::round(pos.x * pixelsPerDip), 0.000001);
+        REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip, std::round(pos.y * pixelsPerDip), 0.000001);
 
         Size size = pChild->size();
-        REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip,
-                             std::round(size.width * pixelsPerDip), 0.000001);
-        REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip,
-                             std::round(size.height * pixelsPerDip), 0.000001);
+        REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip, std::round(size.width * pixelsPerDip), 0.000001);
+        REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip, std::round(size.height * pixelsPerDip), 0.000001);
     };
 }
 
@@ -309,14 +274,11 @@ SECTION("content view detached before destruction begins")
 
     P<LocalTestData_> pData = newObj<LocalTestData_>();
 
-    pScrollView->setDestructFunc(
-        [pData, pChild](bdn::test::ViewWithTestExtensions<ScrollView> *pWin) {
-            pData->destructorRun = true;
-            pData->childParentStillSet =
-                (pChild->getParentView() != nullptr) ? 1 : 0;
-            pData->childStillChild =
-                (pWin->getContentView() != nullptr) ? 1 : 0;
-        });
+    pScrollView->setDestructFunc([pData, pChild](bdn::test::ViewWithTestExtensions<ScrollView> *pWin) {
+        pData->destructorRun = true;
+        pData->childParentStillSet = (pChild->getParentView() != nullptr) ? 1 : 0;
+        pData->childStillChild = (pWin->getContentView() != nullptr) ? 1 : 0;
+    });
 
     BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pChild)
     {

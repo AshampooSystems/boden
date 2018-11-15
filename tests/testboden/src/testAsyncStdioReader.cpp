@@ -6,8 +6,7 @@
 
 using namespace bdn;
 
-template <typename CharType>
-class AsyncStdioReader_OneAtTheTimeTestContext : public Base
+template <typename CharType> class AsyncStdioReader_OneAtTheTimeTestContext : public Base
 {
   public:
     AsyncStdioReader_OneAtTheTimeTestContext()
@@ -22,9 +21,7 @@ class AsyncStdioReader_OneAtTheTimeTestContext : public Base
         nextStep();
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-            0.5,
-            strongMethod(
-                this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
+            0.5, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
     }
 
     void nextStep()
@@ -33,9 +30,7 @@ class AsyncStdioReader_OneAtTheTimeTestContext : public Base
             _nextStep++;
 
             P<IAsyncOp<String>> pOp = _pReader->readLine();
-            pOp->onDone() += weakMethod(
-                this,
-                &AsyncStdioReader_OneAtTheTimeTestContext<CharType>::readDone);
+            pOp->onDone() += weakMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext<CharType>::readDone);
         }
     }
 
@@ -64,10 +59,7 @@ class AsyncStdioReader_OneAtTheTimeTestContext : public Base
             _timeoutCounter++;
 
             CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-                0.5,
-                strongMethod(
-                    this,
-                    &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
+                0.5, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
         }
     }
 
@@ -82,8 +74,7 @@ class AsyncStdioReader_OneAtTheTimeTestContext : public Base
     Mutex _mutex;
 };
 
-template <typename CharType>
-class AsyncStdioReader_AllAtOnceTestContext : public Base
+template <typename CharType> class AsyncStdioReader_AllAtOnceTestContext : public Base
 {
   public:
     AsyncStdioReader_AllAtOnceTestContext()
@@ -101,15 +92,11 @@ class AsyncStdioReader_AllAtOnceTestContext : public Base
     {
         for (int i = 0; i < 100; i++) {
             P<IAsyncOp<String>> pOp = _pReader->readLine();
-            pOp->onDone() += weakMethod(
-                this,
-                &AsyncStdioReader_AllAtOnceTestContext<CharType>::readDone);
+            pOp->onDone() += weakMethod(this, &AsyncStdioReader_AllAtOnceTestContext<CharType>::readDone);
         }
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-            0.5,
-            strongMethod(this,
-                         &AsyncStdioReader_AllAtOnceTestContext::continueTest));
+            0.5, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
     }
 
     void readDone(IAsyncOp<String> *pOp)
@@ -135,9 +122,7 @@ class AsyncStdioReader_AllAtOnceTestContext : public Base
             _timeoutCounter++;
 
             CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-                0.5, strongMethod(
-                         this,
-                         &AsyncStdioReader_AllAtOnceTestContext::continueTest));
+                0.5, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
         }
     }
 

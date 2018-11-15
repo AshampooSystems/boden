@@ -5,8 +5,7 @@
 
 #include <iostream>
 
-void verifyWideMultiByteConversion(const std::wstring &inWide,
-                                   const std::string &multiByte,
+void verifyWideMultiByteConversion(const std::wstring &inWide, const std::string &multiByte,
                                    const std::wstring &outWide)
 {
     // the back-converted string should have the same length at least.
@@ -97,20 +96,19 @@ TEST_CASE("wideStringConversion")
         const char *desc;
     };
 
-    SubTestData allData[] = {
-        {L"", "empty"},
-        // note that gcc has a bug. \u0000 is represented as 1, not 0.
-        // Use \0 instead.
-        {std::wstring(L"\0", 1), "zero char"},
-        {std::wstring(L"he\0llo", 6), "zero char in middle"},
-        {L"h", "ascii char"},
-        {L"hx", "ascii 2 chars"},
-        {L"\u0345", "non-ascii below surrogate range"},
-        {L"\U00010437", "surrogate range A"},
-        {L"\U00024B62", "surrogate range B"},
-        {L"\uE000", "above surrogate range A"},
-        {L"\uF123", "above surrogate range B"},
-        {L"\uFFFF", "above surrogate range C"}};
+    SubTestData allData[] = {{L"", "empty"},
+                             // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                             // Use \0 instead.
+                             {std::wstring(L"\0", 1), "zero char"},
+                             {std::wstring(L"he\0llo", 6), "zero char in middle"},
+                             {L"h", "ascii char"},
+                             {L"hx", "ascii 2 chars"},
+                             {L"\u0345", "non-ascii below surrogate range"},
+                             {L"\U00010437", "surrogate range A"},
+                             {L"\U00024B62", "surrogate range B"},
+                             {L"\uE000", "above surrogate range A"},
+                             {L"\uF123", "above surrogate range B"},
+                             {L"\uFFFF", "above surrogate range C"}};
 
     int dataCount = std::extent<decltype(allData)>().value;
 
@@ -121,8 +119,7 @@ TEST_CASE("wideStringConversion")
 
         SECTION(std::string(pCurrData->desc) + " mixed")
         {
-            verifyWideConversion(L"hello" + std::wstring(pCurrData->wide) +
-                                 L"wo" + std::wstring(pCurrData->wide) +
+            verifyWideConversion(L"hello" + std::wstring(pCurrData->wide) + L"wo" + std::wstring(pCurrData->wide) +
                                  std::wstring(pCurrData->wide) + L"rld");
         }
     }

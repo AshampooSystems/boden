@@ -18,9 +18,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeRootView(const bdn::java::Reference &javaRef)
-                : JNativeViewGroup(javaRef)
-            {}
+            explicit JNativeRootView(const bdn::java::Reference &javaRef) : JNativeViewGroup(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -38,10 +36,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

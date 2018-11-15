@@ -6,8 +6,7 @@
 namespace bdn
 {
 
-    template <class BaseCollectionType>
-    class StdCollection : public BaseCollectionType, public Base
+    template <class BaseCollectionType> class StdCollection : public BaseCollectionType, public Base
     {
       public:
         /** The type of the collection elements.*/
@@ -27,17 +26,11 @@ namespace bdn
         /** The class of iterator objects for read-only access to elements.*/
         typedef typename BaseCollectionType::const_iterator ConstIterator;
 
-        template <class... Args>
-        StdCollection(Args &&... args)
-            : BaseCollectionType(std::forward<Args>(args)...)
-        {}
+        template <class... Args> StdCollection(Args &&... args) : BaseCollectionType(std::forward<Args>(args)...) {}
 
         /** Returns a copy of the allocator object that manages the collection's
          * memory.*/
-        Allocator getAllocator() const
-        {
-            return BaseCollectionType::get_allocator();
-        }
+        Allocator getAllocator() const { return BaseCollectionType::get_allocator(); }
 
         /** Returns an iterator to the "first" element of the collection.
 
@@ -93,18 +86,12 @@ namespace bdn
         /** Const version of begin() - returns an iterator for read-only access
          * to the elements.
          */
-        ConstIterator begin() const noexcept
-        {
-            return BaseCollectionType::begin();
-        }
+        ConstIterator begin() const noexcept { return BaseCollectionType::begin(); }
 
         /** Const version of begin() - returns an iterator for read-only access
          * to the elements.
          */
-        ConstIterator constBegin() const noexcept
-        {
-            return BaseCollectionType::cbegin();
-        }
+        ConstIterator constBegin() const noexcept { return BaseCollectionType::cbegin(); }
 
         /** Returns an iterator that points to the point just after (!) the last
            element in the collection.
@@ -142,10 +129,7 @@ namespace bdn
         /** Const version of end() - returns an iterator for read-only access to
          * the elements.
          */
-        ConstIterator constEnd() const noexcept
-        {
-            return BaseCollectionType::cend();
-        }
+        ConstIterator constEnd() const noexcept { return BaseCollectionType::cend(); }
 
         /** Returns true if the collection is empty*/
         bool isEmpty() const noexcept { return BaseCollectionType::empty(); }
@@ -156,10 +140,7 @@ namespace bdn
         /** Returns the maximum number of elements the collection can
            potentially have. This refers to the theoretical maximum, provided
            that enough memory is available.*/
-        Size getMaxSize() const noexcept
-        {
-            return BaseCollectionType::max_size();
-        }
+        Size getMaxSize() const noexcept { return BaseCollectionType::max_size(); }
 
         /** Removes all elements from the collection.*/
         void clear() noexcept { BaseCollectionType::clear(); }
@@ -170,10 +151,7 @@ namespace bdn
             element was at the end of the collection then the end() iterator is
            returned.
         */
-        Iterator removeAt(ConstIterator pos)
-        {
-            return BaseCollectionType::erase(pos);
-        }
+        Iterator removeAt(ConstIterator pos) { return BaseCollectionType::erase(pos); }
 
         /** Removes all elements in the iterator range [beginIt ... endIt).
 
@@ -199,8 +177,7 @@ namespace bdn
             Returns an iterator to the found element, or end() if no such
            element is found.
         */
-        template <typename MATCH_FUNC_TYPE>
-        Iterator findCustom(MATCH_FUNC_TYPE matchFunc)
+        template <typename MATCH_FUNC_TYPE> Iterator findCustom(MATCH_FUNC_TYPE matchFunc)
         {
             auto it = this->begin();
             while (it != this->end()) {
@@ -215,8 +192,7 @@ namespace bdn
 
         /** Const version of findCustom() - returns a read-only iterator.
          */
-        template <typename MATCH_FUNC_TYPE>
-        ConstIterator findCustom(MATCH_FUNC_TYPE matchFunc) const
+        template <typename MATCH_FUNC_TYPE> ConstIterator findCustom(MATCH_FUNC_TYPE matchFunc) const
         {
             auto it = this->begin();
             while (it != this->end()) {
@@ -242,8 +218,7 @@ namespace bdn
             Returns an iterator to the found element, or end() if no such
            element is found.
         */
-        template <typename MATCH_FUNC_TYPE>
-        Iterator findCustom(MATCH_FUNC_TYPE matchFunc, Iterator startPos)
+        template <typename MATCH_FUNC_TYPE> Iterator findCustom(MATCH_FUNC_TYPE matchFunc, Iterator startPos)
         {
             auto it = startPos;
             while (it != this->end()) {
@@ -259,8 +234,7 @@ namespace bdn
         /** Const version of findCustom() - returns a read-only iterator.
          */
         template <typename MATCH_FUNC_TYPE>
-        ConstIterator findCustom(MATCH_FUNC_TYPE matchFunc,
-                                 ConstIterator startPos) const
+        ConstIterator findCustom(MATCH_FUNC_TYPE matchFunc, ConstIterator startPos) const
         {
             auto it = startPos;
             while (it != this->end()) {

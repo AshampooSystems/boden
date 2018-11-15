@@ -29,16 +29,13 @@ namespace bdn
 
                 NSString *message = stringToNSString(info.getMessage());
 
-                NSObject *wrappedException = bdn::fk::wrapIntoNSObject(
-                    bdn::ExceptionReference::newFromActiveException());
+                NSObject *wrappedException =
+                    bdn::fk::wrapIntoNSObject(bdn::ExceptionReference::newFromActiveException());
 
-                NSDictionary *userInfoDict = [[NSDictionary alloc]
-                    initWithObjectsAndKeys:wrappedException,
-                                           @"bdn::ExceptionReference", nil];
+                NSDictionary *userInfoDict =
+                    [[NSDictionary alloc] initWithObjectsAndKeys:wrappedException, @"bdn::ExceptionReference", nil];
 
-                @throw [NSException exceptionWithName:@"CppException"
-                                               reason:message
-                                             userInfo:userInfoDict];
+                @throw [NSException exceptionWithName:@"CppException" reason:message userInfo:userInfoDict];
             }
         }
     }

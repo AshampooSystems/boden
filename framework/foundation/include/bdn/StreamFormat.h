@@ -58,10 +58,7 @@ namespace bdn
             with a "0x" prefix. If you want that call hex0x() instead.*/
         StreamFormat &hex() & { return setBaseField(std::ios_base::hex); }
 
-        StreamFormat &&hex() &&
-        {
-            return std::move(setBaseField(std::ios_base::hex));
-        }
+        StreamFormat &&hex() && { return std::move(setBaseField(std::ios_base::hex)); }
 
         /** Activates hexadecimal number output with a "0x" prefix (for example
            "0x789a"). If you do not want the "0x" prefix then call hex()
@@ -75,9 +72,8 @@ namespace bdn
 
         StreamFormat &&hex0x() &&
         {
-            return std::move(
-                setFlags(std::ios_base::hex | std::ios_base::showbase,
-                         std::ios_base::basefield | std::ios_base::showbase));
+            return std::move(setFlags(std::ios_base::hex | std::ios_base::showbase,
+                                      std::ios_base::basefield | std::ios_base::showbase));
         }
 
         /** Pads the written value to the specified number of characters
@@ -114,8 +110,7 @@ namespace bdn
            certain length then you should use zeroPad() instead, since that
            inserts the zeros at the correct place inside the number.
         */
-        StreamFormat &alignRight(int columnWidthChars,
-                                 char32_t padChar = U' ') &
+        StreamFormat &alignRight(int columnWidthChars, char32_t padChar = U' ') &
         {
             _padTo = columnWidthChars;
             _padChar = padChar;
@@ -123,8 +118,7 @@ namespace bdn
             return setAdjustField(std::ios_base::right);
         }
 
-        StreamFormat &&alignRight(int columnWidthChars,
-                                  char32_t padChar = U' ') &&
+        StreamFormat &&alignRight(int columnWidthChars, char32_t padChar = U' ') &&
         {
             _padTo = columnWidthChars;
             _padChar = padChar;
@@ -154,8 +148,7 @@ namespace bdn
             return setAdjustField(std::ios_base::left);
         }
 
-        StreamFormat &&alignLeft(int columnWidthChars,
-                                 char32_t padChar = U' ') &&
+        StreamFormat &&alignLeft(int columnWidthChars, char32_t padChar = U' ') &&
         {
             _padTo = columnWidthChars;
             _padChar = padChar;
@@ -267,15 +260,9 @@ namespace bdn
         /** Forces floating point numbers to be written with a point, even if
            they do not have a fractional component. If forcePoint() is called
            then 123 is written as "123.0".*/
-        StreamFormat &forcePoint() &
-        {
-            return setFlag(std::ios_base::showpoint);
-        }
+        StreamFormat &forcePoint() & { return setFlag(std::ios_base::showpoint); }
 
-        StreamFormat &&forcePoint() &&
-        {
-            return std::move(setFlag(std::ios_base::showpoint));
-        }
+        StreamFormat &&forcePoint() && { return std::move(setFlag(std::ios_base::showpoint)); }
 
         /** Sets the length that values are padded to (in characters).
             zeroPad(), alignLeft() or alignRight() are usually better
@@ -346,8 +333,7 @@ namespace bdn
             by \c mask will be modified and set to the corresponding bit value
            from \c flags.
             */
-        StreamFormat &setFlags(std::ios_base::fmtflags flags,
-                               std::ios_base::fmtflags mask) &
+        StreamFormat &setFlags(std::ios_base::fmtflags flags, std::ios_base::fmtflags mask) &
         {
             _flags &= ~mask;
             _flags |= flags;
@@ -355,8 +341,7 @@ namespace bdn
             return *this;
         }
 
-        StreamFormat &&setFlags(std::ios_base::fmtflags flags,
-                                std::ios_base::fmtflags mask) &&
+        StreamFormat &&setFlags(std::ios_base::fmtflags flags, std::ios_base::fmtflags mask) &&
         {
             _flags &= ~mask;
             _flags |= flags;
@@ -405,10 +390,7 @@ namespace bdn
             return std::move(setFlags(flag, std::ios_base::adjustfield));
         }
 
-        StreamFormat &setBaseField(std::ios_base::fmtflags flag) &
-        {
-            return setFlags(flag, std::ios_base::basefield);
-        }
+        StreamFormat &setBaseField(std::ios_base::fmtflags flag) & { return setFlags(flag, std::ios_base::basefield); }
 
         StreamFormat &&setBaseField(std::ios_base::fmtflags flag) &&
         {
@@ -435,12 +417,9 @@ namespace bdn
     template <class STREAM_TYPE> class StreamFormatApplier_
     {
       public:
-        StreamFormatApplier_(STREAM_TYPE &stream, const StreamFormat &format)
-            : _stream(stream), _format(format)
-        {}
+        StreamFormatApplier_(STREAM_TYPE &stream, const StreamFormat &format) : _stream(stream), _format(format) {}
 
-        template <typename VALUE_TYPE>
-        STREAM_TYPE &operator<<(VALUE_TYPE &&value)
+        template <typename VALUE_TYPE> STREAM_TYPE &operator<<(VALUE_TYPE &&value)
         {
             TemporaryFormatChanger formatChanger(_stream, _format);
 
@@ -453,16 +432,13 @@ namespace bdn
         class TemporaryFormatChanger
         {
           public:
-            TemporaryFormatChanger(STREAM_TYPE &stream,
-                                   const StreamFormat &format)
-                : _stream(stream)
+            TemporaryFormatChanger(STREAM_TYPE &stream, const StreamFormat &format) : _stream(stream)
             {
                 if (format.padTo() != -1)
                     _oldPadTo = (int)_stream.width(format.padTo());
 
                 if (format.padChar() != StreamFormat::padCharNotSet)
-                    _oldPadChar = _stream.fill(
-                        (typename STREAM_TYPE::char_type)format.padChar());
+                    _oldPadChar = _stream.fill((typename STREAM_TYPE::char_type)format.padChar());
 
                 if (format.precision() != -1)
                     _oldPrecision = (int)_stream.precision(format.precision());
@@ -501,12 +477,9 @@ namespace bdn
 
     template <class STREAM_CHAR_TYPE, class STREAM_TRAITS>
     StreamFormatApplier_<std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS>>
-    operator<<(std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS> &stream,
-               const StreamFormat &format)
+    operator<<(std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS> &stream, const StreamFormat &format)
     {
-        return StreamFormatApplier_<
-            std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS>>(stream,
-                                                                 format);
+        return StreamFormatApplier_<std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS>>(stream, format);
     }
 }
 

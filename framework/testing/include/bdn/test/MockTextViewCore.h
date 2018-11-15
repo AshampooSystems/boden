@@ -17,14 +17,10 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockTextViewCore : public MockViewCore,
-                                 BDN_IMPLEMENTS ITextViewCore
+        class MockTextViewCore : public MockViewCore, BDN_IMPLEMENTS ITextViewCore
         {
           public:
-            MockTextViewCore(TextView *pView) : MockViewCore(pView)
-            {
-                _text = pView->text();
-            }
+            MockTextViewCore(TextView *pView) : MockViewCore(pView) { _text = pView->text(); }
 
             /** Returns the current text content of the text view.*/
             String getText() const { return _text; }
@@ -38,8 +34,7 @@ namespace bdn
                 _textChangeCount++;
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
@@ -58,8 +53,7 @@ namespace bdn
 
                 double wrapWidth = preferredSizeHint.width;
 
-                if (std::isfinite(availableSpace.width) &&
-                    availableSpace.width < wrapWidth)
+                if (std::isfinite(availableSpace.width) && availableSpace.width < wrapWidth)
                     wrapWidth = availableSpace.width;
 
                 if (std::isfinite(wrapWidth))

@@ -11,8 +11,7 @@
 
 using namespace bdn;
 
-class TestIosWindowCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestWindowCore>
+class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestWindowCore>
 {
   protected:
     void initCore() override
@@ -23,17 +22,13 @@ class TestIosWindowCore
         REQUIRE(_pUIWindow != nullptr);
     }
 
-    IUiProvider &getUiProvider() override
-    {
-        return bdn::ios::UiProvider::get();
-    }
+    IUiProvider &getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
     void verifyCoreTitle() override
     {
         String expectedTitle = _pWindow->title();
 
-        String title =
-            bdn::ios::iosStringToString(_pUIWindow.rootViewController.title);
+        String title = bdn::ios::iosStringToString(_pUIWindow.rootViewController.title);
 
         REQUIRE(title == expectedTitle);
     }
@@ -61,10 +56,7 @@ class TestIosWindowCore
 
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(UIWindow *pUIWindow)
-        {
-            this->pUIWindow = pUIWindow;
-        }
+        DestructVerificationInfo(UIWindow *pUIWindow) { this->pUIWindow = pUIWindow; }
 
         // store a weak reference so that we do not keep the window alive
         __weak UIWindow *pUIWindow;
@@ -80,8 +72,7 @@ class TestIosWindowCore
 
     void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        __weak UIWindow *pUIWindow =
-            cast<DestructVerificationInfo>(pVerificationInfo)->pUIWindow;
+        __weak UIWindow *pUIWindow = cast<DestructVerificationInfo>(pVerificationInfo)->pUIWindow;
 
         // window should have been destroyed.
         REQUIRE(pUIWindow == nullptr);

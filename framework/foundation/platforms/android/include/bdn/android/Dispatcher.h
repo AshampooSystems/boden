@@ -26,15 +26,12 @@ namespace bdn
              * timers.*/
             void dispose();
 
-            void enqueue(std::function<void()> func,
-                         Priority priority = Priority::normal) override;
+            void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-            void
-            enqueueInSeconds(double seconds, std::function<void()> func,
-                             Priority priority = Priority::normal) override;
+            void enqueueInSeconds(double seconds, std::function<void()> func,
+                                  Priority priority = Priority::normal) override;
 
-            void createTimer(double intervalSeconds,
-                             std::function<bool()> func) override;
+            void createTimer(double intervalSeconds, std::function<bool()> func) override;
 
             /** Used internally. Do not call.*/
             static bool _onTimerEvent(void *pTimer);

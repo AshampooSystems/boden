@@ -16,29 +16,23 @@ namespace bdn
     namespace android
     {
 
-        class ScrollViewCore : public ViewCore,
-                               BDN_IMPLEMENTS IScrollViewCore,
-                               BDN_IMPLEMENTS IParentViewCore
+        class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore, BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            static P<JNativeScrollView>
-            _createNativeScrollView(ScrollView *pOuter)
+            static P<JNativeScrollView> _createNativeScrollView(ScrollView *pOuter)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "ScrollViewCore instance requested for a ScrollView "
-                        "that does not have a parent.");
+                    throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
+                                           "that does not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
-                    throw ProgrammingError(
-                        "ScrollViewCore instance requested for a ScrollView "
-                        "with core-less parent.");
+                    throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
+                                           "with core-less parent.");
 
                 JContext context = pParentCore->getJView().getContext();
 
@@ -48,9 +42,7 @@ namespace bdn
             }
 
           public:
-            ScrollViewCore(ScrollView *pOuter)
-                : ScrollViewCore(pOuter, _createNativeScrollView(pOuter))
-            {}
+            ScrollViewCore(ScrollView *pOuter) : ScrollViewCore(pOuter, _createNativeScrollView(pOuter)) {}
 
           private:
             ScrollViewCore(ScrollView *pOuter, P<JNativeScrollView> pMan)
@@ -64,12 +56,10 @@ namespace bdn
                 // ensures that the parent of the content view is a
                 // NativeViewGroup, which is important because we assume that
                 // that is the case in some places.
-                _pContentParent =
-                    newObj<JNativeViewGroup>(pMan->getContentParent());
+                _pContentParent = newObj<JNativeViewGroup>(pMan->getContentParent());
 
                 setVerticalScrollingEnabled(pOuter->verticalScrollingEnabled());
-                setHorizontalScrollingEnabled(
-                    pOuter->horizontalScrollingEnabled());
+                setHorizontalScrollingEnabled(pOuter->horizontalScrollingEnabled());
             }
 
           public:
@@ -83,11 +73,9 @@ namespace bdn
                 // nothing to do - we get this directly from the outer window
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                P<ScrollView> pOuter =
-                    cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> pOuter = cast<ScrollView>(getOuterViewIfStillAttached());
                 if (pOuter != nullptr) {
                     // note that the scroll bars are overlays and do not take up
                     // any layout space.
@@ -100,8 +88,7 @@ namespace bdn
 
             void layout() override
             {
-                P<ScrollView> pOuterView =
-                    cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr) {
                     // note that the scroll bars are overlays and do not take up
                     // any layout space.
@@ -118,9 +105,8 @@ namespace bdn
                     // resize the content parent to the scrolled area size.
                     // That causes the content parent to get that size the next
                     // time and android layout happens.
-                    _pContentParent->setSize(
-                        std::lround(scrolledAreaSize.width * uiScaleFactor),
-                        std::lround(scrolledAreaSize.height * uiScaleFactor));
+                    _pContentParent->setSize(std::lround(scrolledAreaSize.width * uiScaleFactor),
+                                             std::lround(scrolledAreaSize.height * uiScaleFactor));
 
                     // now arrange the content view inside the content parent
                     Rect contentBounds = helper.getContentViewBounds();
@@ -156,8 +142,7 @@ namespace bdn
                 int targetRight;
                 if (std::isfinite(clientRect.x)) {
                     targetLeft = std::lround(clientRect.x * uiScaleFactor);
-                    targetRight = targetLeft +
-                                  std::lround(clientRect.width * uiScaleFactor);
+                    targetRight = targetLeft + std::lround(clientRect.width * uiScaleFactor);
                 } else {
                     if (clientRect.x > 0)
                         targetLeft = clientWidth;
@@ -171,8 +156,7 @@ namespace bdn
                 int targetBottom;
                 if (std::isfinite(clientRect.y)) {
                     targetTop = std::lround(clientRect.y * uiScaleFactor);
-                    targetBottom = targetTop + std::lround(clientRect.height *
-                                                           uiScaleFactor);
+                    targetBottom = targetTop + std::lround(clientRect.height * uiScaleFactor);
                 } else {
                     if (clientRect.y > 0)
                         targetTop = clientHeight;
@@ -215,8 +199,7 @@ namespace bdn
                 // handle this case on our side.
 
                 if (targetRight - targetLeft > visibleWidth) {
-                    if (visibleLeft >= targetLeft &&
-                        visibleRight <= targetRight) {
+                    if (visibleLeft >= targetLeft && visibleRight <= targetRight) {
                         // The current visible rect is already fully inside the
                         // target rect. In this case we do not want to move the
                         // scroll position at all. So set the target rect to the
@@ -233,8 +216,7 @@ namespace bdn
                         // rect edges has to be closer than the other.
 
                         int distanceLeft = std::abs(targetLeft - visibleLeft);
-                        int distanceRight =
-                            std::abs(targetRight - visibleRight);
+                        int distanceRight = std::abs(targetRight - visibleRight);
 
                         if (distanceLeft < distanceRight) {
                             // the left edge of the target rect is closer to the
@@ -249,14 +231,12 @@ namespace bdn
                 }
 
                 if (targetBottom - targetTop > visibleHeight) {
-                    if (visibleTop >= targetTop &&
-                        visibleBottom <= targetBottom) {
+                    if (visibleTop >= targetTop && visibleBottom <= targetBottom) {
                         targetTop = visibleTop;
                         targetBottom = visibleBottom;
                     } else {
                         int distanceTop = std::abs(targetTop - visibleTop);
-                        int distanceBottom =
-                            std::abs(targetBottom - visibleBottom);
+                        int distanceBottom = std::abs(targetBottom - visibleBottom);
 
                         if (distanceTop < distanceBottom)
                             targetBottom = targetTop + visibleHeight;
@@ -290,10 +270,7 @@ namespace bdn
                 _pMan->smoothScrollTo(scrollX, scrollY);
             }
 
-            double getUiScaleFactor() const override
-            {
-                return ViewCore::getUiScaleFactor();
-            }
+            double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
 
             void addChildJView(JView childJView) override
             {
@@ -304,30 +281,20 @@ namespace bdn
                 _pContentParent->addView(childJView);
             }
 
-            void removeChildJView(JView childJView) override
-            {
-                _pContentParent->removeView(childJView);
-            }
+            void removeChildJView(JView childJView) override { _pContentParent->removeView(childJView); }
 
             /** Used internally - do not call.*/
-            void _scrollChange(int scrollX, int scrollY, int oldScrollX,
-                               int oldScrollY)
-            {
-                updateVisibleClientRect();
-            }
+            void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY) { updateVisibleClientRect(); }
 
           private:
             void updateVisibleClientRect()
             {
-                P<ScrollView> pOuter =
-                    cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> pOuter = cast<ScrollView>(getOuterViewIfStillAttached());
                 if (pOuter != nullptr) {
                     double uiScaleFactor = getUiScaleFactor();
 
-                    Rect visibleRect(_pMan->getScrollX() / uiScaleFactor,
-                                     _pMan->getScrollY() / uiScaleFactor,
-                                     _pMan->getWidth() / uiScaleFactor,
-                                     _pMan->getHeight() / uiScaleFactor);
+                    Rect visibleRect(_pMan->getScrollX() / uiScaleFactor, _pMan->getScrollY() / uiScaleFactor,
+                                     _pMan->getWidth() / uiScaleFactor, _pMan->getHeight() / uiScaleFactor);
 
                     pOuter->_setVisibleClientRect(visibleRect);
                 }

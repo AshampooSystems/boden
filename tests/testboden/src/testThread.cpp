@@ -9,10 +9,7 @@ using namespace bdn;
 class TestStopRunnable : public ThreadRunnableBase
 {
   public:
-    TestStopRunnable(bool throwException = false)
-    {
-        _throwException = throwException;
-    }
+    TestStopRunnable(bool throwException = false) { _throwException = throwException; }
 
     volatile bool waiting = false;
     volatile bool done = false;
@@ -310,23 +307,19 @@ void testDetach()
     SECTION("joinAfterDetach")
     {
         SECTION("rethrow")
-        REQUIRE_THROWS_AS(thread.join(Thread::ExceptionThrow),
-                          ThreadDetachedError);
+        REQUIRE_THROWS_AS(thread.join(Thread::ExceptionThrow), ThreadDetachedError);
 
         SECTION("noThrow")
-        REQUIRE_THROWS_AS(thread.join(Thread::ExceptionIgnore),
-                          ThreadDetachedError);
+        REQUIRE_THROWS_AS(thread.join(Thread::ExceptionIgnore), ThreadDetachedError);
     }
 
     SECTION("stopAfterDetach")
     {
         SECTION("rethrow")
-        REQUIRE_THROWS_AS(thread.stop(Thread::ExceptionThrow),
-                          ThreadDetachedError);
+        REQUIRE_THROWS_AS(thread.stop(Thread::ExceptionThrow), ThreadDetachedError);
 
         SECTION("noThrow")
-        REQUIRE_THROWS_AS(thread.stop(Thread::ExceptionIgnore),
-                          ThreadDetachedError);
+        REQUIRE_THROWS_AS(thread.stop(Thread::ExceptionIgnore), ThreadDetachedError);
     }
 
     SECTION("signalAfterDetach")
@@ -404,8 +397,7 @@ void verifyExec(bool throwException)
 
         SECTION("wait_for")
         {
-            std::future_status waitStatus =
-                result.wait_for(std::chrono::milliseconds(500));
+            std::future_status waitStatus = result.wait_for(std::chrono::milliseconds(500));
             REQUIRE(waitStatus == std::future_status::timeout);
 
             REQUIRE(watch.getMillis() >= 500 - 10);
@@ -433,15 +425,13 @@ void verifyExec(bool throwException)
         SECTION("wait_until")
         {
             std::future_status waitStatus =
-                result.wait_until(std::chrono::system_clock::now() +
-                                  std::chrono::milliseconds(500));
+                result.wait_until(std::chrono::system_clock::now() + std::chrono::milliseconds(500));
             REQUIRE(waitStatus == std::future_status::timeout);
 
             REQUIRE(watch.getMillis() >= 500 - 10);
             REQUIRE(watch.getMillis() < 1500);
 
-            waitStatus = result.wait_until(std::chrono::system_clock::now() +
-                                           std::chrono::milliseconds(2000));
+            waitStatus = result.wait_until(std::chrono::system_clock::now() + std::chrono::milliseconds(2000));
             REQUIRE(waitStatus == std::future_status::ready);
 
             REQUIRE(watch.getMillis() >= 2000 - 10);
@@ -584,8 +574,7 @@ void verifySleep(std::function<void()> func, int expectedSleepMillis)
     func();
 
     auto duration = std::chrono::system_clock::now() - startTime;
-    int64_t durationMillis =
-        std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    int64_t durationMillis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
     REQUIRE(durationMillis >= expectedSleepMillis - 10);
     REQUIRE(durationMillis <= expectedSleepMillis + 500);
@@ -799,8 +788,7 @@ TEST_CASE("ThreadLocalStorage")
 #if BDN_HAVE_THREADS
 
         P<ThreadLocalTestData> *ppFromThread = Thread::exec([]() {
-                                                   P<ThreadLocalTestData> &pC =
-                                                       getThreadLocal3();
+                                                   P<ThreadLocalTestData> &pC = getThreadLocal3();
 
                                                    REQUIRE(pC == nullptr);
                                                    return &pC;

@@ -153,8 +153,7 @@ namespace bdn
 
         /** Sets the view core's horizontal alignment. See
          * View::horizontalAlignment() */
-        virtual void
-        setHorizontalAlignment(const HorizontalAlignment &align) = 0;
+        virtual void setHorizontalAlignment(const HorizontalAlignment &align) = 0;
 
         /** Sets the view core's vertical alignment. See
          * View::verticalAlignment() */
@@ -213,8 +212,7 @@ namespace bdn
            adjustments are made (adjusting up, down or to the nearest valid
            value).
         */
-        virtual Rect adjustBounds(const Rect &requestedBounds,
-                                  RoundType positionRoundType,
+        virtual Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                                   RoundType sizeRoundType) const = 0;
 
         /** Converts the specified Ui length to DIPs (see \ref dip.md).
@@ -306,8 +304,7 @@ namespace bdn
             IMPORTANT: This function must only called be called from the main
            thread.
             */
-        virtual Size
-        calcPreferredSize(const Size &availableSpace = Size::none()) const = 0;
+        virtual Size calcPreferredSize(const Size &availableSpace = Size::none()) const = 0;
 
         /** Called by the framework when the parent view is being changed to
            check whether it is possible to move the core to a new parent without

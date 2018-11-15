@@ -6,15 +6,11 @@
 namespace bdn
 {
 
-    template <typename CharType, class ExpectedCodecType>
-    static void verifyUtfCodec()
+    template <typename CharType, class ExpectedCodecType> static void verifyUtfCodec()
     {
-        REQUIRE(typeid(typename UtfCodec<CharType>::EncodedElement) ==
-                typeid(CharType));
-        REQUIRE(typeid(typename UtfCodec<CharType>::template DecodingIterator<
-                       CharType *>) ==
-                typeid(typename ExpectedCodecType::template DecodingIterator<
-                       CharType *>));
+        REQUIRE(typeid(typename UtfCodec<CharType>::EncodedElement) == typeid(CharType));
+        REQUIRE(typeid(typename UtfCodec<CharType>::template DecodingIterator<CharType *>) ==
+                typeid(typename ExpectedCodecType::template DecodingIterator<CharType *>));
     }
 
     TEST_CASE("UtfCodec", "[string]")

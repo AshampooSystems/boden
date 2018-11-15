@@ -6,15 +6,11 @@
 namespace bdn
 {
 
-    UnhandledException::UnhandledException(const std::exception_ptr &p,
-                                           bool canKeepRunning)
+    UnhandledException::UnhandledException(const std::exception_ptr &p, bool canKeepRunning)
         : _exceptionPtr(p), _canKeepRunning(canKeepRunning)
     {}
 
-    void UnhandledException::throwAsException() const
-    {
-        std::rethrow_exception(_exceptionPtr);
-    }
+    void UnhandledException::throwAsException() const { std::rethrow_exception(_exceptionPtr); }
 
     void UnhandledException::ensureStringsInitialized() const
     {

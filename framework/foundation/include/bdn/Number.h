@@ -51,10 +51,7 @@ namespace bdn
         using SimpleType = BaseType;
 
         /** Returns the biggest possible value for this integer type.*/
-        constexpr static inline BaseType maxValue()
-        {
-            return std::numeric_limits<BaseType>::max();
-        }
+        constexpr static inline BaseType maxValue() { return std::numeric_limits<BaseType>::max(); }
 
         /** The smallest possible finite value for this integer type.
             For unsigned types this is 0. For signed types it is
@@ -69,10 +66,7 @@ namespace bdn
            std::numeric_limits::min() ( which returns the smallest representable
            *positive* number > 0).
         */
-        constexpr static inline BaseType minValue()
-        {
-            return std::numeric_limits<BaseType>::lowest();
-        }
+        constexpr static inline BaseType minValue() { return std::numeric_limits<BaseType>::lowest(); }
 
         /** For floating point types: the special value representing positive
            infinity.
@@ -81,10 +75,7 @@ namespace bdn
 
             Also see hasInfinity() and the global function isFinite().
             */
-        constexpr static inline BaseType infinity()
-        {
-            return std::numeric_limits<BaseType>::infinity();
-        }
+        constexpr static inline BaseType infinity() { return std::numeric_limits<BaseType>::infinity(); }
 
         /** For floating point types: the special value representing negative
            infinity.
@@ -93,10 +84,7 @@ namespace bdn
 
             Also see hasInfinity() and the global function isFinite().
             */
-        constexpr static inline BaseType negativeInfinity()
-        {
-            return 0 - std::numeric_limits<BaseType>::infinity();
-        }
+        constexpr static inline BaseType negativeInfinity() { return 0 - std::numeric_limits<BaseType>::infinity(); }
 
         /** The value representing "not a number" (NaN) that can be used
             in safely with normal floating point operations, meaning that it
@@ -115,10 +103,7 @@ namespace bdn
            BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS.
 
         */
-        constexpr static inline BaseType nan()
-        {
-            return std::numeric_limits<BaseType>::quiet_NaN();
-        }
+        constexpr static inline BaseType nan() { return std::numeric_limits<BaseType>::quiet_NaN(); }
 
         /** True if the underlying simple type has a special value to represent
             infinity.
@@ -126,10 +111,7 @@ namespace bdn
             If this is true then the \ref infinity and \ref negativeInfinity
             constants contain the corresponding values.
             */
-        constexpr static inline bool hasInfinity()
-        {
-            return std::numeric_limits<BaseType>::has_infinity;
-        }
+        constexpr static inline bool hasInfinity() { return std::numeric_limits<BaseType>::has_infinity; }
 
         /** True if the underlying simple type has a special value to represent
             NaN ("not a number").
@@ -137,32 +119,20 @@ namespace bdn
             If this is true then the \ref nan constant contains the
            corresponding value.
             */
-        constexpr static inline bool hasNan()
-        {
-            return std::numeric_limits<BaseType>::has_quiet_NaN;
-        }
+        constexpr static inline bool hasNan() { return std::numeric_limits<BaseType>::has_quiet_NaN; }
 
         /** True if the underlying simple type is signed (i.e. it can have
          * negative values).*/
-        constexpr static inline bool isSigned()
-        {
-            return std::numeric_limits<BaseType>::is_signed;
-        }
+        constexpr static inline bool isSigned() { return std::numeric_limits<BaseType>::is_signed; }
 
         /** True if the underlying simple type is an integer.*/
-        constexpr static inline bool isInteger()
-        {
-            return std::numeric_limits<BaseType>::is_integer;
-        }
+        constexpr static inline bool isInteger() { return std::numeric_limits<BaseType>::is_integer; }
 
         /** Returns the value of the Number object.*/
         BaseType getValue() const { return _value; }
 
         /** Sets the value of the integer object.*/
-        template <typename ArgType> void setValue(ArgType &&val)
-        {
-            _value = std::forward<ArgType>(val);
-        }
+        template <typename ArgType> void setValue(ArgType &&val) { _value = std::forward<ArgType>(val); }
 
         template <typename ArgType> Number &operator=(ArgType &&arg)
         {
@@ -237,10 +207,7 @@ namespace bdn
 
     template <> struct _IntOpImpl<1>
     {
-        static inline uint8_t _rotateBitsLeftImpl(uint8_t val, int bits)
-        {
-            return (val << bits) | (val >> (8 - bits));
-        }
+        static inline uint8_t _rotateBitsLeftImpl(uint8_t val, int bits) { return (val << bits) | (val >> (8 - bits)); }
 
         static inline uint8_t _rotateBitsRightImpl(uint8_t val, int bits)
         {
@@ -314,8 +281,7 @@ namespace bdn
             return __builtin_bswap32(val);
 
 #else
-            return (val & 0xff) << 24 | (val & 0xff00) << 8 |
-                   (val & 0xff0000) >> 8 | (val & 0xff000000) >> 24;
+            return (val & 0xff) << 24 | (val & 0xff00) << 8 | (val & 0xff0000) >> 8 | (val & 0xff000000) >> 24;
 
 #endif
         }
@@ -354,10 +320,8 @@ namespace bdn
             return __builtin_bswap64(val);
 
 #else
-            return (val & 0xff) << 56 | (val & 0xff00) << 40 |
-                   (val & 0xff0000) << 24 | (val & 0xff000000) << 8 |
-                   (val & 0xff00000000) >> 8 | (val & 0xff0000000000) >> 24 |
-                   (val & 0xff000000000000) >> 40 |
+            return (val & 0xff) << 56 | (val & 0xff00) << 40 | (val & 0xff0000) << 24 | (val & 0xff000000) << 8 |
+                   (val & 0xff00000000) >> 8 | (val & 0xff0000000000) >> 24 | (val & 0xff000000000000) >> 40 |
                    (val & 0xff00000000000000) >> 56;
 
 #endif
@@ -382,11 +346,9 @@ namespace bdn
         \endcode
 
         */
-    template <typename ArgIntType>
-    static inline ArgIntType invertByteOrder(ArgIntType value)
+    template <typename ArgIntType> static inline ArgIntType invertByteOrder(ArgIntType value)
     {
-        return static_cast<ArgIntType>(
-            _IntOpImpl<sizeof(ArgIntType)>::_invertByteOrderImpl(value));
+        return static_cast<ArgIntType>(_IntOpImpl<sizeof(ArgIntType)>::_invertByteOrderImpl(value));
     }
 
     /** Does a bit-rotation operation towards the left on the specified integer
@@ -419,11 +381,9 @@ namespace bdn
 
         \endcode
     */
-    template <typename ArgIntType>
-    static inline ArgIntType rotateBitsLeft(ArgIntType value, int bits)
+    template <typename ArgIntType> static inline ArgIntType rotateBitsLeft(ArgIntType value, int bits)
     {
-        return static_cast<ArgIntType>(
-            _IntOpImpl<sizeof(ArgIntType)>::_rotateBitsLeftImpl(value, bits));
+        return static_cast<ArgIntType>(_IntOpImpl<sizeof(ArgIntType)>::_rotateBitsLeftImpl(value, bits));
     }
 
     /** Does a bit-rotation operation towards the right on the specified integer
@@ -456,39 +416,25 @@ namespace bdn
 
         \endcode
     */
-    template <typename ArgIntType>
-    static inline ArgIntType rotateBitsRight(ArgIntType value, int bits)
+    template <typename ArgIntType> static inline ArgIntType rotateBitsRight(ArgIntType value, int bits)
     {
-        return static_cast<ArgIntType>(
-            _IntOpImpl<sizeof(ArgIntType)>::_rotateBitsRightImpl(value, bits));
+        return static_cast<ArgIntType>(_IntOpImpl<sizeof(ArgIntType)>::_rotateBitsRightImpl(value, bits));
     }
 
 #if BDN_STD_ISNAN_INT_MISSING
 
     template <bool IsFloatingPoint> struct MscNumberUtilHelper_
     {
-        template <typename ValueType> static bool isNan(ValueType value)
-        {
-            return false;
-        }
+        template <typename ValueType> static bool isNan(ValueType value) { return false; }
 
-        template <typename ValueType> static bool isFinite(ValueType value)
-        {
-            return true;
-        }
+        template <typename ValueType> static bool isFinite(ValueType value) { return true; }
     };
 
     template <> struct MscNumberUtilHelper_<true>
     {
-        template <typename ValueType> static bool isNan(ValueType value)
-        {
-            return std::isnan(value);
-        }
+        template <typename ValueType> static bool isNan(ValueType value) { return std::isnan(value); }
 
-        template <typename ValueType> static bool isFinite(ValueType value)
-        {
-            return std::isfinite(value);
-        }
+        template <typename ValueType> static bool isFinite(ValueType value) { return std::isfinite(value); }
     };
 
 #endif
@@ -507,8 +453,7 @@ namespace bdn
         // Visual Studio 2017 and below did not provide an implementation of
         // std::isnan for integers (even though C++17 mandates it). So we have
         // to use a workaround here.
-        return MscNumberUtilHelper_<!std::numeric_limits<
-            ValueType>::is_integer>::template isNan<ValueType>(value);
+        return MscNumberUtilHelper_<!std::numeric_limits<ValueType>::is_integer>::template isNan<ValueType>(value);
 
 #else
         // on other systems we can simply call std::isnan
@@ -532,8 +477,7 @@ namespace bdn
         // Visual Studio 2017 and below did not provide an implementation of
         // std::isfinite for integers (even though C++17 mandates it). So we
         // have to use a workaround here.
-        return MscNumberUtilHelper_<!std::numeric_limits<
-            ValueType>::is_integer>::template isFinite<ValueType>(value);
+        return MscNumberUtilHelper_<!std::numeric_limits<ValueType>::is_integer>::template isFinite<ValueType>(value);
 
 #else
         // on other systems we can simply call std::isnan
@@ -575,10 +519,7 @@ namespace std
 
     template <> struct hash<bdn::Number<short>>
     {
-        size_t operator()(const bdn::Number<short> &key) const
-        {
-            return std::hash<short>()(key.getValue());
-        }
+        size_t operator()(const bdn::Number<short> &key) const { return std::hash<short>()(key.getValue()); }
     };
 
     template <> struct hash<bdn::Number<unsigned short>>
@@ -591,10 +532,7 @@ namespace std
 
     template <> struct hash<bdn::Number<int>>
     {
-        size_t operator()(const bdn::Number<int> &key) const
-        {
-            return std::hash<int>()(key.getValue());
-        }
+        size_t operator()(const bdn::Number<int> &key) const { return std::hash<int>()(key.getValue()); }
     };
 
     template <> struct hash<bdn::Number<unsigned int>>
@@ -607,10 +545,7 @@ namespace std
 
     template <> struct hash<bdn::Number<long>>
     {
-        size_t operator()(const bdn::Number<long> &key) const
-        {
-            return std::hash<long>()(key.getValue());
-        }
+        size_t operator()(const bdn::Number<long> &key) const { return std::hash<long>()(key.getValue()); }
     };
 
     template <> struct hash<bdn::Number<unsigned long>>
@@ -623,10 +558,7 @@ namespace std
 
     template <> struct hash<bdn::Number<long long>>
     {
-        size_t operator()(const bdn::Number<long long> &key) const
-        {
-            return std::hash<long long>()(key.getValue());
-        }
+        size_t operator()(const bdn::Number<long long> &key) const { return std::hash<long long>()(key.getValue()); }
     };
 
     template <> struct hash<bdn::Number<unsigned long long>>
@@ -649,8 +581,7 @@ namespace std
     {
         size_t operator()(const bdn::Double &key) const
         {
-            return std::hash<typename bdn::Double::SimpleType>()(
-                key.getValue());
+            return std::hash<typename bdn::Double::SimpleType>()(key.getValue());
         }
     };
 
@@ -658,8 +589,7 @@ namespace std
     {
         size_t operator()(const bdn::LongDouble &key) const
         {
-            return std::hash<typename bdn::LongDouble::SimpleType>()(
-                key.getValue());
+            return std::hash<typename bdn::LongDouble::SimpleType>()(key.getValue());
         }
     };
 }

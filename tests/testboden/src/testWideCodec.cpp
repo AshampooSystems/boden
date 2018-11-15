@@ -19,10 +19,7 @@ namespace bdn
 
         DummyWideTestIterator_ &operator++() { return *this; }
 
-        DummyWideTestIterator_ operator++(int)
-        {
-            return DummyWideTestIterator_();
-        }
+        DummyWideTestIterator_ operator++(int) { return DummyWideTestIterator_(); }
 
         reference operator*() const { return *(VALUE *)nullptr; }
     };
@@ -48,18 +45,14 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename WideCodec::DecodingIterator<
-                                   DummyWideTestIterator_<
-                                       wchar_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyWideTestIterator_<wchar_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename WideCodec::DecodingIterator<
-                                   DummyWideTestIterator_<
-                                       wchar_t, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyWideTestIterator_<wchar_t, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
@@ -67,9 +60,7 @@ namespace bdn
                 {
                     REQUIRE(
                         typeid(typename WideCodec::DecodingIterator<
-                               DummyWideTestIterator_<
-                                   wchar_t, std::bidirectional_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyWideTestIterator_<wchar_t, std::bidirectional_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
@@ -79,16 +70,13 @@ namespace bdn
                     // random access for utf-16
                     REQUIRE(
                         typeid(typename WideCodec::DecodingIterator<
-                               DummyWideTestIterator_<
-                                   wchar_t, std::random_access_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyWideTestIterator_<wchar_t, std::random_access_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename WideCodec::DecodingIterator<
-                                   wchar_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename WideCodec::DecodingIterator<wchar_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -98,18 +86,14 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename WideCodec::EncodingIterator<
-                                   DummyWideTestIterator_<
-                                       char32_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyWideTestIterator_<char32_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename WideCodec::EncodingIterator<
-                                   DummyWideTestIterator_<
-                                       char32_t, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyWideTestIterator_<char32_t, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
@@ -117,9 +101,7 @@ namespace bdn
                 {
                     REQUIRE(
                         typeid(typename WideCodec::EncodingIterator<
-                               DummyWideTestIterator_<
-                                   char32_t, std::bidirectional_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyWideTestIterator_<char32_t, std::bidirectional_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
@@ -129,16 +111,13 @@ namespace bdn
                     // random access for utf-16
                     REQUIRE(
                         typeid(typename WideCodec::EncodingIterator<
-                               DummyWideTestIterator_<
-                                   char32_t, std::random_access_iterator_tag>>::
-                                   iterator_category) ==
+                               DummyWideTestIterator_<char32_t, std::random_access_iterator_tag>>::iterator_category) ==
                         typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename WideCodec::EncodingIterator<
-                                   char32_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename WideCodec::EncodingIterator<char32_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }

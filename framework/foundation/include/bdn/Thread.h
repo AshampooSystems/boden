@@ -378,18 +378,15 @@ namespace bdn
          */
 #if BDN_HAVE_THREADS
         template <class FuncType, class... Args>
-        static std::future<typename std::result_of<FuncType(Args...)>::type>
-        exec(FuncType &&func, Args &&... args)
+        static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType &&func, Args &&... args)
         {
-            std::function<typename std::result_of<FuncType(Args...)>::type()>
-                boundFunc = std::bind(std::forward<FuncType>(func),
-                                      std::forward<Args>(args)...);
+            std::function<typename std::result_of<FuncType(Args...)>::type()> boundFunc =
+                std::bind(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
             class ExecThreadRunnable : public ThreadRunnableBase
             {
               public:
-                ExecThreadRunnable(std::packaged_task<typename std::result_of<
-                                       FuncType(Args...)>::type()> *pTask)
+                ExecThreadRunnable(std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *pTask)
                 {
                     _pTask = pTask;
                 }
@@ -399,20 +396,15 @@ namespace bdn
                 void run() { (*_pTask)(); }
 
               protected:
-                std::packaged_task<
-                    typename std::result_of<FuncType(Args...)>::type()> *_pTask;
+                std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *_pTask;
             };
 
-            std::packaged_task<
-                typename std::result_of<FuncType(Args...)>::type()> *pTask =
-                new std::packaged_task<
-                    typename std::result_of<FuncType(Args...)>::type()>(
-                    boundFunc);
+            std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *pTask =
+                new std::packaged_task<typename std::result_of<FuncType(Args...)>::type()>(boundFunc);
 
             // we must fetch the future here. The thread deletes the task object
             // when it finishes.
-            std::future<typename std::result_of<FuncType(Args...)>::type>
-                resultFuture = pTask->get_future();
+            std::future<typename std::result_of<FuncType(Args...)>::type> resultFuture = pTask->get_future();
 
             Thread execThread(newObj<ExecThreadRunnable>(pTask));
 
@@ -427,11 +419,9 @@ namespace bdn
         // if you get an error here then you are using Threads on a platform
         // that does not support multithreading.
         template <class FuncType, class... Args>
-        static std::future<typename std::result_of<FuncType(Args...)>::type>
-        exec(FuncType &&func, Args &&... args)
+        static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType &&func, Args &&... args)
         {
-            return std::future<
-                typename std::result_of<FuncType(Args...)>::type>();
+            return std::future<typename std::result_of<FuncType(Args...)>::type>();
         }
 
       public:

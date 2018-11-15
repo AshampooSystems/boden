@@ -45,8 +45,7 @@ namespace bdn
              * of java.lang.Object. For Java arrays (e.g. MyClass[]) pass the
              * name of the element type (in slash notation) with [] appended.
              *      */
-            explicit JClass(const String &classNameInSlashNotation)
-                : JObject(findClass_(classNameInSlashNotation))
+            explicit JClass(const String &classNameInSlashNotation) : JObject(findClass_(classNameInSlashNotation))
             {
                 _nameInSlashNotation = classNameInSlashNotation;
                 _nameInSlashNotationInitialized = true;
@@ -72,8 +71,7 @@ namespace bdn
                     static MethodId methodId;
 
                     _canonicalName =
-                        getStaticClass_().invokeObjectMethod_<String>(
-                            methodId, getJObject_(), "getCanonicalName");
+                        getStaticClass_().invokeObjectMethod_<String>(methodId, getJObject_(), "getCanonicalName");
                     _canonicalNameInitialized = true;
                 }
 
@@ -99,11 +97,7 @@ namespace bdn
 
             /** Returns the java signature string that corresponds to this
              * type.*/
-            String getSignature_()
-            {
-                return nameInSlashNotationToSignature_(
-                    getNameInSlashNotation_());
-            }
+            String getSignature_() { return nameInSlashNotationToSignature_(getNameInSlashNotation_()); }
 
             /** Invokes the specified method of the specified class instance.
              *
@@ -123,14 +117,11 @@ namespace bdn
              * by the template parameter ReturnType.
              *  */
             template <typename ReturnType, typename... Arguments>
-            ReturnType invokeObjectMethod_(MethodId &methodId, jobject obj,
-                                           const String &name,
-                                           Arguments... args)
+            ReturnType invokeObjectMethod_(MethodId &methodId, jobject obj, const String &name, Arguments... args)
             {
                 initMethodId<ReturnType, Arguments...>(methodId, name);
 
-                return MethodCaller<ReturnType>::template call<Arguments...>(
-                    obj, methodId.getId(), args...);
+                return MethodCaller<ReturnType>::template call<Arguments...>(obj, methodId.getId(), args...);
             }
 
             /** Invokes the specified static method of the specified class
@@ -150,15 +141,12 @@ namespace bdn
              * by the template parameter ReturnType.
              *  */
             template <typename ReturnType, typename... Arguments>
-            ReturnType invokeStaticMethod_(MethodId &methodId,
-                                           const String &name,
-                                           Arguments... args)
+            ReturnType invokeStaticMethod_(MethodId &methodId, const String &name, Arguments... args)
             {
                 initStaticMethodId<ReturnType, Arguments...>(methodId, name);
 
-                return StaticMethodCaller<ReturnType>::template call<
-                    Arguments...>((jclass)getJObject_(), methodId.getId(),
-                                  args...);
+                return StaticMethodCaller<ReturnType>::template call<Arguments...>((jclass)getJObject_(),
+                                                                                   methodId.getId(), args...);
             }
 
             /** Creates a new instance of the Java class.
@@ -175,36 +163,28 @@ namespace bdn
              * JNI call returns. You can call toStrong() to make the reference
              *      permanent.
              *  */
-            template <typename... Arguments>
-            Reference newInstance_(MethodId &constructorId, Arguments... args)
+            template <typename... Arguments> Reference newInstance_(MethodId &constructorId, Arguments... args)
             {
                 initMethodId<void, Arguments...>(constructorId, "<init>");
 
                 std::list<Reference> tempObjects;
 
-                return _newObject((jclass)getJObject_(), constructorId.getId(),
-                                  nativeToJava(args, tempObjects)...);
+                return _newObject((jclass)getJObject_(), constructorId.getId(), nativeToJava(args, tempObjects)...);
             }
 
           private:
             /** Converts a name in slash notation to the corresponding signature
              * string.*/
-            static String
-            nameInSlashNotationToSignature_(const String &nameInSlashNotation);
+            static String nameInSlashNotationToSignature_(const String &nameInSlashNotation);
 
-            template <typename Dummy> static String _makeTypeSignatureListImpl()
-            {
-                return "";
-            }
+            template <typename Dummy> static String _makeTypeSignatureListImpl() { return ""; }
 
-            template <typename Dummy, typename FirstType,
-                      typename... RemainingTypes>
+            template <typename Dummy, typename FirstType, typename... RemainingTypes>
             static String _makeTypeSignatureListImpl()
             {
                 String firstSig = getTypeSignature<FirstType>();
 
-                String remainingSigs =
-                    _makeTypeSignatureListImpl<Dummy, RemainingTypes...>();
+                String remainingSigs = _makeTypeSignatureListImpl<Dummy, RemainingTypes...>();
 
                 return firstSig + remainingSigs;
             }
@@ -214,13 +194,11 @@ namespace bdn
                 return _makeTypeSignatureListImpl<int, Types...>();
             }
 
-            template <typename ReturnType, typename... Arguments>
-            void initMethodId(MethodId &id, const String &name)
+            template <typename ReturnType, typename... Arguments> void initMethodId(MethodId &id, const String &name)
             {
                 if (!id.isInitialized()) {
                     String methodSignature =
-                        "(" + _makeTypeSignatureList<Arguments...>() + ")" +
-                        getTypeSignature<ReturnType>();
+                        "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
 
                     id.init(*this, name, methodSignature);
                 }
@@ -231,8 +209,7 @@ namespace bdn
             {
                 if (!id.isInitialized()) {
                     String methodSignature =
-                        "(" + _makeTypeSignatureList<Arguments...>() + ")" +
-                        getTypeSignature<ReturnType>();
+                        "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
 
                     id.initStatic(*this, name, methodSignature);
                 }
@@ -240,8 +217,7 @@ namespace bdn
 
             template <typename T> static String getTypeSignature()
             {
-                return TypeConversion<
-                    typename std::decay<T>::type>::getJavaSignature();
+                return TypeConversion<typename std::decay<T>::type>::getJavaSignature();
             }
 
             static Reference _newObject(jclass cls, jmethodID methodId, ...);

@@ -20,9 +20,7 @@ namespace bdn
     namespace ios
     {
 
-        class CheckboxCore : public ToggleCoreBase,
-                             BDN_IMPLEMENTS ICheckboxCore,
-                             BDN_IMPLEMENTS ISwitchCore
+        class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
         {
           private:
             static BdnIosCheckboxComposite *_createCheckboxComposite();
@@ -33,14 +31,10 @@ namespace bdn
 
             void setState(const TriState &state) override
             {
-                ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState =
-                    state;
+                ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state;
             }
 
-            void setOn(const bool &on) override
-            {
-                setState(on ? TriState::on : TriState::off);
-            }
+            void setOn(const bool &on) override { setState(on ? TriState::on : TriState::off); }
 
             void _clicked() override;
 

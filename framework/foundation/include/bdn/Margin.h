@@ -76,52 +76,42 @@ namespace bdn
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const Margin &m)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const Margin &m)
     {
-        return stream << "(" << m.top << ", " << m.right << ", " << m.bottom
-                      << ", " << m.left << ")";
+        return stream << "(" << m.top << ", " << m.right << ", " << m.bottom << ", " << m.left << ")";
     }
 }
 
 inline bool operator==(const bdn::Margin &a, const bdn::Margin &b)
 {
-    return (a.top == b.top && a.right == b.right && a.bottom == b.bottom &&
-            a.left == b.left);
+    return (a.top == b.top && a.right == b.right && a.bottom == b.bottom && a.left == b.left);
 }
 
-inline bool operator!=(const bdn::Margin &a, const bdn::Margin &b)
-{
-    return !operator==(a, b);
-}
+inline bool operator!=(const bdn::Margin &a, const bdn::Margin &b) { return !operator==(a, b); }
 
 /** Returns true if a's fields are each smaller than b's */
 inline bool operator<(const bdn::Margin &a, const bdn::Margin &b)
 {
-    return (a.top < b.top && a.right < b.right && a.bottom < b.bottom &&
-            a.left < b.left);
+    return (a.top < b.top && a.right < b.right && a.bottom < b.bottom && a.left < b.left);
 }
 
 /** Returns true if a's fields are each smaller or equal to b's */
 inline bool operator<=(const bdn::Margin &a, const bdn::Margin &b)
 {
-    return (a.top <= b.top && a.right <= b.right && a.bottom <= b.bottom &&
-            a.left <= b.left);
+    return (a.top <= b.top && a.right <= b.right && a.bottom <= b.bottom && a.left <= b.left);
 }
 
 /** Returns true if a's fields are each bigger than b's */
 inline bool operator>(const bdn::Margin &a, const bdn::Margin &b)
 {
-    return (a.top > b.top && a.right > b.right && a.bottom > b.bottom &&
-            a.left > b.left);
+    return (a.top > b.top && a.right > b.right && a.bottom > b.bottom && a.left > b.left);
 }
 
 /** Returns true if a's fields are each bigger or equal to b's */
 inline bool operator>=(const bdn::Margin &a, const bdn::Margin &b)
 {
-    return (a.top >= b.top && a.right >= b.right && a.bottom >= b.bottom &&
-            a.left >= b.left);
+    return (a.top >= b.top && a.right >= b.right && a.bottom >= b.bottom && a.left >= b.left);
 }
 
 #endif

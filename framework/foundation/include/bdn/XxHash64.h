@@ -24,8 +24,7 @@ namespace bdn
             case to predictably alter the result. If you hash the same data with
            a different seed then you will get a different hash.
         */
-        static uint64_t calcHash(const void *pData, size_t bytes,
-                                 uint64_t seed = 0)
+        static uint64_t calcHash(const void *pData, size_t bytes, uint64_t seed = 0)
         {
             SimpleDataProvider dataProvider((const uint8_t *)pData, bytes);
 
@@ -114,8 +113,7 @@ namespace bdn
            will get a different hash.
         */
         template <typename DataProvider>
-        static uint64_t calcHashWithDataProvider(DataProvider &dataProvider,
-                                                 uint64_t seed = 0)
+        static uint64_t calcHashWithDataProvider(DataProvider &dataProvider, uint64_t seed = 0)
         {
             uint64_t hash;
 
@@ -145,9 +143,7 @@ namespace bdn
                     p4x8ByteBlock = dataProvider.next4x8ByteBlock();
                 } while (p4x8ByteBlock);
 
-                hash = rotateBitsLeft(stateVal1, 1) +
-                       rotateBitsLeft(stateVal2, 7) +
-                       rotateBitsLeft(stateVal3, 12) +
+                hash = rotateBitsLeft(stateVal1, 1) + rotateBitsLeft(stateVal2, 7) + rotateBitsLeft(stateVal3, 12) +
                        rotateBitsLeft(stateVal4, 18);
 
                 doMergeRound(hash, stateVal1);
@@ -163,8 +159,7 @@ namespace bdn
 
             hash += totalByteCount;
 
-            const uint64_t *pTail64BitValuesEnd =
-                tailData.p64BitValues + (tailData.tailSizeBytes >> 3);
+            const uint64_t *pTail64BitValuesEnd = tailData.p64BitValues + (tailData.tailSizeBytes >> 3);
             while (tailData.p64BitValues != pTail64BitValuesEnd) {
                 uint64_t temp = 0;
 
@@ -181,8 +176,7 @@ namespace bdn
                 hash = rotateBitsLeft(hash, 23) * prime2 + prime3;
             }
 
-            const uint8_t *pTailBytesEnd =
-                tailData.pBytes + (tailData.tailSizeBytes & 3);
+            const uint8_t *pTailBytesEnd = tailData.pBytes + (tailData.tailSizeBytes & 3);
             while (tailData.pBytes != pTailBytesEnd) {
                 hash ^= (*tailData.pBytes) * prime5;
                 hash = rotateBitsLeft(hash, 11) * prime1;
@@ -228,9 +222,7 @@ namespace bdn
         class SimpleDataProvider
         {
           public:
-            SimpleDataProvider(const uint8_t *pData, size_t bytes)
-                : _pNextData(pData), _bytesLeft(bytes)
-            {}
+            SimpleDataProvider(const uint8_t *pData, size_t bytes) : _pNextData(pData), _bytesLeft(bytes) {}
 
             const uint64_t *next4x8ByteBlock()
             {
@@ -268,8 +260,7 @@ namespace bdn
                 // necessary then the 64bit value will be aligned on an 8 byte
                 // boundary. And that means that it is also aligned on a 4 byte
                 // boundary.
-                uint32_t *p4ByteValue =
-                    (uint32_t *)&_8ByteValues[_bytesLeft / 8];
+                uint32_t *p4ByteValue = (uint32_t *)&_8ByteValues[_bytesLeft / 8];
 
                 // note that p4ByteValue also points to the correct place
                 // in the big endian case. Since we do not swap the byte
@@ -285,8 +276,7 @@ namespace bdn
                 swapByteOrder(*p4ByteValue);
 #endif
 
-                return TailData{_bytesLeft, _8ByteValues, p4ByteValue,
-                                _pNextData + _bytesLeft - (_bytesLeft & 3)};
+                return TailData{_bytesLeft, _8ByteValues, p4ByteValue, _pNextData + _bytesLeft - (_bytesLeft & 3)};
             }
 
           private:

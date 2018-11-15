@@ -10,15 +10,13 @@ namespace bdn
 
     /** ITextUi implementation that uses stdio streams (stdin, stdout, stderr).
      */
-    template <typename CharType>
-    class StdioTextUi : public Base, BDN_IMPLEMENTS ITextUi
+    template <typename CharType> class StdioTextUi : public Base, BDN_IMPLEMENTS ITextUi
     {
       public:
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete them. So it is ok to use
            std::cin, std::cout and/or std::cerr.*/
-        StdioTextUi(std::basic_istream<CharType> *pInStream,
-                    std::basic_ostream<CharType> *pOutStream,
+        StdioTextUi(std::basic_istream<CharType> *pInStream, std::basic_ostream<CharType> *pOutStream,
                     std::basic_ostream<CharType> *pErrStream)
         {
             _pInReader = newObj<AsyncStdioReader<CharType>>(pInStream);
@@ -33,15 +31,9 @@ namespace bdn
             You can use AsyncOp.onDone() to register a handler that is notified
            when the user has entered the text.
             */
-        P<IAsyncOp<String>> readLine() override
-        {
-            return _pInReader->readLine();
-        }
+        P<IAsyncOp<String>> readLine() override { return _pInReader->readLine(); }
 
-        P<ITextSink> statusOrProblem() override
-        {
-            return _pStatusOrProblemSink;
-        }
+        P<ITextSink> statusOrProblem() override { return _pStatusOrProblemSink; }
 
         P<ITextSink> output() override { return _pOutputSink; }
 
@@ -64,8 +56,7 @@ namespace bdn
             {
                 Mutex::Lock lock(_mutex);
 
-                (*_pStream) << s.toLocaleEncoding<CharType>(_pStream->getloc())
-                            << std::endl;
+                (*_pStream) << s.toLocaleEncoding<CharType>(_pStream->getloc()) << std::endl;
             }
 
           private:

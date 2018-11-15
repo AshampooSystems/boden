@@ -32,10 +32,7 @@ namespace bdn
         AppControllerBase::get()->beginLaunch(_launchInfo);
     }
 
-    void AppRunnerBase::finishLaunch()
-    {
-        AppControllerBase::get()->finishLaunch(_launchInfo);
-    }
+    void AppRunnerBase::finishLaunch() { AppControllerBase::get()->finishLaunch(_launchInfo); }
 
     void AppRunnerBase::launch()
     {

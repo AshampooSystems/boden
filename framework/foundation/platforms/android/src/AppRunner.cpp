@@ -20,8 +20,7 @@ namespace bdn
                 JBundle extras = intent.getExtras();
 
                 if (!extras.isNull_()) {
-                    bdn::java::ArrayOfObjects<bdn::java::JString> argArray =
-                        extras.getStringArray("commandline-args");
+                    bdn::java::ArrayOfObjects<bdn::java::JString> argArray = extras.getStringArray("commandline-args");
 
                     if (!argArray.isNull_()) {
                         size_t len = argArray.getLength();
@@ -40,11 +39,8 @@ namespace bdn
             return launchInfo;
         }
 
-        AppRunner::AppRunner(
-            std::function<P<AppControllerBase>()> appControllerCreator,
-            JIntent intent)
-            : AppRunnerBase(appControllerCreator,
-                            AppRunner::_makeLaunchInfo(intent))
+        AppRunner::AppRunner(std::function<P<AppControllerBase>()> appControllerCreator, JIntent intent)
+            : AppRunnerBase(appControllerCreator, AppRunner::_makeLaunchInfo(intent))
         {
             _pMainDispatcher = newObj<Dispatcher>(JLooper::getMainLooper());
         }
@@ -62,10 +58,7 @@ namespace bdn
             launch();
         }
 
-        P<IDispatcher> AppRunner::getMainDispatcher()
-        {
-            return _pMainDispatcher;
-        }
+        P<IDispatcher> AppRunner::getMainDispatcher() { return _pMainDispatcher; }
 
         void AppRunner::disposeMainDispatcher() { _pMainDispatcher->dispose(); }
 

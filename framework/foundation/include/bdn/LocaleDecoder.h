@@ -36,23 +36,16 @@ namespace bdn
               ,
               _locale(loc)
         {
-            _pCodec = &std::use_facet<std::codecvt<wchar_t, char, mbstate_t>>(
-                _locale);
+            _pCodec = &std::use_facet<std::codecvt<wchar_t, char, mbstate_t>>(_locale);
         }
 
 #ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
 
         using Iterator = Utf8Codec::DecodingIterator<const char *>;
 
-        Iterator begin() const
-        {
-            return Iterator(_pData, _pData, _pData + _bytes);
-        }
+        Iterator begin() const { return Iterator(_pData, _pData, _pData + _bytes); }
 
-        Iterator end() const
-        {
-            return Iterator(_pData + _bytes, _pData, _pData + _bytes);
-        }
+        Iterator end() const { return Iterator(_pData + _bytes, _pData, _pData + _bytes); }
 
 #else
 
@@ -76,28 +69,21 @@ namespace bdn
             using pointer = char32_t *;
             using reference = char32_t;
 
-            Iterator()
-                : _pInNext(nullptr), _pInEnd(nullptr), _pCodec(nullptr),
-                  _pDecodeState(nullptr)
-            {}
+            Iterator() : _pInNext(nullptr), _pInEnd(nullptr), _pCodec(nullptr), _pDecodeState(nullptr) {}
 
           private:
-            Iterator(const char *pData, size_t bytes,
-                     const std::codecvt<wchar_t, char, mbstate_t> *pCodec)
-                : _pInNext(pData), _pInEnd(pData + bytes), _pCodec(pCodec),
-                  _pDecodeState(nullptr)
+            Iterator(const char *pData, size_t bytes, const std::codecvt<wchar_t, char, mbstate_t> *pCodec)
+                : _pInNext(pData), _pInEnd(pData + bytes), _pCodec(pCodec), _pDecodeState(nullptr)
             {}
 
           public:
             Iterator(Iterator &&o)
-                : _pInNext(o._pInNext), _pInEnd(o._pInEnd), _pCodec(o._pCodec),
-                  _pDecodeState(o._pDecodeState)
+                : _pInNext(o._pInNext), _pInEnd(o._pInEnd), _pCodec(o._pCodec), _pDecodeState(o._pDecodeState)
             {
                 o._pDecodeState = nullptr;
             }
 
-            Iterator(const Iterator &o)
-                : _pInNext(o._pInNext), _pInEnd(o._pInEnd), _pCodec(o._pCodec)
+            Iterator(const Iterator &o) : _pInNext(o._pInNext), _pInEnd(o._pInEnd), _pCodec(o._pCodec)
             {
                 if (o._pDecodeState != nullptr)
                     _pDecodeState = new DecodeState(*o._pDecodeState);
@@ -200,16 +186,13 @@ namespace bdn
                     // (even though we called fillBuffer below) if the input
                     // data is empty.
 
-                    size_t outWideLeft =
-                        (_pDecodeState == nullptr)
-                            ? 0
-                            : (_pDecodeState->outEnd.getInner() -
-                               _pDecodeState->outCurr.getInner());
+                    size_t outWideLeft = (_pDecodeState == nullptr)
+                                             ? 0
+                                             : (_pDecodeState->outEnd.getInner() - _pDecodeState->outCurr.getInner());
                     size_t otherOutWideLeft =
                         (o._pDecodeState == nullptr)
                             ? 0
-                            : (o._pDecodeState->outEnd.getInner() -
-                               o._pDecodeState->outCurr.getInner());
+                            : (o._pDecodeState->outEnd.getInner() - o._pDecodeState->outCurr.getInner());
 
                     return (outWideLeft == otherOutWideLeft);
                 }
@@ -270,22 +253,19 @@ namespace bdn
 
                 DecodeState(const DecodeState &o) : state(o.state)
                 {
-                    std::memcpy(outBuffer, o.outBuffer,
-                                sizeof(wchar_t) * outBufferSize);
+                    std::memcpy(outBuffer, o.outBuffer, sizeof(wchar_t) * outBufferSize);
 
                     // the iterators operate on pointers. We must ensure that
                     // OUR iterators also refer to OUR buffer.
                     wchar_t *pOutBegin = outBuffer;
 
-                    size_t currIndex =
-                        o.outCurr.getInner() - (wchar_t *)o.outBuffer;
-                    size_t endIndex =
-                        o.outEnd.getInner() - (wchar_t *)o.outBuffer;
+                    size_t currIndex = o.outCurr.getInner() - (wchar_t *)o.outBuffer;
+                    size_t endIndex = o.outEnd.getInner() - (wchar_t *)o.outBuffer;
 
-                    outCurr = WideCodec::DecodingIterator<const wchar_t *>(
-                        pOutBegin + currIndex, pOutBegin, pOutBegin + endIndex);
-                    outEnd = WideCodec::DecodingIterator<const wchar_t *>(
-                        pOutBegin + endIndex, pOutBegin, pOutBegin + endIndex);
+                    outCurr = WideCodec::DecodingIterator<const wchar_t *>(pOutBegin + currIndex, pOutBegin,
+                                                                           pOutBegin + endIndex);
+                    outEnd = WideCodec::DecodingIterator<const wchar_t *>(pOutBegin + endIndex, pOutBegin,
+                                                                          pOutBegin + endIndex);
                 }
 
                 std::mbstate_t state;

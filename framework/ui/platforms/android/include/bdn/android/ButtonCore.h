@@ -21,12 +21,10 @@ namespace bdn
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "ButtonCore instance requested for a Button that does "
-                        "not have a parent.");
+                    throw ProgrammingError("ButtonCore instance requested for a Button that does "
+                                           "not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
                     throw ProgrammingError("ButtonCore instance requested for "
                                            "a Button with core-less parent.");
@@ -37,8 +35,7 @@ namespace bdn
             }
 
           public:
-            ButtonCore(Button *pOuterButton)
-                : ViewCore(pOuterButton, _createJButton(pOuterButton))
+            ButtonCore(Button *pOuterButton) : ViewCore(pOuterButton, _createJButton(pOuterButton))
             {
                 _pJButton = cast<JButton>(&getJView());
 

@@ -14,8 +14,7 @@ namespace bdn
       public:
         VirtualPoint(bool h) : primary(h ? x : y), secondary(h ? y : x) {}
 
-        VirtualPoint(bool h, double p, double s)
-            : primary(h ? x : y), secondary(h ? y : x)
+        VirtualPoint(bool h, double p, double s) : primary(h ? x : y), secondary(h ? y : x)
         {
             primary = p;
             secondary = s;
@@ -31,14 +30,11 @@ namespace bdn
     {
       public:
         VirtualMargin(bool h)
-            : primaryNear(h ? left : top), primaryFar(h ? right : bottom),
-              secondaryNear(h ? top : left), secondaryFar(h ? bottom : right)
+            : primaryNear(h ? left : top), primaryFar(h ? right : bottom), secondaryNear(h ? top : left),
+              secondaryFar(h ? bottom : right)
         {}
 
-        VirtualMargin(bool h, const Margin &other) : VirtualMargin(h)
-        {
-            Margin::operator=(other);
-        }
+        VirtualMargin(bool h, const Margin &other) : VirtualMargin(h) { Margin::operator=(other); }
 
         Margin toMargin() const { return *this; }
 
@@ -51,18 +47,14 @@ namespace bdn
     class VirtualSize : Size
     {
       public:
-        VirtualSize(bool h)
-            : primary(h ? width : height), secondary(h ? height : width)
-        {}
+        VirtualSize(bool h) : primary(h ? width : height), secondary(h ? height : width) {}
 
-        VirtualSize(bool h, const Size &other)
-            : primary(h ? width : height), secondary(h ? height : width)
+        VirtualSize(bool h, const Size &other) : primary(h ? width : height), secondary(h ? height : width)
         {
             Size::operator=(other);
         }
 
-        VirtualSize(bool h, double p, double s)
-            : primary(h ? width : height), secondary(h ? height : width)
+        VirtualSize(bool h, double p, double s) : primary(h ? width : height), secondary(h ? height : width)
         {
             primary = p;
             secondary = s;
@@ -82,15 +74,14 @@ namespace bdn
     {
       public:
         VirtualRect(bool h, const Rect &other)
-            : _h(h), primary(h ? x : y), secondary(h ? y : x),
-              primarySize(h ? width : height), secondarySize(h ? height : width)
+            : _h(h), primary(h ? x : y), secondary(h ? y : x), primarySize(h ? width : height),
+              secondarySize(h ? height : width)
         {
             Rect::operator=(other);
         }
 
         VirtualRect(const VirtualRect &other)
-            : _h(other._h), primary(_h ? x : y), secondary(_h ? y : x),
-              primarySize(_h ? width : height),
+            : _h(other._h), primary(_h ? x : y), secondary(_h ? y : x), primarySize(_h ? width : height),
               secondarySize(_h ? height : width)
         {
             Rect::operator=(other.toRect());
@@ -99,10 +90,7 @@ namespace bdn
         Rect toRect() const { return *this; }
 
         /** Increase the rect size by adding the specified margin.*/
-        VirtualRect operator+(const VirtualMargin &margin) const
-        {
-            return VirtualRect(*this) += margin;
-        }
+        VirtualRect operator+(const VirtualMargin &margin) const { return VirtualRect(*this) += margin; }
 
         VirtualRect &operator=(const VirtualRect &other)
         {
@@ -122,10 +110,7 @@ namespace bdn
         }
 
         /** Returns the size of the rect.*/
-        VirtualSize getSize() const
-        {
-            return VirtualSize(_h, primary, secondary);
-        }
+        VirtualSize getSize() const { return VirtualSize(_h, primary, secondary); }
 
       private:
         bool _h;
@@ -145,8 +130,7 @@ namespace bdn
         expand
     };
 
-    inline VirtualAlignment primaryToVirtualAlignment(bool h,
-                                                      const P<View> &view)
+    inline VirtualAlignment primaryToVirtualAlignment(bool h, const P<View> &view)
     {
         if (h) {
             return (VirtualAlignment)view->horizontalAlignment();
@@ -155,8 +139,7 @@ namespace bdn
         }
     }
 
-    inline VirtualAlignment secondaryToVirtualAlignment(bool h,
-                                                        const P<View> &view)
+    inline VirtualAlignment secondaryToVirtualAlignment(bool h, const P<View> &view)
     {
         if (h) {
             return (VirtualAlignment)view->verticalAlignment();

@@ -19,10 +19,7 @@ namespace bdn
 
         DummyUtf16TestIterator_ &operator++() { return *this; }
 
-        DummyUtf16TestIterator_ operator++(int)
-        {
-            return DummyUtf16TestIterator_();
-        }
+        DummyUtf16TestIterator_ operator++(int) { return DummyUtf16TestIterator_(); }
 
         reference operator*() const { return *(VALUE *)nullptr; }
     };
@@ -36,47 +33,36 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf16Codec::DecodingIterator<
-                                   DummyUtf16TestIterator_<
-                                       char16_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf16TestIterator_<char16_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf16Codec::DecodingIterator<
-                                   DummyUtf16TestIterator_<
-                                       char16_t, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf16TestIterator_<char16_t, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
                 SECTION("inner bidir")
                 {
-                    REQUIRE(
-                        typeid(typename Utf16Codec::DecodingIterator<
-                               DummyUtf16TestIterator_<
-                                   char16_t, std::bidirectional_iterator_tag>>::
-                                   iterator_category) ==
-                        typeid(std::bidirectional_iterator_tag));
+                    REQUIRE(typeid(typename Utf16Codec::DecodingIterator<DummyUtf16TestIterator_<
+                                       char16_t, std::bidirectional_iterator_tag>>::iterator_category) ==
+                            typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner random")
                 {
                     // the result should still be bidir, since we do not support
                     // random access for utf-16
-                    REQUIRE(
-                        typeid(typename Utf16Codec::DecodingIterator<
-                               DummyUtf16TestIterator_<
-                                   char16_t, std::random_access_iterator_tag>>::
-                                   iterator_category) ==
-                        typeid(std::bidirectional_iterator_tag));
+                    REQUIRE(typeid(typename Utf16Codec::DecodingIterator<DummyUtf16TestIterator_<
+                                       char16_t, std::random_access_iterator_tag>>::iterator_category) ==
+                            typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf16Codec::DecodingIterator<
-                                   char16_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf16Codec::DecodingIterator<char16_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -86,47 +72,36 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf16Codec::EncodingIterator<
-                                   DummyUtf16TestIterator_<
-                                       char32_t, std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf16TestIterator_<char32_t, std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf16Codec::EncodingIterator<
-                                   DummyUtf16TestIterator_<
-                                       char32_t, std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf16TestIterator_<char32_t, std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
                 SECTION("inner bidir")
                 {
-                    REQUIRE(
-                        typeid(typename Utf16Codec::EncodingIterator<
-                               DummyUtf16TestIterator_<
-                                   char32_t, std::bidirectional_iterator_tag>>::
-                                   iterator_category) ==
-                        typeid(std::bidirectional_iterator_tag));
+                    REQUIRE(typeid(typename Utf16Codec::EncodingIterator<DummyUtf16TestIterator_<
+                                       char32_t, std::bidirectional_iterator_tag>>::iterator_category) ==
+                            typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner random")
                 {
                     // the result should still be bidir, since we do not support
                     // random access for utf-16
-                    REQUIRE(
-                        typeid(typename Utf16Codec::EncodingIterator<
-                               DummyUtf16TestIterator_<
-                                   char32_t, std::random_access_iterator_tag>>::
-                                   iterator_category) ==
-                        typeid(std::bidirectional_iterator_tag));
+                    REQUIRE(typeid(typename Utf16Codec::EncodingIterator<DummyUtf16TestIterator_<
+                                       char32_t, std::random_access_iterator_tag>>::iterator_category) ==
+                            typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf16Codec::EncodingIterator<
-                                   char32_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf16Codec::EncodingIterator<char32_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -150,8 +125,7 @@ namespace bdn
                 {u"", U"", "empty"},
                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                 // Use \0 instead.
-                {std::u16string(u"\0", 1), std::u32string(U"\0", 1),
-                 "zero char"},
+                {std::u16string(u"\0", 1), std::u32string(U"\0", 1), "zero char"},
                 {u"h", U"h", "ascii char"},
                 {u"hx", U"hx", "ascii 2 chars"},
                 {u"\u0345", U"\u0345", "non-ascii below surrogate range"},
@@ -167,31 +141,19 @@ namespace bdn
                 {u"\xD801", U"\ufffd", "only high surrogate"},
                 {u"\xDC37", U"\ufffd", "only low surrogate"},
 
-                {u"\xD801\U00024B62", U"\ufffd\U00024B62",
-                 "high surrogate at start, pair follows"},
-                {u"\xD801\u0345", U"\ufffd\u0345",
-                 "high surrogate at start, single follows"},
-                {u"\U00024B62\xD801", U"\U00024B62\ufffd",
-                 "pair, high surrogate at end"},
-                {u"\u0345\xD801", U"\u0345\ufffd",
-                 "single, high surrogate at end"},
-                {u"\U00024B62\xD801\U00010437", U"\U00024B62\ufffd\U00010437",
-                 "high surrogate between pairs"},
-                {u"\u0345\xD801\u0567", U"\u0345\ufffd\u0567",
-                 "high surrogate between singles"},
+                {u"\xD801\U00024B62", U"\ufffd\U00024B62", "high surrogate at start, pair follows"},
+                {u"\xD801\u0345", U"\ufffd\u0345", "high surrogate at start, single follows"},
+                {u"\U00024B62\xD801", U"\U00024B62\ufffd", "pair, high surrogate at end"},
+                {u"\u0345\xD801", U"\u0345\ufffd", "single, high surrogate at end"},
+                {u"\U00024B62\xD801\U00010437", U"\U00024B62\ufffd\U00010437", "high surrogate between pairs"},
+                {u"\u0345\xD801\u0567", U"\u0345\ufffd\u0567", "high surrogate between singles"},
 
-                {u"\xDC37\U00024B62", U"\ufffd\U00024B62",
-                 "low surrogate at start, pair follows"},
-                {u"\xDC37\u0345", U"\ufffd\u0345",
-                 "low surrogate at start, single follows"},
-                {u"\U00024B62\xDC37", U"\U00024B62\ufffd",
-                 "pair, low surrogate at end"},
-                {u"\u0345\xDC37", U"\u0345\ufffd",
-                 "single, low surrogate at end"},
-                {u"\U00024B62\xDC37\U00010437", U"\U00024B62\ufffd\U00010437",
-                 "low surrogate between pairs"},
-                {u"\u0345\xDC37\u0567", U"\u0345\ufffd\u0567",
-                 "low surrogate between singles"},
+                {u"\xDC37\U00024B62", U"\ufffd\U00024B62", "low surrogate at start, pair follows"},
+                {u"\xDC37\u0345", U"\ufffd\u0345", "low surrogate at start, single follows"},
+                {u"\U00024B62\xDC37", U"\U00024B62\ufffd", "pair, low surrogate at end"},
+                {u"\u0345\xDC37", U"\u0345\ufffd", "single, low surrogate at end"},
+                {u"\U00024B62\xDC37\U00010437", U"\U00024B62\ufffd\U00010437", "low surrogate between pairs"},
+                {u"\u0345\xDC37\u0567", U"\u0345\ufffd\u0567", "low surrogate between singles"},
             };
 
             int dataCount = std::extent<decltype(allData)>().value;
@@ -204,8 +166,7 @@ namespace bdn
                     std::u16string encoded(pCurrData->utf16);
                     std::u32string expectedDecoded(pCurrData->expectedDecoded);
 
-                    testCodecDecodingIterator<Utf16Codec>(encoded,
-                                                          expectedDecoded);
+                    testCodecDecodingIterator<Utf16Codec>(encoded, expectedDecoded);
                 }
             }
         }
@@ -232,8 +193,7 @@ namespace bdn
 
             SubTestData allData[] = {
                 {U"", u"", "empty"},
-                {std::u32string(U"\0", 1), std::u16string(u"\x00", 1),
-                 "zero char"},
+                {std::u32string(U"\0", 1), std::u16string(u"\x00", 1), "zero char"},
                 {U"h", u"h", "ascii char"},
                 {U"hx", u"hx", "ascii 2 chars"},
                 {U"\u0181", u"\u0181", "non-ascii single"},
@@ -269,8 +229,7 @@ namespace bdn
 
                 SECTION(pCurrData->desc)
                 {
-                    testCodecEncodingIterator<Utf16Codec>(
-                        pCurrData->input, pCurrData->expectedUtf16);
+                    testCodecEncodingIterator<Utf16Codec>(pCurrData->input, pCurrData->expectedUtf16);
                 }
             }
         }

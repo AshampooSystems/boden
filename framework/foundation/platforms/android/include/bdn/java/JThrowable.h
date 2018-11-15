@@ -25,8 +25,7 @@ namespace bdn
             {
                 static MethodId methodId;
 
-                return invoke_<String>(getStaticClass_(), methodId,
-                                       "getMessage");
+                return invoke_<String>(getStaticClass_(), methodId, "getMessage");
             }
 
             /** Returns the JClass object for this class.

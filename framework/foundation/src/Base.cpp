@@ -4,8 +4,7 @@
 namespace bdn
 {
 
-    struct Base::WeakReferenceState_ : public Base,
-                                       BDN_IMPLEMENTS IWeakReferenceState
+    struct Base::WeakReferenceState_ : public Base, BDN_IMPLEMENTS IWeakReferenceState
     {
         friend class Base;
 
@@ -193,8 +192,7 @@ namespace bdn
 
             WeakReferenceState_ *pExpected = nullptr;
 
-            if (_weakReferenceState.compare_exchange_strong(
-                    pExpected, pNewData.getPtr())) {
+            if (_weakReferenceState.compare_exchange_strong(pExpected, pNewData.getPtr())) {
                 // successfully stored the pointer. Note that
                 // _weakReferenceState does not call addRef/releaseRef
                 // automatically. But pNewData has already addRef'ed. So we

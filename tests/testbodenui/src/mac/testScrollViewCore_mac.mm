@@ -14,14 +14,12 @@
 
 using namespace bdn;
 
-class TestMacScrollViewCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestScrollViewCore>
+class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestScrollViewCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin<
-            bdn::test::TestScrollViewCore>::initCore();
+        bdn::test::TestMacChildViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
         _nsScrollView = (NSScrollView *)_pNSView;
     }
@@ -31,26 +29,22 @@ class TestMacScrollViewCore
         bdn::Size frameSize(500, 500);
         NSSize macFrameSize = bdn::mac::sizeToMacSize(frameSize);
 
-        NSSize macSizeWithScrollers =
-            [NSScrollView contentSizeForFrameSize:macFrameSize
-                          horizontalScrollerClass:[NSScroller class]
-                            verticalScrollerClass:[NSScroller class]
-                                       borderType:_nsScrollView.borderType
-                                      controlSize:NSControlSizeRegular
-                                    scrollerStyle:_nsScrollView.scrollerStyle];
+        NSSize macSizeWithScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
+                                                    horizontalScrollerClass:[NSScroller class]
+                                                      verticalScrollerClass:[NSScroller class]
+                                                                 borderType:_nsScrollView.borderType
+                                                                controlSize:NSControlSizeRegular
+                                                              scrollerStyle:_nsScrollView.scrollerStyle];
 
-        NSSize macSizeWithoutScrollers =
-            [NSScrollView contentSizeForFrameSize:macFrameSize
-                          horizontalScrollerClass:nil
-                            verticalScrollerClass:nil
-                                       borderType:_nsScrollView.borderType
-                                      controlSize:NSControlSizeRegular
-                                    scrollerStyle:_nsScrollView.scrollerStyle];
+        NSSize macSizeWithoutScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
+                                                       horizontalScrollerClass:nil
+                                                         verticalScrollerClass:nil
+                                                                    borderType:_nsScrollView.borderType
+                                                                   controlSize:NSControlSizeRegular
+                                                                 scrollerStyle:_nsScrollView.scrollerStyle];
 
-        bdn::Size sizeWithScrollers =
-            bdn::mac::macSizeToSize(macSizeWithScrollers);
-        bdn::Size sizeWithoutScrollers =
-            bdn::mac::macSizeToSize(macSizeWithoutScrollers);
+        bdn::Size sizeWithScrollers = bdn::mac::macSizeToSize(macSizeWithScrollers);
+        bdn::Size sizeWithoutScrollers = bdn::mac::macSizeToSize(macSizeWithoutScrollers);
 
         return sizeWithoutScrollers - sizeWithScrollers;
     }
@@ -65,15 +59,13 @@ class TestMacScrollViewCore
         return bdn::Size(0, 0);
     }
 
-    bdn::Size initiateScrollViewResizeToHaveViewPortSize(
-        const bdn::Size &viewPortSize) override
+    bdn::Size initiateScrollViewResizeToHaveViewPortSize(const bdn::Size &viewPortSize) override
     {
         bdn::Size viewSize = viewPortSize + getNonClientSize();
 
         viewSize =
             _pScrollView
-                ->adjustBounds(bdn::Rect(_pScrollView->position(), viewSize),
-                               RoundType::nearest, RoundType::nearest)
+                ->adjustBounds(bdn::Rect(_pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // we cannot resize the scroll view directly with adjustAndSetBounds.
@@ -121,37 +113,31 @@ class TestMacScrollViewCore
         REQUIRE(scrolls == expectedScrolls);
     }
 
-    void verifyContentViewBounds(const bdn::Rect &expectedBounds,
-                                 double maxDeviation = 0) override
+    void verifyContentViewBounds(const bdn::Rect &expectedBounds, double maxDeviation = 0) override
     {
         maxDeviation += Dip::significanceBoundary();
 
         P<View> pContentView = _pScrollView->getContentView();
 
         if (pContentView != nullptr) {
-            bdn::Rect bounds(_pScrollView->getContentView()->position(),
-                             pContentView->size());
+            bdn::Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
             else {
                 REQUIRE_ALMOST_EQUAL(bounds.x, expectedBounds.x, maxDeviation);
                 REQUIRE_ALMOST_EQUAL(bounds.y, expectedBounds.y, maxDeviation);
-                REQUIRE_ALMOST_EQUAL(bounds.width, expectedBounds.width,
-                                     maxDeviation);
-                REQUIRE_ALMOST_EQUAL(bounds.height, expectedBounds.height,
-                                     maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.width, expectedBounds.width, maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.height, expectedBounds.height, maxDeviation);
             }
         }
     }
 
     void verifyScrolledAreaSize(const bdn::Size &expectedSize) override
     {
-        bdn::Size scrolledAreaSize =
-            bdn::mac::macSizeToSize(_nsScrollView.documentView.frame.size);
+        bdn::Size scrolledAreaSize = bdn::mac::macSizeToSize(_nsScrollView.documentView.frame.size);
 
-        bdn::Size viewPortSize =
-            bdn::mac::macSizeToSize(_nsScrollView.contentSize);
+        bdn::Size viewPortSize = bdn::mac::macSizeToSize(_nsScrollView.contentSize);
 
         scrolledAreaSize.applyMinimum(viewPortSize);
 
@@ -163,8 +149,7 @@ class TestMacScrollViewCore
         // NSScrollView refers to the viewport as the "content view".
         // The actual inner view with the scrolled content is the "document
         // view".
-        bdn::Size viewPortSize =
-            bdn::mac::macSizeToSize(_nsScrollView.contentSize);
+        bdn::Size viewPortSize = bdn::mac::macSizeToSize(_nsScrollView.contentSize);
 
         REQUIRE(Dip::equal(viewPortSize, expectedSize));
     }
@@ -179,8 +164,7 @@ void printScrollerStyle()
 
     if (first) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSLog(@"System Scroller Style: %@",
-              [defaults stringForKey:@"AppleShowScrollBars"]);
+        NSLog(@"System Scroller Style: %@", [defaults stringForKey:@"AppleShowScrollBars"]);
         first = false;
     }
 }

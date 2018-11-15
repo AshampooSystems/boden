@@ -21,10 +21,7 @@ namespace bdn
         }
     }
 
-    ErrorInfo::ErrorInfo(const String &errorString)
-    {
-        initFromErrorString(errorString);
-    }
+    ErrorInfo::ErrorInfo(const String &errorString) { initFromErrorString(errorString); }
 
     ErrorInfo::ErrorInfo(const std::exception_ptr &exceptionPtr)
     {

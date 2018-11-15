@@ -10,10 +10,7 @@
 
 @implementation BdnToggleClickManager
 
-- (void)setToggleCoreBase:(bdn::mac::ToggleCoreBase *)pCore
-{
-    _pToggleCoreBase = pCore;
-}
+- (void)setToggleCoreBase:(bdn::mac::ToggleCoreBase *)pCore { _pToggleCoreBase = pCore; }
 
 - (void)clicked { _pToggleCoreBase->generateClick(); }
 
@@ -24,11 +21,9 @@ namespace bdn
     namespace mac
     {
 
-        ToggleCoreBase::ToggleCoreBase(View *pOuterToggle)
-            : ButtonCoreBase(pOuterToggle, _createNsButton())
+        ToggleCoreBase::ToggleCoreBase(View *pOuterToggle) : ButtonCoreBase(pOuterToggle, _createNsButton())
         {
-            BdnToggleClickManager *clickMan =
-                [[BdnToggleClickManager alloc] init];
+            BdnToggleClickManager *clickMan = [[BdnToggleClickManager alloc] init];
             [clickMan setToggleCoreBase:this];
             _clickManager = clickMan;
 

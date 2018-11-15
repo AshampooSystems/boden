@@ -26,16 +26,13 @@ namespace bdn
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "TextFieldCore instance requested for a TextField that "
-                        "does not have a parent.");
+                    throw ProgrammingError("TextFieldCore instance requested for a TextField that "
+                                           "does not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
-                    throw ProgrammingError(
-                        "TextFieldCore instance requested for a TextField with "
-                        "core-less parent.");
+                    throw ProgrammingError("TextFieldCore instance requested for a TextField with "
+                                           "core-less parent.");
 
                 JContext context = pParentCore->getJView().getContext();
 
@@ -43,20 +40,16 @@ namespace bdn
             }
 
           public:
-            TextFieldCore(TextField *pOuterTextField)
-                : ViewCore(pOuterTextField, _createJEditText(pOuterTextField))
+            TextFieldCore(TextField *pOuterTextField) : ViewCore(pOuterTextField, _createJEditText(pOuterTextField))
             {
                 _pJEditText = cast<JEditText>(&getJView());
                 _pJEditText->setSingleLine(true);
 
-                _pWatcher = newObj<bdn::android::JNativeEditTextTextWatcher>(
-                    *_pJEditText);
+                _pWatcher = newObj<bdn::android::JNativeEditTextTextWatcher>(*_pJEditText);
                 _pJEditText->addTextChangedListener(*_pWatcher);
 
-                _pOnEditorActionListener = newObj<
-                    bdn::android::JNativeTextViewOnEditorActionListener>();
-                _pJEditText->setOnEditorActionListener(
-                    *_pOnEditorActionListener);
+                _pOnEditorActionListener = newObj<bdn::android::JNativeTextViewOnEditorActionListener>();
+                _pJEditText->setOnEditorActionListener(*_pOnEditorActionListener);
 
                 setText(pOuterTextField->text());
             }
@@ -75,20 +68,16 @@ namespace bdn
 
           public:
             // Called by Java (via JNativeEditTextTextWatcher)
-            void beforeTextChanged(String string, int start, int count,
-                                   int after)
-            {}
+            void beforeTextChanged(String string, int start, int count, int after) {}
 
             // Called by Java (via JNativeEditTextTextWatcher)
-            void onTextChanged(String string, int start, int before, int count)
-            {}
+            void onTextChanged(String string, int start, int before, int count) {}
 
             // Called by Java (via JNativeEditTextTextWatcher)
             void afterTextChanged()
             {
                 String newText = _pJEditText->getText();
-                P<TextField> outerTextField =
-                    cast<TextField>(getOuterViewIfStillAttached());
+                P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
                     outerTextField->setText(newText);
                 }
@@ -96,8 +85,7 @@ namespace bdn
 
             bool onEditorAction(int actionId, JKeyEvent keyEvent)
             {
-                P<TextField> outerTextField =
-                    cast<TextField>(getOuterViewIfStillAttached());
+                P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
                     outerTextField->submit();
                 }

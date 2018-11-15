@@ -10,8 +10,7 @@
 
 using namespace bdn;
 
-class ScrollViewLayoutHelperTester
-    : public bdn::test::ScrollViewLayoutTesterBase<Base>
+class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBase<Base>
 {
   public:
     ScrollViewLayoutHelperTester() : _helper(13, 7)
@@ -36,8 +35,7 @@ class ScrollViewLayoutHelperTester
 
     double getHorzBarHeight() override { return 7; }
 
-    Size
-    callCalcPreferredSize(const Size &availableSpace = Size::none()) override
+    Size callCalcPreferredSize(const Size &availableSpace = Size::none()) override
     {
         return _helper.calcPreferredSize(_pScrollView, availableSpace);
     }
@@ -46,8 +44,7 @@ class ScrollViewLayoutHelperTester
     {
         _prepareCalcLayoutViewPortSize =
             _pScrollView
-                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize),
-                               RoundType::nearest, RoundType::nearest)
+                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // the adjusted size should be roughly the same
@@ -57,10 +54,7 @@ class ScrollViewLayoutHelperTester
         return _prepareCalcLayoutViewPortSize;
     }
 
-    void calcLayoutAfterPreparation() override
-    {
-        _helper.calcLayout(_pScrollView, _prepareCalcLayoutViewPortSize);
-    }
+    void calcLayoutAfterPreparation() override { _helper.calcLayout(_pScrollView, _prepareCalcLayoutViewPortSize); }
 
     void verifyScrollsHorizontally(bool expectedScrolls) override
     {
@@ -72,8 +66,7 @@ class ScrollViewLayoutHelperTester
         REQUIRE(_helper.getVerticalScrollBarVisible() == expectedScrolls);
     }
 
-    void verifyContentViewBounds(const Rect &expectedBounds,
-                                 double maxDeviation = 0) override
+    void verifyContentViewBounds(const Rect &expectedBounds, double maxDeviation = 0) override
     {
         maxDeviation += Dip::significanceBoundary();
 
@@ -82,14 +75,10 @@ class ScrollViewLayoutHelperTester
         else {
             Rect contentViewBounds = _helper.getContentViewBounds();
 
-            REQUIRE_ALMOST_EQUAL(contentViewBounds.x, expectedBounds.x,
-                                 maxDeviation);
-            REQUIRE_ALMOST_EQUAL(contentViewBounds.y, expectedBounds.y,
-                                 maxDeviation);
-            REQUIRE_ALMOST_EQUAL(contentViewBounds.width, expectedBounds.width,
-                                 maxDeviation);
-            REQUIRE_ALMOST_EQUAL(contentViewBounds.height,
-                                 expectedBounds.height, maxDeviation);
+            REQUIRE_ALMOST_EQUAL(contentViewBounds.x, expectedBounds.x, maxDeviation);
+            REQUIRE_ALMOST_EQUAL(contentViewBounds.y, expectedBounds.y, maxDeviation);
+            REQUIRE_ALMOST_EQUAL(contentViewBounds.width, expectedBounds.width, maxDeviation);
+            REQUIRE_ALMOST_EQUAL(contentViewBounds.height, expectedBounds.height, maxDeviation);
         }
     }
 
@@ -123,17 +112,13 @@ class ScrollViewLayoutHelperTester
 
                 REQUIRE(helper.getHorizontalScrollBarVisible() == false);
                 REQUIRE(helper.getVerticalScrollBarVisible() == false);
-                REQUIRE(helper.getContentViewBounds() ==
-                        Rect(0, 0, 1000, 1000));
+                REQUIRE(helper.getContentViewBounds() == Rect(0, 0, 1000, 1000));
                 REQUIRE(helper.getScrolledAreaSize() == Size(1000, 1000));
                 REQUIRE(helper.getViewPortSize() == Size(1000, 1000));
             }
         }
 
-        SECTION("scrollview not null")
-        {
-            ScrollViewLayoutTesterBase<Base>::doPreferredSizeAndLayoutTests();
-        }
+        SECTION("scrollview not null") { ScrollViewLayoutTesterBase<Base>::doPreferredSizeAndLayoutTests(); }
     }
 
   private:
@@ -142,8 +127,7 @@ class ScrollViewLayoutHelperTester
 
 TEST_CASE("ScrollViewLayoutHelper")
 {
-    P<ScrollViewLayoutHelperTester> pTester =
-        newObj<ScrollViewLayoutHelperTester>();
+    P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>();
 
     pTester->doPreferredSizeAndLayoutTests();
 }

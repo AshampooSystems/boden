@@ -5,8 +5,7 @@
 
 namespace bdn
 {
-    void platformEntryWrapper(std::function<void()> function,
-                              bool canKeepRunningAfterException, void *)
+    void platformEntryWrapper(std::function<void()> function, bool canKeepRunningAfterException, void *)
     {
         try {
             function();

@@ -7,18 +7,9 @@ namespace bdn
 
     void debugBreak() { platform::Hooks::get()->debugBreak(); }
 
-    bool debuggerPrintGoesToStdErr()
-    {
-        return platform::Hooks::get()->debuggerPrintGoesToStdErr();
-    }
+    bool debuggerPrintGoesToStdErr() { return platform::Hooks::get()->debuggerPrintGoesToStdErr(); }
 
-    void debuggerPrint(const String &message)
-    {
-        platform::Hooks::get()->debuggerPrint(message);
-    }
+    void debuggerPrint(const String &message) { platform::Hooks::get()->debuggerPrint(message); }
 
-    bool _isDebuggerActive()
-    {
-        return platform::Hooks::get()->_isDebuggerActive();
-    }
+    bool _isDebuggerActive() { return platform::Hooks::get()->_isDebuggerActive(); }
 }

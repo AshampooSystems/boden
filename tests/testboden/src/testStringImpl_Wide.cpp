@@ -4,7 +4,4 @@
 // encoding into multiple CPP files. Some C++ compilers can otherwise choke on
 // the huge amounts of template variations generated in a single file.
 
-TEST_CASE("StringImpl-wide", "[.][long][String]")
-{
-    testStringImpl<WideStringData>();
-}
+TEST_CASE("StringImpl-wide", "[.][long][String]") { testStringImpl<WideStringData>(); }

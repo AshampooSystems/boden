@@ -9,8 +9,7 @@
 using namespace bdn;
 
 template <class STRING_BUF>
-static void _verifyIteration(STRING_BUF &buf, const String &expected,
-                             const String &sectionPrefix)
+static void _verifyIteration(STRING_BUF &buf, const String &expected, const String &sectionPrefix)
 {
     String::Iterator expectedBegin = expected.begin();
     String::Iterator expectedEnd = expected.end();
@@ -121,8 +120,7 @@ static void _verifyIteration(STRING_BUF &buf, const String &expected,
     }
 }
 
-static void _verifyResultImpl(StringBuffer &buf, const String &expected,
-                              const String &sectionPrefix = "")
+static void _verifyResultImpl(StringBuffer &buf, const String &expected, const String &sectionPrefix = "")
 {
     SECTION(sectionPrefix + "normal iteration")
     _verifyIteration<StringBuffer>(buf, expected, sectionPrefix);
@@ -168,8 +166,7 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
         // also verify that we can still write numbers (i.e. stuff whose
         // formatting depends on the locale).
         other << 1234;
-        _verifyResultImpl(other, expected + "1234",
-                          "target stream after another write: ");
+        _verifyResultImpl(other, expected + "1234", "target stream after another write: ");
     }
 
     SECTION("after move assign")
@@ -200,15 +197,11 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
         // also verify that we can still write numbers (i.e. stuff whose
         // formatting depends on the locale).
         other << 1234;
-        _verifyResultImpl(other, expected + "1234",
-                          "target after another write: ");
+        _verifyResultImpl(other, expected + "1234", "target after another write: ");
     }
 }
 
-static void _verifyResult(StringBuffer &&buf, const String &expected)
-{
-    _verifyResult(buf, expected);
-}
+static void _verifyResult(StringBuffer &&buf, const String &expected) { _verifyResult(buf, expected); }
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -240,11 +233,9 @@ std::u32string _readStreamBufferContents(StringBuffer &buf)
     return result;
 }
 
-static void
-_verifySeekResult(bool readSeek, StringBuffer &buf,
-                  std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer,
-                  const String &contents, std::streamoff toIndex,
-                  std::streamoff result)
+static void _verifySeekResult(bool readSeek, StringBuffer &buf,
+                              std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer, const String &contents,
+                              std::streamoff toIndex, std::streamoff result)
 {
     if (toIndex < 0 || (size_t)toIndex > contents.length()) {
         REQUIRE(result == -1);
@@ -258,8 +249,7 @@ _verifySeekResult(bool readSeek, StringBuffer &buf,
                 if ((size_t)toIndex >= contents.length())
                     expected = UnicodeCharTraits::eof();
                 else
-                    expected = UnicodeCharTraits::to_int_type(
-                        contents[(size_t)toIndex]);
+                    expected = UnicodeCharTraits::to_int_type(contents[(size_t)toIndex]);
 
                 REQUIRE(pBuffer->sbumpc() == expected);
 
@@ -287,8 +277,7 @@ _verifySeekResult(bool readSeek, StringBuffer &buf,
     }
 }
 
-static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
-                               std::ios_base::openmode which, bool readSeek)
+static void _verifyGenericSeek(StringBuffer &buf, const String &contents, std::ios_base::openmode which, bool readSeek)
 {
     std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer = buf.rdbuf();
 
@@ -300,26 +289,23 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
         String desc;
     };
 
-    List<SeekPositionData_> posDataList{
-        {{-1, "begin-1"},
-         {0, "begin"},
-         {1, "begin+1"},
-         {(std::streamoff)contents.length() / 2 - 1, "middle-1"},
-         {(std::streamoff)contents.length() / 2, "middle"},
-         {(std::streamoff)contents.length() / 2 + 1, "middle+1"},
-         {(std::streamoff)contents.length() - 1, "end-1"},
-         {(std::streamoff)contents.length(), "end"},
-         {(std::streamoff)contents.length() + 1, "end+1"}}};
+    List<SeekPositionData_> posDataList{{{-1, "begin-1"},
+                                         {0, "begin"},
+                                         {1, "begin+1"},
+                                         {(std::streamoff)contents.length() / 2 - 1, "middle-1"},
+                                         {(std::streamoff)contents.length() / 2, "middle"},
+                                         {(std::streamoff)contents.length() / 2 + 1, "middle+1"},
+                                         {(std::streamoff)contents.length() - 1, "end-1"},
+                                         {(std::streamoff)contents.length(), "end"},
+                                         {(std::streamoff)contents.length() + 1, "end+1"}}};
 
     for (SeekPositionData_ &fromPosData : posDataList) {
-        if (fromPosData.index < 0 ||
-            (size_t)fromPosData.index > contents.length())
+        if (fromPosData.index < 0 || (size_t)fromPosData.index > contents.length())
             continue;
 
         SECTION("from " + fromPosData.desc)
         {
-            std::streampos fromPos =
-                pBuffer->pubseekpos(fromPosData.index, which);
+            std::streampos fromPos = pBuffer->pubseekpos(fromPosData.index, which);
             REQUIRE(fromPos == fromPosData.index);
 
             for (SeekPositionData_ &toPosData : posDataList) {
@@ -329,19 +315,14 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
                     {
                         SECTION("seekoff")
                         {
-                            _verifySeekResult(
-                                readSeek, buf, pBuffer, contents,
-                                toPosData.index,
-                                pBuffer->pubseekoff(toPosData.index,
-                                                    std::ios_base::beg, which));
+                            _verifySeekResult(readSeek, buf, pBuffer, contents, toPosData.index,
+                                              pBuffer->pubseekoff(toPosData.index, std::ios_base::beg, which));
                         }
 
                         SECTION("seekpos")
                         {
-                            _verifySeekResult(
-                                readSeek, buf, pBuffer, contents,
-                                toPosData.index,
-                                pBuffer->pubseekpos(toPosData.index, which));
+                            _verifySeekResult(readSeek, buf, pBuffer, contents, toPosData.index,
+                                              pBuffer->pubseekpos(toPosData.index, which));
                         }
                     }
 
@@ -351,11 +332,8 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
                         SECTION("anchor=cur")
                         {
                             _verifySeekResult(
-                                readSeek, buf, pBuffer, contents,
-                                toPosData.index,
-                                pBuffer->pubseekoff(toPosData.index -
-                                                        fromPosData.index,
-                                                    std::ios_base::cur, which));
+                                readSeek, buf, pBuffer, contents, toPosData.index,
+                                pBuffer->pubseekoff(toPosData.index - fromPosData.index, std::ios_base::cur, which));
                         }
                     }
 
@@ -363,9 +341,7 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
                     {
                         _verifySeekResult(
                             readSeek, buf, pBuffer, contents, toPosData.index,
-                            pBuffer->pubseekoff(toPosData.index -
-                                                    contents.length(),
-                                                std::ios_base::end, which));
+                            pBuffer->pubseekoff(toPosData.index - contents.length(), std::ios_base::end, which));
                     }
                 }
             }
@@ -373,20 +349,17 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents,
     }
 }
 
-static void _verifyReadSeek(StringBuffer &buf, const String &contents,
-                            std::ios_base::openmode which)
+static void _verifyReadSeek(StringBuffer &buf, const String &contents, std::ios_base::openmode which)
 {
     _verifyGenericSeek(buf, contents, which, true);
 
     if (which == std::ios_base::in) {
-        std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer =
-            buf.rdbuf();
+        std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer = buf.rdbuf();
         size_t length = contents.length();
 
         SECTION("sequenced seek")
         {
-            std::streamoff pos =
-                pBuffer->pubseekoff(0, std::ios_base::end, which);
+            std::streamoff pos = pBuffer->pubseekoff(0, std::ios_base::end, which);
             REQUIRE(pos == length);
 
             REQUIRE(pBuffer->sgetc() == UnicodeCharTraits::eof());
@@ -401,19 +374,16 @@ static void _verifyReadSeek(StringBuffer &buf, const String &contents,
             // anchor=cur is not supported if in and out positions are
             // changed at the same time
             if (which != (std::ios_base::in | std::ios_base::out))
-                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1,
-                                          std::ios_base::cur, which);
+                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::cur, which);
             else
-                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1,
-                                          std::ios_base::end, which);
+                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::end, which);
             REQUIRE(pos == length - length / 2 - 1);
 
             REQUIRE(pBuffer->sbumpc() == contents[length - length / 2 - 1]);
             REQUIRE(pBuffer->sbumpc() == contents[length - length / 2]);
             REQUIRE(pBuffer->sbumpc() == contents[length - length / 2 + 1]);
 
-            pos = pBuffer->pubseekoff(-(long)(length / 2), std::ios_base::end,
-                                      which);
+            pos = pBuffer->pubseekoff(-(long)(length / 2), std::ios_base::end, which);
             REQUIRE(pos == length - length / 2);
 
             REQUIRE(pBuffer->sbumpc() == contents[length - length / 2]);
@@ -434,8 +404,7 @@ static void _verifyReadSeek(StringBuffer &buf, const String &contents,
     }
 }
 
-static void _verifyWriteSeek(StringBuffer &buf, const String &contents,
-                             std::ios_base::openmode which)
+static void _verifyWriteSeek(StringBuffer &buf, const String &contents, std::ios_base::openmode which)
 {
     _verifyGenericSeek(buf, contents, which, false);
 }
@@ -467,9 +436,8 @@ class WithStreamOperator_
 };
 
 template <typename CHAR_TYPE, class CHAR_TRAITS>
-std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-           const WithStreamOperator_ &o)
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                       const WithStreamOperator_ &o)
 {
     return stream << "ok";
 }
@@ -484,17 +452,15 @@ class WithStreamOperatorOverloaded_
 };
 
 template <typename CHAR_TYPE, class CHAR_TRAITS>
-std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-           WithStreamOperatorOverloaded_ &o)
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                       WithStreamOperatorOverloaded_ &o)
 {
     return stream << "non const";
 }
 
 template <typename CHAR_TYPE, class CHAR_TRAITS>
-std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-           const WithStreamOperatorOverloaded_ &o)
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                       const WithStreamOperatorOverloaded_ &o)
 {
     return stream << "const";
 }
@@ -504,8 +470,7 @@ class NoStreamOperator_
 };
 
 template <typename VALUE_TYPE>
-void _verifyStringify(VALUE_TYPE value, const String &expectedString,
-                      bool expectedIsPrefixOnly = false)
+void _verifyStringify(VALUE_TYPE value, const String &expectedString, bool expectedIsPrefixOnly = false)
 {
     String actualString;
 
@@ -521,15 +486,11 @@ void _verifyStringify(VALUE_TYPE value, const String &expectedString,
         REQUIRE(actualString == expectedString);
 }
 
-template <typename VALUE_TYPE>
-void _verifyStringifyUnsupportedObject(VALUE_TYPE value,
-                                       bool prefixOnly = false)
+template <typename VALUE_TYPE> void _verifyStringifyUnsupportedObject(VALUE_TYPE value, bool prefixOnly = false)
 {
     String address = toString((const void *)&value);
 
-    String expectedPrefix =
-        String("<") + typeid(typename std::decay<VALUE_TYPE>::type).name() +
-        " @ ";
+    String expectedPrefix = String("<") + typeid(typename std::decay<VALUE_TYPE>::type).name() + " @ ";
     String expectedWithAddress = expectedPrefix + address + ">";
 
     // note that we xannot test toString here, since that would result
@@ -548,8 +509,7 @@ void _verifyStringifyUnsupportedObject(VALUE_TYPE value,
 
 template <bool supported> struct VerifyStringifyObject_
 {
-    template <class VALUE_TYPE>
-    static void verify(VALUE_TYPE value, const String &expectedResult)
+    template <class VALUE_TYPE> static void verify(VALUE_TYPE value, const String &expectedResult)
     {
         _verifyStringify<VALUE_TYPE>(value, expectedResult);
     }
@@ -557,35 +517,28 @@ template <bool supported> struct VerifyStringifyObject_
 
 template <> struct VerifyStringifyObject_<false>
 {
-    template <class VALUE_TYPE>
-    static void verify(VALUE_TYPE value, const String &expectedResult)
+    template <class VALUE_TYPE> static void verify(VALUE_TYPE value, const String &expectedResult)
     {
-        _verifyStringifyUnsupportedObject<VALUE_TYPE>(
-            value, !std::is_reference<VALUE_TYPE>::value);
+        _verifyStringifyUnsupportedObject<VALUE_TYPE>(value, !std::is_reference<VALUE_TYPE>::value);
     }
 };
 
 template <class CLS, bool CONST_SUPPORTED, bool NON_CONST_SUPPORTED>
-void _verifyStringifyObject(const String &expectedConstResult,
-                            const String &expectedNonConstResult)
+void _verifyStringifyObject(const String &expectedConstResult, const String &expectedNonConstResult)
 {
     CLS obj;
 
     SECTION("value")
-    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<CLS>(
-        obj, expectedConstResult);
+    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<CLS>(obj, expectedConstResult);
 
     SECTION("reference")
-    VerifyStringifyObject_<NON_CONST_SUPPORTED>::template verify<CLS &>(
-        obj, expectedNonConstResult);
+    VerifyStringifyObject_<NON_CONST_SUPPORTED>::template verify<CLS &>(obj, expectedNonConstResult);
 
     SECTION("const value")
-    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<const CLS>(
-        obj, expectedConstResult);
+    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<const CLS>(obj, expectedConstResult);
 
     SECTION("const reference")
-    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<const CLS &>(
-        obj, expectedConstResult);
+    VerifyStringifyObject_<CONST_SUPPORTED>::template verify<const CLS &>(obj, expectedConstResult);
 }
 
 void _testStringifyObject()
@@ -594,12 +547,10 @@ void _testStringifyObject()
     _verifyStringifyObject<WithStreamOperator_, true, true>("ok", "ok");
 
     SECTION("with << operator for base class")
-    _verifyStringifyObject<WithStreamOperatorInBaseClass_, true, true>("ok",
-                                                                       "ok");
+    _verifyStringifyObject<WithStreamOperatorInBaseClass_, true, true>("ok", "ok");
 
     SECTION("overloaded << operator")
-    _verifyStringifyObject<WithStreamOperatorOverloaded_, true, true>(
-        "const", "non const");
+    _verifyStringifyObject<WithStreamOperatorOverloaded_, true, true>("const", "non const");
 
     SECTION("no << operator ")
     _verifyStringifyObject<NoStreamOperator_, false, false>("", "");
@@ -782,9 +733,7 @@ void _testStringifyNullptr()
     _verifyStringify<const std::nullptr_t &>(p, "null");
 }
 
-template <typename FLOAT_TYPE>
-void _verifyStringifyFloatingPointVariants(FLOAT_TYPE val,
-                                           const String &expected)
+template <typename FLOAT_TYPE> void _verifyStringifyFloatingPointVariants(FLOAT_TYPE val, const String &expected)
 {
     SECTION("value")
     _verifyStringify<FLOAT_TYPE>(val, expected);
@@ -899,30 +848,22 @@ template <> char32_t *makeStringOfType<char32_t *>(const String &val)
     return const_cast<char32_t *>(s);
 }
 
-template <>
-StringImpl<Utf8StringData>
-makeStringOfType<StringImpl<Utf8StringData>>(const String &val)
+template <> StringImpl<Utf8StringData> makeStringOfType<StringImpl<Utf8StringData>>(const String &val)
 {
     return StringImpl<Utf8StringData>(val.begin(), val.end());
 }
 
-template <>
-StringImpl<Utf16StringData>
-makeStringOfType<StringImpl<Utf16StringData>>(const String &val)
+template <> StringImpl<Utf16StringData> makeStringOfType<StringImpl<Utf16StringData>>(const String &val)
 {
     return StringImpl<Utf16StringData>(val.begin(), val.end());
 }
 
-template <>
-StringImpl<Utf32StringData>
-makeStringOfType<StringImpl<Utf32StringData>>(const String &val)
+template <> StringImpl<Utf32StringData> makeStringOfType<StringImpl<Utf32StringData>>(const String &val)
 {
     return StringImpl<Utf32StringData>(val.begin(), val.end());
 }
 
-template <>
-StringImpl<WideStringData>
-makeStringOfType<StringImpl<WideStringData>>(const String &val)
+template <> StringImpl<WideStringData> makeStringOfType<StringImpl<WideStringData>>(const String &val)
 {
     return StringImpl<WideStringData>(val.begin(), val.end());
 }
@@ -1031,8 +972,7 @@ String getExpectedPointerString(const void *p)
     return expected;
 }
 
-template <typename POINTER_TYPE>
-void _verifyStringifyPointerVariants(POINTER_TYPE val)
+template <typename POINTER_TYPE> void _verifyStringifyPointerVariants(POINTER_TYPE val)
 {
     String expected = getExpectedPointerString(val);
 
@@ -1186,8 +1126,7 @@ TEST_CASE("StringBuffer")
             }
 
             SECTION("ad hoc argument")
-            _verifyResult(StringBuffer() << std::string("hello world"),
-                          "hello world");
+            _verifyResult(StringBuffer() << std::string("hello world"), "hello world");
         }
     }
 
@@ -1200,8 +1139,7 @@ TEST_CASE("StringBuffer")
         }
 
         SECTION("ad hoc")
-        _verifyResult(StringBuffer() << std::wstring(L"hello world"),
-                      "hello world");
+        _verifyResult(StringBuffer() << std::wstring(L"hello world"), "hello world");
     }
 
     SECTION("std::u16string")
@@ -1213,8 +1151,7 @@ TEST_CASE("StringBuffer")
         }
 
         SECTION("ad hoc")
-        _verifyResult(StringBuffer() << std::u16string(u"hello world"),
-                      "hello world");
+        _verifyResult(StringBuffer() << std::u16string(u"hello world"), "hello world");
     }
 
     SECTION("std::u32string")
@@ -1226,8 +1163,7 @@ TEST_CASE("StringBuffer")
         }
 
         SECTION("ad hoc")
-        _verifyResult(StringBuffer() << std::u32string(U"hello world"),
-                      "hello world");
+        _verifyResult(StringBuffer() << std::u32string(U"hello world"), "hello world");
     }
 
     SECTION("formatted number")

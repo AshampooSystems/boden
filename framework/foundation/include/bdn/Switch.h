@@ -36,8 +36,7 @@ namespace bdn
         Switch() { _pOnClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
         /** The switch's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore,
-                          influencesPreferredSize());
+        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
 
         /** Whether the switch is on (true) or off (false) */
         BDN_VIEW_PROPERTY(bool, on, setOn, ISwitchCore, influencesNothing());
@@ -61,10 +60,7 @@ namespace bdn
             return "bdn.SwitchCore";
         }
 
-        String getCoreTypeName() const override
-        {
-            return getSwitchCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getSwitchCoreTypeName(); }
 
       protected:
         P<SimpleNotifier<const ClickEvent &>> _pOnClick;

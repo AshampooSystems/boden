@@ -63,8 +63,7 @@ namespace bdn
            accesses become invalid.
 
             */
-        virtual P<INotifierSubscription>
-        subscribe(const std::function<void(ArgTypes...)> &func) = 0;
+        virtual P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) = 0;
 
         /** Convenience function to subscribe functions that do not take any
            parameters to the notifier. Sometimes the notification parameters are
@@ -75,12 +74,10 @@ namespace bdn
             Apart from the function parameters, subscribeParamless works exactly
            the same as subscribe().
             */
-        virtual P<INotifierSubscription>
-        subscribeParamless(const std::function<void()> &func) = 0;
+        virtual P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) = 0;
 
         /** Same as subscribe(). Returns a reference to the notifier object.*/
-        virtual INotifierBase &
-        operator+=(const std::function<void(ArgTypes...)> &func) = 0;
+        virtual INotifierBase &operator+=(const std::function<void(ArgTypes...)> &func) = 0;
 
         /** Unsubscribes a subscribed function. The INotifierSubscription object
            is invalidated by this operation and should not be used again.

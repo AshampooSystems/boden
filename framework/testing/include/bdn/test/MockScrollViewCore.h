@@ -18,16 +18,14 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockScrollViewCore : public MockViewCore,
-                                   BDN_IMPLEMENTS IScrollViewCore
+        class MockScrollViewCore : public MockViewCore, BDN_IMPLEMENTS IScrollViewCore
         {
           public:
             MockScrollViewCore(ScrollView *pView) : MockViewCore(pView)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _horizontalScrollingEnabled =
-                    pView->horizontalScrollingEnabled();
+                _horizontalScrollingEnabled = pView->horizontalScrollingEnabled();
                 _verticalScrollingEnabled = pView->verticalScrollingEnabled();
             }
 
@@ -37,10 +35,7 @@ namespace bdn
                 _horizontalScrollingEnabledChangeCount++;
             }
 
-            int getHorizontalScrollingEnabledChangeCount() const
-            {
-                return _horizontalScrollingEnabledChangeCount;
-            }
+            int getHorizontalScrollingEnabledChangeCount() const { return _horizontalScrollingEnabledChangeCount; }
 
             void setVerticalScrollingEnabled(const bool &enabled) override
             {
@@ -48,26 +43,16 @@ namespace bdn
                 _verticalScrollingEnabledChangeCount++;
             }
 
-            int getVerticalScrollingEnabledChangeCount() const
-            {
-                return _verticalScrollingEnabledChangeCount;
-            }
+            int getVerticalScrollingEnabledChangeCount() const { return _verticalScrollingEnabledChangeCount; }
 
-            bool getHorizontalScrollBarVisible() const
-            {
-                return _horizontalScrollBarVisible;
-            }
+            bool getHorizontalScrollBarVisible() const { return _horizontalScrollBarVisible; }
 
-            bool getVerticalScrollBarVisible() const
-            {
-                return _verticalScrollBarVisible;
-            }
+            bool getVerticalScrollBarVisible() const { return _verticalScrollBarVisible; }
 
             void scrollClientRectToVisible(const Rect &targetRect) override
             {
                 // update the scroll position of the outer view
-                P<ScrollView> pOuterView =
-                    cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
 
                 if (pOuterView != nullptr) {
                     Rect visibleRect = pOuterView->visibleClientRect();
@@ -124,8 +109,7 @@ namespace bdn
                         // closest edge to the current visible rect to be
                         // prioritized.
 
-                        if (visibleLeft >= targetLeft &&
-                            visibleRight <= targetRight) {
+                        if (visibleLeft >= targetLeft && visibleRight <= targetRight) {
                             // The current visible rect is already fully inside
                             // the target rect. In this case we do not want to
                             // move the scroll position at all. So set the
@@ -142,10 +126,8 @@ namespace bdn
                             // So one of the target rect edges has to be closer
                             // than the other.
 
-                            double distanceLeft =
-                                fabs(targetLeft - visibleLeft);
-                            double distanceRight =
-                                fabs(targetRight - visibleRight);
+                            double distanceLeft = fabs(targetLeft - visibleLeft);
+                            double distanceRight = fabs(targetRight - visibleRight);
 
                             if (distanceLeft < distanceRight) {
                                 // the targetLeft edge of the target rect is
@@ -161,14 +143,12 @@ namespace bdn
                     }
 
                     if (targetBottom - targetTop > visibleRect.height) {
-                        if (visibleTop >= targetTop &&
-                            visibleBottom <= targetBottom) {
+                        if (visibleTop >= targetTop && visibleBottom <= targetBottom) {
                             targetTop = visibleTop;
                             targetBottom = visibleBottom;
                         } else {
                             double distanceTop = fabs(targetTop - visibleTop);
-                            double distanceBottom =
-                                fabs(targetBottom - visibleBottom);
+                            double distanceBottom = fabs(targetBottom - visibleBottom);
 
                             if (distanceTop < distanceBottom)
                                 targetBottom = targetTop + visibleRect.height;
@@ -215,9 +195,7 @@ namespace bdn
                         visibleBottom = visibleTop + visibleRect.height;
                     }
 
-                    visibleRect = Rect(visibleLeft, visibleTop,
-                                       visibleRight - visibleLeft,
-                                       visibleBottom - visibleTop);
+                    visibleRect = Rect(visibleLeft, visibleTop, visibleRight - visibleLeft, visibleBottom - visibleTop);
 
                     pOuterView->_setVisibleClientRect(visibleRect);
                 }
@@ -228,8 +206,7 @@ namespace bdn
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<ScrollView> pOuterView =
-                        cast<ScrollView>(getOuterViewIfStillAttached());
+                    P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
 
                     ScrollViewLayoutHelper helper(10, 10);
                     helper.calcLayout(pOuterView, _bounds.getSize());
@@ -239,14 +216,11 @@ namespace bdn
                     if (pOuterView != nullptr) {
                         P<View> pContentView = pOuterView->getContentView();
                         if (pContentView != nullptr)
-                            pContentView->adjustAndSetBounds(
-                                helper.getContentViewBounds());
+                            pContentView->adjustAndSetBounds(helper.getContentViewBounds());
                     }
 
-                    _horizontalScrollBarVisible =
-                        helper.getHorizontalScrollBarVisible();
-                    _verticalScrollBarVisible =
-                        helper.getVerticalScrollBarVisible();
+                    _horizontalScrollBarVisible = helper.getHorizontalScrollBarVisible();
+                    _verticalScrollBarVisible = helper.getVerticalScrollBarVisible();
 
                     _viewPortSize = helper.getViewPortSize();
 
@@ -257,14 +231,10 @@ namespace bdn
 
                     // make sure that the visible client rect is inside the
                     // client area
-                    if (visibleClientRect.x + visibleClientRect.width >
-                        _clientSize.width)
-                        visibleClientRect.x =
-                            _clientSize.width - visibleClientRect.width;
-                    if (visibleClientRect.y + visibleClientRect.height >
-                        _clientSize.height)
-                        visibleClientRect.y =
-                            _clientSize.height - visibleClientRect.height;
+                    if (visibleClientRect.x + visibleClientRect.width > _clientSize.width)
+                        visibleClientRect.x = _clientSize.width - visibleClientRect.width;
+                    if (visibleClientRect.y + visibleClientRect.height > _clientSize.height)
+                        visibleClientRect.y = _clientSize.height - visibleClientRect.height;
 
                     pOuterView->_setVisibleClientRect(visibleClientRect);
                 }
@@ -274,19 +244,16 @@ namespace bdn
 
             Size getViewPortSize() const { return _viewPortSize; }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                P<ScrollView> pOuterView =
-                    cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
 
                 ScrollViewLayoutHelper helper(10, 10);
-                Size prefSize =
-                    helper.calcPreferredSize(pOuterView, availableSpace);
+                Size prefSize = helper.calcPreferredSize(pOuterView, availableSpace);
 
                 return prefSize;
             }

@@ -32,8 +32,7 @@ void testCallFromMainThread(bool throwException)
         // main thread
         REQUIRE(callCount == 1);
 
-        REQUIRE(result.wait_for(std::chrono::milliseconds(0)) ==
-                std::future_status::ready);
+        REQUIRE(result.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready);
 
         if (throwException)
             REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
@@ -74,8 +73,7 @@ void testCallFromMainThread(bool throwException)
 
                 StopWatch threadWatch;
 
-                REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) ==
-                        std::future_status::ready);
+                REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) == std::future_status::ready);
 
                 REQUIRE(threadWatch.getMillis() >= 500);
                 REQUIRE(threadWatch.getMillis() <= 5500);
@@ -234,10 +232,7 @@ class TestCallFromMainThreadOrderingBase : public Base
         if (!_done) {
             P<TestCallFromMainThreadOrderingBase> pThis = this;
 
-            CONTINUE_SECTION_WHEN_IDLE(pThis)
-            {
-                pThis->scheduleTestContinuationIfNecessary();
-            };
+            CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->scheduleTestContinuationIfNecessary(); };
         }
     }
 
@@ -250,22 +245,17 @@ class TestCallFromMainThreadOrderingBase : public Base
     bool _done = false;
 };
 
-class TestCallFromMainThreadOrdering_Sync
-    : public TestCallFromMainThreadOrderingBase
+class TestCallFromMainThreadOrdering_Sync : public TestCallFromMainThreadOrderingBase
 {
   public:
-    void scheduleCall(std::function<void()> func) override
-    {
-        callFromMainThread(func);
-    }
+    void scheduleCall(std::function<void()> func) override { callFromMainThread(func); }
 
     bool mainThreadCallsShouldExecuteImmediately() override { return true; }
 };
 
 void testCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Sync> pTest =
-        newObj<TestCallFromMainThreadOrdering_Sync>();
+    P<TestCallFromMainThreadOrdering_Sync> pTest = newObj<TestCallFromMainThreadOrdering_Sync>();
 
     pTest->start();
 }
@@ -383,22 +373,17 @@ void testAsyncCallFromMainThread(bool throwException)
 
 #if BDN_HAVE_THREADS
 
-class TestCallFromMainThreadOrdering_Async
-    : public TestCallFromMainThreadOrderingBase
+class TestCallFromMainThreadOrdering_Async : public TestCallFromMainThreadOrderingBase
 {
   public:
-    void scheduleCall(std::function<void()> func) override
-    {
-        asyncCallFromMainThread(func);
-    }
+    void scheduleCall(std::function<void()> func) override { asyncCallFromMainThread(func); }
 
     bool mainThreadCallsShouldExecuteImmediately() override { return false; }
 };
 
 void testAsyncCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Async> pTest =
-        newObj<TestCallFromMainThreadOrdering_Async>();
+    P<TestCallFromMainThreadOrdering_Async> pTest = newObj<TestCallFromMainThreadOrdering_Async>();
 
     pTest->start();
 }
@@ -429,13 +414,12 @@ void testWrapCallFromMainThread(bool throwException)
 
         StopWatch watch;
 
-        auto wrapped =
-            wrapCallFromMainThread<int>([&callCount, throwException](int val) {
-                callCount++;
-                if (throwException)
-                    throw InvalidArgumentError("hello");
-                return val * 2;
-            });
+        auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException](int val) {
+            callCount++;
+            if (throwException)
+                throw InvalidArgumentError("hello");
+            return val * 2;
+        });
 
         // should not have been called yet
         REQUIRE(callCount == 0);
@@ -446,8 +430,7 @@ void testWrapCallFromMainThread(bool throwException)
         // main thread
         REQUIRE(callCount == 1);
 
-        REQUIRE(result.wait_for(std::chrono::milliseconds(0)) ==
-                std::future_status::ready);
+        REQUIRE(result.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready);
 
         if (throwException)
             REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
@@ -469,17 +452,16 @@ void testWrapCallFromMainThread(bool throwException)
                 volatile int callCount = 0;
                 Thread::Id threadId;
 
-                auto wrapped = wrapCallFromMainThread<int>(
-                    [&callCount, throwException, &threadId](int x) {
-                        // sleep a little to ensure that we have time to check
-                        // callCount
-                        Thread::sleepSeconds(1);
-                        threadId = Thread::getCurrentId();
-                        callCount++;
-                        if (throwException)
-                            throw InvalidArgumentError("hello");
-                        return x * 2;
-                    });
+                auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x) {
+                    // sleep a little to ensure that we have time to check
+                    // callCount
+                    Thread::sleepSeconds(1);
+                    threadId = Thread::getCurrentId();
+                    callCount++;
+                    if (throwException)
+                        throw InvalidArgumentError("hello");
+                    return x * 2;
+                });
 
                 // should NOT have been called.
                 REQUIRE(callCount == 0);
@@ -502,8 +484,7 @@ void testWrapCallFromMainThread(bool throwException)
                 // should not have waited
                 REQUIRE(threadWatch.getMillis() < 500);
 
-                REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) ==
-                        std::future_status::ready);
+                REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) == std::future_status::ready);
 
                 // the inner function sleeps for 1 second.
                 REQUIRE(threadWatch.getMillis() >= 1000 - 10);
@@ -539,14 +520,13 @@ void testWrapCallFromMainThread(bool throwException)
                 StopWatch threadWatch;
 
                 {
-                    auto wrapped = wrapCallFromMainThread<int>(
-                        [pData, throwException](int x) {
-                            Thread::sleepMillis(2000);
-                            pData->callCount++;
-                            if (throwException)
-                                throw InvalidArgumentError("hello");
-                            return x * 2;
-                        });
+                    auto wrapped = wrapCallFromMainThread<int>([pData, throwException](int x) {
+                        Thread::sleepMillis(2000);
+                        pData->callCount++;
+                        if (throwException)
+                            throw InvalidArgumentError("hello");
+                        return x * 2;
+                    });
 
                     // should NOT have been called yet.
                     REQUIRE(pData->callCount == 0);
@@ -611,16 +591,15 @@ void testWrapAsyncCallFromMainThread(bool throwException)
 
         StopWatch watch;
 
-        auto wrapped =
-            wrapAsyncCallFromMainThread<int>([pData, throwException](int val) {
-                pData->callCount++;
-                pData->threadId = Thread::getCurrentId();
+        auto wrapped = wrapAsyncCallFromMainThread<int>([pData, throwException](int val) {
+            pData->callCount++;
+            pData->threadId = Thread::getCurrentId();
 
-                if (throwException)
-                    throw InvalidArgumentError("hello");
+            if (throwException)
+                throw InvalidArgumentError("hello");
 
-                return val * 2;
-            });
+            return val * 2;
+        });
 
         // should not have been called
         REQUIRE(pData->callCount == 0);
@@ -654,17 +633,16 @@ void testWrapAsyncCallFromMainThread(bool throwException)
             volatile int callCount = 0;
             Thread::Id threadId;
 
-            auto wrapped = wrapAsyncCallFromMainThread<int>(
-                [&callCount, throwException, &threadId](int x) {
-                    // sleep a little to ensure that we have time to check
-                    // callCount
-                    Thread::sleepSeconds(1);
-                    threadId = Thread::getCurrentId();
-                    callCount++;
-                    if (throwException)
-                        throw InvalidArgumentError("hello");
-                    return x * 2;
-                });
+            auto wrapped = wrapAsyncCallFromMainThread<int>([&callCount, throwException, &threadId](int x) {
+                // sleep a little to ensure that we have time to check
+                // callCount
+                Thread::sleepSeconds(1);
+                threadId = Thread::getCurrentId();
+                callCount++;
+                if (throwException)
+                    throw InvalidArgumentError("hello");
+                return x * 2;
+            });
 
             // should NOT have been called.
             REQUIRE(callCount == 0);
@@ -725,8 +703,7 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
 
         P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
 
-        asyncCallFromMainThreadAfterSeconds(_seconds,
-                                            [pThis] { pThis->onCalled(); });
+        asyncCallFromMainThreadAfterSeconds(_seconds, [pThis] { pThis->onCalled(); });
 
         // should not have been called yet
         REQUIRE(!_called);
@@ -829,15 +806,13 @@ struct TestDataCallWhenIdle : public Base
 static void callWhenIdleBusyKeeper(P<TestDataCallWhenIdle> pTestData)
 {
     if (pTestData->keepCreatingEvents) {
-        asyncCallFromMainThread(
-            [pTestData]() { callWhenIdleBusyKeeper(pTestData); });
+        asyncCallFromMainThread([pTestData]() { callWhenIdleBusyKeeper(pTestData); });
 
         pTestData->eventsCreated++;
     }
 }
 
-static void testAsyncCallFromMainThreadWhenIdle(bool exception,
-                                                bool fromMainThread)
+static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThread)
 {
     SECTION("not called when events pending")
     {
@@ -865,8 +840,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception,
 
         // now we start posting perpetual async events to keep the app busy.
         // This should prevent the idle handler from being called.
-        asyncCallFromMainThread(
-            [pTestData]() { callWhenIdleBusyKeeper(pTestData); });
+        asyncCallFromMainThread([pTestData]() { callWhenIdleBusyKeeper(pTestData); });
         pTestData->eventsCreated++;
 
         // now schedule a test continuation in 2 seconds.
@@ -903,8 +877,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception,
 
         // multiple scheduled idle handlers should be executed in order
         for (int i = 0; i < 10; i++) {
-            std::function<void()> scheduleIdleCall = [pTestData, exception,
-                                                      i]() {
+            std::function<void()> scheduleIdleCall = [pTestData, exception, i]() {
                 asyncCallFromMainThreadWhenIdle([pTestData, exception, i]() {
                     pTestData->callOrder.push_back(i);
                     if (exception)
@@ -944,11 +917,9 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception,
         asyncCallFromMainThreadWhenIdle([pTestData]() {
             // schedule another idle call, then schedule a "normal" async call.
             // the "normal" call should take precedence
-            asyncCallFromMainThreadWhenIdle(
-                [pTestData]() { pTestData->callOrder.push_back(1); });
+            asyncCallFromMainThreadWhenIdle([pTestData]() { pTestData->callOrder.push_back(1); });
 
-            asyncCallFromMainThread(
-                [pTestData]() { pTestData->callOrder.push_back(0); });
+            asyncCallFromMainThread([pTestData]() { pTestData->callOrder.push_back(0); });
         });
 
         // wait two seconds for the events to be executed

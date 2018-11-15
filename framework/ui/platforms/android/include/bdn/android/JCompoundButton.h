@@ -21,9 +21,7 @@ namespace bdn
             }
 
           public:
-            JCompoundButton(JContext &context)
-                : JTextView(newInstance_(context))
-            {}
+            JCompoundButton(JContext &context) : JTextView(newInstance_(context)) {}
 
             /** @param javaRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -31,9 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JCompoundButton(const bdn::java::Reference &javaRef)
-                : JTextView(javaRef)
-            {}
+            explicit JCompoundButton(const bdn::java::Reference &javaRef) : JTextView(javaRef) {}
 
             JCompoundButton() {}
 

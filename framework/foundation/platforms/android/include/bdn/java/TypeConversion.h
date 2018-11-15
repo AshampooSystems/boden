@@ -12,8 +12,7 @@ namespace bdn
         {
           public:
           protected:
-            static jobject _createJString(const String &s,
-                                          std::list<Reference> &createdObjects);
+            static jobject _createJString(const String &s, std::list<Reference> &createdObjects);
             static String _getStringFromJava(const Reference &ref);
         };
 
@@ -36,8 +35,7 @@ namespace bdn
          *specializations.
          *
          **/
-        template <typename NATIVE_TYPE>
-        class TypeConversion : public TypeConversionBase_
+        template <typename NATIVE_TYPE> class TypeConversion : public TypeConversionBase_
         {
           public:
             typedef jobject JavaType;
@@ -55,8 +53,7 @@ namespace bdn
              **/
             static String getJavaSignature()
             {
-                static String sig(
-                    NativeType::getStaticClass_().getSignature_());
+                static String sig(NativeType::getStaticClass_().getSignature_());
 
                 return sig;
             }
@@ -68,9 +65,7 @@ namespace bdn
              * stored in the list must be kept alive as long as the returned
              * java value is needed. Afterwards they can simply be deleted.
              * */
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects)
             {
                 return arg.getRef_().getJObject();
             }
@@ -83,8 +78,7 @@ namespace bdn
              * all the copies of the C++ object that may be created) are
              * destroyed.
              *  */
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
             {
                 return NativeType(Reference::convertAndDestroyOwnedLocal(arg));
             }
@@ -102,18 +96,14 @@ namespace bdn
                 return s;
             }
 
-            static JavaType
-            nativeToJava(const NativeType &arg,
-                         std::list<Reference> &createdJavaObjects)
+            static JavaType nativeToJava(const NativeType &arg, std::list<Reference> &createdJavaObjects)
             {
                 return _createJString(arg, createdJavaObjects);
             }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
             {
-                return _getStringFromJava(
-                    Reference::convertAndDestroyOwnedLocal(arg));
+                return _getStringFromJava(Reference::convertAndDestroyOwnedLocal(arg));
             }
         };
 
@@ -129,18 +119,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<int> : public TypeConversionBase_
@@ -155,18 +136,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<short> : public TypeConversionBase_
@@ -181,18 +153,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<double> : public TypeConversionBase_
@@ -207,18 +170,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<float> : public TypeConversionBase_
@@ -233,18 +187,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<int64_t> : public TypeConversionBase_
@@ -259,18 +204,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<char32_t> : public TypeConversionBase_
@@ -285,18 +221,12 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects)
             {
                 return (jchar)arg;
             }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<int8_t> : public TypeConversionBase_
@@ -311,18 +241,9 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
-            {
-                return arg;
-            }
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects) { return arg; }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg; }
         };
 
         template <> class TypeConversion<bool> : public TypeConversionBase_
@@ -337,18 +258,12 @@ namespace bdn
                 return sig;
             }
 
-            static JavaType
-            nativeToJava(NativeType arg,
-                         std::list<Reference> &createdJavaObjects)
+            static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects)
             {
                 return (jboolean)(arg ? JNI_TRUE : JNI_FALSE);
             }
 
-            static NativeType
-            takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
-            {
-                return arg != JNI_FALSE;
-            }
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg) { return arg != JNI_FALSE; }
         };
 
         template <> class TypeConversion<void> : public TypeConversionBase_
@@ -379,24 +294,20 @@ namespace bdn
          *
          * */
         template <class NativeType>
-        typename TypeConversion<NativeType>::JavaType
-        nativeToJava(NativeType nativeValue,
-                     std::list<Reference> &createdJavaObjects)
+        typename TypeConversion<NativeType>::JavaType nativeToJava(NativeType nativeValue,
+                                                                   std::list<Reference> &createdJavaObjects)
         {
             // To make sure that our specializations work in all cases, we have
             // to strip reference and const qualifiers from the type with
             // std::decay
             return TypeConversion<NativeType>::nativeToJava(
-                static_cast<typename std::decay<NativeType>::type>(nativeValue),
-                createdJavaObjects);
+                static_cast<typename std::decay<NativeType>::type>(nativeValue), createdJavaObjects);
         }
 
         template <class NativeType>
-        NativeType takeOwnershipOfJavaValueAndConvertToNative(
-            typename TypeConversion<NativeType>::JavaType javaValue)
+        NativeType takeOwnershipOfJavaValueAndConvertToNative(typename TypeConversion<NativeType>::JavaType javaValue)
         {
-            return TypeConversion<NativeType>::
-                takeOwnershipOfJavaValueAndConvertToNative(javaValue);
+            return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative(javaValue);
         }
     }
 }

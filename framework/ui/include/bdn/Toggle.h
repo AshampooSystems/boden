@@ -30,8 +30,7 @@ namespace bdn
         // XXX should this be ISwitchCore???
 
         /** The toggle's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore,
-                          influencesPreferredSize());
+        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
 
         /** Whether the toggle is on (true) or off (false) */
         BDN_VIEW_PROPERTY(bool, on, setOn, ISwitchCore, influencesNothing());
@@ -56,10 +55,7 @@ namespace bdn
             return "bdn.ToggleCore";
         }
 
-        String getCoreTypeName() const override
-        {
-            return getToggleCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getToggleCoreTypeName(); }
 
       protected:
         P<SimpleNotifier<const ClickEvent &>> _pOnClick;

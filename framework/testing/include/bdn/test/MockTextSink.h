@@ -19,17 +19,11 @@ namespace bdn
                text sink. Each write call creates a new entry in this list. The
                writeLine routines add a newline at the end of the written text.
                 */
-            const Array<String> &getWrittenChunks() const
-            {
-                return _writtenChunks;
-            }
+            const Array<String> &getWrittenChunks() const { return _writtenChunks; }
 
             void write(const String &s) override { _writtenChunks.add(s); }
 
-            void writeLine(const String &s) override
-            {
-                _writtenChunks.add(s + "\n");
-            }
+            void writeLine(const String &s) override { _writtenChunks.add(s + "\n"); }
 
           private:
             Array<String> _writtenChunks;

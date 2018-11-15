@@ -22,8 +22,7 @@ namespace bdn
         class ToggleCoreBase : public ViewCore, BDN_IMPLEMENTS IToggleCoreBase
         {
           public:
-            ToggleCoreBase(View *pOuter,
-                           BdnIosToggleCompositeBase *pToggleComposite);
+            ToggleCoreBase(View *pOuter, BdnIosToggleCompositeBase *pToggleComposite);
             virtual ~ToggleCoreBase();
 
             void setLabel(const String &label) override;

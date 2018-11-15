@@ -27,14 +27,12 @@ namespace bdn
          * alive, even if the Field instance was returned by the accessor object
          *
          * */
-        template <class NativeType>
-        class StaticField : public Field<NativeType, StaticFieldKind>
+        template <class NativeType> class StaticField : public Field<NativeType, StaticFieldKind>
         {
           public:
             typedef StaticFieldKind::template Id<NativeType> Id;
 
-            StaticField(JClass &cls,
-                        const StaticFieldKind::Id<NativeType> &fieldId)
+            StaticField(JClass &cls, const StaticFieldKind::Id<NativeType> &fieldId)
                 : Field<NativeType, StaticFieldKind>(cls.getRef_(), fieldId)
             {}
         };

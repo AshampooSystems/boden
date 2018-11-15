@@ -17,12 +17,9 @@ namespace bdn
           private:
             static UITextField *_createUITextField(TextField *pOuterTextField)
             {
-                UITextField *textField =
-                    [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+                UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
                 textField.backgroundColor = [UIColor clearColor];
-                textField.layer.borderColor =
-                    [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0]
-                        CGColor];
+                textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
                 textField.layer.borderWidth = 1;
                 textField.layer.cornerRadius = 5;
                 textField.font = [UIFont systemFontOfSize:15];
@@ -30,8 +27,7 @@ namespace bdn
                 textField.clearButtonMode = UITextFieldViewModeWhileEditing;
                 textField.keyboardType = UIKeyboardTypeDefault;
                 textField.autocorrectionType = UITextAutocorrectionTypeNo;
-                textField.contentVerticalAlignment =
-                    UIControlContentVerticalAlignmentCenter;
+                textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
                 return textField;
             }
 

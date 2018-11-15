@@ -27,32 +27,25 @@ namespace bdn
             return button;
         }
 
-        ButtonCore::ButtonCore(Button *pOuterButton)
-            : ViewCore(pOuterButton, _createUIButton(pOuterButton))
+        ButtonCore::ButtonCore(Button *pOuterButton) : ViewCore(pOuterButton, _createUIButton(pOuterButton))
         {
             _button = (UIButton *)getUIView();
 
-            BdnIosButtonClickManager *clickMan =
-                [BdnIosButtonClickManager alloc];
+            BdnIosButtonClickManager *clickMan = [BdnIosButtonClickManager alloc];
             [clickMan setButtonCore:this];
 
             _clickManager = clickMan;
 
-            [_button addTarget:clickMan
-                          action:@selector(clicked)
-                forControlEvents:UIControlEventTouchUpInside];
+            [_button addTarget:clickMan action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
             setLabel(pOuterButton->label());
         }
 
         ButtonCore::~ButtonCore()
         {
-            BdnIosButtonClickManager *clickMan =
-                (BdnIosButtonClickManager *)_clickManager;
+            BdnIosButtonClickManager *clickMan = (BdnIosButtonClickManager *)_clickManager;
 
-            [_button removeTarget:clickMan
-                           action:nil
-                 forControlEvents:UIControlEventTouchUpInside];
+            [_button removeTarget:clickMan action:nil forControlEvents:UIControlEventTouchUpInside];
         }
 
         void ButtonCore::_clicked()

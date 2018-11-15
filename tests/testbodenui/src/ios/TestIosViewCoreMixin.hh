@@ -21,18 +21,14 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _pIosViewCore =
-                    cast<bdn::ios::ViewCore>(BaseClass::_pView->getViewCore());
+                _pIosViewCore = cast<bdn::ios::ViewCore>(BaseClass::_pView->getViewCore());
                 REQUIRE(_pIosViewCore != nullptr);
 
                 _pUIView = _pIosViewCore->getUIView();
                 REQUIRE(_pUIView != nullptr);
             }
 
-            IUiProvider &getUiProvider() override
-            {
-                return bdn::ios::UiProvider::get();
-            }
+            IUiProvider &getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
@@ -41,10 +37,7 @@ namespace bdn
                 REQUIRE(_pUIView.hidden == !expectedVisible);
             }
 
-            Rect getFrameRect() const
-            {
-                return bdn::ios::iosRectToRect(_pUIView.frame);
-            }
+            Rect getFrameRect() const { return bdn::ios::iosRectToRect(_pUIView.frame); }
 
             void verifyInitialDummyCoreSize() override
             {

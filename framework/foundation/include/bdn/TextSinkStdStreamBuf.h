@@ -9,17 +9,14 @@ namespace bdn
 {
 
     /** Internal base class for TextSinkStreamBuf. Do not use.*/
-    template <typename CharType>
-    class TextSinkStdStreamBufBase_ : public std::basic_streambuf<CharType>
+    template <typename CharType> class TextSinkStdStreamBufBase_ : public std::basic_streambuf<CharType>
     {
       public:
-        TextSinkStdStreamBufBase_(ITextSink *pSink)
-            : _localeDecodingState(std::mbstate_t())
+        TextSinkStdStreamBufBase_(ITextSink *pSink) : _localeDecodingState(std::mbstate_t())
         {
             _pSink = pSink;
 
-            this->setp(_inBuffer,
-                       _inBuffer + (sizeof(_inBuffer) / sizeof(CharType)));
+            this->setp(_inBuffer, _inBuffer + (sizeof(_inBuffer) / sizeof(CharType)));
         }
 
       protected:
@@ -46,13 +43,11 @@ namespace bdn
 
             // For these we need the locale to provide the encoding.
             std::locale loc = this->getloc();
-            if (!std::has_facet<std::codecvt<wchar_t, CharType, mbstate_t>>(
-                    loc)) {
+            if (!std::has_facet<std::codecvt<wchar_t, CharType, mbstate_t>>(loc)) {
                 // the locale does not provide a conversion to wchar_t.
                 // This is an error.
-                throw InvalidArgumentError(
-                    "TextUiStdStreamBuf used with locale that does not provide "
-                    "a decoding facet to wchar_t.");
+                throw InvalidArgumentError("TextUiStdStreamBuf used with locale that does not provide "
+                                           "a decoding facet to wchar_t.");
             }
 
             const std::codecvt<wchar_t, CharType, mbstate_t> &codec =
@@ -62,9 +57,7 @@ namespace bdn
             const CharType *pInEnd = this->pptr();
 
             wchar_t *pOutStart = _localeDecodingOutBuffer;
-            wchar_t *pOutEnd =
-                _localeDecodingOutBuffer +
-                (sizeof(_localeDecodingOutBuffer) / sizeof(wchar_t));
+            wchar_t *pOutEnd = _localeDecodingOutBuffer + (sizeof(_localeDecodingOutBuffer) / sizeof(wchar_t));
 
             while (pInStart != pInEnd) {
                 const CharType *pInNext = pInStart;
@@ -72,8 +65,7 @@ namespace bdn
 
                 // in converts from CharType to wchar_t
                 std::codecvt_base::result result =
-                    codec.in(_localeDecodingState, pInStart, pInEnd, pInNext,
-                             pOutStart, pOutEnd, pOutNext);
+                    codec.in(_localeDecodingState, pInStart, pInEnd, pInNext, pOutStart, pOutEnd, pOutNext);
 
                 if (result == std::codecvt_base::noconv) {
                     // input data is already char32_t. For consistency, copy it
@@ -147,10 +139,8 @@ namespace bdn
             // encoded character sequences and need to ignore unfinished
             // sequences at the end. So first we find the end of fully encoded
             // data.
-            typename UtfCodec<CharType>::template DecodingIterator<CharType *>
-                startIt(pInStart, pInStart, pInEnd);
-            typename UtfCodec<CharType>::template DecodingIterator<CharType *>
-                endIt(pInEnd, pInStart, pInEnd);
+            typename UtfCodec<CharType>::template DecodingIterator<CharType *> startIt(pInStart, pInStart, pInEnd);
+            typename UtfCodec<CharType>::template DecodingIterator<CharType *> endIt(pInEnd, pInStart, pInEnd);
 
             // Note that the DecodingIterator class of the UTF codecs can
             // iterate backwards. So we use that to find the end of the valid
@@ -158,9 +148,7 @@ namespace bdn
 
             while (endIt != startIt) {
                 // go backwards until we find a decodable character.
-                typename UtfCodec<CharType>::template DecodingIterator<
-                    CharType *>
-                    it(endIt);
+                typename UtfCodec<CharType>::template DecodingIterator<CharType *> it(endIt);
 
                 --it;
                 if (*it != 0xfffd) {
@@ -170,9 +158,7 @@ namespace bdn
                 }
 
                 size_t unconsumedElements = pInEnd - it.getInner();
-                if (unconsumedElements >=
-                    (size_t)UtfCodec<
-                        CharType>::getMaxEncodedElementsPerCharacter()) {
+                if (unconsumedElements >= (size_t)UtfCodec<CharType>::getMaxEncodedElementsPerCharacter()) {
                     // the "invalid" data at the end is definitely long enough
                     // for an encoded character. That means that the reason the
                     // data is invalid is NOT that it is incomplete.
@@ -239,13 +225,10 @@ namespace bdn
 
 
     */
-    template <typename CHAR_TYPE>
-    class TextSinkStdStreamBuf : public TextSinkStdStreamBufBase_<CHAR_TYPE>
+    template <typename CHAR_TYPE> class TextSinkStdStreamBuf : public TextSinkStdStreamBufBase_<CHAR_TYPE>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink)
-            : TextSinkStdStreamBufBase_<CHAR_TYPE>(pSink)
-        {}
+        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<CHAR_TYPE>(pSink) {}
 
         int sync() override
         {
@@ -255,13 +238,10 @@ namespace bdn
         }
     };
 
-    template <>
-    class TextSinkStdStreamBuf<char> : public TextSinkStdStreamBufBase_<char>
+    template <> class TextSinkStdStreamBuf<char> : public TextSinkStdStreamBufBase_<char>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink)
-            : TextSinkStdStreamBufBase_<char>(pSink)
-        {}
+        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char>(pSink) {}
 
         int sync() override
         {
@@ -280,38 +260,26 @@ namespace bdn
         }
     };
 
-    template <>
-    class TextSinkStdStreamBuf<wchar_t>
-        : public TextSinkStdStreamBufBase_<wchar_t>
+    template <> class TextSinkStdStreamBuf<wchar_t> : public TextSinkStdStreamBufBase_<wchar_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink)
-            : TextSinkStdStreamBufBase_<wchar_t>(pSink)
-        {}
+        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<wchar_t>(pSink) {}
 
         int sync() override { return this->_utfSync(); }
     };
 
-    template <>
-    class TextSinkStdStreamBuf<char16_t>
-        : public TextSinkStdStreamBufBase_<char16_t>
+    template <> class TextSinkStdStreamBuf<char16_t> : public TextSinkStdStreamBufBase_<char16_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink)
-            : TextSinkStdStreamBufBase_<char16_t>(pSink)
-        {}
+        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char16_t>(pSink) {}
 
         int sync() override { return this->_utfSync(); }
     };
 
-    template <>
-    class TextSinkStdStreamBuf<char32_t>
-        : public TextSinkStdStreamBufBase_<char32_t>
+    template <> class TextSinkStdStreamBuf<char32_t> : public TextSinkStdStreamBufBase_<char32_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink)
-            : TextSinkStdStreamBufBase_<char32_t>(pSink)
-        {}
+        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char32_t>(pSink) {}
 
         int sync() override { return this->_utfSync(); }
     };

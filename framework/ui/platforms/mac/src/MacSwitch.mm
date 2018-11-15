@@ -9,8 +9,7 @@
 
 - (id)initWithFrame:(NSRect)frame
 {
-    self = [super initWithFrame:NSMakeRect(0, 0, BDN_MAC_SWITCH_WIDTH,
-                                           BDN_MAC_SWITCH_HEIGHT)];
+    self = [super initWithFrame:NSMakeRect(0, 0, BDN_MAC_SWITCH_WIDTH, BDN_MAC_SWITCH_HEIGHT)];
     return self;
 }
 
@@ -41,16 +40,12 @@
     [self setNeedsDisplay:YES];
 }
 
-- (NSSize)fittingSize
-{
-    return NSMakeSize(BDN_MAC_SWITCH_WIDTH, BDN_MAC_SWITCH_HEIGHT);
-}
+- (NSSize)fittingSize { return NSMakeSize(BDN_MAC_SWITCH_WIDTH, BDN_MAC_SWITCH_HEIGHT); }
 
 - (CGPathRef)roundedRectPathWithRect:(CGRect)outerRect radius:(CGFloat)radius
 {
-    CGRect innerRect = CGRectMake(
-        outerRect.origin.x + radius, outerRect.origin.y + radius,
-        outerRect.size.width - radius * 2, outerRect.size.height - radius * 2);
+    CGRect innerRect = CGRectMake(outerRect.origin.x + radius, outerRect.origin.y + radius,
+                                  outerRect.size.width - radius * 2, outerRect.size.height - radius * 2);
 
     CGFloat insideTop = innerRect.origin.y;
     CGFloat outsideTop = outerRect.origin.y;
@@ -65,84 +60,59 @@
     CGPathMoveToPoint(path, NULL, innerRect.origin.x, outsideTop);
 
     CGPathAddLineToPoint(path, NULL, insideRight, outsideTop);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight,
-                        insideTop, radius);
+    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight, insideTop, radius);
 
     CGPathAddLineToPoint(path, NULL, outsideRight, insideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight,
-                        outsideBottom, radius);
+    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
 
     CGPathAddLineToPoint(path, NULL, innerRect.origin.x, outsideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft,
-                        insideBottom, radius);
+    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
 
     CGPathAddLineToPoint(path, NULL, outsideLeft, insideTop);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x,
-                        outsideTop, radius);
+    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
 
     CGPathCloseSubpath(path);
 
     return path;
 }
 
-- (CGFloat)handleRadius
-{
-    return self.bounds.size.height - BDN_MAC_SWITCH_HANDLE_MARGIN * 2;
-}
+- (CGFloat)handleRadius { return self.bounds.size.height - BDN_MAC_SWITCH_HANDLE_MARGIN * 2; }
 
 - (CGFloat)handlePosition
 {
-    CGFloat handlePositionOn = self.bounds.size.width -
-                               BDN_MAC_SWITCH_HANDLE_MARGIN * 2 -
-                               self.handleRadius;
+    CGFloat handlePositionOn = self.bounds.size.width - BDN_MAC_SWITCH_HANDLE_MARGIN * 2 - self.handleRadius;
     CGFloat handlePositionOff = BDN_MAC_SWITCH_HANDLE_MARGIN;
-    return handlePositionOff +
-           self.handleOnFactor * (handlePositionOn - handlePositionOff);
+    return handlePositionOff + self.handleOnFactor * (handlePositionOn - handlePositionOff);
 }
 
-- (CGRect)handleRect
-{
-    return CGRectMake(self.handlePosition, 1, self.handleRadius,
-                      self.handleRadius);
-}
+- (CGRect)handleRect { return CGRectMake(self.handlePosition, 1, self.handleRadius, self.handleRadius); }
 
 - (void)drawRect:(NSRect)rect
 {
-    NSColor *backgroundColorOff =
-        [NSColor colorWithRed:0 green:0 blue:0 alpha:0.5];
-    NSColor *backgroundColorOn =
-        [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1];
+    NSColor *backgroundColorOff = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.5];
+    NSColor *backgroundColorOn = [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1];
     NSColor *handleColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:1];
-    NSColor *handleDropShadowColorOff =
-        [NSColor colorWithRed:0 green:0 blue:0 alpha:0.25];
-    NSColor *handleDropShadowColorOn =
-        [NSColor colorWithRed:0 green:0 blue:0 alpha:0.1];
+    NSColor *handleDropShadowColorOff = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.25];
+    NSColor *handleDropShadowColorOn = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.1];
 
     CGRect outerRect = self.bounds;
 
     CGFloat handlePosition = self.handlePosition;
-    CGFloat handleDropShadowPosition =
-        handlePosition - BDN_MAC_SWITCH_HANDLE_DROP_SHADOW_OFFSET +
-        self.handleOnFactor * BDN_MAC_SWITCH_HANDLE_DROP_SHADOW_OFFSET * 2;
+    CGFloat handleDropShadowPosition = handlePosition - BDN_MAC_SWITCH_HANDLE_DROP_SHADOW_OFFSET +
+                                       self.handleOnFactor * BDN_MAC_SWITCH_HANDLE_DROP_SHADOW_OFFSET * 2;
     NSColor *backgroundColor =
-        [backgroundColorOff blendedColorWithFraction:self.handleOnFactor
-                                             ofColor:backgroundColorOn];
-    NSColor *handleDropShadowColor = [handleDropShadowColorOff
-        blendedColorWithFraction:self.handleOnFactor
-                         ofColor:handleDropShadowColorOn];
+        [backgroundColorOff blendedColorWithFraction:self.handleOnFactor ofColor:backgroundColorOn];
+    NSColor *handleDropShadowColor =
+        [handleDropShadowColorOff blendedColorWithFraction:self.handleOnFactor ofColor:handleDropShadowColorOn];
 
     CGRect handleRect = self.handleRect;
     CGRect handleDropShadowRect =
-        CGRectMake(handleDropShadowPosition, 1, handleRect.size.width,
-                   handleRect.size.height);
+        CGRectMake(handleDropShadowPosition, 1, handleRect.size.width, handleRect.size.height);
 
-    CGContextRef context =
-        (CGContextRef)[[NSGraphicsContext currentContext] CGContext];
+    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] CGContext];
 
     // Draw switch body backround
-    CGPathRef roundedRectPath =
-        [self roundedRectPathWithRect:outerRect
-                               radius:self.bounds.size.height / 2];
+    CGPathRef roundedRectPath = [self roundedRectPathWithRect:outerRect radius:self.bounds.size.height / 2];
     CGContextSetFillColorWithColor(context, backgroundColor.CGColor);
     CGContextAddPath(context, roundedRectPath);
     CGContextFillPath(context);
@@ -158,8 +128,7 @@
 
 - (void)mouseDown:(NSEvent *)event
 {
-    NSPoint locationInView =
-        [self convertPoint:event.locationInWindow fromView:nil];
+    NSPoint locationInView = [self convertPoint:event.locationInWindow fromView:nil];
     self.startDragOffset = locationInView.x;
     self.startHandleOnFactor = self.handleOnFactor;
     self.isDraggingHandle = YES;
@@ -167,13 +136,10 @@
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    CGFloat handleRadius =
-        self.bounds.size.height - BDN_MAC_SWITCH_HANDLE_MARGIN * 2;
-    NSPoint locationInView =
-        [self convertPoint:event.locationInWindow fromView:nil];
+    CGFloat handleRadius = self.bounds.size.height - BDN_MAC_SWITCH_HANDLE_MARGIN * 2;
+    NSPoint locationInView = [self convertPoint:event.locationInWindow fromView:nil];
     CGFloat dragOffset = locationInView.x - self.startDragOffset;
-    CGFloat dragWidth = self.bounds.size.width -
-                        BDN_MAC_SWITCH_HANDLE_MARGIN * 2 - handleRadius;
+    CGFloat dragWidth = self.bounds.size.width - BDN_MAC_SWITCH_HANDLE_MARGIN * 2 - handleRadius;
     CGFloat handleOnFactor = self.startHandleOnFactor + dragOffset / dragWidth;
     handleOnFactor = fmin(handleOnFactor, 1.0);
     handleOnFactor = fmax(handleOnFactor, 0.0);
@@ -182,10 +148,8 @@
 
 - (void)mouseUp:(NSEvent *)event
 {
-    NSPoint locationInView =
-        [self convertPoint:event.locationInWindow fromView:nil];
-    if (locationInView.x < self.startDragOffset + 5 &&
-        locationInView.x > self.startDragOffset - 5) {
+    NSPoint locationInView = [self convertPoint:event.locationInWindow fromView:nil];
+    if (locationInView.x < self.startDragOffset + 5 && locationInView.x > self.startDragOffset - 5) {
         self.on = !self.on;
     } else if (locationInView.x < self.startDragOffset) {
         self.on = false;
@@ -205,14 +169,11 @@
         return;
     }
 
-    if ((self.on && self.handleOnFactor == 1.0) ||
-        (!self.on && self.handleOnFactor == 0.0)) {
+    if ((self.on && self.handleOnFactor == 1.0) || (!self.on && self.handleOnFactor == 0.0)) {
         return;
     }
 
-    self.animation =
-        [[BdnSwitchAnimation alloc] initWithDuration:0.1
-                                      animationCurve:NSAnimationEaseOut];
+    self.animation = [[BdnSwitchAnimation alloc] initWithDuration:0.1 animationCurve:NSAnimationEaseOut];
     self.animation.bdnSwitch = self;
     self.animation.animationBlockingMode = NSAnimationNonblocking;
     self.handleOnFactorAtAnimationStart = self.handleOnFactor;
@@ -225,15 +186,10 @@
 
 - (void)setCurrentProgress:(NSAnimationProgress)progress
 {
-    CGFloat length = self.bdnSwitch.on
-                         ? 1.0 - self.bdnSwitch.handleOnFactorAtAnimationStart
-                         : self.bdnSwitch.handleOnFactorAtAnimationStart;
-    CGFloat start =
-        self.bdnSwitch.on ? self.bdnSwitch.handleOnFactorAtAnimationStart : 0.0;
-    self.bdnSwitch.handleOnFactor =
-        start +
-        (!self.bdnSwitch.on ? 1.0 - (CGFloat)progress : (CGFloat)progress) *
-            length;
+    CGFloat length = self.bdnSwitch.on ? 1.0 - self.bdnSwitch.handleOnFactorAtAnimationStart
+                                       : self.bdnSwitch.handleOnFactorAtAnimationStart;
+    CGFloat start = self.bdnSwitch.on ? self.bdnSwitch.handleOnFactorAtAnimationStart : 0.0;
+    self.bdnSwitch.handleOnFactor = start + (!self.bdnSwitch.on ? 1.0 - (CGFloat)progress : (CGFloat)progress) * length;
 }
 
 @end

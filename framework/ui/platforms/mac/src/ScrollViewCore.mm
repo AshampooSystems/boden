@@ -39,15 +39,9 @@
 
 @implementation BdnMacScrollViewCoreEventForwarder_
 
-- (void)setScrollViewCore:(bdn::mac::ScrollViewCore *)pCore
-{
-    _pScrollViewCore = pCore;
-}
+- (void)setScrollViewCore:(bdn::mac::ScrollViewCore *)pCore { _pScrollViewCore = pCore; }
 
-- (void)contentViewBoundsDidChange
-{
-    _pScrollViewCore->_contentViewBoundsDidChange();
-}
+- (void)contentViewBoundsDidChange { _pScrollViewCore->_contentViewBoundsDidChange(); }
 
 @end
 
@@ -56,15 +50,13 @@ namespace bdn
     namespace mac
     {
 
-        ScrollViewCore::ScrollViewCore(ScrollView *pOuter)
-            : ChildViewCore(pOuter, _createScrollView(pOuter))
+        ScrollViewCore::ScrollViewCore(ScrollView *pOuter) : ChildViewCore(pOuter, _createScrollView(pOuter))
         {
             _nsScrollView = (NSScrollView *)getNSView();
 
             // we add a custom view as the document view so that we have better
             // control over the positioning of the content view
-            _nsContentViewParent = [[BdnMacScrollViewContentViewParent_ alloc]
-                initWithFrame:NSMakeRect(0, 0, 0, 0)];
+            _nsContentViewParent = [[BdnMacScrollViewContentViewParent_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
             _nsScrollView.documentView = _nsContentViewParent;
 
@@ -72,16 +64,14 @@ namespace bdn
 
             _nsScrollView.contentView.postsBoundsChangedNotifications = YES;
 
-            BdnMacScrollViewCoreEventForwarder_ *eventForwarder =
-                [BdnMacScrollViewCoreEventForwarder_ alloc];
+            BdnMacScrollViewCoreEventForwarder_ *eventForwarder = [BdnMacScrollViewCoreEventForwarder_ alloc];
             [eventForwarder setScrollViewCore:this];
             _eventForwarder = eventForwarder;
 
-            [[NSNotificationCenter defaultCenter]
-                addObserver:eventForwarder
-                   selector:@selector(contentViewBoundsDidChange)
-                       name:NSViewBoundsDidChangeNotification
-                     object:_nsScrollView.contentView];
+            [[NSNotificationCenter defaultCenter] addObserver:eventForwarder
+                                                     selector:@selector(contentViewBoundsDidChange)
+                                                         name:NSViewBoundsDidChangeNotification
+                                                       object:_nsScrollView.contentView];
 
             setHorizontalScrollingEnabled(pOuter->horizontalScrollingEnabled());
             setVerticalScrollingEnabled(pOuter->verticalScrollingEnabled());
@@ -91,16 +81,14 @@ namespace bdn
 
         ScrollViewCore::~ScrollViewCore()
         {
-            [[NSNotificationCenter defaultCenter]
-                removeObserver:_eventForwarder
-                          name:NSViewBoundsDidChangeNotification
-                        object:_nsScrollView.contentView];
+            [[NSNotificationCenter defaultCenter] removeObserver:_eventForwarder
+                                                            name:NSViewBoundsDidChangeNotification
+                                                          object:_nsScrollView.contentView];
         }
 
         NSScrollView *ScrollViewCore::_createScrollView(ScrollView *pOuter)
         {
-            NSScrollView *scrollView = [[BdnMacScrollView_ alloc]
-                initWithFrame:NSMakeRect(0, 0, 0, 0)];
+            NSScrollView *scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
             return scrollView;
         }
@@ -133,8 +121,7 @@ namespace bdn
             _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
         }
 
-        P<ScrollViewLayoutHelper>
-        ScrollViewCore::createLayoutHelper(Size *pBorderSize) const
+        P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *pBorderSize) const
         {
             // first we need to find out the size of the border around the
             // scroll view and the space needed for scrollbars.
@@ -152,21 +139,19 @@ namespace bdn
             Size frameSize(500, 500);
             NSSize macFrameSize = sizeToMacSize(frameSize);
 
-            NSSize macSizeWithScrollers = [NSScrollView
-                contentSizeForFrameSize:macFrameSize
-                horizontalScrollerClass:[NSScroller class]
-                  verticalScrollerClass:[NSScroller class]
-                             borderType:_nsScrollView.borderType
-                            controlSize:NSControlSizeRegular
-                          scrollerStyle:_nsScrollView.scrollerStyle];
+            NSSize macSizeWithScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
+                                                        horizontalScrollerClass:[NSScroller class]
+                                                          verticalScrollerClass:[NSScroller class]
+                                                                     borderType:_nsScrollView.borderType
+                                                                    controlSize:NSControlSizeRegular
+                                                                  scrollerStyle:_nsScrollView.scrollerStyle];
 
-            NSSize macSizeWithoutScrollers = [NSScrollView
-                contentSizeForFrameSize:macFrameSize
-                horizontalScrollerClass:nil
-                  verticalScrollerClass:nil
-                             borderType:_nsScrollView.borderType
-                            controlSize:NSControlSizeRegular
-                          scrollerStyle:_nsScrollView.scrollerStyle];
+            NSSize macSizeWithoutScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
+                                                           horizontalScrollerClass:nil
+                                                             verticalScrollerClass:nil
+                                                                        borderType:_nsScrollView.borderType
+                                                                       controlSize:NSControlSizeRegular
+                                                                     scrollerStyle:_nsScrollView.scrollerStyle];
 
             Size sizeWithScrollers = macSizeToSize(macSizeWithScrollers);
             Size sizeWithoutScrollers = macSizeToSize(macSizeWithoutScrollers);
@@ -187,13 +172,11 @@ namespace bdn
         {
             Size preferredSize;
 
-            P<ScrollView> pOuterView =
-                cast<ScrollView>(getOuterViewIfStillAttached());
+            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
             if (pOuterView != nullptr) {
                 P<ScrollViewLayoutHelper> pHelper = createLayoutHelper();
 
-                preferredSize =
-                    pHelper->calcPreferredSize(pOuterView, availableSpace);
+                preferredSize = pHelper->calcPreferredSize(pOuterView, availableSpace);
             }
 
             return preferredSize;
@@ -201,15 +184,12 @@ namespace bdn
 
         void ScrollViewCore::layout()
         {
-            P<ScrollView> pOuterView =
-                cast<ScrollView>(getOuterViewIfStillAttached());
+            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
             if (pOuterView != nullptr) {
                 Size borderSize;
-                P<ScrollViewLayoutHelper> pHelper =
-                    createLayoutHelper(&borderSize);
+                P<ScrollViewLayoutHelper> pHelper = createLayoutHelper(&borderSize);
 
-                Size viewPortSizeWithoutScrollbars =
-                    pOuterView->size() - borderSize;
+                Size viewPortSizeWithoutScrollbars = pOuterView->size() - borderSize;
 
                 pHelper->calcLayout(pOuterView, viewPortSizeWithoutScrollbars);
 
@@ -234,8 +214,7 @@ namespace bdn
         void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)
         {
             if (_nsScrollView.contentView != nil) {
-                [_nsScrollView.contentView
-                    scrollRectToVisible:rectToMacRect(clientRect, -1)];
+                [_nsScrollView.contentView scrollRectToVisible:rectToMacRect(clientRect, -1)];
             }
         }
 
@@ -248,11 +227,9 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            P<ScrollView> pOuterView =
-                cast<ScrollView>(getOuterViewIfStillAttached());
+            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
             if (pOuterView != nullptr) {
-                Rect visibleClientRect =
-                    macRectToRect(_nsScrollView.documentVisibleRect, -1);
+                Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
 
                 pOuterView->_setVisibleClientRect(visibleClientRect);
             }

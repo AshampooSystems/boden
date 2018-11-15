@@ -12,8 +12,7 @@ template <class CharType> static void testStdioUiProvider()
     std::basic_ostringstream<CharType> outStream;
     std::basic_ostringstream<CharType> errStream;
 
-    P<StdioUiProvider<CharType>> pProvider =
-        newObj<StdioUiProvider<CharType>>(&inStream, &outStream, &errStream);
+    P<StdioUiProvider<CharType>> pProvider = newObj<StdioUiProvider<CharType>>(&inStream, &outStream, &errStream);
 
     SECTION("getName")
     REQUIRE(pProvider->getName() == "stdio");
@@ -24,9 +23,8 @@ template <class CharType> static void testStdioUiProvider()
         // View types.
         P<Button> pButton = newObj<Button>();
 
-        REQUIRE_THROWS_AS(
-            pProvider->createViewCore(Button::getButtonCoreTypeName(), pButton),
-            ViewCoreTypeNotSupportedError);
+        REQUIRE_THROWS_AS(pProvider->createViewCore(Button::getButtonCoreTypeName(), pButton),
+                          ViewCoreTypeNotSupportedError);
     }
 
     SECTION("getTextUi")

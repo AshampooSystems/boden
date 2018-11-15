@@ -5,8 +5,7 @@
 
 namespace bdn
 {
-    void platformEntryWrapper(std::function<void()> function, bool,
-                              void *platformSpecific)
+    void platformEntryWrapper(std::function<void()> function, bool, void *platformSpecific)
     {
         auto pEnv = static_cast<JNIEnv *>(platformSpecific);
         bdn::java::Env::get().jniBlockBegun(pEnv);
@@ -19,8 +18,7 @@ namespace bdn
             // uncaught exception handler installed that will pass any exception
             // that is not handled by the java code to our own
             // unhandledException function.
-            bdn::java::Env::get().setJavaSideException(
-                std::current_exception());
+            bdn::java::Env::get().setJavaSideException(std::current_exception());
         }
     }
 }

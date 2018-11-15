@@ -23,8 +23,7 @@ namespace bdn
                 return uiLength.value * getEmSizeDips();
 
             case UiLength::Unit::sem:
-                return uiLength.value * UiProvider::get().getSemSizeDips(
-                                            *const_cast<ViewCore *>(this));
+                return uiLength.value * UiProvider::get().getSemSizeDips(*const_cast<ViewCore *>(this));
 
             default:
                 throw InvalidArgumentError("Invalid UiLength unit passed to "
@@ -36,8 +35,7 @@ namespace bdn
         double ViewCore::getSemSizeDips() const
         {
             if (_semDipsIfInitialized == -1)
-                _semDipsIfInitialized = UiProvider::get().getSemSizeDips(
-                    *const_cast<ViewCore *>(this));
+                _semDipsIfInitialized = UiProvider::get().getSemSizeDips(*const_cast<ViewCore *>(this));
 
             return _semDipsIfInitialized;
         }
@@ -46,11 +44,9 @@ namespace bdn
         {
             P<View> pOuterView = getOuterViewIfStillAttached();
             if (pOuterView != nullptr) {
-                P<UiProvider> pProvider =
-                    tryCast<UiProvider>(pOuterView->getUiProvider());
+                P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
                 if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->viewNeedsLayout(
-                        pOuterView);
+                    pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
             }
         }
 
@@ -58,10 +54,8 @@ namespace bdn
         {
             P<View> pOuterView = getOuterViewIfStillAttached();
             if (pOuterView != nullptr) {
-                pOuterView->invalidateSizingInfo(
-                    View::InvalidateReason::childSizingInfoInvalidated);
-                pOuterView->needLayout(
-                    View::InvalidateReason::childSizingInfoInvalidated);
+                pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
             }
         }
     }

@@ -13,11 +13,10 @@ namespace bdn
     namespace mac
     {
 
-        class ChildViewCore
-            : public Base,
-              BDN_IMPLEMENTS IViewCore,
-              BDN_IMPLEMENTS IParentViewCore,
-              BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class ChildViewCore : public Base,
+                              BDN_IMPLEMENTS IViewCore,
+                              BDN_IMPLEMENTS IParentViewCore,
+                              BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
             ChildViewCore(View *pOuterView, NSView *nsView)
@@ -32,10 +31,7 @@ namespace bdn
                 setPadding(pOuterView->padding());
             }
 
-            void setVisible(const bool &visible) override
-            {
-                _nsView.hidden = !visible;
-            }
+            void setVisible(const bool &visible) override { _nsView.hidden = !visible; }
 
             void setPadding(const Nullable<UiMargin> &padding) override
             {
@@ -58,11 +54,9 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pOuterView->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(
-                            pOuterView);
+                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
                 }
             }
 
@@ -70,21 +64,17 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(
-                        View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(
-                        View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
-            void setHorizontalAlignment(
-                const View::HorizontalAlignment &align) override
+            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
 
-            void
-            setVerticalAlignment(const View::VerticalAlignment &align) override
+            void setVerticalAlignment(const View::VerticalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
@@ -107,8 +97,7 @@ namespace bdn
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
                 // first adjust the bounds so that they are on pixel boundaries
-                Rect adjustedBounds = adjustBounds(
-                    requestedBounds, RoundType::nearest, RoundType::nearest);
+                Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
                 // our parent view's coordinate system is usually "normal" i.e.
                 // with the top left being (0,0). So there is no need to flip
@@ -119,8 +108,7 @@ namespace bdn
                 return adjustedBounds;
             }
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override
             {
                 // our parent view's coordinate system is usually "normal" i.e.
@@ -128,12 +116,11 @@ namespace bdn
                 // the coordinates.
                 NSRect macRect = rectToMacRect(requestedBounds, -1);
 
-                NSAlignmentOptions alignOptions =
-                    NSAlignRectFlipped; // coordinate system is "flipped" for
-                                        // mac (normal for us), so we need this
-                                        // flag apparently this only affects how
-                                        // halfway values are rounded, not what
-                                        // "minY" and "maxY" refers to.
+                NSAlignmentOptions alignOptions = NSAlignRectFlipped; // coordinate system is "flipped" for
+                                                                      // mac (normal for us), so we need this
+                                                                      // flag apparently this only affects how
+                                                                      // halfway values are rounded, not what
+                                                                      // "minY" and "maxY" refers to.
 
                 if (positionRoundType == RoundType::down)
                     alignOptions |= NSAlignMinXOutward | NSAlignMinYOutward;
@@ -153,8 +140,7 @@ namespace bdn
                 else
                     alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
 
-                NSRect adjustedMacRect =
-                    [_nsView backingAlignedRect:macRect options:alignOptions];
+                NSRect adjustedMacRect = [_nsView backingAlignedRect:macRect options:alignOptions];
 
                 Rect adjustedBounds = macRectToRect(adjustedMacRect, -1);
 
@@ -177,22 +163,19 @@ namespace bdn
                     return uiLength.value * getSemSizeDips();
 
                 default:
-                    throw InvalidArgumentError(
-                        "Invalid UiLength unit passed to "
-                        "ViewCore::uiLengthToDips: " +
-                        std::to_string((int)uiLength.unit));
+                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                                               "ViewCore::uiLengthToDips: " +
+                                               std::to_string((int)uiLength.unit));
                 }
             }
 
             Margin uiMarginToDipMargin(const UiMargin &margin) const override
             {
-                return Margin(
-                    uiLengthToDips(margin.top), uiLengthToDips(margin.right),
-                    uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
+                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
+                              uiLengthToDips(margin.left));
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 Size size = macSizeToSize(_nsView.fittingSize);
 
@@ -220,10 +203,8 @@ namespace bdn
                 // (the controls do not reduce the padding when they are smaller
                 // than their fitting size - they just clip the content).
                 additionalPadding.top = std::max(additionalPadding.top, 0.0);
-                additionalPadding.right =
-                    std::max(additionalPadding.right, 0.0);
-                additionalPadding.bottom =
-                    std::max(additionalPadding.bottom, 0.0);
+                additionalPadding.right = std::max(additionalPadding.right, 0.0);
+                additionalPadding.bottom = std::max(additionalPadding.bottom, 0.0);
                 additionalPadding.left = std::max(additionalPadding.left, 0.0);
 
                 size += additionalPadding;
@@ -246,10 +227,7 @@ namespace bdn
                 // do nothing by default
             }
 
-            bool canMoveToParentView(View &newParentView) const override
-            {
-                return true;
-            }
+            bool canMoveToParentView(View &newParentView) const override { return true; }
 
             void moveToParentView(View &newParentView) override
             {
@@ -268,17 +246,11 @@ namespace bdn
 
             void dispose() override { removeFromNsSuperview(); }
 
-            P<View> getOuterViewIfStillAttached() const
-            {
-                return _outerViewWeak.toStrong();
-            }
+            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
 
             NSView *getNSView() const { return _nsView; }
 
-            void addChildNsView(NSView *childView) override
-            {
-                [_nsView addSubview:childView];
-            }
+            void addChildNsView(NSView *childView) override { [_nsView addSubview:childView]; }
 
             void removeFromNsSuperview() { [_nsView removeFromSuperview]; }
 
@@ -287,10 +259,7 @@ namespace bdn
                includes in the calculation of NSView.fittingSize. The default
                implementation returns an zero padding.
                 */
-            virtual Margin getPaddingIncludedInFittingSize() const
-            {
-                return Margin();
-            }
+            virtual Margin getPaddingIncludedInFittingSize() const { return Margin(); }
 
             virtual double getFontSize() const
             {
@@ -323,18 +292,16 @@ namespace bdn
                 if (pParentView == nullptr) {
                     // classes derived from ChildViewCore MUST have a parent.
                     // Top level windows do not derive from ChildViewCore.
-                    throw ProgrammingError(
-                        "bdn::mac::ChildViewCore constructed for a view that "
-                        "does not have a parent.");
+                    throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view that "
+                                           "does not have a parent.");
                 }
 
                 P<IViewCore> pParentCore = pParentView->getViewCore();
                 if (pParentCore == nullptr) {
                     // this should not happen. The parent MUST have a core -
                     // otherwise we cannot initialize ourselves.
-                    throw ProgrammingError(
-                        "bdn::mac::ChildViewCore constructed for a view whose "
-                        "parent does not have a core.");
+                    throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view whose "
+                                           "parent does not have a core.");
                 }
 
                 cast<IParentViewCore>(pParentCore)->addChildNsView(_nsView);

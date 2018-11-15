@@ -5,8 +5,7 @@ namespace bdn
 {
 
     /** Used internally. Do not call.*/
-    void _handleDestructorException(const char *className,
-                                    const std::exception &e) noexcept;
+    void _handleDestructorException(const char *className, const std::exception &e) noexcept;
 
     /** Used internally. Do not call.*/
     void _handleDestructorException(const char *className) noexcept;
@@ -58,12 +57,9 @@ namespace bdn
 
     See #BDN_DESTRUCT_BEGIN for more information
 */
-#define BDN_DESTRUCT_END(className)                                            \
-    }                                                                          \
-    catch (std::exception & e)                                                 \
-    {                                                                          \
-        bdn::_handleDestructorException(#className, e);                        \
-    }                                                                          \
+#define BDN_DESTRUCT_END(className)                                                                                    \
+    }                                                                                                                  \
+    catch (std::exception & e) { bdn::_handleDestructorException(#className, e); }                                     \
     catch (...) { bdn::_handleDestructorException(#className); }
 
 #endif

@@ -16,14 +16,11 @@ namespace bdn
             {
                 static bdn::java::MethodId constructorId;
 
-                return bdn::java::Reference(
-                    getStaticClass_().newInstance_(constructorId, context));
+                return bdn::java::Reference(getStaticClass_().newInstance_(constructorId, context));
             }
 
           public:
-            explicit JNativeViewGroup(JContext context)
-                : JNativeViewGroup(newInstance_(context))
-            {}
+            explicit JNativeViewGroup(JContext context) : JNativeViewGroup(newInstance_(context)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -31,9 +28,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeViewGroup(const bdn::java::Reference &javaRef)
-                : JViewGroup(javaRef)
-            {}
+            explicit JNativeViewGroup(const bdn::java::Reference &javaRef) : JViewGroup(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -46,8 +41,7 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeViewGroup");
+                static bdn::java::JClass cls("io/boden/android/NativeViewGroup");
 
                 return cls;
             }
@@ -56,17 +50,14 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setSize", width,
-                              height);
+                invoke_<void>(getStaticClass_(), methodId, "setSize", width, height);
             }
 
-            void setChildBounds(JView &childView, int x, int y, int width,
-                                int height)
+            void setChildBounds(JView &childView, int x, int y, int width, int height)
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setChildBounds",
-                              childView, x, y, width, height);
+                invoke_<void>(getStaticClass_(), methodId, "setChildBounds", childView, x, y, width, height);
             }
         };
     }

@@ -136,8 +136,7 @@ namespace bdn
         \endcode
 
     */
-    template <class... ARG_TYPES>
-    class ISyncNotifier : BDN_IMPLEMENTS INotifierBase<ARG_TYPES...>
+    template <class... ARG_TYPES> class ISyncNotifier : BDN_IMPLEMENTS INotifierBase<ARG_TYPES...>
     {
       public:
         /** Calls all subscribed functions immediately with the specified

@@ -17,16 +17,14 @@ namespace bdn
     namespace test
     {
 
-        P<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName,
-                                                    View *pView)
+        P<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName, View *pView)
         {
             BDN_REQUIRE_IN_MAIN_THREAD();
 
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockContainerViewCore>(
-                    cast<ContainerView>(pView));
+                return newObj<MockContainerViewCore>(cast<ContainerView>(pView));
             } else if (coreTypeName == Window::getWindowCoreTypeName()) {
                 _coresCreated++;
 
@@ -55,8 +53,7 @@ namespace bdn
                 _coresCreated++;
 
                 return newObj<MockTextFieldCore>(cast<TextField>(pView));
-            } else if (coreTypeName ==
-                       ScrollView::getScrollViewCoreTypeName()) {
+            } else if (coreTypeName == ScrollView::getScrollViewCoreTypeName()) {
                 _coresCreated++;
 
                 return newObj<MockScrollViewCore>(cast<ScrollView>(pView));

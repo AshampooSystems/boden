@@ -20,7 +20,6 @@ TEST_CASE("mainDispatcher")
     enableTimingTests = true;
 #endif
 
-    bdn::test::testDispatcher(getMainDispatcher(), Thread::getMainId(),
-                              enableTimingTests,
+    bdn::test::testDispatcher(getMainDispatcher(), Thread::getMainId(), enableTimingTests,
                               canKeepRunningAfterUnhandledException);
 }

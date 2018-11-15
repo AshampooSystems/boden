@@ -94,8 +94,7 @@
 
     \endcode
 */
-#define BDN_SAFE_STATIC(typeName, accessorFuncName)                            \
-    static typeName &accessorFuncName()
+#define BDN_SAFE_STATIC(typeName, accessorFuncName) static typeName &accessorFuncName()
 
 /** \def BDN_SAFE_STATIC_THREAD_LOCAL(type, accessorFuncName)
 
@@ -108,8 +107,7 @@
 
     See #BDN_SAFE_STATIC for more information.
 */
-#define BDN_SAFE_STATIC_THREAD_LOCAL(typeName, accessorFuncName)               \
-    typeName &accessorFuncName()
+#define BDN_SAFE_STATIC_THREAD_LOCAL(typeName, accessorFuncName) typeName &accessorFuncName()
 
 /** \def BDN_SAFE_STATIC_IMPL(type, qualifiedAccessorFuncName)
 
@@ -137,11 +135,11 @@
 
     See #BDN_SAFE_STATIC for example code.
 */
-#define BDN_SAFE_STATIC_IMPL(typeName, qualifiedAccessorFuncName, ...)         \
-    typeName &qualifiedAccessorFuncName()                                      \
-    {                                                                          \
-        static bdn::SafeInit<typeName> init{__VA_ARGS__};                      \
-        return *init.get();                                                    \
+#define BDN_SAFE_STATIC_IMPL(typeName, qualifiedAccessorFuncName, ...)                                                 \
+    typeName &qualifiedAccessorFuncName()                                                                              \
+    {                                                                                                                  \
+        static bdn::SafeInit<typeName> init{__VA_ARGS__};                                                              \
+        return *init.get();                                                                                            \
     }
 
 /** \def BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(type, qualifiedAccessorFuncName)
@@ -166,12 +164,11 @@
 // just use standard C++11 thread_local storage.
 // Note that we still use SafeInit, so that we get the special handling of
 // exceptions during construction.
-#define BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(typeName, qualifiedAccessorFuncName, \
-                                          ...)                                 \
-    typeName &qualifiedAccessorFuncName()                                      \
-    {                                                                          \
-        static thread_local bdn::SafeInit<typeName> init{__VA_ARGS__};         \
-        return *init.get();                                                    \
+#define BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(typeName, qualifiedAccessorFuncName, ...)                                    \
+    typeName &qualifiedAccessorFuncName()                                                                              \
+    {                                                                                                                  \
+        static thread_local bdn::SafeInit<typeName> init{__VA_ARGS__};                                                 \
+        return *init.get();                                                                                            \
     }
 
 #else
@@ -179,12 +176,11 @@
 // we have no threads => thread local is the same as static
 // Note that we still use SafeInit, so that we get the special handling of
 // exceptions during construction.
-#define BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(typeName, qualifiedAccessorFuncName, \
-                                          ...)                                 \
-    typeName &qualifiedAccessorFuncName()                                      \
-    {                                                                          \
-        static bdn::SafeInit<typeName> init{__VA_ARGS__};                      \
-        return *init.get();                                                    \
+#define BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(typeName, qualifiedAccessorFuncName, ...)                                    \
+    typeName &qualifiedAccessorFuncName()                                                                              \
+    {                                                                                                                  \
+        static bdn::SafeInit<typeName> init{__VA_ARGS__};                                                              \
+        return *init.get();                                                                                            \
     }
 
 #endif

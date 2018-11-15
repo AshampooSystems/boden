@@ -166,10 +166,7 @@ namespace bdn
 
         bool operator==(std::nullptr_t) const { return _pObject == nullptr; }
 
-        bool operator!=(const P<T> &pObj) const
-        {
-            return _pObject != pObj._pObject;
-        }
+        bool operator!=(const P<T> &pObj) const { return _pObject != pObj._pObject; }
 
         bool operator!=(T *pObj) const { return _pObject != pObj; }
 

@@ -14,19 +14,15 @@ namespace bdn
     namespace mac
     {
 
-        class TextFieldCore : public ChildViewCore,
-                              BDN_IMPLEMENTS ITextFieldCore
+        class TextFieldCore : public ChildViewCore, BDN_IMPLEMENTS ITextFieldCore
         {
           private:
             static NSTextField *_createNsTextView(TextField *pOuterTextField)
             {
-                NSTextField *textField =
-                    [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-                textField.allowsEditingTextAttributes =
-                    NO; // plain textfield, no attribution/formatting
-                textField.cell.wraps = NO; // no word wrapping
-                textField.cell.scrollable =
-                    YES; // but scroll horizontally instead
+                NSTextField *textField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                textField.allowsEditingTextAttributes = NO; // plain textfield, no attribution/formatting
+                textField.cell.wraps = NO;                  // no word wrapping
+                textField.cell.scrollable = YES;            // but scroll horizontally instead
                 return textField;
             }
 

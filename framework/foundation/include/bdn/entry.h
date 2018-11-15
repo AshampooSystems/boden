@@ -39,7 +39,6 @@ namespace bdn
      * \note On Android the platformSpecific parameter is a pointer to the
      * JNIEnv object that the JNI function received from the Java side.
      */
-    void platformEntryWrapper(std::function<void()> function,
-                              bool canKeepRunningAfterException,
+    void platformEntryWrapper(std::function<void()> function, bool canKeepRunningAfterException,
                               void *platformSpecific = nullptr);
 }

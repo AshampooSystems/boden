@@ -23,16 +23,12 @@ namespace bdn
         The initial locale (when imbue() is not called) is a copy of the global
         C++ locale (as constructed by std::locale() ).
     */
-    template <typename CHAR_TYPE>
-    class TextSinkStdOStream : public std::basic_ostream<CHAR_TYPE>
+    template <typename CHAR_TYPE> class TextSinkStdOStream : public std::basic_ostream<CHAR_TYPE>
     {
       public:
-        TextSinkStdOStream(ITextSink *pSink)
-            : std::basic_ostream<CHAR_TYPE>(
-                  new TextSinkStdStreamBuf<CHAR_TYPE>(pSink))
+        TextSinkStdOStream(ITextSink *pSink) : std::basic_ostream<CHAR_TYPE>(new TextSinkStdStreamBuf<CHAR_TYPE>(pSink))
         {
-            _pStreamBuf =
-                dynamic_cast<TextSinkStdStreamBuf<CHAR_TYPE> *>(this->rdbuf());
+            _pStreamBuf = dynamic_cast<TextSinkStdStreamBuf<CHAR_TYPE> *>(this->rdbuf());
         }
 
         ~TextSinkStdOStream() { delete _pStreamBuf; }

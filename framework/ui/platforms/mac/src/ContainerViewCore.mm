@@ -24,8 +24,7 @@ namespace bdn
 
         NSView *ContainerViewCore::_createContainer(ContainerView *pOuter)
         {
-            return [[BdnMacContainerView_ alloc]
-                initWithFrame:NSMakeRect(0, 0, 0, 0)];
+            return [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
         }
     }
 }

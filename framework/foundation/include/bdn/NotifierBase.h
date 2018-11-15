@@ -27,32 +27,26 @@ namespace bdn
 
         ~NotifierBase() {}
 
-        P<INotifierSubscription>
-        subscribe(const std::function<void(ARG_TYPES...)> &func) override
+        P<INotifierSubscription> subscribe(const std::function<void(ARG_TYPES...)> &func) override
         {
             int64_t subId = doSubscribe(func);
 
             return newObj<Subscription_>(subId);
         }
 
-        INotifierBase<ARG_TYPES...> &
-        operator+=(const std::function<void(ARG_TYPES...)> &func) override
+        INotifierBase<ARG_TYPES...> &operator+=(const std::function<void(ARG_TYPES...)> &func) override
         {
             doSubscribe(func);
 
             return *this;
         }
 
-        P<INotifierSubscription>
-        subscribeParamless(const std::function<void()> &func) override
+        P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
         {
             return subscribe(ParamlessFunctionAdapter(func));
         }
 
-        void unsubscribe(INotifierSubscription *pSub) override
-        {
-            unsubscribeById(cast<Subscription_>(pSub)->subId());
-        }
+        void unsubscribe(INotifierSubscription *pSub) override { unsubscribeById(cast<Subscription_>(pSub)->subId()); }
 
         void unsubscribeAll() override
         {
@@ -91,10 +85,8 @@ namespace bdn
            of these are controlled by the function's template argument
            ADDITIONAL_CALL_MAKER_ARGS.
          */
-        template <typename CALL_MAKER_TYPE,
-                  typename... ADDITIONAL_CALL_MAKER_ARGS>
-        void notifyImpl(CALL_MAKER_TYPE callMaker,
-                        ADDITIONAL_CALL_MAKER_ARGS... additionalCallMakerArgs)
+        template <typename CALL_MAKER_TYPE, typename... ADDITIONAL_CALL_MAKER_ARGS>
+        void notifyImpl(CALL_MAKER_TYPE callMaker, ADDITIONAL_CALL_MAKER_ARGS... additionalCallMakerArgs)
         {
             // we do not want to hold a mutex while we call each subscriber.
             // That would create the potential for deadlocks. However, we need
@@ -158,8 +150,7 @@ namespace bdn
                             // to a move reference, this the
                             // additionalCallMakerArgs variable might otherwise
                             // be invalidated by the first subscriber call.
-                            callMaker(item.second.func,
-                                      additionalCallMakerArgs...);
+                            callMaker(item.second.func, additionalCallMakerArgs...);
                         }
                         catch (DanglingFunctionError &) {
                             // this is a perfectly normal case. It means that
@@ -182,9 +173,7 @@ namespace bdn
 
         /** A default call maker implementation that simply calls the subscribed
            function directly. This can be used with notifyImpl().*/
-        static void
-        defaultCallMaker(const std::function<void(ARG_TYPES...)> &func,
-                         ARG_TYPES... args)
+        static void defaultCallMaker(const std::function<void(ARG_TYPES...)> &func, ARG_TYPES... args)
         {
             func(args...);
         }
@@ -192,16 +181,15 @@ namespace bdn
         /** Perform a notification call.*/
         virtual void doNotify(ARG_TYPES... args)
         {
-            notifyImpl<decltype(&NotifierBase::defaultCallMaker), ARG_TYPES...>(
-                &NotifierBase::defaultCallMaker, args...);
+            notifyImpl<decltype(&NotifierBase::defaultCallMaker), ARG_TYPES...>(&NotifierBase::defaultCallMaker,
+                                                                                args...);
         }
 
         /** Subscribed the specified function \c func.
 
             Returns the ID of the created subscription.
         */
-        virtual int64_t
-        doSubscribe(const std::function<void(ARG_TYPES...)> &func)
+        virtual int64_t doSubscribe(const std::function<void(ARG_TYPES...)> &func)
         {
             typename MUTEX_TYPE::Lock lock(_mutex);
 
@@ -284,10 +272,7 @@ namespace bdn
         class ParamlessFunctionAdapter
         {
           public:
-            ParamlessFunctionAdapter(std::function<void()> func)
-            {
-                _func = func;
-            }
+            ParamlessFunctionAdapter(std::function<void()> func) { _func = func; }
 
             void operator()(ARG_TYPES... args) { _func(); }
 

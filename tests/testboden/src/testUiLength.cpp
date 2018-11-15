@@ -6,8 +6,7 @@
 
 using namespace bdn;
 
-static void _verifyUiLengthToString(double value, UiLength::Unit unit,
-                                    String expectedString)
+static void _verifyUiLengthToString(double value, UiLength::Unit unit, String expectedString)
 {
     UiLength len(value, unit);
 

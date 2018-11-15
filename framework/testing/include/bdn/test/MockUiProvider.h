@@ -77,15 +77,11 @@ namespace bdn
 
             /** Returns the layout coordinator object that all UI objects
                created by this provider share.*/
-            P<LayoutCoordinator> getLayoutCoordinator()
-            {
-                return _pLayoutCoordinator;
-            }
+            P<LayoutCoordinator> getLayoutCoordinator() { return _pLayoutCoordinator; }
 
             P<ITextUi> getTextUi() override { return _pTextUi; }
 
-            P<IViewCore> createViewCore(const String &coreTypeName,
-                                        View *pView) override;
+            P<IViewCore> createViewCore(const String &coreTypeName, View *pView) override;
 
           protected:
             int _coresCreated = 0;

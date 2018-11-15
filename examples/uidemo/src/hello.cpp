@@ -48,64 +48,62 @@ class MainViewController : public Base
         textScrollView->setPreferredSizeMaximum(Size(0, 186));
 
         auto scrolledTextView = newObj<TextView>();
-        scrolledTextView->setText(
-            "The user interface (UI), in the industrial design field of "
-            "human–computer interaction, is the space where interactions "
-            "between humans and machines occur. The goal of this interaction "
-            "is to allow effective operation and control of the machine from "
-            "the human end, whilst the machine simultaneously feeds back "
-            "information that aids the operators' decision-making process. "
-            "Examples of this broad concept of user interfaces include the "
-            "interactive aspects of computer operating systems, hand tools, "
-            "heavy machinery operator controls, and process controls. The "
-            "design considerations applicable when creating user interfaces "
-            "are related to or involve such disciplines as ergonomics and "
-            "psychology.\n\n"
-            "Generally, the goal of user interface design is to produce a user "
-            "interface which makes it easy, efficient, and enjoyable "
-            "(user-friendly) to operate a machine in the way which produces "
-            "the desired result. This generally means that the operator needs "
-            "to provide minimal input to achieve the desired output, and also "
-            "that the machine minimizes undesired outputs to the human.\n\n"
-            "User interfaces are composed of one or more layers including a "
-            "human-machine interface (HMI) interfaces machines with physical "
-            "input hardware such a keyboards, mice, game pads and output "
-            "hardware such as computer monitors, speakers, and printers. A "
-            "device that implements a HMI is called a human interface device "
-            "(HID). Other terms for human-machine interfaces are man–machine "
-            "interface (MMI) and when the machine in question is a computer "
-            "human–computer interface. Additional UI layers may interact with "
-            "one or more human sense, including: tactile UI (touch), visual UI "
-            "(sight), auditory UI (sound), olfactory UI (smell), equilibrial "
-            "UI (balance), and gustatory UI (taste).\n\n"
-            "Composite user interfaces (CUI) are UIs that interact with two or "
-            "more senses. The most common CUI is a graphical user interface "
-            "(GUI), which is composed of a tactile UI and a visual UI capable "
-            "of displaying graphics. When sound is added to a GUI it becomes a "
-            "multimedia user interface (MUI). There are three broad categories "
-            "of CUI: standard, virtual and augmented. Standard composite user "
-            "interfaces use standard human interface devices like keyboards, "
-            "mice, and computer monitors. When the CUI blocks out the real "
-            "world to create a virtual reality, the CUI is virtual and uses a "
-            "virtual reality interface. When the CUI does not block out the "
-            "real world and creates augmented reality, the CUI is augmented "
-            "and uses an augmented reality interface. When a UI interacts with "
-            "all human senses, it is called a qualia interface, named after "
-            "the theory of qualia. CUI may also be classified by how many "
-            "senses they interact with as either an X-sense virtual reality "
-            "interface or X-sense augmented reality interface, where X is the "
-            "number of senses interfaced with. For example, a Smell-O-Vision "
-            "is a 3-sense (3S) Standard CUI with visual display, sound and "
-            "smells; when virtual reality interfaces interface with smells and "
-            "touch it is said to be a 4-sense (4S) virtual reality interface; "
-            "and when augmented reality interfaces interface with smells and "
-            "touch it is said to be a 4-sense (4S) augmented reality "
-            "interface.\n\nThis text uses material from the Wikipedia article "
-            "https://en.wikipedia.org/wiki/User_interface");
+        scrolledTextView->setText("The user interface (UI), in the industrial design field of "
+                                  "human–computer interaction, is the space where interactions "
+                                  "between humans and machines occur. The goal of this interaction "
+                                  "is to allow effective operation and control of the machine from "
+                                  "the human end, whilst the machine simultaneously feeds back "
+                                  "information that aids the operators' decision-making process. "
+                                  "Examples of this broad concept of user interfaces include the "
+                                  "interactive aspects of computer operating systems, hand tools, "
+                                  "heavy machinery operator controls, and process controls. The "
+                                  "design considerations applicable when creating user interfaces "
+                                  "are related to or involve such disciplines as ergonomics and "
+                                  "psychology.\n\n"
+                                  "Generally, the goal of user interface design is to produce a user "
+                                  "interface which makes it easy, efficient, and enjoyable "
+                                  "(user-friendly) to operate a machine in the way which produces "
+                                  "the desired result. This generally means that the operator needs "
+                                  "to provide minimal input to achieve the desired output, and also "
+                                  "that the machine minimizes undesired outputs to the human.\n\n"
+                                  "User interfaces are composed of one or more layers including a "
+                                  "human-machine interface (HMI) interfaces machines with physical "
+                                  "input hardware such a keyboards, mice, game pads and output "
+                                  "hardware such as computer monitors, speakers, and printers. A "
+                                  "device that implements a HMI is called a human interface device "
+                                  "(HID). Other terms for human-machine interfaces are man–machine "
+                                  "interface (MMI) and when the machine in question is a computer "
+                                  "human–computer interface. Additional UI layers may interact with "
+                                  "one or more human sense, including: tactile UI (touch), visual UI "
+                                  "(sight), auditory UI (sound), olfactory UI (smell), equilibrial "
+                                  "UI (balance), and gustatory UI (taste).\n\n"
+                                  "Composite user interfaces (CUI) are UIs that interact with two or "
+                                  "more senses. The most common CUI is a graphical user interface "
+                                  "(GUI), which is composed of a tactile UI and a visual UI capable "
+                                  "of displaying graphics. When sound is added to a GUI it becomes a "
+                                  "multimedia user interface (MUI). There are three broad categories "
+                                  "of CUI: standard, virtual and augmented. Standard composite user "
+                                  "interfaces use standard human interface devices like keyboards, "
+                                  "mice, and computer monitors. When the CUI blocks out the real "
+                                  "world to create a virtual reality, the CUI is virtual and uses a "
+                                  "virtual reality interface. When the CUI does not block out the "
+                                  "real world and creates augmented reality, the CUI is augmented "
+                                  "and uses an augmented reality interface. When a UI interacts with "
+                                  "all human senses, it is called a qualia interface, named after "
+                                  "the theory of qualia. CUI may also be classified by how many "
+                                  "senses they interact with as either an X-sense virtual reality "
+                                  "interface or X-sense augmented reality interface, where X is the "
+                                  "number of senses interfaced with. For example, a Smell-O-Vision "
+                                  "is a 3-sense (3S) Standard CUI with visual display, sound and "
+                                  "smells; when virtual reality interfaces interface with smells and "
+                                  "touch it is said to be a 4-sense (4S) virtual reality interface; "
+                                  "and when augmented reality interfaces interface with smells and "
+                                  "touch it is said to be a 4-sense (4S) augmented reality "
+                                  "interface.\n\nThis text uses material from the Wikipedia article "
+                                  "https://en.wikipedia.org/wiki/User_interface");
         textScrollView->setContentView(scrolledTextView);
 
-        addControlWithHeading("Scrolling multiline text", textScrollView,
-                              mainColumn, false);
+        addControlWithHeading("Scrolling multiline text", textScrollView, mainColumn, false);
 
         auto listColumn = newObj<ColumnView>();
 
@@ -126,9 +124,7 @@ class MainViewController : public Base
 
         addButton->onClick() += [listColumn, textFieldCtrl](auto) {
             auto newEntry = newObj<TextView>();
-            newEntry->setText(textFieldCtrl->text().empty()
-                                  ? "New Item"
-                                  : textFieldCtrl->text());
+            newEntry->setText(textFieldCtrl->text().empty() ? "New Item" : textFieldCtrl->text());
             listColumn->addChildView(newEntry);
         };
 
@@ -146,8 +142,7 @@ class MainViewController : public Base
         auto clearButton = newObj<Button>();
         clearButton->setLabel("Clear");
         clearButton->setHorizontalAlignment(View::HorizontalAlignment::expand);
-        clearButton->onClick() +=
-            [listColumn](auto) { listColumn->removeAllChildViews(); };
+        clearButton->onClick() += [listColumn](auto) { listColumn->removeAllChildViews(); };
 
         auto buttonRow = newObj<RowView>();
         buttonRow->setPreferredSizeMinimum(Size(200, 0));
@@ -169,8 +164,7 @@ class MainViewController : public Base
         _window->setVisible(true);
     }
 
-    void addControlWithHeading(String headingText, P<View> control,
-                               P<ContainerView> container, bool single)
+    void addControlWithHeading(String headingText, P<View> control, P<ContainerView> container, bool single)
     {
         auto header = newObj<TextView>();
         header->setText(headingText);
@@ -204,10 +198,7 @@ class MainViewController : public Base
 class AppController : public UiAppControllerBase
 {
   public:
-    void beginLaunch(const AppLaunchInfo &launchInfo) override
-    {
-        _mainViewController = newObj<MainViewController>();
-    }
+    void beginLaunch(const AppLaunchInfo &launchInfo) override { _mainViewController = newObj<MainViewController>(); }
 
   protected:
     P<MainViewController> _mainViewController;

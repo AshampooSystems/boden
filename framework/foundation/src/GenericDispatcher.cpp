@@ -102,16 +102,14 @@ namespace bdn
         return false;
     }
 
-    bool GenericDispatcher::getNextReady(std::function<void()> &func,
-                                         bool remove)
+    bool GenericDispatcher::getNextReady(std::function<void()> &func, bool remove)
     {
         Mutex::Lock lock(_mutex);
 
         enqueueTimedItemsIfTimeReached();
 
         // go through the queues in priority order and handle one item
-        for (int priorityIndex = priorityCount - 1; priorityIndex >= 0;
-             priorityIndex--) {
+        for (int priorityIndex = priorityCount - 1; priorityIndex >= 0; priorityIndex--) {
             List<std::function<void()>> &queue = _queues[priorityIndex];
 
             if (!queue.empty()) {

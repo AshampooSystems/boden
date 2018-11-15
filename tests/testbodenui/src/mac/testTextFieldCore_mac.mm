@@ -9,14 +9,12 @@
 
 using namespace bdn;
 
-class TestMacTextFieldCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextFieldCore>
+class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextFieldCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin<
-            bdn::test::TestTextFieldCore>::initCore();
+        bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextFieldCore>::initCore();
 
         _pNSTextField = (NSTextField *)_pNSView;
         REQUIRE(_pNSTextField != nullptr);

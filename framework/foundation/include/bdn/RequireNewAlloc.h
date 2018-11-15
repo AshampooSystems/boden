@@ -40,15 +40,12 @@ namespace bdn
 
 
         */
-    template <class BaseType, class ActualType>
-    class RequireNewAlloc : public BaseType
+    template <class BaseType, class ActualType> class RequireNewAlloc : public BaseType
     {
       public:
-        template <typename... Args>
-        RequireNewAlloc(Args &&... args) : BaseType(std::forward<Args>(args)...)
+        template <typename... Args> RequireNewAlloc(Args &&... args) : BaseType(std::forward<Args>(args)...)
         {
-            bool &allocatedWithNewRef =
-                _requireNewAlloc_getThreadLocalAllocatedWithNewRef();
+            bool &allocatedWithNewRef = _requireNewAlloc_getThreadLocalAllocatedWithNewRef();
 
             // get the current value
             bool allocatedWithNew = allocatedWithNewRef;
@@ -64,8 +61,7 @@ namespace bdn
                 // of this we added the additional template parameter
                 // ActualType, which we use to get a better name.
 
-                programmingError("Instances of " +
-                                 String(typeid(ActualType).name()) +
+                programmingError("Instances of " + String(typeid(ActualType).name()) +
                                  " must be allocated with newObj or new.");
             }
         }

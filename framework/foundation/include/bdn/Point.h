@@ -52,46 +52,27 @@ namespace bdn
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const Point &p)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const Point &p)
     {
         return stream << "(" << p.x << ", " << p.y << ")";
     }
 }
 
-inline bool operator==(const bdn::Point &a, const bdn::Point &b)
-{
-    return (a.x == b.x && a.y == b.y);
-}
+inline bool operator==(const bdn::Point &a, const bdn::Point &b) { return (a.x == b.x && a.y == b.y); }
 
-inline bool operator!=(const bdn::Point &a, const bdn::Point &b)
-{
-    return !operator==(a, b);
-}
+inline bool operator!=(const bdn::Point &a, const bdn::Point &b) { return !operator==(a, b); }
 
 /** Returns true if a's x and y are each smaller than b's */
-inline bool operator<(const bdn::Point &a, const bdn::Point &b)
-{
-    return (a.x < b.x && a.y < b.y);
-}
+inline bool operator<(const bdn::Point &a, const bdn::Point &b) { return (a.x < b.x && a.y < b.y); }
 
 /** Returns true if a's x and y are each smaller or equal to b's */
-inline bool operator<=(const bdn::Point &a, const bdn::Point &b)
-{
-    return (a.x <= b.x && a.y <= b.y);
-}
+inline bool operator<=(const bdn::Point &a, const bdn::Point &b) { return (a.x <= b.x && a.y <= b.y); }
 
 /** Returns true if a's x and y are each bigger than b's */
-inline bool operator>(const bdn::Point &a, const bdn::Point &b)
-{
-    return (a.x > b.x && a.y > b.y);
-}
+inline bool operator>(const bdn::Point &a, const bdn::Point &b) { return (a.x > b.x && a.y > b.y); }
 
 /** Returns true if a's x and y are each bigger or equal to b's */
-inline bool operator>=(const bdn::Point &a, const bdn::Point &b)
-{
-    return (a.x >= b.x && a.y >= b.y);
-}
+inline bool operator>=(const bdn::Point &a, const bdn::Point &b) { return (a.x >= b.x && a.y >= b.y); }
 
 #endif

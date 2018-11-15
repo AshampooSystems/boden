@@ -16,9 +16,7 @@ TEST_CASE("getStringEndPtr")
     REQUIRE(getStringEndPtr(s, 4) == s + 4);
 }
 
-template <class CODEC>
-inline void verifyContents(StringData<CODEC> &data,
-                           const std::u32string &expectedResult)
+template <class CODEC> inline void verifyContents(StringData<CODEC> &data, const std::u32string &expectedResult)
 {
     REQUIRE(checkEquality(data.begin(), data.end(), expectedResult.empty()));
 
@@ -162,19 +160,15 @@ template <class CODEC> void testConstruct()
 }
 
 template <class CODEC>
-inline void
-verifyEncodedContents(const typename CODEC::EncodedString &encodedString,
-                      const std::u32string &expectedContents)
+inline void verifyEncodedContents(const typename CODEC::EncodedString &encodedString,
+                                  const std::u32string &expectedContents)
 {
     // verify the contents
 
-    typename CODEC::template DecodingIterator<
-        typename CODEC::EncodedString::const_iterator>
-        beginIt(encodedString.begin(), encodedString.begin(),
-                encodedString.end());
-    typename CODEC::template DecodingIterator<
-        typename CODEC::EncodedString::const_iterator>
-        endIt(encodedString.end(), encodedString.begin(), encodedString.end());
+    typename CODEC::template DecodingIterator<typename CODEC::EncodedString::const_iterator> beginIt(
+        encodedString.begin(), encodedString.begin(), encodedString.end());
+    typename CODEC::template DecodingIterator<typename CODEC::EncodedString::const_iterator> endIt(
+        encodedString.end(), encodedString.begin(), encodedString.end());
 
     std::u32string decResult(beginIt, endIt);
 

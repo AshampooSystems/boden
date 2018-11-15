@@ -20,9 +20,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JViewGroup(const bdn::java::Reference &javaRef)
-                : JView(javaRef)
-            {}
+            explicit JViewGroup(const bdn::java::Reference &javaRef) : JView(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -40,10 +38,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 
             void addView(JView child)
             {
@@ -64,8 +59,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getChildCount");
+                return invoke_<int>(getStaticClass_(), methodId, "getChildCount");
             }
 
             /** Returns the view at the specified position in the group. */
@@ -73,8 +67,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JView>(getStaticClass_(), methodId, "getChildAt",
-                                      index);
+                return invoke_<JView>(getStaticClass_(), methodId, "getChildAt", index);
             }
 
             typedef JViewGroup__JLayoutParams JLayoutParams;

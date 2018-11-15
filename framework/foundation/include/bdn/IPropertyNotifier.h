@@ -25,8 +25,7 @@ namespace bdn
         the notify function takes a property accessor object.
     */
     template <typename PROPERTY_VALUE_TYPE>
-    class IPropertyNotifier
-        : BDN_IMPLEMENTS INotifierBase<const PROPERTY_VALUE_TYPE &>
+    class IPropertyNotifier : BDN_IMPLEMENTS INotifierBase<const PROPERTY_VALUE_TYPE &>
     {
       public:
         /** Calls all subscribed functions immediately with the specified
@@ -37,8 +36,7 @@ namespace bdn
            one subscriber changes the property's value then the following
            subscribers will get the new, updated value as their parameter.
         */
-        virtual void
-        notify(const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &accessor) = 0;
+        virtual void notify(const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &accessor) = 0;
     };
 }
 

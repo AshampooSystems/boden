@@ -70,10 +70,7 @@ namespace bdn
          * in other ways. For example, the function will will return false if
          * the object was allocated on the stack as a local variable
          *  (instead of with newObj) and the corresponding function exits.*/
-        bool isBeingDeletedBecauseReferenceCountReachedZero() const
-        {
-            return _refCount < 0;
-        }
+        bool isBeingDeletedBecauseReferenceCountReachedZero() const { return _refCount < 0; }
 
         /** A helper enumeration. This is only used if the raw new operator
             needs to be called.*/
@@ -97,10 +94,7 @@ namespace bdn
             new(Base::RawNew::Use) MyClass;
 
             */
-        static inline void *operator new(size_t size, RawNew)
-        {
-            return operator new(size);
-        }
+        static inline void *operator new(size_t size, RawNew) { return operator new(size); }
 
         /** Raw delete operator - see corresponding operator new for an
          * explanation. */
@@ -131,10 +125,7 @@ namespace bdn
 
         // prevent direct access to the normal new operator.
         // Users should use newObj.
-        static inline void *operator new(size_t size)
-        {
-            return ::operator new(size);
-        }
+        static inline void *operator new(size_t size) { return ::operator new(size); }
 
         /** Called when the object wants to delete itself (when the reference
            count reached 0). This can be overloaded to do custom cleanup or

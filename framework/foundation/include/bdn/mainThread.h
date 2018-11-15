@@ -20,20 +20,13 @@ namespace bdn
             getMainDispatcher()->enqueueInSeconds(seconds, Caller(this));
         }
 
-        void dispatchCallWhenIdle()
-        {
-            getMainDispatcher()->enqueue(Caller(this),
-                                         IDispatcher::Priority::idle);
-        }
+        void dispatchCallWhenIdle() { getMainDispatcher()->enqueue(Caller(this), IDispatcher::Priority::idle); }
 
       private:
         class Caller
         {
           public:
-            Caller(CallFromMainThreadBase_ *pCallable)
-            {
-                _pCallable = pCallable;
-            }
+            Caller(CallFromMainThreadBase_ *pCallable) { _pCallable = pCallable; }
 
             void operator()() { _pCallable->call(); }
 
@@ -42,20 +35,14 @@ namespace bdn
         };
     };
 
-    template <class FuncType, class... Args>
-    class CallFromMainThread_ : public CallFromMainThreadBase_
+    template <class FuncType, class... Args> class CallFromMainThread_ : public CallFromMainThreadBase_
     {
       public:
         CallFromMainThread_(FuncType &&func, Args &&... args)
-            : _packagedTask(std::bind(std::forward<FuncType>(func),
-                                      std::forward<Args>(args)...))
+            : _packagedTask(std::bind(std::forward<FuncType>(func), std::forward<Args>(args)...))
         {}
 
-        std::future<typename std::result_of<FuncType(Args...)>::type>
-        getFuture()
-        {
-            return _packagedTask.get_future();
-        }
+        std::future<typename std::result_of<FuncType(Args...)>::type> getFuture() { return _packagedTask.get_future(); }
 
         void call() override
         {
@@ -70,8 +57,7 @@ namespace bdn
         }
 
       protected:
-        std::packaged_task<typename std::result_of<FuncType(Args...)>::type()>
-            _packagedTask;
+        std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> _packagedTask;
     };
 
     /** Causes the specified function to be called from the main thread. The
@@ -93,12 +79,10 @@ namespace bdn
        exception when you call it.
     */
     template <class FuncType, class... Args>
-    std::future<typename std::result_of<FuncType(Args...)>::type>
-    callFromMainThread(FuncType &&func, Args &&... args)
+    std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType &&func, Args &&... args)
     {
         P<CallFromMainThread_<FuncType, Args...>> pCall =
-            newObj<CallFromMainThread_<FuncType, Args...>>(
-                std::forward<FuncType>(func), std::forward<Args>(args)...);
+            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
         // we return a future object that will block until the function
         // finishes. So if we are called from the main thread there is a
@@ -126,14 +110,12 @@ namespace bdn
         It is not possible to access the return value of the function \c func.
        If you need access to that, consider using callFromMainThread() instead.
     */
-    template <class FuncType, class... Args>
-    void asyncCallFromMainThread(FuncType &&func, Args &&... args)
+    template <class FuncType, class... Args> void asyncCallFromMainThread(FuncType &&func, Args &&... args)
     {
         // always dispatch to the event loop.
 
         P<CallFromMainThread_<FuncType, Args...>> pCall =
-            newObj<CallFromMainThread_<FuncType, Args...>>(
-                std::forward<FuncType>(func), std::forward<Args>(args)...);
+            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
         pCall->dispatchCall();
     }
@@ -160,12 +142,10 @@ namespace bdn
        have control over.
 
     */
-    template <class FuncType, class... Args>
-    void asyncCallFromMainThreadWhenIdle(FuncType &&func, Args &&... args)
+    template <class FuncType, class... Args> void asyncCallFromMainThreadWhenIdle(FuncType &&func, Args &&... args)
     {
         P<CallFromMainThread_<FuncType, Args...>> pCall =
-            newObj<CallFromMainThread_<FuncType, Args...>>(
-                std::forward<FuncType>(func), std::forward<Args>(args)...);
+            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
         pCall->dispatchCallWhenIdle();
     }
@@ -180,12 +160,10 @@ namespace bdn
        loop.
     */
     template <class FuncType, class... Args>
-    void asyncCallFromMainThreadAfterSeconds(double seconds, FuncType &&func,
-                                             Args &&... args)
+    void asyncCallFromMainThreadAfterSeconds(double seconds, FuncType &&func, Args &&... args)
     {
         P<CallFromMainThread_<FuncType, Args...>> pCall =
-            newObj<CallFromMainThread_<FuncType, Args...>>(
-                std::forward<FuncType>(func), std::forward<Args>(args)...);
+            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
         pCall->dispatchCallWithDelaySeconds(seconds);
     }
@@ -292,13 +270,10 @@ namespace bdn
         \endcode
         */
     template <class... Args, class InnerFuncType>
-    std::function<std::future<
-        typename std::result_of<InnerFuncType(Args...)>::type>(Args...)>
+    std::function<std::future<typename std::result_of<InnerFuncType(Args...)>::type>(Args...)>
     wrapCallFromMainThread(InnerFuncType &&innerFunc)
     {
-        return [innerFunc](Args... args) {
-            return callFromMainThread(innerFunc, args...);
-        };
+        return [innerFunc](Args... args) { return callFromMainThread(innerFunc, args...); };
     }
 
     /** Wraps a function (called the "inner function") into a wrapper function.
@@ -366,12 +341,9 @@ namespace bdn
 
         */
     template <class... Args, class InnerFuncType>
-    std::function<void(Args...)>
-    wrapAsyncCallFromMainThread(InnerFuncType &&innerFunc)
+    std::function<void(Args...)> wrapAsyncCallFromMainThread(InnerFuncType &&innerFunc)
     {
-        return [innerFunc](Args... args) {
-            asyncCallFromMainThread(innerFunc, args...);
-        };
+        return [innerFunc](Args... args) { asyncCallFromMainThread(innerFunc, args...); };
     }
 }
 

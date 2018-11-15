@@ -8,8 +8,7 @@
 
 using namespace bdn;
 
-class TestIosTextViewCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextViewCore>
+class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextViewCore>
 {
   protected:
     void initCore() override

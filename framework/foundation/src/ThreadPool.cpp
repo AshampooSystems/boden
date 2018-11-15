@@ -12,17 +12,14 @@ namespace bdn
         : _minThreadCount(minThreadCount), _maxThreadCount(maxThreadCount)
     {
         if (_minThreadCount < 0)
-            throw InvalidArgumentError(
-                "ThreadPool constructor parameter minThreadCount must be >=0");
+            throw InvalidArgumentError("ThreadPool constructor parameter minThreadCount must be >=0");
 
         if (_maxThreadCount <= 0)
-            throw InvalidArgumentError(
-                "ThreadPool constructor parameter maxThreadCount must be >0");
+            throw InvalidArgumentError("ThreadPool constructor parameter maxThreadCount must be >0");
 
         if (_maxThreadCount < _minThreadCount)
-            throw InvalidArgumentError(
-                "ThreadPool constructor parameter maxThreadCount must be "
-                ">=minThreadCount");
+            throw InvalidArgumentError("ThreadPool constructor parameter maxThreadCount must be "
+                                       ">=minThreadCount");
     }
 
     ThreadPool::~ThreadPool()
@@ -196,9 +193,8 @@ namespace bdn
                 if (_pJob == nullptr) {
                     // this should never happen (note that Signals have no
                     // sporadic wake ups).
-                    programmingError(
-                        "ThreadPool PoolRunner was woken up, but it has no job "
-                        "and was also not asked to stop.");
+                    programmingError("ThreadPool PoolRunner was woken up, but it has no job "
+                                     "and was also not asked to stop.");
                 }
             }
 

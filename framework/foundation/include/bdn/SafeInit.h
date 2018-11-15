@@ -35,8 +35,7 @@ namespace bdn
 
         bool isUninitialized() const
         {
-            return (_state != State::ok && _state != State::error &&
-                    _state != State::destructed);
+            return (_state != State::ok && _state != State::error && _state != State::destructed);
         }
 
         std::exception_ptr _error;

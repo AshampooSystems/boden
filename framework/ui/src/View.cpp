@@ -94,19 +94,14 @@ namespace bdn
         if (pCore != nullptr) {
             adjustedBounds = pCore->adjustAndSetBounds(requestedBounds);
 
-            if (!std::isfinite(adjustedBounds.width) ||
-                !std::isfinite(adjustedBounds.height) ||
-                !std::isfinite(adjustedBounds.x) ||
-                !std::isfinite(adjustedBounds.y)) {
+            if (!std::isfinite(adjustedBounds.width) || !std::isfinite(adjustedBounds.height) ||
+                !std::isfinite(adjustedBounds.x) || !std::isfinite(adjustedBounds.y)) {
                 // the preferred size MUST be finite.
                 IViewCore *pCorePtr = pCore;
-                programmingError(
-                    String(typeid(*pCorePtr).name()) +
-                    ".adjustAndSetBounds returned a non-finite value: " +
-                    std::to_string(adjustedBounds.x) + " , " +
-                    std::to_string(adjustedBounds.y) + " " +
-                    std::to_string(adjustedBounds.width) + " x " +
-                    std::to_string(adjustedBounds.height));
+                programmingError(String(typeid(*pCorePtr).name()) +
+                                 ".adjustAndSetBounds returned a non-finite value: " +
+                                 std::to_string(adjustedBounds.x) + " , " + std::to_string(adjustedBounds.y) + " " +
+                                 std::to_string(adjustedBounds.width) + " x " + std::to_string(adjustedBounds.height));
             }
         } else
             adjustedBounds = requestedBounds;
@@ -122,28 +117,20 @@ namespace bdn
         return adjustedBounds;
     }
 
-    Rect View::adjustBounds(const Rect &requestedBounds,
-                            RoundType positionRoundType,
-                            RoundType sizeRoundType) const
+    Rect View::adjustBounds(const Rect &requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const
     {
         P<const IViewCore> pCore = getViewCore();
 
         if (pCore != nullptr) {
-            Rect adjustedBounds = pCore->adjustBounds(
-                requestedBounds, positionRoundType, sizeRoundType);
+            Rect adjustedBounds = pCore->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
 
-            if (!std::isfinite(adjustedBounds.width) ||
-                !std::isfinite(adjustedBounds.height) ||
-                !std::isfinite(adjustedBounds.x) ||
-                !std::isfinite(adjustedBounds.y)) {
+            if (!std::isfinite(adjustedBounds.width) || !std::isfinite(adjustedBounds.height) ||
+                !std::isfinite(adjustedBounds.x) || !std::isfinite(adjustedBounds.y)) {
                 // the adjusted bounds MUST be finite.
                 const IViewCore *pCorePtr = pCore;
-                programmingError(String(typeid(*pCorePtr).name()) +
-                                 ".adjustBounds returned a non-finite value: " +
-                                 std::to_string(adjustedBounds.x) + " , " +
-                                 std::to_string(adjustedBounds.y) + " " +
-                                 std::to_string(adjustedBounds.width) + " x " +
-                                 std::to_string(adjustedBounds.height));
+                programmingError(String(typeid(*pCorePtr).name()) + ".adjustBounds returned a non-finite value: " +
+                                 std::to_string(adjustedBounds.x) + " , " + std::to_string(adjustedBounds.y) + " " +
+                                 std::to_string(adjustedBounds.width) + " x " + std::to_string(adjustedBounds.height));
             }
 
             return adjustedBounds;
@@ -293,9 +280,8 @@ namespace bdn
 
         P<IUiProvider> pNewUiProvider = determineUiProvider(pParentView);
 
-        return _pUiProvider == pNewUiProvider && _pUiProvider != nullptr &&
-               pParentView != nullptr && _pCore != nullptr &&
-               _pCore->canMoveToParentView(*pParentView);
+        return _pUiProvider == pNewUiProvider && _pUiProvider != nullptr && pParentView != nullptr &&
+               _pCore != nullptr && _pCore->canMoveToParentView(*pParentView);
     }
 
     void View::reinitCore()
@@ -344,8 +330,7 @@ namespace bdn
                 pChildView->_initCore();
 
             // our old sizing info is obsolete when the core has changed.
-            invalidateSizingInfo(
-                View::InvalidateReason::standardPropertyChanged);
+            invalidateSizingInfo(View::InvalidateReason::standardPropertyChanged);
         }
     }
 
@@ -360,15 +345,12 @@ namespace bdn
             if (pCore != nullptr) {
                 preferredSize = pCore->calcPreferredSize(availableSpace);
 
-                if (!std::isfinite(preferredSize.width) ||
-                    !std::isfinite(preferredSize.height)) {
+                if (!std::isfinite(preferredSize.width) || !std::isfinite(preferredSize.height)) {
                     // the preferred size MUST be finite.
                     IViewCore *pCorePtr = pCore;
                     programmingError(
-                        String(typeid(*pCorePtr).name()) +
-                        ".calcPreferredSize returned a non-finite value: " +
-                        std::to_string(preferredSize.width) + " x " +
-                        std::to_string(preferredSize.height));
+                        String(typeid(*pCorePtr).name()) + ".calcPreferredSize returned a non-finite value: " +
+                        std::to_string(preferredSize.width) + " x " + std::to_string(preferredSize.height));
                 }
 
                 _preferredSizeManager.set(availableSpace, preferredSize);

@@ -6,16 +6,13 @@
 namespace bdn
 {
 
-    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow,
-                                            const Size &availableSpace,
-                                            const Margin &border,
+    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow, const Size &availableSpace, const Margin &border,
                                             const Size &minWindowSize)
     {
         Margin contentMargin;
         P<const View> pContentView = pWindow->getContentView();
         if (pContentView != nullptr)
-            contentMargin =
-                pContentView->uiMarginToDipMargin(pContentView->margin());
+            contentMargin = pContentView->uiMarginToDipMargin(pContentView->margin());
 
         Margin padding;
         // default padding is zero
@@ -32,23 +29,20 @@ namespace bdn
         // subtract the nonclient border, padding and the content view margin
         if (std::isfinite(availableContentSpace.width)) {
             availableContentSpace.width -=
-                border.left + border.right + padding.left + padding.right +
-                contentMargin.left + contentMargin.right;
+                border.left + border.right + padding.left + padding.right + contentMargin.left + contentMargin.right;
             if (availableContentSpace.width < 0)
                 availableContentSpace.width = 0;
         }
         if (std::isfinite(availableContentSpace.height)) {
             availableContentSpace.height -=
-                border.top + border.bottom + padding.top + padding.bottom +
-                contentMargin.top + contentMargin.bottom;
+                border.top + border.bottom + padding.top + padding.bottom + contentMargin.top + contentMargin.bottom;
             if (availableContentSpace.height < 0)
                 availableContentSpace.height = 0;
         }
 
         Size contentSize;
         if (pContentView != nullptr)
-            contentSize =
-                pContentView->calcPreferredSize(availableContentSpace);
+            contentSize = pContentView->calcPreferredSize(availableContentSpace);
 
         Size preferredSize = contentSize + contentMargin + padding + border;
 
@@ -90,8 +84,7 @@ namespace bdn
             contentBounds -= padding;
 
             // subtract the content view's margins
-            contentBounds -=
-                pContentView->uiMarginToDipMargin(pContentView->margin());
+            contentBounds -= pContentView->uiMarginToDipMargin(pContentView->margin());
 
             pContentView->adjustAndSetBounds(contentBounds);
 
@@ -101,8 +94,7 @@ namespace bdn
         }
     }
 
-    void defaultWindowAutoSizeImpl(Window *pWindow,
-                                   const Size &screenWorkAreaSize)
+    void defaultWindowAutoSizeImpl(Window *pWindow, const Size &screenWorkAreaSize)
     {
         Rect newBounds;
 
@@ -118,9 +110,7 @@ namespace bdn
 
             // and then adapt the height accordingly (height might increase if
             // we reduce the width).
-            height =
-                pWindow->calcPreferredSize(Size(width, Size::componentNone()))
-                    .height;
+            height = pWindow->calcPreferredSize(Size(width, Size::componentNone())).height;
 
             // if the height we calculated is bigger than the max height then we
             // simply cannot achieve our preferred size. We will have to make do
@@ -134,9 +124,7 @@ namespace bdn
             height = screenWorkAreaSize.height;
 
             // and then adapt the width accordingly.
-            width =
-                pWindow->calcPreferredSize(Size(Size::componentNone(), height))
-                    .width;
+            width = pWindow->calcPreferredSize(Size(Size::componentNone(), height)).width;
 
             // if the width we calculated is bigger than the max width then we
             // simply cannot achieve our preferred size. We will have to make do
@@ -154,9 +142,8 @@ namespace bdn
 
         // Position is always rounded to nearest.
 
-        Rect adjustedBounds = pWindow->adjustBounds(
-            Rect(pWindow->position(), Size(width, height)), RoundType::nearest,
-            RoundType::up);
+        Rect adjustedBounds =
+            pWindow->adjustBounds(Rect(pWindow->position(), Size(width, height)), RoundType::nearest, RoundType::up);
 
         pWindow->adjustAndSetBounds(adjustedBounds);
     }

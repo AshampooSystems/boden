@@ -15,9 +15,7 @@ namespace bdn
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete it. So it is ok to use
            std::cin here.*/
-        AsyncStdioReader(std::basic_istream<CharType> *pStream)
-            : _pStream(pStream)
-        {}
+        AsyncStdioReader(std::basic_istream<CharType> *pStream) : _pStream(pStream) {}
 
         /** Asynchronously reads a line of text from the stream.
             The function does not wait until the line is read - it returns
@@ -65,9 +63,7 @@ namespace bdn
         class ReadLineOp : public AsyncOpRunnable<String>
         {
           public:
-            ReadLineOp(std::basic_istream<CharType> *pStream)
-                : _pStream(pStream)
-            {}
+            ReadLineOp(std::basic_istream<CharType> *pStream) : _pStream(pStream) {}
 
           protected:
             String doOp() override

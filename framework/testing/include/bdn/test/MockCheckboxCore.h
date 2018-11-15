@@ -16,8 +16,7 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockCheckboxCore : public MockViewCore,
-                                 BDN_IMPLEMENTS ICheckboxCore
+        class MockCheckboxCore : public MockViewCore, BDN_IMPLEMENTS ICheckboxCore
         {
           public:
             MockCheckboxCore(Checkbox *pCheckbox) : MockViewCore(pCheckbox)
@@ -48,8 +47,7 @@ namespace bdn
                 _stateChangeCount++;
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 

@@ -55,7 +55,6 @@ namespace bdn
 
     namespace test
     {
-        BDN_SAFE_STATIC_THREAD_LOCAL(int,
-                                     getThreadLocalProgrammingErrorExpected);
+        BDN_SAFE_STATIC_THREAD_LOCAL(int, getThreadLocalProgrammingErrorExpected);
     }
 }

@@ -28,14 +28,9 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JHorizontalScrollView(
-                const bdn::java::Reference &objectRef)
-                : JFrameLayout(objectRef)
-            {}
+            explicit JHorizontalScrollView(const bdn::java::Reference &objectRef) : JFrameLayout(objectRef) {}
 
-            JHorizontalScrollView(JContext context)
-                : JHorizontalScrollView(newInstance_(context))
-            {}
+            JHorizontalScrollView(JContext context) : JHorizontalScrollView(newInstance_(context)) {}
 
             /** Set the scrolled position of your view. This will cause a call
                to onScrollChanged(int, int, int, int) and the view will be
@@ -57,8 +52,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x,
-                              y);
+                invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x, y);
             }
 
             /** Returns the JClass object for this class.
@@ -72,8 +66,7 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "android/widget/HorizontalScrollView");
+                static bdn::java::JClass cls("android/widget/HorizontalScrollView");
 
                 return cls;
             }

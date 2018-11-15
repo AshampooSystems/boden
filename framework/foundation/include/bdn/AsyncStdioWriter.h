@@ -15,9 +15,7 @@ namespace bdn
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete it. So it is ok to use
            std::cin here.*/
-        AsyncStdioWriter(std::basic_ostream<CharType> *pStream)
-            : _pStream(pStream)
-        {}
+        AsyncStdioWriter(std::basic_ostream<CharType> *pStream) : _pStream(pStream) {}
 
         /** Asynchronously writes text to the stream. No newline is added.
 
@@ -103,16 +101,14 @@ namespace bdn
         class WriteOp : public AsyncOpRunnable<void>
         {
           public:
-            WriteOp(std::basic_ostream<CharType> *pStream,
-                    const String &textToWrite, bool flush)
+            WriteOp(std::basic_ostream<CharType> *pStream, const String &textToWrite, bool flush)
                 : _pStream(pStream), _textToWrite(textToWrite), _flush(flush)
             {}
 
           protected:
             void doOp() override
             {
-                (*_pStream) << _textToWrite.toLocaleEncoding<CharType>(
-                    _pStream->getloc());
+                (*_pStream) << _textToWrite.toLocaleEncoding<CharType>(_pStream->getloc());
                 if (_flush)
                     _pStream->flush();
             }

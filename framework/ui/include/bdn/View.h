@@ -42,29 +42,27 @@ namespace bdn
    property on the layout system. See the example in the documentation of \ref
    BDN_VIEW_PROPERTY.
     */
-#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(                                  \
-    ValueType, readAccess, name, writeAccess, setterName, CoreInterfaceType,   \
-    modificationInfluenceCalls)                                                \
-    readAccess:                                                                \
-    virtual ValueType name() const { return _propertyValue_##name; }           \
-    writeAccess:                                                               \
-    virtual void setterName(const ValueType &newValue)                         \
-    {                                                                          \
-        if (_propertyValue_##name != newValue) {                               \
-            _propertyValue_##name = newValue;                                  \
-            bdn::P<CoreInterfaceType> pCore =                                  \
-                bdn::cast<CoreInterfaceType>(getViewCore());                   \
-            if (pCore != nullptr)                                              \
-                pCore->setterName(newValue);                                   \
-            Influences_(this).modificationInfluenceCalls;                      \
-            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                          \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
-  private:                                                                     \
-    ValueType _propertyValue_##name{};                                         \
-    readAccess:                                                                \
-    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(ValueType, name);              \
+#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(ValueType, readAccess, name, writeAccess, setterName, CoreInterfaceType,  \
+                                             modificationInfluenceCalls)                                               \
+    readAccess:                                                                                                        \
+    virtual ValueType name() const { return _propertyValue_##name; }                                                   \
+    writeAccess:                                                                                                       \
+    virtual void setterName(const ValueType &newValue)                                                                 \
+    {                                                                                                                  \
+        if (_propertyValue_##name != newValue) {                                                                       \
+            _propertyValue_##name = newValue;                                                                          \
+            bdn::P<CoreInterfaceType> pCore = bdn::cast<CoreInterfaceType>(getViewCore());                             \
+            if (pCore != nullptr)                                                                                      \
+                pCore->setterName(newValue);                                                                           \
+            Influences_(this).modificationInfluenceCalls;                                                              \
+            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                                                                  \
+        }                                                                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    ValueType _propertyValue_##name{};                                                                                 \
+    readAccess:                                                                                                        \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(ValueType, name);                                                      \
     BDN_FINALIZE_CUSTOM_PROPERTY(ValueType, name, setterName);
 
 /** \def BDN_VIEW_PROPERTY( ValueType, name, setterName, CoreInterfaceType,
@@ -136,10 +134,8 @@ namespace bdn
    influences of the property on the layout system. See above for more
    information.
     */
-#define BDN_VIEW_PROPERTY(ValueType, name, setterName, CoreInterfaceType,      \
-                          modificationInfluenceCalls)                          \
-    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(ValueType, public, name, public,      \
-                                         setterName, CoreInterfaceType,        \
+#define BDN_VIEW_PROPERTY(ValueType, name, setterName, CoreInterfaceType, modificationInfluenceCalls)                  \
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(ValueType, public, name, public, setterName, CoreInterfaceType,               \
                                          modificationInfluenceCalls);
 
 /** Creates a view property that works like those created by \ref
@@ -156,11 +152,9 @@ namespace bdn
    property on the layout system. See \ref BDN_VIEW_PROPERTY for more
    information.
  */
-#define BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(ValueType, name, setterName, \
-                                                  modificationInfluenceCalls)  \
-    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(              \
-        ValueType, public, name, public, setterName,                           \
-        modificationInfluenceCalls);
+#define BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(ValueType, name, setterName, modificationInfluenceCalls)             \
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(ValueType, public, name, public, setterName,          \
+                                                                 modificationInfluenceCalls);
 
 /** Creates a view property that has custom access rights for read and write
    access and that also does not forward modifications of the property value to
@@ -185,25 +179,24 @@ namespace bdn
    Calls that represent the influences of the property on the layout system. See
    the example in the documentation of \ref BDN_VIEW_PROPERTY.
  */
-#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(          \
-    ValueType, readAccess, name, writeAccess, setterName,                      \
-    modificationInfluenceCalls)                                                \
-    readAccess:                                                                \
-    virtual ValueType name() const { return _propertyValue_##name; }           \
-    writeAccess:                                                               \
-    virtual void setterName(const ValueType &newValue)                         \
-    {                                                                          \
-        if (_propertyValue_##name != newValue) {                               \
-            _propertyValue_##name = newValue;                                  \
-            Influences_(this).modificationInfluenceCalls;                      \
-            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                          \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
-  private:                                                                     \
-    ValueType _propertyValue_##name{};                                         \
-    readAccess:                                                                \
-    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(ValueType, name);              \
+#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(ValueType, readAccess, name, writeAccess,         \
+                                                                     setterName, modificationInfluenceCalls)           \
+    readAccess:                                                                                                        \
+    virtual ValueType name() const { return _propertyValue_##name; }                                                   \
+    writeAccess:                                                                                                       \
+    virtual void setterName(const ValueType &newValue)                                                                 \
+    {                                                                                                                  \
+        if (_propertyValue_##name != newValue) {                                                                       \
+            _propertyValue_##name = newValue;                                                                          \
+            Influences_(this).modificationInfluenceCalls;                                                              \
+            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                                                                  \
+        }                                                                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    ValueType _propertyValue_##name{};                                                                                 \
+    readAccess:                                                                                                        \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(ValueType, name);                                                      \
     BDN_FINALIZE_CUSTOM_PROPERTY(ValueType, name, setterName);
 
 namespace bdn
@@ -244,8 +237,7 @@ namespace bdn
             this visible property only raefers to the view itself, not
             the parent hierarchy.
             */
-        BDN_VIEW_PROPERTY(bool, visible, setVisible, IViewCore,
-                          influencesNothing());
+        BDN_VIEW_PROPERTY(bool, visible, setVisible, IViewCore, influencesNothing());
 
         /** The size of the empty space that should be left around the view.
 
@@ -254,9 +246,8 @@ namespace bdn
 
             The default margin is 0.
         */
-        BDN_VIEW_PROPERTY(
-            UiMargin, margin, setMargin, IViewCore,
-            influencesParentPreferredSize().influencesParentLayout());
+        BDN_VIEW_PROPERTY(UiMargin, margin, setMargin, IViewCore,
+                          influencesParentPreferredSize().influencesParentLayout());
 
         /** The size space around the content inside this view.
 
@@ -294,9 +285,8 @@ namespace bdn
            zero position at all times, even though the window is not at the top
            left corner of the screen.
         */
-        BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(
-            Point, public, position, protected, _setPosition,
-            influencesNothing());
+        BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(Point, public, position, protected, _setPosition,
+                                                                     influencesNothing());
 
         /** The size of the view DIP units (see \ref dip.md).
 
@@ -308,8 +298,8 @@ namespace bdn
             The size is usually set automatically by the parent view's layout
            routine.
         */
-        BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(
-            Size, public, size, protected, _setSize, influencesContentLayout());
+        BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(Size, public, size, protected, _setSize,
+                                                                     influencesContentLayout());
 
         /** Sets the view's position and size, after adjusting the specified
            values to ones that are compatible with the underlying view
@@ -370,8 +360,7 @@ namespace bdn
         // the view that it's called on. Suggestion: rename to "adjustedBounds"
         // – that's also what the variable is called in
         // ColumnView::calcLayoutImpl().
-        virtual Rect adjustBounds(const Rect &requestedBounds,
-                                  RoundType positionRoundType,
+        virtual Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                                   RoundType sizeRoundType) const;
 
         using HorizontalAlignment = IViewCore::HorizontalAlignment;
@@ -383,8 +372,7 @@ namespace bdn
 
             The default alignment is View::VerticalAlignment::top.
             */
-        BDN_VIEW_PROPERTY(VerticalAlignment, verticalAlignment,
-                          setVerticalAlignment, IViewCore,
+        BDN_VIEW_PROPERTY(VerticalAlignment, verticalAlignment, setVerticalAlignment, IViewCore,
                           influencesParentLayout());
 
         /** Controls how the view is arranged horizontally if
@@ -393,8 +381,7 @@ namespace bdn
 
             The default alignment is View::HorizontalAlignment::left.
             */
-        BDN_VIEW_PROPERTY(HorizontalAlignment, horizontalAlignment,
-                          setHorizontalAlignment, IViewCore,
+        BDN_VIEW_PROPERTY(HorizontalAlignment, horizontalAlignment, setHorizontalAlignment, IViewCore,
                           influencesParentLayout());
 
         /*
@@ -541,8 +528,7 @@ namespace bdn
            view may decide to make it bigger than this because of other layout
            considerations.
         */
-        BDN_VIEW_PROPERTY(Size, preferredSizeHint, setPreferredSizeHint,
-                          IViewCore, influencesPreferredSize());
+        BDN_VIEW_PROPERTY(Size, preferredSizeHint, setPreferredSizeHint, IViewCore, influencesPreferredSize());
 
         /** An optional lower limit for the preferred size of the view (in DIP
            units). This can be used by the application to influence the layout
@@ -564,8 +550,7 @@ namespace bdn
            view may decide to make it bigger than this because of other layout
            considerations.
         */
-        BDN_VIEW_PROPERTY(Size, preferredSizeMinimum, setPreferredSizeMinimum,
-                          IViewCore, influencesPreferredSize());
+        BDN_VIEW_PROPERTY(Size, preferredSizeMinimum, setPreferredSizeMinimum, IViewCore, influencesPreferredSize());
 
         /** An optional upper limit for the preferred size of the view (in DIP
            units). This can be used by the application to influence the layout
@@ -587,8 +572,7 @@ namespace bdn
            view may decide to make it bigger than this because of other layout
            considerations.
         */
-        BDN_VIEW_PROPERTY(Size, preferredSizeMaximum, setPreferredSizeMaximum,
-                          IViewCore, influencesPreferredSize());
+        BDN_VIEW_PROPERTY(Size, preferredSizeMaximum, setPreferredSizeMaximum, IViewCore, influencesPreferredSize());
 
         /** Converts a UiLength object to DIPs.
             DIP stands for "device independent pixel", a special unit (see \ref
@@ -685,8 +669,7 @@ namespace bdn
            physical pixels yet. The size will be adapted to the display
            properties in adjustAndSetBounds().
             */
-        virtual Size
-        calcPreferredSize(const Size &availableSpace = Size::none()) const;
+        virtual Size calcPreferredSize(const Size &availableSpace = Size::none()) const;
 
       protected:
         /** This is called when the sizing information of a child view has
@@ -714,8 +697,7 @@ namespace bdn
             {
                 // update the sizing information. If that changes then the
                 // parent layout will automatically be updated.
-                _pView->invalidateSizingInfo(
-                    InvalidateReason::standardPropertyChanged);
+                _pView->invalidateSizingInfo(InvalidateReason::standardPropertyChanged);
 
                 return *this;
             }
@@ -739,8 +721,7 @@ namespace bdn
             {
                 P<View> pParent = _pView->getParentView();
                 if (pParent != nullptr)
-                    pParent->invalidateSizingInfo(
-                        InvalidateReason::standardChildPropertyChanged);
+                    pParent->invalidateSizingInfo(InvalidateReason::standardChildPropertyChanged);
 
                 return *this;
             }
@@ -755,8 +736,7 @@ namespace bdn
             {
                 P<View> pParent = _pView->getParentView();
                 if (pParent != nullptr)
-                    pParent->needLayout(
-                        InvalidateReason::standardChildPropertyChanged);
+                    pParent->needLayout(InvalidateReason::standardChildPropertyChanged);
 
                 return *this;
             }
@@ -787,14 +767,12 @@ namespace bdn
             or null if the view does not have a parent or the parent does not
             have a ui provider.
             */
-        virtual P<IUiProvider>
-        determineUiProvider(P<View> pParentView = nullptr)
+        virtual P<IUiProvider> determineUiProvider(P<View> pParentView = nullptr)
         {
             if (pParentView == nullptr)
                 pParentView = getParentView();
 
-            return (pParentView != nullptr) ? pParentView->getUiProvider()
-                                            : nullptr;
+            return (pParentView != nullptr) ? pParentView->getUiProvider() : nullptr;
         }
 
       private:

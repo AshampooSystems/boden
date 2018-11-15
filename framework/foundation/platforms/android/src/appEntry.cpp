@@ -11,18 +11,15 @@ namespace bdn
     namespace android
     {
 
-        void appEntry(
-            const std::function<P<AppControllerBase>()> &appControllerCreator,
-            JNIEnv *pEnv, jobject rawIntent)
+        void appEntry(const std::function<P<AppControllerBase>()> &appControllerCreator, JNIEnv *pEnv,
+                      jobject rawIntent)
         {
             bdn::platformEntryWrapper(
                 [&]() {
-                    bdn::android::JIntent intent(
-                        bdn::java::Reference::convertExternalLocal(rawIntent));
+                    bdn::android::JIntent intent(bdn::java::Reference::convertExternalLocal(rawIntent));
 
                     bdn::P<bdn::android::AppRunner> pAppRunner =
-                        bdn::newObj<bdn::android::AppRunner>(
-                            appControllerCreator, intent);
+                        bdn::newObj<bdn::android::AppRunner>(appControllerCreator, intent);
                     _setAppRunner(pAppRunner);
 
                     pAppRunner->entry();

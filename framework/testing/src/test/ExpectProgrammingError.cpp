@@ -3,15 +3,9 @@
 
 namespace bdn
 {
-    ExpectProgrammingError::ExpectProgrammingError()
-    {
-        test::getThreadLocalProgrammingErrorExpected()++;
-    }
+    ExpectProgrammingError::ExpectProgrammingError() { test::getThreadLocalProgrammingErrorExpected()++; }
 
-    ExpectProgrammingError::~ExpectProgrammingError()
-    {
-        test::getThreadLocalProgrammingErrorExpected()--;
-    }
+    ExpectProgrammingError::~ExpectProgrammingError() { test::getThreadLocalProgrammingErrorExpected()--; }
 
     bool ExpectProgrammingError::isProgrammingErrorExpected()
     {

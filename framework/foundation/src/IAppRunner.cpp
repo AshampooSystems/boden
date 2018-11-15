@@ -9,8 +9,5 @@ namespace bdn
 
     P<IAppRunner> getAppRunner() { return _getAppRunnerRef(); }
 
-    void _setAppRunner(IAppRunner *pAppRunner)
-    {
-        _getAppRunnerRef() = pAppRunner;
-    }
+    void _setAppRunner(IAppRunner *pAppRunner) { _getAppRunnerRef() = pAppRunner; }
 }

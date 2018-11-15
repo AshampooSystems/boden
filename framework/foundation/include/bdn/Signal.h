@@ -81,8 +81,7 @@ namespace bdn
             */
         bool wait(int timeoutMillis = -1);
 
-        void
-        operator=(const Signal &) = delete; // Signal objects cannot be copied.
+        void operator=(const Signal &) = delete; // Signal objects cannot be copied.
 
       private:
         class WaitingMarker

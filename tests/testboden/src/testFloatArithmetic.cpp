@@ -7,17 +7,11 @@ template <class Type> static void testFloatArithmethic()
 {
     // here we verify that floating point arithmetic works as expected.
 
-    SECTION("floating point standard compliance")
-    {
-        REQUIRE(std::numeric_limits<Type>::is_iec559);
-    }
+    SECTION("floating point standard compliance") { REQUIRE(std::numeric_limits<Type>::is_iec559); }
 
     SECTION("has NaN") { REQUIRE(std::numeric_limits<Type>::has_quiet_NaN); }
 
-    SECTION("has infinity")
-    {
-        REQUIRE(std::numeric_limits<Type>::has_infinity);
-    }
+    SECTION("has infinity") { REQUIRE(std::numeric_limits<Type>::has_infinity); }
 
     Type inf = std::numeric_limits<Type>::infinity();
     Type negInf = -std::numeric_limits<Type>::infinity();

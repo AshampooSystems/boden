@@ -34,9 +34,7 @@ namespace bdn
         int64_t getMillis()
         {
             auto duration = std::chrono::system_clock::now() - _startTime;
-            return std::chrono::duration_cast<std::chrono::milliseconds>(
-                       duration)
-                .count();
+            return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
         }
 
       protected:

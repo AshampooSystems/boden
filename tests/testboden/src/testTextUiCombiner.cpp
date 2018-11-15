@@ -55,13 +55,12 @@ class TestUiCombinerFixture : public Base
 
                 CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, this, pThis, pOp)
                 {
-                    pOp->onDone().subscribe(
-                        [pOp, this, pThis](P<IAsyncOp<String>> pOpParam) {
-                            if (pOpParam == pOp)
-                                _doneOkCount++;
-                            else
-                                _doneIncorrectCount++;
-                        });
+                    pOp->onDone().subscribe([pOp, this, pThis](P<IAsyncOp<String>> pOpParam) {
+                        if (pOpParam == pOp)
+                            _doneOkCount++;
+                        else
+                            _doneIncorrectCount++;
+                    });
 
                     REQUIRE(!pOp->isDone());
                     REQUIRE_THROWS_AS(pOp->getResult(), UnfinishedError);
@@ -104,14 +103,12 @@ class TestUiCombinerFixture : public Base
 
                             // when we subscribe another function then it should
                             // also be called (async)
-                            pOp->onDone().subscribe(
-                                [pOp, this,
-                                 pThis](P<IAsyncOp<String>> pOpParam) {
-                                    if (pOpParam == pOp)
-                                        _doneOkCount++;
-                                    else
-                                        _doneIncorrectCount++;
-                                });
+                            pOp->onDone().subscribe([pOp, this, pThis](P<IAsyncOp<String>> pOpParam) {
+                                if (pOpParam == pOp)
+                                    _doneOkCount++;
+                                else
+                                    _doneIncorrectCount++;
+                            });
 
                             // call should not have happened yet
                             REQUIRE(_doneOkCount == 1);
@@ -227,10 +224,8 @@ class TestUiCombinerFixture : public Base
             }
 
             for (P<DummyUi> &pSubUi : _subUis) {
-                const Array<String> &outputChunks =
-                    pSubUi->getWrittenOutputChunks();
-                const Array<String> &statusChunks =
-                    pSubUi->getWrittenStatusOrProblemChunks();
+                const Array<String> &outputChunks = pSubUi->getWrittenOutputChunks();
+                const Array<String> &statusChunks = pSubUi->getWrittenStatusOrProblemChunks();
 
                 REQUIRE(outputChunks.size() == 1);
                 REQUIRE(outputChunks[0] == expectedChunk);
@@ -256,10 +251,8 @@ class TestUiCombinerFixture : public Base
             }
 
             for (P<DummyUi> &pSubUi : _subUis) {
-                const Array<String> &outputChunks =
-                    pSubUi->getWrittenOutputChunks();
-                const Array<String> &statusChunks =
-                    pSubUi->getWrittenStatusOrProblemChunks();
+                const Array<String> &outputChunks = pSubUi->getWrittenOutputChunks();
+                const Array<String> &statusChunks = pSubUi->getWrittenStatusOrProblemChunks();
 
                 REQUIRE(outputChunks.size() == 0);
 

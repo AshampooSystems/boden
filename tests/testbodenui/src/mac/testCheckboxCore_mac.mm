@@ -11,14 +11,12 @@
 
 using namespace bdn;
 
-class TestMacCheckboxCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestCheckboxCore>
+class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestCheckboxCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin<
-            bdn::test::TestCheckboxCore>::initCore();
+        bdn::test::TestMacChildViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
         _pNSButton = (NSButton *)_pNSView;
         REQUIRE(_pNSButton != nullptr);
@@ -36,8 +34,7 @@ class TestMacCheckboxCore
     void verifyCoreState() override
     {
         TriState expectedState = _pCheckbox->state();
-        TriState state =
-            bdn::mac::nsControlStateValueToTriState(_pNSButton.state);
+        TriState state = bdn::mac::nsControlStateValueToTriState(_pNSButton.state);
         REQUIRE(state == expectedState);
     }
 

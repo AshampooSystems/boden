@@ -7,8 +7,7 @@
 using namespace bdn;
 using namespace bdn::winuwp;
 
-void verifyErrorCodeMapping(int errorCode,
-                            const std::list<int> &expectedPosixCodeList)
+void verifyErrorCodeMapping(int errorCode, const std::list<int> &expectedPosixCodeList)
 {
     const std::error_category &cat = std::system_category();
 
@@ -21,8 +20,7 @@ void verifyErrorCodeMapping(int errorCode,
 #if BDN_PLATFORM_LINUX
         // some implementations return system_category here. Since we are on a
         // posix system it is the same.
-        REQUIRE((cond.category() == std::generic_category() ||
-                 cond.category() == std::system_category()));
+        REQUIRE((cond.category() == std::generic_category() || cond.category() == std::system_category()));
 #else
         REQUIRE(cond.category() == std::generic_category());
 #endif
@@ -34,8 +32,7 @@ void verifyErrorCodeMapping(int errorCode,
 
 struct ExpectedMapping
 {
-    ExpectedMapping(const String &sectionName, int errorCode,
-                    std::list<int> posixCodeList)
+    ExpectedMapping(const String &sectionName, int errorCode, std::list<int> posixCodeList)
     {
         this->sectionName = sectionName;
         this->errorCode = errorCode;
@@ -47,8 +44,7 @@ struct ExpectedMapping
     std::list<int> posixCodeList;
 };
 
-#define EXPECTED_MAPPING(errorCode, ...)                                       \
-    ExpectedMapping(#errorCode " in " #__VA_ARGS__, errorCode, __VA_ARGS__)
+#define EXPECTED_MAPPING(errorCode, ...) ExpectedMapping(#errorCode " in " #__VA_ARGS__, errorCode, __VA_ARGS__)
 
 void testErrorCodeMapping()
 {
@@ -91,13 +87,11 @@ void testErrorCodeMapping()
 
     for (auto expectedMapping : expectedMappings) {
         SECTION(expectedMapping.sectionName)
-        verifyErrorCodeMapping(expectedMapping.errorCode,
-                               expectedMapping.posixCodeList);
+        verifyErrorCodeMapping(expectedMapping.errorCode, expectedMapping.posixCodeList);
     }
 }
 
-void verifyToFromPlatformException(::Platform::Exception ^ pPlatformException,
-                                   int expectedCode)
+void verifyToFromPlatformException(::Platform::Exception ^ pPlatformException, int expectedCode)
 {
     std::system_error e = platformExceptionToSystemError(pPlatformException);
 
@@ -121,31 +115,24 @@ TEST_CASE("platformError")
     SECTION("toFromPlatformException")
     {
         SECTION("AccessDeniedException")
-        verifyToFromPlatformException(ref new ::Platform::AccessDeniedException,
-                                      ERROR_ACCESS_DENIED);
+        verifyToFromPlatformException(ref new ::Platform::AccessDeniedException, ERROR_ACCESS_DENIED);
 
         SECTION("DisconnectedException")
-        verifyToFromPlatformException(ref new ::Platform::DisconnectedException,
-                                      RPC_E_DISCONNECTED);
+        verifyToFromPlatformException(ref new ::Platform::DisconnectedException, RPC_E_DISCONNECTED);
 
         SECTION("FailureException")
-        verifyToFromPlatformException(ref new ::Platform::FailureException,
-                                      E_FAIL);
+        verifyToFromPlatformException(ref new ::Platform::FailureException, E_FAIL);
 
         SECTION("InvalidArgumentException")
-        verifyToFromPlatformException(
-            ref new ::Platform::InvalidArgumentException,
-            ERROR_INVALID_PARAMETER);
+        verifyToFromPlatformException(ref new ::Platform::InvalidArgumentException, ERROR_INVALID_PARAMETER);
 
         SECTION("NullReferenceException")
-        verifyToFromPlatformException(
-            ref new ::Platform::NullReferenceException, E_POINTER);
+        verifyToFromPlatformException(ref new ::Platform::NullReferenceException, E_POINTER);
     }
 
     SECTION("nonSystemError")
     {
-        ::Platform::Exception ^ pOutException =
-            exceptionToPlatformException(std::exception("hello"));
+        ::Platform::Exception ^ pOutException = exceptionToPlatformException(std::exception("hello"));
 
         REQUIRE(String(pOutException->Message->Data()) == "hello");
     }

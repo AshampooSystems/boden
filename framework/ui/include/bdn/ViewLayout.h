@@ -81,10 +81,7 @@ namespace bdn
 
         /** Sets the layout data for the view. If the layout already has data
            for the specified view then it is replaced.*/
-        void setViewLayoutData(View *pView, ViewLayoutData *pData)
-        {
-            _dataMap[pView] = pData;
-        }
+        void setViewLayoutData(View *pView, ViewLayoutData *pData) { _dataMap[pView] = pData; }
 
         /** Returns the layout data for the specified view, or null if no data
            has been set for the view.*/

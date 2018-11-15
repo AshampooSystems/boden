@@ -49,8 +49,7 @@ template <typename VALUE_TYPE> class TestPropertyOwner_Custom : public Base
     VALUE_TYPE _customMyProp;
 };
 
-template <typename VALUE_TYPE>
-class TestPropertyOwner_Custom_ConstRefGetter_CopySetter : public Base
+template <typename VALUE_TYPE> class TestPropertyOwner_Custom_ConstRefGetter_CopySetter : public Base
 {
   public:
     bool *pDeleted = nullptr;
@@ -127,10 +126,9 @@ template <typename VALUE_TYPE> class TestPropertySetNotAllowed
     // ignored by the compiler. If it DOES compile then we will get a test
     // failure here.
     template <typename OWNER_TYPE>
-    static void verifySetNotAllowed(
-        int dummy,
-        decltype((*((OWNER_TYPE *)nullptr))
-                     .setMyProp(*((VALUE_TYPE *)nullptr))) *pDummy = nullptr)
+    static void
+    verifySetNotAllowed(int dummy,
+                        decltype((*((OWNER_TYPE *)nullptr)).setMyProp(*((VALUE_TYPE *)nullptr))) *pDummy = nullptr)
     {
         REQUIRE(false);
     }
@@ -143,15 +141,13 @@ template <typename VALUE_TYPE> class TestPropertySetNotAllowed
     // same as above, just with a different property name
     template <typename OWNER_TYPE>
     static void verifySetProtectedWritePropNotAllowed(
-        int dummy, decltype((*((OWNER_TYPE *)nullptr))
-                                .setProtectedWriteProp(*(
-                                    (VALUE_TYPE *)nullptr))) *pDummy = nullptr)
+        int dummy,
+        decltype((*((OWNER_TYPE *)nullptr)).setProtectedWriteProp(*((VALUE_TYPE *)nullptr))) *pDummy = nullptr)
     {
         REQUIRE(false);
     }
 
-    template <typename OWNER_TYPE>
-    static void verifySetProtectedWritePropNotAllowed(...)
+    template <typename OWNER_TYPE> static void verifySetProtectedWritePropNotAllowed(...)
     {
         // do nothing here
     }
@@ -159,28 +155,23 @@ template <typename VALUE_TYPE> class TestPropertySetNotAllowed
     // same as above, just with a different property name
     template <typename OWNER_TYPE>
     static void verifySetNoForwardProtectedWritePropNotAllowed(
-        int dummy, decltype((*((OWNER_TYPE *)nullptr))
-                                .setNoForwardProtectedWriteProp(*(
-                                    (VALUE_TYPE *)nullptr))) *pDummy = nullptr)
+        int dummy,
+        decltype((*((OWNER_TYPE *)nullptr)).setNoForwardProtectedWriteProp(*((VALUE_TYPE *)nullptr))) *pDummy = nullptr)
     {
         REQUIRE(false);
     }
 
-    template <typename OWNER_TYPE>
-    static void verifySetNoForwardProtectedWritePropNotAllowed(...)
+    template <typename OWNER_TYPE> static void verifySetNoForwardProtectedWritePropNotAllowed(...)
     {
         // do nothing here
     }
 };
 
 template <typename VALUE_TYPE, typename OWNER_A, typename OWNER_B>
-static void testProperty(const VALUE_TYPE &expectedInitialValue,
-                         const VALUE_TYPE &valA, const VALUE_TYPE &valB)
+static void testProperty(const VALUE_TYPE &expectedInitialValue, const VALUE_TYPE &valA, const VALUE_TYPE &valB)
 {
-    P<TestPropertyOwner<VALUE_TYPE>> pOwner =
-        newObj<TestPropertyOwner<VALUE_TYPE>>();
-    P<TestPropertyOtherOwner<VALUE_TYPE>> pOtherOwner =
-        newObj<TestPropertyOtherOwner<VALUE_TYPE>>();
+    P<TestPropertyOwner<VALUE_TYPE>> pOwner = newObj<TestPropertyOwner<VALUE_TYPE>>();
+    P<TestPropertyOtherOwner<VALUE_TYPE>> pOtherOwner = newObj<TestPropertyOtherOwner<VALUE_TYPE>>();
 
     SECTION("initial value")
     REQUIRE(pOwner->myProp() == expectedInitialValue);
@@ -195,13 +186,11 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
     {
         Array<VALUE_TYPE> callbackValues;
 
-        pOwner->myPropChanged() +=
-            [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
-                callbackValues.add(newValue);
-                REQUIRE(pOwner->myProp() ==
-                        newValue); // property should already be modified when
-                                   // the notification happens
-            };
+        pOwner->myPropChanged() += [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
+            callbackValues.add(newValue);
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when
+                                                   // the notification happens
+        };
 
         pOwner->setMyProp(valA);
 
@@ -222,13 +211,11 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
 
         Array<VALUE_TYPE> callbackValues;
 
-        pOwner->myPropChanged() +=
-            [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
-                callbackValues.add(newValue);
-                REQUIRE(pOwner->myProp() ==
-                        newValue); // property should already be modified when
-                                   // the notification happens
-            };
+        pOwner->myPropChanged() += [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
+            callbackValues.add(newValue);
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when
+                                                   // the notification happens
+        };
 
         pOwner->setMyProp(valA);
 
@@ -240,40 +227,33 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
     {
         Array<std::pair<int, VALUE_TYPE>> callbackData;
 
-        pOwner->myPropChanged() += [&callbackData, pOwner,
-                                    &valB](const VALUE_TYPE &newValue) {
+        pOwner->myPropChanged() += [&callbackData, pOwner, &valB](const VALUE_TYPE &newValue) {
             VALUE_TYPE newValueCopy(newValue);
 
             callbackData.add(std::make_pair(1, newValue));
-            REQUIRE(pOwner->myProp() ==
-                    newValue); // property should already be modified when the
-                               // notification happens
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when the
+                                                   // notification happens
 
             // now we change the property from within the handler
             pOwner->setMyProp(valB);
-            REQUIRE(pOwner->myProp() ==
-                    valB); // property should be at new value immediately
-                           // already be modified when the notification happens
+            REQUIRE(pOwner->myProp() == valB); // property should be at new value immediately
+                                               // already be modified when the notification happens
 
             // the parameter should NOT have changed
             REQUIRE(newValue == newValueCopy);
         };
 
-        pOwner->myPropChanged() +=
-            [&callbackData, pOwner](const VALUE_TYPE &newValue) {
-                callbackData.add(std::make_pair(2, newValue));
-                REQUIRE(pOwner->myProp() ==
-                        newValue); // property should already be modified when
-                                   // the notification happens
-            };
+        pOwner->myPropChanged() += [&callbackData, pOwner](const VALUE_TYPE &newValue) {
+            callbackData.add(std::make_pair(2, newValue));
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when
+                                                   // the notification happens
+        };
 
-        pOwner->myPropChanged() +=
-            [&callbackData, pOwner](const VALUE_TYPE &newValue) {
-                callbackData.add(std::make_pair(3, newValue));
-                REQUIRE(pOwner->myProp() ==
-                        newValue); // property should already be modified when
-                                   // the notification happens
-            };
+        pOwner->myPropChanged() += [&callbackData, pOwner](const VALUE_TYPE &newValue) {
+            callbackData.add(std::make_pair(3, newValue));
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when
+                                                   // the notification happens
+        };
 
         pOwner->setMyProp(valA);
 
@@ -307,13 +287,11 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
     {
         Array<VALUE_TYPE> callbackValues;
 
-        pOwner->myPropChanged() +=
-            [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
-                callbackValues.add(newValue);
-                REQUIRE(pOwner->myProp() ==
-                        newValue); // property should already be modified when
-                                   // the notification happens
-            };
+        pOwner->myPropChanged() += [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
+            callbackValues.add(newValue);
+            REQUIRE(pOwner->myProp() == newValue); // property should already be modified when
+                                                   // the notification happens
+        };
 
         BDN_NOTIFY_PROPERTY_CHANGED(*pOwner, myProp);
 
@@ -362,11 +340,7 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
             BDN_BIND_TO_PROPERTY(*pOtherOwner, setOtherProp, *pOwner, myProp);
         }
 
-        SECTION("bidir")
-        {
-            BDN_BIND_PROPERTIES(*pOwner, myProp, setMyProp, *pOtherOwner,
-                                otherProp, setOtherProp);
-        }
+        SECTION("bidir") { BDN_BIND_PROPERTIES(*pOwner, myProp, setMyProp, *pOtherOwner, otherProp, setOtherProp); }
 
         pOwner->setMyProp(valA);
 
@@ -388,11 +362,7 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
             BDN_BIND_TO_PROPERTY(*pOtherOwner, setOtherProp, *pOwner, myProp);
         }
 
-        SECTION("bidir")
-        {
-            BDN_BIND_PROPERTIES(*pOwner, myProp, setMyProp, *pOtherOwner,
-                                otherProp, setOtherProp);
-        }
+        SECTION("bidir") { BDN_BIND_PROPERTIES(*pOwner, myProp, setMyProp, *pOtherOwner, otherProp, setOtherProp); }
 
         REQUIRE(pOwner->myProp() == valB);
         REQUIRE(pOtherOwner->otherProp() == valB);
@@ -402,18 +372,17 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
     {
         SECTION("std::function")
         {
-            std::function<VALUE_TYPE(const VALUE_TYPE &)> filterFunc =
-                [](const VALUE_TYPE &value) { return value + value; };
+            std::function<VALUE_TYPE(const VALUE_TYPE &)> filterFunc = [](const VALUE_TYPE &value) {
+                return value + value;
+            };
 
-            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp,
-                                             *pOwner, myProp, filterFunc);
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp, *pOwner, myProp, filterFunc);
         }
 
         SECTION("inline lambda")
         {
-            BDN_BIND_TO_PROPERTY_WITH_FILTER(
-                *pOtherOwner, setOtherProp, *pOwner, myProp,
-                [](const VALUE_TYPE &value) { return value + value; });
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp, *pOwner, myProp,
+                                             [](const VALUE_TYPE &value) { return value + value; });
         }
 
         pOwner->setMyProp(valA);
@@ -436,18 +405,17 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
 
         SECTION("std::function")
         {
-            std::function<VALUE_TYPE(const VALUE_TYPE &)> filterFunc =
-                [](const VALUE_TYPE &value) { return value + value; };
+            std::function<VALUE_TYPE(const VALUE_TYPE &)> filterFunc = [](const VALUE_TYPE &value) {
+                return value + value;
+            };
 
-            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp,
-                                             *pOwner, myProp, filterFunc);
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp, *pOwner, myProp, filterFunc);
         }
 
         SECTION("inline lambda")
         {
-            BDN_BIND_TO_PROPERTY_WITH_FILTER(
-                *pOtherOwner, setOtherProp, *pOwner, myProp,
-                [](const VALUE_TYPE &value) { return value + value; });
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner, setOtherProp, *pOwner, myProp,
+                                             [](const VALUE_TYPE &value) { return value + value; });
         }
 
         // source's property should not have changed
@@ -535,21 +503,18 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
 
         SECTION("set not allowed")
         {
-            TestPropertySetNotAllowed<VALUE_TYPE>::template verifySetNotAllowed<
-                const TestPropertyOwner<VALUE_TYPE>>(0);
+            TestPropertySetNotAllowed<VALUE_TYPE>::template verifySetNotAllowed<const TestPropertyOwner<VALUE_TYPE>>(0);
         }
 
         SECTION("change notification")
         {
             Array<VALUE_TYPE> callbackValues;
 
-            constOwner.myPropChanged() +=
-                [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
-                    callbackValues.add(newValue);
-                    REQUIRE(pOwner->myProp() ==
-                            newValue); // property should already be modified
-                                       // when the notification happens
-                };
+            constOwner.myPropChanged() += [&callbackValues, pOwner](const VALUE_TYPE &newValue) {
+                callbackValues.add(newValue);
+                REQUIRE(pOwner->myProp() == newValue); // property should already be modified
+                                                       // when the notification happens
+            };
 
             pOwner->setMyProp(valB);
 
@@ -559,8 +524,7 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
 
         SECTION("binding as sender")
         {
-            BDN_BIND_TO_PROPERTY(*pOtherOwner, setOtherProp, constOwner,
-                                 myProp);
+            BDN_BIND_TO_PROPERTY(*pOtherOwner, setOtherProp, constOwner, myProp);
 
             pOwner->setMyProp(valB);
 
@@ -570,24 +534,20 @@ static void testProperty(const VALUE_TYPE &expectedInitialValue,
     }
 }
 
-template <typename VALUE_TYPE>
-class IAbstractTestPropertyOwner : BDN_IMPLEMENTS IBase
+template <typename VALUE_TYPE> class IAbstractTestPropertyOwner : BDN_IMPLEMENTS IBase
+{
+  public:
+    BDN_ABSTRACT_PROPERTY(VALUE_TYPE, myProp, setMyProp);
+};
+
+template <typename VALUE_TYPE> class IAbstractTestPropertyOwner2 : BDN_IMPLEMENTS IBase
 {
   public:
     BDN_ABSTRACT_PROPERTY(VALUE_TYPE, myProp, setMyProp);
 };
 
 template <typename VALUE_TYPE>
-class IAbstractTestPropertyOwner2 : BDN_IMPLEMENTS IBase
-{
-  public:
-    BDN_ABSTRACT_PROPERTY(VALUE_TYPE, myProp, setMyProp);
-};
-
-template <typename VALUE_TYPE>
-class TestPropertyOwnerWithInterface
-    : public Base,
-      BDN_IMPLEMENTS IAbstractTestPropertyOwner<VALUE_TYPE>
+class TestPropertyOwnerWithInterface : public Base, BDN_IMPLEMENTS IAbstractTestPropertyOwner<VALUE_TYPE>
 {
   public:
     bool *pDeleted = nullptr;
@@ -602,21 +562,17 @@ class TestPropertyOwnerWithInterface
 };
 
 template <typename VALUE_TYPE>
-class TestPropertyOwnerWithInterfaceDerivedReimplementProperty
-    : public TestPropertyOwnerWithInterface<VALUE_TYPE>,
-      BDN_IMPLEMENTS IAbstractTestPropertyOwner2<VALUE_TYPE>
+class TestPropertyOwnerWithInterfaceDerivedReimplementProperty : public TestPropertyOwnerWithInterface<VALUE_TYPE>,
+                                                                 BDN_IMPLEMENTS IAbstractTestPropertyOwner2<VALUE_TYPE>
 {
   public:
-    BDN_DISAMBIGUATE_PROPERTY(VALUE_TYPE, myProp, setMyProp,
-                              TestPropertyOwnerWithInterface<VALUE_TYPE>);
+    BDN_DISAMBIGUATE_PROPERTY(VALUE_TYPE, myProp, setMyProp, TestPropertyOwnerWithInterface<VALUE_TYPE>);
 };
 
 template <typename VALUE_TYPE>
-void testAbstractProperty(VALUE_TYPE expectedInitialValue, VALUE_TYPE valA,
-                          VALUE_TYPE valB)
+void testAbstractProperty(VALUE_TYPE expectedInitialValue, VALUE_TYPE valA, VALUE_TYPE valB)
 {
-    P<TestPropertyOwnerWithInterface<VALUE_TYPE>> pOwner =
-        newObj<TestPropertyOwnerWithInterface<VALUE_TYPE>>();
+    P<TestPropertyOwnerWithInterface<VALUE_TYPE>> pOwner = newObj<TestPropertyOwnerWithInterface<VALUE_TYPE>>();
 
     P<IAbstractTestPropertyOwner<VALUE_TYPE>> pInterface = pOwner;
 
@@ -646,10 +602,8 @@ void testAbstractProperty(VALUE_TYPE expectedInitialValue, VALUE_TYPE valA,
         // here we test the case that a derived class adds a new interface that
         // also has the same property.
 
-        P<TestPropertyOwnerWithInterfaceDerivedReimplementProperty<VALUE_TYPE>>
-            pDerivedOwner =
-                newObj<TestPropertyOwnerWithInterfaceDerivedReimplementProperty<
-                    VALUE_TYPE>>();
+        P<TestPropertyOwnerWithInterfaceDerivedReimplementProperty<VALUE_TYPE>> pDerivedOwner =
+            newObj<TestPropertyOwnerWithInterfaceDerivedReimplementProperty<VALUE_TYPE>>();
 
         P<IAbstractTestPropertyOwner2<VALUE_TYPE>> pInterface2 = pDerivedOwner;
         P<IAbstractTestPropertyOwner<VALUE_TYPE>> pInterface = pDerivedOwner;
@@ -682,8 +636,7 @@ class TestPropOwnerWithProtectedSetter_Custom : public Base
     int myProp() const { return _val; }
 
     BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(int, myProp);
-    BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(int, public, myProp,
-                                                    protected, setMyProp);
+    BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(int, public, myProp, protected, setMyProp);
 
   protected:
     void setMyProp(int val)
@@ -699,31 +652,26 @@ class TestPropOwnerWithProtectedSetter_Custom : public Base
     int _val;
 };
 
-template <class BASE>
-class TestPropOwnerWithProtectedSetterDerived : public BASE
+template <class BASE> class TestPropOwnerWithProtectedSetterDerived : public BASE
 {
   public:
     void derivedSet(int val) { this->setMyProp(val); }
 };
 
-template <typename OWNER_WITH_PROTECTED_SETTER>
-void testPropertyWithProtectedSetter()
+template <typename OWNER_WITH_PROTECTED_SETTER> void testPropertyWithProtectedSetter()
 {
-    P<OWNER_WITH_PROTECTED_SETTER> pOwner =
-        newObj<OWNER_WITH_PROTECTED_SETTER>();
+    P<OWNER_WITH_PROTECTED_SETTER> pOwner = newObj<OWNER_WITH_PROTECTED_SETTER>();
 
     SECTION("getter public") { REQUIRE(pOwner->myProp() == 42); }
 
     SECTION("setter not public")
     {
-        TestPropertySetNotAllowed<int>::template verifySetNotAllowed<
-            const OWNER_WITH_PROTECTED_SETTER>(0);
+        TestPropertySetNotAllowed<int>::template verifySetNotAllowed<const OWNER_WITH_PROTECTED_SETTER>(0);
     }
 
     SECTION("setter accessible in derived classes")
     {
-        TestPropOwnerWithProtectedSetterDerived<OWNER_WITH_PROTECTED_SETTER>
-            derivedOwner;
+        TestPropOwnerWithProtectedSetterDerived<OWNER_WITH_PROTECTED_SETTER> derivedOwner;
 
         derivedOwner.derivedSet(17);
 
@@ -752,10 +700,7 @@ template <typename VALUE_TYPE> class TestViewPropOwnerCore : public Base
 
     VALUE_TYPE parentPrefSizeAndContentLayout;
 
-    void setParentPrefSizeAndContentLayoutProp(const VALUE_TYPE &val)
-    {
-        parentPrefSizeAndContentLayout = val;
-    }
+    void setParentPrefSizeAndContentLayoutProp(const VALUE_TYPE &val) { parentPrefSizeAndContentLayout = val; }
 
     VALUE_TYPE parentLayout;
 
@@ -763,24 +708,17 @@ template <typename VALUE_TYPE> class TestViewPropOwnerCore : public Base
 
     VALUE_TYPE protectedWriteProp;
 
-    void setProtectedWriteProp(const VALUE_TYPE &val)
-    {
-        protectedWriteProp = val;
-    }
+    void setProtectedWriteProp(const VALUE_TYPE &val) { protectedWriteProp = val; }
 
-    void verifyValues(const VALUE_TYPE &nothing,
-                      const VALUE_TYPE &contentLayout,
-                      const VALUE_TYPE &prefSize,
-                      const VALUE_TYPE &parentPrefSize,
-                      const VALUE_TYPE &parentPrefSizeAndContentLayout,
+    void verifyValues(const VALUE_TYPE &nothing, const VALUE_TYPE &contentLayout, const VALUE_TYPE &prefSize,
+                      const VALUE_TYPE &parentPrefSize, const VALUE_TYPE &parentPrefSizeAndContentLayout,
                       const VALUE_TYPE &parentLayout)
     {
         REQUIRE(this->nothing == nothing);
         REQUIRE(this->contentLayout == contentLayout);
         REQUIRE(this->prefSize == prefSize);
         REQUIRE(this->parentPrefSize == parentPrefSize);
-        REQUIRE(this->parentPrefSizeAndContentLayout ==
-                parentPrefSizeAndContentLayout);
+        REQUIRE(this->parentPrefSizeAndContentLayout == parentPrefSizeAndContentLayout);
         REQUIRE(this->parentLayout == parentLayout);
     }
 };
@@ -788,55 +726,39 @@ template <typename VALUE_TYPE> class TestViewPropOwnerCore : public Base
 template <typename VALUE_TYPE> class TestViewPropOwner : public Base
 {
   public:
-    TestViewPropOwner()
-    {
-        _pTestCore = newObj<TestViewPropOwnerCore<VALUE_TYPE>>();
-    }
+    TestViewPropOwner() { _pTestCore = newObj<TestViewPropOwnerCore<VALUE_TYPE>>(); }
 
-    BDN_VIEW_PROPERTY(VALUE_TYPE, nothingProp, setNothingProp,
-                      TestViewPropOwnerCore<VALUE_TYPE>, influencesNothing());
+    BDN_VIEW_PROPERTY(VALUE_TYPE, nothingProp, setNothingProp, TestViewPropOwnerCore<VALUE_TYPE>, influencesNothing());
 
-    BDN_VIEW_PROPERTY(VALUE_TYPE, contentLayoutProp, setContentLayoutProp,
-                      TestViewPropOwnerCore<VALUE_TYPE>,
+    BDN_VIEW_PROPERTY(VALUE_TYPE, contentLayoutProp, setContentLayoutProp, TestViewPropOwnerCore<VALUE_TYPE>,
                       influencesContentLayout());
 
-    BDN_VIEW_PROPERTY(VALUE_TYPE, prefSizeProp, setPrefSizeProp,
-                      TestViewPropOwnerCore<VALUE_TYPE>,
+    BDN_VIEW_PROPERTY(VALUE_TYPE, prefSizeProp, setPrefSizeProp, TestViewPropOwnerCore<VALUE_TYPE>,
                       influencesPreferredSize());
 
-    BDN_VIEW_PROPERTY(VALUE_TYPE, parentPrefSizeProp, setParentPrefSizeProp,
-                      TestViewPropOwnerCore<VALUE_TYPE>,
+    BDN_VIEW_PROPERTY(VALUE_TYPE, parentPrefSizeProp, setParentPrefSizeProp, TestViewPropOwnerCore<VALUE_TYPE>,
                       influencesParentPreferredSize());
 
-    BDN_VIEW_PROPERTY(
-        VALUE_TYPE, parentPrefSizeAndContentLayoutProp,
-        setParentPrefSizeAndContentLayoutProp,
-        TestViewPropOwnerCore<VALUE_TYPE>,
-        influencesParentPreferredSize().influencesContentLayout());
+    BDN_VIEW_PROPERTY(VALUE_TYPE, parentPrefSizeAndContentLayoutProp, setParentPrefSizeAndContentLayoutProp,
+                      TestViewPropOwnerCore<VALUE_TYPE>, influencesParentPreferredSize().influencesContentLayout());
 
-    BDN_VIEW_PROPERTY(VALUE_TYPE, parentLayoutProp, setParentLayoutProp,
-                      TestViewPropOwnerCore<VALUE_TYPE>,
+    BDN_VIEW_PROPERTY(VALUE_TYPE, parentLayoutProp, setParentLayoutProp, TestViewPropOwnerCore<VALUE_TYPE>,
                       influencesParentLayout());
 
-    BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(VALUE_TYPE, noForwardProp,
-                                              setNoForwardProp,
-                                              influencesParentLayout());
+    BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(VALUE_TYPE, noForwardProp, setNoForwardProp, influencesParentLayout());
 
-    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(VALUE_TYPE, public, protectedWriteProp,
-                                         protected, setProtectedWriteProp,
-                                         TestViewPropOwnerCore<VALUE_TYPE>,
-                                         influencesParentLayout());
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS(VALUE_TYPE, public, protectedWriteProp, protected, setProtectedWriteProp,
+                                         TestViewPropOwnerCore<VALUE_TYPE>, influencesParentLayout());
 
-    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(
-        VALUE_TYPE, public, noForwardProtectedWriteProp, protected,
-        setNoForwardProtectedWriteProp, influencesParentLayout());
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING(VALUE_TYPE, public, noForwardProtectedWriteProp,
+                                                                 protected, setNoForwardProtectedWriteProp,
+                                                                 influencesParentLayout());
 
     P<IBase> getViewCore() { return _pTestCore; }
 
     P<TestViewPropOwnerCore<VALUE_TYPE>> getTestCore() { return _pTestCore; }
 
-    void verifyInfluences(int nothingCounter, int contentLayoutCounter,
-                          int prefSizeCounter, int parentPrefSizeCounter,
+    void verifyInfluences(int nothingCounter, int contentLayoutCounter, int prefSizeCounter, int parentPrefSizeCounter,
                           int parentLayoutCounter)
     {
         REQUIRE(influencesNothingCounter == nothingCounter);
@@ -901,27 +823,17 @@ template <typename VALUE_TYPE> class TestViewPropOwner : public Base
     P<TestViewPropOwnerCore<VALUE_TYPE>> _pTestCore;
 };
 
-template <class VALUE_TYPE>
-class TestViewPropOwnerDerived : public TestViewPropOwner<VALUE_TYPE>
+template <class VALUE_TYPE> class TestViewPropOwnerDerived : public TestViewPropOwner<VALUE_TYPE>
 {
   public:
-    void derivedSetProtectedWriteProp(const VALUE_TYPE &value)
-    {
-        this->setProtectedWriteProp(value);
-    }
+    void derivedSetProtectedWriteProp(const VALUE_TYPE &value) { this->setProtectedWriteProp(value); }
 
-    void derivedSetNoForwardProtectedWriteProp(const VALUE_TYPE &value)
-    {
-        this->setNoForwardProtectedWriteProp(value);
-    }
+    void derivedSetNoForwardProtectedWriteProp(const VALUE_TYPE &value) { this->setNoForwardProtectedWriteProp(value); }
 };
 
-template <class VALUE_TYPE>
-static void testViewProperty(const VALUE_TYPE &initialValue,
-                             const VALUE_TYPE &valA)
+template <class VALUE_TYPE> static void testViewProperty(const VALUE_TYPE &initialValue, const VALUE_TYPE &valA)
 {
-    P<TestViewPropOwner<VALUE_TYPE>> pOwner =
-        newObj<TestViewPropOwner<VALUE_TYPE>>();
+    P<TestViewPropOwner<VALUE_TYPE>> pOwner = newObj<TestViewPropOwner<VALUE_TYPE>>();
 
     SECTION("influencesNothing")
     {
@@ -929,9 +841,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->nothingProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(valA, initialValue, initialValue,
-                                            initialValue, initialValue,
-                                            initialValue);
+        pOwner->getTestCore()->verifyValues(valA, initialValue, initialValue, initialValue, initialValue, initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(1, 0, 0, 0, 0);
@@ -943,9 +853,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->contentLayoutProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(initialValue, valA, initialValue,
-                                            initialValue, initialValue,
-                                            initialValue);
+        pOwner->getTestCore()->verifyValues(initialValue, valA, initialValue, initialValue, initialValue, initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 1, 0, 0, 0);
@@ -957,9 +865,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->prefSizeProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(initialValue, initialValue, valA,
-                                            initialValue, initialValue,
-                                            initialValue);
+        pOwner->getTestCore()->verifyValues(initialValue, initialValue, valA, initialValue, initialValue, initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 0, 1, 0, 0);
@@ -971,9 +877,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->parentPrefSizeProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(initialValue, initialValue,
-                                            initialValue, valA, initialValue,
-                                            initialValue);
+        pOwner->getTestCore()->verifyValues(initialValue, initialValue, initialValue, valA, initialValue, initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 0, 0, 1, 0);
@@ -985,9 +889,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->parentPrefSizeAndContentLayoutProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(initialValue, initialValue,
-                                            initialValue, initialValue, valA,
-                                            initialValue);
+        pOwner->getTestCore()->verifyValues(initialValue, initialValue, initialValue, initialValue, valA, initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 1, 0, 1, 0);
@@ -999,9 +901,7 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->parentLayoutProp() == valA);
 
         // correct setter called?
-        pOwner->getTestCore()->verifyValues(initialValue, initialValue,
-                                            initialValue, initialValue,
-                                            initialValue, valA);
+        pOwner->getTestCore()->verifyValues(initialValue, initialValue, initialValue, initialValue, initialValue, valA);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 0, 0, 0, 1);
@@ -1013,9 +913,8 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         REQUIRE(pOwner->noForwardProp() == valA);
 
         // no setter in core should have been called
-        pOwner->getTestCore()->verifyValues(initialValue, initialValue,
-                                            initialValue, initialValue,
-                                            initialValue, initialValue);
+        pOwner->getTestCore()->verifyValues(initialValue, initialValue, initialValue, initialValue, initialValue,
+                                            initialValue);
 
         // correct influence calls made?
         pOwner->verifyInfluences(0, 0, 0, 0, 1);
@@ -1027,9 +926,8 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         pOwner->protectedWriteProp();
 
         SECTION("setter")
-        TestPropertySetNotAllowed<VALUE_TYPE>::
-            template verifySetProtectedWritePropNotAllowed<
-                const TestViewPropOwner<VALUE_TYPE>>(0);
+        TestPropertySetNotAllowed<VALUE_TYPE>::template verifySetProtectedWritePropNotAllowed<
+            const TestViewPropOwner<VALUE_TYPE>>(0);
 
         SECTION("setter accessible in derived classes")
         {
@@ -1048,9 +946,8 @@ static void testViewProperty(const VALUE_TYPE &initialValue,
         pOwner->noForwardProtectedWriteProp();
 
         SECTION("setter")
-        TestPropertySetNotAllowed<VALUE_TYPE>::
-            template verifySetNoForwardProtectedWritePropNotAllowed<
-                const TestViewPropOwner<VALUE_TYPE>>(0);
+        TestPropertySetNotAllowed<VALUE_TYPE>::template verifySetNoForwardProtectedWritePropNotAllowed<
+            const TestViewPropOwner<VALUE_TYPE>>(0);
 
         SECTION("setter accessible in derived classes")
         {
@@ -1068,38 +965,31 @@ TEST_CASE("properties")
     SECTION("BDN_PROPERTY")
     {
         SECTION("int")
-        testProperty<int, TestPropertyOwner<int>, TestPropertyOtherOwner<int>>(
-            0, 42, 1234);
+        testProperty<int, TestPropertyOwner<int>, TestPropertyOtherOwner<int>>(0, 42, 1234);
 
         SECTION("String")
-        testProperty<String, TestPropertyOwner<String>,
-                     TestPropertyOtherOwner<String>>("", "hello", "world");
+        testProperty<String, TestPropertyOwner<String>, TestPropertyOtherOwner<String>>("", "hello", "world");
     }
 
     SECTION("custom property")
     {
         SECTION("int")
-        testProperty<int, TestPropertyOwner_Custom<int>,
-                     TestPropertyOtherOwner_Custom<int>>(0, 42, 1234);
+        testProperty<int, TestPropertyOwner_Custom<int>, TestPropertyOtherOwner_Custom<int>>(0, 42, 1234);
 
         SECTION("String")
-        testProperty<String, TestPropertyOwner_Custom<String>,
-                     TestPropertyOtherOwner_Custom<String>>("", "hello",
-                                                            "world");
+        testProperty<String, TestPropertyOwner_Custom<String>, TestPropertyOtherOwner_Custom<String>>("", "hello",
+                                                                                                      "world");
     }
 
     SECTION("custom property with const reference getter and copy setter")
     {
         SECTION("int")
-        testProperty<int,
-                     TestPropertyOwner_Custom_ConstRefGetter_CopySetter<int>,
-                     TestPropertyOtherOwner_Custom<int>>(0, 42, 1234);
+        testProperty<int, TestPropertyOwner_Custom_ConstRefGetter_CopySetter<int>, TestPropertyOtherOwner_Custom<int>>(
+            0, 42, 1234);
 
         SECTION("String")
-        testProperty<String,
-                     TestPropertyOwner_Custom_ConstRefGetter_CopySetter<String>,
-                     TestPropertyOtherOwner_Custom<String>>("", "hello",
-                                                            "world");
+        testProperty<String, TestPropertyOwner_Custom_ConstRefGetter_CopySetter<String>,
+                     TestPropertyOtherOwner_Custom<String>>("", "hello", "world");
     }
 
     SECTION("BDN_ABSTRACT_PROPERTY")
@@ -1111,15 +1001,11 @@ TEST_CASE("properties")
         testAbstractProperty<String>("", "hello", "world");
     }
 
-    SECTION("BDN_PROPERTY_WITH_CUSTOM_ACCESS")
-    {
-        testPropertyWithProtectedSetter<TestPropOwnerWithProtectedSetter>();
-    }
+    SECTION("BDN_PROPERTY_WITH_CUSTOM_ACCESS") { testPropertyWithProtectedSetter<TestPropOwnerWithProtectedSetter>(); }
 
     SECTION("Custom property with custom access")
     {
-        testPropertyWithProtectedSetter<
-            TestPropOwnerWithProtectedSetter_Custom>();
+        testPropertyWithProtectedSetter<TestPropOwnerWithProtectedSetter_Custom>();
     }
 
     SECTION("Property binding with different types")

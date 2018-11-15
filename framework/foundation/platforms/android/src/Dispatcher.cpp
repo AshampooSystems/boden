@@ -7,18 +7,15 @@
 
 #include <jni.h>
 
-extern "C" JNIEXPORT jboolean JNICALL
-Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *pEnv,
-                                                        jclass rawClass,
-                                                        jobject rawTimerObject)
+extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *pEnv,
+                                                                                              jclass rawClass,
+                                                                                              jobject rawTimerObject)
 {
     jboolean returnValue = JNI_TRUE;
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::Dispatcher::Timer_ *pTimer =
-                dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
-                    bdn::java::JNativeStrongPointer::unwrapJObject(
-                        rawTimerObject));
+            bdn::android::Dispatcher::Timer_ *pTimer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
+                bdn::java::JNativeStrongPointer::unwrapJObject(rawTimerObject));
 
             returnValue = pTimer->onEvent() ? JNI_TRUE : JNI_FALSE;
         },
@@ -36,14 +33,9 @@ namespace bdn
 
         void Dispatcher::dispose() { _dispatcher.dispose(); }
 
-        void Dispatcher::enqueue(std::function<void()> func, Priority priority)
-        {
-            enqueueInSeconds(0, func, priority);
-        }
+        void Dispatcher::enqueue(std::function<void()> func, Priority priority) { enqueueInSeconds(0, func, priority); }
 
-        void Dispatcher::enqueueInSeconds(double seconds,
-                                          std::function<void()> func,
-                                          Priority priority)
+        void Dispatcher::enqueueInSeconds(double seconds, std::function<void()> func, Priority priority)
         {
             bool idlePriority = false;
 
@@ -59,8 +51,7 @@ namespace bdn
             _dispatcher.enqueue(seconds, func, idlePriority);
         }
 
-        void Dispatcher::createTimer(double intervalSeconds,
-                                     std::function<bool()> func)
+        void Dispatcher::createTimer(double intervalSeconds, std::function<bool()> func)
         {
             P<Timer_> pTimer = newObj<Timer_>(func);
 

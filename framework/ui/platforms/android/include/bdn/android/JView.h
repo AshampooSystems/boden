@@ -22,9 +22,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JView(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JView(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             JView() {}
 
@@ -44,10 +42,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 
             enum Visibility
             {
@@ -66,16 +61,14 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setVisibility",
-                              (int)visibility);
+                invoke_<void>(getStaticClass_(), methodId, "setVisibility", (int)visibility);
             }
 
             Visibility getVisibility()
             {
                 static bdn::java::MethodId methodId;
 
-                return (Visibility)invoke_<int>(getStaticClass_(), methodId,
-                                                "getVisibility");
+                return (Visibility)invoke_<int>(getStaticClass_(), methodId, "getVisibility");
             }
 
             int getLeft()
@@ -110,40 +103,35 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setPadding", left,
-                              top, right, bottom);
+                invoke_<void>(getStaticClass_(), methodId, "setPadding", left, top, right, bottom);
             }
 
             int getPaddingLeft()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getPaddingLeft");
+                return invoke_<int>(getStaticClass_(), methodId, "getPaddingLeft");
             }
 
             int getPaddingTop()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getPaddingTop");
+                return invoke_<int>(getStaticClass_(), methodId, "getPaddingTop");
             }
 
             int getPaddingRight()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getPaddingRight");
+                return invoke_<int>(getStaticClass_(), methodId, "getPaddingRight");
             }
 
             int getPaddingBottom()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getPaddingBottom");
+                return invoke_<int>(getStaticClass_(), methodId, "getPaddingBottom");
             }
 
             /** Returns the view's parent. The object supports the interface
@@ -152,8 +140,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JViewParent>(getStaticClass_(), methodId,
-                                            "getParent");
+                return invoke_<JViewParent>(getStaticClass_(), methodId, "getParent");
             }
 
             /** Returns the context the view is running in, through which it can
@@ -162,8 +149,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JContext>(getStaticClass_(), methodId,
-                                         "getContext");
+                return invoke_<JContext>(getStaticClass_(), methodId, "getContext");
             }
 
             /** Attaches an object to the view as a "tag". Tags have no
@@ -189,24 +175,21 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "measure",
-                              widthMeasureSpec, heightMeasureSpec);
+                invoke_<void>(getStaticClass_(), methodId, "measure", widthMeasureSpec, heightMeasureSpec);
             }
 
             int getMeasuredWidth()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getMeasuredWidth");
+                return invoke_<int>(getStaticClass_(), methodId, "getMeasuredWidth");
             }
 
             int getMeasuredHeight()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getMeasuredHeight");
+                return invoke_<int>(getStaticClass_(), methodId, "getMeasuredHeight");
             }
 
             class MeasureSpec
@@ -227,10 +210,7 @@ namespace bdn
                     atMost = 0x80000000
                 };
 
-                static int makeMeasureSpec(int size, Mode mode)
-                {
-                    return size | mode;
-                }
+                static int makeMeasureSpec(int size, Mode mode) { return size | mode; }
             };
 
             void requestLayout()
@@ -251,16 +231,14 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getSuggestedMinimumWidth");
+                return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumWidth");
             }
 
             int getSuggestedMinimumHeight()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<int>(getStaticClass_(), methodId,
-                                    "getSuggestedMinimumHeight");
+                return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumHeight");
             }
 
             /** Return the scrolled left position of this view.
@@ -295,9 +273,7 @@ namespace bdn
                  * strong reference then you need to call toStrong() on the
                  * reference first and pass the result.
                  *      */
-                explicit OnClickListener(const bdn::java::Reference &javaRef)
-                    : JObject(javaRef)
-                {}
+                explicit OnClickListener(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
                 /** Returns the JClass object for this class.
                  *
@@ -310,24 +286,19 @@ namespace bdn
                  *  */
                 static bdn::java::JClass &getStaticClass_()
                 {
-                    static bdn::java::JClass cls(
-                        "android/view/View$OnClickListener");
+                    static bdn::java::JClass cls("android/view/View$OnClickListener");
 
                     return cls;
                 }
 
-                bdn::java::JClass &getClass_() override
-                {
-                    return getStaticClass_();
-                }
+                bdn::java::JClass &getClass_() override { return getStaticClass_(); }
             };
 
             void setOnClickListener(JView::OnClickListener &listener)
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setOnClickListener",
-                              listener);
+                invoke_<void>(getStaticClass_(), methodId, "setOnClickListener", listener);
             }
 
             class OnScrollChangeListener : public bdn::java::JObject
@@ -339,10 +310,7 @@ namespace bdn
                  * strong reference then you need to call toStrong() on the
                  * reference first and pass the result.
                  *      */
-                explicit OnScrollChangeListener(
-                    const bdn::java::Reference &javaRef)
-                    : JObject(javaRef)
-                {}
+                explicit OnScrollChangeListener(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
                 /** Returns the JClass object for this class.
                  *
@@ -355,25 +323,19 @@ namespace bdn
                  *  */
                 static bdn::java::JClass &getStaticClass_()
                 {
-                    static bdn::java::JClass cls(
-                        "android/view/View$OnScrollChangeListener");
+                    static bdn::java::JClass cls("android/view/View$OnScrollChangeListener");
 
                     return cls;
                 }
 
-                bdn::java::JClass &getClass_() override
-                {
-                    return getStaticClass_();
-                }
+                bdn::java::JClass &getClass_() override { return getStaticClass_(); }
             };
 
-            void
-            setOnScrollChangeListener(JView::OnScrollChangeListener &listener)
+            void setOnScrollChangeListener(JView::OnScrollChangeListener &listener)
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId,
-                              "setOnScrollChangeListener", listener);
+                invoke_<void>(getStaticClass_(), methodId, "setOnScrollChangeListener", listener);
             }
 
             class OnLayoutChangeListener : public bdn::java::JObject
@@ -385,10 +347,7 @@ namespace bdn
                  * strong reference then you need to call toStrong() on the
                  * reference first and pass the result.
                  *      */
-                explicit OnLayoutChangeListener(
-                    const bdn::java::Reference &javaRef)
-                    : JObject(javaRef)
-                {}
+                explicit OnLayoutChangeListener(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
                 /** Returns the JClass object for this class.
                  *
@@ -401,24 +360,19 @@ namespace bdn
                  *  */
                 static bdn::java::JClass &getStaticClass_()
                 {
-                    static bdn::java::JClass cls(
-                        "android/view/View$OnLayoutChangeListener");
+                    static bdn::java::JClass cls("android/view/View$OnLayoutChangeListener");
 
                     return cls;
                 }
 
-                bdn::java::JClass &getClass_() override
-                {
-                    return getStaticClass_();
-                }
+                bdn::java::JClass &getClass_() override { return getStaticClass_(); }
             };
 
             void addOnLayoutChangeListener(OnLayoutChangeListener listener)
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId,
-                              "addOnLayoutChangeListener", listener);
+                invoke_<void>(getStaticClass_(), methodId, "addOnLayoutChangeListener", listener);
             }
 
             /** Set the layout parameters associated with this view. These
@@ -431,8 +385,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setLayoutParams",
-                              params);
+                invoke_<void>(getStaticClass_(), methodId, "setLayoutParams", params);
             }
         };
     }

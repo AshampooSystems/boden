@@ -32,23 +32,16 @@ bdn::ios::AppRunner *_pAppRunner;
     return self;
 }
 
-+ (void)setStaticAppRunner:(bdn::ios::AppRunner *)pRunner
++ (void)setStaticAppRunner:(bdn::ios::AppRunner *)pRunner { _pStaticAppRunner = pRunner; }
+
+- (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _pStaticAppRunner = pRunner;
+    return _pAppRunner->_applicationWillFinishLaunching(launchOptions) ? YES : NO;
 }
 
-- (BOOL)application:(UIApplication *)application
-    willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    return _pAppRunner->_applicationWillFinishLaunching(launchOptions) ? YES
-                                                                       : NO;
-}
-
-- (BOOL)application:(UIApplication *)application
-    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    return _pAppRunner->_applicationDidFinishLaunching(launchOptions) ? YES
-                                                                      : NO;
+    return _pAppRunner->_applicationDidFinishLaunching(launchOptions) ? YES : NO;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -71,10 +64,7 @@ bdn::ios::AppRunner *_pAppRunner;
     _pAppRunner->_applicationWillEnterForeground(application);
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    _pAppRunner->_applicationWillTerminate(application);
-}
+- (void)applicationWillTerminate:(UIApplication *)application { _pAppRunner->_applicationWillTerminate(application); }
 
 @end
 
@@ -98,11 +88,9 @@ namespace bdn
             return launchInfo;
         }
 
-        AppRunner::AppRunner(
-            const std::function<P<AppControllerBase>()> &appControllerCreator,
-            int argCount, char *args[])
-            : AppRunnerBase(appControllerCreator,
-                            _makeLaunchInfo(argCount, args))
+        AppRunner::AppRunner(const std::function<P<AppControllerBase>()> &appControllerCreator, int argCount,
+                             char *args[])
+            : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
             _pMainDispatcher = newObj<bdn::fk::MainDispatcher>();
         }
@@ -112,13 +100,11 @@ namespace bdn
             NSObject *cppExceptionWrapper = nil;
 
             if (exception.userInfo != nil)
-                cppExceptionWrapper = [exception.userInfo
-                    objectForKey:@"bdn::ExceptionReference"];
+                cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
             P<ExceptionReference> pCppExceptionRef;
             if (cppExceptionWrapper != nil)
-                pCppExceptionRef = tryCast<ExceptionReference>(
-                    bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
+                pCppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
             try {
                 // if the exception is a wrapped C++ exception then we rethrow
@@ -149,14 +135,11 @@ namespace bdn
             [BdnIosAppDelegate_ setStaticAppRunner:this];
 
             @autoreleasepool {
-                return UIApplicationMain(
-                    argCount, args, nil,
-                    NSStringFromClass([BdnIosAppDelegate_ class]));
+                return UIApplicationMain(argCount, args, nil, NSStringFromClass([BdnIosAppDelegate_ class]));
             }
         }
 
-        bool
-        AppRunner::_applicationWillFinishLaunching(NSDictionary *launchOptions)
+        bool AppRunner::_applicationWillFinishLaunching(NSDictionary *launchOptions)
         {
             bdn::platformEntryWrapper(
                 [&]() {
@@ -168,8 +151,7 @@ namespace bdn
             return true;
         }
 
-        bool
-        AppRunner::_applicationDidFinishLaunching(NSDictionary *launchOptions)
+        bool AppRunner::_applicationDidFinishLaunching(NSDictionary *launchOptions)
         {
             bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
 
@@ -178,28 +160,21 @@ namespace bdn
 
         void AppRunner::_applicationDidBecomeActive(UIApplication *application)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onActivate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
         }
 
         void AppRunner::_applicationWillResignActive(UIApplication *application)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onDeactivate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
         }
 
-        void
-        AppRunner::_applicationDidEnterBackground(UIApplication *application)
-        {}
+        void AppRunner::_applicationDidEnterBackground(UIApplication *application) {}
 
-        void
-        AppRunner::_applicationWillEnterForeground(UIApplication *application)
-        {}
+        void AppRunner::_applicationWillEnterForeground(UIApplication *application) {}
 
         void AppRunner::_applicationWillTerminate(UIApplication *application)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onTerminate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
         }
 
         void AppRunner::initiateExitIfPossible(int exitCode)
@@ -209,9 +184,6 @@ namespace bdn
             x++;
         }
 
-        void AppRunner::disposeMainDispatcher()
-        {
-            cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose();
-        }
+        void AppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose(); }
     }
 }

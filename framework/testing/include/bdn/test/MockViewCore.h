@@ -18,10 +18,7 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockViewCore
-            : public Base,
-              BDN_IMPLEMENTS IViewCore,
-              BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
             explicit MockViewCore(View *pView)
@@ -51,10 +48,7 @@ namespace bdn
             }
 
             /** Returns the outer view object that this core is embedded in.*/
-            P<View> getOuterViewIfStillAttached() const
-            {
-                return _outerViewWeak.toStrong();
-            }
+            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
 
             /** Returns true if the fake view is currently marked as
              * "visible".*/
@@ -89,14 +83,9 @@ namespace bdn
             View *getParentViewWeak() const { return _pParentViewWeak; }
 
             /** Returns the number of times the view's parent have changed.*/
-            int getParentViewChangeCount() const
-            {
-                return _parentViewChangeCount;
-            }
+            int getParentViewChangeCount() const { return _parentViewChangeCount; }
 
-            Size _getTextSize(const String &s,
-                              double wrapWidth =
-                                  std::numeric_limits<double>::infinity()) const
+            Size _getTextSize(const String &s, double wrapWidth = std::numeric_limits<double>::infinity()) const
             {
                 String remaining(s);
 
@@ -113,8 +102,7 @@ namespace bdn
                     // round the wrap width down to full mock pixels
                     wrapWidth = Dip::pixelAlign(wrapWidth, 3, RoundType::down);
 
-                    maxLineChars =
-                        static_cast<int>(std::floor(wrapWidth / charWidth));
+                    maxLineChars = static_cast<int>(std::floor(wrapWidth / charWidth));
 
                     if (maxLineChars <= 0)
                         maxLineChars = 1;
@@ -130,15 +118,13 @@ namespace bdn
 
                         size_t lineChars = line.getLength();
 
-                        if (maxLineChars != -1 &&
-                            lineChars > (size_t)maxLineChars) {
+                        if (maxLineChars != -1 && lineChars > (size_t)maxLineChars) {
                             // find the break point.
                             // Note that if there is a whitespace just FOLLOWING
                             // the maximum number of chars then we want to break
                             // there. So we start searching from that point
                             // backwards.
-                            size_t lastWhitespaceIndex =
-                                line.reverseFindOneOf(" \t", maxLineChars);
+                            size_t lastWhitespaceIndex = line.reverseFindOneOf(" \t", maxLineChars);
                             if (lastWhitespaceIndex == String::npos) {
                                 // no white space found.
                                 lineChars = maxLineChars;
@@ -148,8 +134,7 @@ namespace bdn
                             }
                         }
 
-                        double lineWidth = Dip::pixelAlign(
-                            lineChars * charWidth, 3, RoundType::up);
+                        double lineWidth = Dip::pixelAlign(lineChars * charWidth, 3, RoundType::up);
                         width = std::max(width, lineWidth);
 
                         line = line.subString(lineChars);
@@ -194,8 +179,7 @@ namespace bdn
                 _marginChangeCount++;
             }
 
-            void setHorizontalAlignment(
-                const View::HorizontalAlignment &align) override
+            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -203,18 +187,11 @@ namespace bdn
                 _horizontalAlignmentChangeCount++;
             }
 
-            View::HorizontalAlignment getHorizontalAlignment() const
-            {
-                return _horizontalAlignment;
-            }
+            View::HorizontalAlignment getHorizontalAlignment() const { return _horizontalAlignment; }
 
-            int getHorizontalAlignmentChangeCount() const
-            {
-                return _horizontalAlignmentChangeCount;
-            }
+            int getHorizontalAlignmentChangeCount() const { return _horizontalAlignmentChangeCount; }
 
-            void
-            setVerticalAlignment(const View::VerticalAlignment &align) override
+            void setVerticalAlignment(const View::VerticalAlignment &align) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -222,15 +199,9 @@ namespace bdn
                 _verticalAlignmentChangeCount++;
             }
 
-            View::VerticalAlignment getVerticalAlignment() const
-            {
-                return _verticalAlignment;
-            }
+            View::VerticalAlignment getVerticalAlignment() const { return _verticalAlignment; }
 
-            int getVerticalAlignmentChangeCount() const
-            {
-                return _verticalAlignmentChangeCount;
-            }
+            int getVerticalAlignmentChangeCount() const { return _verticalAlignmentChangeCount; }
 
             void setPreferredSizeHint(const Size &hint) override
             {
@@ -242,10 +213,7 @@ namespace bdn
 
             Size getPreferredSizeHint() const { return _preferredSizeHint; }
 
-            int getPreferredSizeHintChangeCount() const
-            {
-                return _preferredSizeHintChangeCount;
-            }
+            int getPreferredSizeHintChangeCount() const { return _preferredSizeHintChangeCount; }
 
             void setPreferredSizeMinimum(const Size &limit) override
             {
@@ -255,15 +223,9 @@ namespace bdn
                 _preferredSizeMinimumChangeCount++;
             }
 
-            Size getPreferredSizeMinimum() const
-            {
-                return _preferredSizeMinimum;
-            }
+            Size getPreferredSizeMinimum() const { return _preferredSizeMinimum; }
 
-            int getPreferredSizeMinimumChangeCount() const
-            {
-                return _preferredSizeMinimumChangeCount;
-            }
+            int getPreferredSizeMinimumChangeCount() const { return _preferredSizeMinimumChangeCount; }
 
             void setPreferredSizeMaximum(const Size &limit) override
             {
@@ -273,33 +235,24 @@ namespace bdn
                 _preferredSizeMaximumChangeCount++;
             }
 
-            Size getPreferredSizeMaximum() const
-            {
-                return _preferredSizeMaximum;
-            }
+            Size getPreferredSizeMaximum() const { return _preferredSizeMaximum; }
 
-            int getPreferredSizeMaximumChangeCount() const
-            {
-                return _preferredSizeMaximumChangeCount;
-            }
+            int getPreferredSizeMaximumChangeCount() const { return _preferredSizeMaximumChangeCount; }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
-                _bounds = adjustBounds(requestedBounds, RoundType::nearest,
-                                       RoundType::nearest);
+                _bounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
                 _boundsChangeCount++;
 
                 return _bounds;
             }
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override
             {
                 // our mock UI has 3 pixels per DIP
-                return Dip::pixelAlign(requestedBounds, _pixelsPerDip,
-                                       positionRoundType, sizeRoundType);
+                return Dip::pixelAlign(requestedBounds, _pixelsPerDip, positionRoundType, sizeRoundType);
             }
 
             double uiLengthToDips(const UiLength &uiLength) const override
@@ -322,10 +275,9 @@ namespace bdn
                     return uiLength.value * 20;
 
                 default:
-                    throw InvalidArgumentError(
-                        "Invalid UiLength unit passed to "
-                        "MockViewCore::uiLengthToDips: " +
-                        std::to_string((int)uiLength.unit));
+                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                                               "MockViewCore::uiLengthToDips: " +
+                                               std::to_string((int)uiLength.unit));
                 }
             }
 
@@ -333,15 +285,11 @@ namespace bdn
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                return Margin(
-                    uiLengthToDips(margin.top), uiLengthToDips(margin.right),
-                    uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
+                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
+                              uiLengthToDips(margin.left));
             }
 
-            bool canMoveToParentView(View &newParentView) const override
-            {
-                return true;
-            }
+            bool canMoveToParentView(View &newParentView) const override { return true; }
 
             void moveToParentView(View &newParentView) override
             {
@@ -356,10 +304,7 @@ namespace bdn
                 // do nothing
             }
 
-            int getCalcPreferredSizeCount() const
-            {
-                return _calcPreferredSizeCount;
-            }
+            int getCalcPreferredSizeCount() const { return _calcPreferredSizeCount; }
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
@@ -394,15 +339,9 @@ namespace bdn
                function. If the return value is true then the normal
                implementation is not run.
             */
-            void setOverrideLayoutFunc(const std::function<bool()> func)
-            {
-                _overrideLayoutFunc = func;
-            }
+            void setOverrideLayoutFunc(const std::function<bool()> func) { _overrideLayoutFunc = func; }
 
-            int getInvalidateSizingInfoCount() const
-            {
-                return _invalidateSizingInfoCount;
-            }
+            int getInvalidateSizingInfoCount() const { return _invalidateSizingInfoCount; }
 
             void invalidateSizingInfo(View::InvalidateReason reason) override
             {
@@ -421,15 +360,10 @@ namespace bdn
 
                 P<View> pView = getOuterViewIfStillAttached();
                 if (pView != nullptr)
-                    cast<MockUiProvider>(pView->getUiProvider())
-                        ->getLayoutCoordinator()
-                        ->viewNeedsLayout(pView);
+                    cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
             }
 
-            int getChildSizingInfoInvalidatedCount() const
-            {
-                return _childSizingInfoInvalidatedCount;
-            }
+            int getChildSizingInfoInvalidatedCount() const { return _childSizingInfoInvalidatedCount; }
 
             void childSizingInfoInvalidated(View *pChild) override
             {
@@ -439,10 +373,8 @@ namespace bdn
 
                 P<View> pOuter = getOuterViewIfStillAttached();
                 if (pOuter != nullptr) {
-                    pOuter->invalidateSizingInfo(
-                        View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuter->needLayout(
-                        View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuter->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuter->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 

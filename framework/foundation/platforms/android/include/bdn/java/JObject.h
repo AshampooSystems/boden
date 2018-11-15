@@ -102,14 +102,11 @@ namespace bdn
             bool isSameObject_(JObject &o);
 
             template <typename ReturnType, typename... Arguments>
-            inline ReturnType invoke_(JClass &cls, MethodId &methodId,
-                                      const String &methodName,
-                                      Arguments... args);
+            inline ReturnType invoke_(JClass &cls, MethodId &methodId, const String &methodName, Arguments... args);
 
             template <typename ReturnType, typename... Arguments>
-            inline static ReturnType
-            invokeStatic_(JClass &cls, MethodId &methodId,
-                          const String &methodName, Arguments... args);
+            inline static ReturnType invokeStatic_(JClass &cls, MethodId &methodId, const String &methodName,
+                                                   Arguments... args);
 
             /** Returns the JClass object for this class.
              *
@@ -148,21 +145,16 @@ namespace bdn
     {
 
         template <typename ReturnType, typename... Arguments>
-        inline ReturnType JObject::invoke_(JClass &cls, MethodId &methodId,
-                                           const String &methodName,
-                                           Arguments... args)
+        inline ReturnType JObject::invoke_(JClass &cls, MethodId &methodId, const String &methodName, Arguments... args)
         {
-            return cls.invokeObjectMethod_<ReturnType, Arguments...>(
-                methodId, getJObject_(), methodName, args...);
+            return cls.invokeObjectMethod_<ReturnType, Arguments...>(methodId, getJObject_(), methodName, args...);
         }
 
         template <typename ReturnType, typename... Arguments>
-        inline ReturnType
-        JObject::invokeStatic_(JClass &cls, MethodId &methodId,
-                               const String &methodName, Arguments... args)
+        inline ReturnType JObject::invokeStatic_(JClass &cls, MethodId &methodId, const String &methodName,
+                                                 Arguments... args)
         {
-            return cls.invokeStaticMethod_<ReturnType, Arguments...>(
-                methodId, methodName, args...);
+            return cls.invokeStaticMethod_<ReturnType, Arguments...>(methodId, methodName, args...);
         }
     }
 }

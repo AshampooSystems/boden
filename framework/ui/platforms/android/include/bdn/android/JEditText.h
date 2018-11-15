@@ -29,9 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JEditText(const bdn::java::Reference &javaRef)
-                : JTextView(javaRef)
-            {}
+            explicit JEditText(const bdn::java::Reference &javaRef) : JTextView(javaRef) {}
 
             JEditText() {}
 

@@ -84,24 +84,18 @@
 #define TWOBLUECUBES_BDN_COMMON_H_INCLUDED
 
 #define INTERNAL_BDN_UNIQUE_NAME_LINE2(name, line) name##line
-#define INTERNAL_BDN_UNIQUE_NAME_LINE(name, line)                              \
-    INTERNAL_BDN_UNIQUE_NAME_LINE2(name, line)
-#define INTERNAL_BDN_UNIQUE_NAME(name)                                         \
-    INTERNAL_BDN_UNIQUE_NAME_LINE(name, __LINE__)
+#define INTERNAL_BDN_UNIQUE_NAME_LINE(name, line) INTERNAL_BDN_UNIQUE_NAME_LINE2(name, line)
+#define INTERNAL_BDN_UNIQUE_NAME(name) INTERNAL_BDN_UNIQUE_NAME_LINE(name, __LINE__)
 
-#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2(name, line,       \
-                                                             counter)          \
-    name##_##line##_##counter
-#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE(name, line,        \
-                                                            counter)           \
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2(name, line, counter) name##_##line##_##counter
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE(name, line, counter)                                       \
     INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2(name, line, counter)
 
 #ifdef __COUNTER__
-#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(name)                   \
-    INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE(name, __LINE__,        \
-                                                        __COUNTER__)
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(name)                                                           \
+    INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE(name, __LINE__, __COUNTER__)
 #else
-#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(name)                   \
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(name)                                                           \
     INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE(name, __LINE__, 0)
 #endif
 
@@ -218,11 +212,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Use variadic macros if the compiler supports them
-#if (defined _MSC_VER && _MSC_VER > 1400 && !defined __EDGE__) ||              \
-    (defined __WAVE__ && __WAVE_HAS_VARIADICS) ||                              \
-    (defined __GNUC__ && __GNUC__ >= 3) ||                                     \
-    (!defined __cplusplus && __STDC_VERSION__ >= 199901L ||                    \
-     __cplusplus >= 201103L)
+#if (defined _MSC_VER && _MSC_VER > 1400 && !defined __EDGE__) || (defined __WAVE__ && __WAVE_HAS_VARIADICS) ||        \
+    (defined __GNUC__ && __GNUC__ >= 3) ||                                                                             \
+    (!defined __cplusplus && __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L)
 
 #define BDN_INTERNAL_CONFIG_VARIADIC_MACROS
 
@@ -276,49 +268,39 @@
 
 // Now set the actual defines based on the above + anything the user has
 // configured
-#if defined(BDN_INTERNAL_CONFIG_CPP11_NULLPTR) &&                              \
-    !defined(BDN_CONFIG_CPP11_NO_NULLPTR) &&                                   \
+#if defined(BDN_INTERNAL_CONFIG_CPP11_NULLPTR) && !defined(BDN_CONFIG_CPP11_NO_NULLPTR) &&                             \
     !defined(BDN_CONFIG_CPP11_NULLPTR) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_NULLPTR
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT) &&                             \
-    !defined(BDN_CONFIG_CPP11_NO_NOEXCEPT) &&                                  \
+#if defined(BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT) && !defined(BDN_CONFIG_CPP11_NO_NOEXCEPT) &&                           \
     !defined(BDN_CONFIG_CPP11_NOEXCEPT) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_NOEXCEPT
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS) &&                    \
-    !defined(BDN_CONFIG_CPP11_NO_GENERATED_METHODS) &&                         \
-    !defined(BDN_CONFIG_CPP11_GENERATED_METHODS) &&                            \
-    !defined(BDN_CONFIG_NO_CPP11)
+#if defined(BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS) && !defined(BDN_CONFIG_CPP11_NO_GENERATED_METHODS) &&         \
+    !defined(BDN_CONFIG_CPP11_GENERATED_METHODS) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_GENERATED_METHODS
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_IS_ENUM) &&                              \
-    !defined(BDN_CONFIG_CPP11_NO_IS_ENUM) &&                                   \
+#if defined(BDN_INTERNAL_CONFIG_CPP11_IS_ENUM) && !defined(BDN_CONFIG_CPP11_NO_IS_ENUM) &&                             \
     !defined(BDN_CONFIG_CPP11_IS_ENUM) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_IS_ENUM
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_TUPLE) &&                                \
-    !defined(BDN_CONFIG_CPP11_NO_TUPLE) && !defined(BDN_CONFIG_CPP11_TUPLE) && \
-    !defined(BDN_CONFIG_NO_CPP11)
+#if defined(BDN_INTERNAL_CONFIG_CPP11_TUPLE) && !defined(BDN_CONFIG_CPP11_NO_TUPLE) &&                                 \
+    !defined(BDN_CONFIG_CPP11_TUPLE) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_TUPLE
 #endif
-#if defined(BDN_INTERNAL_CONFIG_VARIADIC_MACROS) &&                            \
-    !defined(BDN_CONFIG_NO_VARIADIC_MACROS) &&                                 \
+#if defined(BDN_INTERNAL_CONFIG_VARIADIC_MACROS) && !defined(BDN_CONFIG_NO_VARIADIC_MACROS) &&                         \
     !defined(BDN_CONFIG_VARIADIC_MACROS)
 #define BDN_CONFIG_VARIADIC_MACROS
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_LONG_LONG) &&                            \
-    !defined(BDN_CONFIG_NO_LONG_LONG) &&                                       \
+#if defined(BDN_INTERNAL_CONFIG_CPP11_LONG_LONG) && !defined(BDN_CONFIG_NO_LONG_LONG) &&                               \
     !defined(BDN_CONFIG_CPP11_LONG_LONG) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_LONG_LONG
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_OVERRIDE) &&                             \
-    !defined(BDN_CONFIG_NO_OVERRIDE) && !defined(BDN_CONFIG_CPP11_OVERRIDE) && \
-    !defined(BDN_CONFIG_NO_CPP11)
+#if defined(BDN_INTERNAL_CONFIG_CPP11_OVERRIDE) && !defined(BDN_CONFIG_NO_OVERRIDE) &&                                 \
+    !defined(BDN_CONFIG_CPP11_OVERRIDE) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_OVERRIDE
 #endif
-#if defined(BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR) &&                           \
-    !defined(BDN_CONFIG_NO_UNIQUE_PTR) &&                                      \
+#if defined(BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR) && !defined(BDN_CONFIG_NO_UNIQUE_PTR) &&                             \
     !defined(BDN_CONFIG_CPP11_UNIQUE_PTR) && !defined(BDN_CONFIG_NO_CPP11)
 #define BDN_CONFIG_CPP11_UNIQUE_PTR
 #endif
@@ -389,10 +371,7 @@ namespace bdn
       public:
         typedef void (SafeBool::*type)() const;
 
-        static type makeSafe(bool value)
-        {
-            return value ? &SafeBool::trueValue : 0;
-        }
+        static type makeSafe(bool value) { return value ? &SafeBool::trueValue : 0; }
 
       private:
         void trueValue() const {}
@@ -405,8 +384,7 @@ namespace bdn
         for (; it != itEnd; ++it)
             delete *it;
     }
-    template <typename AssociativeContainerT>
-    inline void deleteAllValues(AssociativeContainerT &container)
+    template <typename AssociativeContainerT> inline void deleteAllValues(AssociativeContainerT &container)
     {
         typename AssociativeContainerT::const_iterator it = container.begin();
         typename AssociativeContainerT::const_iterator itEnd = container.end();
@@ -420,15 +398,13 @@ namespace bdn
     void toLowerInPlace(std::string &s);
     std::string toLower(std::string const &s);
     std::string trim(std::string const &str);
-    bool replaceInPlace(std::string &str, std::string const &replaceThis,
-                        std::string const &withThis);
+    bool replaceInPlace(std::string &str, std::string const &replaceThis, std::string const &withThis);
 
     struct pluralise
     {
         pluralise(std::size_t count, std::string const &label);
 
-        friend std::ostream &operator<<(std::ostream &os,
-                                        pluralise const &pluraliser);
+        friend std::ostream &operator<<(std::ostream &os, pluralise const &pluraliser);
 
         std::size_t m_count;
         std::string m_label;
@@ -463,8 +439,7 @@ namespace bdn
     inline bool alwaysTrue() { return true; }
     inline bool alwaysFalse() { return false; }
 
-    void throwLogicError(std::string const &message,
-                         SourceLineInfo const &locationInfo);
+    void throwLogicError(std::string const &message, SourceLineInfo const &locationInfo);
 
     void seedRng(IConfig const &config);
     unsigned int rngSeed();
@@ -483,10 +458,8 @@ namespace bdn
     }*/
 }
 
-#define BDN_INTERNAL_LINEINFO                                                  \
-    ::bdn::SourceLineInfo(__FILE__, static_cast<std::size_t>(__LINE__))
-#define BDN_INTERNAL_ERROR(msg)                                                \
-    ::bdn::throwLogicError(msg, BDN_INTERNAL_LINEINFO);
+#define BDN_INTERNAL_LINEINFO ::bdn::SourceLineInfo(__FILE__, static_cast<std::size_t>(__LINE__))
+#define BDN_INTERNAL_ERROR(msg) ::bdn::throwLogicError(msg, BDN_INTERNAL_LINEINFO);
 
 #include <ostream>
 
@@ -511,8 +484,7 @@ namespace bdn
 } // end namespace bdn
 
 ///////////////////////////////////////////////////////////////////////////////
-#define BDN_NOT_IMPLEMENTED                                                    \
-    throw bdn::NotImplementedException(BDN_INTERNAL_LINEINFO)
+#define BDN_NOT_IMPLEMENTED throw bdn::NotImplementedException(BDN_INTERNAL_LINEINFO)
 
 // #included from: internal/catch_context.h
 #define TWOBLUECUBES_BDN_CONTEXT_H_INCLUDED
@@ -536,8 +508,7 @@ namespace bdn
     {
         virtual ~IGeneratorsForTest();
 
-        virtual IGeneratorInfo &getGeneratorInfo(std::string const &fileInfo,
-                                                 std::size_t size) = 0;
+        virtual IGeneratorInfo &getGeneratorInfo(std::string const &fileInfo, std::size_t size) = 0;
         virtual bool moveNext() = 0;
     };
 
@@ -601,10 +572,7 @@ namespace bdn
         T &operator*() const { return *m_p; }
         T *operator->() const { return m_p; }
         bool operator!() const { return m_p == BDN_NULL; }
-        operator SafeBool::type() const
-        {
-            return SafeBool::makeSafe(m_p != BDN_NULL);
-        }
+        operator SafeBool::type() const { return SafeBool::makeSafe(m_p != BDN_NULL); }
 
       private:
         T *m_p;
@@ -658,8 +626,7 @@ namespace bdn
 
         virtual IResultCapture *getResultCapture() = 0;
         virtual IRunner *getRunner() = 0;
-        virtual size_t getGeneratorIndex(std::string const &fileInfo,
-                                         size_t totalSize) = 0;
+        virtual size_t getGeneratorIndex(std::string const &fileInfo, size_t totalSize) = 0;
         virtual bool advanceGeneratorsForCurrentTest() = 0;
         virtual Ptr<IConfig const> getConfig() const = 0;
     };
@@ -706,14 +673,11 @@ namespace bdn
     {
         virtual ~ITestCaseRegistry();
         virtual std::vector<TestCase> const &getAllTests() const = 0;
-        virtual std::vector<TestCase> const &
-        getAllTestsSorted(IConfig const &config) const = 0;
+        virtual std::vector<TestCase> const &getAllTestsSorted(IConfig const &config) const = 0;
     };
 
-    bool matchTest(TestCase const &testCase, TestSpec const &testSpec,
-                   IConfig const &config);
-    std::vector<TestCase> filterTests(std::vector<TestCase> const &testCases,
-                                      TestSpec const &testSpec,
+    bool matchTest(TestCase const &testCase, TestSpec const &testSpec, IConfig const &config);
+    std::vector<TestCase> filterTests(std::vector<TestCase> const &testCases, TestSpec const &testSpec,
                                       IConfig const &config);
     std::vector<TestCase> const &getAllTestCasesSorted(IConfig const &config);
 }
@@ -743,11 +707,9 @@ namespace bdn
 
     struct TestCaseParams
     {
-        TestCaseParams(
-            const char *name = "", const char *description = "",
-            std::function<void()> testEndCallback = std::function<void()>())
-            : name(name), description(description),
-              testEndCallback(testEndCallback)
+        TestCaseParams(const char *name = "", const char *description = "",
+                       std::function<void()> testEndCallback = std::function<void()>())
+            : name(name), description(description), testEndCallback(testEndCallback)
         {}
 
         const char *name;
@@ -758,23 +720,20 @@ namespace bdn
         std::function<void()> testEndCallback;
     };
 
-    void registerTestCase(ITestCase *testCase, char const *className,
-                          TestCaseParams const &params,
+    void registerTestCase(ITestCase *testCase, char const *className, TestCaseParams const &params,
                           SourceLineInfo const &lineInfo);
 
     struct AutoReg
     {
 
-        AutoReg(TestFunction function, SourceLineInfo const &lineInfo,
-                TestCaseParams const &params);
+        AutoReg(TestFunction function, SourceLineInfo const &lineInfo, TestCaseParams const &params);
 
         template <typename C>
-        AutoReg(void (C::*method)(), char const *className,
-                TestCaseParams const &params, SourceLineInfo const &lineInfo)
+        AutoReg(void (C::*method)(), char const *className, TestCaseParams const &params,
+                SourceLineInfo const &lineInfo)
         {
 
-            registerTestCase(new MethodTestCase<C>(method), className, params,
-                             lineInfo);
+            registerTestCase(new MethodTestCase<C>(method), className, params, lineInfo);
         }
 
         ~AutoReg();
@@ -784,103 +743,85 @@ namespace bdn
         void operator=(AutoReg const &);
     };
 
-    void registerTestCaseFunction(TestFunction function,
-                                  SourceLineInfo const &lineInfo,
-                                  TestCaseParams const &params);
+    void registerTestCaseFunction(TestFunction function, SourceLineInfo const &lineInfo, TestCaseParams const &params);
 
 } // end namespace bdn
 
 #ifdef BDN_CONFIG_VARIADIC_MACROS
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TESTCASE(...)                                             \
-    static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)();      \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoTestCaseRegistrar)(                                            \
-            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____),           \
-            BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(__VA_ARGS__));          \
-    }                                                                          \
+#define INTERNAL_BDN_TESTCASE(...)                                                                                     \
+    static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)();                                              \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoTestCaseRegistrar)(                            \
+            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), BDN_INTERNAL_LINEINFO,                            \
+            bdn::TestCaseParams(__VA_ARGS__));                                                                         \
+    }                                                                                                                  \
     static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)()
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_METHOD_AS_TEST_CASE(QualifiedMethod, ...)                 \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoMethodAsTestCaseRegistrar)(&QualifiedMethod,                   \
-                                           "&" #QualifiedMethod,               \
-                                           bdn::TestCaseParams(__VA_ARGS__),   \
-                                           BDN_INTERNAL_LINEINFO);             \
+#define INTERNAL_BDN_METHOD_AS_TEST_CASE(QualifiedMethod, ...)                                                         \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoMethodAsTestCaseRegistrar)(                    \
+            &QualifiedMethod, "&" #QualifiedMethod, bdn::TestCaseParams(__VA_ARGS__), BDN_INTERNAL_LINEINFO);          \
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TEST_CASE_METHOD(ClassName, ...)                          \
-    namespace                                                                  \
-    {                                                                          \
-        struct INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)          \
-            : ClassName                                                        \
-        {                                                                      \
-            void test();                                                       \
-        };                                                                     \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoTestCaseMethodRegistrar)(                                      \
-            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test,     \
-            #ClassName, bdn::TestCaseParams(__VA_ARGS__),                      \
-            BDN_INTERNAL_LINEINFO);                                            \
-    }                                                                          \
+#define INTERNAL_BDN_TEST_CASE_METHOD(ClassName, ...)                                                                  \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        struct INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____) : ClassName                                      \
+        {                                                                                                              \
+            void test();                                                                                               \
+        };                                                                                                             \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoTestCaseMethodRegistrar)(                      \
+            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test, #ClassName,                                 \
+            bdn::TestCaseParams(__VA_ARGS__), BDN_INTERNAL_LINEINFO);                                                  \
+    }                                                                                                                  \
     void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test()
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_REGISTER_TESTCASE(Function, ...)                          \
-    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO,                              \
-                 bdn::TestCaseParams(__VA_ARGS__));
+#define INTERNAL_BDN_REGISTER_TESTCASE(Function, ...)                                                                  \
+    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(__VA_ARGS__));
 
 #else
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TESTCASE(Name, Desc)                                      \
-    static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)();      \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoTestCaseRegistrar)(                                            \
-            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____),           \
-            BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(Name, Desc));           \
-    }                                                                          \
+#define INTERNAL_BDN_TESTCASE(Name, Desc)                                                                              \
+    static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)();                                              \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoTestCaseRegistrar)(                            \
+            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), BDN_INTERNAL_LINEINFO,                            \
+            bdn::TestCaseParams(Name, Desc));                                                                          \
+    }                                                                                                                  \
     static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)()
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_METHOD_AS_TEST_CASE(QualifiedMethod, Name, Desc)          \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoMethodAsTestCaseRegistrar)(&QualifiedMethod,                   \
-                                           "&" #QualifiedMethod,               \
-                                           bdn::TestCaseParams(Name, Desc),    \
-                                           BDN_INTERNAL_LINEINFO);             \
+#define INTERNAL_BDN_METHOD_AS_TEST_CASE(QualifiedMethod, Name, Desc)                                                  \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoMethodAsTestCaseRegistrar)(                    \
+            &QualifiedMethod, "&" #QualifiedMethod, bdn::TestCaseParams(Name, Desc), BDN_INTERNAL_LINEINFO);           \
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TEST_CASE_METHOD(ClassName, TestName, Desc)               \
-    namespace                                                                  \
-    {                                                                          \
-        struct INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)          \
-            : ClassName                                                        \
-        {                                                                      \
-            void test();                                                       \
-        };                                                                     \
-        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
-            autoTestCaseMethodRegistrar)(                                      \
-            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test,     \
-            #ClassName, bdn::TestCaseParams(TestName, Desc),                   \
-            BDN_INTERNAL_LINEINFO);                                            \
-    }                                                                          \
+#define INTERNAL_BDN_TEST_CASE_METHOD(ClassName, TestName, Desc)                                                       \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        struct INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____) : ClassName                                      \
+        {                                                                                                              \
+            void test();                                                                                               \
+        };                                                                                                             \
+        bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(autoTestCaseMethodRegistrar)(                      \
+            &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test, #ClassName,                                 \
+            bdn::TestCaseParams(TestName, Desc), BDN_INTERNAL_LINEINFO);                                               \
+    }                                                                                                                  \
     void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test()
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_REGISTER_TESTCASE(Function, Name, Desc)                   \
-    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO,                              \
-                 bdn::TestCaseParams(Name, Desc));
+#define INTERNAL_BDN_REGISTER_TESTCASE(Function, Name, Desc)                                                           \
+    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(Name, Desc));
 #endif
 
 // #included from: internal/catch_capture.hpp
@@ -920,10 +861,7 @@ namespace bdn
         };
     };
 
-    inline bool isOk(ResultWas::OfType resultType)
-    {
-        return (resultType & ResultWas::FailureBit) == 0;
-    }
+    inline bool isOk(ResultWas::OfType resultType) { return (resultType & ResultWas::FailureBit) == 0; }
     inline bool isJustInfo(int flags) { return flags == ResultWas::Info; }
 
     // ResultDisposition::Flags enum
@@ -933,33 +871,20 @@ namespace bdn
         {
             Normal = 0x01,
 
-            ContinueOnFailure =
-                0x02,         // Failures fail test, but execution continues
-            FalseTest = 0x04, // Prefix expression with !
-            SuppressFail =
-                0x08 // Failures are reported but do not fail the test
+            ContinueOnFailure = 0x02, // Failures fail test, but execution continues
+            FalseTest = 0x04,         // Prefix expression with !
+            SuppressFail = 0x08       // Failures are reported but do not fail the test
         };
     };
 
-    inline ResultDisposition::Flags operator|(ResultDisposition::Flags lhs,
-                                              ResultDisposition::Flags rhs)
+    inline ResultDisposition::Flags operator|(ResultDisposition::Flags lhs, ResultDisposition::Flags rhs)
     {
-        return static_cast<ResultDisposition::Flags>(static_cast<int>(lhs) |
-                                                     static_cast<int>(rhs));
+        return static_cast<ResultDisposition::Flags>(static_cast<int>(lhs) | static_cast<int>(rhs));
     }
 
-    inline bool shouldContinueOnFailure(int flags)
-    {
-        return (flags & ResultDisposition::ContinueOnFailure) != 0;
-    }
-    inline bool isFalseTest(int flags)
-    {
-        return (flags & ResultDisposition::FalseTest) != 0;
-    }
-    inline bool shouldSuppressFailure(int flags)
-    {
-        return (flags & ResultDisposition::SuppressFail) != 0;
-    }
+    inline bool shouldContinueOnFailure(int flags) { return (flags & ResultDisposition::ContinueOnFailure) != 0; }
+    inline bool isFalseTest(int flags) { return (flags & ResultDisposition::FalseTest) != 0; }
+    inline bool shouldSuppressFailure(int flags) { return (flags & ResultDisposition::SuppressFail) != 0; }
 
 } // end namespace bdn
 
@@ -974,10 +899,8 @@ namespace bdn
     struct AssertionInfo
     {
         AssertionInfo() {}
-        AssertionInfo(std::string const &_macroName,
-                      SourceLineInfo const &_lineInfo,
-                      std::string const &_capturedExpression,
-                      ResultDisposition::Flags _resultDisposition);
+        AssertionInfo(std::string const &_macroName, SourceLineInfo const &_lineInfo,
+                      std::string const &_capturedExpression, ResultDisposition::Flags _resultDisposition);
 
         std::string macroName;
         SourceLineInfo lineInfo;
@@ -998,8 +921,7 @@ namespace bdn
     {
       public:
         AssertionResult();
-        AssertionResult(AssertionInfo const &info,
-                        AssertionResultData const &data);
+        AssertionResult(AssertionInfo const &info, AssertionResultData const &data);
         ~AssertionResult();
 #ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         AssertionResult(AssertionResult const &) = default;
@@ -1056,40 +978,29 @@ namespace bdn
                 virtual bool match(ExpressionT const &expr) const = 0;
                 virtual std::string toStringForTest() const = 0;
 
-                Generic::AllOf<ExpressionT>
-                operator&&(Matcher<ExpressionT> const &other) const;
-                Generic::AnyOf<ExpressionT>
-                operator||(Matcher<ExpressionT> const &other) const;
+                Generic::AllOf<ExpressionT> operator&&(Matcher<ExpressionT> const &other) const;
+                Generic::AnyOf<ExpressionT> operator||(Matcher<ExpressionT> const &other) const;
                 Generic::Not<ExpressionT> operator!() const;
             };
 
-            template <typename DerivedT, typename ExpressionT>
-            struct MatcherImpl : Matcher<ExpressionT>
+            template <typename DerivedT, typename ExpressionT> struct MatcherImpl : Matcher<ExpressionT>
             {
 
                 virtual Ptr<Matcher<ExpressionT>> clone() const
                 {
-                    return Ptr<Matcher<ExpressionT>>(
-                        new DerivedT(static_cast<DerivedT const &>(*this)));
+                    return Ptr<Matcher<ExpressionT>>(new DerivedT(static_cast<DerivedT const &>(*this)));
                 }
             };
 
             namespace Generic
             {
-                template <typename ExpressionT>
-                class Not : public MatcherImpl<Not<ExpressionT>, ExpressionT>
+                template <typename ExpressionT> class Not : public MatcherImpl<Not<ExpressionT>, ExpressionT>
                 {
                   public:
-                    explicit Not(Matcher<ExpressionT> const &matcher)
-                        : m_matcher(matcher.clone())
-                    {}
+                    explicit Not(Matcher<ExpressionT> const &matcher) : m_matcher(matcher.clone()) {}
                     Not(Not const &other) : m_matcher(other.m_matcher) {}
 
-                    virtual bool
-                    match(ExpressionT const &expr) const BDN_OVERRIDE
-                    {
-                        return !m_matcher->match(expr);
-                    }
+                    virtual bool match(ExpressionT const &expr) const BDN_OVERRIDE { return !m_matcher->match(expr); }
 
                     virtual std::string toStringForTest() const BDN_OVERRIDE
                     {
@@ -1100,9 +1011,7 @@ namespace bdn
                     Ptr<Matcher<ExpressionT>> m_matcher;
                 };
 
-                template <typename ExpressionT>
-                class AllOf
-                    : public MatcherImpl<AllOf<ExpressionT>, ExpressionT>
+                template <typename ExpressionT> class AllOf : public MatcherImpl<AllOf<ExpressionT>, ExpressionT>
                 {
                   public:
                     AllOf() {}
@@ -1144,9 +1053,7 @@ namespace bdn
                     std::vector<Ptr<Matcher<ExpressionT>>> m_matchers;
                 };
 
-                template <typename ExpressionT>
-                class AnyOf
-                    : public MatcherImpl<AnyOf<ExpressionT>, ExpressionT>
+                template <typename ExpressionT> class AnyOf : public MatcherImpl<AnyOf<ExpressionT>, ExpressionT>
                 {
                   public:
                     AnyOf() {}
@@ -1191,8 +1098,7 @@ namespace bdn
             } // namespace Generic
 
             template <typename ExpressionT>
-            Generic::AllOf<ExpressionT> Matcher<ExpressionT>::
-            operator&&(Matcher<ExpressionT> const &other) const
+            Generic::AllOf<ExpressionT> Matcher<ExpressionT>::operator&&(Matcher<ExpressionT> const &other) const
             {
                 Generic::AllOf<ExpressionT> allOfExpr;
                 allOfExpr.add(*this);
@@ -1201,8 +1107,7 @@ namespace bdn
             }
 
             template <typename ExpressionT>
-            Generic::AnyOf<ExpressionT> Matcher<ExpressionT>::
-            operator||(Matcher<ExpressionT> const &other) const
+            Generic::AnyOf<ExpressionT> Matcher<ExpressionT>::operator||(Matcher<ExpressionT> const &other) const
             {
                 Generic::AnyOf<ExpressionT> anyOfExpr;
                 anyOfExpr.add(*this);
@@ -1210,8 +1115,7 @@ namespace bdn
                 return anyOfExpr;
             }
 
-            template <typename ExpressionT>
-            Generic::Not<ExpressionT> Matcher<ExpressionT>::operator!() const
+            template <typename ExpressionT> Generic::Not<ExpressionT> Matcher<ExpressionT>::operator!() const
             {
                 return Generic::Not<ExpressionT>(*this);
             }
@@ -1219,33 +1123,21 @@ namespace bdn
             namespace StdString
             {
 
-                inline std::string makeString(std::string const &str)
-                {
-                    return str;
-                }
-                inline std::string makeString(const char *str)
-                {
-                    return str ? std::string(str) : std::string();
-                }
+                inline std::string makeString(std::string const &str) { return str; }
+                inline std::string makeString(const char *str) { return str ? std::string(str) : std::string(); }
 
                 struct CasedString
                 {
-                    CasedString(std::string const &str,
-                                CaseSensitive::Choice caseSensitivity)
-                        : m_caseSensitivity(caseSensitivity),
-                          m_str(adjustString(str))
+                    CasedString(std::string const &str, CaseSensitive::Choice caseSensitivity)
+                        : m_caseSensitivity(caseSensitivity), m_str(adjustString(str))
                     {}
                     std::string adjustString(std::string const &str) const
                     {
-                        return m_caseSensitivity == CaseSensitive::No
-                                   ? toLower(str)
-                                   : str;
+                        return m_caseSensitivity == CaseSensitive::No ? toLower(str) : str;
                     }
                     std::string toStringSuffix() const
                     {
-                        return m_caseSensitivity == CaseSensitive::No
-                                   ? " (case insensitive)"
-                                   : "";
+                        return m_caseSensitivity == CaseSensitive::No ? " (case insensitive)" : "";
                     }
                     CaseSensitive::Choice m_caseSensitivity;
                     std::string m_str;
@@ -1253,9 +1145,7 @@ namespace bdn
 
                 struct Equals : MatcherImpl<Equals, std::string>
                 {
-                    Equals(std::string const &str,
-                           CaseSensitive::Choice caseSensitivity =
-                               CaseSensitive::Yes)
+                    Equals(std::string const &str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
                         : m_data(str, caseSensitivity)
                     {}
                     Equals(Equals const &other) : m_data(other.m_data) {}
@@ -1269,8 +1159,7 @@ namespace bdn
                     }
                     virtual std::string toStringForTest() const
                     {
-                        return "equals: \"" + m_data.m_str + "\"" +
-                               m_data.toStringSuffix();
+                        return "equals: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
                     }
 
                     CasedString m_data;
@@ -1278,9 +1167,7 @@ namespace bdn
 
                 struct Contains : MatcherImpl<Contains, std::string>
                 {
-                    Contains(std::string const &substr,
-                             CaseSensitive::Choice caseSensitivity =
-                                 CaseSensitive::Yes)
+                    Contains(std::string const &substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
                         : m_data(substr, caseSensitivity)
                     {}
                     Contains(Contains const &other) : m_data(other.m_data) {}
@@ -1289,13 +1176,11 @@ namespace bdn
 
                     virtual bool match(std::string const &expr) const
                     {
-                        return m_data.adjustString(expr).find(m_data.m_str) !=
-                               std::string::npos;
+                        return m_data.adjustString(expr).find(m_data.m_str) != std::string::npos;
                     }
                     virtual std::string toStringForTest() const
                     {
-                        return "contains: \"" + m_data.m_str + "\"" +
-                               m_data.toStringSuffix();
+                        return "contains: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
                     }
 
                     CasedString m_data;
@@ -1303,26 +1188,21 @@ namespace bdn
 
                 struct StartsWith : MatcherImpl<StartsWith, std::string>
                 {
-                    StartsWith(std::string const &substr,
-                               CaseSensitive::Choice caseSensitivity =
-                                   CaseSensitive::Yes)
+                    StartsWith(std::string const &substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
                         : m_data(substr, caseSensitivity)
                     {}
 
-                    StartsWith(StartsWith const &other) : m_data(other.m_data)
-                    {}
+                    StartsWith(StartsWith const &other) : m_data(other.m_data) {}
 
                     virtual ~StartsWith();
 
                     virtual bool match(std::string const &expr) const
                     {
-                        return m_data.adjustString(expr).find(m_data.m_str) ==
-                               0;
+                        return m_data.adjustString(expr).find(m_data.m_str) == 0;
                     }
                     virtual std::string toStringForTest() const
                     {
-                        return "starts with: \"" + m_data.m_str + "\"" +
-                               m_data.toStringSuffix();
+                        return "starts with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
                     }
 
                     CasedString m_data;
@@ -1330,9 +1210,7 @@ namespace bdn
 
                 struct EndsWith : MatcherImpl<EndsWith, std::string>
                 {
-                    EndsWith(std::string const &substr,
-                             CaseSensitive::Choice caseSensitivity =
-                                 CaseSensitive::Yes)
+                    EndsWith(std::string const &substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
                         : m_data(substr, caseSensitivity)
                     {}
                     EndsWith(EndsWith const &other) : m_data(other.m_data) {}
@@ -1341,13 +1219,11 @@ namespace bdn
 
                     virtual bool match(std::string const &expr) const
                     {
-                        return m_data.adjustString(expr).find(m_data.m_str) ==
-                               expr.size() - m_data.m_str.size();
+                        return m_data.adjustString(expr).find(m_data.m_str) == expr.size() - m_data.m_str.size();
                     }
                     virtual std::string toStringForTest() const
                     {
-                        return "ends with: \"" + m_data.m_str + "\"" +
-                               m_data.toStringSuffix();
+                        return "ends with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
                     }
 
                     CasedString m_data;
@@ -1357,69 +1233,57 @@ namespace bdn
 
         // The following functions create the actual matcher objects.
         // This allows the types to be inferred
-        template <typename ExpressionT>
-        inline Impl::Generic::Not<ExpressionT>
-        Not(Impl::Matcher<ExpressionT> const &m)
+        template <typename ExpressionT> inline Impl::Generic::Not<ExpressionT> Not(Impl::Matcher<ExpressionT> const &m)
         {
             return Impl::Generic::Not<ExpressionT>(m);
         }
 
         template <typename ExpressionT>
-        inline Impl::Generic::AllOf<ExpressionT>
-        AllOf(Impl::Matcher<ExpressionT> const &m1,
-              Impl::Matcher<ExpressionT> const &m2)
+        inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const &m1,
+                                                       Impl::Matcher<ExpressionT> const &m2)
         {
             return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2);
         }
         template <typename ExpressionT>
-        inline Impl::Generic::AllOf<ExpressionT>
-        AllOf(Impl::Matcher<ExpressionT> const &m1,
-              Impl::Matcher<ExpressionT> const &m2,
-              Impl::Matcher<ExpressionT> const &m3)
+        inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const &m1,
+                                                       Impl::Matcher<ExpressionT> const &m2,
+                                                       Impl::Matcher<ExpressionT> const &m3)
         {
             return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2).add(m3);
         }
         template <typename ExpressionT>
-        inline Impl::Generic::AnyOf<ExpressionT>
-        AnyOf(Impl::Matcher<ExpressionT> const &m1,
-              Impl::Matcher<ExpressionT> const &m2)
+        inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const &m1,
+                                                       Impl::Matcher<ExpressionT> const &m2)
         {
             return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2);
         }
         template <typename ExpressionT>
-        inline Impl::Generic::AnyOf<ExpressionT>
-        AnyOf(Impl::Matcher<ExpressionT> const &m1,
-              Impl::Matcher<ExpressionT> const &m2,
-              Impl::Matcher<ExpressionT> const &m3)
+        inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const &m1,
+                                                       Impl::Matcher<ExpressionT> const &m2,
+                                                       Impl::Matcher<ExpressionT> const &m3)
         {
             return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2).add(m3);
         }
 
-        inline Impl::StdString::Equals
-        Equals(std::string const &str,
-               CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+        inline Impl::StdString::Equals Equals(std::string const &str,
+                                              CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
         {
             return Impl::StdString::Equals(str, caseSensitivity);
         }
-        inline Impl::StdString::Equals
-        Equals(const char *str,
-               CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+        inline Impl::StdString::Equals Equals(const char *str,
+                                              CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
         {
-            return Impl::StdString::Equals(Impl::StdString::makeString(str),
-                                           caseSensitivity);
+            return Impl::StdString::Equals(Impl::StdString::makeString(str), caseSensitivity);
         }
-        inline Impl::StdString::Contains
-        Contains(std::string const &substr,
-                 CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+        inline Impl::StdString::Contains Contains(std::string const &substr,
+                                                  CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
         {
             return Impl::StdString::Contains(substr, caseSensitivity);
         }
-        inline Impl::StdString::Contains
-        Contains(const char *substr,
-                 CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+        inline Impl::StdString::Contains Contains(const char *substr,
+                                                  CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
         {
-            return Impl::StdString::Contains(
-                Impl::StdString::makeString(substr), caseSensitivity);
+            return Impl::StdString::Contains(Impl::StdString::makeString(substr), caseSensitivity);
         }
         inline Impl::StdString::StartsWith StartsWith(std::string const &substr)
         {
@@ -1427,8 +1291,7 @@ namespace bdn
         }
         inline Impl::StdString::StartsWith StartsWith(const char *substr)
         {
-            return Impl::StdString::StartsWith(
-                Impl::StdString::makeString(substr));
+            return Impl::StdString::StartsWith(Impl::StdString::makeString(substr));
         }
         inline Impl::StdString::EndsWith EndsWith(std::string const &substr)
         {
@@ -1436,8 +1299,7 @@ namespace bdn
         }
         inline Impl::StdString::EndsWith EndsWith(const char *substr)
         {
-            return Impl::StdString::EndsWith(
-                Impl::StdString::makeString(substr));
+            return Impl::StdString::EndsWith(Impl::StdString::makeString(substr));
         }
 
     } // namespace Matchers
@@ -1455,8 +1317,7 @@ namespace bdn
 
     template <typename T> class ExpressionLhs;
 
-    struct
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison;
+    struct STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison;
 
     struct CopyableStream
     {
@@ -1474,13 +1335,10 @@ namespace bdn
     class ResultBuilder
     {
       public:
-        ResultBuilder(char const *macroName, SourceLineInfo const &lineInfo,
-                      char const *capturedExpression,
-                      ResultDisposition::Flags resultDisposition,
-                      char const *secondArg = "");
+        ResultBuilder(char const *macroName, SourceLineInfo const &lineInfo, char const *capturedExpression,
+                      ResultDisposition::Flags resultDisposition, char const *secondArg = "");
 
-        template <typename T>
-        ExpressionLhs<T const &> operator<=(T const &operand);
+        template <typename T> ExpressionLhs<T const &> operator<=(T const &operand);
         ExpressionLhs<bool> operator<=(bool value);
 
         template <typename T> ResultBuilder &operator<<(T const &value)
@@ -1490,13 +1348,9 @@ namespace bdn
         }
 
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator&&(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator&&(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator||(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator||(RhsT const &);
 
         ResultBuilder &setResultType(ResultWas::OfType result);
         ResultBuilder &setResultType(bool result);
@@ -1509,13 +1363,11 @@ namespace bdn
         std::string reconstructExpression() const;
         AssertionResult build() const;
 
-        void useActiveException(ResultDisposition::Flags resultDisposition =
-                                    ResultDisposition::Normal);
+        void useActiveException(ResultDisposition::Flags resultDisposition = ResultDisposition::Normal);
         void captureResult(ResultWas::OfType resultType);
         void captureExpression();
         void captureExpectedException(std::string const &expectedMessage);
-        void captureExpectedException(
-            Matchers::Impl::Matcher<std::string> const &matcher);
+        void captureExpectedException(Matchers::Impl::Matcher<std::string> const &matcher);
         void handleResult(AssertionResult const &result);
         void react();
         bool shouldDebugBreak() const;
@@ -1598,10 +1450,7 @@ namespace bdn
             static const char *getName() { return ">="; }
         };
 
-        template <typename T> inline T &opCast(T const &t)
-        {
-            return const_cast<T &>(t);
-        }
+        template <typename T> inline T &opCast(T const &t) { return const_cast<T &>(t); }
 
 // nullptr_t support based on pull request #154 from Konstantin Baumann
 #ifdef BDN_CONFIG_CPP11_NULLPTR
@@ -1617,53 +1466,30 @@ namespace bdn
 
         template <typename T1, typename T2> struct Evaluator<T1, T2, IsEqualTo>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) == opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) == opCast(rhs); }
         };
-        template <typename T1, typename T2>
-        struct Evaluator<T1, T2, IsNotEqualTo>
+        template <typename T1, typename T2> struct Evaluator<T1, T2, IsNotEqualTo>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) != opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) != opCast(rhs); }
         };
         template <typename T1, typename T2> struct Evaluator<T1, T2, IsLessThan>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) < opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) < opCast(rhs); }
         };
-        template <typename T1, typename T2>
-        struct Evaluator<T1, T2, IsGreaterThan>
+        template <typename T1, typename T2> struct Evaluator<T1, T2, IsGreaterThan>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) > opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) > opCast(rhs); }
         };
-        template <typename T1, typename T2>
-        struct Evaluator<T1, T2, IsGreaterThanOrEqualTo>
+        template <typename T1, typename T2> struct Evaluator<T1, T2, IsGreaterThanOrEqualTo>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) >= opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) >= opCast(rhs); }
         };
-        template <typename T1, typename T2>
-        struct Evaluator<T1, T2, IsLessThanOrEqualTo>
+        template <typename T1, typename T2> struct Evaluator<T1, T2, IsLessThanOrEqualTo>
         {
-            static bool evaluate(T1 const &lhs, T2 const &rhs)
-            {
-                return opCast(lhs) <= opCast(rhs);
-            }
+            static bool evaluate(T1 const &lhs, T2 const &rhs) { return opCast(lhs) <= opCast(rhs); }
         };
 
-        template <Operator Op, typename T1, typename T2>
-        bool applyEvaluator(T1 const &lhs, T2 const &rhs)
+        template <Operator Op, typename T1, typename T2> bool applyEvaluator(T1 const &lhs, T2 const &rhs)
         {
             return Evaluator<T1, T2, Op>::evaluate(lhs, rhs);
         }
@@ -1672,8 +1498,7 @@ namespace bdn
         // to avoid signed/ unsigned warnings
 
         // "base" overload
-        template <Operator Op, typename T1, typename T2>
-        bool compare(T1 const &lhs, T2 const &rhs)
+        template <Operator Op, typename T1, typename T2> bool compare(T1 const &lhs, T2 const &rhs)
         {
             return Evaluator<T1, T2, Op>::evaluate(lhs, rhs);
         }
@@ -1737,25 +1562,21 @@ namespace bdn
         // pointer to long (when comparing against NULL)
         template <Operator Op, typename T> bool compare(long lhs, T *rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs),
-                                                     rhs);
+            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs), rhs);
         }
         template <Operator Op, typename T> bool compare(T *lhs, long rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(
-                lhs, reinterpret_cast<T *>(rhs));
+            return Evaluator<T *, T *, Op>::evaluate(lhs, reinterpret_cast<T *>(rhs));
         }
 
         // pointer to int (when comparing against NULL)
         template <Operator Op, typename T> bool compare(int lhs, T *rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs),
-                                                     rhs);
+            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs), rhs);
         }
         template <Operator Op, typename T> bool compare(T *lhs, int rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(
-                lhs, reinterpret_cast<T *>(rhs));
+            return Evaluator<T *, T *, Op>::evaluate(lhs, reinterpret_cast<T *>(rhs));
         }
 
 #ifdef BDN_CONFIG_CPP11_LONG_LONG
@@ -1769,8 +1590,7 @@ namespace bdn
         {
             return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
         }
-        template <Operator Op>
-        bool compare(long long lhs, unsigned long long rhs)
+        template <Operator Op> bool compare(long long lhs, unsigned long long rhs)
         {
             return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
         }
@@ -1788,8 +1608,7 @@ namespace bdn
         {
             return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
         }
-        template <Operator Op>
-        bool compare(unsigned long long lhs, long long rhs)
+        template <Operator Op> bool compare(unsigned long long lhs, long long rhs)
         {
             return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
         }
@@ -1801,21 +1620,18 @@ namespace bdn
         // pointer to long long (when comparing against NULL)
         template <Operator Op, typename T> bool compare(long long lhs, T *rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs),
-                                                     rhs);
+            return Evaluator<T *, T *, Op>::evaluate(reinterpret_cast<T *>(lhs), rhs);
         }
         template <Operator Op, typename T> bool compare(T *lhs, long long rhs)
         {
-            return Evaluator<T *, T *, Op>::evaluate(
-                lhs, reinterpret_cast<T *>(rhs));
+            return Evaluator<T *, T *, Op>::evaluate(lhs, reinterpret_cast<T *>(rhs));
         }
 #endif // BDN_CONFIG_CPP11_LONG_LONG
 
 #ifdef BDN_CONFIG_CPP11_NULLPTR
 
         // pointer to nullptr_t (when comparing against nullptr)
-        template <Operator Op, typename T>
-        bool compare(std::nullptr_t lhs, T *rhs)
+        template <Operator Op, typename T> bool compare(std::nullptr_t lhs, T *rhs)
         {
             T *p(nullptr); // this temporary variable is needed so that the code
                            // compiled with ios automatic reference counting
@@ -1827,8 +1643,7 @@ namespace bdn
             return Evaluator<T *, T *, Op>::evaluate(p, rhs);
         }
 
-        template <Operator Op, typename T>
-        bool compare(T *lhs, std::nullptr_t rhs)
+        template <Operator Op, typename T> bool compare(T *lhs, std::nullptr_t rhs)
         {
             T *p(nullptr); // this temporary variable is needed so that the code
                            // compiled with ios automatic reference counting
@@ -2003,36 +1818,25 @@ namespace bdn
         };
 
 #if defined(BDN_CONFIG_CPP11_IS_ENUM)
-        template <typename T, bool IsEnum = std::is_enum<T>::value>
-        struct EnumStringMaker
+        template <typename T, bool IsEnum = std::is_enum<T>::value> struct EnumStringMaker
         {
-            static std::string convert(T const &)
-            {
-                return getUnprintableString();
-            }
+            static std::string convert(T const &) { return getUnprintableString(); }
         };
 
         template <typename T> struct EnumStringMaker<T, true>
         {
             static std::string convert(T const &v)
             {
-                return ::bdn::toStringForTest(
-                    static_cast<typename std::underlying_type<T>::type>(v));
+                return ::bdn::toStringForTest(static_cast<typename std::underlying_type<T>::type>(v));
             }
         };
 #endif
         template <bool C> struct StringMakerBase
         {
 #if defined(BDN_CONFIG_CPP11_IS_ENUM)
-            template <typename T> static std::string convert(T const &v)
-            {
-                return EnumStringMaker<T>::convert(v);
-            }
+            template <typename T> static std::string convert(T const &v) { return EnumStringMaker<T>::convert(v); }
 #else
-            template <typename T> static std::string convert(T const &)
-            {
-                return getUnprintableString();
-            }
+            template <typename T> static std::string convert(T const &) { return getUnprintableString(); }
 #endif
         };
 
@@ -2048,17 +1852,14 @@ namespace bdn
 
         std::string rawMemoryToString(const void *object, std::size_t size);
 
-        template <typename T>
-        inline std::string rawMemoryToString(const T &object)
+        template <typename T> inline std::string rawMemoryToString(const T &object)
         {
             return rawMemoryToString(&object, sizeof(object));
         }
 
     } // end namespace Detail
 
-    template <typename T>
-    struct StringMaker
-        : Detail::StringMakerBase<Detail::IsStreamInsertable<T>::value>
+    template <typename T> struct StringMaker : Detail::StringMakerBase<Detail::IsStreamInsertable<T>::value>
     {
     };
 
@@ -2086,8 +1887,7 @@ namespace bdn
 
     namespace Detail
     {
-        template <typename InputIterator>
-        std::string rangeToString(InputIterator first, InputIterator last);
+        template <typename InputIterator> std::string rangeToString(InputIterator first, InputIterator last);
     }
 
     // template<typename T, typename Allocator>
@@ -2097,8 +1897,7 @@ namespace bdn
     //    }
     //};
 
-    template <typename T, typename Allocator>
-    std::string toStringForTest(std::vector<T, Allocator> const &v)
+    template <typename T, typename Allocator> std::string toStringForTest(std::vector<T, Allocator> const &v)
     {
         return Detail::rangeToString(v.begin(), v.end());
     }
@@ -2108,20 +1907,16 @@ namespace bdn
     // toStringForTest for tuples
     namespace TupleDetail
     {
-        template <typename Tuple, std::size_t N = 0,
-                  bool = (N < std::tuple_size<Tuple>::value)>
-        struct ElementPrinter
+        template <typename Tuple, std::size_t N = 0, bool = (N < std::tuple_size<Tuple>::value)> struct ElementPrinter
         {
             static void print(const Tuple &tuple, std::ostream &os)
             {
-                os << (N ? ", " : " ")
-                   << bdn::toStringForTest(std::get<N>(tuple));
+                os << (N ? ", " : " ") << bdn::toStringForTest(std::get<N>(tuple));
                 ElementPrinter<Tuple, N + 1>::print(tuple, os);
             }
         };
 
-        template <typename Tuple, std::size_t N>
-        struct ElementPrinter<Tuple, N, false>
+        template <typename Tuple, std::size_t N> struct ElementPrinter<Tuple, N, false>
         {
             static void print(const Tuple &, std::ostream &) {}
         };
@@ -2143,10 +1938,7 @@ namespace bdn
 
     namespace Detail
     {
-        template <typename T> std::string makeString(T const &value)
-        {
-            return StringMaker<T>::convert(value);
-        }
+        template <typename T> std::string makeString(T const &value) { return StringMaker<T>::convert(value); }
     } // end namespace Detail
 
     /// \brief converts any type to a string
@@ -2155,15 +1947,11 @@ namespace bdn
     /// ostringstream overload does not exist - in which case it attempts to
     /// detect that and writes {?}. Overload (not specialise) this template for
     /// custom typs that you don't want to provide an ostream overload for.
-    template <typename T> std::string toStringForTest(T const &value)
-    {
-        return StringMaker<T>::convert(value);
-    }
+    template <typename T> std::string toStringForTest(T const &value) { return StringMaker<T>::convert(value); }
 
     namespace Detail
     {
-        template <typename InputIterator>
-        std::string rangeToString(InputIterator first, InputIterator last)
+        template <typename InputIterator> std::string rangeToString(InputIterator first, InputIterator last)
         {
             std::ostringstream oss;
             oss << "{ ";
@@ -2203,18 +1991,12 @@ namespace bdn
             return captureExpression<Internal::IsEqualTo>(rhs);
         }
 
-        ResultBuilder &operator==(std::nullptr_t rhs)
-        {
-            return captureExpression<Internal::IsEqualTo>(rhs);
-        }
+        ResultBuilder &operator==(std::nullptr_t rhs) { return captureExpression<Internal::IsEqualTo>(rhs); }
 
 #ifdef __cplusplus_cli
         // needed to work around a compiler bug in the Visual Studio C++/CLI
         // compiler.
-        ResultBuilder &operator==(size_t rhs)
-        {
-            return captureExpression<Internal::IsEqualTo>(rhs);
-        }
+        ResultBuilder &operator==(size_t rhs) { return captureExpression<Internal::IsEqualTo>(rhs); }
 #endif
 
         template <typename RhsT> ResultBuilder &operator!=(RhsT const &rhs)
@@ -2222,18 +2004,12 @@ namespace bdn
             return captureExpression<Internal::IsNotEqualTo>(rhs);
         }
 
-        ResultBuilder &operator!=(std::nullptr_t rhs)
-        {
-            return captureExpression<Internal::IsNotEqualTo>(rhs);
-        }
+        ResultBuilder &operator!=(std::nullptr_t rhs) { return captureExpression<Internal::IsNotEqualTo>(rhs); }
 
 #ifdef __cplusplus_cli
         // needed to work around a compiler bug in the Visual Studio C++/CLI
         // compiler.
-        ResultBuilder &operator!=(size_t rhs)
-        {
-            return captureExpression<Internal::IsNotEqualTo>((size_t)rhs);
-        }
+        ResultBuilder &operator!=(size_t rhs) { return captureExpression<Internal::IsNotEqualTo>((size_t)rhs); }
 #endif
 
         template <typename RhsT> ResultBuilder &operator<(RhsT const &rhs)
@@ -2241,30 +2017,21 @@ namespace bdn
             return captureExpression<Internal::IsLessThan>(rhs);
         }
 
-        ResultBuilder &operator<(std::nullptr_t rhs)
-        {
-            return captureExpression<Internal::IsLessThan>(rhs);
-        }
+        ResultBuilder &operator<(std::nullptr_t rhs) { return captureExpression<Internal::IsLessThan>(rhs); }
 
         template <typename RhsT> ResultBuilder &operator>(RhsT const &rhs)
         {
             return captureExpression<Internal::IsGreaterThan>(rhs);
         }
 
-        ResultBuilder &operator>(std::nullptr_t rhs)
-        {
-            return captureExpression<Internal::IsGreaterThan>(rhs);
-        }
+        ResultBuilder &operator>(std::nullptr_t rhs) { return captureExpression<Internal::IsGreaterThan>(rhs); }
 
         template <typename RhsT> ResultBuilder &operator<=(RhsT const &rhs)
         {
             return captureExpression<Internal::IsLessThanOrEqualTo>(rhs);
         }
 
-        ResultBuilder &operator<=(std::nullptr_t rhs)
-        {
-            return captureExpression<Internal::IsLessThanOrEqualTo>(rhs);
-        }
+        ResultBuilder &operator<=(std::nullptr_t rhs) { return captureExpression<Internal::IsLessThanOrEqualTo>(rhs); }
 
         template <typename RhsT> ResultBuilder &operator>=(RhsT const &rhs)
         {
@@ -2276,55 +2043,34 @@ namespace bdn
             return captureExpression<Internal::IsGreaterThanOrEqualTo>(rhs);
         }
 
-        ResultBuilder &operator==(bool rhs)
-        {
-            return captureExpression<Internal::IsEqualTo>(rhs);
-        }
+        ResultBuilder &operator==(bool rhs) { return captureExpression<Internal::IsEqualTo>(rhs); }
 
-        ResultBuilder &operator!=(bool rhs)
-        {
-            return captureExpression<Internal::IsNotEqualTo>(rhs);
-        }
+        ResultBuilder &operator!=(bool rhs) { return captureExpression<Internal::IsNotEqualTo>(rhs); }
 
         void endExpression()
         {
             bool value = m_lhs ? true : false;
-            m_rb.setLhs(bdn::toStringForTest(value))
-                .setResultType(value)
-                .endExpression();
+            m_rb.setLhs(bdn::toStringForTest(value)).setResultType(value).endExpression();
         }
 
         // Only simple binary expressions are allowed on the LHS.
         // If more complex compositions are required then place the sub
         // expression in parentheses
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator+(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator+(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator-(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator-(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator/(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator/(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator*(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator*(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator&&(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator&&(RhsT const &);
         template <typename RhsT>
-        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison
-            &
-            operator||(RhsT const &);
+        STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison &operator||(RhsT const &);
 
       private:
-        template <Internal::Operator Op, typename RhsT>
-        ResultBuilder &captureExpression(RhsT const &rhs)
+        template <Internal::Operator Op, typename RhsT> ResultBuilder &captureExpression(RhsT const &rhs)
         {
             return m_rb.setResultType(Internal::compare<Op>(m_lhs, rhs))
                 .setLhs(bdn::toStringForTest(m_lhs))
@@ -2342,16 +2088,12 @@ namespace bdn
 namespace bdn
 {
 
-    template <typename T>
-    inline ExpressionLhs<T const &> ResultBuilder::operator<=(T const &operand)
+    template <typename T> inline ExpressionLhs<T const &> ResultBuilder::operator<=(T const &operand)
     {
         return ExpressionLhs<T const &>(*this, operand);
     }
 
-    inline ExpressionLhs<bool> ResultBuilder::operator<=(bool value)
-    {
-        return ExpressionLhs<bool>(*this, value);
-    }
+    inline ExpressionLhs<bool> ResultBuilder::operator<=(bool value) { return ExpressionLhs<bool>(*this, value); }
 
 } // namespace bdn
 
@@ -2365,8 +2107,7 @@ namespace bdn
 
     struct MessageInfo
     {
-        MessageInfo(std::string const &_macroName,
-                    SourceLineInfo const &_lineInfo, ResultWas::OfType _type);
+        MessageInfo(std::string const &_macroName, SourceLineInfo const &_lineInfo, ResultWas::OfType _type);
 
         std::string macroName;
         SourceLineInfo lineInfo;
@@ -2374,14 +2115,8 @@ namespace bdn
         std::string message;
         unsigned int sequence;
 
-        bool operator==(MessageInfo const &other) const
-        {
-            return sequence == other.sequence;
-        }
-        bool operator<(MessageInfo const &other) const
-        {
-            return sequence < other.sequence;
-        }
+        bool operator==(MessageInfo const &other) const { return sequence == other.sequence; }
+        bool operator<(MessageInfo const &other) const { return sequence < other.sequence; }
 
       private:
         static unsigned int globalCount;
@@ -2389,8 +2124,7 @@ namespace bdn
 
     struct MessageBuilder
     {
-        MessageBuilder(std::string const &macroName,
-                       SourceLineInfo const &lineInfo, ResultWas::OfType type)
+        MessageBuilder(std::string const &macroName, SourceLineInfo const &lineInfo, ResultWas::OfType type)
             : m_info(macroName, lineInfo, type)
         {}
 
@@ -2439,8 +2173,7 @@ namespace bdn
         virtual ~IResultCapture();
 
         virtual void assertionEnded(AssertionResult const &result) = 0;
-        virtual bool sectionStarted(SectionInfo const &sectionInfo,
-                                    Counts &assertions) = 0;
+        virtual bool sectionStarted(SectionInfo const &sectionInfo, Counts &assertions) = 0;
         virtual void sectionEnded(SectionEndInfo const &endInfo) = 0;
         virtual void sectionEndedEarly(SectionEndInfo const &endInfo) = 0;
         virtual void pushScopedMessage(MessageInfo const &message) = 0;
@@ -2479,14 +2212,10 @@ namespace bdn
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 
-        virtual void
-        continueSectionWhenIdle(std::function<void()> continuationFunc) = 0;
-        virtual void continueSectionAfterAbsoluteSeconds(
-            double seconds, std::function<void()> continuationFunc) = 0;
-        virtual void continueSectionAfterRunSeconds(
-            double seconds, std::function<void()> continuationFunc) = 0;
-        virtual void
-        continueSectionInThread(std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionWhenIdle(std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionAfterAbsoluteSeconds(double seconds, std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionAfterRunSeconds(double seconds, std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionInThread(std::function<void()> continuationFunc) = 0;
     };
 }
 
@@ -2495,124 +2224,112 @@ namespace bdn
 // and/or an exception thrown and takes appropriate action.
 // This needs to be done as a macro so the debugger will stop in the user
 // source code rather than in bdn library code
-#define INTERNAL_BDN_REACT(resultBuilder)                                      \
-    if (resultBuilder.shouldDebugBreak())                                      \
-        bdn::debugBreak();                                                     \
+#define INTERNAL_BDN_REACT(resultBuilder)                                                                              \
+    if (resultBuilder.shouldDebugBreak())                                                                              \
+        bdn::debugBreak();                                                                                             \
     resultBuilder.react();
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TEST(expr, resultDisposition, macroName)                  \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #expr, resultDisposition);            \
-        try {                                                                  \
-            (__catchResult <= expr).endExpression();                           \
-        }                                                                      \
-        catch (...) {                                                          \
-            __catchResult.useActiveException(bdn::ResultDisposition::Normal);  \
-        }                                                                      \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
-    } while (bdn::isTrue(false &&                                              \
-                         (expr))) // expr here is never evaluated at runtime but
-                                  // it forces the compiler to give it a look
+#define INTERNAL_BDN_TEST(expr, resultDisposition, macroName)                                                          \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition);                  \
+        try {                                                                                                          \
+            (__catchResult <= expr).endExpression();                                                                   \
+        }                                                                                                              \
+        catch (...) {                                                                                                  \
+            __catchResult.useActiveException(bdn::ResultDisposition::Normal);                                          \
+        }                                                                                                              \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
+    } while (bdn::isTrue(false && (expr))) // expr here is never evaluated at runtime but
+                                           // it forces the compiler to give it a look
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_IF(expr, resultDisposition, macroName)                    \
-    INTERNAL_BDN_TEST(expr, resultDisposition, macroName);                     \
+#define INTERNAL_BDN_IF(expr, resultDisposition, macroName)                                                            \
+    INTERNAL_BDN_TEST(expr, resultDisposition, macroName);                                                             \
     if (bdn::getResultCapture().lastResultSucceeded())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_ELSE(expr, resultDisposition, macroName)                  \
-    INTERNAL_BDN_TEST(expr, resultDisposition, macroName);                     \
+#define INTERNAL_BDN_ELSE(expr, resultDisposition, macroName)                                                          \
+    INTERNAL_BDN_TEST(expr, resultDisposition, macroName);                                                             \
     if (!bdn::getResultCapture().lastResultSucceeded())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_NO_THROW(expr, resultDisposition, macroName)              \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #expr, resultDisposition);            \
-        try {                                                                  \
-            expr;                                                              \
-            __catchResult.captureResult(bdn::ResultWas::Ok);                   \
-        }                                                                      \
-        catch (...) {                                                          \
-            __catchResult.useActiveException(resultDisposition);               \
-        }                                                                      \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_NO_THROW(expr, resultDisposition, macroName)                                                      \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition);                  \
+        try {                                                                                                          \
+            expr;                                                                                                      \
+            __catchResult.captureResult(bdn::ResultWas::Ok);                                                           \
+        }                                                                                                              \
+        catch (...) {                                                                                                  \
+            __catchResult.useActiveException(resultDisposition);                                                       \
+        }                                                                                                              \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_THROWS(expr, resultDisposition, matcher, macroName)       \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #expr, resultDisposition, #matcher);  \
-        if (__catchResult.allowThrows())                                       \
-            try {                                                              \
-                expr;                                                          \
-                __catchResult.captureResult(                                   \
-                    bdn::ResultWas::DidntThrowException);                      \
-            }                                                                  \
-            catch (...) {                                                      \
-                __catchResult.captureExpectedException(matcher);               \
-            }                                                                  \
-        else                                                                   \
-            __catchResult.captureResult(bdn::ResultWas::Ok);                   \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_THROWS(expr, resultDisposition, matcher, macroName)                                               \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition, #matcher);        \
+        if (__catchResult.allowThrows())                                                                               \
+            try {                                                                                                      \
+                expr;                                                                                                  \
+                __catchResult.captureResult(bdn::ResultWas::DidntThrowException);                                      \
+            }                                                                                                          \
+            catch (...) {                                                                                              \
+                __catchResult.captureExpectedException(matcher);                                                       \
+            }                                                                                                          \
+        else                                                                                                           \
+            __catchResult.captureResult(bdn::ResultWas::Ok);                                                           \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_THROWS_AS(expr, exceptionType, resultDisposition,         \
-                               macroName)                                      \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #expr, resultDisposition);            \
-        if (__catchResult.allowThrows())                                       \
-            try {                                                              \
-                expr;                                                          \
-                __catchResult.captureResult(                                   \
-                    bdn::ResultWas::DidntThrowException);                      \
-            }                                                                  \
-            catch (exceptionType) {                                            \
-                __catchResult.captureResult(bdn::ResultWas::Ok);               \
-            }                                                                  \
-            catch (...) {                                                      \
-                __catchResult.useActiveException(resultDisposition);           \
-            }                                                                  \
-        else                                                                   \
-            __catchResult.captureResult(bdn::ResultWas::Ok);                   \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_THROWS_AS(expr, exceptionType, resultDisposition, macroName)                                      \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition);                  \
+        if (__catchResult.allowThrows())                                                                               \
+            try {                                                                                                      \
+                expr;                                                                                                  \
+                __catchResult.captureResult(bdn::ResultWas::DidntThrowException);                                      \
+            }                                                                                                          \
+            catch (exceptionType) {                                                                                    \
+                __catchResult.captureResult(bdn::ResultWas::Ok);                                                       \
+            }                                                                                                          \
+            catch (...) {                                                                                              \
+                __catchResult.useActiveException(resultDisposition);                                                   \
+            }                                                                                                          \
+        else                                                                                                           \
+            __catchResult.captureResult(bdn::ResultWas::Ok);                                                           \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_IN(val, container, negate, resultDisposition, macroName)  \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #val ", " #container,                 \
-                                         resultDisposition);                   \
-        try {                                                                  \
-            bool _result = false;                                              \
-            std::string _rhs;                                                  \
-            for (auto item : container) {                                      \
-                if (val == item)                                               \
-                    _result = true;                                            \
-                if (!_rhs.empty())                                             \
-                    _rhs += ", ";                                              \
-                _rhs += bdn::toStringForTest(item);                            \
-            }                                                                  \
-            _rhs = "[" + _rhs + "]";                                           \
-            __catchResult.setLhs(bdn::toStringForTest(val));                   \
-            __catchResult.setRhs(_rhs);                                        \
-            __catchResult.setOp(negate ? "not in" : "in");                     \
-            if (negate)                                                        \
-                _result = !_result;                                            \
-            __catchResult.captureResult(                                       \
-                _result ? bdn::ResultWas::Ok                                   \
-                        : bdn::ResultWas::ExpressionFailed);                   \
-        }                                                                      \
-        catch (...) {                                                          \
-            __catchResult.useActiveException(bdn::ResultDisposition::Normal);  \
-        }                                                                      \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_IN(val, container, negate, resultDisposition, macroName)                                          \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #val ", " #container, resultDisposition);   \
+        try {                                                                                                          \
+            bool _result = false;                                                                                      \
+            std::string _rhs;                                                                                          \
+            for (auto item : container) {                                                                              \
+                if (val == item)                                                                                       \
+                    _result = true;                                                                                    \
+                if (!_rhs.empty())                                                                                     \
+                    _rhs += ", ";                                                                                      \
+                _rhs += bdn::toStringForTest(item);                                                                    \
+            }                                                                                                          \
+            _rhs = "[" + _rhs + "]";                                                                                   \
+            __catchResult.setLhs(bdn::toStringForTest(val));                                                           \
+            __catchResult.setRhs(_rhs);                                                                                \
+            __catchResult.setOp(negate ? "not in" : "in");                                                             \
+            if (negate)                                                                                                \
+                _result = !_result;                                                                                    \
+            __catchResult.captureResult(_result ? bdn::ResultWas::Ok : bdn::ResultWas::ExpressionFailed);              \
+        }                                                                                                              \
+        catch (...) {                                                                                                  \
+            __catchResult.useActiveException(bdn::ResultDisposition::Normal);                                          \
+        }                                                                                                              \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse()) // expr here is never evaluated at runtime but
                                  // it forces the compiler to give it a look
 
@@ -2649,80 +2366,62 @@ namespace bdn
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef BDN_CONFIG_VARIADIC_MACROS
-#define INTERNAL_BDN_MSG(messageType, resultDisposition, macroName, ...)       \
-    do {                                                                       \
-        bdn::ResultBuilder __catchREResult(macroName, BDN_INTERNAL_LINEINFO,   \
-                                           "", resultDisposition);             \
-        __catchResult << __VA_ARGS__ + ::bdn::StreamEndStop();                 \
-        __catchResult.captureResult(messageType);                              \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_MSG(messageType, resultDisposition, macroName, ...)                                               \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchREResult(macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition);                   \
+        __catchResult << __VA_ARGS__ + ::bdn::StreamEndStop();                                                         \
+        __catchResult.captureResult(messageType);                                                                      \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 #else
-#define INTERNAL_BDN_MSG(messageType, resultDisposition, macroName, log)       \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, "", \
-                                         resultDisposition);                   \
-        __catchResult << log + ::bdn::StreamEndStop();                         \
-        __catchResult.captureResult(messageType);                              \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_BDN_MSG(messageType, resultDisposition, macroName, log)                                               \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition);                     \
+        __catchResult << log + ::bdn::StreamEndStop();                                                                 \
+        __catchResult.captureResult(messageType);                                                                      \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_INFO(log, macroName)                                      \
-    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(         \
-        scopedMessage) = bdn::MessageBuilder(macroName, BDN_INTERNAL_LINEINFO, \
-                                             bdn::ResultWas::Info)             \
-                         << log;
+#define INTERNAL_BDN_INFO(log, macroName)                                                                              \
+    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(scopedMessage) =                                 \
+        bdn::MessageBuilder(macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info) << log;
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CHECK_THAT(arg, matcher, resultDisposition, macroName)        \
-    do {                                                                       \
-        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO,     \
-                                         #arg ", " #matcher,                   \
-                                         resultDisposition);                   \
-        try {                                                                  \
-            std::string matcherAsString = (matcher).toStringForTest();         \
-            __catchResult.setLhs(bdn::toStringForTest(arg))                    \
-                .setRhs(matcherAsString == bdn::Detail::getUnprintableString() \
-                            ? #matcher                                         \
-                            : matcherAsString)                                 \
-                .setOp("matches")                                              \
-                .setResultType((matcher).match(arg));                          \
-            __catchResult.captureExpression();                                 \
-        }                                                                      \
-        catch (...) {                                                          \
-            __catchResult.useActiveException(                                  \
-                resultDisposition |                                            \
-                bdn::ResultDisposition::ContinueOnFailure);                    \
-        }                                                                      \
-        INTERNAL_BDN_REACT(__catchResult)                                      \
+#define INTERNAL_CHECK_THAT(arg, matcher, resultDisposition, macroName)                                                \
+    do {                                                                                                               \
+        bdn::ResultBuilder __catchResult(macroName, BDN_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition);     \
+        try {                                                                                                          \
+            std::string matcherAsString = (matcher).toStringForTest();                                                 \
+            __catchResult.setLhs(bdn::toStringForTest(arg))                                                            \
+                .setRhs(matcherAsString == bdn::Detail::getUnprintableString() ? #matcher : matcherAsString)           \
+                .setOp("matches")                                                                                      \
+                .setResultType((matcher).match(arg));                                                                  \
+            __catchResult.captureExpression();                                                                         \
+        }                                                                                                              \
+        catch (...) {                                                                                                  \
+            __catchResult.useActiveException(resultDisposition | bdn::ResultDisposition::ContinueOnFailure);           \
+        }                                                                                                              \
+        INTERNAL_BDN_REACT(__catchResult)                                                                              \
     } while (bdn::alwaysFalse())
 
-#define INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(continuationFunc)         \
-    bdn::getCurrentContext().getRunner()->continueSectionWhenIdle(             \
-        continuationFunc)
+#define INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(continuationFunc)                                                 \
+    bdn::getCurrentContext().getRunner()->continueSectionWhenIdle(continuationFunc)
 
-#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(continuationFunc)         \
-    bdn::getCurrentContext().getRunner()->continueSectionInThread(             \
-        continuationFunc)
+#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(continuationFunc)                                                 \
+    bdn::getCurrentContext().getRunner()->continueSectionInThread(continuationFunc)
 
-#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(             \
-    seconds, continuationFunc)                                                 \
-    bdn::getCurrentContext().getRunner()->continueSectionAfterAbsoluteSeconds( \
-        seconds, continuationFunc)
+#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, continuationFunc)                           \
+    bdn::getCurrentContext().getRunner()->continueSectionAfterAbsoluteSeconds(seconds, continuationFunc)
 
-#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds,          \
-                                                             continuationFunc) \
-    bdn::getCurrentContext().getRunner()->continueSectionAfterRunSeconds(      \
-        seconds, continuationFunc)
+#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, continuationFunc)                                \
+    bdn::getCurrentContext().getRunner()->continueSectionAfterRunSeconds(seconds, continuationFunc)
 
-#define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR()                           \
-    if (const IRunner::ExpectTestProgrammingError &                            \
-            INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(                    \
-                catch_internal_expect_test_programming_error) =                \
-            bdn::IRunner::ExpectTestProgrammingError(                          \
-                bdn::getCurrentContext()->getRunner()))
+#define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR()                                                                   \
+    if (const IRunner::ExpectTestProgrammingError &                                                                    \
+            INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_expect_test_programming_error) =             \
+            bdn::IRunner::ExpectTestProgrammingError(bdn::getCurrentContext()->getRunner()))
 
 // #included from: internal/catch_section.h
 #define TWOBLUECUBES_BDN_SECTION_H_INCLUDED
@@ -2820,10 +2519,8 @@ namespace bdn
 
     struct SectionEndInfo
     {
-        SectionEndInfo(SectionInfo const &_sectionInfo,
-                       Counts const &_prevAssertions, double _durationInSeconds)
-            : sectionInfo(_sectionInfo), prevAssertions(_prevAssertions),
-              durationInSeconds(_durationInSeconds)
+        SectionEndInfo(SectionInfo const &_sectionInfo, Counts const &_prevAssertions, double _durationInSeconds)
+            : sectionInfo(_sectionInfo), prevAssertions(_prevAssertions), durationInSeconds(_durationInSeconds)
         {}
 
         SectionInfo sectionInfo;
@@ -2886,14 +2583,12 @@ namespace bdn
 } // end namespace bdn
 
 #ifdef BDN_CONFIG_VARIADIC_MACROS
-#define INTERNAL_BDN_SECTION(...)                                              \
-    if (bdn::Section const &INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(    \
-            catch_internal_Section) =                                          \
+#define INTERNAL_BDN_SECTION(...)                                                                                      \
+    if (bdn::Section const &INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_Section) =                   \
             bdn::SectionInfo(BDN_INTERNAL_LINEINFO, __VA_ARGS__))
 #else
-#define INTERNAL_BDN_SECTION(name, desc)                                       \
-    if (bdn::Section const &INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(    \
-            catch_internal_Section) =                                          \
+#define INTERNAL_BDN_SECTION(name, desc)                                                                               \
+    if (bdn::Section const &INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_Section) =                   \
             bdn::SectionInfo(BDN_INTERNAL_LINEINFO, name, desc))
 #endif
 
@@ -2918,14 +2613,10 @@ namespace bdn
 
         virtual T getValue(std::size_t index) const
         {
-            throw std::logic_error(
-                "Not implemented: bdn::IGenerator::getValue");
+            throw std::logic_error("Not implemented: bdn::IGenerator::getValue");
         }
 
-        virtual std::size_t size() const
-        {
-            throw std::logic_error("Not implemented: bdn::IGenerator::size");
-        }
+        virtual std::size_t size() const { throw std::logic_error("Not implemented: bdn::IGenerator::size"); }
     };
 
     template <typename T> class BetweenGenerator : public IGenerator<T>
@@ -2933,15 +2624,9 @@ namespace bdn
       public:
         BetweenGenerator(T from, T to) : m_from(from), m_to(to) {}
 
-        virtual T getValue(std::size_t index) const
-        {
-            return m_from + static_cast<int>(index);
-        }
+        virtual T getValue(std::size_t index) const { return m_from + static_cast<int>(index); }
 
-        virtual std::size_t size() const
-        {
-            return static_cast<std::size_t>(1 + m_to - m_from);
-        }
+        virtual std::size_t size() const { return static_cast<std::size_t>(1 + m_to - m_from); }
 
       private:
         T m_from;
@@ -2969,11 +2654,7 @@ namespace bdn
         CompositeGenerator() : m_totalSize(0) {}
 
         // *** Move semantics, similar to auto_ptr ***
-        CompositeGenerator(CompositeGenerator &other)
-            : m_fileInfo(other.m_fileInfo), m_totalSize(0)
-        {
-            move(other);
-        }
+        CompositeGenerator(CompositeGenerator &other) : m_fileInfo(other.m_fileInfo), m_totalSize(0) { move(other); }
 
         CompositeGenerator &setFileInfo(const char *fileInfo)
         {
@@ -2985,17 +2666,13 @@ namespace bdn
 
         operator T() const
         {
-            size_t overallIndex =
-                getCurrentContext().getGeneratorIndex(m_fileInfo, m_totalSize);
+            size_t overallIndex = getCurrentContext().getGeneratorIndex(m_fileInfo, m_totalSize);
 
-            typename std::vector<const IGenerator<T> *>::const_iterator it =
-                m_composed.begin();
-            typename std::vector<const IGenerator<T> *>::const_iterator itEnd =
-                m_composed.end();
+            typename std::vector<const IGenerator<T> *>::const_iterator it = m_composed.begin();
+            typename std::vector<const IGenerator<T> *>::const_iterator itEnd = m_composed.end();
             for (size_t index = 0; it != itEnd; ++it) {
                 const IGenerator<T> *generator = *it;
-                if (overallIndex >= index &&
-                    overallIndex < index + generator->size()) {
+                if (overallIndex >= index && overallIndex < index + generator->size()) {
                     return generator->getValue(overallIndex - index);
                 }
                 index += generator->size();
@@ -3029,8 +2706,7 @@ namespace bdn
       private:
         void move(CompositeGenerator &other)
         {
-            std::copy(other.m_composed.begin(), other.m_composed.end(),
-                      std::back_inserter(m_composed));
+            std::copy(other.m_composed.begin(), other.m_composed.end(), std::back_inserter(m_composed));
             m_totalSize += other.m_totalSize;
             other.m_composed.clear();
         }
@@ -3070,8 +2746,7 @@ namespace bdn
         return generators;
     }
 
-    template <typename T>
-    CompositeGenerator<T> values(T val1, T val2, T val3, T val4)
+    template <typename T> CompositeGenerator<T> values(T val1, T val2, T val3, T val4)
     {
         CompositeGenerator<T> generators;
         ValuesGenerator<T> *valuesGen = new ValuesGenerator<T>();
@@ -3091,8 +2766,7 @@ namespace bdn
 #define INTERNAL_BDN_LINESTR2(line) #line
 #define INTERNAL_BDN_LINESTR(line) INTERNAL_BDN_LINESTR2(line)
 
-#define INTERNAL_BDN_GENERATE(expr)                                            \
-    expr.setFileInfo(__FILE__ "(" INTERNAL_BDN_LINESTR(__LINE__) ")")
+#define INTERNAL_BDN_GENERATE(expr) expr.setFileInfo(__FILE__ "(" INTERNAL_BDN_LINESTR(__LINE__) ")")
 
 // #included from: internal/catch_interfaces_exception.h
 #define TWOBLUECUBES_BDN_INTERFACES_EXCEPTION_H_INCLUDED
@@ -3121,19 +2795,16 @@ namespace bdn
 
         virtual IReporterRegistry const &getReporterRegistry() const = 0;
         virtual ITestCaseRegistry const &getTestCaseRegistry() const = 0;
-        virtual IExceptionTranslatorRegistry &
-        getExceptionTranslatorRegistry() = 0;
+        virtual IExceptionTranslatorRegistry &getExceptionTranslatorRegistry() = 0;
     };
 
     struct IMutableRegistryHub
     {
         virtual ~IMutableRegistryHub();
-        virtual void registerReporter(std::string const &name,
-                                      Ptr<IReporterFactory> const &factory) = 0;
+        virtual void registerReporter(std::string const &name, Ptr<IReporterFactory> const &factory) = 0;
         virtual void registerListener(Ptr<IReporterFactory> const &factory) = 0;
         virtual void registerTest(TestCase const &testInfo) = 0;
-        virtual void
-        registerTranslator(const IExceptionTranslator *translator) = 0;
+        virtual void registerTranslator(const IExceptionTranslator *translator) = 0;
     };
 
     IRegistryHub &getRegistryHub();
@@ -3153,9 +2824,8 @@ namespace bdn
     struct IExceptionTranslator
     {
         virtual ~IExceptionTranslator();
-        virtual std::string
-        translate(ExceptionTranslators::const_iterator it,
-                  ExceptionTranslators::const_iterator itEnd) const = 0;
+        virtual std::string translate(ExceptionTranslators::const_iterator it,
+                                      ExceptionTranslators::const_iterator itEnd) const = 0;
     };
 
     struct IExceptionTranslatorRegistry
@@ -3167,17 +2837,13 @@ namespace bdn
 
     class ExceptionTranslatorRegistrar
     {
-        template <typename T>
-        class ExceptionTranslator : public IExceptionTranslator
+        template <typename T> class ExceptionTranslator : public IExceptionTranslator
         {
           public:
-            ExceptionTranslator(std::string (*translateFunction)(T &))
-                : m_translateFunction(translateFunction)
-            {}
+            ExceptionTranslator(std::string (*translateFunction)(T &)) : m_translateFunction(translateFunction) {}
 
-            virtual std::string translate(
-                ExceptionTranslators::const_iterator it,
-                ExceptionTranslators::const_iterator itEnd) const BDN_OVERRIDE
+            virtual std::string translate(ExceptionTranslators::const_iterator it,
+                                          ExceptionTranslators::const_iterator itEnd) const BDN_OVERRIDE
             {
                 try {
                     if (it == itEnd)
@@ -3195,28 +2861,22 @@ namespace bdn
         };
 
       public:
-        template <typename T>
-        ExceptionTranslatorRegistrar(std::string (*translateFunction)(T &))
+        template <typename T> ExceptionTranslatorRegistrar(std::string (*translateFunction)(T &))
         {
-            getMutableRegistryHub().registerTranslator(
-                new ExceptionTranslator<T>(translateFunction));
+            getMutableRegistryHub().registerTranslator(new ExceptionTranslator<T>(translateFunction));
         }
     };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_BDN_TRANSLATE_EXCEPTION(signature)                            \
-    static std::string INTERNAL_BDN_UNIQUE_NAME(                               \
-        catch_internal_ExceptionTranslator)(signature);                        \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::ExceptionTranslatorRegistrar                                      \
-            INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(                    \
-                catch_internal_ExceptionRegistrar)(&INTERNAL_BDN_UNIQUE_NAME(  \
-                catch_internal_ExceptionTranslator));                          \
-    }                                                                          \
-    static std::string INTERNAL_BDN_UNIQUE_NAME(                               \
-        catch_internal_ExceptionTranslator)(signature)
+#define INTERNAL_BDN_TRANSLATE_EXCEPTION(signature)                                                                    \
+    static std::string INTERNAL_BDN_UNIQUE_NAME(catch_internal_ExceptionTranslator)(signature);                        \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(                              \
+            catch_internal_ExceptionRegistrar)(&INTERNAL_BDN_UNIQUE_NAME(catch_internal_ExceptionTranslator));         \
+    }                                                                                                                  \
+    static std::string INTERNAL_BDN_UNIQUE_NAME(catch_internal_ExceptionTranslator)(signature)
 
 // #included from: internal/catch_approx.hpp
 #define TWOBLUECUBES_BDN_APPROX_HPP_INCLUDED
@@ -3233,14 +2893,10 @@ namespace bdn
         {
           public:
             explicit Approx(double value)
-                : m_epsilon(std::numeric_limits<float>::epsilon() * 100),
-                  m_scale(1.0), m_value(value)
+                : m_epsilon(std::numeric_limits<float>::epsilon() * 100), m_scale(1.0), m_value(value)
             {}
 
-            Approx(Approx const &other)
-                : m_epsilon(other.m_epsilon), m_scale(other.m_scale),
-                  m_value(other.m_value)
-            {}
+            Approx(Approx const &other) : m_epsilon(other.m_epsilon), m_scale(other.m_scale), m_value(other.m_value) {}
 
             static Approx custom() { return Approx(0); }
 
@@ -3256,25 +2912,14 @@ namespace bdn
             {
                 // Thanks to Richard Harris for his help refining this formula
                 return fabs(lhs - rhs.m_value) <
-                       rhs.m_epsilon *
-                           (rhs.m_scale +
-                            (std::max)(fabs(lhs), fabs(rhs.m_value)));
+                       rhs.m_epsilon * (rhs.m_scale + (std::max)(fabs(lhs), fabs(rhs.m_value)));
             }
 
-            friend bool operator==(Approx const &lhs, double rhs)
-            {
-                return operator==(rhs, lhs);
-            }
+            friend bool operator==(Approx const &lhs, double rhs) { return operator==(rhs, lhs); }
 
-            friend bool operator!=(double lhs, Approx const &rhs)
-            {
-                return !operator==(lhs, rhs);
-            }
+            friend bool operator!=(double lhs, Approx const &rhs) { return !operator==(lhs, rhs); }
 
-            friend bool operator!=(Approx const &lhs, double rhs)
-            {
-                return !operator==(rhs, lhs);
-            }
+            friend bool operator!=(Approx const &lhs, double rhs) { return !operator==(rhs, lhs); }
 
             Approx &epsilon(double newEpsilon)
             {
@@ -3302,9 +2947,7 @@ namespace bdn
         };
     }
 
-    template <>
-    inline std::string
-    toStringForTest<Detail::Approx>(Detail::Approx const &value)
+    template <> inline std::string toStringForTest<Detail::Approx>(Detail::Approx const &value)
     {
         return value.toStringForTest();
     }
@@ -3324,9 +2967,7 @@ namespace bdn
 
     struct TagAlias
     {
-        TagAlias(std::string _tag, SourceLineInfo _lineInfo)
-            : tag(_tag), lineInfo(_lineInfo)
-        {}
+        TagAlias(std::string _tag, SourceLineInfo _lineInfo) : tag(_tag), lineInfo(_lineInfo) {}
 
         std::string tag;
         SourceLineInfo lineInfo;
@@ -3334,17 +2975,16 @@ namespace bdn
 
     struct RegistrarForTagAliases
     {
-        RegistrarForTagAliases(char const *alias, char const *tag,
-                               SourceLineInfo const &lineInfo);
+        RegistrarForTagAliases(char const *alias, char const *tag, SourceLineInfo const &lineInfo);
     };
 
 } // end namespace bdn
 
-#define BDN_REGISTER_TAG_ALIAS(alias, spec)                                    \
-    namespace                                                                  \
-    {                                                                          \
-        bdn::RegistrarForTagAliases INTERNAL_BDN_UNIQUE_NAME(                  \
-            AutoRegisterTagAlias)(alias, spec, BDN_INTERNAL_LINEINFO);         \
+#define BDN_REGISTER_TAG_ALIAS(alias, spec)                                                                            \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        bdn::RegistrarForTagAliases INTERNAL_BDN_UNIQUE_NAME(AutoRegisterTagAlias)(alias, spec,                        \
+                                                                                   BDN_INTERNAL_LINEINFO);             \
     }
 // #included from: catch_option.hpp
 #define TWOBLUECUBES_BDN_OPTION_HPP_INCLUDED
@@ -3358,9 +2998,7 @@ namespace bdn
       public:
         Option() : nullableValue(BDN_NULL) {}
         Option(T const &_value) : nullableValue(new (storage) T(_value)) {}
-        Option(Option const &_other)
-            : nullableValue(_other ? new (storage) T(*_other) : BDN_NULL)
-        {}
+        Option(Option const &_other) : nullableValue(_other ? new (storage) T(*_other) : BDN_NULL) {}
 
         ~Option() { reset(); }
 
@@ -3392,10 +3030,7 @@ namespace bdn
         T *operator->() { return nullableValue; }
         const T *operator->() const { return nullableValue; }
 
-        T valueOr(T const &defaultValue) const
-        {
-            return nullableValue ? *nullableValue : defaultValue;
-        }
+        T valueOr(T const &defaultValue) const { return nullableValue ? *nullableValue : defaultValue; }
 
         bool some() const { return nullableValue != BDN_NULL; }
         bool none() const { return nullableValue == BDN_NULL; }
@@ -3417,8 +3052,7 @@ namespace bdn
     {
         virtual ~ITagAliasRegistry();
         virtual Option<TagAlias> find(std::string const &alias) const = 0;
-        virtual std::string
-        expandAliases(std::string const &unexpandedTestSpec) const = 0;
+        virtual std::string expandAliases(std::string const &unexpandedTestSpec) const = 0;
 
         static ITagAliasRegistry const &get();
     };
@@ -3454,16 +3088,13 @@ namespace bdn
             Throws = 1 << 4
         };
 
-        TestCaseInfo(std::string const &_name, std::string const &_className,
-                     std::string const &_description,
-                     std::set<std::string> const &_tags,
-                     std::function<void()> testEndCallback,
+        TestCaseInfo(std::string const &_name, std::string const &_className, std::string const &_description,
+                     std::set<std::string> const &_tags, std::function<void()> testEndCallback,
                      SourceLineInfo const &_lineInfo);
 
         TestCaseInfo(TestCaseInfo const &other);
 
-        friend void setTags(TestCaseInfo &testCaseInfo,
-                            std::set<std::string> const &tags);
+        friend void setTags(TestCaseInfo &testCaseInfo, std::set<std::string> const &tags);
 
         bool isHidden() const;
         bool throws() const;
@@ -3502,10 +3133,8 @@ namespace bdn
         Ptr<ITestCase> test;
     };
 
-    TestCase makeTestCase(ITestCase *testCase, std::string const &className,
-                          std::string const &name,
-                          std::string const &description,
-                          std::function<void()> testEndCallback,
+    TestCase makeTestCase(ITestCase *testCase, std::string const &className, std::string const &name,
+                          std::string const &description, std::function<void()> testEndCallback,
                           SourceLineInfo const &lineInfo);
 }
 
@@ -3567,13 +3196,10 @@ namespace bdn
     namespace Detail
     {
 
-        inline std::string getAnnotation(Class cls,
-                                         std::string const &annotationName,
-                                         std::string const &testCaseName)
+        inline std::string getAnnotation(Class cls, std::string const &annotationName, std::string const &testCaseName)
         {
-            NSString *selStr = [[NSString alloc]
-                initWithFormat:@"Catch_%s_%s", annotationName.c_str(),
-                               testCaseName.c_str()];
+            NSString *selStr =
+                [[NSString alloc] initWithFormat:@"Catch_%s_%s", annotationName.c_str(), testCaseName.c_str()];
             SEL sel = NSSelectorFromString(selStr);
             arcSafeRelease(selStr);
             id value = performOptionalSelector(cls, sel);
@@ -3588,8 +3214,7 @@ namespace bdn
         size_t noTestMethods = 0;
         int noClasses = objc_getClassList(BDN_NULL, 0);
 
-        Class *classes =
-            (BDN_UNSAFE_UNRETAINED Class *)malloc(sizeof(Class) * noClasses);
+        Class *classes = (BDN_UNSAFE_UNRETAINED Class *)malloc(sizeof(Class) * noClasses);
         objc_getClassList(classes, noClasses);
 
         for (int c = 0; c < noClasses; c++) {
@@ -3605,16 +3230,13 @@ namespace bdn
 
                     if (startsWith(methodName, "Catch_TestCase_")) {
                         std::string testCaseName = methodName.substr(15);
-                        std::string name =
-                            Detail::getAnnotation(cls, "Name", testCaseName);
-                        std::string desc = Detail::getAnnotation(
-                            cls, "Description", testCaseName);
+                        std::string name = Detail::getAnnotation(cls, "Name", testCaseName);
+                        std::string desc = Detail::getAnnotation(cls, "Description", testCaseName);
                         const char *className = class_getName(cls);
 
-                        getMutableRegistryHub().registerTest(makeTestCase(
-                            new OcMethod(cls, selector), className,
-                            name.c_str(), desc.c_str(), std::function<void()>(),
-                            SourceLineInfo()));
+                        getMutableRegistryHub().registerTest(makeTestCase(new OcMethod(cls, selector), className,
+                                                                          name.c_str(), desc.c_str(),
+                                                                          std::function<void()>(), SourceLineInfo()));
                         noTestMethods++;
                     }
                 }
@@ -3631,13 +3253,10 @@ namespace bdn
             namespace NSStringMatchers
             {
 
-                template <typename MatcherT>
-                struct StringHolder : MatcherImpl<MatcherT, NSString *>
+                template <typename MatcherT> struct StringHolder : MatcherImpl<MatcherT, NSString *>
                 {
                     StringHolder(NSString *substr) : m_substr([substr copy]) {}
-                    StringHolder(StringHolder const &other)
-                        : m_substr([other.m_substr copy])
-                    {}
+                    StringHolder(StringHolder const &other) : m_substr([other.m_substr copy]) {}
                     StringHolder() { arcSafeRelease(m_substr); }
 
                     NSString *m_substr;
@@ -3649,14 +3268,12 @@ namespace bdn
 
                     virtual bool match(ExpressionType const &str) const
                     {
-                        return (str != nil || m_substr == nil) &&
-                               [str isEqualToString:m_substr];
+                        return (str != nil || m_substr == nil) && [str isEqualToString:m_substr];
                     }
 
                     virtual std::string toStringForTest() const
                     {
-                        return "equals string: " +
-                               bdn::toStringForTest(m_substr);
+                        return "equals string: " + bdn::toStringForTest(m_substr);
                     }
                 };
 
@@ -3666,15 +3283,12 @@ namespace bdn
 
                     virtual bool match(ExpressionType const &str) const
                     {
-                        return (str != nil || m_substr == nil) &&
-                               [str rangeOfString:m_substr].location !=
-                                   NSNotFound;
+                        return (str != nil || m_substr == nil) && [str rangeOfString:m_substr].location != NSNotFound;
                     }
 
                     virtual std::string toStringForTest() const
                     {
-                        return "contains string: " +
-                               bdn::toStringForTest(m_substr);
+                        return "contains string: " + bdn::toStringForTest(m_substr);
                     }
                 };
 
@@ -3684,8 +3298,7 @@ namespace bdn
 
                     virtual bool match(ExpressionType const &str) const
                     {
-                        return (str != nil || m_substr == nil) &&
-                               [str rangeOfString:m_substr].location == 0;
+                        return (str != nil || m_substr == nil) && [str rangeOfString:m_substr].location == 0;
                     }
 
                     virtual std::string toStringForTest() const
@@ -3700,8 +3313,7 @@ namespace bdn
                     virtual bool match(ExpressionType const &str) const
                     {
                         return (str != nil || m_substr == nil) &&
-                               [str rangeOfString:m_substr].location ==
-                                   [str length] - [m_substr length];
+                               [str rangeOfString:m_substr].location == [str length] - [m_substr length];
                     }
 
                     virtual std::string toStringForTest() const
@@ -3740,139 +3352,92 @@ namespace bdn
 } // namespace bdn
 
 ///////////////////////////////////////////////////////////////////////////////
-#define OC_TEST_CASE(name, desc)                                               \
-    +(NSString *)INTERNAL_BDN_UNIQUE_NAME(Catch_Name_test) { return @name; }   \
-    +(NSString *)INTERNAL_BDN_UNIQUE_NAME(Catch_Description_test)              \
-    {                                                                          \
-        return @desc;                                                          \
-    }                                                                          \
+#define OC_TEST_CASE(name, desc)                                                                                       \
+    +(NSString *)INTERNAL_BDN_UNIQUE_NAME(Catch_Name_test) { return @name; }                                           \
+    +(NSString *)INTERNAL_BDN_UNIQUE_NAME(Catch_Description_test) { return @desc; }                                    \
     -(void)INTERNAL_BDN_UNIQUE_NAME(Catch_TestCase_test)
 
 #endif
 
 //////
-#define BDN_REQUIRE(expr)                                                      \
-    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE")
-#define BDN_REQUIRE_FALSE(expr)                                                \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::Normal |                         \
-                          bdn::ResultDisposition::FalseTest,                   \
-                      "BDN_REQUIRE_FALSE")
+#define BDN_REQUIRE(expr) INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE")
+#define BDN_REQUIRE_FALSE(expr)                                                                                        \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "BDN_REQUIRE_FALSE")
 
-#define BDN_REQUIRE_THROWS(expr)                                               \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, "",              \
-                        "BDN_REQUIRE_THROWS")
-#define BDN_REQUIRE_THROWS_AS(expr, exceptionType)                             \
-    INTERNAL_BDN_THROWS_AS(expr, exceptionType,                                \
-                           bdn::ResultDisposition::Normal,                     \
-                           "BDN_REQUIRE_THROWS_AS")
-#define BDN_REQUIRE_THROWS_WITH(expr, matcher)                                 \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, matcher,         \
-                        "BDN_REQUIRE_THROWS_WITH")
-#define BDN_REQUIRE_NOTHROW(expr)                                              \
-    INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::Normal,                \
-                          "BDN_REQUIRE_NOTHROW")
+#define BDN_REQUIRE_THROWS(expr) INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, "", "BDN_REQUIRE_THROWS")
+#define BDN_REQUIRE_THROWS_AS(expr, exceptionType)                                                                     \
+    INTERNAL_BDN_THROWS_AS(expr, exceptionType, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THROWS_AS")
+#define BDN_REQUIRE_THROWS_WITH(expr, matcher)                                                                         \
+    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, matcher, "BDN_REQUIRE_THROWS_WITH")
+#define BDN_REQUIRE_NOTHROW(expr) INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE_NOTHROW")
 
-#define BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)                             \
-    {                                                                          \
-        bdn::ExpectProgrammingError _expectProgrammingError_;                  \
-        BDN_REQUIRE_THROWS_AS(expr, bdn::ProgrammingError);                    \
+#define BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)                                                                     \
+    {                                                                                                                  \
+        bdn::ExpectProgrammingError _expectProgrammingError_;                                                          \
+        BDN_REQUIRE_THROWS_AS(expr, bdn::ProgrammingError);                                                            \
     }
 
 #define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE(bdn::Thread::isCurrentMain());
 
-#define BDN_REQUIRE_ALMOST_EQUAL(value, expectedValue, maxDeviation)           \
-    INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation,              \
-                              bdn::ResultDisposition::Normal,                  \
+#define BDN_REQUIRE_ALMOST_EQUAL(value, expectedValue, maxDeviation)                                                   \
+    INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal,                      \
                               "BDN_REQUIRE_ALMOST_EQUAL")
 
-#define BDN_CHECK(expr)                                                        \
-    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure,         \
-                      "BDN_CHECK")
-#define BDN_CHECK_FALSE(expr)                                                  \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::ContinueOnFailure |              \
-                          bdn::ResultDisposition::FalseTest,                   \
+#define BDN_CHECK(expr) INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK")
+#define BDN_CHECK_FALSE(expr)                                                                                          \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest,             \
                       "BDN_CHECK_FALSE")
-#define BDN_CHECKED_IF(expr)                                                   \
-    INTERNAL_BDN_IF(expr, bdn::ResultDisposition::ContinueOnFailure,           \
-                    "BDN_CHECKED_IF")
-#define BDN_CHECKED_ELSE(expr)                                                 \
-    INTERNAL_BDN_ELSE(expr, bdn::ResultDisposition::ContinueOnFailure,         \
-                      "BDN_CHECKED_ELSE")
-#define BDN_CHECK_NOFAIL(expr)                                                 \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::ContinueOnFailure |              \
-                          bdn::ResultDisposition::SuppressFail,                \
+#define BDN_CHECKED_IF(expr) INTERNAL_BDN_IF(expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECKED_IF")
+#define BDN_CHECKED_ELSE(expr) INTERNAL_BDN_ELSE(expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECKED_ELSE")
+#define BDN_CHECK_NOFAIL(expr)                                                                                         \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::SuppressFail,          \
                       "BDN_CHECK_NOFAIL")
 
-#define BDN_CHECK_THROWS(expr)                                                 \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure,       \
-                        "BDN_CHECK_THROWS")
-#define BDN_CHECK_THROWS_AS(expr, exceptionType)                               \
-    INTERNAL_BDN_THROWS_AS(expr, exceptionType,                                \
-                           bdn::ResultDisposition::ContinueOnFailure,          \
-                           "BDN_CHECK_THROWS_AS")
-#define BDN_CHECK_THROWS_WITH(expr, matcher)                                   \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure,       \
-                        matcher, "BDN_CHECK_THROWS_WITH")
-#define BDN_CHECK_NOTHROW(expr)                                                \
-    INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::ContinueOnFailure,     \
-                          "BDN_CHECK_NOTHROW")
+#define BDN_CHECK_THROWS(expr) INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THROWS")
+#define BDN_CHECK_THROWS_AS(expr, exceptionType)                                                                       \
+    INTERNAL_BDN_THROWS_AS(expr, exceptionType, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THROWS_AS")
+#define BDN_CHECK_THROWS_WITH(expr, matcher)                                                                           \
+    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "BDN_CHECK_THROWS_WITH")
+#define BDN_CHECK_NOTHROW(expr)                                                                                        \
+    INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_NOTHROW")
 
-#define BDN_CHECK_THAT(arg, matcher)                                           \
-    INTERNAL_CHECK_THAT(arg, matcher,                                          \
-                        bdn::ResultDisposition::ContinueOnFailure,             \
-                        "BDN_CHECK_THAT")
-#define BDN_REQUIRE_THAT(arg, matcher)                                         \
-    INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::Normal,          \
-                        "BDN_REQUIRE_THAT")
+#define BDN_CHECK_THAT(arg, matcher)                                                                                   \
+    INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT")
+#define BDN_REQUIRE_THAT(arg, matcher)                                                                                 \
+    INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THAT")
 
 #define BDN_INFO(msg) INTERNAL_BDN_INFO(msg, "BDN_INFO")
-#define BDN_WARN(msg)                                                          \
-    INTERNAL_BDN_MSG(bdn::ResultWas::Warning,                                  \
-                     bdn::ResultDisposition::ContinueOnFailure, "BDN_WARN",    \
-                     msg)
+#define BDN_WARN(msg)                                                                                                  \
+    INTERNAL_BDN_MSG(bdn::ResultWas::Warning, bdn::ResultDisposition::ContinueOnFailure, "BDN_WARN", msg)
 #define BDN_SCOPED_INFO(msg) INTERNAL_BDN_INFO(msg, "BDN_INFO")
 #define BDN_CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "BDN_CAPTURE")
-#define BDN_SCOPED_CAPTURE(msg)                                                \
-    INTERNAL_BDN_INFO(#msg " := " << msg, "BDN_CAPTURE")
+#define BDN_SCOPED_CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "BDN_CAPTURE")
 
 #define BDN_TEST_CASE(...) INTERNAL_BDN_TESTCASE(__VA_ARGS__)
-#define BDN_TEST_CASE_METHOD(className, ...)                                   \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, __VA_ARGS__)
-#define BDN_METHOD_AS_TEST_CASE(method, ...)                                   \
-    INTERNAL_BDN_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
+#define BDN_TEST_CASE_METHOD(className, ...) INTERNAL_BDN_TEST_CASE_METHOD(className, __VA_ARGS__)
+#define BDN_METHOD_AS_TEST_CASE(method, ...) INTERNAL_BDN_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
 #define BDN_REGISTER_TEST_CASE(...) INTERNAL_BDN_REGISTER_TESTCASE(__VA_ARGS__)
 #define BDN_SECTION(...) INTERNAL_BDN_SECTION(__VA_ARGS__)
-#define BDN_ASYNC_SECTION(sectionName, ...)                                    \
-    INTERNAL_BDN_ASYNC_SECTION(sectionName, __VA_ARGS__)
-#define BDN_FAIL(...)                                                          \
-    INTERNAL_BDN_MSG(bdn::ResultWas::ExplicitFailure,                          \
-                     bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__)
-#define BDN_SUCCEED(...)                                                       \
-    INTERNAL_BDN_MSG(bdn::ResultWas::Ok,                                       \
-                     bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", \
-                     __VA_ARGS__)
+#define BDN_ASYNC_SECTION(sectionName, ...) INTERNAL_BDN_ASYNC_SECTION(sectionName, __VA_ARGS__)
+#define BDN_FAIL(...)                                                                                                  \
+    INTERNAL_BDN_MSG(bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__)
+#define BDN_SUCCEED(...)                                                                                               \
+    INTERNAL_BDN_MSG(bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__)
 
 #define BDN_ANON_TEST_CASE() INTERNAL_BDN_TESTCASE("", "")
 
-#define BDN_REGISTER_REPORTER(name, reporterType)                              \
-    INTERNAL_BDN_REGISTER_REPORTER(name, reporterType)
-#define BDN_REGISTER_LEGACY_REPORTER(name, reporterType)                       \
-    INTERNAL_BDN_REGISTER_LEGACY_REPORTER(name, reporterType)
+#define BDN_REGISTER_REPORTER(name, reporterType) INTERNAL_BDN_REGISTER_REPORTER(name, reporterType)
+#define BDN_REGISTER_LEGACY_REPORTER(name, reporterType) INTERNAL_BDN_REGISTER_LEGACY_REPORTER(name, reporterType)
 
 #define BDN_GENERATE(expr) INTERNAL_BDN_GENERATE(expr)
 
 // "BDD-style" convenience wrappers
 #ifdef BDN_CONFIG_VARIADIC_MACROS
 #define BDN_SCENARIO(...) BDN_TEST_CASE("Scenario: " __VA_ARGS__)
-#define BDN_SCENARIO_METHOD(className, ...)                                    \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
+#define BDN_SCENARIO_METHOD(className, ...) INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
 #else
 #define BDN_SCENARIO(name, tags) BDN_TEST_CASE("Scenario: " name, tags)
-#define BDN_SCENARIO_METHOD(className, name, tags)                             \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " name, tags)
+#define BDN_SCENARIO_METHOD(className, name, tags) INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " name, tags)
 #endif
 #define BDN_GIVEN(desc) BDN_SECTION(std::string("Given: ") + desc, "")
 #define BDN_WHEN(desc) BDN_SECTION(std::string(" When: ") + desc, "")
@@ -3886,8 +3451,7 @@ namespace bdn
     \copydetailed CONTINUE_SECTION_WHEN_IDLE_WITH()
 
     */
-#define BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(...)                               \
-    INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(__VA_ARGS__)
+#define BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(...) INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(__VA_ARGS__)
 
 /** \def BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds,
    continuationFunc )
@@ -3896,9 +3460,8 @@ namespace bdn
     \copydetailed CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH()
 
     */
-#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, ...)         \
-    INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds,         \
-                                                              __VA_ARGS__)
+#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, ...)                                                 \
+    INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, __VA_ARGS__)
 
 /** \def BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, continuationFunc )
 
@@ -3906,7 +3469,7 @@ namespace bdn
     \copydetailed CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH()
 
     */
-#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, ...)              \
+#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, ...)                                                      \
     INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, __VA_ARGS__)
 
 /** \def BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
@@ -3915,8 +3478,7 @@ namespace bdn
     \copydetailed CONTINUE_SECTION_IN_THREAD_WITH()
 
     */
-#define BDN_CONTINUE_SECTION_IN_THREAD_WITH(...)                               \
-    INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(__VA_ARGS__)
+#define BDN_CONTINUE_SECTION_IN_THREAD_WITH(...) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(__VA_ARGS__)
 
 namespace bdn
 {
@@ -3926,16 +3488,12 @@ namespace bdn
         class ContinueSectionWhenIdleStarter_
         {
           public:
-            void operator<<(std::function<void()> continuation)
-            {
-                BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(continuation);
-            }
+            void operator<<(std::function<void()> continuation) { BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(continuation); }
         };
     }
 }
 
-#define BDN_CONTINUE_SECTION_WHEN_IDLE(...)                                    \
-    bdn::test::ContinueSectionWhenIdleStarter_() << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_WHEN_IDLE(...) bdn::test::ContinueSectionWhenIdleStarter_() << [__VA_ARGS__]()
 
 namespace bdn
 {
@@ -3945,15 +3503,11 @@ namespace bdn
         class ContinueSectionAfterAbsoluteSecondsStarter_
         {
           public:
-            ContinueSectionAfterAbsoluteSecondsStarter_(double seconds)
-            {
-                _seconds = seconds;
-            }
+            ContinueSectionAfterAbsoluteSecondsStarter_(double seconds) { _seconds = seconds; }
 
             void operator<<(std::function<void()> continuation)
             {
-                BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(_seconds,
-                                                                 continuation);
+                BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(_seconds, continuation);
             }
 
           private:
@@ -3963,15 +3517,11 @@ namespace bdn
         class ContinueSectionAfterRunSecondsStarter_
         {
           public:
-            ContinueSectionAfterRunSecondsStarter_(double seconds)
-            {
-                _seconds = seconds;
-            }
+            ContinueSectionAfterRunSecondsStarter_(double seconds) { _seconds = seconds; }
 
             void operator<<(std::function<void()> continuation)
             {
-                BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(_seconds,
-                                                            continuation);
+                BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(_seconds, continuation);
             }
 
           private:
@@ -3980,13 +3530,11 @@ namespace bdn
     }
 }
 
-#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, ...)              \
-    bdn::test::ContinueSectionAfterAbsoluteSecondsStarter_(seconds)            \
-        << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, ...)                                                      \
+    bdn::test::ContinueSectionAfterAbsoluteSecondsStarter_(seconds) << [__VA_ARGS__]()
 
-#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, ...)                   \
-    bdn::test::ContinueSectionAfterRunSecondsStarter_(seconds)                 \
-        << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, ...)                                                           \
+    bdn::test::ContinueSectionAfterRunSecondsStarter_(seconds) << [__VA_ARGS__]()
 
 namespace bdn
 {
@@ -3996,16 +3544,12 @@ namespace bdn
         class ContinueSectionInThreadStarter_
         {
           public:
-            void operator<<(std::function<void()> continuation)
-            {
-                BDN_CONTINUE_SECTION_IN_THREAD_WITH(continuation);
-            }
+            void operator<<(std::function<void()> continuation) { BDN_CONTINUE_SECTION_IN_THREAD_WITH(continuation); }
         };
     }
 }
 
-#define BDN_CONTINUE_SECTION_IN_THREAD(...)                                    \
-    bdn::test::ContinueSectionInThreadStarter_() << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_IN_THREAD(...) bdn::test::ContinueSectionInThreadStarter_() << [__VA_ARGS__]()
 
 namespace bdn
 {
@@ -4023,33 +3567,22 @@ namespace bdn
     }
 }
 
-#define INTERNAL_BDN_ASYNC_SECTION(sectionName, ...)                           \
-    INTERNAL_BDN_SECTION(sectionName)                                          \
+#define INTERNAL_BDN_ASYNC_SECTION(sectionName, ...)                                                                   \
+    INTERNAL_BDN_SECTION(sectionName)                                                                                  \
     bdn::test::AsyncSectionStarter_() << [__VA_ARGS__]()
 
 #ifndef BDN_TEST_ONLY_PREFIXED
 
-#define REQUIRE(expr)                                                          \
-    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal, "REQUIRE")
-#define REQUIRE_FALSE(expr)                                                    \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::Normal |                         \
-                          bdn::ResultDisposition::FalseTest,                   \
-                      "REQUIRE_FALSE")
+#define REQUIRE(expr) INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal, "REQUIRE")
+#define REQUIRE_FALSE(expr)                                                                                            \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "REQUIRE_FALSE")
 
-#define REQUIRE_THROWS(expr)                                                   \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, "",              \
-                        "REQUIRE_THROWS")
-#define REQUIRE_THROWS_AS(expr, exceptionType)                                 \
-    INTERNAL_BDN_THROWS_AS(expr, exceptionType,                                \
-                           bdn::ResultDisposition::Normal,                     \
-                           "REQUIRE_THROWS_AS")
-#define REQUIRE_THROWS_WITH(expr, matcher)                                     \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, matcher,         \
-                        "REQUIRE_THROWS_WITH")
-#define REQUIRE_NOTHROW(expr)                                                  \
-    INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::Normal,                \
-                          "REQUIRE_NOTHROW")
+#define REQUIRE_THROWS(expr) INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, "", "REQUIRE_THROWS")
+#define REQUIRE_THROWS_AS(expr, exceptionType)                                                                         \
+    INTERNAL_BDN_THROWS_AS(expr, exceptionType, bdn::ResultDisposition::Normal, "REQUIRE_THROWS_AS")
+#define REQUIRE_THROWS_WITH(expr, matcher)                                                                             \
+    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH")
+#define REQUIRE_NOTHROW(expr) INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW")
 
 /** Verifies that the specified expression throws a ProgrammingError.
 
@@ -4059,19 +3592,15 @@ namespace bdn
    when the bdn::programmingError() function is called in the specified
    expression. See bdn::programmingError() for more information.
 */
-#define REQUIRE_THROWS_PROGRAMMING_ERROR(expr)                                 \
-    BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)
+#define REQUIRE_THROWS_PROGRAMMING_ERROR(expr) BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)
 
-#define REQUIRE_IN(value, container)                                           \
-    INTERNAL_BDN_IN(value, container, false, bdn::ResultDisposition::Normal,   \
-                    "REQUIRE_IN")
-#define REQUIRE_NOT_IN(value, container)                                       \
-    INTERNAL_BDN_IN(value, container, true, bdn::ResultDisposition::Normal,    \
-                    "REQUIRE_NOT_IN")
+#define REQUIRE_IN(value, container)                                                                                   \
+    INTERNAL_BDN_IN(value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
+#define REQUIRE_NOT_IN(value, container)                                                                               \
+    INTERNAL_BDN_IN(value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")
 
-#define REQUIRE_ALMOST_EQUAL(value, expectedValue, maxDeviation)               \
-    INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation,              \
-                              bdn::ResultDisposition::Normal,                  \
+#define REQUIRE_ALMOST_EQUAL(value, expectedValue, maxDeviation)                                                       \
+    INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal,                      \
                               "REQUIRE_ALMOST_EQUAL")
 
 #define REQUIRE_IN_MAIN_THREAD() REQUIRE(bdn::Thread::isCurrentMain());
@@ -4079,50 +3608,29 @@ namespace bdn
 /** Checks the specified condition and records failures, but does not abort the
    test if the condition failed (i.e. does not throw TestFailureException like
    REQUIRE would).*/
-#define CHECK(expr)                                                            \
-    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK")
-#define CHECK_FALSE(expr)                                                      \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::ContinueOnFailure |              \
-                          bdn::ResultDisposition::FalseTest,                   \
+#define CHECK(expr) INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK")
+#define CHECK_FALSE(expr)                                                                                              \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest,             \
                       "CHECK_FALSE")
-#define CHECKED_IF(expr)                                                       \
-    INTERNAL_BDN_IF(expr, bdn::ResultDisposition::ContinueOnFailure,           \
-                    "CHECKED_IF")
-#define CHECKED_ELSE(expr)                                                     \
-    INTERNAL_BDN_ELSE(expr, bdn::ResultDisposition::ContinueOnFailure,         \
-                      "CHECKED_ELSE")
-#define CHECK_NOFAIL(expr)                                                     \
-    INTERNAL_BDN_TEST(expr,                                                    \
-                      bdn::ResultDisposition::ContinueOnFailure |              \
-                          bdn::ResultDisposition::SuppressFail,                \
+#define CHECKED_IF(expr) INTERNAL_BDN_IF(expr, bdn::ResultDisposition::ContinueOnFailure, "CHECKED_IF")
+#define CHECKED_ELSE(expr) INTERNAL_BDN_ELSE(expr, bdn::ResultDisposition::ContinueOnFailure, "CHECKED_ELSE")
+#define CHECK_NOFAIL(expr)                                                                                             \
+    INTERNAL_BDN_TEST(expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::SuppressFail,          \
                       "CHECK_NOFAIL")
 
-#define CHECK_THROWS(expr)                                                     \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure, "",   \
-                        "CHECK_THROWS")
-#define CHECK_THROWS_AS(expr, exceptionType)                                   \
-    INTERNAL_BDN_THROWS_AS(expr, exceptionType,                                \
-                           bdn::ResultDisposition::ContinueOnFailure,          \
-                           "CHECK_THROWS_AS")
-#define CHECK_THROWS_WITH(expr, matcher)                                       \
-    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure,       \
-                        matcher, "CHECK_THROWS_WITH")
-#define CHECK_NOTHROW(expr)                                                    \
-    INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::ContinueOnFailure,     \
-                          "CHECK_NOTHROW")
+#define CHECK_THROWS(expr) INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure, "", "CHECK_THROWS")
+#define CHECK_THROWS_AS(expr, exceptionType)                                                                           \
+    INTERNAL_BDN_THROWS_AS(expr, exceptionType, bdn::ResultDisposition::ContinueOnFailure, "CHECK_THROWS_AS")
+#define CHECK_THROWS_WITH(expr, matcher)                                                                               \
+    INTERNAL_BDN_THROWS(expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "CHECK_THROWS_WITH")
+#define CHECK_NOTHROW(expr) INTERNAL_BDN_NO_THROW(expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK_NOTHROW")
 
-#define CHECK_THAT(arg, matcher)                                               \
-    INTERNAL_CHECK_THAT(                                                       \
-        arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "CHECK_THAT")
-#define REQUIRE_THAT(arg, matcher)                                             \
-    INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::Normal,          \
-                        "REQUIRE_THAT")
+#define CHECK_THAT(arg, matcher)                                                                                       \
+    INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "CHECK_THAT")
+#define REQUIRE_THAT(arg, matcher) INTERNAL_CHECK_THAT(arg, matcher, bdn::ResultDisposition::Normal, "REQUIRE_THAT")
 
 #define INFO(msg) INTERNAL_BDN_INFO(msg, "INFO")
-#define WARN(msg)                                                              \
-    INTERNAL_BDN_MSG(bdn::ResultWas::Warning,                                  \
-                     bdn::ResultDisposition::ContinueOnFailure, "WARN", msg)
+#define WARN(msg) INTERNAL_BDN_MSG(bdn::ResultWas::Warning, bdn::ResultDisposition::ContinueOnFailure, "WARN", msg)
 #define SCOPED_INFO(msg) INTERNAL_BDN_INFO(msg, "INFO")
 #define CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "CAPTURE")
 #define SCOPED_CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "CAPTURE")
@@ -4145,10 +3653,8 @@ namespace bdn
         cause the test to be considered a failure.
  */
 #define TEST_CASE(...) INTERNAL_BDN_TESTCASE(__VA_ARGS__)
-#define TEST_CASE_METHOD(className, ...)                                       \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, __VA_ARGS__)
-#define METHOD_AS_TEST_CASE(method, ...)                                       \
-    INTERNAL_BDN_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
+#define TEST_CASE_METHOD(className, ...) INTERNAL_BDN_TEST_CASE_METHOD(className, __VA_ARGS__)
+#define METHOD_AS_TEST_CASE(method, ...) INTERNAL_BDN_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
 #define REGISTER_TEST_CASE(...) INTERNAL_BDN_REGISTER_TESTCASE(__VA_ARGS__)
 #define SECTION(...) INTERNAL_BDN_SECTION(__VA_ARGS__)
 
@@ -4203,16 +3709,11 @@ namespace bdn
 
     \endcode
 */
-#define ASYNC_SECTION(sectionName, ...)                                        \
-    INTERNAL_BDN_ASYNC_SECTION(sectionName, __VA_ARGS__)
+#define ASYNC_SECTION(sectionName, ...) INTERNAL_BDN_ASYNC_SECTION(sectionName, __VA_ARGS__)
 
-#define FAIL(...)                                                              \
-    INTERNAL_BDN_MSG(bdn::ResultWas::ExplicitFailure,                          \
-                     bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__)
-#define SUCCEED(...)                                                           \
-    INTERNAL_BDN_MSG(bdn::ResultWas::Ok,                                       \
-                     bdn::ResultDisposition::ContinueOnFailure, "SUCCEED",     \
-                     __VA_ARGS__)
+#define FAIL(...) INTERNAL_BDN_MSG(bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__)
+#define SUCCEED(...)                                                                                                   \
+    INTERNAL_BDN_MSG(bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__)
 
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE("", "")
 
@@ -4279,8 +3780,7 @@ namespace bdn
     \endcode
 
     */
-#define CONTINUE_SECTION_WHEN_IDLE_WITH(...)                                   \
-    INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(__VA_ARGS__)
+#define CONTINUE_SECTION_WHEN_IDLE_WITH(...) INTERNAL_BDN_CONTINUE_SECTION_WHEN_IDLE_WITH(__VA_ARGS__)
 
 /** \def CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, continuationFunc
    )
@@ -4354,9 +3854,8 @@ namespace bdn
     \endcode
 
     */
-#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, ...)             \
-    INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds,         \
-                                                              __VA_ARGS__)
+#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, ...)                                                     \
+    INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, __VA_ARGS__)
 
 /** \def CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, continuationFunc )
 
@@ -4432,7 +3931,7 @@ namespace bdn
     \endcode
 
     */
-#define CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, ...)                  \
+#define CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, ...)                                                          \
     INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, __VA_ARGS__)
 
 /** \def CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
@@ -4444,8 +3943,7 @@ namespace bdn
 
     Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like
    CONTINUE_SECTION_WHEN_IDLE.*/
-#define CONTINUE_SECTION_IN_THREAD_WITH(...)                                   \
-    INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(__VA_ARGS__)
+#define CONTINUE_SECTION_IN_THREAD_WITH(...) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH(__VA_ARGS__)
 
 /** \def CONTINUE_SECTION_WHEN_IDLE( captures... )
 
@@ -4548,8 +4046,7 @@ namespace bdn
     \endcode
     */
 
-#define CONTINUE_SECTION_WHEN_IDLE(...)                                        \
-    BDN_CONTINUE_SECTION_WHEN_IDLE(__VA_ARGS__)
+#define CONTINUE_SECTION_WHEN_IDLE(...) BDN_CONTINUE_SECTION_WHEN_IDLE(__VA_ARGS__)
 
 /** \def CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, captures... )
 
@@ -4654,7 +4151,7 @@ namespace bdn
     \endcode
     */
 
-#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, ...)                  \
+#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, ...)                                                          \
     BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, __VA_ARGS__)
 
 /** \def CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, captures... )
@@ -4760,8 +4257,7 @@ namespace bdn
     \endcode
     */
 
-#define CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, ...)                       \
-    BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, __VA_ARGS__)
+#define CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, ...) BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, __VA_ARGS__)
 
 /** \def CONTINUE_SECTION_IN_THREAD( captures... )
 
@@ -4772,30 +4268,24 @@ namespace bdn
 
     Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like
    CONTINUE_SECTION_WHEN_IDLE.*/
-#define CONTINUE_SECTION_IN_THREAD(...)                                        \
-    BDN_CONTINUE_SECTION_IN_THREAD(__VA_ARGS__)
+#define CONTINUE_SECTION_IN_THREAD(...) BDN_CONTINUE_SECTION_IN_THREAD(__VA_ARGS__)
 
-#define REGISTER_REPORTER(name, reporterType)                                  \
-    INTERNAL_BDN_REGISTER_REPORTER(name, reporterType)
-#define REGISTER_LEGACY_REPORTER(name, reporterType)                           \
-    INTERNAL_BDN_REGISTER_LEGACY_REPORTER(name, reporterType)
+#define REGISTER_REPORTER(name, reporterType) INTERNAL_BDN_REGISTER_REPORTER(name, reporterType)
+#define REGISTER_LEGACY_REPORTER(name, reporterType) INTERNAL_BDN_REGISTER_LEGACY_REPORTER(name, reporterType)
 
 #define GENERATE(expr) INTERNAL_BDN_GENERATE(expr)
 
 #endif
 
-#define BDN_TRANSLATE_EXCEPTION(signature)                                     \
-    INTERNAL_BDN_TRANSLATE_EXCEPTION(signature)
+#define BDN_TRANSLATE_EXCEPTION(signature) INTERNAL_BDN_TRANSLATE_EXCEPTION(signature)
 
 // "BDD-style" convenience wrappers
 #ifdef BDN_CONFIG_VARIADIC_MACROS
 #define SCENARIO(...) TEST_CASE("Scenario: " __VA_ARGS__)
-#define SCENARIO_METHOD(className, ...)                                        \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
+#define SCENARIO_METHOD(className, ...) INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
 #else
 #define SCENARIO(name, tags) TEST_CASE("Scenario: " name, tags)
-#define SCENARIO_METHOD(className, name, tags)                                 \
-    INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " name, tags)
+#define SCENARIO_METHOD(className, name, tags) INTERNAL_BDN_TEST_CASE_METHOD(className, "Scenario: " name, tags)
 #endif
 #define GIVEN(desc) SECTION(std::string("   Given: ") + desc, "")
 #define WHEN(desc) SECTION(std::string("    When: ") + desc, "")
@@ -4830,14 +4320,12 @@ namespace bdn
             && (!(b!=a)) == expectedResult )
         \endcode
         */
-    template <typename A, typename B>
-    bool checkEquality(A &&a, B &&b, bool expectedResult)
+    template <typename A, typename B> bool checkEquality(A &&a, B &&b, bool expectedResult)
     {
-        return (
-            (std::forward<A>(a) == std::forward<B>(b)) == expectedResult &&
-            (std::forward<B>(b) == std::forward<A>(a)) == expectedResult &&
-            (!(std::forward<A>(a) != std::forward<B>(b))) == expectedResult &&
-            (!(std::forward<B>(b) != std::forward<A>(a))) == expectedResult);
+        return ((std::forward<A>(a) == std::forward<B>(b)) == expectedResult &&
+                (std::forward<B>(b) == std::forward<A>(a)) == expectedResult &&
+                (!(std::forward<A>(a) != std::forward<B>(b))) == expectedResult &&
+                (!(std::forward<B>(b) != std::forward<A>(a))) == expectedResult);
     }
 }
 
@@ -4846,8 +4334,7 @@ namespace bdn
     namespace test
     {
 
-        void _setUnhandledProblemHandler(
-            std::function<void(IUnhandledProblem &)> func);
+        void _setUnhandledProblemHandler(std::function<void(IUnhandledProblem &)> func);
 
         /** You can use this inside test applications (those that use one of
            Boden's default test app controllers) to temporarily intercept
@@ -4886,17 +4373,12 @@ namespace bdn
         class RedirectUnhandledProblem : public Base
         {
           public:
-            RedirectUnhandledProblem(
-                std::function<void(IUnhandledProblem &)> func)
+            RedirectUnhandledProblem(std::function<void(IUnhandledProblem &)> func)
             {
                 _setUnhandledProblemHandler(func);
             }
 
-            ~RedirectUnhandledProblem()
-            {
-                _setUnhandledProblemHandler(
-                    std::function<void(IUnhandledProblem &)>());
-            }
+            ~RedirectUnhandledProblem() { _setUnhandledProblemHandler(std::function<void(IUnhandledProblem &)>()); }
         };
     }
 }

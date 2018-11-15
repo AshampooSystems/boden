@@ -11,11 +11,9 @@ namespace bdn
     class CastError : public ProgrammingError
     {
       public:
-        CastError(const std::type_info &sourceTypeInfo,
-                  const std::type_info &destTypeInfo)
-            : ProgrammingError("Cannot cast " + String(sourceTypeInfo.name()) +
-                               " object to " + String(destTypeInfo.name()) +
-                               ".")
+        CastError(const std::type_info &sourceTypeInfo, const std::type_info &destTypeInfo)
+            : ProgrammingError("Cannot cast " + String(sourceTypeInfo.name()) + " object to " +
+                               String(destTypeInfo.name()) + ".")
         {}
     };
 }

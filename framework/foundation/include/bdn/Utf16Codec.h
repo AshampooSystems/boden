@@ -31,8 +31,7 @@ namespace bdn
         */
         template <class SourceIterator>
         class DecodingIterator
-            : public std::iterator<std::bidirectional_iterator_tag, char32_t,
-                                   std::ptrdiff_t, char32_t *, char32_t>
+            : public std::iterator<std::bidirectional_iterator_tag, char32_t, std::ptrdiff_t, char32_t *, char32_t>
         {
           public:
             /** @param sourceIt the source iterator that provides the UTF-16
@@ -46,8 +45,7 @@ namespace bdn
                element). The implementation uses this to avoid overshooting the
                data boundaries if the UTF-16 data is corrupted.
             */
-            DecodingIterator(const SourceIterator &sourceIt,
-                             const SourceIterator &beginSourceIt,
+            DecodingIterator(const SourceIterator &sourceIt, const SourceIterator &beginSourceIt,
                              const SourceIterator &endSourceIt);
             DecodingIterator();
 
@@ -71,14 +69,12 @@ namespace bdn
 
         /** A decoding iterator that works on the iterator type of the encoded
            standard string type #EncodedString.*/
-        typedef DecodingIterator<typename EncodedString::const_iterator>
-            DecodingStringIterator;
+        typedef DecodingIterator<typename EncodedString::const_iterator> DecodingStringIterator;
 
         /** Encodes unicode characters to UTF-16.*/
         template <class SourceIterator>
         class EncodingIterator
-            : public std::iterator<std::bidirectional_iterator_tag, char16_t,
-                                   std::ptrdiff_t, char16_t *, char16_t>
+            : public std::iterator<std::bidirectional_iterator_tag, char16_t, std::ptrdiff_t, char16_t *, char16_t>
         {
           public:
             EncodingIterator(const SourceIterator &sourceIt);

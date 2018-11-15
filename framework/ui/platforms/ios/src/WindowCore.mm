@@ -10,8 +10,7 @@ namespace bdn
 
         UIWindow *WindowCore::_createUIWindow(Window *pOuterWindow)
         {
-            UIWindow *window =
-                [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+            UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
             MainViewController *controller = [MainViewController alloc];
 

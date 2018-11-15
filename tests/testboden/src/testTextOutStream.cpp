@@ -6,20 +6,16 @@
 
 using namespace bdn;
 
-template <typename STREAM_TYPE>
-static String _getStreamContents(STREAM_TYPE &stream)
+template <typename STREAM_TYPE> static String _getStreamContents(STREAM_TYPE &stream)
 {
     std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *pBuffer =
-        dynamic_cast<std::basic_stringbuf<char32_t,
-                                          typename STREAM_TYPE::traits_type> *>(
-            stream.rdbuf());
+        dynamic_cast<std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *>(stream.rdbuf());
 
     return pBuffer->str().c_str();
 }
 
 template <typename STREAM_TYPE>
-static void _verifyContents(STREAM_TYPE &stream, const String &expected,
-                            const String *pAlternativeExpected = nullptr,
+static void _verifyContents(STREAM_TYPE &stream, const String &expected, const String *pAlternativeExpected = nullptr,
                             const String *pAlternativeExpected2 = nullptr)
 {
     String actual = _getStreamContents(stream);
@@ -33,8 +29,7 @@ static void _verifyContents(STREAM_TYPE &stream, const String &expected,
     REQUIRE_IN(actual, expectedList);
 }
 
-template <typename INT_TYPE, typename STREAM_TYPE>
-static void _verifyInteger(STREAM_TYPE &stream)
+template <typename INT_TYPE, typename STREAM_TYPE> static void _verifyInteger(STREAM_TYPE &stream)
 {
     INT_TYPE value;
 
@@ -48,8 +43,7 @@ static void _verifyInteger(STREAM_TYPE &stream)
     _verifyContents(stream, std::to_string(value));
 }
 
-template <typename FLOAT_TYPE, typename STREAM_TYPE>
-static void _verifyFloatingPoint(STREAM_TYPE &stream)
+template <typename FLOAT_TYPE, typename STREAM_TYPE> static void _verifyFloatingPoint(STREAM_TYPE &stream)
 {
     FLOAT_TYPE value = 123.125;
 
@@ -57,8 +51,7 @@ static void _verifyFloatingPoint(STREAM_TYPE &stream)
     _verifyContents(stream, "123.125");
 }
 
-template <typename STRING_TYPE, typename STREAM_TYPE>
-static void _verifyString(STREAM_TYPE &stream)
+template <typename STRING_TYPE, typename STREAM_TYPE> static void _verifyString(STREAM_TYPE &stream)
 {
     String inString = U"he\U00012345llo";
     STRING_TYPE value = (STRING_TYPE)inString;
@@ -131,8 +124,7 @@ static void _verifyString(STREAM_TYPE &stream)
 #endif
 }
 
-template <typename CHAR_TYPE, typename STREAM_TYPE>
-static void _verifyCharacterImpl(STREAM_TYPE &stream)
+template <typename CHAR_TYPE, typename STREAM_TYPE> static void _verifyCharacterImpl(STREAM_TYPE &stream)
 {
     SECTION("no formatting")
     {
@@ -170,8 +162,7 @@ static void _verifyCharacterImpl(STREAM_TYPE &stream)
         if (sizeof(CHAR_TYPE) >= 2) {
             SECTION("unicode")
             {
-                stream << StreamFormat().alignLeft(4)
-                       << (CHAR_TYPE)U'\U00006789';
+                stream << StreamFormat().alignLeft(4) << (CHAR_TYPE)U'\U00006789';
                 _verifyContents(stream, U"\U00006789   ");
             }
         }
@@ -188,8 +179,7 @@ static void _verifyCharacterImpl(STREAM_TYPE &stream)
         if (sizeof(CHAR_TYPE) >= 2) {
             SECTION("unicode")
             {
-                stream << StreamFormat().alignRight(4)
-                       << (CHAR_TYPE)U'\U00006789';
+                stream << StreamFormat().alignRight(4) << (CHAR_TYPE)U'\U00006789';
                 _verifyContents(stream, U"   \U00006789");
             }
         }
@@ -206,16 +196,14 @@ static void _verifyCharacterImpl(STREAM_TYPE &stream)
         if (sizeof(CHAR_TYPE) >= 2) {
             SECTION("unicode")
             {
-                stream << StreamFormat().alignRight(4, 'm')
-                       << (CHAR_TYPE)U'\U00006789';
+                stream << StreamFormat().alignRight(4, 'm') << (CHAR_TYPE)U'\U00006789';
                 _verifyContents(stream, U"mmm\U00006789");
             }
         }
     }
 }
 
-template <typename CHAR_TYPE, typename STREAM_TYPE>
-static void _verifyCharacter(STREAM_TYPE &stream)
+template <typename CHAR_TYPE, typename STREAM_TYPE> static void _verifyCharacter(STREAM_TYPE &stream)
 {
     SECTION("default locale (utf8)")
     _verifyCharacterImpl<CHAR_TYPE, STREAM_TYPE>(stream);
@@ -238,17 +226,15 @@ struct TestTextOutStreamSupportedDummy_
 };
 
 template <typename CHAR, class TRAITS>
-std::basic_ostream<CHAR, TRAITS> &
-operator<<(std::basic_ostream<CHAR, TRAITS> &stream,
-           const TestTextOutStreamSupportedDummy_ &x)
+std::basic_ostream<CHAR, TRAITS> &operator<<(std::basic_ostream<CHAR, TRAITS> &stream,
+                                             const TestTextOutStreamSupportedDummy_ &x)
 {
     return stream << "dummy";
 }
 
 template <typename STREAM_TYPE> static void _testTextOutStream()
 {
-    std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type>
-        streamBuffer;
+    std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> streamBuffer;
     STREAM_TYPE stream(&streamBuffer);
 
     SECTION("default locale")
@@ -406,9 +392,8 @@ template <typename STREAM_TYPE> static void _testTextOutStream()
     {
         stream << (void *)0x1234;
 
-        std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type>
-            *pBuffer = dynamic_cast<std::basic_stringbuf<
-                char32_t, typename STREAM_TYPE::traits_type> *>(stream.rdbuf());
+        std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *pBuffer =
+            dynamic_cast<std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *>(stream.rdbuf());
 
         String actual = pBuffer->str().c_str();
 
@@ -552,8 +537,7 @@ template <typename STREAM_TYPE> static void _testTextOutStream()
 
             String address = _getStreamContents(tempStream);
 
-            _verifyContents(stream, String("<") + typeid(d).name() + " @ " +
-                                        address + ">");
+            _verifyContents(stream, String("<") + typeid(d).name() + " @ " + address + ">");
         }
     }
 }

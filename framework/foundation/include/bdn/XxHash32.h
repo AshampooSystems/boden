@@ -26,8 +26,7 @@ namespace bdn
             case to predictably alter the result. If you hash the same data with
            a different seed then you will get a different hash.
         */
-        static uint32_t calcHash(const void *pData, size_t bytes,
-                                 uint32_t seed = 0)
+        static uint32_t calcHash(const void *pData, size_t bytes, uint32_t seed = 0)
         {
             SimpleDataProvider dataProvider((const uint8_t *)pData, bytes);
 
@@ -107,8 +106,7 @@ namespace bdn
            will get a different hash.
         */
         template <typename DataProvider>
-        static uint32_t calcHashWithDataProvider(DataProvider &dataProvider,
-                                                 uint32_t seed = 0)
+        static uint32_t calcHashWithDataProvider(DataProvider &dataProvider, uint32_t seed = 0)
         {
             uint32_t hash;
 
@@ -138,9 +136,7 @@ namespace bdn
                     p4x4ByteBlock = dataProvider.next4x4ByteBlock();
                 } while (p4x4ByteBlock);
 
-                hash = rotateBitsLeft(stateVal1, 1) +
-                       rotateBitsLeft(stateVal2, 7) +
-                       rotateBitsLeft(stateVal3, 12) +
+                hash = rotateBitsLeft(stateVal1, 1) + rotateBitsLeft(stateVal2, 7) + rotateBitsLeft(stateVal3, 12) +
                        rotateBitsLeft(stateVal4, 18);
             } else
                 hash = seed + prime5;
@@ -151,8 +147,7 @@ namespace bdn
 
             hash += (uint32_t)totalByteCount;
 
-            const uint32_t *pTail32BitValuesEnd =
-                tailData.p32BitValues + (tailData.tailSizeBytes >> 2);
+            const uint32_t *pTail32BitValuesEnd = tailData.p32BitValues + (tailData.tailSizeBytes >> 2);
             while (tailData.p32BitValues != pTail32BitValuesEnd) {
                 hash += (*tailData.p32BitValues) * prime3;
                 hash = rotateBitsLeft(hash, 17) * prime4;
@@ -160,8 +155,7 @@ namespace bdn
                 tailData.p32BitValues++;
             }
 
-            const uint8_t *pTailBytesEnd =
-                tailData.pBytes + (tailData.tailSizeBytes & 3);
+            const uint8_t *pTailBytesEnd = tailData.pBytes + (tailData.tailSizeBytes & 3);
             while (tailData.pBytes != pTailBytesEnd) {
                 hash += (*tailData.pBytes) * prime5;
                 hash = rotateBitsLeft(hash, 11) * prime1;
@@ -198,9 +192,7 @@ namespace bdn
         class SimpleDataProvider
         {
           public:
-            SimpleDataProvider(const uint8_t *pData, size_t bytes)
-                : _pNextData(pData), _bytesLeft(bytes)
-            {}
+            SimpleDataProvider(const uint8_t *pData, size_t bytes) : _pNextData(pData), _bytesLeft(bytes) {}
 
             const uint32_t *next4x4ByteBlock()
             {
@@ -239,8 +231,7 @@ namespace bdn
                 swapByteOrder(_4ByteValues[2]);
 #endif
 
-                return TailData{_bytesLeft, _4ByteValues,
-                                _pNextData + _bytesLeft - (_bytesLeft & 3)};
+                return TailData{_bytesLeft, _4ByteValues, _pNextData + _bytesLeft - (_bytesLeft & 3)};
             }
 
           private:

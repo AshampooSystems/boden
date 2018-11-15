@@ -8,20 +8,13 @@
 using namespace bdn;
 using namespace bdn::win32;
 
-static bool operator==(const POINT &a, const POINT &b)
-{
-    return (a.x == b.x && a.y == b.y);
-}
+static bool operator==(const POINT &a, const POINT &b) { return (a.x == b.x && a.y == b.y); }
 
-static bool operator==(const SIZE &a, const SIZE &b)
-{
-    return (a.cx == b.cx && a.cy == b.cy);
-}
+static bool operator==(const SIZE &a, const SIZE &b) { return (a.cx == b.cx && a.cy == b.cy); }
 
 static bool operator==(const RECT &a, const RECT &b)
 {
-    return (a.left == b.left && a.top == b.top && a.right == b.right &&
-            a.bottom == b.bottom);
+    return (a.left == b.left && a.top == b.top && a.right == b.right && a.bottom == b.bottom);
 }
 
 TEST_CASE("win32.util")
@@ -66,21 +59,17 @@ TEST_CASE("win32.util")
     {
         SECTION("rounding")
         {
-            REQUIRE(rectToWin32Rect(Rect(1.49, 2.49, 3.49, 4.49), 1) ==
-                    (RECT{1, 2, 1 + 3, 2 + 4}));
-            REQUIRE(rectToWin32Rect(Rect(1.5, 2.5, 3.5, 4.5), 1) ==
-                    (RECT{2, 3, 2 + 4, 3 + 5}));
+            REQUIRE(rectToWin32Rect(Rect(1.49, 2.49, 3.49, 4.49), 1) == (RECT{1, 2, 1 + 3, 2 + 4}));
+            REQUIRE(rectToWin32Rect(Rect(1.5, 2.5, 3.5, 4.5), 1) == (RECT{2, 3, 2 + 4, 3 + 5}));
         }
 
         SECTION("scaling")
         {
             SECTION(">1")
-            REQUIRE(rectToWin32Rect(Rect(2, 3, 4, 5), 2.5) ==
-                    (RECT{5, 8, 5 + 10, 8 + 13}));
+            REQUIRE(rectToWin32Rect(Rect(2, 3, 4, 5), 2.5) == (RECT{5, 8, 5 + 10, 8 + 13}));
 
             SECTION("<1")
-            REQUIRE(rectToWin32Rect(Rect(20, 30, 40, 50), 0.75) ==
-                    (RECT{15, 23, 15 + 30, 23 + 38}));
+            REQUIRE(rectToWin32Rect(Rect(20, 30, 40, 50), 0.75) == (RECT{15, 23, 15 + 30, 23 + 38}));
         }
     }
 
@@ -89,12 +78,10 @@ TEST_CASE("win32.util")
         SECTION("scaling")
         {
             SECTION(">1")
-            REQUIRE(win32RectToRect(RECT{2, 3, 2 + 4, 3 + 5}, 2.5) ==
-                    Rect(2 / 2.5, 3 / 2.5, 4 / 2.5, 5 / 2.5));
+            REQUIRE(win32RectToRect(RECT{2, 3, 2 + 4, 3 + 5}, 2.5) == Rect(2 / 2.5, 3 / 2.5, 4 / 2.5, 5 / 2.5));
 
             SECTION("<1")
-            REQUIRE(win32RectToRect(RECT{2, 3, 2 + 4, 3 + 5}, 0.75) ==
-                    Rect(2 / 0.75, 3 / 0.75, 4 / 0.75, 5 / 0.75));
+            REQUIRE(win32RectToRect(RECT{2, 3, 2 + 4, 3 + 5}, 0.75) == Rect(2 / 0.75, 3 / 0.75, 4 / 0.75, 5 / 0.75));
         }
     }
 
@@ -103,12 +90,10 @@ TEST_CASE("win32.util")
         SECTION("scaling")
         {
             SECTION(">1")
-            REQUIRE(win32PointToPoint(POINT{2, 3}, 2.5) ==
-                    Point(2 / 2.5, 3 / 2.5));
+            REQUIRE(win32PointToPoint(POINT{2, 3}, 2.5) == Point(2 / 2.5, 3 / 2.5));
 
             SECTION("<1")
-            REQUIRE(win32PointToPoint(POINT{2, 3}, 0.75) ==
-                    Point(2 / 0.75, 3 / 0.75));
+            REQUIRE(win32PointToPoint(POINT{2, 3}, 0.75) == Point(2 / 0.75, 3 / 0.75));
         }
     }
 
@@ -120,8 +105,7 @@ TEST_CASE("win32.util")
             REQUIRE(win32SizeToSize(SIZE{2, 3}, 2.5) == Size(2 / 2.5, 3 / 2.5));
 
             SECTION("<1")
-            REQUIRE(win32SizeToSize(SIZE{2, 3}, 0.75) ==
-                    Size(2 / 0.75, 3 / 0.75));
+            REQUIRE(win32SizeToSize(SIZE{2, 3}, 0.75) == Size(2 / 0.75, 3 / 0.75));
         }
     }
 }

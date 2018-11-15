@@ -15,12 +15,9 @@ TEST_CASE("Checkbox")
 
     SECTION("Checkbox-specific")
     {
-        P<bdn::test::ViewTestPreparer<Checkbox>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<Checkbox>>();
-        P<bdn::test::ViewWithTestExtensions<Checkbox>> pCheckbox =
-            pPreparer->createView();
-        P<bdn::test::MockCheckboxCore> pCore =
-            cast<bdn::test::MockCheckboxCore>(pCheckbox->getViewCore());
+        P<bdn::test::ViewTestPreparer<Checkbox>> pPreparer = newObj<bdn::test::ViewTestPreparer<Checkbox>>();
+        P<bdn::test::ViewWithTestExtensions<Checkbox>> pCheckbox = pPreparer->createView();
+        P<bdn::test::MockCheckboxCore> pCore = cast<bdn::test::MockCheckboxCore>(pCheckbox->getViewCore());
 
         REQUIRE(pCore != nullptr);
 
@@ -46,33 +43,27 @@ TEST_CASE("Checkbox")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pCheckbox, pPreparer,
-                    [pCheckbox]() { pCheckbox->setLabel("hello"); },
+                    pCheckbox, pPreparer, [pCheckbox]() { pCheckbox->setLabel("hello"); },
                     [pCore, pCheckbox] {
                         REQUIRE(pCore->getLabel() == "hello");
                         REQUIRE(pCore->getLabelChangeCount() == 1);
                     },
-                    (int)bdn::test::ExpectedSideEffect_::
-                            invalidateSizingInfo // should have caused sizing
-                                                 // info to be invalidated
-                        |
-                        (int)bdn::test::ExpectedSideEffect_::
-                            invalidateParentLayout // should cause a parent
-                                                   // layout update since sizing
-                                                   // info was invalidated
+                    (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
+                                                                                      // info to be invalidated
+                        | (int)bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent
+                                                                                      // layout update since sizing
+                                                                                      // info was invalidated
                 );
             }
 
             SECTION("state")
             {
-                bdn::test::_testViewOp(
-                    pCheckbox, pPreparer,
-                    [pCheckbox]() { pCheckbox->setState(TriState::on); },
-                    [pCore, pCheckbox] {
-                        REQUIRE(pCore->getState() == TriState::on);
-                        REQUIRE(pCore->getStateChangeCount() == 1);
-                    },
-                    0);
+                bdn::test::_testViewOp(pCheckbox, pPreparer, [pCheckbox]() { pCheckbox->setState(TriState::on); },
+                                       [pCore, pCheckbox] {
+                                           REQUIRE(pCore->getState() == TriState::on);
+                                           REQUIRE(pCore->getStateChangeCount() == 1);
+                                       },
+                                       0);
             }
         }
     }

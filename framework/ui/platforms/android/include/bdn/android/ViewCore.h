@@ -29,9 +29,7 @@ namespace bdn
     namespace android
     {
 
-        class ViewCore : public Base,
-                         BDN_IMPLEMENTS IViewCore,
-                         BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
             ViewCore(View *pOuterView, JView *pJView)
@@ -49,9 +47,8 @@ namespace bdn
 
                 _addToParent(pOuterView->getParentView());
 
-                _defaultPixelPadding = Margin(
-                    _pJView->getPaddingTop(), _pJView->getPaddingRight(),
-                    _pJView->getPaddingBottom(), _pJView->getPaddingLeft());
+                _defaultPixelPadding = Margin(_pJView->getPaddingTop(), _pJView->getPaddingRight(),
+                                              _pJView->getPaddingBottom(), _pJView->getPaddingLeft());
 
                 setPadding(pOuterView->padding());
 
@@ -74,15 +71,13 @@ namespace bdn
                 }
             }
 
-            static ViewCore *
-            getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef)
+            static ViewCore *getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef)
             {
                 if (javaViewRef.isNull())
                     return nullptr;
                 else {
                     JView view(javaViewRef);
-                    bdn::java::NativeWeakPointer viewTag(
-                        view.getTag().getRef_());
+                    bdn::java::NativeWeakPointer viewTag(view.getTag().getRef_());
 
                     return static_cast<ViewCore *>(viewTag.getPointer());
                 }
@@ -90,10 +85,7 @@ namespace bdn
 
             /** Returns a pointer to the outer View object, if this core is
                still attached to it or null otherwise.*/
-            P<View> getOuterViewIfStillAttached() const
-            {
-                return _outerViewWeak.toStrong();
-            }
+            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
 
             /** Returns a pointer to the accessor object for the java-side view
              * object.
@@ -102,8 +94,7 @@ namespace bdn
 
             void setVisible(const bool &visible) override
             {
-                _pJView->setVisibility(visible ? JView::Visibility::visible
-                                               : JView::Visibility::invisible);
+                _pJView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
             }
 
             void setPadding(const Nullable<UiMargin> &padding) override
@@ -114,14 +105,11 @@ namespace bdn
                 else {
                     Margin dipPadding = uiMarginToDipMargin(padding);
 
-                    pixelPadding = Margin(dipPadding.top * _uiScaleFactor,
-                                          dipPadding.right * _uiScaleFactor,
-                                          dipPadding.bottom * _uiScaleFactor,
-                                          dipPadding.left * _uiScaleFactor);
+                    pixelPadding = Margin(dipPadding.top * _uiScaleFactor, dipPadding.right * _uiScaleFactor,
+                                          dipPadding.bottom * _uiScaleFactor, dipPadding.left * _uiScaleFactor);
                 }
 
-                _pJView->setPadding(pixelPadding.left, pixelPadding.top,
-                                    pixelPadding.right, pixelPadding.bottom);
+                _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
             }
 
             void setMargin(const UiMargin &margin) override
@@ -138,14 +126,12 @@ namespace bdn
 
             void childSizingInfoInvalidated(View *pChild) override;
 
-            void setHorizontalAlignment(
-                const View::HorizontalAlignment &align) override
+            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
 
-            void
-            setVerticalAlignment(const View::VerticalAlignment &align) override
+            void setVerticalAlignment(const View::VerticalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
@@ -168,16 +154,11 @@ namespace bdn
             /** Returns the view core associated with this view's parent view.
              *  Returns null if there is no parent view or if the parent does
              * not have a view core associated with it.*/
-            ViewCore *getParentViewCore()
-            {
-                return getViewCoreFromJavaViewRef(
-                    _pJView->getParent().getRef_());
-            }
+            ViewCore *getParentViewCore() { return getViewCoreFromJavaViewRef(_pJView->getParent().getRef_()); }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
-                Rect adjustedBounds = adjustBounds(
-                    requestedBounds, RoundType::nearest, RoundType::nearest);
+                Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
                 bdn::java::JObject parent(_pJView->getParent());
 
@@ -189,67 +170,55 @@ namespace bdn
                     // object.
                     JNativeViewGroup parentView(parent.getRef_());
 
-                    parentView.setChildBounds(
-                        getJView(), adjustedBounds.x * _uiScaleFactor,
-                        adjustedBounds.y * _uiScaleFactor,
-                        adjustedBounds.width * _uiScaleFactor,
-                        adjustedBounds.height * _uiScaleFactor);
+                    parentView.setChildBounds(getJView(), adjustedBounds.x * _uiScaleFactor,
+                                              adjustedBounds.y * _uiScaleFactor, adjustedBounds.width * _uiScaleFactor,
+                                              adjustedBounds.height * _uiScaleFactor);
                 }
 
                 return adjustedBounds;
             }
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override
             {
                 // align on pixel boundaries
-                return Dip::pixelAlign(requestedBounds, _uiScaleFactor,
-                                       positionRoundType, sizeRoundType);
+                return Dip::pixelAlign(requestedBounds, _uiScaleFactor, positionRoundType, sizeRoundType);
             }
 
             double uiLengthToDips(const UiLength &uiLength) const override;
 
             Margin uiMarginToDipMargin(const UiMargin &margin) const override
             {
-                return Margin(
-                    uiLengthToDips(margin.top), uiLengthToDips(margin.right),
-                    uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
+                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
+                              uiLengthToDips(margin.left));
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 int widthSpec;
                 int heightSpec;
 
-                if (std::isfinite(availableSpace.width) &&
-                    canAdjustWidthToAvailableSpace()) {
-                    widthSpec = JView::MeasureSpec::makeMeasureSpec(
-                        std::lround(
-                            stableScaledRoundDown(availableSpace.width,
-                                                  _uiScaleFactor) *
-                            _uiScaleFactor), // round DOWN to the closest pixel
-                                             // then scale up and round to the
-                                             // nearest integer
-                        JView::MeasureSpec::atMost);
+                if (std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace()) {
+                    widthSpec =
+                        JView::MeasureSpec::makeMeasureSpec(std::lround(stableScaledRoundDown(availableSpace.width,
+                                                                                              _uiScaleFactor) *
+                                                                        _uiScaleFactor), // round DOWN to the closest
+                                                                                         // pixel then scale up and
+                                                                                         // round to the nearest integer
+                                                            JView::MeasureSpec::atMost);
                 } else
-                    widthSpec = JView::MeasureSpec::makeMeasureSpec(
-                        0, JView::MeasureSpec::unspecified);
+                    widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
 
-                if (std::isfinite(availableSpace.height) &&
-                    canAdjustHeightToAvailableSpace()) {
-                    heightSpec = JView::MeasureSpec::makeMeasureSpec(
-                        std::lround(
-                            stableScaledRoundDown(availableSpace.height,
-                                                  _uiScaleFactor) *
-                            _uiScaleFactor), // round DOWN to the closest pixel
-                                             // then scale up and round to the
-                                             // nearest integer
-                        JView::MeasureSpec::atMost);
+                if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
+                    heightSpec =
+                        JView::MeasureSpec::makeMeasureSpec(std::lround(stableScaledRoundDown(availableSpace.height,
+                                                                                              _uiScaleFactor) *
+                                                                        _uiScaleFactor), // round DOWN to the closest
+                                                                                         // pixel then scale up and
+                                                                                         // round to the nearest integer
+                                                            JView::MeasureSpec::atMost);
                 } else
-                    heightSpec = JView::MeasureSpec::makeMeasureSpec(
-                        0, JView::MeasureSpec::unspecified);
+                    heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
 
                 _pJView->measure(widthSpec, heightSpec);
 
@@ -280,10 +249,7 @@ namespace bdn
                 // do nothing by default. Most views do not have subviews.
             }
 
-            bool canMoveToParentView(View &newParentView) const override
-            {
-                return true;
-            }
+            bool canMoveToParentView(View &newParentView) const override { return true; }
 
             void moveToParentView(View &newParentView) override
             {
@@ -337,8 +303,7 @@ namespace bdn
                         pView->getChildViews(childList);
 
                     for (P<View> &pChild : childList) {
-                        P<ViewCore> pChildCore =
-                            cast<ViewCore>(pChild->getViewCore());
+                        P<ViewCore> pChildCore = cast<ViewCore>(pChild->getViewCore());
 
                         if (pChildCore != nullptr)
                             pChildCore->setUiScaleFactor(scaleFactor);
@@ -355,10 +320,7 @@ namespace bdn
 
                 The default implementation returns false.
             */
-            virtual bool canAdjustWidthToAvailableSpace() const
-            {
-                return false;
-            }
+            virtual bool canAdjustWidthToAvailableSpace() const { return false; }
 
             /** Returns true if the view can adjust its height to fit into
                 a certain size of available space.
@@ -368,10 +330,7 @@ namespace bdn
 
                 The default implementation returns false.
             */
-            virtual bool canAdjustHeightToAvailableSpace() const
-            {
-                return false;
-            }
+            virtual bool canAdjustHeightToAvailableSpace() const { return false; }
 
             virtual double getFontSizeDips() const
             {
@@ -394,13 +353,11 @@ namespace bdn
             void _addToParent(View *pParent)
             {
                 if (pParent != nullptr) {
-                    P<IParentViewCore> pParentCore =
-                        cast<IParentViewCore>(pParent->getViewCore());
+                    P<IParentViewCore> pParentCore = cast<IParentViewCore>(pParent->getViewCore());
                     if (pParentCore == nullptr)
-                        throw ProgrammingError(
-                            "Internal error: parent of bdn::android::ViewCore "
-                            "either does not have a core, or its core does not "
-                            "support child views.");
+                        throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
+                                               "either does not have a core, or its core does not "
+                                               "support child views.");
 
                     pParentCore->addChildJView(*_pJView);
 
@@ -418,8 +375,7 @@ namespace bdn
                 if (pParent == nullptr)
                     return; // no parent – nothing to do
 
-                P<IParentViewCore> pParentCore =
-                    cast<IParentViewCore>(pParent->getViewCore());
+                P<IParentViewCore> pParentCore = cast<IParentViewCore>(pParent->getViewCore());
                 if (pParentCore != nullptr) {
                     // XXX: Rather unfortunate – removeAllChildViews() is BFS
                     // and so parent core is no longer set when removing

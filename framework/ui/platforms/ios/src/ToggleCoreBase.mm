@@ -24,14 +24,12 @@ namespace bdn
     namespace ios
     {
 
-        ToggleCoreBase::ToggleCoreBase(
-            View *pOuter, BdnIosToggleCompositeBase *pToggleComposite)
+        ToggleCoreBase::ToggleCoreBase(View *pOuter, BdnIosToggleCompositeBase *pToggleComposite)
             : ViewCore(pOuter, pToggleComposite)
         {
             _composite = (BdnIosToggleCompositeBase *)getUIView();
 
-            BdnIosToggleClickManager *clickManager =
-                [[BdnIosToggleClickManager alloc] init];
+            BdnIosToggleClickManager *clickManager = [[BdnIosToggleClickManager alloc] init];
             [clickManager setToggleCore:this];
             _clickManager = clickManager;
         }

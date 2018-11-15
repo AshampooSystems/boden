@@ -8,14 +8,10 @@
 
 using namespace bdn;
 
-class TestIosContainerViewCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestContainerViewCore>
+class TestIosContainerViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestContainerViewCore>
 {
   protected:
-    void initCore() override
-    {
-        TestIosViewCoreMixin<TestContainerViewCore>::initCore();
-    }
+    void initCore() override { TestIosViewCoreMixin<TestContainerViewCore>::initCore(); }
 };
 
 TEST_CASE("ios.ContainerViewCore")

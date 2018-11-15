@@ -22,15 +22,9 @@ namespace bdn
       public:
         DanglingFunctionError(const String &message) : _message(message) {}
 
-        DanglingFunctionError()
-            : _message(
-                  "A function with a dangling target reference was called.")
-        {}
+        DanglingFunctionError() : _message("A function with a dangling target reference was called.") {}
 
-        const char *what() const noexcept override
-        {
-            return _message.asUtf8Ptr();
-        }
+        const char *what() const noexcept override { return _message.asUtf8Ptr(); }
 
       private:
         String _message;

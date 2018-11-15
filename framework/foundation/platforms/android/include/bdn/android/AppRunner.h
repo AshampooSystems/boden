@@ -18,9 +18,7 @@ namespace bdn
             AppLaunchInfo _makeLaunchInfo(JIntent intent);
 
           public:
-            AppRunner(
-                std::function<P<AppControllerBase>()> appControllerCreator,
-                JIntent intent);
+            AppRunner(std::function<P<AppControllerBase>()> appControllerCreator, JIntent intent);
 
             bool isCommandLineApp() const override;
 

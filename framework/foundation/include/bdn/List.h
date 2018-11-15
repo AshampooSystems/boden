@@ -39,38 +39,26 @@ namespace bdn
     class List : public StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>
     {
       public:
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::Element;
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::Size;
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::Iterator;
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::ConstIterator;
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::ReverseIterator;
-        using typename StdPositionalCollection<
-            std::list<ELTYPE, ALLOCATOR>>::ConstReverseIterator;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::Element;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::Size;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::Iterator;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::ConstIterator;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::ReverseIterator;
+        using typename StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::ConstReverseIterator;
 
         /** Creates an empty list.*/
-        List() noexcept(noexcept(ALLOCATOR()))
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(ALLOCATOR())
-        {}
+        List() noexcept(noexcept(ALLOCATOR())) : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(ALLOCATOR()) {}
 
         /** Constructs a list that uses a specific allocator object.*/
-        explicit List(const ALLOCATOR &alloc) noexcept
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(alloc)
-        {}
+        explicit List(const ALLOCATOR &alloc) noexcept : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(alloc) {}
 
         /** Initializes the list with \c count copies of \c el.
 
             Optionally, one can also pass an allocator object for custom memory
            management.
         */
-        List(Size count, const Element &el,
-             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(count, el,
-                                                                    alloc)
+        List(Size count, const Element &el, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(count, el, alloc)
         {}
 
         /** Initializes the list with \c count default-constructed elements.
@@ -78,9 +66,7 @@ namespace bdn
             Optionally, one can also pass an allocator object for custom memory
            management.
         */
-        explicit List(Size count)
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(count)
-        {}
+        explicit List(Size count) : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(count) {}
 
         /** Initializes the list with copies of the elements from the iterator
            range [beginIt ... endIt)
@@ -89,10 +75,8 @@ namespace bdn
            management.
         */
         template <class InputIt>
-        List(InputIt beginIt, InputIt endIt,
-             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(
-                  beginIt, endIt, alloc)
+        List(InputIt beginIt, InputIt endIt, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(beginIt, endIt, alloc)
         {}
 
         /** Initializes the List with copies of the elements from the specified
@@ -104,8 +88,7 @@ namespace bdn
 
         /** Initializes the List with copies of the elements from the specified
          * std::list object.*/
-        List(const std::list<ELTYPE, ALLOCATOR> &other)
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(other)
+        List(const std::list<ELTYPE, ALLOCATOR> &other) : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(other)
         {}
 
         /** Initializes the List with copies of the elements from the specified
@@ -115,22 +98,20 @@ namespace bdn
            internal allocator.
             */
         List(const std::list<ELTYPE, ALLOCATOR> &other, const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(other,
-                                                                    alloc)
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(other, alloc)
         {}
 
         /** Moves the data from the specified other list to this list. The other
          * list is invalidated by this.*/
         List(List &&other) noexcept
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(std::move(
-                  static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)))
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(
+                  std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)))
         {}
 
         /** Moves the data from the specified other list to this list. The other
          * list is invalidated by this.*/
         List(std::list<ELTYPE, ALLOCATOR> &&other) noexcept
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(
-                  std::move(other))
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(std::move(other))
         {}
 
         /** Moves the data from the specified other list to this list. The other
@@ -140,8 +121,7 @@ namespace bdn
            internal allocator.
             */
         List(List &&other, const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(
-                  std::forward(other), alloc)
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(std::forward(other), alloc)
         {}
 
         /** Moves the data from the specified other list to this list. The other
@@ -150,8 +130,7 @@ namespace bdn
             The specified allocator object is used to initialize the list's
            internal allocator.*/
         List(std::list<ELTYPE, ALLOCATOR> &&other, const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(
-                  std::forward(other), alloc)
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(std::forward(other), alloc)
         {}
 
         /** Initializes the list with the specified initializer list. This is
@@ -170,10 +149,8 @@ namespace bdn
 
             \endcode
         */
-        List(std::initializer_list<Element> initList,
-             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(initList,
-                                                                    alloc)
+        List(std::initializer_list<Element> initList, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>(initList, alloc)
         {}
 
         /** Replaces the current contents of the list with copies of the
@@ -283,10 +260,7 @@ namespace bdn
            If you need a stable sorting algorithm use stableSort() instead.
 
            */
-        void sort()
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort();
-        }
+        void sort() { StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort(); }
 
         /** Sorts the elements in a custom order. comesBefore must be a function
            that takes references to two elements as its parameters and returns
@@ -335,11 +309,9 @@ namespace bdn
 
             If you need a stable sorting algorithm use stableSort() instead.
             */
-        template <class ComesBeforeFuncType>
-        void sort(ComesBeforeFuncType comesBefore)
+        template <class ComesBeforeFuncType> void sort(ComesBeforeFuncType comesBefore)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort(
-                comesBefore);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort(comesBefore);
         }
 
         /** Like sort() except that the sorting algorithm is guaranteed to be
@@ -356,12 +328,10 @@ namespace bdn
            stable. See sort() documentation for more information about what this
            means.
         */
-        template <class ComesBeforeFuncType>
-        void stableSort(ComesBeforeFuncType comesBeforeFunc)
+        template <class ComesBeforeFuncType> void stableSort(ComesBeforeFuncType comesBeforeFunc)
         {
             // std::list::sort is always stable.
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort(
-                comesBeforeFunc);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::sort(comesBeforeFunc);
         }
 
         /** In general, this collection operation prepares the collection for a
@@ -467,8 +437,7 @@ namespace bdn
             */
         void stealAllAndMergeSorted(std::list<ELTYPE, ALLOCATOR> &&other)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(
-                std::move(other));
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(std::move(other));
         }
 
         /** Merges two sorted lists.
@@ -493,11 +462,9 @@ namespace bdn
 
             */
         template <typename ComesBeforeFuncType>
-        void stealAllAndMergeSorted(List &other,
-                                    ComesBeforeFuncType comesBefore)
+        void stealAllAndMergeSorted(List &other, ComesBeforeFuncType comesBefore)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(
-                other, comesBefore);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(other, comesBefore);
         }
 
         /** Merges two sorted lists.
@@ -522,12 +489,10 @@ namespace bdn
 
             */
         template <typename ComesBeforeFuncType>
-        void stealAllAndMergeSorted(std::list<ELTYPE, ALLOCATOR> &other,
-                                    ComesBeforeFuncType comesBefore)
+        void stealAllAndMergeSorted(std::list<ELTYPE, ALLOCATOR> &other, ComesBeforeFuncType comesBefore)
         {
             StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(
-                std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)),
-                comesBefore);
+                std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)), comesBefore);
         }
 
         /** Merges two sorted lists.
@@ -551,13 +516,10 @@ namespace bdn
            afterwards.
 
             */
-        template <class ComesBeforeFuncType>
-        void stealAllAndMergeSorted(List &&other,
-                                    ComesBeforeFuncType comesBefore)
+        template <class ComesBeforeFuncType> void stealAllAndMergeSorted(List &&other, ComesBeforeFuncType comesBefore)
         {
             StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(
-                std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)),
-                comesBefore);
+                std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(other)), comesBefore);
         }
 
         /** Merges two sorted lists.
@@ -582,11 +544,9 @@ namespace bdn
 
             */
         template <class ComesBeforeFuncType>
-        void stealAllAndMergeSorted(std::list<ELTYPE, ALLOCATOR> &&other,
-                                    ComesBeforeFuncType comesBefore)
+        void stealAllAndMergeSorted(std::list<ELTYPE, ALLOCATOR> &&other, ComesBeforeFuncType comesBefore)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(
-                std::move(other), comesBefore);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::merge(std::move(other), comesBefore);
         }
 
         /** Transfers all elements from \c otherList to this list and inserts
@@ -601,8 +561,7 @@ namespace bdn
             */
         void stealAllAndInsertAt(ConstIterator insertPosition, List &otherList)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList);
         }
 
         /** Transfers all elements from \c otherList to this list and inserts
@@ -615,11 +574,9 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAllAndInsertAt(ConstIterator insertPosition,
-                                 std::list<ELTYPE, ALLOCATOR> &otherList)
+        void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &otherList)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList);
         }
 
         /** Transfers all elements from \c otherList to this list and inserts
@@ -635,9 +592,7 @@ namespace bdn
         void stealAllAndInsertAt(ConstIterator insertPosition, List &&otherList)
         {
             StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition,
-                std::move(
-                    static_cast<std::list<ELTYPE, ALLOCATOR> &>(otherList)));
+                insertPosition, std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &>(otherList)));
         }
 
         /** Transfers all elements from \c otherList to this list and inserts
@@ -650,11 +605,9 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAllAndInsertAt(ConstIterator insertPosition,
-                                 std::list<ELTYPE, ALLOCATOR> &&otherList)
+        void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &&otherList)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, std::move(otherList));
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, std::move(otherList));
         }
 
         /** Transfers a section of elements from \c otherList to this list and
@@ -672,111 +625,80 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealSectionAndInsertAt(ConstIterator insertPosition,
-                                     List &otherList,
-                                     ConstIterator transferBeginIt,
+        void stealSectionAndInsertAt(ConstIterator insertPosition, List &otherList, ConstIterator transferBeginIt,
+                                     ConstIterator transferEndIt)
+        {
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList, transferBeginIt,
+                                                                          transferEndIt);
+        }
+
+        /** Transfers a section of elements from \c otherList to this list and
+           inserts them at the position indicated by \c insertPosition. \c
+           transferBeginIt must be an iterator that points to the first element
+           in \c otherList to transfer. \c transferEndIt marks the end of the
+           transfer range. It is exclusive, i.e. the element pointed to by
+           transferEndIt is *not* transferred.
+
+            The transferred elements are moved, not copied. They are removed
+           from \c otherList and inserted in this list, without copying or
+           reallocation.
+
+            This function does *not* invalidate any iterators. Iterators from \c
+           otherList remain valid and refer to the corresponding elements in the
+           resulting combined list afterwards.
+            */
+        void stealSectionAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &otherList,
+                                     typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
+                                     typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
+        {
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList, transferBeginIt,
+                                                                          transferEndIt);
+        }
+
+        /** Transfers a section of elements from \c otherList to this list and
+           inserts them at the position indicated by \c insertPosition. \c
+           transferBeginIt must be an iterator that points to the first element
+           in \c otherList to transfer. \c transferEndIt marks the end of the
+           transfer range. It is exclusive, i.e. the element pointed to by
+           transferEndIt is *not* transferred.
+
+            The transferred elements are moved, not copied. They are removed
+           from \c otherList and inserted in this list, without copying or
+           reallocation.
+
+            This function does *not* invalidate any iterators. Iterators from \c
+           otherList remain valid and refer to the corresponding elements in the
+           resulting combined list afterwards.
+            */
+        void stealSectionAndInsertAt(ConstIterator insertPosition, List &&otherList, ConstIterator transferBeginIt,
                                      ConstIterator transferEndIt)
         {
             StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList, transferBeginIt, transferEndIt);
-        }
-
-        /** Transfers a section of elements from \c otherList to this list and
-           inserts them at the position indicated by \c insertPosition. \c
-           transferBeginIt must be an iterator that points to the first element
-           in \c otherList to transfer. \c transferEndIt marks the end of the
-           transfer range. It is exclusive, i.e. the element pointed to by
-           transferEndIt is *not* transferred.
-
-            The transferred elements are moved, not copied. They are removed
-           from \c otherList and inserted in this list, without copying or
-           reallocation.
-
-            This function does *not* invalidate any iterators. Iterators from \c
-           otherList remain valid and refer to the corresponding elements in the
-           resulting combined list afterwards.
-            */
-        void stealSectionAndInsertAt(
-            ConstIterator insertPosition,
-            std::list<ELTYPE, ALLOCATOR> &otherList,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator
-                transferBeginIt,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList, transferBeginIt, transferEndIt);
-        }
-
-        /** Transfers a section of elements from \c otherList to this list and
-           inserts them at the position indicated by \c insertPosition. \c
-           transferBeginIt must be an iterator that points to the first element
-           in \c otherList to transfer. \c transferEndIt marks the end of the
-           transfer range. It is exclusive, i.e. the element pointed to by
-           transferEndIt is *not* transferred.
-
-            The transferred elements are moved, not copied. They are removed
-           from \c otherList and inserted in this list, without copying or
-           reallocation.
-
-            This function does *not* invalidate any iterators. Iterators from \c
-           otherList remain valid and refer to the corresponding elements in the
-           resulting combined list afterwards.
-            */
-        void stealSectionAndInsertAt(ConstIterator insertPosition,
-                                     List &&otherList,
-                                     ConstIterator transferBeginIt,
-                                     ConstIterator transferEndIt)
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition,
-                std::move(
-                    static_cast<std::list<ELTYPE, ALLOCATOR> &&>(otherList)),
-                transferBeginIt, transferEndIt);
-        }
-
-        /** Transfers a section of elements from \c otherList to this list and
-           inserts them at the position indicated by \c insertPosition. \c
-           transferBeginIt must be an iterator that points to the first element
-           in \c otherList to transfer. \c transferEndIt marks the end of the
-           transfer range. It is exclusive, i.e. the element pointed to by
-           transferEndIt is *not* transferred.
-
-            The transferred elements are moved, not copied. They are removed
-           from \c otherList and inserted in this list, without copying or
-           reallocation.
-
-            This function does *not* invalidate any iterators. Iterators from \c
-           otherList remain valid and refer to the corresponding elements in the
-           resulting combined list afterwards.
-            */
-        void stealSectionAndInsertAt(
-            ConstIterator insertPosition,
-            std::list<ELTYPE, ALLOCATOR> &&otherList,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator
-                transferBeginIt,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, std::move(otherList), transferBeginIt,
+                insertPosition, std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(otherList)), transferBeginIt,
                 transferEndIt);
         }
 
-        /** Transfers one element from \c otherList to this list and inserts it
-           at the position indicated by \c insertPosition. \c transferIt must be
-           an iterator that points to the element in \c otherList to transfer.
+        /** Transfers a section of elements from \c otherList to this list and
+           inserts them at the position indicated by \c insertPosition. \c
+           transferBeginIt must be an iterator that points to the first element
+           in \c otherList to transfer. \c transferEndIt marks the end of the
+           transfer range. It is exclusive, i.e. the element pointed to by
+           transferEndIt is *not* transferred.
 
-            The transferred element is moved, not copied. It is removed from \c
-           otherList and inserted in this list, without copying or reallocation.
+            The transferred elements are moved, not copied. They are removed
+           from \c otherList and inserted in this list, without copying or
+           reallocation.
 
             This function does *not* invalidate any iterators. Iterators from \c
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAndInsertAt(ConstIterator insertPosition, List &otherList,
-                              ConstIterator transferIt)
+        void stealSectionAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &&otherList,
+                                     typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
+                                     typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList, transferIt);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, std::move(otherList),
+                                                                          transferBeginIt, transferEndIt);
         }
 
         /** Transfers one element from \c otherList to this list and inserts it
@@ -790,13 +712,9 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAndInsertAt(
-            ConstIterator insertPosition,
-            std::list<ELTYPE, ALLOCATOR> &otherList,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt)
+        void stealAndInsertAt(ConstIterator insertPosition, List &otherList, ConstIterator transferIt)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, otherList, transferIt);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList, transferIt);
         }
 
         /** Transfers one element from \c otherList to this list and inserts it
@@ -810,14 +728,10 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAndInsertAt(ConstIterator insertPosition, List &&otherList,
-                              ConstIterator transferIt)
+        void stealAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &otherList,
+                              typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition,
-                std::move(
-                    static_cast<std::list<ELTYPE, ALLOCATOR> &&>(otherList)),
-                transferIt);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, otherList, transferIt);
         }
 
         /** Transfers one element from \c otherList to this list and inserts it
@@ -831,13 +745,28 @@ namespace bdn
            otherList remain valid and refer to the corresponding elements in the
            resulting combined list afterwards.
             */
-        void stealAndInsertAt(
-            ConstIterator insertPosition,
-            std::list<ELTYPE, ALLOCATOR> &&otherList,
-            typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt)
+        void stealAndInsertAt(ConstIterator insertPosition, List &&otherList, ConstIterator transferIt)
         {
             StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(
-                insertPosition, std::move(otherList), transferIt);
+                insertPosition, std::move(static_cast<std::list<ELTYPE, ALLOCATOR> &&>(otherList)), transferIt);
+        }
+
+        /** Transfers one element from \c otherList to this list and inserts it
+           at the position indicated by \c insertPosition. \c transferIt must be
+           an iterator that points to the element in \c otherList to transfer.
+
+            The transferred element is moved, not copied. It is removed from \c
+           otherList and inserted in this list, without copying or reallocation.
+
+            This function does *not* invalidate any iterators. Iterators from \c
+           otherList remain valid and refer to the corresponding elements in the
+           resulting combined list afterwards.
+            */
+        void stealAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR> &&otherList,
+                              typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt)
+        {
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::splice(insertPosition, std::move(otherList),
+                                                                          transferIt);
         }
 
         /** Reverses the order of the list elements.
@@ -845,10 +774,7 @@ namespace bdn
             This function does *not* invalidate any iterators. No elements are
            copied, constructed or destructed.
             */
-        void reverseOrder() noexcept
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::reverse();
-        }
+        void reverseOrder() noexcept { StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::reverse(); }
 
         /** Removes consecutive duplicates from the list.
             This is intended to be used on sorted lists (since in sorted lists
@@ -859,10 +785,7 @@ namespace bdn
             == operator returns true. There is also a variant where you can pass
            a custom duplicate check function.
             */
-        void removeConsecutiveDuplicates()
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::unique();
-        }
+        void removeConsecutiveDuplicates() { StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::unique(); }
 
         /** Removes consecutive duplicates from the list.
             This is intended to be used on sorted lists (since in sorted lists
@@ -872,18 +795,13 @@ namespace bdn
            element references as its parameters and returns true if these
            elements are duplicates / equal.
             */
-        template <class IsDuplicateFuncType>
-        void removeConsecutiveDuplicates(IsDuplicateFuncType isDuplicate)
+        template <class IsDuplicateFuncType> void removeConsecutiveDuplicates(IsDuplicateFuncType isDuplicate)
         {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::unique(
-                isDuplicate);
+            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::unique(isDuplicate);
         }
 
         /** Removes all elements that are equal to the specified one.*/
-        void findAndRemove(const Element &val)
-        {
-            StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::remove(val);
-        }
+        void findAndRemove(const Element &val) { StdPositionalCollection<std::list<ELTYPE, ALLOCATOR>>::remove(val); }
 
         /** Removes all elements for which the specified function matchFunc
            returns true.
@@ -892,8 +810,7 @@ namespace bdn
            iterator as its parameter and returns true if the element should be
            removed.
         */
-        template <typename MATCH_FUNC_TYPE>
-        void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
+        template <typename MATCH_FUNC_TYPE> void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
         {
             auto it = this->begin();
             while (it != this->end()) {

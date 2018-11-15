@@ -98,16 +98,12 @@ namespace bdn
 
             It is safe to use the property from any thread.
             */
-        BDN_VIEW_PROPERTY(String, title, setTitle, IWindowCore,
-                          influencesNothing());
+        BDN_VIEW_PROPERTY(String, title, setTitle, IWindowCore, influencesNothing());
 
         /** Static function that returns the type name for #Window objects.*/
         static String getWindowCoreTypeName() { return "bdn.WindowCore"; }
 
-        String getCoreTypeName() const override
-        {
-            return getWindowCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getWindowCoreTypeName(); }
 
         void getChildViews(List<P<View>> &childViews) const override
         {
@@ -135,8 +131,7 @@ namespace bdn
         }
 
       protected:
-        P<IUiProvider>
-        determineUiProvider(P<View> pParentView = nullptr) override
+        P<IUiProvider> determineUiProvider(P<View> pParentView = nullptr) override
         {
             // our Ui provider never changes. Just return the current one.
             return cast<IUiProvider>(_pUiProvider);

@@ -21,8 +21,7 @@ namespace bdn
             }
 
           public:
-            JSwitch(JContext &context) : JCompoundButton(newInstance_(context))
-            {}
+            JSwitch(JContext &context) : JCompoundButton(newInstance_(context)) {}
 
             /** @param javaRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -30,9 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JSwitch(const bdn::java::Reference &javaRef)
-                : JCompoundButton(javaRef)
-            {}
+            explicit JSwitch(const bdn::java::Reference &javaRef) : JCompoundButton(javaRef) {}
 
             JSwitch() {}
 
@@ -40,8 +37,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "setChecked",
-                              checked);
+                invoke_<void>(getStaticClass_(), methodId, "setChecked", checked);
             }
 
             /** Returns the JClass object for this class.

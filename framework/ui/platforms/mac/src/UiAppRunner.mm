@@ -41,10 +41,7 @@ bdn::mac::UiAppRunner *_pRunner;
     _pRunner->_applicationDidResignActive(aNotification);
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification
-{
-    _pRunner->_applicationWillTerminate(aNotification);
-}
+- (void)applicationWillTerminate:(NSNotification *)aNotification { _pRunner->_applicationWillTerminate(aNotification); }
 
 @end
 
@@ -68,11 +65,8 @@ namespace bdn
             return launchInfo;
         }
 
-        UiAppRunner::UiAppRunner(
-            std::function<P<AppControllerBase>()> appControllerCreator,
-            int argCount, char *args[])
-            : AppRunnerBase(appControllerCreator,
-                            _makeLaunchInfo(argCount, args))
+        UiAppRunner::UiAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[])
+            : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
             _pMainDispatcher = newObj<bdn::fk::MainDispatcher>();
         }
@@ -82,13 +76,11 @@ namespace bdn
             NSObject *cppExceptionWrapper = nil;
 
             if (exception.userInfo != nil)
-                cppExceptionWrapper = [exception.userInfo
-                    objectForKey:@"bdn::ExceptionReference"];
+                cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
             P<ExceptionReference> pCppExceptionRef;
             if (cppExceptionWrapper != nil)
-                pCppExceptionRef = tryCast<ExceptionReference>(
-                    bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
+                pCppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
             try {
                 // if the exception is a wrapped C++ exception then we rethrow
@@ -122,8 +114,7 @@ namespace bdn
             return 0;
         }
 
-        void UiAppRunner::_applicationWillFinishLaunching(
-            NSNotification *notification)
+        void UiAppRunner::_applicationWillFinishLaunching(NSNotification *notification)
         {
             bdn::platformEntryWrapper(
                 [&]() {
@@ -133,45 +124,32 @@ namespace bdn
                 false);
         }
 
-        void UiAppRunner::_applicationDidFinishLaunching(
-            NSNotification *notification)
+        void UiAppRunner::_applicationDidFinishLaunching(NSNotification *notification)
         {
             bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
         }
 
-        void
-        UiAppRunner::_applicationDidBecomeActive(NSNotification *notification)
+        void UiAppRunner::_applicationDidBecomeActive(NSNotification *notification)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onActivate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
         }
 
-        void
-        UiAppRunner::_applicationDidResignActive(NSNotification *notification)
+        void UiAppRunner::_applicationDidResignActive(NSNotification *notification)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onDeactivate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
         }
 
-        void
-        UiAppRunner::_applicationWillTerminate(NSNotification *notification)
+        void UiAppRunner::_applicationWillTerminate(NSNotification *notification)
         {
-            bdn::platformEntryWrapper(
-                [&]() { AppControllerBase::get()->onTerminate(); }, false);
+            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
         }
 
         void UiAppRunner::initiateExitIfPossible(int exitCode)
         {
-            _pMainDispatcher->enqueue([]() {
-                [NSApp performSelector:@selector(terminate:)
-                            withObject:nil
-                            afterDelay:0.0];
-            });
+            _pMainDispatcher->enqueue(
+                []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
         }
 
-        void UiAppRunner::disposeMainDispatcher()
-        {
-            cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose();
-        }
+        void UiAppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose(); }
     }
 }

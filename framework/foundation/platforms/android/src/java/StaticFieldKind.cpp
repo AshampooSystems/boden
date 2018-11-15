@@ -64,64 +64,55 @@ namespace bdn
             return Env::get().getJniEnv()->GetStaticDoubleField(cls, fieldId);
         }
 
-        void StaticFieldKind::setObjectField(jclass cls, jfieldID fieldId,
-                                             jobject value)
+        void StaticFieldKind::setObjectField(jclass cls, jfieldID fieldId, jobject value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticObjectField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setBooleanField(jclass cls, jfieldID fieldId,
-                                              jboolean value)
+        void StaticFieldKind::setBooleanField(jclass cls, jfieldID fieldId, jboolean value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticBooleanField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setIntField(jclass cls, jfieldID fieldId,
-                                          jint value)
+        void StaticFieldKind::setIntField(jclass cls, jfieldID fieldId, jint value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticIntField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setByteField(jclass cls, jfieldID fieldId,
-                                           jbyte value)
+        void StaticFieldKind::setByteField(jclass cls, jfieldID fieldId, jbyte value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticByteField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setShortField(jclass cls, jfieldID fieldId,
-                                            jshort value)
+        void StaticFieldKind::setShortField(jclass cls, jfieldID fieldId, jshort value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticShortField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setLongField(jclass cls, jfieldID fieldId,
-                                           jlong value)
+        void StaticFieldKind::setLongField(jclass cls, jfieldID fieldId, jlong value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticLongField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setCharField(jclass cls, jfieldID fieldId,
-                                           jchar value)
+        void StaticFieldKind::setCharField(jclass cls, jfieldID fieldId, jchar value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticCharField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setFloatField(jclass cls, jfieldID fieldId,
-                                            jfloat value)
+        void StaticFieldKind::setFloatField(jclass cls, jfieldID fieldId, jfloat value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticFloatField(cls, fieldId, value);
         }
 
-        void StaticFieldKind::setDoubleField(jclass cls, jfieldID fieldId,
-                                             jdouble value)
+        void StaticFieldKind::setDoubleField(jclass cls, jfieldID fieldId, jdouble value)
         {
             // note that this JNI call never throws a Java-side exception
             Env::get().getJniEnv()->SetStaticDoubleField(cls, fieldId, value);

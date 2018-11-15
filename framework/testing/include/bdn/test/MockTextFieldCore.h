@@ -17,14 +17,10 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockTextFieldCore : public MockViewCore,
-                                  BDN_IMPLEMENTS ITextFieldCore
+        class MockTextFieldCore : public MockViewCore, BDN_IMPLEMENTS ITextFieldCore
         {
           public:
-            MockTextFieldCore(TextField *pTextField) : MockViewCore(pTextField)
-            {
-                _text = pTextField->text();
-            }
+            MockTextFieldCore(TextField *pTextField) : MockViewCore(pTextField) { _text = pTextField->text(); }
 
             String getText() const { return _text; }
 
@@ -36,8 +32,7 @@ namespace bdn
                 _textChangeCount++;
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 

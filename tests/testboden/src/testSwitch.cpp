@@ -15,12 +15,9 @@ TEST_CASE("Switch")
 
     SECTION("Switch-specific")
     {
-        P<bdn::test::ViewTestPreparer<Switch>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<Switch>>();
-        P<bdn::test::ViewWithTestExtensions<Switch>> pSwitch =
-            pPreparer->createView();
-        P<bdn::test::MockSwitchCore> pCore =
-            cast<bdn::test::MockSwitchCore>(pSwitch->getViewCore());
+        P<bdn::test::ViewTestPreparer<Switch>> pPreparer = newObj<bdn::test::ViewTestPreparer<Switch>>();
+        P<bdn::test::ViewWithTestExtensions<Switch>> pSwitch = pPreparer->createView();
+        P<bdn::test::MockSwitchCore> pCore = cast<bdn::test::MockSwitchCore>(pSwitch->getViewCore());
 
         REQUIRE(pCore != nullptr);
 
@@ -46,32 +43,27 @@ TEST_CASE("Switch")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pSwitch, pPreparer,
-                    [pSwitch]() { pSwitch->setLabel("hello"); },
+                    pSwitch, pPreparer, [pSwitch]() { pSwitch->setLabel("hello"); },
                     [pCore, pSwitch] {
                         REQUIRE(pCore->getLabel() == "hello");
                         REQUIRE(pCore->getLabelChangeCount() == 1);
                     },
-                    (int)bdn::test::ExpectedSideEffect_::
-                            invalidateSizingInfo // should have caused sizing
-                                                 // info to be invalidated
-                        |
-                        (int)bdn::test::ExpectedSideEffect_::
-                            invalidateParentLayout // should cause a parent
-                                                   // layout update since sizing
-                                                   // info was invalidated
+                    (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
+                                                                                      // info to be invalidated
+                        | (int)bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent
+                                                                                      // layout update since sizing
+                                                                                      // info was invalidated
                 );
             }
 
             SECTION("on")
             {
-                bdn::test::_testViewOp(
-                    pSwitch, pPreparer, [pSwitch]() { pSwitch->setOn(true); },
-                    [pCore, pSwitch] {
-                        REQUIRE(pCore->getOn() == true);
-                        REQUIRE(pCore->getOnChangeCount() == 1);
-                    },
-                    0);
+                bdn::test::_testViewOp(pSwitch, pPreparer, [pSwitch]() { pSwitch->setOn(true); },
+                                       [pCore, pSwitch] {
+                                           REQUIRE(pCore->getOn() == true);
+                                           REQUIRE(pCore->getOnChangeCount() == 1);
+                                       },
+                                       0);
             }
         }
     }

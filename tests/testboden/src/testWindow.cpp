@@ -10,9 +10,8 @@
 
 using namespace bdn;
 
-void testSizingWithContentView(
-    P<bdn::test::ViewWithTestExtensions<Window>> pWindow,
-    P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> pWindow,
+                               P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
     P<Button> pButton = newObj<Button>();
@@ -27,8 +26,7 @@ void testSizingWithContentView(
 
     SECTION("semMargin")
     {
-        pButton->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2),
-                                    UiLength::sem(3), UiLength::sem(4)));
+        pButton->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -43,14 +41,12 @@ void testSizingWithContentView(
 
     pWindow->setContentView(pButton);
 
-    P<bdn::test::MockButtonCore> pButtonCore =
-        cast<bdn::test::MockButtonCore>(pButton->getViewCore());
+    P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>(pButton->getViewCore());
 
     // Sanity check. Verify the fake button size. 9.75 , 19.60 per character,
     // rounded to full 1/3 DIP pixels, plus 10x8 for border
     Size buttonSize(std::ceil(10 * 9.75 * 3) / 3 + 10, 19 + 2.0 / 3 + 8);
-    REQUIRE_ALMOST_EQUAL(pButtonCore->calcPreferredSize(), buttonSize,
-                         Size(0.0000001, 0.0000001));
+    REQUIRE_ALMOST_EQUAL(pButtonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001));
 
     // window border size is 20, 11, 12, 13 in our fake UI
     Margin windowBorder(20, 11, 12, 13);
@@ -74,22 +70,18 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("Window-specific")
     {
-        P<bdn::test::ViewTestPreparer<Window>> pPreparer =
-            newObj<bdn::test::ViewTestPreparer<Window>>();
+        P<bdn::test::ViewTestPreparer<Window>> pPreparer = newObj<bdn::test::ViewTestPreparer<Window>>();
 
-        P<bdn::test::ViewWithTestExtensions<Window>> pWindow =
-            pPreparer->createView();
+        P<bdn::test::ViewWithTestExtensions<Window>> pWindow = pPreparer->createView();
 
-        P<bdn::test::MockWindowCore> pCore =
-            cast<bdn::test::MockWindowCore>(pWindow->getViewCore());
+        P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>(pWindow->getViewCore());
         REQUIRE(pCore != nullptr);
 
         // continue testing after the async init has finished
-        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow, pCore){
-            // testView already tests the initialization of properties defined
-            // in View. So we only have to test the Window-specific things here.
-            SECTION("constructWindowSpecific"){
-                REQUIRE(pCore->getTitleChangeCount() == 0);
+        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow,
+                                   pCore){// testView already tests the initialization of properties defined
+                                          // in View. So we only have to test the Window-specific things here.
+                                          SECTION("constructWindowSpecific"){REQUIRE(pCore->getTitleChangeCount() == 0);
 
         REQUIRE(pWindow->title() == "");
     }
@@ -98,15 +90,14 @@ TEST_CASE("Window", "[ui]")
     {
         SECTION("title")
         {
-            bdn::test::_testViewOp(
-                pWindow, pPreparer, [pWindow]() { pWindow->setTitle("hello"); },
-                [pCore, pWindow] {
-                    REQUIRE(pCore->getTitleChangeCount() == 1);
-                    REQUIRE(pCore->getTitle() == "hello");
-                },
-                0 // should NOT cause a sizing info update, since the
-                  // title is not part of the "preferred size" calculation
-                  // should also not cause a parent layout update
+            bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setTitle("hello"); },
+                                   [pCore, pWindow] {
+                                       REQUIRE(pCore->getTitleChangeCount() == 1);
+                                       REQUIRE(pCore->getTitle() == "hello");
+                                   },
+                                   0 // should NOT cause a sizing info update, since the
+                                     // title is not part of the "preferred size" calculation
+                                     // should also not cause a parent layout update
             );
         }
 
@@ -116,12 +107,8 @@ TEST_CASE("Window", "[ui]")
             {
                 P<Button> pButton = newObj<Button>();
                 bdn::test::_testViewOp(
-                    pWindow, pPreparer,
-                    [pWindow, pButton]() { pWindow->setContentView(pButton); },
-                    [pWindow, pButton] {
-                        REQUIRE(pWindow->getContentView() ==
-                                cast<View>(pButton));
-                    },
+                    pWindow, pPreparer, [pWindow, pButton]() { pWindow->setContentView(pButton); },
+                    [pWindow, pButton] { REQUIRE(pWindow->getContentView() == cast<View>(pButton)); },
                     bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
                         bdn::test::ExpectedSideEffect_::invalidateLayout
                     // should have caused a sizing info update and a layout
@@ -137,14 +124,10 @@ TEST_CASE("Window", "[ui]")
                     // sanity check
                     REQUIRE(pWindow->getContentView() == nullptr);
 
-                    bdn::test::_testViewOp(
-                        pWindow, pPreparer,
-                        [pWindow]() { pWindow->setContentView(nullptr); },
-                        [pWindow] {
-                            REQUIRE(pWindow->getContentView() == nullptr);
-                        },
-                        0 // this should not invalidate anything since the
-                          // property does not actually change
+                    bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setContentView(nullptr); },
+                                           [pWindow] { REQUIRE(pWindow->getContentView() == nullptr); },
+                                           0 // this should not invalidate anything since the
+                                             // property does not actually change
                     );
                 }
                 else
@@ -160,16 +143,10 @@ TEST_CASE("Window", "[ui]")
                         // basically we only test here that there is no crash
                         // when the content view is set to null and that it does
                         // result in a sizing info update.
-                        bdn::test::_testViewOp(
-                            pWindow, pPreparer,
-                            [pWindow]() { pWindow->setContentView(nullptr); },
-                            [pWindow] {
-                                REQUIRE(pWindow->getContentView() == nullptr);
-                            },
-                            bdn::test::ExpectedSideEffect_::
-                                    invalidateSizingInfo |
-                                bdn::test::ExpectedSideEffect_::
-                                    invalidateLayout);
+                        bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setContentView(nullptr); },
+                                               [pWindow] { REQUIRE(pWindow->getContentView() == nullptr); },
+                                               bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
+                                                   bdn::test::ExpectedSideEffect_::invalidateLayout);
                     };
                 }
             }
@@ -192,8 +169,7 @@ TEST_CASE("Window", "[ui]")
             {
                 bdn::test::ViewTestPreparer<Window> preparer2;
 
-                P<bdn::test::ViewWithTestExtensions<Window>> pWindow2 =
-                    preparer2.createView();
+                P<bdn::test::ViewWithTestExtensions<Window>> pWindow2 = preparer2.createView();
 
                 pWindow2->setContentView(pChild);
             }
@@ -204,9 +180,7 @@ TEST_CASE("Window", "[ui]")
             // window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            CONTINUE_SECTION_WHEN_IDLE_WITH([pChild]() {
-                BDN_REQUIRE(pChild->getParentView() == nullptr);
-            });
+            CONTINUE_SECTION_WHEN_IDLE_WITH([pChild]() { BDN_REQUIRE(pChild->getParentView() == nullptr); });
         }
     }
 
@@ -279,9 +253,8 @@ TEST_CASE("Window", "[ui]")
         SECTION("withContentView")
         {
             SECTION("calcPreferredSize")
-            testSizingWithContentView(
-                pWindow, pPreparer->getUiProvider(),
-                [pWindow]() { return pWindow->calcPreferredSize(); });
+            testSizingWithContentView(pWindow, pPreparer->getUiProvider(),
+                                      [pWindow]() { return pWindow->calcPreferredSize(); });
         }
     }
 
@@ -319,8 +292,7 @@ TEST_CASE("Window", "[ui]")
         CONTINUE_SECTION_WHEN_IDLE(pWindow)
         {
             // the work area of our mock window is 100,100 800x800
-            REQUIRE(pWindow->position() ==
-                    Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
+            REQUIRE(pWindow->position() == Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
 
             REQUIRE(pWindow->size() == Size(200, 200));
         };
@@ -346,18 +318,12 @@ TEST_CASE("Window", "[ui]")
 
             Point pos = pChild->position();
 
-            REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip,
-                                 std::round(pos.x * pixelsPerDip), 0.000001);
-            REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip,
-                                 std::round(pos.y * pixelsPerDip), 0.000001);
+            REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip, std::round(pos.x * pixelsPerDip), 0.000001);
+            REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip, std::round(pos.y * pixelsPerDip), 0.000001);
 
             Size size = pChild->size();
-            REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip,
-                                 std::round(size.width * pixelsPerDip),
-                                 0.000001);
-            REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip,
-                                 std::round(size.height * pixelsPerDip),
-                                 0.000001);
+            REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip, std::round(size.width * pixelsPerDip), 0.000001);
+            REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip, std::round(size.height * pixelsPerDip), 0.000001);
         };
     }
 
@@ -375,14 +341,11 @@ TEST_CASE("Window", "[ui]")
 
         P<LocalTestData_> pData = newObj<LocalTestData_>();
 
-        pWindow->setDestructFunc(
-            [pData, pChild](bdn::test::ViewWithTestExtensions<Window> *pWin) {
-                pData->destructorRun = true;
-                pData->childParentStillSet =
-                    (pChild->getParentView() != nullptr) ? 1 : 0;
-                pData->childStillChild =
-                    (pWin->getContentView() != nullptr) ? 1 : 0;
-            });
+        pWindow->setDestructFunc([pData, pChild](bdn::test::ViewWithTestExtensions<Window> *pWin) {
+            pData->destructorRun = true;
+            pData->childParentStillSet = (pChild->getParentView() != nullptr) ? 1 : 0;
+            pData->childStillChild = (pWin->getContentView() != nullptr) ? 1 : 0;
+        });
 
         BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pChild)
         {

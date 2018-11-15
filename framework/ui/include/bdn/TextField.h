@@ -13,23 +13,16 @@ namespace bdn
     class TextField : public View
     {
       public:
-        TextField()
-        {
-            _pOnSubmit = newObj<SimpleNotifier<const SubmitEvent &>>();
-        }
+        TextField() { _pOnSubmit = newObj<SimpleNotifier<const SubmitEvent &>>(); }
 
         /** Static function that returns the type name for #TextField objects.
          */
         static String getTextFieldCoreTypeName() { return "bdn.TextFieldCore"; }
 
-        String getCoreTypeName() const override
-        {
-            return getTextFieldCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getTextFieldCoreTypeName(); }
 
         /** The text field's text */
-        BDN_VIEW_PROPERTY(String, text, setText, ITextFieldCore,
-                          influencesNothing());
+        BDN_VIEW_PROPERTY(String, text, setText, ITextFieldCore, influencesNothing());
 
         /** Informs observers of the onSubmit() notifier about a submit event.
          */

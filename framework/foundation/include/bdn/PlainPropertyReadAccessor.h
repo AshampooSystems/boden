@@ -36,26 +36,18 @@ namespace bdn
        property value is modified). This must be a member function pointer to a
        method of the owner (as indicated by OWNER_TYPE).
      */
-    template <class VALUE_TYPE, class OWNER_TYPE, typename GETTER_METHOD_TYPE,
-              typename CHANGED_METHOD_TYPE>
-    class PlainPropertyReadAccessor
-        : public Base,
-          BDN_IMPLEMENTS IPropertyReadAccessor<VALUE_TYPE>
+    template <class VALUE_TYPE, class OWNER_TYPE, typename GETTER_METHOD_TYPE, typename CHANGED_METHOD_TYPE>
+    class PlainPropertyReadAccessor : public Base, BDN_IMPLEMENTS IPropertyReadAccessor<VALUE_TYPE>
     {
       public:
-        PlainPropertyReadAccessor(OWNER_TYPE *pOwner,
-                                  GETTER_METHOD_TYPE getterMethod,
+        PlainPropertyReadAccessor(OWNER_TYPE *pOwner, GETTER_METHOD_TYPE getterMethod,
                                   CHANGED_METHOD_TYPE changedMethod)
-            : _pOwner(pOwner), _getterMethod(getterMethod),
-              _changedMethod(changedMethod)
+            : _pOwner(pOwner), _getterMethod(getterMethod), _changedMethod(changedMethod)
         {}
 
         VALUE_TYPE get() const override { return (_pOwner->*_getterMethod)(); }
 
-        IPropertyNotifier<VALUE_TYPE> &changed() const override
-        {
-            return (_pOwner->*_changedMethod)();
-        }
+        IPropertyNotifier<VALUE_TYPE> &changed() const override { return (_pOwner->*_changedMethod)(); }
 
       protected:
         /** Returns the property owner.*/
@@ -89,16 +81,12 @@ namespace bdn
        property value is modified). This must be a member function pointer to a
        method of the owner (as indicated by OWNER_TYPE).
      */
-    template <class VALUE_TYPE, class OWNER_TYPE, typename GETTER_METHOD_TYPE,
-              typename CHANGED_METHOD_TYPE>
-    PlainPropertyReadAccessor<VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE,
-                              CHANGED_METHOD_TYPE>
-    makePlainPropertyReadAccessor(OWNER_TYPE *pOwner,
-                                  GETTER_METHOD_TYPE getterMethod,
+    template <class VALUE_TYPE, class OWNER_TYPE, typename GETTER_METHOD_TYPE, typename CHANGED_METHOD_TYPE>
+    PlainPropertyReadAccessor<VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE, CHANGED_METHOD_TYPE>
+    makePlainPropertyReadAccessor(OWNER_TYPE *pOwner, GETTER_METHOD_TYPE getterMethod,
                                   CHANGED_METHOD_TYPE changedMethod)
     {
-        return PlainPropertyReadAccessor<
-            VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE, CHANGED_METHOD_TYPE>(
+        return PlainPropertyReadAccessor<VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE, CHANGED_METHOD_TYPE>(
             pOwner, getterMethod, changedMethod);
     }
 
@@ -108,11 +96,10 @@ namespace bdn
     \param owner the owner of the property (the owner object, or a reference to
    it, not a pointer) \param propertyName the name of the property.
  */
-#define BDN_PROPERTY_READ_ACCESSOR(owner, propertyName)                        \
-    bdn::makePlainPropertyReadAccessor<typename std::remove_reference<         \
-        decltype(owner)>::type ::PropertyValueType_##propertyName>(            \
-        &(owner),                                                              \
-        &std::remove_reference<decltype(owner)>::type ::propertyName,          \
+#define BDN_PROPERTY_READ_ACCESSOR(owner, propertyName)                                                                \
+    bdn::makePlainPropertyReadAccessor<                                                                                \
+        typename std::remove_reference<decltype(owner)>::type ::PropertyValueType_##propertyName>(                     \
+        &(owner), &std::remove_reference<decltype(owner)>::type ::propertyName,                                        \
         &std::remove_reference<decltype(owner)>::type ::propertyName##Changed)
 }
 

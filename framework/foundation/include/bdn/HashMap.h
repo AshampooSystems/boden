@@ -282,47 +282,36 @@ namespace bdn
        the default.
 
     */
-    template <typename KEYTYPE, typename VALTYPE,
-              typename HASHERTYPE = std::hash<KEYTYPE>,
+    template <typename KEYTYPE, typename VALTYPE, typename HASHERTYPE = std::hash<KEYTYPE>,
               typename EQUALITYCHECKERTYPE = std::equal_to<KEYTYPE>,
-              class ALLOCATOR =
-                  std::allocator<std::pair<const KEYTYPE, VALTYPE>>>
+              class ALLOCATOR = std::allocator<std::pair<const KEYTYPE, VALTYPE>>>
     class HashMap
-        : public StdMapCollection<std::unordered_map<
-              KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>
+        : public StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>
     {
       public:
         using typename StdMapCollection<
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>>::Allocator;
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Allocator;
         using typename StdMapCollection<
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>>::Iterator;
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Iterator;
         using typename StdMapCollection<
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>>::ConstIterator;
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::ConstIterator;
         using typename StdMapCollection<
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>>::Element;
-        using typename StdMapCollection<std::unordered_map<
-            KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Key;
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Element;
         using typename StdMapCollection<
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>>::Value;
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Key;
+        using typename StdMapCollection<
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>::Value;
 
         HashMap() {}
 
         /** \param initialBucketCount the initial number of buckets that the map
            will start with. See class description for more information.
                 */
-        explicit HashMap(
-            Size initialBucketCount, const HASHERTYPE &hasher = HASHERTYPE(),
-            const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
-            const Allocator &alloc = Allocator())
+        explicit HashMap(Size initialBucketCount, const HASHERTYPE &hasher = HASHERTYPE(),
+                         const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
+                         const Allocator &alloc = Allocator())
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   initialBucketCount, hasher, equalityChecker, alloc)
         {}
 
@@ -331,180 +320,129 @@ namespace bdn
                 */
         HashMap(Size initialBucketCount, const Allocator &alloc)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  initialBucketCount, HASHERTYPE(), EQUALITYCHECKERTYPE(),
-                  alloc)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  initialBucketCount, HASHERTYPE(), EQUALITYCHECKERTYPE(), alloc)
         {}
 
         /** \param initialBucketCount the initial number of buckets that the map
            will start with. See class description for more information.
                 */
-        HashMap(Size initialBucketCount, const HASHERTYPE &hasher,
-                const Allocator &alloc)
+        HashMap(Size initialBucketCount, const HASHERTYPE &hasher, const Allocator &alloc)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   initialBucketCount, hasher, EQUALITYCHECKERTYPE(), alloc)
         {}
 
         explicit HashMap(const Allocator &alloc)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(alloc)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(alloc)
         {}
 
         template <class InputIt>
         HashMap(InputIt beginIt, InputIt endIt)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(beginIt,
-                                                                      endIt)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  beginIt, endIt)
         {}
 
         /** \param initialBucketCount the initial number of buckets that the map
            will start with. See class description for more information.
                 */
         template <class InputIt>
-        HashMap(
-            InputIt beginIt, InputIt endIt, Size initialBucketCount,
-            const HASHERTYPE &hasher = HASHERTYPE(),
-            const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
-            const Allocator &alloc = Allocator())
+        HashMap(InputIt beginIt, InputIt endIt, Size initialBucketCount, const HASHERTYPE &hasher = HASHERTYPE(),
+                const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
+                const Allocator &alloc = Allocator())
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   beginIt, endIt, initialBucketCount, hasher, equalityChecker)
         {}
 
         template <class InputIt>
-        HashMap(InputIt beginIt, InputIt endIt, Size initialBucketCount,
-                const Allocator &alloc)
+        HashMap(InputIt beginIt, InputIt endIt, Size initialBucketCount, const Allocator &alloc)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   beginIt, endIt, initialBucketCount, alloc)
         {}
 
         template <class InputIt>
-        HashMap(InputIt beginIt, InputIt endIt, Size initialBucketCount,
-                const HASHERTYPE &hasher, const Allocator &alloc)
+        HashMap(InputIt beginIt, InputIt endIt, Size initialBucketCount, const HASHERTYPE &hasher,
+                const Allocator &alloc)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  beginIt, endIt, initialBucketCount, hasher,
-                  EQUALITYCHECKERTYPE(), alloc)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  beginIt, endIt, initialBucketCount, hasher, EQUALITYCHECKERTYPE(), alloc)
         {}
 
         HashMap(const HashMap &other)
-            : HashMap(static_cast<const std::unordered_map<
-                          KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE,
-                          ALLOCATOR> &>(other))
+            : HashMap(
+                  static_cast<const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &>(
+                      other))
         {}
 
-        HashMap(const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                         EQUALITYCHECKERTYPE, ALLOCATOR> &other)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(other)
+        HashMap(const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &other)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(other)
         {}
 
         HashMap(const HashMap &other, const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(other,
-                                                                      alloc)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(other,
+                                                                                                                 alloc)
         {}
 
-        HashMap(const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                         EQUALITYCHECKERTYPE, ALLOCATOR> &other,
+        HashMap(const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &other,
                 const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(other,
-                                                                      alloc)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(other,
+                                                                                                                 alloc)
         {}
 
         HashMap(HashMap &&other)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  std::move(static_cast<std::unordered_map<
-                                KEYTYPE, VALTYPE, HASHERTYPE,
-                                EQUALITYCHECKERTYPE, ALLOCATOR> &&>(other)))
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  std::move(
+                      static_cast<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &&>(
+                          other)))
         {}
 
-        HashMap(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                   EQUALITYCHECKERTYPE, ALLOCATOR> &&other)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+        HashMap(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &&other)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   std::move(other))
         {}
 
         HashMap(HashMap &&other, const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  std::move(static_cast<std::unordered_map<
-                                KEYTYPE, VALTYPE, HASHERTYPE,
-                                EQUALITYCHECKERTYPE, ALLOCATOR> &&>(other)),
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  std::move(
+                      static_cast<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &&>(
+                          other)),
                   alloc)
         {}
 
-        HashMap(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                   EQUALITYCHECKERTYPE, ALLOCATOR> &&other,
+        HashMap(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &&other,
                 const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
                   std::move(other), alloc)
         {}
 
         HashMap(std::initializer_list<Element> initList)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(initList)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  initList)
         {}
 
-        HashMap(
-            std::initializer_list<Element> initList, Size initialBucketCount,
-            const HASHERTYPE &hasher = HASHERTYPE(),
-            const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
-            const Allocator &allocator = Allocator())
+        HashMap(std::initializer_list<Element> initList, Size initialBucketCount,
+                const HASHERTYPE &hasher = HASHERTYPE(),
+                const EQUALITYCHECKERTYPE &equalityChecker = EQUALITYCHECKERTYPE(),
+                const Allocator &allocator = Allocator())
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  initList, initialBucketCount, hasher, equalityChecker,
-                  allocator)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  initList, initialBucketCount, hasher, equalityChecker, allocator)
         {}
 
-        HashMap(std::initializer_list<Element> initList,
-                Size initialBucketCount, const Allocator &allocator)
+        HashMap(std::initializer_list<Element> initList, Size initialBucketCount, const Allocator &allocator)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  initList, initialBucketCount, HASHERTYPE(),
-                  EQUALITYCHECKERTYPE(), allocator)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  initList, initialBucketCount, HASHERTYPE(), EQUALITYCHECKERTYPE(), allocator)
         {}
 
-        HashMap(std::initializer_list<Element> initList,
-                Size initialBucketCount, const HASHERTYPE &hasher,
+        HashMap(std::initializer_list<Element> initList, Size initialBucketCount, const HASHERTYPE &hasher,
                 const Allocator &allocator)
 
-            : StdMapCollection<
-                  std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR>>(
-                  initList, initialBucketCount, hasher, EQUALITYCHECKERTYPE(),
-                  allocator)
+            : StdMapCollection<std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>>(
+                  initList, initialBucketCount, hasher, EQUALITYCHECKERTYPE(), allocator)
         {}
 
         /** Replaces the current contents of the map with copies of the elements
@@ -514,9 +452,7 @@ namespace bdn
             */
         HashMap &operator=(const HashMap &other)
         {
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>::
-            operator=(other);
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=(other);
             return *this;
         }
 
@@ -525,13 +461,10 @@ namespace bdn
 
             Returns a reference to this HashMap object.
             */
-        HashMap &operator=(
-            const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR> &other)
+        HashMap &
+        operator=(const std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &other)
         {
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>::
-            operator=(other);
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=(other);
             return *this;
         }
 
@@ -562,9 +495,7 @@ namespace bdn
            */
         HashMap &operator=(std::initializer_list<Element> initList)
         {
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>::
-            operator=(initList);
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=(initList);
             return *this;
         }
 
@@ -574,9 +505,8 @@ namespace bdn
             */
         HashMap &operator=(HashMap &&other)
         {
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>::
-            operator=(std::move(other));
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=(
+                std::move(other));
             return *this;
         }
 
@@ -584,29 +514,20 @@ namespace bdn
            replacing any current contents in the process. The other HashMap
            object is invalidated by this operation.
             */
-        HashMap &
-        operator=(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                                     EQUALITYCHECKERTYPE, ALLOCATOR> &&other)
+        HashMap &operator=(std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> &&other)
         {
-            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE,
-                               EQUALITYCHECKERTYPE, ALLOCATOR>::
-            operator=(std::move(other));
+            std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=(
+                std::move(other));
             return *this;
         }
 
         /** Returns the HashMap's maximum load factor. See the class description
          * for more information.*/
-        float getMaxLoadFactor() const noexcept
-        {
-            return this->max_load_factor();
-        }
+        float getMaxLoadFactor() const noexcept { return this->max_load_factor(); }
 
         /** Sets the hash map's maximum load factor. See the class description
          * for more information.*/
-        void setMaxLoadFactor(float maxFactor)
-        {
-            this->max_load_factor(maxFactor);
-        }
+        void setMaxLoadFactor(float maxFactor) { this->max_load_factor(maxFactor); }
 
         /** Returns the current number of buckets in the map (see class
          * description for more information).*/

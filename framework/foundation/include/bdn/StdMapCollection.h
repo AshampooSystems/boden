@@ -11,8 +11,7 @@ namespace bdn
        standard C++ library container.
 
     */
-    template <class BASE_COLLECTION_TYPE>
-    class StdMapCollection : public StdCollection<BASE_COLLECTION_TYPE>
+    template <class BASE_COLLECTION_TYPE> class StdMapCollection : public StdCollection<BASE_COLLECTION_TYPE>
     {
       public:
         using Key = typename StdCollection<BASE_COLLECTION_TYPE>::key_type;
@@ -24,8 +23,7 @@ namespace bdn
         using typename StdCollection<BASE_COLLECTION_TYPE>::ConstIterator;
 
         template <typename... ARGS>
-        StdMapCollection(ARGS &&... args)
-            : StdCollection<BASE_COLLECTION_TYPE>(std::forward<ARGS>(args)...)
+        StdMapCollection(ARGS &&... args) : StdCollection<BASE_COLLECTION_TYPE>(std::forward<ARGS>(args)...)
         {}
 
         /** Adds the specified element to the map. The element is a key value
@@ -44,8 +42,7 @@ namespace bdn
             // default-constructed element needs to be constructed. Instead
             // insert can directly construct the new element.
 
-            std::pair<Iterator, bool> result =
-                StdCollection<BASE_COLLECTION_TYPE>::insert(keyValuePair);
+            std::pair<Iterator, bool> result = StdCollection<BASE_COLLECTION_TYPE>::insert(keyValuePair);
 
             if (!result.second) {
                 // element already existed in the map. Overwrite its value
@@ -78,8 +75,7 @@ namespace bdn
             // performance, compared to having one less default construction. So
             // we use option 2.
 
-            (*this)[std::move(keyValuePair.first)] =
-                std::move(keyValuePair.second);
+            (*this)[std::move(keyValuePair.first)] = std::move(keyValuePair.second);
         }
 
         /** Adds the specified key value pair to the map.
@@ -101,28 +97,19 @@ namespace bdn
             the C++ move semantics are used to move the key and value
             to the new collection element.
             */
-        void add(Key &&key, Value &&value)
-        {
-            (*this)[std::move(key)] = std::move(value);
-        }
+        void add(Key &&key, Value &&value) { (*this)[std::move(key)] = std::move(value); }
 
         /** Like add(), but instead of the new element being copied,
             the C++ move semantics are used to move the value
             to the new collection element.
             */
-        void add(const Key &key, Value &&value)
-        {
-            (*this)[key] = std::move(value);
-        }
+        void add(const Key &key, Value &&value) { (*this)[key] = std::move(value); }
 
         /** Like add(), but instead of the new element being copied,
             the C++ move semantics are used to move the value
             to the new collection element.
             */
-        void add(Key &&key, const Value &value)
-        {
-            (*this)[std::move(key)] = value;
-        }
+        void add(Key &&key, const Value &value) { (*this)[std::move(key)] = value; }
 
         /** Adds the elements from the specified [beginIt ... endIt)
             iterator range to the set.
@@ -141,8 +128,7 @@ namespace bdn
            element type of the target set (i.e. it must behave like a std::pair
            with the key and value type).
             */
-        template <class InputIt>
-        void addSequence(InputIt beginIt, InputIt endIt)
+        template <class InputIt> void addSequence(InputIt beginIt, InputIt endIt)
         {
             // we cannot use the iterator insert here, unfortunately, since that
             // does not overwrite existing entries. So we have to add the
@@ -150,8 +136,7 @@ namespace bdn
             // though, since map implementations do not have a good way to
             // optimize batch insertions with random keys.
             for (auto it = beginIt; it != endIt; ++it) {
-                std::pair<Iterator, bool> result =
-                    StdCollection<BASE_COLLECTION_TYPE>::insert(*it);
+                std::pair<Iterator, bool> result = StdCollection<BASE_COLLECTION_TYPE>::insert(*it);
 
                 if (!result.second) {
                     // element already existed in the map. Overwrite its value
@@ -185,8 +170,7 @@ namespace bdn
             // again, we cannot use the batch version of map::insert because of
             // the overwrite semantics
             for (const Element &el : initList) {
-                std::pair<Iterator, bool> result =
-                    StdCollection<BASE_COLLECTION_TYPE>::insert(el);
+                std::pair<Iterator, bool> result = StdCollection<BASE_COLLECTION_TYPE>::insert(el);
 
                 if (!result.second) {
                     // element already existed in the map. Overwrite its value
@@ -224,12 +208,10 @@ namespace bdn
 
             \endcode
             */
-        template <class SequenceType>
-        void addSequence(const SequenceType &sequence)
+        template <class SequenceType> void addSequence(const SequenceType &sequence)
         {
             for (const Element &el : sequence) {
-                std::pair<Iterator, bool> result =
-                    StdCollection<BASE_COLLECTION_TYPE>::insert(el);
+                std::pair<Iterator, bool> result = StdCollection<BASE_COLLECTION_TYPE>::insert(el);
 
                 if (!result.second) {
                     // element already existed in the map. Overwrite its value
@@ -266,15 +248,12 @@ namespace bdn
         template <class... ARGS> Element &addNew(ARGS &&... args)
         {
             std::pair<Iterator, bool> result =
-                StdCollection<BASE_COLLECTION_TYPE>::emplace(
-                    std::forward<ARGS>(args)...);
+                StdCollection<BASE_COLLECTION_TYPE>::emplace(std::forward<ARGS>(args)...);
 
             if (!result.second) {
                 // this is quite inefficient - but there is probably no other
                 // way. We must construct a temporary pair to get the value.
-                result.first->second =
-                    std::pair<const Key, Value>(std::forward<ARGS>(args)...)
-                        .second;
+                result.first->second = std::pair<const Key, Value>(std::forward<ARGS>(args)...).second;
             }
 
             return *result.first;
@@ -325,8 +304,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class COLL, class ITERATOR>
-            void operator()(COLL &map, ITERATOR &it)
+            template <class COLL, class ITERATOR> void operator()(COLL &map, ITERATOR &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -349,8 +327,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class COLL, class ITERATOR>
-            void operator()(COLL &map, ITERATOR &it)
+            template <class COLL, class ITERATOR> void operator()(COLL &map, ITERATOR &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -380,8 +357,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class COLL, class ITERATOR>
-            void operator()(COLL &map, ITERATOR &it)
+            template <class COLL, class ITERATOR> void operator()(COLL &map, ITERATOR &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -410,20 +386,16 @@ namespace bdn
         // https://stackoverflow.com/questions/25047241/c11-is-it-safe-to-remove-individual-elements-from-stdunordered-map-while-it
 
         using KeyFinder = SequenceFilter<StdMapCollection, KeyMatcher_>;
-        using ConstKeyFinder =
-            SequenceFilter<const StdMapCollection, KeyMatcher_>;
+        using ConstKeyFinder = SequenceFilter<const StdMapCollection, KeyMatcher_>;
 
         using ElementFinder = SequenceFilter<StdMapCollection, ElementMatcher_>;
-        using ConstElementFinder =
-            SequenceFilter<const StdMapCollection, ElementMatcher_>;
+        using ConstElementFinder = SequenceFilter<const StdMapCollection, ElementMatcher_>;
 
         template <typename MATCH_FUNC_TYPE>
-        using CustomFinder =
-            SequenceFilter<StdMapCollection, FuncMatcher_<MATCH_FUNC_TYPE>>;
+        using CustomFinder = SequenceFilter<StdMapCollection, FuncMatcher_<MATCH_FUNC_TYPE>>;
 
         template <typename MATCH_FUNC_TYPE>
-        using ConstCustomFinder = SequenceFilter<const StdMapCollection,
-                                                 FuncMatcher_<MATCH_FUNC_TYPE>>;
+        using ConstCustomFinder = SequenceFilter<const StdMapCollection, FuncMatcher_<MATCH_FUNC_TYPE>>;
 
         /** Searches for the specified key in the map and returns a finder
            object. A finder object is a \ref sequence.md "sequence" with all
@@ -432,10 +404,7 @@ namespace bdn
             Since Map does not allow multiple entries with the same key the
            returned finder can only return either 1 or 0 objects.
             */
-        KeyFinder findAll(const Key &keyToFind)
-        {
-            return KeyFinder(*this, KeyMatcher_(keyToFind));
-        }
+        KeyFinder findAll(const Key &keyToFind) { return KeyFinder(*this, KeyMatcher_(keyToFind)); }
 
         /** Searches for the specified key in the map and returns a finder
            object. A finder object is a \ref sequence.md "sequence" with all
@@ -444,10 +413,7 @@ namespace bdn
             Since Map does not allow multiple entries with the same key the
            returned finder can only return either 1 or 0 objects.
             */
-        ConstKeyFinder findAll(const Key &keyToFind) const
-        {
-            return ConstKeyFinder(*this, KeyMatcher_(keyToFind));
-        }
+        ConstKeyFinder findAll(const Key &keyToFind) const { return ConstKeyFinder(*this, KeyMatcher_(keyToFind)); }
 
         /** Searches for the specified element (key/value pair) in the map and
            returns a \ref finder.md "finder object" with the results.
@@ -455,10 +421,7 @@ namespace bdn
             Since HashMap does not allow multiple entries with the same key the
            returned finder can only return either 1 or 0 objects.
             */
-        ElementFinder findAll(const Element &elToFind)
-        {
-            return ElementFinder(*this, ElementMatcher_(elToFind));
-        }
+        ElementFinder findAll(const Element &elToFind) { return ElementFinder(*this, ElementMatcher_(elToFind)); }
 
         /** Searches for the specified element (key/value pair) in the map and
            returns a \ref finder.md "finder object" with the results.
@@ -481,11 +444,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
+        template <class MatchFuncType> CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
         {
-            return CustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for all elements for which the specified match function
@@ -498,12 +459,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        ConstCustomFinder<MatchFuncType>
-        findAllCustom(MatchFuncType matchFunction) const
+        template <class MatchFuncType> ConstCustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction) const
         {
-            return ConstCustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return ConstCustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for the specified key/value pair in the map.
@@ -523,8 +481,7 @@ namespace bdn
         */
         Iterator find(const Element &toFind)
         {
-            Iterator it =
-                StdCollection<BASE_COLLECTION_TYPE>::find(toFind.first);
+            Iterator it = StdCollection<BASE_COLLECTION_TYPE>::find(toFind.first);
             if (it != this->end() && it->second == toFind.second)
                 return it;
             else
@@ -539,17 +496,13 @@ namespace bdn
             Returns an iterator to the element with the specified key, if one is
            found, or end() if no such element is found.
         */
-        Iterator find(const Key &toFind)
-        {
-            return StdCollection<BASE_COLLECTION_TYPE>::find(toFind);
-        }
+        Iterator find(const Key &toFind) { return StdCollection<BASE_COLLECTION_TYPE>::find(toFind); }
 
         /** Const version of find() - returns a read-only iterator.
          */
         ConstIterator find(const Element &toFind) const
         {
-            ConstIterator it =
-                StdCollection<BASE_COLLECTION_TYPE>::find(toFind.first);
+            ConstIterator it = StdCollection<BASE_COLLECTION_TYPE>::find(toFind.first);
             if (it != this->end() && it->second == toFind.second)
                 return it;
             else
@@ -558,10 +511,7 @@ namespace bdn
 
         /** Const version of find() - returns a read-only iterator.
          */
-        ConstIterator find(const Key &toFind) const
-        {
-            return StdCollection<BASE_COLLECTION_TYPE>::find(toFind);
-        }
+        ConstIterator find(const Key &toFind) const { return StdCollection<BASE_COLLECTION_TYPE>::find(toFind); }
 
         /** If the map contains the specified key/value pair, remove it.
 
@@ -581,10 +531,7 @@ namespace bdn
            entry.
 
             Does nothing if no element with the key is found in the map.*/
-        void findAndRemove(const Key &key)
-        {
-            StdCollection<BASE_COLLECTION_TYPE>::erase(key);
-        }
+        void findAndRemove(const Key &key) { StdCollection<BASE_COLLECTION_TYPE>::erase(key); }
 
         /** Removes all elements for which the specified function matchFunc
            returns true.
@@ -593,8 +540,7 @@ namespace bdn
            its parameter and returns true if the element at the corresponding
            position should be removed.
         */
-        template <typename MATCH_FUNC_TYPE>
-        void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
+        template <typename MATCH_FUNC_TYPE> void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
         {
             for (auto it = StdCollection<BASE_COLLECTION_TYPE>::begin();
                  it != StdCollection<BASE_COLLECTION_TYPE>::end();) {
@@ -607,9 +553,8 @@ namespace bdn
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS, class BASE_COLLECTION_TYPE>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const StdMapCollection<BASE_COLLECTION_TYPE> &m)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const StdMapCollection<BASE_COLLECTION_TYPE> &m)
     {
         if (m.isEmpty())
             return stream << "{}";

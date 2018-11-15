@@ -32,10 +32,8 @@ namespace bdn
             // queue (without executing them).
             Mutex::Lock lock(_mutex);
 
-            for (int priorityQueueIndex = 0; priorityQueueIndex < priorityCount;
-                 priorityQueueIndex++) {
-                List<std::function<void()>> &queue =
-                    _queues[priorityQueueIndex];
+            for (int priorityQueueIndex = 0; priorityQueueIndex < priorityCount; priorityQueueIndex++) {
+                List<std::function<void()>> &queue = _queues[priorityQueueIndex];
 
                 // remove the objects one by one so that we can ignore
                 // exceptions that happen in the destructor.
@@ -57,8 +55,7 @@ namespace bdn
                     {
                         // make a copy so that pop_front is not aborted if the
                         // destructor fails.
-                        std::function<void()> func =
-                            _timedItemMap.begin()->second.func;
+                        std::function<void()> func = _timedItemMap.begin()->second.func;
                         _timedItemMap.erase(_timedItemMap.begin());
                     },
                     "Error clearing GenericDispatcher timed item during "
@@ -66,8 +63,7 @@ namespace bdn
             }
         }
 
-        void enqueue(std::function<void()> func,
-                     Priority priority = Priority::normal) override
+        void enqueue(std::function<void()> func, Priority priority = Priority::normal) override
         {
             Mutex::Lock lock(_mutex);
 
@@ -76,23 +72,19 @@ namespace bdn
             _somethingChangedSignal.set();
         }
 
-        void enqueueInSeconds(double seconds, std::function<void()> func,
-                              Priority priority = Priority::normal) override
+        void enqueueInSeconds(double seconds, std::function<void()> func, Priority priority = Priority::normal) override
         {
             if (seconds <= 0)
                 enqueue(func, priority);
             else
-                addTimedItem(Clock::now() + secondsToDuration(seconds), func,
-                             priority);
+                addTimedItem(Clock::now() + secondsToDuration(seconds), func, priority);
         }
 
-        void createTimer(double intervalSeconds,
-                         std::function<bool()> func) override
+        void createTimer(double intervalSeconds, std::function<bool()> func) override
         {
             if (intervalSeconds <= 0)
-                throw InvalidArgumentError(
-                    "GenericDispatcher::createTimer must be called with "
-                    "intervalSeconds > 0");
+                throw InvalidArgumentError("GenericDispatcher::createTimer must be called with "
+                                           "intervalSeconds > 0");
             else {
                 Duration interval = secondsToDuration(intervalSeconds);
 
@@ -141,10 +133,7 @@ namespace bdn
         class ThreadRunnable : public ThreadRunnableBase
         {
           public:
-            ThreadRunnable(GenericDispatcher *pDispatcher)
-            {
-                _pDispatcher = pDispatcher;
-            }
+            ThreadRunnable(GenericDispatcher *pDispatcher) { _pDispatcher = pDispatcher; }
 
             void signalStop() override
             {
@@ -188,14 +177,12 @@ namespace bdn
 
         Duration secondsToDuration(double seconds)
         {
-            return Duration((Duration::rep)(seconds * Duration::period::den /
-                                            Duration::period::num));
+            return Duration((Duration::rep)(seconds * Duration::period::den / Duration::period::num));
         }
 
         double durationToSeconds(const Duration &dur)
         {
-            return ((double)dur.count()) * Duration::period::num /
-                   Duration::period::den;
+            return ((double)dur.count()) * Duration::period::num / Duration::period::den;
         }
 
         enum
@@ -212,17 +199,12 @@ namespace bdn
                 return 1;
             }
 
-            throw InvalidArgumentError("Invalid dispatcher item priority: " +
-                                       std::to_string((int)priority));
+            throw InvalidArgumentError("Invalid dispatcher item priority: " + std::to_string((int)priority));
         }
 
-        List<std::function<void()>> &getQueue(Priority priority)
-        {
-            return _queues[priorityToQueueIndex(priority)];
-        }
+        List<std::function<void()>> &getQueue(Priority priority) { return _queues[priorityToQueueIndex(priority)]; }
 
-        void addTimedItem(TimePoint scheduledTime, std::function<void()> func,
-                          Priority priority)
+        void addTimedItem(TimePoint scheduledTime, std::function<void()> func, Priority priority)
         {
             Mutex::Lock lock(_mutex);
 
@@ -275,8 +257,7 @@ namespace bdn
         class Timer : public Base
         {
           public:
-            Timer(GenericDispatcher *pDispatcherWeak,
-                  std::function<bool()> func, Duration interval)
+            Timer(GenericDispatcher *pDispatcherWeak, std::function<bool()> func, Duration interval)
             {
                 _pDispatcherWeak = pDispatcherWeak;
 
@@ -285,11 +266,7 @@ namespace bdn
                 _interval = interval;
             }
 
-            void scheduleNextEvent()
-            {
-                _pDispatcherWeak->addTimedItem(_nextEventTime, Caller(this),
-                                               Priority::normal);
-            }
+            void scheduleNextEvent() { _pDispatcherWeak->addTimedItem(_nextEventTime, Caller(this), Priority::normal); }
 
           private:
             class Caller

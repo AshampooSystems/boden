@@ -9,14 +9,12 @@
 
 using namespace bdn;
 
-class TestIosTextFieldCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>
+class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestIosViewCoreMixin<
-            bdn::test::TestTextFieldCore>::initCore();
+        bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>::initCore();
 
         _pUITextField = (UITextField *)_pUIView;
         REQUIRE(_pUITextField != nullptr);

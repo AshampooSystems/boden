@@ -42,23 +42,18 @@ namespace bdn
     {
 
         template <class T>
-        class SwitchCore : public ChildViewCore,
-                           BDN_IMPLEMENTS ISwitchCore,
-                           BDN_IMPLEMENTS IClickManagerTarget
+        class SwitchCore : public ChildViewCore, BDN_IMPLEMENTS ISwitchCore, BDN_IMPLEMENTS IClickManagerTarget
         {
           private:
             static BdnMacSwitchComposite *_createSwitchComposite()
             {
                 BdnMacSwitchComposite *switchComposite =
-                    [[BdnMacSwitchComposite alloc]
-                        initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                    [[BdnMacSwitchComposite alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
-                switchComposite.bdnSwitch =
-                    [[BdnMacSwitch alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                switchComposite.bdnSwitch = [[BdnMacSwitch alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 [switchComposite addSubview:switchComposite.bdnSwitch];
 
-                switchComposite.label =
-                    [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                switchComposite.label = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 switchComposite.label.bezeled = NO;
                 switchComposite.label.drawsBackground = NO;
                 switchComposite.label.editable = NO;
@@ -69,14 +64,12 @@ namespace bdn
             }
 
           public:
-            SwitchCore(T *pOuter)
-                : ChildViewCore(pOuter, _createSwitchComposite())
+            SwitchCore(T *pOuter) : ChildViewCore(pOuter, _createSwitchComposite())
             {
                 _clickManager = [[BdnSwitchClickManager alloc] init];
                 _clickManager.pTarget = this;
 
-                BdnMacSwitchComposite *composite =
-                    (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                 [composite.bdnSwitch setTarget:_clickManager];
                 [composite.bdnSwitch setAction:@selector(clicked)];
 
@@ -86,27 +79,23 @@ namespace bdn
 
             virtual ~SwitchCore()
             {
-                BdnMacSwitchComposite *composite =
-                    (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                 [composite.bdnSwitch setTarget:nil];
                 [composite.bdnSwitch setAction:nil];
             }
 
             void setLabel(const String &label) override
             {
-                BdnMacSwitchComposite *composite =
-                    (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                 composite.label.stringValue = stringToMacString(label);
-                NSTextFieldCell *cell = [[NSTextFieldCell alloc]
-                    initTextCell:composite.label.stringValue];
+                NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
                 [composite.label setFrameSize:cell.cellSize];
             }
 
             // Called when attached to a Switch or Toggle with switch appearance
             void setOn(const bool &on) override
             {
-                BdnMacSwitchComposite *composite =
-                    (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                 [composite.bdnSwitch setOn:on animate:NO];
             }
 
@@ -116,8 +105,7 @@ namespace bdn
                 if (pOuter != nullptr) {
                     bdn::ClickEvent evt(pOuter);
 
-                    BdnMacSwitchComposite *composite =
-                        (BdnMacSwitchComposite *)getNSView();
+                    BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                     pOuter->setOn(composite.bdnSwitch.on);
                     pOuter->onClick().notify(evt);
                 }
@@ -125,27 +113,21 @@ namespace bdn
 
             void layout() override
             {
-                BdnMacSwitchComposite *composite =
-                    (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
 
                 CGRect compositeBounds = composite.bounds;
                 CGRect switchBounds = composite.bdnSwitch.bounds;
                 CGRect labelBounds = composite.label.bounds;
 
                 // Center switch vertically in composite
-                CGRect switchFrame = CGRectMake(
-                    compositeBounds.size.width - switchBounds.size.width,
-                    compositeBounds.size.height / 2. -
-                        switchBounds.size.height / 2.,
-                    switchBounds.size.width, switchBounds.size.height);
+                CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
+                                                compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
+                                                switchBounds.size.width, switchBounds.size.height);
                 composite.bdnSwitch.frame = switchFrame;
 
                 // Center label vertically in composite
-                CGRect labelFrame =
-                    CGRectMake(0,
-                               compositeBounds.size.height / 2. -
-                                   labelBounds.size.height / 2.,
-                               labelBounds.size.width, labelBounds.size.height);
+                CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
+                                               labelBounds.size.width, labelBounds.size.height);
                 composite.label.frame = labelFrame;
             }
 

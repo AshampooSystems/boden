@@ -10,12 +10,9 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
   public:
     TestStdioTextUiFixture()
     {
-        _inStream << String("first line") << std::endl
-                  << String("second line") << std::endl
-                  << String("third line");
+        _inStream << String("first line") << std::endl << String("second line") << std::endl << String("third line");
 
-        _pUi =
-            newObj<StdioTextUi<CharType>>(&_inStream, &_outStream, &_errStream);
+        _pUi = newObj<StdioTextUi<CharType>>(&_inStream, &_outStream, &_errStream);
     }
 
     void doTest()
@@ -37,11 +34,9 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
             {
                 P<IAsyncOp<String>> pOp = _pUi->readLine();
 
-                P<IAsyncOp<String>> pCaptureOp =
-                    holdOpReference ? pOp : nullptr;
+                P<IAsyncOp<String>> pCaptureOp = holdOpReference ? pOp : nullptr;
 
-                pOp->onDone() += [pCaptureOp, pThis, holdOpReference](
-                                     P<IAsyncOp<String>> pParamOp) {
+                pOp->onDone() += [pCaptureOp, pThis, holdOpReference](P<IAsyncOp<String>> pParamOp) {
                     String result = pParamOp->getResult();
                     REQUIRE(result == "first line");
                     if (pCaptureOp != nullptr) {
@@ -51,11 +46,9 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
 
                     P<IAsyncOp<String>> pOp2 = pThis->_pUi->readLine();
 
-                    P<IAsyncOp<String>> pCaptureOp2 =
-                        holdOpReference ? pOp2 : nullptr;
+                    P<IAsyncOp<String>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
 
-                    pOp2->onDone() += [pCaptureOp2, pThis, holdOpReference](
-                                          P<IAsyncOp<String>> pParamOp) {
+                    pOp2->onDone() += [pCaptureOp2, pThis, holdOpReference](P<IAsyncOp<String>> pParamOp) {
                         String result = pParamOp->getResult();
                         REQUIRE(result == "second line");
                         if (pCaptureOp2 != nullptr) {
@@ -65,20 +58,18 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
 
                         P<IAsyncOp<String>> pOp3 = pThis->_pUi->readLine();
 
-                        P<IAsyncOp<String>> pCaptureOp3 =
-                            holdOpReference ? pOp3 : nullptr;
+                        P<IAsyncOp<String>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
 
-                        pOp3->onDone() +=
-                            [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp) {
-                                String result = pParamOp->getResult();
+                        pOp3->onDone() += [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp) {
+                            String result = pParamOp->getResult();
+                            REQUIRE(result == "third line");
+                            if (pCaptureOp3 != nullptr) {
+                                result = pCaptureOp3->getResult();
                                 REQUIRE(result == "third line");
-                                if (pCaptureOp3 != nullptr) {
-                                    result = pCaptureOp3->getResult();
-                                    REQUIRE(result == "third line");
-                                }
+                            }
 
-                                pThis->_finished = true;
-                            };
+                            pThis->_finished = true;
+                        };
                     };
                 };
 
@@ -91,80 +82,66 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
                 P<IAsyncOp<String>> pOp2 = _pUi->readLine();
                 P<IAsyncOp<String>> pOp3 = _pUi->readLine();
 
-                P<IAsyncOp<String>> pCaptureOp =
-                    holdOpReference ? pOp : nullptr;
-                P<IAsyncOp<String>> pCaptureOp2 =
-                    holdOpReference ? pOp2 : nullptr;
-                P<IAsyncOp<String>> pCaptureOp3 =
-                    holdOpReference ? pOp3 : nullptr;
+                P<IAsyncOp<String>> pCaptureOp = holdOpReference ? pOp : nullptr;
+                P<IAsyncOp<String>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
+                P<IAsyncOp<String>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
 
-                pOp->onDone() +=
-                    [pCaptureOp, pThis](P<IAsyncOp<String>> pParamOp) {
-                        String result = pParamOp->getResult();
+                pOp->onDone() += [pCaptureOp, pThis](P<IAsyncOp<String>> pParamOp) {
+                    String result = pParamOp->getResult();
+                    REQUIRE(result == "first line");
+                    if (pCaptureOp != nullptr) {
+                        result = pCaptureOp->getResult();
                         REQUIRE(result == "first line");
-                        if (pCaptureOp != nullptr) {
-                            result = pCaptureOp->getResult();
-                            REQUIRE(result == "first line");
-                        }
+                    }
 
-                        REQUIRE(pThis->_finishedOpCounter == 0);
-                        pThis->_finishedOpCounter++;
-                    };
+                    REQUIRE(pThis->_finishedOpCounter == 0);
+                    pThis->_finishedOpCounter++;
+                };
 
-                pOp2->onDone() +=
-                    [pCaptureOp2, pThis](P<IAsyncOp<String>> pParamOp) {
-                        String result2 = pParamOp->getResult();
+                pOp2->onDone() += [pCaptureOp2, pThis](P<IAsyncOp<String>> pParamOp) {
+                    String result2 = pParamOp->getResult();
+                    REQUIRE(result2 == "second line");
+                    if (pCaptureOp2 != nullptr) {
+                        result2 = pCaptureOp2->getResult();
                         REQUIRE(result2 == "second line");
-                        if (pCaptureOp2 != nullptr) {
-                            result2 = pCaptureOp2->getResult();
-                            REQUIRE(result2 == "second line");
-                        }
+                    }
 
-                        REQUIRE(pThis->_finishedOpCounter == 1);
-                        pThis->_finishedOpCounter++;
-                    };
+                    REQUIRE(pThis->_finishedOpCounter == 1);
+                    pThis->_finishedOpCounter++;
+                };
 
-                pOp3->onDone() +=
-                    [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp) {
-                        String result3 = pParamOp->getResult();
+                pOp3->onDone() += [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp) {
+                    String result3 = pParamOp->getResult();
+                    REQUIRE(result3 == "third line");
+                    if (pCaptureOp3 != nullptr) {
+                        result3 = pCaptureOp3->getResult();
                         REQUIRE(result3 == "third line");
-                        if (pCaptureOp3 != nullptr) {
-                            result3 = pCaptureOp3->getResult();
-                            REQUIRE(result3 == "third line");
-                        }
+                    }
 
-                        REQUIRE(pThis->_finishedOpCounter == 2);
-                        pThis->_finishedOpCounter++;
-                        pThis->_finished = true;
-                    };
+                    REQUIRE(pThis->_finishedOpCounter == 2);
+                    pThis->_finishedOpCounter++;
+                    pThis->_finished = true;
+                };
 
                 scheduleFinishTest();
             }
         }
 
         SECTION("output.writeLine")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(),
-                               &ITextSink::writeLine),
-                  "\n", &_outStream);
+        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::writeLine), "\n", &_outStream);
 
         SECTION("write")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(),
-                               &ITextSink::write),
-                  "", &_outStream);
+        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::write), "", &_outStream);
 
         SECTION("writeErrorLine")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(),
-                               &ITextSink::writeLine),
-                  "\n", &_errStream);
+        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n",
+                  &_errStream);
 
         SECTION("writeError")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(),
-                               &ITextSink::write),
-                  "", &_errStream);
+        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::write), "", &_errStream);
     }
 
-    void testWrite(std::function<void(String)> writeFunc,
-                   String expectedWriteSuffix,
+    void testWrite(std::function<void(String)> writeFunc, String expectedWriteSuffix,
                    std::basic_stringstream<CharType> *pStream)
     {
         P<TestStdioTextUiFixture> pThis = this;
@@ -177,14 +154,11 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
 
             writeFunc("second");
 
-            REQUIRE(String(pStream->str()) == "first" + expectedWriteSuffix +
-                                                  "second" +
-                                                  expectedWriteSuffix);
+            REQUIRE(String(pStream->str()) == "first" + expectedWriteSuffix + "second" + expectedWriteSuffix);
 
             writeFunc("third");
             REQUIRE(String(pStream->str()) ==
-                    "first" + expectedWriteSuffix + "second" +
-                        expectedWriteSuffix + "third" + expectedWriteSuffix);
+                    "first" + expectedWriteSuffix + "second" + expectedWriteSuffix + "third" + expectedWriteSuffix);
 
             pThis->_finished = true;
 
@@ -196,23 +170,20 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
         {
             P<Signal> pSignal = newObj<Signal>();
 
-            std::future<void> thread1Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",first");
-                });
+            std::future<void> thread1Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",first");
+            });
 
-            std::future<void> thread2Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",second");
-                });
+            std::future<void> thread2Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",second");
+            });
 
-            std::future<void> thread3Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",third");
-                });
+            std::future<void> thread3Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",third");
+            });
 
             // wait a little to ensure that all three threads are waiting on
             // out signal.
@@ -265,8 +236,7 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
 
     void scheduleFinishTest()
     {
-        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-            0.2, strongMethod(this, &TestStdioTextUiFixture::finishTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.2, strongMethod(this, &TestStdioTextUiFixture::finishTest));
     }
 
     void finishTest()
@@ -293,8 +263,7 @@ template <typename CharType> class TestStdioTextUiFixture : public Base
 
 template <typename CharType> void testStdioTextUi()
 {
-    P<TestStdioTextUiFixture<CharType>> pFixture =
-        newObj<TestStdioTextUiFixture<CharType>>();
+    P<TestStdioTextUiFixture<CharType>> pFixture = newObj<TestStdioTextUiFixture<CharType>>();
 
     pFixture->doTest();
 }

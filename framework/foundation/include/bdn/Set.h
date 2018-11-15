@@ -69,116 +69,81 @@ namespace bdn
        the default.
 
     */
-    template <typename ELTYPE, typename COMPAREFUNCTYPE = std::less<ELTYPE>,
-              class ALLOCATOR = std::allocator<ELTYPE>>
-    class Set
-        : public StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>
+    template <typename ELTYPE, typename COMPAREFUNCTYPE = std::less<ELTYPE>, class ALLOCATOR = std::allocator<ELTYPE>>
+    class Set : public StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>
     {
       public:
-        using typename StdCollection<
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Element;
-        using typename StdCollection<
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Size;
-        using typename StdCollection<
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Iterator;
-        using typename StdCollection<
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::ConstIterator;
+        using typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Element;
+        using typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Size;
+        using typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Iterator;
+        using typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::ConstIterator;
 
         /** The class of iterator objects for iteration over the collection
          * elements in reverse order (with read/write access to the elements).*/
-        typedef typename StdCollection<
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::reverse_iterator
-            ReverseIterator;
+        typedef typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::reverse_iterator ReverseIterator;
 
         /** The class of iterator objects for iteration over the collection
          * elements in reverse order (with read-only access to the elements).*/
-        typedef
-            typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE,
-                                            ALLOCATOR>>::const_reverse_iterator
-                ConstReverseIterator;
+        typedef typename StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::const_reverse_iterator
+            ConstReverseIterator;
 
         Set() : Set(COMPAREFUNCTYPE()) {}
 
-        explicit Set(const COMPAREFUNCTYPE &compareFunc,
-                     const ALLOCATOR &alloc = ALLOCATOR())
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  compareFunc, alloc)
+        explicit Set(const COMPAREFUNCTYPE &compareFunc, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(compareFunc, alloc)
         {}
 
-        explicit Set(const ALLOCATOR &alloc)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(alloc)
-        {}
+        explicit Set(const ALLOCATOR &alloc) : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(alloc) {}
 
         template <class InputIt>
-        Set(InputIt beginIt, InputIt endIt,
-            const COMPAREFUNCTYPE &compareFunc = COMPAREFUNCTYPE(),
+        Set(InputIt beginIt, InputIt endIt, const COMPAREFUNCTYPE &compareFunc = COMPAREFUNCTYPE(),
             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  beginIt, endIt, compareFunc, alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(beginIt, endIt, compareFunc, alloc)
         {}
 
         template <class InputIt>
         Set(InputIt beginIt, InputIt endIt, const ALLOCATOR &alloc)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  beginIt, endIt, COMPAREFUNCTYPE(), alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(beginIt, endIt, COMPAREFUNCTYPE(), alloc)
         {}
 
-        Set(const Set &other)
-            : Set(static_cast<
-                  const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &>(other))
-        {}
+        Set(const Set &other) : Set(static_cast<const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &>(other)) {}
 
         Set(const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
             : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other)
         {}
 
         Set(const Set &other, const ALLOCATOR &alloc)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other,
-                                                                          alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other, alloc)
         {}
 
-        Set(const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other,
-            const ALLOCATOR &alloc)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other,
-                                                                          alloc)
+        Set(const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other, const ALLOCATOR &alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other, alloc)
         {}
 
         Set(Set &&other)
-            : StdCollection<
-                  std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(std::move(
-                  static_cast<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(
-                      other)))
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
+                  std::move(static_cast<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(other)))
         {}
 
         Set(std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(other))
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(std::move(other))
         {}
 
         Set(Set &&other, const ALLOCATOR &alloc)
             : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(static_cast<
-                            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(
-                      other)),
-                  alloc)
+                  std::move(static_cast<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(other)), alloc)
         {}
 
-        Set(std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other,
-            const ALLOCATOR &alloc)
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(other), alloc)
+        Set(std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other, const ALLOCATOR &alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(std::move(other), alloc)
         {}
 
-        Set(std::initializer_list<ELTYPE> initList,
-            const COMPAREFUNCTYPE &compFunc = COMPAREFUNCTYPE(),
+        Set(std::initializer_list<ELTYPE> initList, const COMPAREFUNCTYPE &compFunc = COMPAREFUNCTYPE(),
             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  initList, compFunc, alloc)
+            : StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(initList, compFunc, alloc)
         {}
 
-        Set(std::initializer_list<ELTYPE> initList, const ALLOCATOR &alloc)
-            : Set(initList, COMPAREFUNCTYPE(), alloc)
-        {}
+        Set(std::initializer_list<ELTYPE> initList, const ALLOCATOR &alloc) : Set(initList, COMPAREFUNCTYPE(), alloc) {}
 
         /** Replaces the current contents of the set with copies of the elements
            from the specified other Set.
@@ -196,8 +161,7 @@ namespace bdn
 
             Returns a reference to this Set object.
             */
-        Set &
-        operator=(const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
+        Set &operator=(const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
         {
             std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(other);
             return *this;
@@ -227,8 +191,7 @@ namespace bdn
             */
         Set &operator=(Set &&other)
         {
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                std::move(other));
+            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(std::move(other));
             return *this;
         }
 
@@ -238,8 +201,7 @@ namespace bdn
             */
         Set &operator=(std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other)
         {
-            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                std::move(other));
+            std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(std::move(other));
             return *this;
         }
 
@@ -251,8 +213,8 @@ namespace bdn
             */
         bool add(const Element &value)
         {
-            std::pair<Iterator, bool> result = StdCollection<
-                std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(value);
+            std::pair<Iterator, bool> result =
+                StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(value);
 
             return result.second;
         }
@@ -267,8 +229,7 @@ namespace bdn
         bool add(Element &&value)
         {
             std::pair<Iterator, bool> result =
-                StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE,
-                                       ALLOCATOR>>::insert(std::move(value));
+                StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(std::move(value));
 
             return result.second;
         }
@@ -283,11 +244,9 @@ namespace bdn
            element type of the source collection must be compatible to the
            element type of the target set.
             */
-        template <class InputIt>
-        void addSequence(InputIt beginIt, InputIt endIt)
+        template <class InputIt> void addSequence(InputIt beginIt, InputIt endIt)
         {
-            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(
-                beginIt, endIt);
+            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(beginIt, endIt);
         }
 
         /** Adds the elements from the specified initializer list to the
@@ -304,8 +263,7 @@ namespace bdn
             */
         void addSequence(std::initializer_list<Element> initList)
         {
-            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(
-                initList);
+            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(initList);
         }
 
         /** Adds the elements from the specified source \ref sequence.md
@@ -326,11 +284,9 @@ namespace bdn
 
             \endcode
             */
-        template <class SequenceType>
-        void addSequence(const SequenceType &sequence)
+        template <class SequenceType> void addSequence(const SequenceType &sequence)
         {
-            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(
-                sequence.begin(), sequence.end());
+            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::insert(sequence.begin(), sequence.end());
         }
 
         /** Constructs a new element and adds it to the set, if it not yet in
@@ -351,8 +307,7 @@ namespace bdn
         template <class... Args> const Element &addNew(Args &&... args)
         {
             std::pair<Iterator, bool> result =
-                StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::
-                    emplace(std::forward<Args>(args)...);
+                StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::emplace(std::forward<Args>(args)...);
 
             return *result.first;
         }
@@ -375,23 +330,17 @@ namespace bdn
         */
         bool contains(const Element &el) const
         {
-            return (
-                StdCollection<
-                    std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::count(el) !=
-                0);
+            return (StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::count(el) != 0);
         }
 
         class ElementMatcher_
         {
           public:
-            ElementMatcher_(const Element &elementToFind)
-                : _element(elementToFind)
-            {}
+            ElementMatcher_(const Element &elementToFind) : _element(elementToFind) {}
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class CollType, typename IteratorType>
-            void operator()(CollType &set, IteratorType &it)
+            template <class CollType, typename IteratorType> void operator()(CollType &set, IteratorType &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -414,8 +363,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class CollType, typename IteratorType>
-            void operator()(CollType &set, IteratorType &it)
+            template <class CollType, typename IteratorType> void operator()(CollType &set, IteratorType &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -435,12 +383,10 @@ namespace bdn
         using ElementFinder = SequenceFilter<Set, ElementMatcher_>;
         using ConstElementFinder = SequenceFilter<const Set, ElementMatcher_>;
 
-        template <typename MatchFuncType>
-        using CustomFinder = SequenceFilter<Set, FuncMatcher_<MatchFuncType>>;
+        template <typename MatchFuncType> using CustomFinder = SequenceFilter<Set, FuncMatcher_<MatchFuncType>>;
 
         template <typename MatchFuncType>
-        using ConstCustomFinder =
-            SequenceFilter<const Set, FuncMatcher_<MatchFuncType>>;
+        using ConstCustomFinder = SequenceFilter<const Set, FuncMatcher_<MatchFuncType>>;
 
         /** Searches for all occurrences of the specified element in the set and
            returns a \ref finder.md "finder object" with the results.
@@ -448,10 +394,7 @@ namespace bdn
             Since Set objects cannot contain duplicates this will return a
            finder with either 0 or 1 hits.
             */
-        ElementFinder findAll(const Element &elToFind)
-        {
-            return ElementFinder(*this, ElementMatcher_(elToFind));
-        }
+        ElementFinder findAll(const Element &elToFind) { return ElementFinder(*this, ElementMatcher_(elToFind)); }
 
         /** Searches for all occurrences of the specified element in the set and
            returns a \ref finder.md "finder object" with the results.
@@ -473,11 +416,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
+        template <class MatchFuncType> CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
         {
-            return CustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for all elements for which the specified match function
@@ -490,12 +431,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        ConstCustomFinder<MatchFuncType>
-        findAllCustom(MatchFuncType matchFunction) const
+        template <class MatchFuncType> ConstCustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction) const
         {
-            return ConstCustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return ConstCustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for the specified element in the set.
@@ -511,24 +449,21 @@ namespace bdn
         */
         Iterator find(const Element &toFind)
         {
-            return StdCollection<
-                std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::find(toFind);
+            return StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::find(toFind);
         }
 
         /** Const version of find() - returns a read-only iterator.
          */
         ConstIterator find(const Element &toFind) const
         {
-            return StdCollection<
-                std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::find(toFind);
+            return StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::find(toFind);
         }
 
         /** If the set contains the specified element, remove it. Does nothing
            if the element is not in the set.*/
         void findAndRemove(const Element &val)
         {
-            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::erase(
-                val);
+            StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::erase(val);
         }
 
         /** Removes all elements for which the specified function matchFunc
@@ -538,13 +473,11 @@ namespace bdn
            its parameter and returns true if the element at the corresponding
            position should be removed.
         */
-        template <typename MATCH_FUNC_TYPE>
-        void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
+        template <typename MATCH_FUNC_TYPE> void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
         {
             for (auto it = this->begin(); it != this->end();) {
                 if (matchFunc(it))
-                    it = StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE,
-                                                ALLOCATOR>>::erase(it);
+                    it = StdCollection<std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::erase(it);
                 else
                     ++it;
             }
@@ -588,18 +521,12 @@ namespace bdn
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseBegin() const noexcept
-        {
-            return this->rbegin();
-        }
+        ConstReverseIterator reverseBegin() const noexcept { return this->rbegin(); }
 
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseBegin() const noexcept
-        {
-            return this->crbegin();
-        }
+        ConstReverseIterator constReverseBegin() const noexcept { return this->crbegin(); }
 
         /** Marks the end point of a reverse iteration.
 
@@ -617,18 +544,12 @@ namespace bdn
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseEnd() const noexcept
-        {
-            return this->rend();
-        }
+        ConstReverseIterator reverseEnd() const noexcept { return this->rend(); }
 
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseEnd() const noexcept
-        {
-            return this->crend();
-        }
+        ConstReverseIterator constReverseEnd() const noexcept { return this->crend(); }
 
         /** Returns a locale independent string representation of the set.*/
         String toString() const
@@ -653,11 +574,9 @@ namespace bdn
         }
     };
 
-    template <typename CHAR_TYPE, class CHAR_TRAITS, typename ELTYPE,
-              typename COMPAREFUNCTYPE, class ALLOCATOR>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const Set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &s)
+    template <typename CHAR_TYPE, class CHAR_TRAITS, typename ELTYPE, typename COMPAREFUNCTYPE, class ALLOCATOR>
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const Set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> &s)
     {
         if (s.isEmpty())
             return stream << "{}";

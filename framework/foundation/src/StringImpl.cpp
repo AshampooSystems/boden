@@ -7,56 +7,46 @@ namespace bdn
     const size_t StringImplBase::noMatch;
     const size_t StringImplBase::toEnd;
 
-    template <>
-    BDN_SAFE_STATIC_IMPL(Utf8StringData, Utf8StringData::getEmptyData);
+    template <> BDN_SAFE_STATIC_IMPL(Utf8StringData, Utf8StringData::getEmptyData);
 
-    template <>
-    BDN_SAFE_STATIC_IMPL(Utf16StringData, Utf16StringData::getEmptyData);
+    template <> BDN_SAFE_STATIC_IMPL(Utf16StringData, Utf16StringData::getEmptyData);
 
-    template <>
-    BDN_SAFE_STATIC_IMPL(Utf32StringData, Utf32StringData::getEmptyData);
+    template <> BDN_SAFE_STATIC_IMPL(Utf32StringData, Utf32StringData::getEmptyData);
 
-    template <>
-    BDN_SAFE_STATIC_IMPL(WideStringData, WideStringData::getEmptyData);
+    template <> BDN_SAFE_STATIC_IMPL(WideStringData, WideStringData::getEmptyData);
 
     std::string wideToUtf8(const std::wstring &wideString)
     {
-        WideCodec::DecodingIterator<std::wstring::const_iterator> beginCharIt(
-            wideString.begin(), wideString.begin(), wideString.end());
-        WideCodec::DecodingIterator<std::wstring::const_iterator> endCharIt(
-            wideString.end(), wideString.begin(), wideString.end());
+        WideCodec::DecodingIterator<std::wstring::const_iterator> beginCharIt(wideString.begin(), wideString.begin(),
+                                                                              wideString.end());
+        WideCodec::DecodingIterator<std::wstring::const_iterator> endCharIt(wideString.end(), wideString.begin(),
+                                                                            wideString.end());
 
-        return std::string(
-            Utf8Codec::EncodingIterator<decltype(beginCharIt)>(beginCharIt),
-            Utf8Codec::EncodingIterator<decltype(endCharIt)>(endCharIt));
+        return std::string(Utf8Codec::EncodingIterator<decltype(beginCharIt)>(beginCharIt),
+                           Utf8Codec::EncodingIterator<decltype(endCharIt)>(endCharIt));
     }
 
     std::wstring utf8ToWide(const std::string &utf8String)
     {
-        Utf8Codec::DecodingIterator<std::string::const_iterator> beginCharIt(
-            utf8String.begin(), utf8String.begin(), utf8String.end());
-        Utf8Codec::DecodingIterator<std::string::const_iterator> endCharIt(
-            utf8String.end(), utf8String.begin(), utf8String.end());
+        Utf8Codec::DecodingIterator<std::string::const_iterator> beginCharIt(utf8String.begin(), utf8String.begin(),
+                                                                             utf8String.end());
+        Utf8Codec::DecodingIterator<std::string::const_iterator> endCharIt(utf8String.end(), utf8String.begin(),
+                                                                           utf8String.end());
 
-        return std::wstring(
-            WideCodec::EncodingIterator<decltype(beginCharIt)>(beginCharIt),
-            WideCodec::EncodingIterator<decltype(endCharIt)>(endCharIt));
+        return std::wstring(WideCodec::EncodingIterator<decltype(beginCharIt)>(beginCharIt),
+                            WideCodec::EncodingIterator<decltype(endCharIt)>(endCharIt));
     }
 
     template <class Codec, class InType, class OutType>
-    inline int callCodecOut(Codec &codec, mbstate_t &state,
-                            const InType *pInBegin, const InType *pInEnd,
-                            const InType *&pInNext, OutType *pOutBegin,
-                            OutType *pOutEnd, OutType *&pOutNext)
+    inline int callCodecOut(Codec &codec, mbstate_t &state, const InType *pInBegin, const InType *pInEnd,
+                            const InType *&pInNext, OutType *pOutBegin, OutType *pOutEnd, OutType *&pOutNext)
     {
-        int result = codec.out(state, pInBegin, pInEnd, pInNext, pOutBegin,
-                               pOutEnd, pOutNext);
+        int result = codec.out(state, pInBegin, pInEnd, pInNext, pOutBegin, pOutEnd, pOutNext);
         if (result != std::codecvt_base::error) {
             // some buggy codec implementations will return ok for zero
             // characters, but they will not write any data and also will not
             // advance the next pointers.
-            if (pInBegin != pInEnd && pOutBegin != pOutEnd &&
-                pInNext == pInBegin && pOutNext == pOutBegin) {
+            if (pInBegin != pInEnd && pOutBegin != pOutEnd && pInNext == pInBegin && pOutNext == pOutBegin) {
                 // just copy the input character over. It is most likely a zero
                 // character.
                 *pOutNext = (char)*pInNext;
@@ -68,8 +58,7 @@ namespace bdn
         return result;
     }
 
-    std::string wideToLocaleEncoding(const std::wstring &wideString,
-                                     const std::locale &loc)
+    std::string wideToLocaleEncoding(const std::wstring &wideString, const std::locale &loc)
     {
 #ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
         // This to work around bugs in the codecvt implementation when it is
@@ -99,9 +88,8 @@ namespace bdn
                 const wchar_t *pInNext = pCurrIn;
                 char *pOutNext = outBuffer;
 
-                int convResult = callCodecOut(
-                    codec, state, pCurrIn, pInEnd, pInNext, outBuffer,
-                    outBuffer + outBufferSize, pOutNext);
+                int convResult = callCodecOut(codec, state, pCurrIn, pInEnd, pInNext, outBuffer,
+                                              outBuffer + outBufferSize, pOutNext);
                 if (convResult == std::codecvt_base::error) {
                     // a character cannot be converted. The standard defines
                     // that pInNext SHOULD point to that character. And all
@@ -114,9 +102,8 @@ namespace bdn
                     // until we hit the problem.
                     if (pOutNext == outBuffer && pInNext == pCurrIn) {
                         while (pInNext != pInEnd) {
-                            convResult = callCodecOut(
-                                codec, state, pInNext, pInNext + 1, pInNext,
-                                pOutNext, outBuffer + outBufferSize, pOutNext);
+                            convResult = callCodecOut(codec, state, pInNext, pInNext + 1, pInNext, pOutNext,
+                                                      outBuffer + outBufferSize, pOutNext);
                             if (convResult != std::codecvt_base::ok) {
                                 // found the actual error. We now know that
                                 // pInNext and pOutNext really do point to the
@@ -145,25 +132,20 @@ namespace bdn
                         const wchar_t *pReplacementNext = pReplacement;
 
                         pOutNext = outBuffer;
-                        convResult = callCodecOut(
-                            codec, state, pReplacement, pReplacement + 1,
-                            pReplacementNext, outBuffer,
-                            outBuffer + outBufferSize, pOutNext);
+                        convResult = callCodecOut(codec, state, pReplacement, pReplacement + 1, pReplacementNext,
+                                                  outBuffer, outBuffer + outBufferSize, pOutNext);
                         if (convResult != std::codecvt_base::ok) {
                             // character cannot be represented. Use question
                             // mark instead.
                             pReplacement = L"?";
                             pReplacementNext = pReplacement;
                             pOutNext = outBuffer;
-                            convResult = callCodecOut(
-                                codec, state, pReplacement, pReplacement + 1,
-                                pReplacementNext, outBuffer,
-                                outBuffer + outBufferSize, pOutNext);
+                            convResult = callCodecOut(codec, state, pReplacement, pReplacement + 1, pReplacementNext,
+                                                      outBuffer, outBuffer + outBufferSize, pOutNext);
                         }
 
                         if (pOutNext != outBuffer)
-                            resultString.append(outBuffer,
-                                                pOutNext - outBuffer);
+                            resultString.append(outBuffer, pOutNext - outBuffer);
 
                         // ignore the final replacement conversion result. If
                         // the ? character can also not be represented then we
@@ -184,8 +166,7 @@ namespace bdn
 
             char *pOutNext = outBuffer;
 
-            int convResult = codec.unshift(state, outBuffer,
-                                           outBuffer + outBufferSize, pOutNext);
+            int convResult = codec.unshift(state, outBuffer, outBuffer + outBufferSize, pOutNext);
             // if we cannot unshift then we simply ignore that fact. It should
             // never happen.
             if (convResult != std::codecvt_base::error && pOutNext != outBuffer)
@@ -196,8 +177,7 @@ namespace bdn
 #endif
     }
 
-    std::wstring localeEncodingToWide(const std::string &multiByte,
-                                      const std::locale &loc)
+    std::wstring localeEncodingToWide(const std::string &multiByte, const std::locale &loc)
     {
 #ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
         // This to work around bugs in the codecvt implementation when it is
@@ -226,8 +206,7 @@ namespace bdn
                 wchar_t *pOutNext = outBuffer;
 
                 int convResult =
-                    codec.in(state, pCurrIn, pInEnd, pInNext, outBuffer,
-                             outBuffer + outBufferSize, pOutNext);
+                    codec.in(state, pCurrIn, pInEnd, pInNext, outBuffer, outBuffer + outBufferSize, pOutNext);
 
                 if (pOutNext != outBuffer) {
                     // some data has been written.

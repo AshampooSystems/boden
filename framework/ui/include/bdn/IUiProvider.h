@@ -81,8 +81,7 @@ namespace bdn
            necessary. So you should not store the view pointer in a smart
            pointer (like P<View>). Use weak pointers (like WeakP<View>) instead.
                 */
-        virtual P<IViewCore> createViewCore(const String &coreTypeName,
-                                            View *pView) = 0;
+        virtual P<IViewCore> createViewCore(const String &coreTypeName, View *pView) = 0;
 
         /** Returns an object that can be used to interact with the user via a
            text interface.

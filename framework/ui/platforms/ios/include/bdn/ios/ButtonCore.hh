@@ -26,17 +26,13 @@ namespace bdn
 
             void setLabel(const String &label) override
             {
-                [_button setTitle:stringToIosString(label)
-                         forState:UIControlStateNormal];
+                [_button setTitle:stringToIosString(label) forState:UIControlStateNormal];
             }
 
             void _clicked();
 
           protected:
-            double getFontSize() const override
-            {
-                return _button.titleLabel.font.pointSize;
-            }
+            double getFontSize() const override { return _button.titleLabel.font.pointSize; }
 
           private:
             UIButton *_button;

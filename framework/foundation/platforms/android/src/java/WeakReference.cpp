@@ -9,8 +9,7 @@ namespace bdn
     {
 
         WeakReference::WeakReference(const Reference &o)
-            : WeakReference(
-                  Env::get().getJniEnv()->NewWeakGlobalRef(o.getJObject()))
+            : WeakReference(Env::get().getJniEnv()->NewWeakGlobalRef(o.getJObject()))
         {}
 
         Reference WeakReference::toStrong() const
@@ -18,14 +17,9 @@ namespace bdn
             if (_pShared == nullptr)
                 return Reference();
             else
-                return Reference::wrapStrongGlobal(
-                    Env::get().getJniEnv()->NewGlobalRef(
-                        _pShared->getJObject()));
+                return Reference::wrapStrongGlobal(Env::get().getJniEnv()->NewGlobalRef(_pShared->getJObject()));
         }
 
-        WeakReference::Shared::~Shared()
-        {
-            Env::get().getJniEnv()->DeleteWeakGlobalRef(_ref);
-        }
+        WeakReference::Shared::~Shared() { Env::get().getJniEnv()->DeleteWeakGlobalRef(_ref); }
     }
 }

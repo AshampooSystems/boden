@@ -40,17 +40,13 @@ namespace bdn
          \endcode
 
         */
-    inline SystemError
-    errnoCodeToSystemError(int errnoCode,
-                           const ErrorFields &fields = ErrorFields())
+    inline SystemError errnoCodeToSystemError(int errnoCode, const ErrorFields &fields = ErrorFields())
     {
 #if BDN_PLATFORM_FAMILY_POSIX
-        return SystemError(errnoCode, std::system_category(),
-                           fields.toString());
+        return SystemError(errnoCode, std::system_category(), fields.toString());
 
 #else
-        return SystemError(errnoCode, std::generic_category(),
-                           fields.toString());
+        return SystemError(errnoCode, std::generic_category(), fields.toString());
 
 #endif
     }

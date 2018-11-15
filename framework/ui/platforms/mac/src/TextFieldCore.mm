@@ -36,20 +36,17 @@
 - (void)controlTextDidChange:(NSNotification *)obj
 {
     bdn::P<bdn::mac::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField =
-        bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
+    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
     if (outerTextField) {
         NSTextView *textView = [obj.userInfo objectForKey:@"NSFieldEditor"];
-        outerTextField->setText(
-            bdn::mac::macStringToString(textView.textStorage.string));
+        outerTextField->setText(bdn::mac::macStringToString(textView.textStorage.string));
     }
 }
 
 - (void)submitted
 {
     bdn::P<bdn::mac::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField =
-        bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
+    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
     if (outerTextField) {
         outerTextField->submit();
     }
@@ -63,8 +60,7 @@ namespace bdn
     {
 
         TextFieldCore::TextFieldCore(TextField *pOuterTextField)
-            : ChildViewCore(pOuterTextField,
-                            _createNsTextView(pOuterTextField)),
+            : ChildViewCore(pOuterTextField, _createNsTextView(pOuterTextField)),
               _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
         {
             setText(pOuterTextField->text());

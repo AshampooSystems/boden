@@ -5,8 +5,7 @@
 
 using namespace bdn;
 
-template <typename ValueType>
-static void verifyNull(const Nullable<ValueType> &n)
+template <typename ValueType> static void verifyNull(const Nullable<ValueType> &n)
 {
     REQUIRE(n.isNull());
 
@@ -14,8 +13,7 @@ static void verifyNull(const Nullable<ValueType> &n)
     REQUIRE_THROWS_PROGRAMMING_ERROR(ValueType v; v = n;);
 }
 
-template <typename ValueType>
-static void verifyNotNull(const Nullable<ValueType> &n, ValueType expectedValue)
+template <typename ValueType> static void verifyNotNull(const Nullable<ValueType> &n, ValueType expectedValue)
 {
     REQUIRE(!n.isNull());
 
@@ -28,15 +26,13 @@ static void verifyNotNull(const Nullable<ValueType> &n, ValueType expectedValue)
 }
 
 template <typename ValueType, typename ParamType>
-static void verifyEquality(const Nullable<ValueType> &n, ParamType param,
-                           bool expectedEqual)
+static void verifyEquality(const Nullable<ValueType> &n, ParamType param, bool expectedEqual)
 {
     REQUIRE((n == param) == expectedEqual);
     REQUIRE((n != param) == !expectedEqual);
 }
 
-template <typename ValueType>
-static void testNullable(ValueType exampleValue, ValueType exampleValue2)
+template <typename ValueType> static void testNullable(ValueType exampleValue, ValueType exampleValue2)
 {
     SECTION("construct")
     {
@@ -231,15 +227,9 @@ TEST_CASE("Nullable")
             int x;
             int y;
 
-            bool operator==(const SomeStruct &o) const
-            {
-                return x == o.x && y == o.y;
-            }
+            bool operator==(const SomeStruct &o) const { return x == o.x && y == o.y; }
 
-            bool operator!=(const SomeStruct &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const SomeStruct &o) const { return !operator==(o); }
         };
 
         SomeStruct a{42, 67};

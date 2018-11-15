@@ -24,9 +24,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
             P<Button> pButton = newObj<Button>();
             _pWindow->setContentView(pButton);
 
-            NSView *pChild =
-                cast<bdn::mac::ChildViewCore>(pButton->getViewCore())
-                    ->getNSView();
+            NSView *pChild = cast<bdn::mac::ChildViewCore>(pButton->getViewCore())->getNSView();
 
             REQUIRE(pChild.superview.flipped);
         }
@@ -43,10 +41,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         REQUIRE(_pNSWindow != nullptr);
     }
 
-    IUiProvider &getUiProvider() override
-    {
-        return bdn::mac::UiProvider::get();
-    }
+    IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
     void verifyCoreVisibility() override
     {
@@ -61,8 +56,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         if (screen == nil) // happens when window is not visible
             screen = [NSScreen mainScreen];
 
-        bdn::Rect resultRect =
-            bdn::mac::macRectToRect(_pNSWindow.frame, screen.frame.size.height);
+        bdn::Rect resultRect = bdn::mac::macRectToRect(_pNSWindow.frame, screen.frame.size.height);
 
         return resultRect;
     }
@@ -115,10 +109,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
 
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(NSWindow *pNSWindow)
-        {
-            this->_pNSWindow = pNSWindow;
-        }
+        DestructVerificationInfo(NSWindow *pNSWindow) { this->_pNSWindow = pNSWindow; }
 
         // store a weak reference so that we do not keep the window alive
         NSWindow __weak *_pNSWindow;
@@ -134,8 +125,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
 
     void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        NSWindow __weak *pNSWindow =
-            cast<DestructVerificationInfo>(pVerificationInfo)->_pNSWindow;
+        NSWindow __weak *pNSWindow = cast<DestructVerificationInfo>(pVerificationInfo)->_pNSWindow;
 
         // window should have been destroyed.
         REQUIRE(pNSWindow == nullptr);

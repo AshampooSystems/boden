@@ -20,25 +20,16 @@ namespace bdn
 
         /** Static function that returns the type name for #ContainerView core
          * objects.*/
-        static String getContainerViewCoreTypeName()
-        {
-            return "bdn.ContainerViewCore";
-        }
+        static String getContainerViewCoreTypeName() { return "bdn.ContainerViewCore"; }
 
-        String getCoreTypeName() const override
-        {
-            return getContainerViewCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getContainerViewCoreTypeName(); }
 
         /** Adds a child to the end of the container.
 
             If the child view is already a child of this container then it
             is moved to the end.
         */
-        void addChildView(View *pChildView)
-        {
-            insertChildView(nullptr, pChildView);
-        }
+        void addChildView(View *pChildView) { insertChildView(nullptr, pChildView); }
 
         /** Inserts a child before another child.
 
@@ -90,8 +81,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            auto it =
-                std::find(_childViews.begin(), _childViews.end(), pChildView);
+            auto it = std::find(_childViews.begin(), _childViews.end(), pChildView);
             if (it != _childViews.end()) {
                 _childViews.erase(it);
                 pChildView->_setParentView(nullptr);
@@ -134,8 +124,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            auto it =
-                std::find(_childViews.begin(), _childViews.end(), pChildView);
+            auto it = std::find(_childViews.begin(), _childViews.end(), pChildView);
             if (it != _childViews.end())
                 _childViews.erase(it);
         }
@@ -154,8 +143,7 @@ namespace bdn
            basis for the layout. This does not have to match the current size of
            the container view.
             */
-        virtual P<ViewLayout>
-        calcContainerLayout(const Size &containerSize) const = 0;
+        virtual P<ViewLayout> calcContainerLayout(const Size &containerSize) const = 0;
 
         /** Calculates the preferred size for the container. Container
            implementations must override this to implement their custom size
@@ -165,8 +153,7 @@ namespace bdn
            View::calcPreferredSize() and has the same behaviour.
 
             */
-        virtual Size calcContainerPreferredSize(
-            const Size &availableSpace = Size::none()) const = 0;
+        virtual Size calcContainerPreferredSize(const Size &availableSpace = Size::none()) const = 0;
 
       protected:
         List<P<View>> _childViews;

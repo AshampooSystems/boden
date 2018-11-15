@@ -42,29 +42,24 @@ namespace bdn
              * object. For ObjectFieldKind it is a reference to the object /
              * instance. \param fieldId the id of the field.
              *  */
-            Field(const Reference &contextRef,
-                  const typename Kind::template Id<NativeType> &fieldId)
+            Field(const Reference &contextRef, const typename Kind::template Id<NativeType> &fieldId)
                 : _contextRef(contextRef), _id(fieldId)
             {}
 
             Field(const Field &o) : _contextRef(o._contextRef), _id(o._id) {}
 
-            Field(Field &&o)
-                : _contextRef(std::move(o._contextRef)), _id(std::move(o._id))
-            {}
+            Field(Field &&o) : _contextRef(std::move(o._contextRef)), _id(std::move(o._id)) {}
 
             void set(const NativeType &newValue)
             {
-                FieldAccessor<Kind, NativeType>::setValue(
-                    (typename Kind::ContextJType)_contextRef.getJObject(),
-                    _id.getId(), newValue);
+                FieldAccessor<Kind, NativeType>::setValue((typename Kind::ContextJType)_contextRef.getJObject(),
+                                                          _id.getId(), newValue);
             }
 
             NativeType get() const
             {
-                return FieldAccessor<Kind, NativeType>::getValue(
-                    (typename Kind::ContextJType)_contextRef.getJObject(),
-                    _id.getId());
+                return FieldAccessor<Kind, NativeType>::getValue((typename Kind::ContextJType)_contextRef.getJObject(),
+                                                                 _id.getId());
             }
 
             Field &operator=(const NativeType &newValue)

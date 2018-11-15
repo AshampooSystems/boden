@@ -10,15 +10,10 @@
 
 using namespace bdn;
 
-class TestAndroidScrollViewCore
-    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestScrollViewCore>
+class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestScrollViewCore>
 {
   protected:
-    void initCore() override
-    {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestScrollViewCore>::initCore();
-    }
+    void initCore() override { bdn::test::TestAndroidViewCoreMixin<bdn::test::TestScrollViewCore>::initCore(); }
 
     double getVertBarWidth() override
     {
@@ -32,8 +27,7 @@ class TestAndroidScrollViewCore
         return 0;
     }
 
-    Size initiateScrollViewResizeToHaveViewPortSize(
-        const Size &viewPortSize) override
+    Size initiateScrollViewResizeToHaveViewPortSize(const Size &viewPortSize) override
     {
         // we cannot resize the scroll view directly with adjustAndSetBounds.
         // That would not have any effect outside of a layout cycle.
@@ -42,8 +36,7 @@ class TestAndroidScrollViewCore
 
         Size adjustedSize =
             _pScrollView
-                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize),
-                               RoundType::nearest, RoundType::nearest)
+                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         _pScrollView->setPreferredSizeMinimum(adjustedSize);
@@ -53,8 +46,7 @@ class TestAndroidScrollViewCore
         // property changes it would take two event cycles until the layout
         // happens. But we want it to happen immediately after the properties
         // have been changed.
-        _pScrollView->getParentView()->needLayout(
-            View::InvalidateReason::customDataChanged);
+        _pScrollView->getParentView()->needLayout(View::InvalidateReason::customDataChanged);
 
         return adjustedSize;
     }
@@ -76,12 +68,10 @@ class TestAndroidScrollViewCore
         bdn::android::JScrollView vertView(_jView.getRef_());
         REQUIRE(vertView.getChildCount() == 1);
 
-        bdn::android::JHorizontalScrollView horzView(
-            vertView.getChildAt(0).getRef_());
+        bdn::android::JHorizontalScrollView horzView(vertView.getChildAt(0).getRef_());
         REQUIRE(horzView.getChildCount() == 1);
 
-        bdn::android::JNativeViewGroup scrollAreaView(
-            horzView.getChildAt(0).getRef_());
+        bdn::android::JNativeViewGroup scrollAreaView(horzView.getChildAt(0).getRef_());
 
         int scrollAreaWidth = scrollAreaView.getWidth();
         int scrollAreaHeight = scrollAreaView.getHeight();
@@ -109,26 +99,22 @@ class TestAndroidScrollViewCore
         REQUIRE(scrolls == expectedScrolls);
     }
 
-    void verifyContentViewBounds(const Rect &expectedBounds,
-                                 double maxDeviation = 0) override
+    void verifyContentViewBounds(const Rect &expectedBounds, double maxDeviation = 0) override
     {
         maxDeviation += Dip::significanceBoundary();
 
         P<View> pContentView = _pScrollView->getContentView();
 
         if (pContentView != nullptr) {
-            bdn::Rect bounds(_pScrollView->getContentView()->position(),
-                             pContentView->size());
+            bdn::Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
             else {
                 REQUIRE_ALMOST_EQUAL(bounds.x, expectedBounds.x, maxDeviation);
                 REQUIRE_ALMOST_EQUAL(bounds.y, expectedBounds.y, maxDeviation);
-                REQUIRE_ALMOST_EQUAL(bounds.width, expectedBounds.width,
-                                     maxDeviation);
-                REQUIRE_ALMOST_EQUAL(bounds.height, expectedBounds.height,
-                                     maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.width, expectedBounds.width, maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.height, expectedBounds.height, maxDeviation);
             }
         }
     }
@@ -139,8 +125,7 @@ class TestAndroidScrollViewCore
 
         double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-        Size scrollAreaSize(scrollAreaSizePixels.width / scaleFactor,
-                            scrollAreaSizePixels.height / scaleFactor);
+        Size scrollAreaSize(scrollAreaSizePixels.width / scaleFactor, scrollAreaSizePixels.height / scaleFactor);
 
         /*REQUIRE_ALMOST_EQUAL( scrollAreaSize.width, expectedSize.width,
         (1.0/scaleFactor)+Dip::significanceBoundary() ); REQUIRE_ALMOST_EQUAL(
@@ -154,8 +139,7 @@ class TestAndroidScrollViewCore
     {
         double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-        Size viewPortSize(_jView.getWidth() / scaleFactor,
-                          _jView.getHeight() / scaleFactor);
+        Size viewPortSize(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
 
         /*REQUIRE_ALMOST_EQUAL( viewPortSize.width, expectedSize.width,
         (1.0/scaleFactor)+Dip::significanceBoundary() ); REQUIRE_ALMOST_EQUAL(

@@ -20,9 +20,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JBaseBundle(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JBaseBundle(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Returns the value associated with the given key, or null if no
              * mapping of the desired type exists for the given key or a null
@@ -32,21 +30,19 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<bdn::java::JString>(getStaticClass_(), methodId,
-                                                   "getString", name);
+                return invoke_<bdn::java::JString>(getStaticClass_(), methodId, "getString", name);
             }
 
             /** Returns the value associated with the given key, or null if no
              * mapping of the desired type exists for the given key or a null
              * value is explicitly associated with the key.
              * */
-            bdn::java::ArrayOfObjects<bdn::java::JString>
-            getStringArray(const String &name)
+            bdn::java::ArrayOfObjects<bdn::java::JString> getStringArray(const String &name)
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<bdn::java::ArrayOfObjects<bdn::java::JString>>(
-                    getStaticClass_(), methodId, "getStringArray", name);
+                return invoke_<bdn::java::ArrayOfObjects<bdn::java::JString>>(getStaticClass_(), methodId,
+                                                                              "getStringArray", name);
             }
 
             /** Returns the JClass object for this class.
@@ -65,10 +61,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

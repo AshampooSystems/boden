@@ -19,9 +19,7 @@ namespace bdn
        (including the border and title bar). This can be Size(0,0) if the
        platform does not impose a minimum size limit.
         */
-    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow,
-                                            const Size &availableSpace,
-                                            const Margin &border,
+    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow, const Size &availableSpace, const Margin &border,
                                             const Size &minWindowSize);
 
     /** A default implementation for implementing the layout of a Window object
@@ -47,8 +45,7 @@ namespace bdn
        the screen that can be used to display windows). This excludes taskbars,
        docks, etc.
         */
-    void defaultWindowAutoSizeImpl(Window *pWindow,
-                                   const Size &screenWorkAreaSize);
+    void defaultWindowAutoSizeImpl(Window *pWindow, const Size &screenWorkAreaSize);
 
     /** Default implementation for centering the window (see requestCenter()),
        intended for use by the window's core object. This function can be called

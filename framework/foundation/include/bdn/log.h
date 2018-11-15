@@ -15,8 +15,7 @@ namespace bdn
      *  additionalInfo is a string message that can be used to add additional
      * information about how and when the error occurred.
      * */
-    void logError(const std::exception &e,
-                  const String &additionalInfo) noexcept;
+    void logError(const std::exception &e, const String &additionalInfo) noexcept;
 
     /** Logs an error message to the global logging facility.*/
     void logError(const String &message) noexcept;
@@ -39,14 +38,14 @@ namespace bdn
 
     \endcode
 */
-#define BDN_LOG_AND_IGNORE_EXCEPTION(code, errorContextMessage)                \
-    try {                                                                      \
-        code;                                                                  \
-    }                                                                          \
-    catch (std::exception & _bdn_e) {                                          \
-        bdn::logError(_bdn_e, errorContextMessage);                            \
-    }                                                                          \
-    catch (...) {                                                              \
-        bdn::logError(errorContextMessage);                                    \
+#define BDN_LOG_AND_IGNORE_EXCEPTION(code, errorContextMessage)                                                        \
+    try {                                                                                                              \
+        code;                                                                                                          \
+    }                                                                                                                  \
+    catch (std::exception & _bdn_e) {                                                                                  \
+        bdn::logError(_bdn_e, errorContextMessage);                                                                    \
+    }                                                                                                                  \
+    catch (...) {                                                                                                      \
+        bdn::logError(errorContextMessage);                                                                            \
     }
 }

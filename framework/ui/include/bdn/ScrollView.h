@@ -25,14 +25,12 @@ namespace bdn
 
         /** Controls wether or not the view scrolls vertically.
             Default: true*/
-        BDN_VIEW_PROPERTY(bool, verticalScrollingEnabled,
-                          setVerticalScrollingEnabled, IScrollViewCore,
+        BDN_VIEW_PROPERTY(bool, verticalScrollingEnabled, setVerticalScrollingEnabled, IScrollViewCore,
                           influencesPreferredSize().influencesContentLayout());
 
         /** Controls wether or not the view scrolls horizontally.
             Default: false*/
-        BDN_VIEW_PROPERTY(bool, horizontalScrollingEnabled,
-                          setHorizontalScrollingEnabled, IScrollViewCore,
+        BDN_VIEW_PROPERTY(bool, horizontalScrollingEnabled, setHorizontalScrollingEnabled, IScrollViewCore,
                           influencesPreferredSize().influencesContentLayout());
 
         /** Read-only property that indicates the part of the client area (=the
@@ -45,9 +43,7 @@ namespace bdn
             The visible client rect / scroll position can be manipulated with
            scrollClientRectToVisible().
         */
-        BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(Rect, visibleClientRect,
-                                                  _setVisibleClientRect,
-                                                  influencesNothing());
+        BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(Rect, visibleClientRect, _setVisibleClientRect, influencesNothing());
         // note that we do not forward changes to the visibleClientRect to the
         // core, because this property is updated BY the core. Also note that we
         // set the influences to nothing because the corresponding layouting
@@ -81,8 +77,7 @@ namespace bdn
                 if (_pContentView != nullptr)
                     _pContentView->_setParentView(this);
 
-                invalidateSizingInfo(
-                    View::InvalidateReason::childAddedOrRemoved);
+                invalidateSizingInfo(View::InvalidateReason::childAddedOrRemoved);
                 needLayout(View::InvalidateReason::childAddedOrRemoved);
             }
         }
@@ -138,10 +133,7 @@ namespace bdn
          * objects.*/
         static String getScrollViewCoreTypeName() { return "bdn.ScrollView"; }
 
-        String getCoreTypeName() const override
-        {
-            return getScrollViewCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getScrollViewCoreTypeName(); }
 
         void getChildViews(List<P<View>> &childViews) const override
         {

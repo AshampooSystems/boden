@@ -14,9 +14,7 @@ namespace bdn
     namespace mac
     {
 
-        class ScrollViewCore : public ChildViewCore,
-                               BDN_IMPLEMENTS IParentViewCore,
-                               BDN_IMPLEMENTS IScrollViewCore
+        class ScrollViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore, BDN_IMPLEMENTS IScrollViewCore
         {
           private:
             static NSScrollView *_createScrollView(ScrollView *pOuter);
@@ -48,8 +46,7 @@ namespace bdn
                 \param pBorderSize an optional parameter that receives the size
                of the nonclient border around
                     the scroll view (if pBorderSize is not null).*/
-            P<ScrollViewLayoutHelper>
-            createLayoutHelper(Size *pBorderSize = nullptr) const;
+            P<ScrollViewLayoutHelper> createLayoutHelper(Size *pBorderSize = nullptr) const;
 
             /** Updates the ScrollView::visibleClientRect property of the outer
              * view.*/

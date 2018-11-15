@@ -35,15 +35,13 @@ namespace bdn
                 _b = b;
             }
 
-            TestCollectionElement_UnorderedUncomparable_(
-                const TestCollectionElement_UnorderedUncomparable_ &o)
+            TestCollectionElement_UnorderedUncomparable_(const TestCollectionElement_UnorderedUncomparable_ &o)
             {
                 _a = o._a;
                 _b = o._b;
             }
 
-            TestCollectionElement_UnorderedUncomparable_(
-                TestCollectionElement_UnorderedUncomparable_ &&o)
+            TestCollectionElement_UnorderedUncomparable_(TestCollectionElement_UnorderedUncomparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -61,8 +59,7 @@ namespace bdn
                 return *this;
             }
 
-            TestCollectionElement_UnorderedUncomparable_ &
-            operator=(TestCollectionElement_UnorderedUncomparable_ &&o)
+            TestCollectionElement_UnorderedUncomparable_ &operator=(TestCollectionElement_UnorderedUncomparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -78,15 +75,13 @@ namespace bdn
         };
 
         template <typename CHAR_TYPE, class CHAR_TRAITS>
-        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-        operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-                   const TestCollectionElement_UnorderedUncomparable_ &el)
+        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                               const TestCollectionElement_UnorderedUncomparable_ &el)
         {
             return stream << el._a << ", " << el._b;
         }
 
-        class TestCollectionElement_UnorderedComparable_
-            : public TestCollectionElement_UnorderedUncomparable_
+        class TestCollectionElement_UnorderedComparable_ : public TestCollectionElement_UnorderedUncomparable_
         {
           public:
             TestCollectionElement_UnorderedComparable_()
@@ -101,15 +96,13 @@ namespace bdn
                 _b = b;
             }
 
-            TestCollectionElement_UnorderedComparable_(
-                const TestCollectionElement_UnorderedComparable_ &o)
+            TestCollectionElement_UnorderedComparable_(const TestCollectionElement_UnorderedComparable_ &o)
             {
                 _a = o._a;
                 _b = o._b;
             }
 
-            TestCollectionElement_UnorderedComparable_(
-                TestCollectionElement_UnorderedComparable_ &&o)
+            TestCollectionElement_UnorderedComparable_(TestCollectionElement_UnorderedComparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -118,8 +111,7 @@ namespace bdn
                 o._b = -2;
             }
 
-            TestCollectionElement_UnorderedComparable_ &
-            operator=(const TestCollectionElement_UnorderedComparable_ &o)
+            TestCollectionElement_UnorderedComparable_ &operator=(const TestCollectionElement_UnorderedComparable_ &o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -127,8 +119,7 @@ namespace bdn
                 return *this;
             }
 
-            TestCollectionElement_UnorderedComparable_ &
-            operator=(TestCollectionElement_UnorderedComparable_ &&o)
+            TestCollectionElement_UnorderedComparable_ &operator=(TestCollectionElement_UnorderedComparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -139,44 +130,33 @@ namespace bdn
                 return *this;
             }
 
-            bool operator==(
-                const TestCollectionElement_UnorderedComparable_ &o) const
+            bool operator==(const TestCollectionElement_UnorderedComparable_ &o) const
             {
                 return (_a == o._a && _b == o._b);
             }
 
-            bool operator!=(
-                const TestCollectionElement_UnorderedComparable_ &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const TestCollectionElement_UnorderedComparable_ &o) const { return !operator==(o); }
         };
 
         template <typename CHAR_TYPE, class CHAR_TRAITS>
-        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-        operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-                   const TestCollectionElement_UnorderedComparable_ &el)
+        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                               const TestCollectionElement_UnorderedComparable_ &el)
         {
             return stream << el._a << ", " << el._b;
         }
 
-        class TestCollectionElement_OrderedComparable_
-            : public TestCollectionElement_UnorderedComparable_
+        class TestCollectionElement_OrderedComparable_ : public TestCollectionElement_UnorderedComparable_
         {
           public:
             TestCollectionElement_OrderedComparable_() {}
 
-            TestCollectionElement_OrderedComparable_(int a, int b)
-                : TestCollectionElement_UnorderedComparable_(a, b)
-            {}
+            TestCollectionElement_OrderedComparable_(int a, int b) : TestCollectionElement_UnorderedComparable_(a, b) {}
 
-            TestCollectionElement_OrderedComparable_(
-                const TestCollectionElement_OrderedComparable_ &o)
+            TestCollectionElement_OrderedComparable_(const TestCollectionElement_OrderedComparable_ &o)
                 : TestCollectionElement_UnorderedComparable_(o)
             {}
 
-            TestCollectionElement_OrderedComparable_(
-                TestCollectionElement_OrderedComparable_ &&o)
+            TestCollectionElement_OrderedComparable_(TestCollectionElement_OrderedComparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -185,8 +165,7 @@ namespace bdn
                 o._b = -2;
             }
 
-            TestCollectionElement_OrderedComparable_ &
-            operator=(const TestCollectionElement_OrderedComparable_ &o)
+            TestCollectionElement_OrderedComparable_ &operator=(const TestCollectionElement_OrderedComparable_ &o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -194,8 +173,7 @@ namespace bdn
                 return *this;
             }
 
-            TestCollectionElement_OrderedComparable_ &
-            operator=(TestCollectionElement_OrderedComparable_ &&o)
+            TestCollectionElement_OrderedComparable_ &operator=(TestCollectionElement_OrderedComparable_ &&o)
             {
                 _a = o._a;
                 _b = o._b;
@@ -206,8 +184,7 @@ namespace bdn
                 return *this;
             }
 
-            bool
-            operator<(const TestCollectionElement_OrderedComparable_ &o) const
+            bool operator<(const TestCollectionElement_OrderedComparable_ &o) const
             {
                 // the ordering is only based on the "a" component, so that
                 // we can have elements that are not equal, but have the same
@@ -217,54 +194,43 @@ namespace bdn
         };
 
         template <typename CHAR_TYPE, class CHAR_TRAITS>
-        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-        operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-                   const TestCollectionElement_OrderedComparable_ &el)
+        std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                               const TestCollectionElement_OrderedComparable_ &el)
         {
             return stream << el._a << ", " << el._b;
         }
 
-        inline bool _isCollectionElementEqual(
-            const TestCollectionElement_UnorderedUncomparable_ &l,
-            const TestCollectionElement_UnorderedUncomparable_ &r)
+        inline bool _isCollectionElementEqual(const TestCollectionElement_UnorderedUncomparable_ &l,
+                                              const TestCollectionElement_UnorderedUncomparable_ &r)
         {
             return (l._a == r._a && l._b == r._b);
         }
 
         inline bool _isCollectionElementEqual(int l, int r) { return (l == r); }
 
-        inline bool _isCollectionElementEqual(const std::string &l,
-                                              const std::string &r)
-        {
-            return (l == r);
-        }
+        inline bool _isCollectionElementEqual(const std::string &l, const std::string &r) { return (l == r); }
 
-        inline bool
-        _isCollectionElementEqual(const std::pair<const int, double> &l,
-                                  const std::pair<const int, double> &r)
+        inline bool _isCollectionElementEqual(const std::pair<const int, double> &l,
+                                              const std::pair<const int, double> &r)
         {
             return (l.first == r.first && l.second == r.second);
         }
 
-        inline bool _isCollectionElementEqual(
-            const std::pair<const TestCollectionElement_OrderedComparable_,
-                            TestCollectionElement_UnorderedComparable_> &l,
-            const std::pair<const TestCollectionElement_OrderedComparable_,
-                            TestCollectionElement_UnorderedComparable_> &r)
+        inline bool _isCollectionElementEqual(const std::pair<const TestCollectionElement_OrderedComparable_,
+                                                              TestCollectionElement_UnorderedComparable_> &l,
+                                              const std::pair<const TestCollectionElement_OrderedComparable_,
+                                                              TestCollectionElement_UnorderedComparable_> &r)
         {
-            return (_isCollectionElementEqual(l.first, r.first) &&
-                    _isCollectionElementEqual(l.second, r.second));
+            return (_isCollectionElementEqual(l.first, r.first) && _isCollectionElementEqual(l.second, r.second));
         }
 
-        inline bool
-        _isCollectionElementEqual(const std::pair<const int, String> &l,
-                                  const std::pair<const int, String> &r)
+        inline bool _isCollectionElementEqual(const std::pair<const int, String> &l,
+                                              const std::pair<const int, String> &r)
         {
             return (l.first == r.first && l.second == r.second);
         }
 
-        template <class CollType>
-        inline void _verifyEmptyCollection(CollType &coll)
+        template <class CollType> inline void _verifyEmptyCollection(CollType &coll)
         {
             SECTION("isEmpty")
             REQUIRE(coll.isEmpty());
@@ -290,8 +256,7 @@ namespace bdn
             }
         }
 
-        template <class CollType>
-        inline void _verifyEmptySequence(CollType &coll)
+        template <class CollType> inline void _verifyEmptySequence(CollType &coll)
         {
             _verifyEmptyCollection(coll);
 
@@ -303,15 +268,13 @@ namespace bdn
         }
 
         template <class ElType, class ItType>
-        inline void _verifyIteratorIntervalContents(
-            ItType it, ItType end, const std::list<ElType> &expectedElementList,
-            bool mustHaveSameOrder)
+        inline void _verifyIteratorIntervalContents(ItType it, ItType end, const std::list<ElType> &expectedElementList,
+                                                    bool mustHaveSameOrder)
         {
             if (mustHaveSameOrder) {
                 for (const auto &expectedEl : expectedElementList) {
                     REQUIRE(it != end);
-                    REQUIRE(_isCollectionElementEqual(
-                        (const typename ItType::value_type &)*it, expectedEl));
+                    REQUIRE(_isCollectionElementEqual((const typename ItType::value_type &)*it, expectedEl));
                     ++it;
                 }
 
@@ -320,11 +283,9 @@ namespace bdn
                 std::list<ElType> remainingExpectedEls = expectedElementList;
 
                 while (it != end) {
-                    auto expectedIt = std::find_if(
-                        remainingExpectedEls.begin(),
-                        remainingExpectedEls.end(), [it](const ElType &el) {
-                            return _isCollectionElementEqual(el, *it);
-                        });
+                    auto expectedIt =
+                        std::find_if(remainingExpectedEls.begin(), remainingExpectedEls.end(),
+                                     [it](const ElType &el) { return _isCollectionElementEqual(el, *it); });
                     REQUIRE(expectedIt != remainingExpectedEls.end());
                     REQUIRE(_isCollectionElementEqual(*expectedIt, *it));
 
@@ -341,8 +302,7 @@ namespace bdn
         {
             // this function will be ignord if FuncCollType::reverse_iterator
             // does not exist.
-            template <typename FuncCollType>
-            static typename FuncCollType::reverse_iterator test(int);
+            template <typename FuncCollType> static typename FuncCollType::reverse_iterator test(int);
 
             template <typename FuncCollType> static char test(double);
 
@@ -370,112 +330,89 @@ namespace bdn
             };
         };
 
-        template <class CollType, bool supportsBiDir>
-        class CollectionIterationVerifier_
+        template <class CollType, bool supportsBiDir> class CollectionIterationVerifier_
         {
           public:
-            static void verify(CollType &coll,
-                               const std::list<typename CollType::Element>
-                                   &expectedElementList)
+            static void verify(CollType &coll, const std::list<typename CollType::Element> &expectedElementList)
             {
                 // verify that the correct version of verify was called
-                static_assert(
-                    !CollectionSupportsBiDirIteration_<CollType>::value,
-                    "incorrect CollectionIterationVerifier_ chosen by "
-                    "compiler!");
+                static_assert(!CollectionSupportsBiDirIteration_<CollType>::value,
+                              "incorrect CollectionIterationVerifier_ chosen by "
+                              "compiler!");
 
-                bool mustHaveSameOrder =
-                    !CollectionElementOrderUndefined_<CollType>::value;
+                bool mustHaveSameOrder = !CollectionElementOrderUndefined_<CollType>::value;
 
                 // this is for iterators that do not support
                 // bidirectional_iterator_tag
                 SECTION("normal")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.begin(), coll.end(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(coll.begin(), coll.end(),
+                                                                            expectedElementList, mustHaveSameOrder);
 
                 SECTION("const coll")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    ((const CollType &)coll).begin(),
-                    ((const CollType &)coll).end(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(((const CollType &)coll).begin(),
+                                                                            ((const CollType &)coll).end(),
+                                                                            expectedElementList, mustHaveSameOrder);
 
                 SECTION("constBegin/End")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.constBegin(), coll.constEnd(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(coll.constBegin(), coll.constEnd(),
+                                                                            expectedElementList, mustHaveSameOrder);
             }
         };
 
-        template <class CollType>
-        class CollectionIterationVerifier_<CollType, true>
+        template <class CollType> class CollectionIterationVerifier_<CollType, true>
         {
           public:
-            static void verify(CollType &coll,
-                               const std::list<typename CollType::Element>
-                                   &expectedElementList)
+            static void verify(CollType &coll, const std::list<typename CollType::Element> &expectedElementList)
             {
                 // verify that the correct version of verify was called
-                static_assert(
-                    CollectionSupportsBiDirIteration_<CollType>::value,
-                    "incorrect CollectionIterationVerifier_ chosen by "
-                    "compiler!");
+                static_assert(CollectionSupportsBiDirIteration_<CollType>::value,
+                              "incorrect CollectionIterationVerifier_ chosen by "
+                              "compiler!");
 
-                bool mustHaveSameOrder =
-                    !CollectionElementOrderUndefined_<CollType>::value;
+                bool mustHaveSameOrder = !CollectionElementOrderUndefined_<CollType>::value;
 
                 SECTION("normal")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.begin(), coll.end(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(coll.begin(), coll.end(),
+                                                                            expectedElementList, mustHaveSameOrder);
 
                 SECTION("const coll")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    ((const CollType &)coll).begin(),
-                    ((const CollType &)coll).end(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(((const CollType &)coll).begin(),
+                                                                            ((const CollType &)coll).end(),
+                                                                            expectedElementList, mustHaveSameOrder);
 
                 SECTION("constBegin/End")
-                _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.constBegin(), coll.constEnd(), expectedElementList,
-                    mustHaveSameOrder);
+                _verifyIteratorIntervalContents<typename CollType::Element>(coll.constBegin(), coll.constEnd(),
+                                                                            expectedElementList, mustHaveSameOrder);
 
-                std::list<typename CollType::Element>
-                    reversedExpectedElementList(expectedElementList);
+                std::list<typename CollType::Element> reversedExpectedElementList(expectedElementList);
                 reversedExpectedElementList.reverse();
 
                 SECTION("reverse normal")
                 _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.reverseBegin(), coll.reverseEnd(),
-                    reversedExpectedElementList, mustHaveSameOrder);
+                    coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList, mustHaveSameOrder);
 
                 SECTION("reverse const coll")
                 _verifyIteratorIntervalContents<typename CollType::Element>(
-                    ((const CollType &)coll).reverseBegin(),
-                    ((const CollType &)coll).reverseEnd(),
+                    ((const CollType &)coll).reverseBegin(), ((const CollType &)coll).reverseEnd(),
                     reversedExpectedElementList, mustHaveSameOrder);
 
                 SECTION("constReverseBegin/End")
                 _verifyIteratorIntervalContents<typename CollType::Element>(
-                    coll.constReverseBegin(), coll.constReverseEnd(),
-                    reversedExpectedElementList, mustHaveSameOrder);
+                    coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList, mustHaveSameOrder);
             }
         };
 
         template <class CollType>
-        inline void _verifyCollectionIteration(
-            CollType &coll,
-            const std::list<typename CollType::Element> &expectedElementList)
+        inline void _verifyCollectionIteration(CollType &coll,
+                                               const std::list<typename CollType::Element> &expectedElementList)
         {
-            CollectionIterationVerifier_<
-                CollType, CollectionSupportsBiDirIteration_<CollType>::value>::
-                verify(coll, expectedElementList);
+            CollectionIterationVerifier_<CollType, CollectionSupportsBiDirIteration_<CollType>::value>::verify(
+                coll, expectedElementList);
         }
 
         template <class CollType>
-        inline void _verifyGenericCollectionReadOnly(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList)
+        inline void _verifyGenericCollectionReadOnly(CollType &coll,
+                                                     std::list<typename CollType::Element> expectedElementList)
         {
             SECTION("size")
             {
@@ -505,16 +442,14 @@ namespace bdn
 
         template <class CollType>
         inline void _verifyAdditionalPositionalCollectionFunctionalityReadOnly(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList)
+            CollType &coll, std::list<typename CollType::Element> expectedElementList)
         {
             SECTION("getFirst")
             {
                 if (expectedElementList.size() == 0)
                     REQUIRE_THROWS_AS(coll.getFirst(), OutOfRangeError);
                 else
-                    REQUIRE(_isCollectionElementEqual(
-                        coll.getFirst(), expectedElementList.front()));
+                    REQUIRE(_isCollectionElementEqual(coll.getFirst(), expectedElementList.front()));
             }
 
             SECTION("getLast")
@@ -522,38 +457,31 @@ namespace bdn
                 if (expectedElementList.size() == 0)
                     REQUIRE_THROWS_AS(coll.getLast(), OutOfRangeError);
                 else
-                    REQUIRE(_isCollectionElementEqual(
-                        coll.getLast(), expectedElementList.back()));
+                    REQUIRE(_isCollectionElementEqual(coll.getLast(), expectedElementList.back()));
             }
         }
 
         template <class CollType>
-        inline void _verifyPositionalCollectionReadOnly(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList)
+        inline void _verifyPositionalCollectionReadOnly(CollType &coll,
+                                                        std::list<typename CollType::Element> expectedElementList)
         {
             _verifyGenericCollectionReadOnly(coll, expectedElementList);
 
-            _verifyAdditionalPositionalCollectionFunctionalityReadOnly(
-                coll, expectedElementList);
+            _verifyAdditionalPositionalCollectionFunctionalityReadOnly(coll, expectedElementList);
         }
 
         template <class CollType, typename... ConstructArgs>
-        inline void _verifyCollectionInsertAt(
-            CollType &coll, int insertIndex,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList,
-            std::function<bool(const typename CollType::Element &)>
-                isMovedRemnant,
-            typename CollType::Element expectedConstructedEl,
-            ConstructArgs... constructArgs)
+        inline void _verifyCollectionInsertAt(CollType &coll, int insertIndex,
+                                              std::list<typename CollType::Element> expectedElementList,
+                                              std::initializer_list<typename CollType::Element> newElList,
+                                              std::function<bool(const typename CollType::Element &)> isMovedRemnant,
+                                              typename CollType::Element expectedConstructedEl,
+                                              ConstructArgs... constructArgs)
         {
-            std::list<typename CollType::Element> newExpectedElementList =
-                expectedElementList;
+            std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
             typename CollType::Iterator insertIt = coll.begin();
-            typename std::list<typename CollType::Element>::iterator
-                expectedInsertIt = newExpectedElementList.begin();
+            typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.begin();
             for (int i = 0; i < insertIndex; i++) {
                 ++insertIt;
                 ++expectedInsertIt;
@@ -566,8 +494,7 @@ namespace bdn
                 coll.insertAt(insertIt, elToAdd);
                 newExpectedElementList.insert(expectedInsertIt, elToAdd);
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
 
             SECTION("move")
@@ -575,8 +502,7 @@ namespace bdn
                 newExpectedElementList.insert(expectedInsertIt, elToAdd);
                 coll.insertAt(insertIt, std::move(elToAdd));
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
 
                 // elToAdd should not have the same value anymore
                 REQUIRE(isMovedRemnant(elToAdd));
@@ -588,22 +514,16 @@ namespace bdn
                 {
                     SECTION("empty")
                     {
-                        coll.insertSequenceAt(insertIt, newElList.begin(),
-                                              newElList.begin());
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        coll.insertSequenceAt(insertIt, newElList.begin(), newElList.begin());
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
-                        coll.insertSequenceAt(insertIt, newElList.begin(),
-                                              newElList.end());
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        coll.insertSequenceAt(insertIt, newElList.begin(), newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
 
@@ -613,19 +533,15 @@ namespace bdn
                     {
                         coll.insertSequenceAt(insertIt, {});
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
                         coll.insertSequenceAt(insertIt, newElList);
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
             }
@@ -634,63 +550,47 @@ namespace bdn
             {
                 SECTION("0 times")
                 {
-                    coll.insertMultipleCopiesAt(insertIt, 0,
-                                                *newElList.begin());
+                    coll.insertMultipleCopiesAt(insertIt, 0, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 SECTION("1 times")
                 {
-                    coll.insertMultipleCopiesAt(insertIt, 1,
-                                                *newElList.begin());
-                    newExpectedElementList.insert(expectedInsertIt,
-                                                  *newElList.begin());
+                    coll.insertMultipleCopiesAt(insertIt, 1, *newElList.begin());
+                    newExpectedElementList.insert(expectedInsertIt, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 SECTION("3 times")
                 {
-                    coll.insertMultipleCopiesAt(insertIt, 3,
-                                                *newElList.begin());
-                    newExpectedElementList.insert(expectedInsertIt, 3,
-                                                  *newElList.begin());
+                    coll.insertMultipleCopiesAt(insertIt, 3, *newElList.begin());
+                    newExpectedElementList.insert(expectedInsertIt, 3, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
             }
 
             SECTION("new")
             {
-                coll.template insertNewAt<ConstructArgs...>(
-                    insertIt, std::forward<ConstructArgs>(constructArgs)...);
-                newExpectedElementList.insert(expectedInsertIt,
-                                              expectedConstructedEl);
+                coll.template insertNewAt<ConstructArgs...>(insertIt, std::forward<ConstructArgs>(constructArgs)...);
+                newExpectedElementList.insert(expectedInsertIt, expectedConstructedEl);
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
         }
 
         template <class CollType, typename... ConstructArgs>
-        inline void _verifyCollectionAdd(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList,
-            std::function<bool(const typename CollType::Element &)>
-                isMovedRemnant,
-            typename CollType::Element expectedConstructedEl,
-            ConstructArgs... constructArgs)
+        inline void _verifyCollectionAdd(CollType &coll, std::list<typename CollType::Element> expectedElementList,
+                                         std::initializer_list<typename CollType::Element> newElList,
+                                         std::function<bool(const typename CollType::Element &)> isMovedRemnant,
+                                         typename CollType::Element expectedConstructedEl,
+                                         ConstructArgs... constructArgs)
         {
-            std::list<typename CollType::Element> newExpectedElementList =
-                expectedElementList;
+            std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
-            typename std::list<typename CollType::Element>::iterator
-                expectedInsertIt = newExpectedElementList.end();
+            typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.end();
 
             typename CollType::Element elToAdd = *newElList.begin();
 
@@ -720,19 +620,15 @@ namespace bdn
                     SECTION("empty")
                     {
                         coll.addSequence(newElList.begin(), newElList.begin());
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
                         coll.addSequence(newElList.begin(), newElList.end());
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
 
@@ -742,19 +638,15 @@ namespace bdn
                     {
                         coll.addSequence({});
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
                         coll.addSequence(newElList);
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
 
@@ -765,52 +657,41 @@ namespace bdn
                         std::list<typename CollType::Element> sourceList;
 
                         coll.addSequence(sourceList);
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
-                        std::list<typename CollType::Element> sourceList(
-                            newElList);
+                        std::list<typename CollType::Element> sourceList(newElList);
 
                         coll.addSequence(sourceList);
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
             }
 
             SECTION("new")
             {
-                const typename CollType::Element &addedEl =
-                    coll.addNew(std::forward<ConstructArgs>(constructArgs)...);
+                const typename CollType::Element &addedEl = coll.addNew(std::forward<ConstructArgs>(constructArgs)...);
 
-                REQUIRE(
-                    _isCollectionElementEqual(addedEl, expectedConstructedEl));
+                REQUIRE(_isCollectionElementEqual(addedEl, expectedConstructedEl));
 
-                newExpectedElementList.insert(expectedInsertIt,
-                                              expectedConstructedEl);
+                newExpectedElementList.insert(expectedInsertIt, expectedConstructedEl);
 
                 _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
             }
         }
 
         template <class CollType>
-        inline void _verifyCollectionAddMultipleCopies(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList)
+        inline void _verifyCollectionAddMultipleCopies(CollType &coll,
+                                                       std::list<typename CollType::Element> expectedElementList,
+                                                       std::initializer_list<typename CollType::Element> newElList)
         {
-            std::list<typename CollType::Element> newExpectedElementList =
-                expectedElementList;
+            std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
-            typename std::list<typename CollType::Element>::iterator
-                expectedInsertIt = newExpectedElementList.end();
+            typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.end();
 
             typename CollType::Element elToAdd = *newElList.begin();
 
@@ -818,46 +699,36 @@ namespace bdn
             {
                 coll.addMultipleCopies(0, *newElList.begin());
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
 
             SECTION("1 times")
             {
                 coll.addMultipleCopies(1, *newElList.begin());
-                newExpectedElementList.insert(expectedInsertIt,
-                                              *newElList.begin());
+                newExpectedElementList.insert(expectedInsertIt, *newElList.begin());
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
 
             SECTION("3 times")
             {
                 coll.addMultipleCopies(3, *newElList.begin());
-                newExpectedElementList.insert(expectedInsertIt, 3,
-                                              *newElList.begin());
+                newExpectedElementList.insert(expectedInsertIt, 3, *newElList.begin());
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
         }
 
         template <class CollType, typename... ConstructArgs>
-        inline void _verifyCollectionInsertAtBegin(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList,
-            std::function<bool(const typename CollType::Element &)>
-                isMovedRemnant,
-            typename CollType::Element expectedConstructedEl,
-            ConstructArgs... constructArgs)
+        inline void
+        _verifyCollectionInsertAtBegin(CollType &coll, std::list<typename CollType::Element> expectedElementList,
+                                       std::initializer_list<typename CollType::Element> newElList,
+                                       std::function<bool(const typename CollType::Element &)> isMovedRemnant,
+                                       typename CollType::Element expectedConstructedEl, ConstructArgs... constructArgs)
         {
-            std::list<typename CollType::Element> newExpectedElementList =
-                expectedElementList;
+            std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
-            typename std::list<typename CollType::Element>::iterator
-                expectedInsertIt = newExpectedElementList.begin();
+            typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.begin();
 
             typename CollType::Element elToAdd = *newElList.begin();
 
@@ -866,8 +737,7 @@ namespace bdn
                 coll.insertAtBegin(elToAdd);
                 newExpectedElementList.insert(expectedInsertIt, elToAdd);
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
 
             SECTION("move")
@@ -875,8 +745,7 @@ namespace bdn
                 newExpectedElementList.insert(expectedInsertIt, elToAdd);
                 coll.insertAtBegin(std::move(elToAdd));
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
 
                 // elToAdd should not have the same value anymore
                 REQUIRE(isMovedRemnant(elToAdd));
@@ -888,22 +757,16 @@ namespace bdn
                 {
                     SECTION("empty")
                     {
-                        coll.insertSequenceAtBegin(newElList.begin(),
-                                                   newElList.begin());
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        coll.insertSequenceAtBegin(newElList.begin(), newElList.begin());
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
-                        coll.insertSequenceAtBegin(newElList.begin(),
-                                                   newElList.end());
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        coll.insertSequenceAtBegin(newElList.begin(), newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
 
@@ -913,19 +776,15 @@ namespace bdn
                     {
                         coll.insertSequenceAtBegin({});
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("non-empty")
                     {
                         coll.insertSequenceAtBegin(newElList);
-                        newExpectedElementList.insert(expectedInsertIt,
-                                                      newElList.begin(),
-                                                      newElList.end());
+                        newExpectedElementList.insert(expectedInsertIt, newElList.begin(), newElList.end());
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
             }
@@ -936,47 +795,37 @@ namespace bdn
                 {
                     coll.insertMultipleCopiesAtBegin(0, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 SECTION("1 times")
                 {
                     coll.insertMultipleCopiesAtBegin(1, *newElList.begin());
-                    newExpectedElementList.insert(expectedInsertIt,
-                                                  *newElList.begin());
+                    newExpectedElementList.insert(expectedInsertIt, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 SECTION("3 times")
                 {
                     coll.insertMultipleCopiesAtBegin(3, *newElList.begin());
-                    newExpectedElementList.insert(expectedInsertIt, 3,
-                                                  *newElList.begin());
+                    newExpectedElementList.insert(expectedInsertIt, 3, *newElList.begin());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
             }
 
             SECTION("new")
             {
-                coll.insertNewAtBegin(
-                    std::forward<ConstructArgs>(constructArgs)...);
-                newExpectedElementList.insert(expectedInsertIt,
-                                              expectedConstructedEl);
+                coll.insertNewAtBegin(std::forward<ConstructArgs>(constructArgs)...);
+                newExpectedElementList.insert(expectedInsertIt, expectedConstructedEl);
 
-                _verifyPositionalCollectionReadOnly(coll,
-                                                    newExpectedElementList);
+                _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
             }
         }
 
         template <class IteratorType, typename ElementType>
-        IteratorType _findCollectionElement(IteratorType beginIt,
-                                            IteratorType endIt,
-                                            const ElementType &el)
+        IteratorType _findCollectionElement(IteratorType beginIt, IteratorType endIt, const ElementType &el)
         {
             for (auto it = beginIt; it != endIt; ++it) {
                 if (_isCollectionElementEqual(*it, el))
@@ -986,9 +835,7 @@ namespace bdn
             return endIt;
         }
 
-        template <class CollType>
-        void _removeCollectionElement(CollType &coll,
-                                      const typename CollType::value_type &el)
+        template <class CollType> void _removeCollectionElement(CollType &coll, const typename CollType::value_type &el)
         {
             int removedCount = 0;
 
@@ -1006,13 +853,11 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _verifyCollectionRemoveSpecificSection(
-            CollType &coll, int removeBeginIndex, int removeCount,
-            std::list<typename CollType::Element> expectedElementList)
+        inline void _verifyCollectionRemoveSpecificSection(CollType &coll, int removeBeginIndex, int removeCount,
+                                                           std::list<typename CollType::Element> expectedElementList)
         {
             auto removeBegin = coll.begin();
-            for (int i = 0; i < removeBeginIndex && removeBegin != coll.end();
-                 i++)
+            for (int i = 0; i < removeBeginIndex && removeBegin != coll.end(); i++)
                 ++removeBegin;
 
             auto removeEnd = removeBegin;
@@ -1028,57 +873,49 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _verifyCollectionRemoveSectionOfSize(
-            CollType &coll, int removeCount,
-            const std::list<typename CollType::Element> &expectedElementList)
+        inline void
+        _verifyCollectionRemoveSectionOfSize(CollType &coll, int removeCount,
+                                             const std::list<typename CollType::Element> &expectedElementList)
         {
             SECTION("from begin")
-            _verifyCollectionRemoveSpecificSection(coll, 0, removeCount,
-                                                   expectedElementList);
+            _verifyCollectionRemoveSpecificSection(coll, 0, removeCount, expectedElementList);
 
             if (expectedElementList.size() >= (size_t)removeCount) {
                 SECTION("to end")
-                _verifyCollectionRemoveSpecificSection(
-                    coll, ((int)coll.size()) - removeCount, removeCount,
-                    expectedElementList);
+                _verifyCollectionRemoveSpecificSection(coll, ((int)coll.size()) - removeCount, removeCount,
+                                                       expectedElementList);
             }
 
             if (expectedElementList.size() >= (size_t)removeCount + 1) {
                 SECTION("from middle")
-                _verifyCollectionRemoveSpecificSection(coll, 1, removeCount,
-                                                       expectedElementList);
+                _verifyCollectionRemoveSpecificSection(coll, 1, removeCount, expectedElementList);
             }
         }
 
         template <class CollType>
-        inline void _verifyCollectionRemoveSection(
-            CollType &coll,
-            const std::list<typename CollType::Element> &expectedElementList)
+        inline void _verifyCollectionRemoveSection(CollType &coll,
+                                                   const std::list<typename CollType::Element> &expectedElementList)
         {
             SECTION("0 elements")
             _verifyCollectionRemoveSectionOfSize(coll, 0, expectedElementList);
 
             if (expectedElementList.size() >= 1) {
                 SECTION("1 element")
-                _verifyCollectionRemoveSectionOfSize(coll, 1,
-                                                     expectedElementList);
+                _verifyCollectionRemoveSectionOfSize(coll, 1, expectedElementList);
             }
 
             if (expectedElementList.size() >= 2) {
                 SECTION("2 elements")
-                _verifyCollectionRemoveSectionOfSize(coll, 2,
-                                                     expectedElementList);
+                _verifyCollectionRemoveSectionOfSize(coll, 2, expectedElementList);
             }
 
             SECTION("all elements")
-            _verifyCollectionRemoveSectionOfSize(coll, (int)coll.size(),
-                                                 expectedElementList);
+            _verifyCollectionRemoveSectionOfSize(coll, (int)coll.size(), expectedElementList);
         }
 
         template <class CollType>
-        inline void verifyCollectionFindAndRemoveAtIndex(
-            CollType &coll, int removeIndex,
-            std::list<typename CollType::Element> expectedElementList)
+        inline void verifyCollectionFindAndRemoveAtIndex(CollType &coll, int removeIndex,
+                                                         std::list<typename CollType::Element> expectedElementList)
         {
             auto removeIt = coll.begin();
 
@@ -1098,26 +935,21 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _verifyCollectionFindAndRemove(
-            CollType &coll,
-            const std::list<typename CollType::Element> &expectedElementList,
-            typename CollType::Element elNotInList)
+        inline void _verifyCollectionFindAndRemove(CollType &coll,
+                                                   const std::list<typename CollType::Element> &expectedElementList,
+                                                   typename CollType::Element elNotInList)
         {
             if (!expectedElementList.empty()) {
                 SECTION("first")
-                verifyCollectionFindAndRemoveAtIndex(coll, 0,
-                                                     expectedElementList);
+                verifyCollectionFindAndRemoveAtIndex(coll, 0, expectedElementList);
 
                 SECTION("last")
-                verifyCollectionFindAndRemoveAtIndex(
-                    coll, ((int)expectedElementList.size()) - 1,
-                    expectedElementList);
+                verifyCollectionFindAndRemoveAtIndex(coll, ((int)expectedElementList.size()) - 1, expectedElementList);
             }
 
             if (expectedElementList.size() >= 2) {
                 SECTION("middle")
-                verifyCollectionFindAndRemoveAtIndex(coll, 1,
-                                                     expectedElementList);
+                verifyCollectionFindAndRemoveAtIndex(coll, 1, expectedElementList);
             }
 
             SECTION("not found")
@@ -1129,9 +961,9 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void verifyCollectionFindCustomAndRemoveAtIndex(
-            CollType &coll, int removeIndex,
-            std::list<typename CollType::Element> expectedElementList)
+        inline void
+        verifyCollectionFindCustomAndRemoveAtIndex(CollType &coll, int removeIndex,
+                                                   std::list<typename CollType::Element> expectedElementList)
         {
             auto removeIt = coll.begin();
 
@@ -1142,49 +974,41 @@ namespace bdn
 
             _removeCollectionElement(expectedElementList, elToRemove);
 
-            coll.findCustomAndRemove(
-                [elToRemove](const typename CollType::Iterator &it) {
-                    return _isCollectionElementEqual(*it, elToRemove);
-                });
+            coll.findCustomAndRemove([elToRemove](const typename CollType::Iterator &it) {
+                return _isCollectionElementEqual(*it, elToRemove);
+            });
 
             _verifyGenericCollectionReadOnly(coll, expectedElementList);
         }
 
         template <class CollType>
-        inline void verifyCollectionFindCustomAndRemove(
-            CollType &coll,
-            const std::list<typename CollType::Element> &expectedElementList)
+        inline void
+        verifyCollectionFindCustomAndRemove(CollType &coll,
+                                            const std::list<typename CollType::Element> &expectedElementList)
         {
             if (!expectedElementList.empty()) {
                 SECTION("first")
-                verifyCollectionFindCustomAndRemoveAtIndex(coll, 0,
-                                                           expectedElementList);
+                verifyCollectionFindCustomAndRemoveAtIndex(coll, 0, expectedElementList);
 
                 SECTION("last")
-                verifyCollectionFindCustomAndRemoveAtIndex(
-                    coll, ((int)expectedElementList.size()) - 1,
-                    expectedElementList);
+                verifyCollectionFindCustomAndRemoveAtIndex(coll, ((int)expectedElementList.size()) - 1,
+                                                           expectedElementList);
             }
 
             if (expectedElementList.size() >= 2) {
                 SECTION("middle")
-                verifyCollectionFindCustomAndRemoveAtIndex(coll, 1,
-                                                           expectedElementList);
+                verifyCollectionFindCustomAndRemoveAtIndex(coll, 1, expectedElementList);
             }
 
             SECTION("not found")
             {
-                coll.findCustomAndRemove(
-                    [](const typename CollType::Iterator &it) {
-                        return false;
-                    });
+                coll.findCustomAndRemove([](const typename CollType::Iterator &it) { return false; });
 
                 _verifyGenericCollectionReadOnly(coll, expectedElementList);
             }
         }
 
-        template <class CollType>
-        typename CollType::iterator _getLastElementIterator(CollType &coll)
+        template <class CollType> typename CollType::iterator _getLastElementIterator(CollType &coll)
         {
             // find the last element. Note that we cannot use --end() here
             // because the collection might not support backwards iteration.
@@ -1204,19 +1028,15 @@ namespace bdn
         }
 
         template <class CollType, typename... ConstructArgs>
-        inline void _verifyGenericCollection(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList,
-            std::function<bool(const typename CollType::Element &)>
-                isMovedRemnant,
-            typename CollType::Element expectedConstructedEl,
-            ConstructArgs... constructArgs)
+        inline void _verifyGenericCollection(CollType &coll, std::list<typename CollType::Element> expectedElementList,
+                                             std::initializer_list<typename CollType::Element> newElList,
+                                             std::function<bool(const typename CollType::Element &)> isMovedRemnant,
+                                             typename CollType::Element expectedConstructedEl,
+                                             ConstructArgs... constructArgs)
         {
             _verifyGenericCollectionReadOnly(coll, expectedElementList);
 
-            std::list<typename CollType::Element> newExpectedElementList(
-                expectedElementList);
+            std::list<typename CollType::Element> newExpectedElementList(expectedElementList);
 
             SECTION("clear")
             {
@@ -1256,15 +1076,13 @@ namespace bdn
                         SECTION("ref")
                         {
                             coll = otherColl;
-                            _verifyGenericCollectionReadOnly(
-                                coll, {expectedConstructedEl});
+                            _verifyGenericCollectionReadOnly(coll, {expectedConstructedEl});
                         }
 
                         SECTION("move")
                         {
                             coll = std::move(otherColl);
-                            _verifyGenericCollectionReadOnly(
-                                coll, {expectedConstructedEl});
+                            _verifyGenericCollectionReadOnly(coll, {expectedConstructedEl});
 
                             REQUIRE(otherColl.size() == 0);
                         }
@@ -1283,8 +1101,7 @@ namespace bdn
                     {
                         coll = {expectedConstructedEl};
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, {expectedConstructedEl});
+                        _verifyGenericCollectionReadOnly(coll, {expectedConstructedEl});
                     }
                 }
             }
@@ -1294,24 +1111,20 @@ namespace bdn
                 {
                     SECTION("first")
                     {
-                        _removeCollectionElement(newExpectedElementList,
-                                                 *coll.begin());
+                        _removeCollectionElement(newExpectedElementList, *coll.begin());
 
                         coll.removeAt(coll.begin());
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     SECTION("last")
                     {
                         auto removeIt = _getLastElementIterator(coll);
-                        _removeCollectionElement(newExpectedElementList,
-                                                 *removeIt);
+                        _removeCollectionElement(newExpectedElementList, *removeIt);
                         coll.removeAt(removeIt);
 
-                        _verifyGenericCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                     }
 
                     if (expectedElementList.size() > 1) {
@@ -1320,12 +1133,10 @@ namespace bdn
                             auto removeIt = coll.begin();
                             ++removeIt;
 
-                            _removeCollectionElement(newExpectedElementList,
-                                                     *removeIt);
+                            _removeCollectionElement(newExpectedElementList, *removeIt);
                             coll.removeAt(removeIt);
 
-                            _verifyGenericCollectionReadOnly(
-                                coll, newExpectedElementList);
+                            _verifyGenericCollectionReadOnly(coll, newExpectedElementList);
                         }
                     }
                 }
@@ -1338,86 +1149,64 @@ namespace bdn
             verifyCollectionFindCustomAndRemove(coll, expectedElementList);
 
             SECTION("add")
-            _verifyCollectionAdd(coll, expectedElementList, newElList,
-                                 isMovedRemnant, expectedConstructedEl,
+            _verifyCollectionAdd(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl,
                                  std::forward<ConstructArgs>(constructArgs)...);
         }
 
         template <class CollType, typename... ConstructArgs>
-        inline void _verifyPositionalCollection(
-            CollType &coll,
-            std::list<typename CollType::Element> expectedElementList,
-            std::initializer_list<typename CollType::Element> newElList,
-            std::function<bool(const typename CollType::Element &)>
-                isMovedRemnant,
-            typename CollType::Element expectedConstructedEl,
-            ConstructArgs... constructArgs)
+        inline void
+        _verifyPositionalCollection(CollType &coll, std::list<typename CollType::Element> expectedElementList,
+                                    std::initializer_list<typename CollType::Element> newElList,
+                                    std::function<bool(const typename CollType::Element &)> isMovedRemnant,
+                                    typename CollType::Element expectedConstructedEl, ConstructArgs... constructArgs)
         {
-            _verifyGenericCollection(
-                coll, expectedElementList, newElList, isMovedRemnant,
-                expectedConstructedEl,
-                std::forward<ConstructArgs>(constructArgs)...);
+            _verifyGenericCollection(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl,
+                                     std::forward<ConstructArgs>(constructArgs)...);
 
-            _verifyAdditionalPositionalCollectionFunctionalityReadOnly(
-                coll, expectedElementList);
+            _verifyAdditionalPositionalCollectionFunctionalityReadOnly(coll, expectedElementList);
 
-            std::list<typename CollType::Element> newExpectedElementList(
-                expectedElementList);
+            std::list<typename CollType::Element> newExpectedElementList(expectedElementList);
 
             if (expectedElementList.size() > 0) {
                 SECTION("removeFirst")
                 {
                     coll.removeFirst();
-                    newExpectedElementList.erase(
-                        newExpectedElementList.begin());
+                    newExpectedElementList.erase(newExpectedElementList.begin());
                 }
 
                 SECTION("removeLast")
                 {
                     coll.removeLast();
-                    newExpectedElementList.erase(
-                        --newExpectedElementList.end());
+                    newExpectedElementList.erase(--newExpectedElementList.end());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
             }
 
-            SECTION("addMultipleCopies")
-            {
-                _verifyCollectionAddMultipleCopies(coll, expectedElementList,
-                                                   newElList);
-            }
+            SECTION("addMultipleCopies") { _verifyCollectionAddMultipleCopies(coll, expectedElementList, newElList); }
 
             SECTION("insertAt")
             {
                 SECTION("at begin")
-                _verifyCollectionInsertAt(
-                    coll, 0, expectedElementList, newElList, isMovedRemnant,
-                    expectedConstructedEl,
-                    std::forward<ConstructArgs>(constructArgs)...);
+                _verifyCollectionInsertAt(coll, 0, expectedElementList, newElList, isMovedRemnant,
+                                          expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
 
                 if (expectedElementList.size() > 1) {
                     SECTION("in middle")
-                    _verifyCollectionInsertAt(
-                        coll, 1, expectedElementList, newElList, isMovedRemnant,
-                        expectedConstructedEl,
-                        std::forward<ConstructArgs>(constructArgs)...);
+                    _verifyCollectionInsertAt(coll, 1, expectedElementList, newElList, isMovedRemnant,
+                                              expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
                 }
 
                 SECTION("at end")
-                _verifyCollectionInsertAt(
-                    coll, (int)expectedElementList.size(), expectedElementList,
-                    newElList, isMovedRemnant, expectedConstructedEl,
-                    std::forward<ConstructArgs>(constructArgs)...);
+                _verifyCollectionInsertAt(coll, (int)expectedElementList.size(), expectedElementList, newElList,
+                                          isMovedRemnant, expectedConstructedEl,
+                                          std::forward<ConstructArgs>(constructArgs)...);
             }
 
             SECTION("insertAtBegin")
             {
-                _verifyCollectionInsertAtBegin(
-                    coll, expectedElementList, newElList, isMovedRemnant,
-                    expectedConstructedEl,
-                    std::forward<ConstructArgs>(constructArgs)...);
+                _verifyCollectionInsertAtBegin(coll, expectedElementList, newElList, isMovedRemnant,
+                                               expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
             }
 
             SECTION("setSize")
@@ -1427,30 +1216,25 @@ namespace bdn
                     coll.setSize(0);
                     newExpectedElementList.clear();
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 if (expectedElementList.size() > 0) {
                     SECTION("to one less")
                     {
                         coll.setSize(coll.size() - 1);
-                        newExpectedElementList.erase(
-                            --newExpectedElementList.end());
+                        newExpectedElementList.erase(--newExpectedElementList.end());
 
-                        _verifyPositionalCollectionReadOnly(
-                            coll, newExpectedElementList);
+                        _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                     }
                 }
 
                 SECTION("to one more")
                 {
                     coll.setSize(coll.size() + 1);
-                    newExpectedElementList.push_back(
-                        typename CollType::Element());
+                    newExpectedElementList.push_back(typename CollType::Element());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
 
                 SECTION("to 100 more")
@@ -1458,11 +1242,9 @@ namespace bdn
                     coll.setSize(coll.size() + 100);
 
                     for (int i = 0; i < 100; i++)
-                        newExpectedElementList.push_back(
-                            typename CollType::Element());
+                        newExpectedElementList.push_back(typename CollType::Element());
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        newExpectedElementList);
+                    _verifyPositionalCollectionReadOnly(coll, newExpectedElementList);
                 }
             }
 
@@ -1493,8 +1275,7 @@ namespace bdn
         }
 
         template <class CollType, class ItType>
-        inline void _verifyIndexedCollectionAccess(CollType &coll, int index,
-                                                   ItType expectedElementIt)
+        inline void _verifyIndexedCollectionAccess(CollType &coll, int index, ItType expectedElementIt)
         {
             if (index != coll.size()) {
                 SECTION("atIndex")
@@ -1511,8 +1292,7 @@ namespace bdn
             REQUIRE(coll.iteratorToIndex(expectedElementIt) == index);
         }
 
-        template <class CollType>
-        inline void _testCollectionIndexedAccess(CollType &coll)
+        template <class CollType> inline void _testCollectionIndexedAccess(CollType &coll)
         {
             SECTION("0")
             _verifyIndexedCollectionAccess(coll, 0, coll.begin());
@@ -1521,18 +1301,15 @@ namespace bdn
             _verifyIndexedCollectionAccess(coll, 1, ++coll.begin());
 
             SECTION("last")
-            _verifyIndexedCollectionAccess(coll, ((int)coll.size()) - 1,
-                                           --coll.end());
+            _verifyIndexedCollectionAccess(coll, ((int)coll.size()) - 1, --coll.end());
 
             SECTION("end")
             _verifyIndexedCollectionAccess(coll, (int)coll.size(), coll.end());
         }
 
-        template <class CollType>
-        inline void _testGenericCollectionPrepareForSize(CollType &coll)
+        template <class CollType> inline void _testGenericCollectionPrepareForSize(CollType &coll)
         {
-            std::list<typename CollType::Element> origElements(coll.begin(),
-                                                               coll.end());
+            std::list<typename CollType::Element> origElements(coll.begin(), coll.end());
 
             typename CollType::Size prepareFor = 0;
 
@@ -1558,10 +1335,8 @@ namespace bdn
         }
 
         template <class CollType, class ItType>
-        inline void
-        _verifyCollectionFindVariant(CollType &coll,
-                                     typename CollType::Element toFind,
-                                     ItType expectedResult)
+        inline void _verifyCollectionFindVariant(CollType &coll, typename CollType::Element toFind,
+                                                 ItType expectedResult)
         {
             SECTION("find")
             {
@@ -1578,34 +1353,28 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void
-        _verifyCollectionFind(CollType &coll, typename CollType::Element toFind,
-                              typename CollType::Iterator expectedResult)
+        inline void _verifyCollectionFind(CollType &coll, typename CollType::Element toFind,
+                                          typename CollType::Iterator expectedResult)
         {
             SECTION("normal")
-            _verifyCollectionFindVariant<CollType, typename CollType::Iterator>(
-                coll, toFind, expectedResult);
+            _verifyCollectionFindVariant<CollType, typename CollType::Iterator>(coll, toFind, expectedResult);
 
             SECTION("const")
             {
                 const CollType &constColl(coll);
 
                 // convert the const iterator to non-const
-                typename CollType::ConstIterator constExpectedResult =
-                    constColl.begin();
-                std::advance(constExpectedResult,
-                             std::distance(coll.begin(), expectedResult));
+                typename CollType::ConstIterator constExpectedResult = constColl.begin();
+                std::advance(constExpectedResult, std::distance(coll.begin(), expectedResult));
 
-                _verifyCollectionFindVariant<const CollType,
-                                             typename CollType::ConstIterator>(
-                    constColl, toFind, constExpectedResult);
+                _verifyCollectionFindVariant<const CollType, typename CollType::ConstIterator>(constColl, toFind,
+                                                                                               constExpectedResult);
             }
         }
 
         template <class CollType, class ItType>
-        inline void _verifyCollectionFindWithStartPosVariant(
-            CollType &coll, typename CollType::Element toFind,
-            ItType expectedResult)
+        inline void _verifyCollectionFindWithStartPosVariant(CollType &coll, typename CollType::Element toFind,
+                                                             ItType expectedResult)
         {
             SECTION("no startPos")
             {
@@ -1654,35 +1423,29 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _verifyCollectionFindWithStartPos(
-            CollType &coll, typename CollType::Element toFind,
-            typename CollType::Iterator expectedResult)
+        inline void _verifyCollectionFindWithStartPos(CollType &coll, typename CollType::Element toFind,
+                                                      typename CollType::Iterator expectedResult)
         {
             SECTION("normal")
-            _verifyCollectionFindWithStartPosVariant<
-                CollType, typename CollType::Iterator>(coll, toFind,
-                                                       expectedResult);
+            _verifyCollectionFindWithStartPosVariant<CollType, typename CollType::Iterator>(coll, toFind,
+                                                                                            expectedResult);
 
             SECTION("const")
             {
                 const CollType &constColl(coll);
 
                 // convert the const iterator to non-const
-                typename CollType::ConstIterator constExpectedResult =
-                    constColl.begin();
-                std::advance(constExpectedResult,
-                             std::distance(coll.begin(), expectedResult));
+                typename CollType::ConstIterator constExpectedResult = constColl.begin();
+                std::advance(constExpectedResult, std::distance(coll.begin(), expectedResult));
 
-                _verifyCollectionFindWithStartPosVariant<
-                    const CollType, typename CollType::ConstIterator>(
+                _verifyCollectionFindWithStartPosVariant<const CollType, typename CollType::ConstIterator>(
                     constColl, toFind, constExpectedResult);
             }
         }
 
         template <class CollType, class ItType>
-        inline void verifyReverseFindForSpecificVariant(
-            CollType &coll, typename CollType::Element toFind,
-            ItType expectedResult, ItType posAfterExpectedPos)
+        inline void verifyReverseFindForSpecificVariant(CollType &coll, typename CollType::Element toFind,
+                                                        ItType expectedResult, ItType posAfterExpectedPos)
         {
             SECTION("no startPos")
             {
@@ -1711,8 +1474,7 @@ namespace bdn
                 if (expectedResult != coll.begin()) {
                     SECTION("after expected find position")
                     {
-                        ItType it =
-                            coll.reverseFind(toFind, posAfterExpectedPos);
+                        ItType it = coll.reverseFind(toFind, posAfterExpectedPos);
 
                         if (expectedResult == coll.end())
                             REQUIRE(it == expectedResult);
@@ -1738,20 +1500,17 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void
-        verifyReverseFind(CollType &coll, typename CollType::Element toFind,
-                          typename CollType::Iterator expectedResult)
+        inline void verifyReverseFind(CollType &coll, typename CollType::Element toFind,
+                                      typename CollType::Iterator expectedResult)
         {
             SECTION("normal")
             {
-                typename CollType::Iterator posAfterExpectedPos =
-                    expectedResult;
+                typename CollType::Iterator posAfterExpectedPos = expectedResult;
                 if (expectedResult != coll.begin())
                     --posAfterExpectedPos;
 
-                verifyReverseFindForSpecificVariant<
-                    CollType, typename CollType::Iterator>(
-                    coll, toFind, expectedResult, posAfterExpectedPos);
+                verifyReverseFindForSpecificVariant<CollType, typename CollType::Iterator>(coll, toFind, expectedResult,
+                                                                                           posAfterExpectedPos);
             }
 
             SECTION("const")
@@ -1759,28 +1518,21 @@ namespace bdn
                 const CollType &constColl(coll);
 
                 // convert the const iterator to non-const
-                typename CollType::ConstIterator constExpectedResult =
-                    constColl.begin();
-                std::advance(constExpectedResult,
-                             std::distance(coll.begin(), expectedResult));
+                typename CollType::ConstIterator constExpectedResult = constColl.begin();
+                std::advance(constExpectedResult, std::distance(coll.begin(), expectedResult));
 
-                typename CollType::ConstIterator posAfterExpectedPos =
-                    constExpectedResult;
+                typename CollType::ConstIterator posAfterExpectedPos = constExpectedResult;
                 if (constExpectedResult != constColl.begin())
                     --posAfterExpectedPos;
 
-                verifyReverseFindForSpecificVariant<
-                    const CollType, typename CollType::ConstIterator>(
-                    constColl, toFind, constExpectedResult,
-                    posAfterExpectedPos);
+                verifyReverseFindForSpecificVariant<const CollType, typename CollType::ConstIterator>(
+                    constColl, toFind, constExpectedResult, posAfterExpectedPos);
             }
         }
 
         template <class COLL, typename FIND_FUNC, typename CONST_FIND_FUNC>
-        inline void
-        verifyFindCustomWithFindFunc(COLL &coll, FIND_FUNC findFunc,
-                                     CONST_FIND_FUNC constFindFunc,
-                                     typename COLL::Iterator expectedResult)
+        inline void verifyFindCustomWithFindFunc(COLL &coll, FIND_FUNC findFunc, CONST_FIND_FUNC constFindFunc,
+                                                 typename COLL::Iterator expectedResult)
         {
             SECTION("normal")
             {
@@ -1803,22 +1555,15 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void verifyFindCustom(
-            CollType &coll,
-            std::function<bool(const typename CollType::ConstIterator &)>
-                conditionFunc,
-            typename CollType::Iterator expectedResult)
+        inline void verifyFindCustom(CollType &coll,
+                                     std::function<bool(const typename CollType::ConstIterator &)> conditionFunc,
+                                     typename CollType::Iterator expectedResult)
         {
             SECTION("without startPos")
             {
                 verifyFindCustomWithFindFunc(
-                    coll,
-                    [conditionFunc](CollType &coll) {
-                        return coll.findCustom(conditionFunc);
-                    },
-                    [conditionFunc](const CollType &constColl) {
-                        return constColl.findCustom(conditionFunc);
-                    },
+                    coll, [conditionFunc](CollType &coll) { return coll.findCustom(conditionFunc); },
+                    [conditionFunc](const CollType &constColl) { return constColl.findCustom(conditionFunc); },
                     expectedResult);
             }
 
@@ -1827,31 +1572,23 @@ namespace bdn
                 SECTION("begin")
                 {
                     verifyFindCustomWithFindFunc(
-                        coll,
-                        [conditionFunc](CollType &coll) {
-                            return coll.findCustom(conditionFunc, coll.begin());
-                        },
+                        coll, [conditionFunc](CollType &coll) { return coll.findCustom(conditionFunc, coll.begin()); },
                         [conditionFunc](const CollType &constColl) {
-                            return constColl.findCustom(conditionFunc,
-                                                        constColl.begin());
+                            return constColl.findCustom(conditionFunc, constColl.begin());
                         },
                         expectedResult);
                 }
 
                 SECTION("hitPos")
                 {
-                    verifyFindCustomWithFindFunc(
-                        coll,
-                        [conditionFunc, expectedResult](CollType &coll) {
-                            return coll.findCustom(conditionFunc,
-                                                   expectedResult);
-                        },
-                        [conditionFunc,
-                         expectedResult](const CollType &constColl) {
-                            return constColl.findCustom(conditionFunc,
-                                                        expectedResult);
-                        },
-                        expectedResult);
+                    verifyFindCustomWithFindFunc(coll,
+                                                 [conditionFunc, expectedResult](CollType &coll) {
+                                                     return coll.findCustom(conditionFunc, expectedResult);
+                                                 },
+                                                 [conditionFunc, expectedResult](const CollType &constColl) {
+                                                     return constColl.findCustom(conditionFunc, expectedResult);
+                                                 },
+                                                 expectedResult);
                 }
 
                 if (expectedResult != coll.end()) {
@@ -1860,8 +1597,7 @@ namespace bdn
                         typename CollType::Iterator startPos = expectedResult;
                         ++startPos;
 
-                        typename CollType::Iterator
-                            expectedResultAfterStartPos = startPos;
+                        typename CollType::Iterator expectedResultAfterStartPos = startPos;
                         while (expectedResultAfterStartPos != coll.end()) {
                             if (conditionFunc(expectedResultAfterStartPos))
                                 break;
@@ -1869,33 +1605,27 @@ namespace bdn
                             ++expectedResultAfterStartPos;
                         }
 
-                        verifyFindCustomWithFindFunc(
-                            coll,
-                            [conditionFunc, startPos](CollType &coll) {
-                                return coll.findCustom(conditionFunc, startPos);
-                            },
-                            [conditionFunc,
-                             startPos](const CollType &constColl) {
-                                return constColl.findCustom(conditionFunc,
-                                                            startPos);
-                            },
-                            expectedResultAfterStartPos);
+                        verifyFindCustomWithFindFunc(coll,
+                                                     [conditionFunc, startPos](CollType &coll) {
+                                                         return coll.findCustom(conditionFunc, startPos);
+                                                     },
+                                                     [conditionFunc, startPos](const CollType &constColl) {
+                                                         return constColl.findCustom(conditionFunc, startPos);
+                                                     },
+                                                     expectedResultAfterStartPos);
                     }
                 }
             }
         }
 
         template <class CollType>
-        inline void verifyReverseFindCustom(
-            CollType &coll,
-            std::function<bool(const typename CollType::ConstIterator &)>
-                conditionFunc,
-            typename CollType::Iterator expectedResult)
+        inline void verifyReverseFindCustom(CollType &coll,
+                                            std::function<bool(const typename CollType::ConstIterator &)> conditionFunc,
+                                            typename CollType::Iterator expectedResult)
         {
             SECTION("normal")
             {
-                typename CollType::Iterator it =
-                    coll.reverseFindCustom(conditionFunc);
+                typename CollType::Iterator it = coll.reverseFindCustom(conditionFunc);
                 REQUIRE(it == expectedResult);
             }
 
@@ -1903,8 +1633,7 @@ namespace bdn
             {
                 const CollType &constColl(coll);
 
-                typename CollType::ConstIterator it =
-                    constColl.reverseFindCustom(conditionFunc);
+                typename CollType::ConstIterator it = constColl.reverseFindCustom(conditionFunc);
 
                 if (expectedResult == coll.end())
                     REQUIRE(it == constColl.end());
@@ -1915,9 +1644,8 @@ namespace bdn
         }
 
         template <class CollType, typename FindCaller>
-        inline void _verifyCollectionFindXWithCaller(
-            CollType &coll, const typename CollType::Element &elNotInColl,
-            FindCaller findCaller)
+        inline void _verifyCollectionFindXWithCaller(CollType &coll, const typename CollType::Element &elNotInColl,
+                                                     FindCaller findCaller)
         {
             for (auto &elToFind : coll) {
                 auto finder = findCaller(coll, elToFind);
@@ -1938,15 +1666,12 @@ namespace bdn
                         // verify that the BaseIterator typedef is either
                         // Iterator or ConstIterator
                         REQUIRE(
-                            (typeid(typename decltype(finder)::BaseIterator) ==
-                                 typeid(typename CollType::Iterator) ||
+                            (typeid(typename decltype(finder)::BaseIterator) == typeid(typename CollType::Iterator) ||
                              typeid(typename decltype(finder)::BaseIterator) ==
                                  typeid(typename CollType::ConstIterator)));
 
                         // verify that implicit conversion works
-                        typename decltype(
-                            finder)::BaseIterator conversionResultBaseIt =
-                            finderIt;
+                        typename decltype(finder)::BaseIterator conversionResultBaseIt = finderIt;
                         REQUIRE(conversionResultBaseIt == baseIt);
 
                         ++finderIt;
@@ -1962,8 +1687,7 @@ namespace bdn
                 for (int testPosition = 0;; testPosition++) {
                     finderIt = finder.begin();
 
-                    for (int position = 0; position < testPosition;
-                         position++) {
+                    for (int position = 0; position < testPosition; position++) {
                         if (finderIt == finder.end())
                             break;
 
@@ -1986,8 +1710,7 @@ namespace bdn
                     // get the value of the base iterator that we expect the
                     // finder iterator to have
                     auto expectedBaseIt = baseIt;
-                    while (expectedBaseIt != coll.end() &&
-                           *expectedBaseIt != elToFind)
+                    while (expectedBaseIt != coll.end() && *expectedBaseIt != elToFind)
                         ++expectedBaseIt;
 
                     REQUIRE(finderIt.getBaseIterator() == expectedBaseIt);
@@ -2004,10 +1727,8 @@ namespace bdn
         }
 
         template <class CollType, typename FindCaller>
-        inline void _testCollectionFindXWithCaller(
-            std::initializer_list<typename CollType::Element> elements,
-            const typename CollType::Element &elNotInColl,
-            FindCaller findCaller)
+        inline void _testCollectionFindXWithCaller(std::initializer_list<typename CollType::Element> elements,
+                                                   const typename CollType::Element &elNotInColl, FindCaller findCaller)
         {
             SECTION("empty")
             {
@@ -2039,12 +1760,10 @@ namespace bdn
                 // now we have consecutive duplicates
                 // Append the whole list to itself to
                 // add some non-consecutive duplicates.
-                std::list<typename CollType::Element>
-                    consecutiveAndNonConsecutiveDuplicates(
-                        consecutiveDuplicates);
-                consecutiveAndNonConsecutiveDuplicates.insert(
-                    consecutiveAndNonConsecutiveDuplicates.end(),
-                    consecutiveDuplicates.begin(), consecutiveDuplicates.end());
+                std::list<typename CollType::Element> consecutiveAndNonConsecutiveDuplicates(consecutiveDuplicates);
+                consecutiveAndNonConsecutiveDuplicates.insert(consecutiveAndNonConsecutiveDuplicates.end(),
+                                                              consecutiveDuplicates.begin(),
+                                                              consecutiveDuplicates.end());
 
                 // note that collections that do not support duplicate elements
                 // will simply filter out the duplicates and have only unique
@@ -2059,9 +1778,8 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _testCollectionFind(
-            std::initializer_list<typename CollType::Element> elements,
-            const typename CollType::Element &elNotInColl)
+        inline void _testCollectionFind(std::initializer_list<typename CollType::Element> elements,
+                                        const typename CollType::Element &elNotInColl)
         {
             SECTION("find")
             {
@@ -2081,12 +1799,10 @@ namespace bdn
                     _verifyCollectionFind(coll, *coll.begin(), coll.begin());
 
                     SECTION("last")
-                    _verifyCollectionFind(coll, *_getLastElementIterator(coll),
-                                          _getLastElementIterator(coll));
+                    _verifyCollectionFind(coll, *_getLastElementIterator(coll), _getLastElementIterator(coll));
 
                     SECTION("second")
-                    _verifyCollectionFind(coll, *++coll.begin(),
-                                          ++coll.begin());
+                    _verifyCollectionFind(coll, *++coll.begin(), ++coll.begin());
 
                     SECTION("not found")
                     _verifyCollectionFind(coll, elNotInColl, coll.end());
@@ -2101,12 +1817,8 @@ namespace bdn
                 {
                     SECTION("not found")
                     {
-                        verifyFindCustom(
-                            coll,
-                            [](const typename CollType::ConstIterator &it) {
-                                return false;
-                            },
-                            coll.end());
+                        verifyFindCustom(coll, [](const typename CollType::ConstIterator &it) { return false; },
+                                         coll.end());
                     }
                 }
 
@@ -2119,25 +1831,16 @@ namespace bdn
                         typename CollType::Element toFind = *coll.begin();
 
                         verifyFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             coll.begin());
                     }
 
                     SECTION("last")
                     {
-                        typename CollType::Element toFind =
-                            *_getLastElementIterator(coll);
+                        typename CollType::Element toFind = *_getLastElementIterator(coll);
 
                         verifyFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             _getLastElementIterator(coll));
                     }
 
@@ -2146,22 +1849,14 @@ namespace bdn
                         typename CollType::Element toFind = *++coll.begin();
 
                         verifyFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             ++coll.begin());
                     }
 
                     SECTION("not found")
                     {
-                        verifyFindCustom(
-                            coll,
-                            [](const typename CollType::ConstIterator &it) {
-                                return false;
-                            },
-                            coll.end());
+                        verifyFindCustom(coll, [](const typename CollType::ConstIterator &it) { return false; },
+                                         coll.end());
                     }
                 }
             }
@@ -2171,9 +1866,7 @@ namespace bdn
                 SECTION("non const")
                 {
                     _testCollectionFindXWithCaller<CollType>(
-                        elements, elNotInColl,
-                        [](CollType &coll,
-                           const typename CollType::Element &elToFind) {
+                        elements, elNotInColl, [](CollType &coll, const typename CollType::Element &elToFind) {
                             return coll.findAll(elToFind);
                         });
                 }
@@ -2181,9 +1874,7 @@ namespace bdn
                 SECTION("const")
                 {
                     _testCollectionFindXWithCaller<CollType>(
-                        elements, elNotInColl,
-                        [](CollType &coll,
-                           const typename CollType::Element &elToFind) {
+                        elements, elNotInColl, [](CollType &coll, const typename CollType::Element &elToFind) {
                             return ((const CollType &)coll).findAll(elToFind);
                         });
                 }
@@ -2194,37 +1885,28 @@ namespace bdn
                 SECTION("non const")
                 {
                     _testCollectionFindXWithCaller<CollType>(
-                        elements, elNotInColl,
-                        [](CollType &coll,
-                           const typename CollType::Element &elToFind) {
+                        elements, elNotInColl, [](CollType &coll, const typename CollType::Element &elToFind) {
                             return coll.findAllCustom(
-                                [elToFind](
-                                    const typename CollType::Iterator &it) {
-                                    return (*it) == elToFind;
-                                });
+                                [elToFind](const typename CollType::Iterator &it) { return (*it) == elToFind; });
                         });
                 }
 
                 SECTION("const")
                 {
                     _testCollectionFindXWithCaller<CollType>(
-                        elements, elNotInColl,
-                        [](CollType &coll,
-                           const typename CollType::Element &elToFind) {
+                        elements, elNotInColl, [](CollType &coll, const typename CollType::Element &elToFind) {
                             return ((const CollType &)coll)
-                                .findAllCustom(
-                                    [elToFind](
-                                        const typename CollType::ConstIterator
-                                            &it) { return (*it) == elToFind; });
+                                .findAllCustom([elToFind](const typename CollType::ConstIterator &it) {
+                                    return (*it) == elToFind;
+                                });
                         });
                 }
             }
         }
 
         template <class CollType>
-        inline void _testCollectionFindWithStartPos(
-            std::initializer_list<typename CollType::Element> elements,
-            const typename CollType::Element &elNotInColl)
+        inline void _testCollectionFindWithStartPos(std::initializer_list<typename CollType::Element> elements,
+                                                    const typename CollType::Element &elNotInColl)
         {
             _testCollectionFind<CollType>(elements, elNotInColl);
 
@@ -2235,8 +1917,7 @@ namespace bdn
                 SECTION("empty")
                 {
                     SECTION("not found")
-                    _verifyCollectionFindWithStartPos(coll, elNotInColl,
-                                                      coll.end());
+                    _verifyCollectionFindWithStartPos(coll, elNotInColl, coll.end());
                 }
 
                 SECTION("not empty")
@@ -2248,28 +1929,23 @@ namespace bdn
                     REQUIRE(*coll.begin() == *(++(++coll.begin())));
 
                     SECTION("first")
-                    _verifyCollectionFindWithStartPos(coll, *coll.begin(),
-                                                      coll.begin());
+                    _verifyCollectionFindWithStartPos(coll, *coll.begin(), coll.begin());
 
                     SECTION("last")
-                    _verifyCollectionFindWithStartPos(coll, *--coll.end(),
-                                                      --coll.end());
+                    _verifyCollectionFindWithStartPos(coll, *--coll.end(), --coll.end());
 
                     SECTION("second")
-                    _verifyCollectionFindWithStartPos(coll, *++coll.begin(),
-                                                      ++coll.begin());
+                    _verifyCollectionFindWithStartPos(coll, *++coll.begin(), ++coll.begin());
 
                     SECTION("not found")
-                    _verifyCollectionFindWithStartPos(coll, elNotInColl,
-                                                      coll.end());
+                    _verifyCollectionFindWithStartPos(coll, elNotInColl, coll.end());
                 }
             }
         }
 
         template <class CollType>
-        inline void _testCollectionReverseFind(
-            std::initializer_list<typename CollType::Element> elements,
-            const typename CollType::Element &elNotInColl)
+        inline void _testCollectionReverseFind(std::initializer_list<typename CollType::Element> elements,
+                                               const typename CollType::Element &elNotInColl)
         {
             SECTION("reverseFind")
             {
@@ -2293,8 +1969,7 @@ namespace bdn
                     {
                         // the first and the third element compare equal. So we
                         // expect to find the third one
-                        verifyReverseFind(coll, *coll.begin(),
-                                          ++(++coll.begin()));
+                        verifyReverseFind(coll, *coll.begin(), ++(++coll.begin()));
                     }
 
                     SECTION("last")
@@ -2316,12 +1991,8 @@ namespace bdn
                 {
                     SECTION("not found")
                     {
-                        verifyReverseFindCustom(
-                            coll,
-                            [](const typename CollType::ConstIterator &it) {
-                                return false;
-                            },
-                            coll.end());
+                        verifyReverseFindCustom(coll, [](const typename CollType::ConstIterator &it) { return false; },
+                                                coll.end());
                     }
                 }
 
@@ -2338,11 +2009,7 @@ namespace bdn
                         typename CollType::Element toFind = *coll.begin();
 
                         verifyReverseFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             // the first element in the sequence is also the
                             // third one. So we should find that
                             ++(++coll.begin()));
@@ -2353,11 +2020,7 @@ namespace bdn
                         typename CollType::Element toFind = *--coll.end();
 
                         verifyReverseFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             --coll.end());
                     }
 
@@ -2366,32 +2029,23 @@ namespace bdn
                         typename CollType::Element toFind = *++coll.begin();
 
                         verifyReverseFindCustom(
-                            coll,
-                            [toFind](
-                                const typename CollType::ConstIterator &it) {
-                                return ((*it) == toFind);
-                            },
+                            coll, [toFind](const typename CollType::ConstIterator &it) { return ((*it) == toFind); },
                             ++coll.begin());
                     }
 
                     SECTION("not found")
                     {
-                        verifyReverseFindCustom(
-                            coll,
-                            [](const typename CollType::ConstIterator &it) {
-                                return false;
-                            },
-                            coll.end());
+                        verifyReverseFindCustom(coll, [](const typename CollType::ConstIterator &it) { return false; },
+                                                coll.end());
                     }
                 }
             }
         }
 
         template <class CollType>
-        inline void _verifyCollectionSortResult(
-            CollType &coll,
-            std::initializer_list<typename CollType::Element> elements,
-            bool expectInvertedOrder = false)
+        inline void _verifyCollectionSortResult(CollType &coll,
+                                                std::initializer_list<typename CollType::Element> elements,
+                                                bool expectInvertedOrder = false)
         {
             // verify that the elements are all in the correct order
             auto it = coll.begin();
@@ -2418,10 +2072,8 @@ namespace bdn
         }
 
         template <class CollType>
-        inline void _testCollectionSort(
-            std::initializer_list<typename CollType::Element> elements,
-            std::initializer_list<typename CollType::Element>
-                stableSortedElements)
+        inline void _testCollectionSort(std::initializer_list<typename CollType::Element> elements,
+                                        std::initializer_list<typename CollType::Element> stableSortedElements)
         {
             SECTION("empty")
             {
@@ -2447,8 +2099,7 @@ namespace bdn
 
                 SECTION("sort with compare func")
                 {
-                    coll.sort([](typename CollType::Element &a,
-                                 typename CollType::Element &b) {
+                    coll.sort([](typename CollType::Element &a, typename CollType::Element &b) {
                         // use inverted comparison
                         return (b < a);
                     });
@@ -2470,15 +2121,13 @@ namespace bdn
 
                 SECTION("stableSort(descending)")
                 {
-                    coll.stableSort(
-                        bdn::descending<typename CollType::Element>);
+                    coll.stableSort(bdn::descending<typename CollType::Element>);
                     _verifyPositionalCollectionReadOnly(coll, {});
                 }
 
                 SECTION("stableSort with compare func")
                 {
-                    coll.stableSort([](const typename CollType::Element &a,
-                                       const typename CollType::Element &b) {
+                    coll.stableSort([](const typename CollType::Element &a, const typename CollType::Element &b) {
                         // use inverted comparison
                         return (b < a);
                     });
@@ -2514,8 +2163,7 @@ namespace bdn
 
                 SECTION("sort with compare func")
                 {
-                    coll.sort([](typename CollType::Element &a,
-                                 typename CollType::Element &b) {
+                    coll.sort([](typename CollType::Element &a, typename CollType::Element &b) {
                         // use inverted comparison
                         return (b < a);
                     });
@@ -2529,8 +2177,7 @@ namespace bdn
 
                     _verifyCollectionSortResult(coll, elements);
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        stableSortedElements);
+                    _verifyPositionalCollectionReadOnly(coll, stableSortedElements);
                 }
 
                 SECTION("stableSort(ascending)")
@@ -2539,8 +2186,7 @@ namespace bdn
 
                     _verifyCollectionSortResult(coll, elements);
 
-                    _verifyPositionalCollectionReadOnly(coll,
-                                                        stableSortedElements);
+                    _verifyPositionalCollectionReadOnly(coll, stableSortedElements);
                 }
 
                 SECTION("stableSort(descending)")
@@ -2552,8 +2198,7 @@ namespace bdn
 
                 SECTION("stableSort with compare func")
                 {
-                    coll.stableSort([](const typename CollType::Element &a,
-                                       const typename CollType::Element &b) {
+                    coll.stableSort([](const typename CollType::Element &a, const typename CollType::Element &b) {
                         // use inverted comparison
                         return (b < a);
                     });
@@ -2570,8 +2215,7 @@ namespace std
 
     template <> struct hash<bdn::test::TestCollectionElement_OrderedComparable_>
     {
-        size_t operator()(
-            const bdn::test::TestCollectionElement_OrderedComparable_ &o) const
+        size_t operator()(const bdn::test::TestCollectionElement_OrderedComparable_ &o) const
         {
             return std::hash<int>()(o._a) ^ std::hash<int>()(o._b);
         }

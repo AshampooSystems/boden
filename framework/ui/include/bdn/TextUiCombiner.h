@@ -61,9 +61,7 @@ namespace bdn
            UIs. When zero sub UIs are specified then read operations are dummy
            operations that never provide any data.
          */
-        template <class SEQUENCE_TYPE>
-        TextUiCombiner(SEQUENCE_TYPE &&subUis)
-            : _uiList(subUis.begin(), subUis.end())
+        template <class SEQUENCE_TYPE> TextUiCombiner(SEQUENCE_TYPE &&subUis) : _uiList(subUis.begin(), subUis.end())
         {
             _pOutputSink = newObj<Sink>();
             _pStatusOrProblemSink = newObj<Sink>();
@@ -82,10 +80,7 @@ namespace bdn
                 return _uiList.front()->readLine();
         }
 
-        P<ITextSink> statusOrProblem() override
-        {
-            return _pStatusOrProblemSink;
-        }
+        P<ITextSink> statusOrProblem() override { return _pStatusOrProblemSink; }
 
         P<ITextSink> output() override { return _pOutputSink; }
 
@@ -93,18 +88,14 @@ namespace bdn
         class DummyReadOp : public Base, BDN_IMPLEMENTS IAsyncOp<String>
         {
           public:
-            DummyReadOp()
-            {
-                _pDoneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp>>>();
-            }
+            DummyReadOp() { _pDoneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp>>>(); }
 
             String getResult() const
             {
                 if (_aborted)
                     throw AbortedError("Dummy read operation was aborted.");
                 else
-                    throw UnfinishedError(
-                        "Dummy read operation will never finish.");
+                    throw UnfinishedError("Dummy read operation will never finish.");
             }
 
             void signalStop()
@@ -117,10 +108,7 @@ namespace bdn
 
             bool isDone() const { return _aborted; }
 
-            IAsyncNotifier<P<IAsyncOp>> &onDone() const
-            {
-                return *_pDoneNotifier;
-            }
+            IAsyncNotifier<P<IAsyncOp>> &onDone() const { return *_pDoneNotifier; }
 
           private:
             std::atomic<bool> _aborted{false};

@@ -18,9 +18,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JFrameLayout(const bdn::java::Reference &javaRef)
-                : JViewGroup(javaRef)
-            {}
+            explicit JFrameLayout(const bdn::java::Reference &javaRef) : JViewGroup(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -38,10 +36,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 
             /** Wrapper for Java android.widget.FrameLayout.LayoutParams
              * objects.
@@ -50,13 +45,11 @@ namespace bdn
             class JLayoutParams : public JViewGroup::JMarginLayoutParams
             {
               private:
-                static bdn::java::Reference newInstance_(int width, int height,
-                                                         int gravity)
+                static bdn::java::Reference newInstance_(int width, int height, int gravity)
                 {
                     static bdn::java::MethodId constructorId;
 
-                    return getStaticClass_().newInstance_(constructorId, width,
-                                                          height, gravity);
+                    return getStaticClass_().newInstance_(constructorId, width, height, gravity);
                 }
 
               public:
@@ -66,8 +59,7 @@ namespace bdn
                  * strong reference then you need to call toStrong() on the
                  * reference first and pass the result.
                  *      */
-                explicit JLayoutParams(const bdn::java::Reference &javaRef)
-                    : JViewGroup::JMarginLayoutParams(javaRef)
+                explicit JLayoutParams(const bdn::java::Reference &javaRef) : JViewGroup::JMarginLayoutParams(javaRef)
                 {}
 
                 enum
@@ -81,10 +73,8 @@ namespace bdn
                     UNSPECIFIED_GRAVITY = -1
                 };
 
-                JLayoutParams(int width, int height,
-                              int gravity = UNSPECIFIED_GRAVITY)
-                    : JViewGroup::JMarginLayoutParams(
-                          newInstance_(width, height, gravity))
+                JLayoutParams(int width, int height, int gravity = UNSPECIFIED_GRAVITY)
+                    : JViewGroup::JMarginLayoutParams(newInstance_(width, height, gravity))
                 {}
 
                 /** Returns the JClass object for this class.
@@ -98,16 +88,12 @@ namespace bdn
                  *  */
                 static bdn::java::JClass &getStaticClass_()
                 {
-                    static bdn::java::JClass cls(
-                        "android/widget/FrameLayout$LayoutParams");
+                    static bdn::java::JClass cls("android/widget/FrameLayout$LayoutParams");
 
                     return cls;
                 }
 
-                bdn::java::JClass &getClass_() override
-                {
-                    return getStaticClass_();
-                }
+                bdn::java::JClass &getClass_() override { return getStaticClass_(); }
             };
         };
     }

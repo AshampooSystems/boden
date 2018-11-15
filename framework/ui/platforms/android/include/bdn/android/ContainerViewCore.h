@@ -11,28 +11,23 @@ namespace bdn
     namespace android
     {
 
-        class ContainerViewCore : public ViewCore,
-                                  BDN_IMPLEMENTS IParentViewCore
+        class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            static P<JNativeViewGroup>
-            _createJNativeViewGroup(ContainerView *pOuter)
+            static P<JNativeViewGroup> _createJNativeViewGroup(ContainerView *pOuter)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "ContainerViewCore instance requested for a "
-                        "ContainerView that does not have a parent.");
+                    throw ProgrammingError("ContainerViewCore instance requested for a "
+                                           "ContainerView that does not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
-                    throw ProgrammingError(
-                        "ContainerViewCore instance requested for a "
-                        "ContainerView with core-less parent.");
+                    throw ProgrammingError("ContainerViewCore instance requested for a "
+                                           "ContainerView with core-less parent.");
 
                 JContext context = pParentCore->getJView().getContext();
 
@@ -40,19 +35,15 @@ namespace bdn
             }
 
           public:
-            ContainerViewCore(ContainerView *pOuter)
-                : ViewCore(pOuter, _createJNativeViewGroup(pOuter))
-            {}
+            ContainerViewCore(ContainerView *pOuter) : ViewCore(pOuter, _createJNativeViewGroup(pOuter)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> pOuterView =
-                    cast<ContainerView>(getOuterViewIfStillAttached());
+                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(
-                        availableSpace);
+                    return pOuterView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -61,35 +52,28 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> pOuterView =
-                    cast<ContainerView>(getOuterViewIfStillAttached());
+                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr) {
-                    P<ViewLayout> pLayout =
-                        pOuterView->calcContainerLayout(pOuterView->size());
+                    P<ViewLayout> pLayout = pOuterView->calcContainerLayout(pOuterView->size());
                     pLayout->applyTo(pOuterView);
                 }
             }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
-                Rect adjustedBounds =
-                    ViewCore::adjustAndSetBounds(requestedBounds);
+                Rect adjustedBounds = ViewCore::adjustAndSetBounds(requestedBounds);
 
                 JNativeViewGroup thisGroup(getJView().getRef_());
 
                 double scaleFactor = getUiScaleFactor();
 
-                thisGroup.setSize(
-                    std::lround(adjustedBounds.width * scaleFactor),
-                    std::lround(adjustedBounds.height * scaleFactor));
+                thisGroup.setSize(std::lround(adjustedBounds.width * scaleFactor),
+                                  std::lround(adjustedBounds.height * scaleFactor));
 
                 return adjustedBounds;
             }
 
-            double getUiScaleFactor() const override
-            {
-                return ViewCore::getUiScaleFactor();
-            }
+            double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
 
             void addChildJView(JView childJView) override
             {

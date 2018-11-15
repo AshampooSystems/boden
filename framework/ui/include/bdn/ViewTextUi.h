@@ -16,9 +16,7 @@ namespace bdn
         The UI implementation automatically creates a new top level Window
         when it is initialized.
     */
-    class ViewTextUi : public Base,
-                       BDN_IMPLEMENTS ITextUi,
-                       BDN_IMPLEMENTS ITextSink
+    class ViewTextUi : public Base, BDN_IMPLEMENTS ITextUi, BDN_IMPLEMENTS ITextSink
     {
       public:
         /** @param pUiProvider the UI provider that the text UI should use.

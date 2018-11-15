@@ -43,8 +43,7 @@ namespace bdn
            content view port (the area where the visible part of the content is
            displayed) when no scroll bars are shown.
         */
-        void calcLayout(ScrollView *pScrollView,
-                        Size viewPortSizeWhenNotShowingScrollBars)
+        void calcLayout(ScrollView *pScrollView, Size viewPortSizeWhenNotShowingScrollBars)
         {
             _showHorizontalScrollBar = false;
             _showVerticalScrollBar = false;
@@ -72,8 +71,7 @@ namespace bdn
                 Size actualContentSize;
                 Margin contentMargin;
                 if (pContentView != nullptr) {
-                    contentMargin = pScrollView->uiMarginToDipMargin(
-                        pContentView->margin());
+                    contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
 
                     // if the amount of available space for the content view is
                     // limited then we must ask the content view for a dynamic
@@ -88,30 +86,25 @@ namespace bdn
                     // This is what we want, since the space that is available
                     // for the content depends on the effective viewport size
                     // (if scrolling is disabled in that direction)
-                    Size contentAvailableSpace =
-                        _viewPortSize - outerPadding - contentMargin;
+                    Size contentAvailableSpace = _viewPortSize - outerPadding - contentMargin;
 
                     bool wideEnough = true;
                     bool highEnough = true;
                     if (horzScrollEnabled)
                         contentAvailableSpace.width = Size::componentNone();
                     else
-                        wideEnough = (Dip(actualContentSize.width) <=
-                                      contentAvailableSpace.width);
+                        wideEnough = (Dip(actualContentSize.width) <= contentAvailableSpace.width);
 
                     if (vertScrollEnabled)
                         contentAvailableSpace.height = Size::componentNone();
                     else
-                        highEnough = (Dip(actualContentSize.height) <=
-                                      contentAvailableSpace.height);
+                        highEnough = (Dip(actualContentSize.height) <= contentAvailableSpace.height);
 
                     if (!wideEnough || !highEnough)
-                        actualContentSize = pContentView->calcPreferredSize(
-                            contentAvailableSpace);
+                        actualContentSize = pContentView->calcPreferredSize(contentAvailableSpace);
 
                     Rect bounds(Point(), actualContentSize);
-                    Rect adjustedBounds = pContentView->adjustBounds(
-                        bounds, RoundType::nearest, RoundType::up);
+                    Rect adjustedBounds = pContentView->adjustBounds(bounds, RoundType::nearest, RoundType::up);
 
                     actualContentSize = adjustedBounds.getSize();
                 }
@@ -123,20 +116,15 @@ namespace bdn
                 _showVerticalScrollBar = false;
                 _viewPortSize = viewPortSizeWhenNotShowingScrollBars;
 
-                Size contentSizeWithMarginAndPadding =
-                    actualContentSize + contentMargin + outerPadding;
+                Size contentSizeWithMarginAndPadding = actualContentSize + contentMargin + outerPadding;
 
                 // now we calculate whether or not we need scroll bars
                 _showHorizontalScrollBar =
-                    (Dip(contentSizeWithMarginAndPadding.width) >
-                         _viewPortSize.width &&
-                     horzScrollEnabled);
+                    (Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width && horzScrollEnabled);
                 if (_showHorizontalScrollBar)
                     _viewPortSize.height -= _horzBarHeight;
                 _showVerticalScrollBar =
-                    (Dip(contentSizeWithMarginAndPadding.height) >
-                         _viewPortSize.height &&
-                     vertScrollEnabled);
+                    (Dip(contentSizeWithMarginAndPadding.height) > _viewPortSize.height && vertScrollEnabled);
                 if (_showVerticalScrollBar) {
                     _viewPortSize.width -= _vertBarWidth;
 
@@ -145,9 +133,7 @@ namespace bdn
                         // the viewport width enough so that we now also need a
                         // horizontal scroll bar. So check that again
                         _showHorizontalScrollBar =
-                            (Dip(contentSizeWithMarginAndPadding.width) >
-                                 _viewPortSize.width &&
-                             horzScrollEnabled);
+                            (Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width && horzScrollEnabled);
                         if (_showHorizontalScrollBar)
                             _viewPortSize.height -= _horzBarHeight;
                     }
@@ -159,39 +145,30 @@ namespace bdn
                 // that.
                 if (contentSizeWithMarginAndPadding.width < _viewPortSize.width)
                     contentSizeWithMarginAndPadding.width = _viewPortSize.width;
-                if (contentSizeWithMarginAndPadding.height <
-                    _viewPortSize.height)
-                    contentSizeWithMarginAndPadding.height =
-                        _viewPortSize.height;
+                if (contentSizeWithMarginAndPadding.height < _viewPortSize.height)
+                    contentSizeWithMarginAndPadding.height = _viewPortSize.height;
 
                 // if the content is bigger than the viewport and we have
                 // scrolling disabled then we clip the content.
                 bool widthClipped = false;
                 bool heightClipped = false;
-                if (!horzScrollEnabled &&
-                    Dip(contentSizeWithMarginAndPadding.width) >
-                        _viewPortSize.width) {
+                if (!horzScrollEnabled && Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width) {
                     widthClipped = true;
                     contentSizeWithMarginAndPadding.width = _viewPortSize.width;
                 }
-                if (!vertScrollEnabled &&
-                    Dip(contentSizeWithMarginAndPadding.height) >
-                        _viewPortSize.height) {
+                if (!vertScrollEnabled && Dip(contentSizeWithMarginAndPadding.height) > _viewPortSize.height) {
                     heightClipped = true;
-                    contentSizeWithMarginAndPadding.height =
-                        _viewPortSize.height;
+                    contentSizeWithMarginAndPadding.height = _viewPortSize.height;
                 }
 
-                _contentViewBounds =
-                    Rect(Point(0, 0), contentSizeWithMarginAndPadding);
+                _contentViewBounds = Rect(Point(0, 0), contentSizeWithMarginAndPadding);
                 _contentViewBounds -= outerPadding;
                 _contentViewBounds -= contentMargin;
 
                 _scrolledAreaSize = contentSizeWithMarginAndPadding;
 
                 if (itNum == 0 && pContentView != nullptr &&
-                    ((widthClipped && _showVerticalScrollBar) ||
-                     (heightClipped && _showHorizontalScrollBar))) {
+                    ((widthClipped && _showVerticalScrollBar) || (heightClipped && _showHorizontalScrollBar))) {
                     // we have shown a scrollbar on a side where the content was
                     // clipped. That means that the viewport size has changed in
                     // a way that is relevant for the content view. We need to
@@ -206,16 +183,10 @@ namespace bdn
         }
 
         /** Returns true if the horizontal scroll bar should be shown.*/
-        bool getHorizontalScrollBarVisible() const
-        {
-            return _showHorizontalScrollBar;
-        }
+        bool getHorizontalScrollBarVisible() const { return _showHorizontalScrollBar; }
 
         /** Returns true if the vertical scroll bar should be shown.*/
-        bool getVerticalScrollBarVisible() const
-        {
-            return _showVerticalScrollBar;
-        }
+        bool getVerticalScrollBarVisible() const { return _showVerticalScrollBar; }
 
         /** Returns the rect that the content view should have inside the
            scrollable inner coordinate space. It is assumed that the origin of
@@ -246,8 +217,7 @@ namespace bdn
            content view is null then the preferred size for an empty scroll view
            is returned.
             */
-        Size calcPreferredSize(ScrollView *pScrollView,
-                               const Size &availableSpace = Size::none()) const
+        Size calcPreferredSize(ScrollView *pScrollView, const Size &availableSpace = Size::none()) const
         {
             P<View> pContentView;
             if (pScrollView != nullptr)
@@ -278,8 +248,7 @@ namespace bdn
 
             Margin contentMargin;
             if (pContentView != nullptr)
-                contentMargin =
-                    pScrollView->uiMarginToDipMargin(pContentView->margin());
+                contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
 
             Size prefSize;
             Size contentSize;
@@ -298,16 +267,12 @@ namespace bdn
                     Size contentAvailableSpace = Size::none();
 
                     if (!horzScrollEnabled && widthConstrained)
-                        contentAvailableSpace.width =
-                            maxSize.width -
-                            (outerPadding.left + contentMargin.left +
-                             contentMargin.right + outerPadding.right);
+                        contentAvailableSpace.width = maxSize.width - (outerPadding.left + contentMargin.left +
+                                                                       contentMargin.right + outerPadding.right);
 
                     if (!vertScrollEnabled && heightConstrained)
-                        contentAvailableSpace.height =
-                            maxSize.height -
-                            (outerPadding.top + contentMargin.top +
-                             contentMargin.bottom + outerPadding.bottom);
+                        contentAvailableSpace.height = maxSize.height - (outerPadding.top + contentMargin.top +
+                                                                         contentMargin.bottom + outerPadding.bottom);
 
                     if (std::isfinite(contentAvailableSpace.height)) {
                         if (showHorizontalScrollBar)
@@ -325,8 +290,7 @@ namespace bdn
                             contentAvailableSpace.width = 0;
                     }
 
-                    contentSize =
-                        pContentView->calcPreferredSize(contentAvailableSpace);
+                    contentSize = pContentView->calcPreferredSize(contentAvailableSpace);
                 } else
                     contentSize = Size(0, 0);
 
@@ -342,8 +306,7 @@ namespace bdn
                 // content cannot fit into that size. In that case we should
                 // also report the bigger size and not clip it. So we only do
                 // clipping if horz scrolling is enabled.
-                if (widthConstrained && Dip(prefSize.width) > maxSize.width &&
-                    horzScrollEnabled) {
+                if (widthConstrained && Dip(prefSize.width) > maxSize.width && horzScrollEnabled) {
                     prefSize.width = maxSize.width;
 
                     // we need to scroll horizontally. Add the scroll bar height
@@ -365,9 +328,7 @@ namespace bdn
                 // available space then the scroll view will be shrunk first. So
                 // it is no problem to initially request a big preferred size.
 
-                if (heightConstrained &&
-                    Dip(prefSize.height) > maxSize.height &&
-                    vertScrollEnabled) {
+                if (heightConstrained && Dip(prefSize.height) > maxSize.height && vertScrollEnabled) {
                     prefSize.height = maxSize.height;
 
                     prefSize.width += _vertBarWidth;
@@ -379,9 +340,7 @@ namespace bdn
                     // horizontally then we need to reduce the prefSize.width to
                     // maxSize.width again.
 
-                    if (widthConstrained &&
-                        Dip(prefSize.width) > maxSize.width &&
-                        horzScrollEnabled) {
+                    if (widthConstrained && Dip(prefSize.width) > maxSize.width && horzScrollEnabled) {
                         prefSize.width = maxSize.width;
 
                         showHorizontalScrollBar = true;
@@ -403,17 +362,12 @@ namespace bdn
                     prefSize.applyMaximum(pScrollView->preferredSizeMaximum());
                 }
 
-                Size contentSizeAtPrefSizeWithoutScrolling =
-                    prefSize - outerPadding - contentMargin;
+                Size contentSizeAtPrefSizeWithoutScrolling = prefSize - outerPadding - contentMargin;
 
                 bool widthClipped =
-                    !showHorizontalScrollBar &&
-                    Dip(contentSizeAtPrefSizeWithoutScrolling.width) <
-                        contentSize.width;
+                    !showHorizontalScrollBar && Dip(contentSizeAtPrefSizeWithoutScrolling.width) < contentSize.width;
                 bool heightClipped =
-                    !showVerticalScrollBar &&
-                    Dip(contentSizeAtPrefSizeWithoutScrolling.height) <
-                        contentSize.height;
+                    !showVerticalScrollBar && Dip(contentSizeAtPrefSizeWithoutScrolling.height) < contentSize.height;
 
                 // if we have limited space then we already communicated that to
                 // the content view when we retrieved its preferred size. So if
@@ -429,8 +383,7 @@ namespace bdn
                 // size to the reduced available space
 
                 if (itNum == 0 && pContentView != nullptr &&
-                    ((widthClipped && showVerticalScrollBar) ||
-                     (heightClipped && showHorizontalScrollBar))) {
+                    ((widthClipped && showVerticalScrollBar) || (heightClipped && showHorizontalScrollBar))) {
                     // the available space or min/max limits have constrained
                     // the preferred size of the scrollview. The result of this
                     // is that the content was clipped to a smaller size than

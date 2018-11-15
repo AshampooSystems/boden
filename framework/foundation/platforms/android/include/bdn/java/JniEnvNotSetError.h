@@ -13,10 +13,7 @@ namespace bdn
           public:
             JniEnvNotSetError() {}
 
-            virtual const char *what() const noexcept override
-            {
-                return "JNI environment not set.";
-            }
+            virtual const char *what() const noexcept override { return "JNI environment not set."; }
         };
     }
 }

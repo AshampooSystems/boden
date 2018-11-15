@@ -34,8 +34,7 @@ namespace bdn
 
                 JNativeStrongPointer wrappedCallable(pCallable);
 
-                return getStaticClass_().newInstance_(constructorId,
-                                                      wrappedCallable);
+                return getStaticClass_().newInstance_(constructorId, wrappedCallable);
             }
 
             static Reference newInstance_(const std::function<void()> &func)
@@ -44,13 +43,9 @@ namespace bdn
             }
 
           public:
-            explicit JNativeOnceRunnable(const std::function<void()> &func)
-                : JNativeRunnable(newInstance_(func))
-            {}
+            explicit JNativeOnceRunnable(const std::function<void()> &func) : JNativeRunnable(newInstance_(func)) {}
 
-            explicit JNativeOnceRunnable(ISimpleCallable *pCallable)
-                : JNativeRunnable(newInstance_(pCallable))
-            {}
+            explicit JNativeOnceRunnable(ISimpleCallable *pCallable) : JNativeRunnable(newInstance_(pCallable)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -58,9 +53,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeOnceRunnable(const Reference &objectRef)
-                : JNativeRunnable(objectRef)
-            {}
+            explicit JNativeOnceRunnable(const Reference &objectRef) : JNativeRunnable(objectRef) {}
 
             /** Returns the JClass object for this class.
              *

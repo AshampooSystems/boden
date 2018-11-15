@@ -4,17 +4,14 @@
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
 
-extern "C" JNIEXPORT void JNICALL
-Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *pEnv, jobject rawSelf,
-                                                jobject rawByteBuffer)
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *pEnv, jobject rawSelf,
+                                                                                  jobject rawByteBuffer)
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::java::JByteBuffer byteBuffer(
-                (bdn::java::Reference::convertExternalLocal(rawByteBuffer)));
+            bdn::java::JByteBuffer byteBuffer((bdn::java::Reference::convertExternalLocal(rawByteBuffer)));
 
-            bdn::IBase *pObject =
-                static_cast<bdn::IBase *>(byteBuffer.getBuffer_());
+            bdn::IBase *pObject = static_cast<bdn::IBase *>(byteBuffer.getBuffer_());
 
             pObject->releaseRef();
         },
@@ -37,8 +34,7 @@ namespace bdn
 
                 static MethodId constructorId;
 
-                Reference ref =
-                    getStaticClass_().newInstance_(constructorId, byteBuffer);
+                Reference ref = getStaticClass_().newInstance_(constructorId, byteBuffer);
 
                 pObject->addRef();
 
@@ -46,20 +42,15 @@ namespace bdn
             }
         }
 
-        JNativeStrongPointer::JNativeStrongPointer(IBase *pObject)
-            : JObject(newInstance_(pObject))
-        {}
+        JNativeStrongPointer::JNativeStrongPointer(IBase *pObject) : JObject(newInstance_(pObject)) {}
 
-        JNativeStrongPointer::JNativeStrongPointer(const Reference &objectRef)
-            : JObject(objectRef)
-        {}
+        JNativeStrongPointer::JNativeStrongPointer(const Reference &objectRef) : JObject(objectRef) {}
 
         JByteBuffer JNativeStrongPointer::getWrappedPointer()
         {
             static MethodId methodId;
 
-            return invoke_<JByteBuffer>(getStaticClass_(), methodId,
-                                        "getWrappedPointer");
+            return invoke_<JByteBuffer>(getStaticClass_(), methodId, "getWrappedPointer");
         }
 
         P<IBase> JNativeStrongPointer::getPointer_()

@@ -15,9 +15,7 @@ namespace bdn
     {
 
         template <class T>
-        class CheckboxCore : public ToggleCoreBase,
-                             BDN_IMPLEMENTS ICheckboxCore,
-                             BDN_IMPLEMENTS ISwitchCore
+        class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
         {
           public:
             CheckboxCore(T *pOuter) : ToggleCoreBase(pOuter)
@@ -43,10 +41,7 @@ namespace bdn
             }
 
             // Called when attached to a Switch or Toggle with switch appearance
-            void setOn(const bool &on) override
-            {
-                setState(on ? TriState::on : TriState::off);
-            }
+            void setOn(const bool &on) override { setState(on ? TriState::on : TriState::off); }
 
             void generateClick() override
             {
@@ -82,8 +77,7 @@ namespace bdn
                         }
                     }
 
-                    TriState newState =
-                        nsControlStateValueToTriState(_nsButton.state);
+                    TriState newState = nsControlStateValueToTriState(_nsButton.state);
 
                     if (pCheckbox) {
                         pCheckbox->setState(newState);

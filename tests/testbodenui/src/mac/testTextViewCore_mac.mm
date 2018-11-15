@@ -8,8 +8,7 @@
 
 using namespace bdn;
 
-class TestMacTextViewCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>
+class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>
 {
   protected:
     void initCore() override
@@ -30,8 +29,7 @@ class TestMacTextViewCore
 
     void runPostInitTests() override
     {
-        TestMacChildViewCoreMixin<
-            bdn::test::TestTextViewCore>::runPostInitTests();
+        TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>::runPostInitTests();
 
         SECTION("not editable") { REQUIRE(_pNSTextView.editable == false); }
 

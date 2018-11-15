@@ -16,8 +16,7 @@ namespace bdn
           private:
             static NSButton *_createNsButton(Button *pOuterButton)
             {
-                NSButton *button =
-                    [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                NSButton *button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
                 [button setButtonType:NSButtonTypeMomentaryLight];
                 [button setBezelStyle:NSBezelStyleRounded];
@@ -28,15 +27,11 @@ namespace bdn
           public:
             ButtonCore(Button *pOuterButton);
 
-            void setLabel(const String &label) override
-            {
-                ButtonCoreBase::setLabel(label);
-            }
+            void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
-                Rect adjustedBounds =
-                    ChildViewCore::adjustAndSetBounds(requestedBounds);
+                Rect adjustedBounds = ChildViewCore::adjustAndSetBounds(requestedBounds);
 
                 _updateBezelStyle();
 
@@ -50,8 +45,7 @@ namespace bdn
                 // we may need to update the bezel style.
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 // the bezel style influences the fitting size. To get
                 // consistent values here we have to ensure that we use the same
@@ -77,8 +71,7 @@ namespace bdn
                 // the button automatically includes some padding in the fitting
                 // size. This is rougly this:
 
-                return uiMarginToDipMargin(
-                    UiMargin(UiLength::sem(0.5), UiLength::sem(1)));
+                return uiMarginToDipMargin(UiMargin(UiLength::sem(0.5), UiLength::sem(1)));
             }
 
           private:

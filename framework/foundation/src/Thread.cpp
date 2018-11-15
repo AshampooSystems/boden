@@ -87,8 +87,7 @@ namespace bdn
         if (_thread.joinable())
             _thread.join();
 
-        if (exceptionForwarding == ExceptionThrow && _pThreadData != nullptr &&
-            _pThreadData->threadException)
+        if (exceptionForwarding == ExceptionThrow && _pThreadData != nullptr && _pThreadData->threadException)
             std::rethrow_exception(_pThreadData->threadException);
     }
 
@@ -115,10 +114,7 @@ namespace bdn
 
 #endif
 
-    void Thread::sleepSeconds(double seconds)
-    {
-        sleepMillis((int64_t)(seconds * 1000));
-    }
+    void Thread::sleepSeconds(double seconds) { sleepMillis((int64_t)(seconds * 1000)); }
 
     void Thread::sleepMillis(int64_t millis)
     {
@@ -151,8 +147,7 @@ namespace bdn
         // So there is no need for any synchronization or mutexes.
         Id mainId = getMainIdRef();
         if (mainId == Id())
-            programmingError(
-                "Thread::getMainId called but main thread ID was not set yet.");
+            programmingError("Thread::getMainId called but main thread ID was not set yet.");
 
         return mainId;
 #else

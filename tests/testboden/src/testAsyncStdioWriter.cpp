@@ -5,8 +5,7 @@
 
 using namespace bdn;
 
-template <typename CharType>
-class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
+template <typename CharType> class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
 {
   public:
     AsyncStdioWriter_OneAtTheTimeTestContext(bool writeLine)
@@ -20,9 +19,7 @@ class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
         nextStep();
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-            0.5,
-            strongMethod(
-                this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
+            0.5, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
     }
 
     void nextStep()
@@ -37,9 +34,7 @@ class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
                 pOp = _pWriter->writeLine(textToWrite);
             else
                 pOp = _pWriter->write(textToWrite);
-            pOp->onDone() += weakMethod(
-                this,
-                &AsyncStdioWriter_OneAtTheTimeTestContext<CharType>::writeDone);
+            pOp->onDone() += weakMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext<CharType>::writeDone);
         }
     }
 
@@ -76,10 +71,7 @@ class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
             _timeoutCounter++;
 
             CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-                0.5,
-                strongMethod(
-                    this,
-                    &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
+                0.5, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
         }
     }
 
@@ -94,8 +86,7 @@ class AsyncStdioWriter_OneAtTheTimeTestContext : public Base
     bool _writeLine;
 };
 
-template <typename CharType>
-class AsyncStdioWriter_AllAtOnceTestContext : public Base
+template <typename CharType> class AsyncStdioWriter_AllAtOnceTestContext : public Base
 {
   public:
     AsyncStdioWriter_AllAtOnceTestContext(bool writeLine)
@@ -116,15 +107,11 @@ class AsyncStdioWriter_AllAtOnceTestContext : public Base
             else
                 pOp = _pWriter->write(textToWrite);
 
-            pOp->onDone() += weakMethod(
-                this,
-                &AsyncStdioWriter_AllAtOnceTestContext<CharType>::writeDone);
+            pOp->onDone() += weakMethod(this, &AsyncStdioWriter_AllAtOnceTestContext<CharType>::writeDone);
         }
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-            0.5,
-            strongMethod(this,
-                         &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
+            0.5, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
     }
 
     void writeDone(IAsyncOp<void> *pOp)
@@ -159,9 +146,7 @@ class AsyncStdioWriter_AllAtOnceTestContext : public Base
             _timeoutCounter++;
 
             CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
-                0.5, strongMethod(
-                         this,
-                         &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
+                0.5, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
         }
     }
 
@@ -181,8 +166,7 @@ template <typename CharType> void verifyAsyncStdioWriter(bool writeLine)
     SECTION("one at a time")
     {
         P<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>> pContext =
-            newObj<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>>(
-                writeLine);
+            newObj<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>>(writeLine);
 
         pContext->startTest();
     }

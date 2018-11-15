@@ -8,8 +8,7 @@ namespace bdn
      * a-f, A-F).*/
     inline bool isHexDigit(char32_t chr)
     {
-        return ((chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') ||
-                (chr >= 'A' && chr <= 'F'));
+        return ((chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F'));
     }
 
     /** Decodes a hexadecimal digit and returns its value (0-15).

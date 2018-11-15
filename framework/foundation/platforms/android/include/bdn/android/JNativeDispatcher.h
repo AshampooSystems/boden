@@ -29,16 +29,11 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeDispatcher(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JNativeDispatcher(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
-            explicit JNativeDispatcher(JLooper looper)
-                : JObject(newInstance_(looper))
-            {}
+            explicit JNativeDispatcher(JLooper looper) : JObject(newInstance_(looper)) {}
 
-            void enqueue(double delaySeconds, std::function<void()> func,
-                         bool idlePriority)
+            void enqueue(double delaySeconds, std::function<void()> func, bool idlePriority)
             {
                 bdn::java::JNativeOnceRunnable runnable([func]() {
                     try {
@@ -52,9 +47,8 @@ namespace bdn
 
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(
-                    getStaticClass_(), methodId, "enqueue", delaySeconds,
-                    (bdn::java::JNativeRunnable &)runnable, idlePriority);
+                return invoke_<void>(getStaticClass_(), methodId, "enqueue", delaySeconds,
+                                     (bdn::java::JNativeRunnable &)runnable, idlePriority);
             }
 
             void createTimer(double intervalSeconds, IBase *pTimerData)
@@ -63,8 +57,7 @@ namespace bdn
 
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(getStaticClass_(), methodId, "createTimer",
-                                     intervalSeconds, timerData);
+                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalSeconds, timerData);
             }
 
             void dispose()
@@ -85,16 +78,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeDispatcher");
+                static bdn::java::JClass cls("io/boden/android/NativeDispatcher");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

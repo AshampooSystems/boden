@@ -34,12 +34,9 @@ class OneShotStateNotifierDestructTest : public Base
     P<Signal> _pSignal;
 };
 
-template <class... ArgTypes>
-void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData,
-                              ArgTypes... args)
+template <class... ArgTypes> void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... args)
 {
-    P<OneShotStateNotifier<ArgTypes...>> pNotifier =
-        newObj<OneShotStateNotifier<ArgTypes...>>();
+    P<OneShotStateNotifier<ArgTypes...>> pNotifier = newObj<OneShotStateNotifier<ArgTypes...>>();
 
     SECTION("one call")
     {
@@ -53,10 +50,7 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData,
 
         REQUIRE(pTestData->callCount1 == 0);
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            REQUIRE(pTestData->callCount1 == 1);
-        };
+        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData) { REQUIRE(pTestData->callCount1 == 1); };
     }
 
     SECTION("multiple calls")
@@ -73,8 +67,7 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData,
             [pNotifier, pTestData](ArgTypes... args) {
                 REQUIRE(pTestData->callCount1 == 1);
 
-                REQUIRE_THROWS_PROGRAMMING_ERROR(
-                    pNotifier->postNotification(args...));
+                REQUIRE_THROWS_PROGRAMMING_ERROR(pNotifier->postNotification(args...));
             },
             std::forward<ArgTypes>(args)...));
     }
@@ -98,8 +91,7 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData,
             [pNotifier, pTestData](ArgTypes... args) {
                 REQUIRE(pTestData->callCount1 == 1);
 
-                REQUIRE_THROWS_PROGRAMMING_ERROR(
-                    pNotifier->postNotification(args...));
+                REQUIRE_THROWS_PROGRAMMING_ERROR(pNotifier->postNotification(args...));
             },
             std::forward<ArgTypes>(args)...));
     }
@@ -112,12 +104,11 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData,
             P<OneShotStateNotifierDestructTest> pDestructTest =
                 newObj<OneShotStateNotifierDestructTest>(pDestructedSignal);
 
-            *pNotifier +=
-                [pDestructTest, pTestData, args...](ArgTypes... callArgs) {
-                    verifySame(callArgs..., args...);
+            *pNotifier += [pDestructTest, pTestData, args...](ArgTypes... callArgs) {
+                verifySame(callArgs..., args...);
 
-                    pTestData->callCount1++;
-                };
+                pTestData->callCount1++;
+            };
         }
 
         REQUIRE(!pDestructedSignal->isSet());
@@ -139,34 +130,23 @@ TEST_CASE("OneShotStateNotifier")
 {
     P<OneShotNotifierTestData> pTestData = newObj<OneShotNotifierTestData>();
 
-    SECTION("oneArg-String")
-    {
-        testOneShotStateNotifier<String>(pTestData, String("hello"));
-    }
+    SECTION("oneArg-String") { testOneShotStateNotifier<String>(pTestData, String("hello")); }
 
     SECTION("noArgs") { testOneShotStateNotifier<>(pTestData); }
 
     SECTION("oneArg-int") { testOneShotStateNotifier<int>(pTestData, 42); }
 
-    SECTION("twoArgs")
-    {
-        testOneShotStateNotifier<int, String>(pTestData, 42, String("hello"));
-    }
+    SECTION("twoArgs") { testOneShotStateNotifier<int, String>(pTestData, 42, String("hello")); }
 
     SECTION("paramIsReference")
     {
         pTestData->stringParam = "hello";
 
-        SECTION("standard tests")
-        {
-            testOneShotStateNotifier<String &>(pTestData,
-                                               pTestData->stringParam);
-        }
+        SECTION("standard tests") { testOneShotStateNotifier<String &>(pTestData, pTestData->stringParam); }
 
         SECTION("param changed between postNotification and late subscribe")
         {
-            P<OneShotStateNotifier<String &>> pNotifier =
-                newObj<OneShotStateNotifier<String &>>();
+            P<OneShotStateNotifier<String &>> pNotifier = newObj<OneShotStateNotifier<String &>>();
 
             String inputString = "hello";
 
@@ -186,10 +166,7 @@ TEST_CASE("OneShotStateNotifier")
             REQUIRE(pTestData->callCount1 == 0);
 
             // but a call should have been scheduled
-            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier)
-            {
-                REQUIRE(pTestData->callCount1 == 1);
-            };
+            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier) { REQUIRE(pTestData->callCount1 == 1); };
         }
     }
 
@@ -197,16 +174,11 @@ TEST_CASE("OneShotStateNotifier")
     {
         pTestData->stringParam = "hello";
 
-        SECTION("standard tests")
-        {
-            testOneShotStateNotifier<String *>(pTestData,
-                                               &pTestData->stringParam);
-        }
+        SECTION("standard tests") { testOneShotStateNotifier<String *>(pTestData, &pTestData->stringParam); }
 
         SECTION("param changed between postNotification and late subscribe")
         {
-            P<OneShotStateNotifier<String *>> pNotifier =
-                newObj<OneShotStateNotifier<String *>>();
+            P<OneShotStateNotifier<String *>> pNotifier = newObj<OneShotStateNotifier<String *>>();
 
             pNotifier->postNotification(&pTestData->stringParam);
 
@@ -226,10 +198,7 @@ TEST_CASE("OneShotStateNotifier")
             REQUIRE(pTestData->callCount1 == 0);
 
             // but a call should have been scheduled
-            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier)
-            {
-                REQUIRE(pTestData->callCount1 == 1);
-            };
+            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier) { REQUIRE(pTestData->callCount1 == 1); };
         }
     }
 }

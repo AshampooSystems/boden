@@ -14,16 +14,13 @@ namespace bdn
         The current implementation does not provide any bdn::View
        implementations. But it does support ITextUi (see getTextUi() ).
     */
-    template <typename CharType>
-    class StdioUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+    template <typename CharType> class StdioUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
     {
       public:
-        StdioUiProvider(std::basic_istream<CharType> *pInStream,
-                        std::basic_ostream<CharType> *pOutStream,
+        StdioUiProvider(std::basic_istream<CharType> *pInStream, std::basic_ostream<CharType> *pOutStream,
                         std::basic_ostream<CharType> *pErrStream)
         {
-            _pTextUi = newObj<StdioTextUi<CharType>>(pInStream, pOutStream,
-                                                     pErrStream);
+            _pTextUi = newObj<StdioTextUi<CharType>>(pInStream, pOutStream, pErrStream);
         }
 
         String getName() const { return "stdio"; }

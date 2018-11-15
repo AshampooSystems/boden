@@ -15,10 +15,7 @@ namespace bdn
 {
     namespace platform
     {
-        void AndroidHooks::init()
-        {
-            Hooks::get() = std::make_unique<AndroidHooks>();
-        }
+        void AndroidHooks::init() { Hooks::get() = std::make_unique<AndroidHooks>(); }
 
         void AndroidHooks::initializeThread()
         {
@@ -57,16 +54,13 @@ namespace bdn
         {
             switch (severity) {
             case Severity::Error:
-                __android_log_write(ANDROID_LOG_ERROR, "boden",
-                                    message.asUtf8Ptr());
+                __android_log_write(ANDROID_LOG_ERROR, "boden", message.asUtf8Ptr());
                 break;
             case Severity::Info:
-                __android_log_write(ANDROID_LOG_INFO, "boden",
-                                    message.asUtf8Ptr());
+                __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr());
                 break;
             case Severity::Debug:
-                __android_log_write(ANDROID_LOG_DEBUG, "boden",
-                                    message.asUtf8Ptr());
+                __android_log_write(ANDROID_LOG_DEBUG, "boden", message.asUtf8Ptr());
                 break;
             }
         }

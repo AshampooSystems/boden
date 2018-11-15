@@ -24,10 +24,8 @@ namespace bdn
                 {
                     Env &env = Env::get();
 
-                    _id = env.getJniEnv()->GetStaticFieldID(
-                        (jclass)cls.getJObject_(), fieldName,
-                        TypeConversion<NativeType>::getJavaSignature()
-                            .asUtf8Ptr());
+                    _id = env.getJniEnv()->GetStaticFieldID((jclass)cls.getJObject_(), fieldName,
+                                                            TypeConversion<NativeType>::getJavaSignature().asUtf8Ptr());
 
                     env.throwAndClearExceptionFromLastJavaCall();
                 }
@@ -50,20 +48,15 @@ namespace bdn
             static jfloat getFloatField(jclass cls, jfieldID fieldId);
             static jdouble getDoubleField(jclass cls, jfieldID fieldId);
 
-            static void setObjectField(jclass cls, jfieldID fieldId,
-                                       jobject value);
-            static void setBooleanField(jclass cls, jfieldID fieldId,
-                                        jboolean value);
+            static void setObjectField(jclass cls, jfieldID fieldId, jobject value);
+            static void setBooleanField(jclass cls, jfieldID fieldId, jboolean value);
             static void setIntField(jclass cls, jfieldID fieldId, jint value);
-            static void setShortField(jclass cls, jfieldID fieldId,
-                                      jshort value);
+            static void setShortField(jclass cls, jfieldID fieldId, jshort value);
             static void setLongField(jclass cls, jfieldID fieldId, jlong value);
             static void setByteField(jclass cls, jfieldID fieldId, jbyte value);
             static void setCharField(jclass cls, jfieldID fieldId, jchar value);
-            static void setFloatField(jclass cls, jfieldID fieldId,
-                                      jfloat value);
-            static void setDoubleField(jclass cls, jfieldID fieldId,
-                                       jdouble value);
+            static void setFloatField(jclass cls, jfieldID fieldId, jfloat value);
+            static void setDoubleField(jclass cls, jfieldID fieldId, jdouble value);
         };
     }
 }

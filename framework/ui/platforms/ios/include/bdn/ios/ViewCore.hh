@@ -17,9 +17,7 @@ namespace bdn
     namespace ios
     {
 
-        class ViewCore : public Base,
-                         BDN_IMPLEMENTS IViewCore,
-                         BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
             ViewCore(View *pOuterView, UIView *view)
@@ -35,17 +33,11 @@ namespace bdn
 
             ~ViewCore() { _view = nil; }
 
-            P<View> getOuterViewIfStillAttached() const
-            {
-                return _outerViewWeak.toStrong();
-            }
+            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
 
             UIView *getUIView() const { return _view; }
 
-            void setVisible(const bool &visible) override
-            {
-                _view.hidden = !visible;
-            }
+            void setVisible(const bool &visible) override { _view.hidden = !visible; }
 
             void setPadding(const Nullable<UiMargin> &padding) override {}
 
@@ -60,11 +52,9 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pOuterView->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(
-                            pOuterView);
+                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
                 }
             }
 
@@ -72,21 +62,17 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(
-                        View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(
-                        View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
-            void setHorizontalAlignment(
-                const View::HorizontalAlignment &align) override
+            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
 
-            void
-            setVerticalAlignment(const View::VerticalAlignment &align) override
+            void setVerticalAlignment(const View::VerticalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
@@ -109,16 +95,14 @@ namespace bdn
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
                 // first adjust the bounds so that they are on pixel boundaries
-                Rect adjustedBounds = adjustBounds(
-                    requestedBounds, RoundType::nearest, RoundType::nearest);
+                Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
                 _view.frame = rectToIosRect(adjustedBounds);
 
                 return adjustedBounds;
             }
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override
             {
                 // most example code for ios simply aligns on integer values
@@ -145,8 +129,7 @@ namespace bdn
                 double scale = screen.scale; // 1 for old displays, 2 for retina
                                              // iphone, 3 for iphone plus, etc.
 
-                return Dip::pixelAlign(requestedBounds, scale,
-                                       positionRoundType, sizeRoundType);
+                return Dip::pixelAlign(requestedBounds, scale, positionRoundType, sizeRoundType);
             }
 
             double uiLengthToDips(const UiLength &uiLength) const override
@@ -165,22 +148,19 @@ namespace bdn
                     return uiLength.value * getSemSizeDips();
 
                 default:
-                    throw InvalidArgumentError(
-                        "Invalid UiLength unit passed to "
-                        "ViewCore::uiLengthToDips: " +
-                        std::to_string((int)uiLength.unit));
+                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                                               "ViewCore::uiLengthToDips: " +
+                                               std::to_string((int)uiLength.unit));
                 }
             }
 
             Margin uiMarginToDipMargin(const UiMargin &margin) const override
             {
-                return Margin(
-                    uiLengthToDips(margin.top), uiLengthToDips(margin.right),
-                    uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
+                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
+                              uiLengthToDips(margin.left));
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 Margin padding = getPaddingDips();
 
@@ -189,23 +169,18 @@ namespace bdn
                 // systemLayoutSizeFittingSize will clip the return value to the
                 // constraint size. So we only pass the available space if the
                 // view can actually adjust itself to the available space.
-                if (std::isfinite(availableSpace.width) &&
-                    canAdjustToAvailableWidth()) {
-                    constraintSize.width =
-                        availableSpace.width - (padding.left + padding.right);
+                if (std::isfinite(availableSpace.width) && canAdjustToAvailableWidth()) {
+                    constraintSize.width = availableSpace.width - (padding.left + padding.right);
                     if (constraintSize.width < 0)
                         constraintSize.width = 0;
                 }
-                if (std::isfinite(availableSpace.height) &&
-                    canAdjustToAvailableHeight()) {
-                    constraintSize.height =
-                        availableSpace.height - (padding.top + padding.bottom);
+                if (std::isfinite(availableSpace.height) && canAdjustToAvailableHeight()) {
+                    constraintSize.height = availableSpace.height - (padding.top + padding.bottom);
                     if (constraintSize.height < 0)
                         constraintSize.height = 0;
                 }
 
-                CGSize iosSize =
-                    [_view systemLayoutSizeFittingSize:constraintSize];
+                CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
 
                 Size size = iosSizeToSize(iosSize);
 
@@ -235,10 +210,7 @@ namespace bdn
                 // do nothing by default. Most views do not have subviews.
             }
 
-            bool canMoveToParentView(View &newParentView) const override
-            {
-                return true;
-            }
+            bool canMoveToParentView(View &newParentView) const override { return true; }
 
             void moveToParentView(View &newParentView) override
             {
@@ -257,15 +229,9 @@ namespace bdn
 
             void dispose() override { removeFromUISuperview(); }
 
-            virtual void addChildUIView(UIView *childView)
-            {
-                [_view addSubview:childView];
-            }
+            virtual void addChildUIView(UIView *childView) { [_view addSubview:childView]; }
 
-            virtual void removeFromUISuperview()
-            {
-                [_view removeFromSuperview];
-            }
+            virtual void removeFromUISuperview() { [_view removeFromSuperview]; }
 
           protected:
             /** Returns the default padding for the control.
@@ -314,9 +280,8 @@ namespace bdn
                 if (pParentCore == nullptr) {
                     // this should not happen. The parent MUST have a core -
                     // otherwise we cannot initialize ourselves.
-                    throw ProgrammingError(
-                        "bdn::ios::ViewCore constructed for a view whose "
-                        "parent does not have a core.");
+                    throw ProgrammingError("bdn::ios::ViewCore constructed for a view whose "
+                                           "parent does not have a core.");
                 }
 
                 cast<ViewCore>(pParentCore)->addChildUIView(_view);

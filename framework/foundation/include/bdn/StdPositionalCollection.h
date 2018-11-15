@@ -14,8 +14,7 @@ namespace bdn
         which give the user complete control over the position of each eleemnt
         (std::vector, std::list, ...)
     */
-    template <class BaseCollectionType>
-    class StdPositionalCollection : public StdCollection<BaseCollectionType>
+    template <class BaseCollectionType> class StdPositionalCollection : public StdCollection<BaseCollectionType>
     {
       public:
         using typename StdCollection<BaseCollectionType>::Element;
@@ -29,12 +28,10 @@ namespace bdn
 
         /** The class of iterator objects for iteration over the collection
          * elements in reverse order (with read-only access to the elements).*/
-        typedef typename BaseCollectionType::const_reverse_iterator
-            ConstReverseIterator;
+        typedef typename BaseCollectionType::const_reverse_iterator ConstReverseIterator;
 
         template <class... Args>
-        StdPositionalCollection(Args &&... args)
-            : StdCollection<BaseCollectionType>(std::forward<Args>(args)...)
+        StdPositionalCollection(Args &&... args) : StdCollection<BaseCollectionType>(std::forward<Args>(args)...)
         {}
 
         /** Returns a reference to the first element of the collection. Throws
@@ -89,10 +86,7 @@ namespace bdn
            specified element, the C++ move semantics are used to move the
            element data from the parameter \c el to the new collection element.
             */
-        void add(Element &&value)
-        {
-            BaseCollectionType::push_back(std::forward<Element>(value));
-        }
+        void add(Element &&value) { BaseCollectionType::push_back(std::forward<Element>(value)); }
 
         /** Adds \c count copies copy of the specified element \c el to the
          * collection (at the end).
@@ -112,8 +106,7 @@ namespace bdn
            element type of the source collection must be compatible to the
            element type of the target collection.
             */
-        template <class InputIt>
-        void addSequence(InputIt beginIt, InputIt endIt)
+        template <class InputIt> void addSequence(InputIt beginIt, InputIt endIt)
         {
             BaseCollectionType::insert(this->end(), beginIt, endIt);
         }
@@ -130,10 +123,7 @@ namespace bdn
             ar.addSequence( {1, 4, 7} );    // adds three elements to the array
 
             */
-        void addSequence(std::initializer_list<Element> initList)
-        {
-            BaseCollectionType::insert(this->end(), initList);
-        }
+        void addSequence(std::initializer_list<Element> initList) { BaseCollectionType::insert(this->end(), initList); }
 
         /** Adds the elements from the specified source \ref sequence.md
            "sequence" to the collection.
@@ -156,11 +146,9 @@ namespace bdn
 
             \endcode
             */
-        template <class SequenceType>
-        void addSequence(const SequenceType &sequence)
+        template <class SequenceType> void addSequence(const SequenceType &sequence)
         {
-            BaseCollectionType::insert(this->end(), sequence.begin(),
-                                       sequence.end());
+            BaseCollectionType::insert(this->end(), sequence.begin(), sequence.end());
         }
 
         /** Constructs a new element and adds it to the collection (at the end).
@@ -192,10 +180,7 @@ namespace bdn
 
             Returns an iterator to the newly inserted element.
         */
-        Iterator insertAt(ConstIterator pos, const Element &el)
-        {
-            return BaseCollectionType::insert(pos, el);
-        }
+        Iterator insertAt(ConstIterator pos, const Element &el) { return BaseCollectionType::insert(pos, el); }
 
         /** Like insertAt() but instead of being a copy the newly inserted
            element is created with C++ move semantics from the \c el argument.
@@ -217,8 +202,7 @@ namespace bdn
             Returns an iterator to first inserted element. If count is 0 then \c
            pos is returned.
         */
-        Iterator insertMultipleCopiesAt(ConstIterator pos, Size count,
-                                        const Element &el)
+        Iterator insertMultipleCopiesAt(ConstIterator pos, Size count, const Element &el)
         {
             return BaseCollectionType::insert(pos, count, el);
         }
@@ -242,12 +226,9 @@ namespace bdn
             Returns an iterator to first inserted element. If no elements are
            inserted (beginIt == endIt) then \c pos is returned.
             */
-        template <class InputIt>
-        Iterator insertSequenceAt(ConstIterator pos, InputIt beginIt,
-                                  InputIt endIt)
+        template <class InputIt> Iterator insertSequenceAt(ConstIterator pos, InputIt beginIt, InputIt endIt)
         {
-            return BaseCollectionType::template insert<InputIt>(pos, beginIt,
-                                                                endIt);
+            return BaseCollectionType::template insert<InputIt>(pos, beginIt, endIt);
         }
 
         /** Inserts the elements from the specified initializer list at position
@@ -269,8 +250,7 @@ namespace bdn
            elements at the start of the array
 
             */
-        Iterator insertSequenceAt(ConstIterator pos,
-                                  std::initializer_list<Element> initList)
+        Iterator insertSequenceAt(ConstIterator pos, std::initializer_list<Element> initList)
         {
             return BaseCollectionType::insert(pos, initList);
         }
@@ -288,31 +268,22 @@ namespace bdn
 
             Returns an iterator to the newly inserted element.
             */
-        template <class... Args>
-        Iterator insertNewAt(ConstIterator pos, Args &&... args)
+        template <class... Args> Iterator insertNewAt(ConstIterator pos, Args &&... args)
         {
-            return BaseCollectionType::emplace(pos,
-                                               std::forward<Args>(args)...);
+            return BaseCollectionType::emplace(pos, std::forward<Args>(args)...);
         }
 
         /** Inserts an element at the beginning of the collection.
 
             Same as insert( begin(), el).
         */
-        void insertAtBegin(const Element &el)
-        {
-            BaseCollectionType::insert(this->begin(), el);
-        }
+        void insertAtBegin(const Element &el) { BaseCollectionType::insert(this->begin(), el); }
 
         /** Inserts an element at the beginning of the collection.
 
             Same as insert( begin(), el).
         */
-        void insertAtBegin(Element &&el)
-        {
-            BaseCollectionType::insert(this->begin(),
-                                       std::forward<Element>(el));
-        }
+        void insertAtBegin(Element &&el) { BaseCollectionType::insert(this->begin(), std::forward<Element>(el)); }
 
         /** Inserts \c count copies copy of the specified element \c el at the
            beginning of the collection.
@@ -338,11 +309,9 @@ namespace bdn
             Returns an iterator to first inserted element. If no elements are
            inserted (beginIt == endIt) then \c begin() is returned.
             */
-        template <class InputIt>
-        Iterator insertSequenceAtBegin(InputIt beginIt, InputIt endIt)
+        template <class InputIt> Iterator insertSequenceAtBegin(InputIt beginIt, InputIt endIt)
         {
-            return BaseCollectionType::template insert<InputIt>(this->begin(),
-                                                                beginIt, endIt);
+            return BaseCollectionType::template insert<InputIt>(this->begin(), beginIt, endIt);
         }
 
         /** Inserts the elements from the specified initializer list at the
@@ -415,10 +384,7 @@ namespace bdn
             If the collection is currently smaller then copies of \c padValue
            are added at the end.
         */
-        void setSize(Size count, const Element &padValue)
-        {
-            BaseCollectionType::resize(count, padValue);
-        }
+        void setSize(Size count, const Element &padValue) { BaseCollectionType::resize(count, padValue); }
 
         class ElementMatcher_
         {
@@ -427,8 +393,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class COLL, class ITERATOR>
-            void operator()(COLL &coll, ITERATOR &it)
+            template <class COLL, class ITERATOR> void operator()(COLL &coll, ITERATOR &it)
             {
                 it = std::find<ITERATOR, Element>(it, coll.end(), _element);
             }
@@ -444,8 +409,7 @@ namespace bdn
 
             // this is a template function so that it works with both normal and
             // const iterators and set references
-            template <class CollType, class IteratorType>
-            void operator()(CollType &coll, IteratorType &it)
+            template <class CollType, class IteratorType> void operator()(CollType &coll, IteratorType &it)
             {
                 // note that the "it" parameter is NEVER equal to end() when we
                 // are called. That also means that we are never called for
@@ -462,26 +426,19 @@ namespace bdn
             MatchFuncType _matchFunc;
         };
 
-        using ElementFinder =
-            SequenceFilter<StdPositionalCollection, ElementMatcher_>;
-        using ConstElementFinder =
-            SequenceFilter<const StdPositionalCollection, ElementMatcher_>;
+        using ElementFinder = SequenceFilter<StdPositionalCollection, ElementMatcher_>;
+        using ConstElementFinder = SequenceFilter<const StdPositionalCollection, ElementMatcher_>;
 
         template <typename MatchFuncType>
-        using CustomFinder = SequenceFilter<StdPositionalCollection,
-                                            FuncMatcher_<MatchFuncType>>;
+        using CustomFinder = SequenceFilter<StdPositionalCollection, FuncMatcher_<MatchFuncType>>;
 
         template <typename MatchFuncType>
-        using ConstCustomFinder = SequenceFilter<const StdPositionalCollection,
-                                                 FuncMatcher_<MatchFuncType>>;
+        using ConstCustomFinder = SequenceFilter<const StdPositionalCollection, FuncMatcher_<MatchFuncType>>;
 
         /** Searches for the specified element in the collection and returns a
            \ref finder.md "finder object" with the results.
             */
-        ElementFinder findAll(const Element &elToFind)
-        {
-            return ElementFinder(*this, ElementMatcher_(elToFind));
-        }
+        ElementFinder findAll(const Element &elToFind) { return ElementFinder(*this, ElementMatcher_(elToFind)); }
 
         /** Searches for the specified element in the collection and returns a
            \ref finder.md "finder object" with the results.
@@ -501,11 +458,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
+        template <class MatchFuncType> CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction)
         {
-            return CustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for all elements for which the specified match function
@@ -518,12 +473,9 @@ namespace bdn
             findAllCustom returns a \ref finder.md "finder object" with the
            results.
             */
-        template <class MatchFuncType>
-        ConstCustomFinder<MatchFuncType>
-        findAllCustom(MatchFuncType matchFunction) const
+        template <class MatchFuncType> ConstCustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunction) const
         {
-            return ConstCustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunction));
+            return ConstCustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction));
         }
 
         /** Searches for the first element that compares equal to the specified
@@ -532,10 +484,7 @@ namespace bdn
             Returns an iterator to the found element, or end() if no such
            element is found.
         */
-        Iterator find(const Element &el)
-        {
-            return std::find(this->begin(), this->end(), el);
-        }
+        Iterator find(const Element &el) { return std::find(this->begin(), this->end(), el); }
 
         /** Searches for the first element that compares equal to the specified
            \c el parameter, starting from the position indicated by \c startPos.
@@ -545,17 +494,11 @@ namespace bdn
             Returns an iterator to the found element, or end() if no such
            element is found.
         */
-        Iterator find(const Element &el, Iterator startPos)
-        {
-            return std::find(startPos, this->end(), el);
-        }
+        Iterator find(const Element &el, Iterator startPos) { return std::find(startPos, this->end(), el); }
 
         /** Const version of find() - returns a read-only iterator.
          */
-        ConstIterator find(const Element &el) const
-        {
-            return std::find(this->begin(), this->end(), el);
-        }
+        ConstIterator find(const Element &el) const { return std::find(this->begin(), this->end(), el); }
 
         /** Searches for the first element that compares equal to the specified
            \c el parameter, starting from the position indicated by \c startPos.
@@ -572,10 +515,7 @@ namespace bdn
 
         /** Returns true if the collection contains the specified element.
          */
-        bool contains(const Element &el) const
-        {
-            return find(el) != this->end();
-        }
+        bool contains(const Element &el) const { return find(el) != this->end(); }
 
         /** Searches for the last element that compares equal to the specified
            \c el parameter.
@@ -643,8 +583,7 @@ namespace bdn
 
         /** Const version of reverseFind() - returns a read-only iterator.
          */
-        ConstIterator reverseFind(const Element &el,
-                                  ConstIterator startPos) const
+        ConstIterator reverseFind(const Element &el, ConstIterator startPos) const
         {
             ConstIterator it = startPos;
             if (it != this->end())
@@ -671,8 +610,7 @@ namespace bdn
             Returns an iterator to the found element, or end() if no such
            element is found.
         */
-        template <typename MatchFuncType>
-        Iterator reverseFindCustom(MatchFuncType matchFunc)
+        template <typename MatchFuncType> Iterator reverseFindCustom(MatchFuncType matchFunc)
         {
             auto it = this->end();
             while (it != this->begin()) {
@@ -687,8 +625,7 @@ namespace bdn
 
         /** Const version of reverseFindCustom() - returns a read-only iterator.
          */
-        template <typename MatchFuncType>
-        ConstIterator reverseFindCustom(MatchFuncType matchFunc) const
+        template <typename MatchFuncType> ConstIterator reverseFindCustom(MatchFuncType matchFunc) const
         {
             auto it = this->end();
             while (it != this->begin()) {
@@ -734,26 +671,17 @@ namespace bdn
             \endcode
 
             */
-        ReverseIterator reverseBegin() noexcept
-        {
-            return BaseCollectionType::rbegin();
-        }
+        ReverseIterator reverseBegin() noexcept { return BaseCollectionType::rbegin(); }
 
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseBegin() const noexcept
-        {
-            return BaseCollectionType::rbegin();
-        }
+        ConstReverseIterator reverseBegin() const noexcept { return BaseCollectionType::rbegin(); }
 
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseBegin() const noexcept
-        {
-            return BaseCollectionType::crbegin();
-        }
+        ConstReverseIterator constReverseBegin() const noexcept { return BaseCollectionType::crbegin(); }
 
         /** Marks the end point of a reverse iteration.
 
@@ -766,32 +694,22 @@ namespace bdn
            iteration. See the documentation of reverseBegin() for more
            information on how to use it.
         */
-        ReverseIterator reverseEnd() noexcept
-        {
-            return BaseCollectionType::rend();
-        }
+        ReverseIterator reverseEnd() noexcept { return BaseCollectionType::rend(); }
 
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseEnd() const noexcept
-        {
-            return BaseCollectionType::rend();
-        }
+        ConstReverseIterator reverseEnd() const noexcept { return BaseCollectionType::rend(); }
 
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseEnd() const noexcept
-        {
-            return BaseCollectionType::crend();
-        }
+        ConstReverseIterator constReverseEnd() const noexcept { return BaseCollectionType::crend(); }
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS, class BASE_COLLECTION_TYPE>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const StdPositionalCollection<BASE_COLLECTION_TYPE> &m)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const StdPositionalCollection<BASE_COLLECTION_TYPE> &m)
     {
         if (m.isEmpty())
             return stream << "[]";

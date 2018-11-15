@@ -32,15 +32,13 @@ template <class T1, class T2> static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 }
 
 template <class... ArgTypes>
-void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> pNotifier,
-                                P<ThreadSafeNotifierTestData> pTestData,
+void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> pNotifier, P<ThreadSafeNotifierTestData> pTestData,
                                 ArgTypes... args)
 {
     class Listener : public Base
     {
       public:
-        Listener(ThreadSafeNotifierTestData *pTestData,
-                 std::function<void(ArgTypes...)> argVerifier)
+        Listener(ThreadSafeNotifierTestData *pTestData, std::function<void(ArgTypes...)> argVerifier)
         {
             _pTestData = pTestData;
             _argVerifier = argVerifier;
@@ -59,9 +57,7 @@ void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> pNotifier,
         std::function<void(ArgTypes...)> _argVerifier;
     };
 
-    Listener l(pTestData, [args...](ArgTypes... callArgs) {
-        verifySame(callArgs..., args...);
-    });
+    Listener l(pTestData, [args...](ArgTypes... callArgs) { verifySame(callArgs..., args...); });
 
     SECTION("notify")
     {
@@ -112,37 +108,31 @@ void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> pNotifier,
 
 template <class... ArgTypes> void testNotifier(ArgTypes... args)
 {
-    P<ThreadSafeNotifier<ArgTypes...>> pNotifier =
-        newObj<ThreadSafeNotifier<ArgTypes...>>();
-    P<ThreadSafeNotifierTestData> pTestData =
-        newObj<ThreadSafeNotifierTestData>();
+    P<ThreadSafeNotifier<ArgTypes...>> pNotifier = newObj<ThreadSafeNotifier<ArgTypes...>>();
+    P<ThreadSafeNotifierTestData> pTestData = newObj<ThreadSafeNotifierTestData>();
 
     SECTION("subscribe")
     {
-        pTestData->pSub1 =
-            pNotifier->subscribe([pTestData, args...](ArgTypes... callArgs) {
-                verifySame(callArgs..., args...);
+        pTestData->pSub1 = pNotifier->subscribe([pTestData, args...](ArgTypes... callArgs) {
+            verifySame(callArgs..., args...);
 
-                pTestData->called1 = true;
-            });
+            pTestData->called1 = true;
+        });
 
-        testNotifierAfterSubscribe(pNotifier, pTestData,
-                                   std::forward<ArgTypes>(args)...);
+        testNotifierAfterSubscribe(pNotifier, pTestData, std::forward<ArgTypes>(args)...);
     }
 
     SECTION("subscribeParamless")
     {
-        pTestData->pSub1 = pNotifier->subscribeParamless(
-            [pTestData]() { pTestData->called1 = true; });
+        pTestData->pSub1 = pNotifier->subscribeParamless([pTestData]() { pTestData->called1 = true; });
 
-        testNotifierAfterSubscribe(pNotifier, pTestData,
-                                   std::forward<ArgTypes>(args)...);
+        testNotifierAfterSubscribe(pNotifier, pTestData, std::forward<ArgTypes>(args)...);
     }
 }
 
-static void testThreadSafeNotifierDanglingFunctionError(
-    P<ThreadSafeNotifierTestData> pTestData, P<ThreadSafeNotifier<>> pNotifier,
-    P<INotifierSubscription> pSub)
+static void testThreadSafeNotifierDanglingFunctionError(P<ThreadSafeNotifierTestData> pTestData,
+                                                        P<ThreadSafeNotifier<>> pNotifier,
+                                                        P<INotifierSubscription> pSub)
 {
     SECTION("notify")
     {
@@ -182,13 +172,11 @@ static void testThreadSafeNotifierDanglingFunctionError(
 
 TEST_CASE("ThreadSafeNotifier")
 {
-    P<ThreadSafeNotifierTestData> pTestData =
-        newObj<ThreadSafeNotifierTestData>();
+    P<ThreadSafeNotifierTestData> pTestData = newObj<ThreadSafeNotifierTestData>();
 
     SECTION("require new alloc")
     {
-        REQUIRE_THROWS_PROGRAMMING_ERROR(
-            { ThreadSafeNotifier<> testNotifier; });
+        REQUIRE_THROWS_PROGRAMMING_ERROR({ ThreadSafeNotifier<> testNotifier; });
     }
 
     SECTION("noArgs") { testNotifier<>(); }
@@ -199,13 +187,10 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("multipleSubscriptions")
     {
-        P<ThreadSafeNotifier<int>> pNotifier =
-            newObj<ThreadSafeNotifier<int>>();
+        P<ThreadSafeNotifier<int>> pNotifier = newObj<ThreadSafeNotifier<int>>();
 
-        pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData](int) { pTestData->called1 = true; });
-        pTestData->pSub2 = pNotifier->subscribe(
-            [pTestData](int) { pTestData->called2 = true; });
+        pTestData->pSub1 = pNotifier->subscribe([pTestData](int) { pTestData->called1 = true; });
+        pTestData->pSub2 = pNotifier->subscribe([pTestData](int) { pTestData->called2 = true; });
 
         pNotifier->postNotification(42);
 
@@ -352,15 +337,13 @@ TEST_CASE("ThreadSafeNotifier")
         {
             pSub = nullptr;
 
-            testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier,
-                                                        pSub);
+            testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
 
         SECTION("subcontrol still exists")
         {
             // do nothing
-            testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier,
-                                                        pSub);
+            testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
     }
 
@@ -466,8 +449,7 @@ TEST_CASE("ThreadSafeNotifier")
             pNotifier->unsubscribe(pTestData->pSub2);
         });
 
-        pTestData->pSub2 =
-            pNotifier->subscribe([pTestData]() { pTestData->callCount2++; });
+        pTestData->pSub2 = pNotifier->subscribe([pTestData]() { pTestData->callCount2++; });
 
         SECTION("notify")
         {
@@ -524,11 +506,9 @@ TEST_CASE("ThreadSafeNotifier")
             pNotifier->unsubscribe(pTestData->pSub3);
         });
 
-        pTestData->pSub2 =
-            pNotifier->subscribe([pTestData]() { pTestData->callCount2++; });
+        pTestData->pSub2 = pNotifier->subscribe([pTestData]() { pTestData->callCount2++; });
 
-        pTestData->pSub3 =
-            pNotifier->subscribe([pTestData]() { pTestData->callCount3++; });
+        pTestData->pSub3 = pNotifier->subscribe([pTestData]() { pTestData->callCount3++; });
 
         SECTION("notify")
         {
@@ -616,15 +596,11 @@ TEST_CASE("ThreadSafeNotifier")
 
                 // subscribe another one and notify again. Then it should be
                 // called.
-                pNotifier->subscribe(
-                    [pTestData]() { pTestData->callCount1++; });
+                pNotifier->subscribe([pTestData]() { pTestData->callCount1++; });
 
                 pNotifier->postNotification();
 
-                CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-                {
-                    REQUIRE(pTestData->callCount1 == 1);
-                };
+                CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData) { REQUIRE(pTestData->callCount1 == 1); };
             };
         }
     }
@@ -633,8 +609,7 @@ TEST_CASE("ThreadSafeNotifier")
     {
         P<ThreadSafeNotifier<>> pNotifier = newObj<ThreadSafeNotifier<>>();
 
-        pTestData->pSub1 =
-            pNotifier->subscribe([pTestData]() { pTestData->callCount1++; });
+        pTestData->pSub1 = pNotifier->subscribe([pTestData]() { pTestData->callCount1++; });
 
         pNotifier->unsubscribeAll();
 

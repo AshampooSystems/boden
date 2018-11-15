@@ -24,21 +24,18 @@ namespace bdn
         class JNativeException : public JRuntimeException
         {
           private:
-            static Reference
-            newInstance_(const std::exception_ptr &exceptionPtr)
+            static Reference newInstance_(const std::exception_ptr &exceptionPtr)
             {
                 static MethodId constructorId;
 
-                P<ExceptionReference> pExceptionRef =
-                    newObj<ExceptionReference>(exceptionPtr);
+                P<ExceptionReference> pExceptionRef = newObj<ExceptionReference>(exceptionPtr);
 
                 JNativeStrongPointer wrappedExceptionRef(pExceptionRef);
 
                 ErrorInfo info(exceptionPtr);
                 String message = info.getMessage();
 
-                return getStaticClass_().newInstance_(constructorId, message,
-                                                      wrappedExceptionRef);
+                return getStaticClass_().newInstance_(constructorId, message, wrappedExceptionRef);
             }
 
           public:
@@ -52,9 +49,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeException(const Reference &objectRef)
-                : JRuntimeException(objectRef)
-            {}
+            explicit JNativeException(const Reference &objectRef) : JRuntimeException(objectRef) {}
 
             /** Returns the ExceptionReference object that refers to the
              * original C++ exception.*/
@@ -63,9 +58,7 @@ namespace bdn
                 static MethodId methodId;
 
                 return cast<ExceptionReference>(
-                    invoke_<JNativeStrongPointer>(getStaticClass_(), methodId,
-                                                  "getNativeExceptionData")
-                        .getPointer_());
+                    invoke_<JNativeStrongPointer>(getStaticClass_(), methodId, "getNativeExceptionData").getPointer_());
             }
 
             /** Returns the JClass object for this class.

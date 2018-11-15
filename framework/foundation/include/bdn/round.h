@@ -30,8 +30,7 @@ namespace bdn
     inline double stableScaledRoundNearest(double value, double scaleFactor)
     {
         if (scaleFactor == 0)
-            throw InvalidArgumentError(
-                "stableScaledRoundNearest called with zero scaleFactor");
+            throw InvalidArgumentError("stableScaledRoundNearest called with zero scaleFactor");
 
         // rounding to the nearest boundary is always stable. So we can simply
         // round directly.
@@ -101,8 +100,7 @@ namespace bdn
     inline double stableScaledRoundUp(double value, double scaleFactor)
     {
         if (scaleFactor == 0)
-            throw InvalidArgumentError(
-                "stableScaledRoundUp called with zero scaleFactor");
+            throw InvalidArgumentError("stableScaledRoundUp called with zero scaleFactor");
 
         if (_isOnScaledRoundingBoundary(value, scaleFactor)) {
             // we can consider the number to be "on" the rounding boundary. Do
@@ -120,8 +118,7 @@ namespace bdn
     inline double stableScaledRoundDown(double value, double scaleFactor)
     {
         if (scaleFactor == 0)
-            throw InvalidArgumentError(
-                "stableScaledRoundDown called with zero scaleFactor");
+            throw InvalidArgumentError("stableScaledRoundDown called with zero scaleFactor");
 
         if (_isOnScaledRoundingBoundary(value, scaleFactor)) {
             // we can consider the number to be "on" the rounding boundary. Do
@@ -139,8 +136,7 @@ namespace bdn
         See stableScaledRoundUp() for more information.
 
         */
-    inline double stableScaledRound(RoundType roundType, double value,
-                                    double scaleFactor)
+    inline double stableScaledRound(RoundType roundType, double value, double scaleFactor)
     {
         if (roundType == RoundType::down)
             return stableScaledRoundDown(value, scaleFactor);

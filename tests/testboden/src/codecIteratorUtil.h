@@ -2,24 +2,18 @@
 #define BDN_codecIteratorUtil_H_
 
 template <class CODEC, class ENCSTRING>
-void testCodecDecodingIterator(const ENCSTRING &encoded,
-                               const std::u32string &expectedDecoded)
+void testCodecDecodingIterator(const ENCSTRING &encoded, const std::u32string &expectedDecoded)
 {
-    typename CODEC::template DecodingIterator<
-        typename ENCSTRING::const_iterator>
-        begin(encoded.begin(), encoded.begin(), encoded.end());
-    typename CODEC::template DecodingIterator<
-        typename ENCSTRING::const_iterator>
-        end(encoded.end(), encoded.begin(), encoded.end());
+    typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> begin(encoded.begin(),
+                                                                                        encoded.begin(), encoded.end());
+    typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> end(encoded.end(), encoded.begin(),
+                                                                                      encoded.end());
 
     // forward then backward iteration
     {
-        typename CODEC::template DecodingIterator<
-            typename ENCSTRING::const_iterator>
-            it = begin;
+        typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> it = begin;
 
-        for (auto expectedIt = expectedDecoded.begin();
-             expectedIt != expectedDecoded.end(); ++expectedIt) {
+        for (auto expectedIt = expectedDecoded.begin(); expectedIt != expectedDecoded.end(); ++expectedIt) {
             REQUIRE(checkEquality(it, end, false));
             REQUIRE(*it == *expectedIt);
             it++;
@@ -27,8 +21,7 @@ void testCodecDecodingIterator(const ENCSTRING &encoded,
 
         REQUIRE(checkEquality(it, end, true));
 
-        for (auto expectedIt = expectedDecoded.rbegin();
-             expectedIt != expectedDecoded.rend(); ++expectedIt) {
+        for (auto expectedIt = expectedDecoded.rbegin(); expectedIt != expectedDecoded.rend(); ++expectedIt) {
             REQUIRE(checkEquality(it, begin, false));
             it--;
 
@@ -40,12 +33,9 @@ void testCodecDecodingIterator(const ENCSTRING &encoded,
 
     // backward then forward iteration
     {
-        typename CODEC::template DecodingIterator<
-            typename ENCSTRING::const_iterator>
-            it = end;
+        typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> it = end;
 
-        for (auto expectedIt = expectedDecoded.rbegin();
-             expectedIt != expectedDecoded.rend(); ++expectedIt) {
+        for (auto expectedIt = expectedDecoded.rbegin(); expectedIt != expectedDecoded.rend(); ++expectedIt) {
             REQUIRE(checkEquality(it, begin, false));
             it--;
 
@@ -54,8 +44,7 @@ void testCodecDecodingIterator(const ENCSTRING &encoded,
 
         REQUIRE(checkEquality(it, begin, true));
 
-        for (auto expectedIt = expectedDecoded.begin();
-             expectedIt != expectedDecoded.end(); ++expectedIt) {
+        for (auto expectedIt = expectedDecoded.begin(); expectedIt != expectedDecoded.end(); ++expectedIt) {
             REQUIRE(checkEquality(it, end, false));
             REQUIRE(*it == *expectedIt);
             it++;
@@ -66,25 +55,18 @@ void testCodecDecodingIterator(const ENCSTRING &encoded,
 }
 
 template <class CODEC, class ENCSTRING>
-void testCodecEncodingIterator(const std::u32string &input,
-                               const ENCSTRING &expectedEncoded)
+void testCodecEncodingIterator(const std::u32string &input, const ENCSTRING &expectedEncoded)
 {
-    typename CODEC::template EncodingIterator<std::u32string::const_iterator>
-        begin(input.begin());
-    typename CODEC::template EncodingIterator<std::u32string::const_iterator>
-        end(input.end());
+    typename CODEC::template EncodingIterator<std::u32string::const_iterator> begin(input.begin());
+    typename CODEC::template EncodingIterator<std::u32string::const_iterator> end(input.end());
 
     // forward then backward iteration
     {
-        typename CODEC::template EncodingIterator<
-            std::u32string::const_iterator>
-            it = begin;
+        typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = begin;
 
-        bool lastWasEndOfCharacter =
-            true; // we want this to be true for empty strings.
+        bool lastWasEndOfCharacter = true; // we want this to be true for empty strings.
         int endOfCharacterCount = 0;
-        for (auto expectedIt = expectedEncoded.begin();
-             expectedIt != expectedEncoded.end(); ++expectedIt) {
+        for (auto expectedIt = expectedEncoded.begin(); expectedIt != expectedEncoded.end(); ++expectedIt) {
             REQUIRE(checkEquality(it, end, false));
 
             REQUIRE(*it == *expectedIt);
@@ -104,8 +86,7 @@ void testCodecEncodingIterator(const std::u32string &input,
         bool firstElement = true;
         endOfCharacterCount = 0;
 
-        for (auto expectedIt = expectedEncoded.rbegin();
-             expectedIt != expectedEncoded.rend(); ++expectedIt) {
+        for (auto expectedIt = expectedEncoded.rbegin(); expectedIt != expectedEncoded.rend(); ++expectedIt) {
             REQUIRE(checkEquality(it, begin, false));
             it--;
 
@@ -127,15 +108,12 @@ void testCodecEncodingIterator(const std::u32string &input,
 
     // backward then forward iteration
     {
-        typename CODEC::template EncodingIterator<
-            std::u32string::const_iterator>
-            it = end;
+        typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = end;
 
         bool firstElement = true;
         int endOfCharacterCount = 0;
 
-        for (auto expectedIt = expectedEncoded.rbegin();
-             expectedIt != expectedEncoded.rend(); ++expectedIt) {
+        for (auto expectedIt = expectedEncoded.rbegin(); expectedIt != expectedEncoded.rend(); ++expectedIt) {
             REQUIRE(checkEquality(it, begin, false));
             it--;
 
@@ -156,10 +134,8 @@ void testCodecEncodingIterator(const std::u32string &input,
 
         endOfCharacterCount = 0;
 
-        bool lastWasEndOfCharacter =
-            true; // we want this to be true for empty strings.
-        for (auto expectedIt = expectedEncoded.begin();
-             expectedIt != expectedEncoded.end(); ++expectedIt) {
+        bool lastWasEndOfCharacter = true; // we want this to be true for empty strings.
+        for (auto expectedIt = expectedEncoded.begin(); expectedIt != expectedEncoded.end(); ++expectedIt) {
             REQUIRE(checkEquality(it, end, false));
 
             REQUIRE(*it == *expectedIt);

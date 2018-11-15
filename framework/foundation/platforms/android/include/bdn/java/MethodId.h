@@ -36,8 +36,7 @@ namespace bdn
              *  JObject::invoke_() or JClass::invokeObjectMethod_() provide a
              * higher level access that automatically initializes the method Id.
              *  */
-            void init(JClass &cls, const String &methodName,
-                      const String &methodSignature);
+            void init(JClass &cls, const String &methodName, const String &methodSignature);
 
             /** Initializes the Id by looking up the static method with the
              * specified name and signature from the specified class.
@@ -50,8 +49,7 @@ namespace bdn
              * provide a higher level access that automatically initializes the
              * method Id.
              *  */
-            void initStatic(JClass &cls, const String &methodName,
-                            const String &methodSignature);
+            void initStatic(JClass &cls, const String &methodName, const String &methodSignature);
 
             /** Initializes the method Id object.*/
             void init(jmethodID id)
@@ -67,8 +65,7 @@ namespace bdn
             jmethodID getId() const
             {
                 if (!isInitialized())
-                    throw ProgrammingError(
-                        "MethodId::getId called on uninitialized object.");
+                    throw ProgrammingError("MethodId::getId called on uninitialized object.");
 
                 return _id;
             }

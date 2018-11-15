@@ -13,8 +13,7 @@ namespace bdn
 
     /** Helper used to work around a compiler bug in Visual Studio 2015 and
      * 2017. Do not use.*/
-    template <typename BaseSequence>
-    struct MSCSequenceFilterIteratorTypedefHelper_
+    template <typename BaseSequence> struct MSCSequenceFilterIteratorTypedefHelper_
     {
         using type = decltype(std::begin(*((BaseSequence *)nullptr)));
     };
@@ -80,8 +79,7 @@ namespace bdn
         // the BaseIterator as the std::result_of of a function that returns the
         // iterator. This works on VS2015.
 
-        using BaseIterator = typename MSCSequenceFilterIteratorTypedefHelper_<
-            BaseSequence>::type;
+        using BaseIterator = typename MSCSequenceFilterIteratorTypedefHelper_<BaseSequence>::type;
 
 #else
         using BaseIterator = decltype(std::begin(*((BaseSequence *)nullptr)));
@@ -91,27 +89,19 @@ namespace bdn
         using Element = typename std::iterator_traits<BaseIterator>::value_type;
 
         class Iterator
-            : public std::iterator<
-                  std::forward_iterator_tag,
-                  typename std::iterator_traits<BaseIterator>::value_type,
-                  typename std::iterator_traits<BaseIterator>::difference_type,
-                  typename std::iterator_traits<BaseIterator>::pointer,
-                  typename std::iterator_traits<BaseIterator>::reference>
+            : public std::iterator<std::forward_iterator_tag, typename std::iterator_traits<BaseIterator>::value_type,
+                                   typename std::iterator_traits<BaseIterator>::difference_type,
+                                   typename std::iterator_traits<BaseIterator>::pointer,
+                                   typename std::iterator_traits<BaseIterator>::reference>
         {
           public:
             Iterator() : _pFilter(nullptr) {}
 
-            Iterator(const Iterator &o)
-                : _pFilter(o._pFilter), _baseIt(o._baseIt)
-            {}
+            Iterator(const Iterator &o) : _pFilter(o._pFilter), _baseIt(o._baseIt) {}
 
-            Iterator(Iterator &&o)
-                : _pFilter(o._pFilter), _baseIt(std::move(o._baseIt))
-            {}
+            Iterator(Iterator &&o) : _pFilter(o._pFilter), _baseIt(std::move(o._baseIt)) {}
 
-            Iterator(const SequenceFilter &filter, const BaseIterator &baseIt)
-                : _pFilter(&filter), _baseIt(baseIt)
-            {}
+            Iterator(const SequenceFilter &filter, const BaseIterator &baseIt) : _pFilter(&filter), _baseIt(baseIt) {}
 
             Iterator(const SequenceFilter &filter, BaseIterator &&baseIt)
                 : _pFilter(&filter), _baseIt(std::move(baseIt))
@@ -136,10 +126,9 @@ namespace bdn
             Iterator &advanceAfterRemoval(const BaseIterator &baseIt)
             {
                 if (_pFilter == nullptr)
-                    throw std::logic_error(
-                        "SequenceFilter::Iterator::advanceAfterRemoval() "
-                        "called, but no filter object is associated with the "
-                        "iterator.");
+                    throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() "
+                                           "called, but no filter object is associated with the "
+                                           "iterator.");
 
                 _baseIt = baseIt;
                 _pFilter->_skipExcluded(_baseIt);
@@ -150,10 +139,9 @@ namespace bdn
             Iterator &advanceAfterRemoval(BaseIterator &&baseIt)
             {
                 if (_pFilter == nullptr)
-                    throw std::logic_error(
-                        "SequenceFilter::Iterator::advanceAfterRemoval() "
-                        "called, but no filter object is associated with the "
-                        "iterator.");
+                    throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() "
+                                           "called, but no filter object is associated with the "
+                                           "iterator.");
 
                 _baseIt = std::move(baseIt);
                 _pFilter->_skipExcluded(_baseIt);
@@ -163,17 +151,9 @@ namespace bdn
 
             BaseIterator getBaseIterator() const { return _baseIt; }
 
-            const typename std::iterator_traits<BaseIterator>::value_type &
-            operator*() const
-            {
-                return *_baseIt;
-            }
+            const typename std::iterator_traits<BaseIterator>::value_type &operator*() const { return *_baseIt; }
 
-            typename std::iterator_traits<BaseIterator>::value_type *
-            operator->() const
-            {
-                return &*_baseIt;
-            }
+            typename std::iterator_traits<BaseIterator>::value_type *operator->() const { return &*_baseIt; }
 
             bool operator==(const Iterator &other) const
             {

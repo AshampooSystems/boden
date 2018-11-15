@@ -61,8 +61,7 @@ namespace bdn
                 if (!first)
                     result += ", ";
 
-                result += escapeName(item.first) + ": \"" +
-                          escapeValue(item.second) + "\"";
+                result += escapeName(item.first) + ": \"" + escapeValue(item.second) + "\"";
 
                 first = false;
             }
@@ -95,8 +94,5 @@ namespace bdn
         return result;
     }
 
-    String ErrorFields::unescape(const String &value)
-    {
-        return Uri::unescape(value);
-    }
+    String ErrorFields::unescape(const String &value) { return Uri::unescape(value); }
 }

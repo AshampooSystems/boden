@@ -9,8 +9,7 @@
 
 using namespace bdn;
 
-class TestMockWindowCore
-    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>
+class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>
 {
   protected:
     void initCore() override
@@ -34,10 +33,7 @@ class TestMockWindowCore
         _pMockWindowCore = nullptr;
     }
 
-    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
-    {
-        return nullptr;
-    }
+    P<IBase> createInfoToVerifyCoreUiElementDestruction() override { return nullptr; }
 
     void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override {}
 

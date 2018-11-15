@@ -42,10 +42,7 @@ namespace bdn
 
             Also see none().
             */
-        static constexpr double componentNone()
-        {
-            return std::numeric_limits<double>::infinity();
-        }
+        static constexpr double componentNone() { return std::numeric_limits<double>::infinity(); }
 
         /** Returns a Size object in which both width and height are
            intentionally left unspecified (they both have the value
@@ -59,22 +56,14 @@ namespace bdn
 
             Also see componentNone().
             */
-        static constexpr Size none()
-        {
-            return Size(componentNone(), componentNone());
-        }
+        static constexpr Size none() { return Size(componentNone(), componentNone()); }
 
         constexpr Size() {}
 
-        constexpr Size(double width, double height)
-            : width(width), height(height)
-        {}
+        constexpr Size(double width, double height) : width(width), height(height) {}
 
         /** Subtracts the size of the specified margin from the size.*/
-        Size operator-(const Margin &margin) const
-        {
-            return Size(*this) -= margin;
-        }
+        Size operator-(const Margin &margin) const { return Size(*this) -= margin; }
 
         /** Subtracts the size of the specified margin from the size.*/
         Size &operator-=(const Margin &margin)
@@ -86,10 +75,7 @@ namespace bdn
         }
 
         /** Adds the size of the specified margin to the size.*/
-        Size operator+(const Margin &margin) const
-        {
-            return Size(*this) += margin;
-        }
+        Size operator+(const Margin &margin) const { return Size(*this) += margin; }
 
         /** Adds the size of the specified margin to the size.*/
         Size &operator+=(const Margin &margin)
@@ -141,12 +127,10 @@ namespace bdn
             */
         void applyMinimum(const Size &minSize)
         {
-            if (std::isfinite(minSize.width) &&
-                (!std::isfinite(width) || width < minSize.width))
+            if (std::isfinite(minSize.width) && (!std::isfinite(width) || width < minSize.width))
                 width = minSize.width;
 
-            if (std::isfinite(minSize.height) &&
-                (!std::isfinite(height) || height < minSize.height))
+            if (std::isfinite(minSize.height) && (!std::isfinite(height) || height < minSize.height))
                 height = minSize.height;
         }
 
@@ -167,57 +151,36 @@ namespace bdn
             */
         void applyMaximum(const Size &maxSize)
         {
-            if (std::isfinite(maxSize.width) &&
-                (!std::isfinite(width) || width > maxSize.width))
+            if (std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width))
                 width = maxSize.width;
 
-            if (std::isfinite(maxSize.height) &&
-                (!std::isfinite(height) || height > maxSize.height))
+            if (std::isfinite(maxSize.height) && (!std::isfinite(height) || height > maxSize.height))
                 height = maxSize.height;
         }
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const Size &s)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const Size &s)
     {
         return stream << "(" << s.width << " x " << s.height << ")";
     }
 }
 
-inline bool operator==(const bdn::Size &a, const bdn::Size &b)
-{
-    return (a.width == b.width && a.height == b.height);
-}
+inline bool operator==(const bdn::Size &a, const bdn::Size &b) { return (a.width == b.width && a.height == b.height); }
 
-inline bool operator!=(const bdn::Size &a, const bdn::Size &b)
-{
-    return !operator==(a, b);
-}
+inline bool operator!=(const bdn::Size &a, const bdn::Size &b) { return !operator==(a, b); }
 
 /** Returns true if a's width and height are each smaller than b's */
-inline bool operator<(const bdn::Size &a, const bdn::Size &b)
-{
-    return (a.width < b.width && a.height < b.height);
-}
+inline bool operator<(const bdn::Size &a, const bdn::Size &b) { return (a.width < b.width && a.height < b.height); }
 
 /** Returns true if a's width and height are each smaller or equal to b's */
-inline bool operator<=(const bdn::Size &a, const bdn::Size &b)
-{
-    return (a.width <= b.width && a.height <= b.height);
-}
+inline bool operator<=(const bdn::Size &a, const bdn::Size &b) { return (a.width <= b.width && a.height <= b.height); }
 
 /** Returns true if a's width and height are each bigger than b's */
-inline bool operator>(const bdn::Size &a, const bdn::Size &b)
-{
-    return (a.width > b.width && a.height > b.height);
-}
+inline bool operator>(const bdn::Size &a, const bdn::Size &b) { return (a.width > b.width && a.height > b.height); }
 
 /** Returns true if a's width and height are each bigger or equal to b's */
-inline bool operator>=(const bdn::Size &a, const bdn::Size &b)
-{
-    return (a.width >= b.width && a.height >= b.height);
-}
+inline bool operator>=(const bdn::Size &a, const bdn::Size &b) { return (a.width >= b.width && a.height >= b.height); }
 
 #endif

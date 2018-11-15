@@ -89,8 +89,7 @@ TEST_CASE("ThreadPool")
 
                 // start another job
 
-                P<ThreadPoolTestRunnable> pJob2 =
-                    newObj<ThreadPoolTestRunnable>();
+                P<ThreadPoolTestRunnable> pJob2 = newObj<ThreadPoolTestRunnable>();
                 pPool->addJob(pJob2);
 
                 // now the idle thread should be busy.

@@ -17,12 +17,9 @@ template <typename CharType> struct TextSinkStreamBufSubTestData_
 };
 
 template <typename CharType>
-static void initTextSinkStreamBufSubTestData(
-    std::list<TextSinkStreamBufSubTestData_<CharType>> &subTestDataList);
+static void initTextSinkStreamBufSubTestData(std::list<TextSinkStreamBufSubTestData_<CharType>> &subTestDataList);
 
-template <>
-void initTextSinkStreamBufSubTestData<char>(
-    std::list<TextSinkStreamBufSubTestData_<char>> &subTestDataList)
+template <> void initTextSinkStreamBufSubTestData<char>(std::list<TextSinkStreamBufSubTestData_<char>> &subTestDataList)
 {
     subTestDataList = std::list<TextSinkStreamBufSubTestData_<char>>{
         {"", U"", "empty"},
@@ -43,14 +40,12 @@ void initTextSinkStreamBufSubTestData<char>(
         {"hell\xc2o", U"hell\ufffdo", "byte missing in middle of string"},
 
         {"\xE0\xA4\x92", U"\u0912", "valid 3 byte sequence"},
-        {"\xE0\xA4\x12", U"\ufffd\ufffd\u0012",
-         "last byte ascii in 3 byte sequence"},
+        {"\xE0\xA4\x12", U"\ufffd\ufffd\u0012", "last byte ascii in 3 byte sequence"},
     };
 }
 
 template <>
-void initTextSinkStreamBufSubTestData<char16_t>(
-    std::list<TextSinkStreamBufSubTestData_<char16_t>> &subTestDataList)
+void initTextSinkStreamBufSubTestData<char16_t>(std::list<TextSinkStreamBufSubTestData_<char16_t>> &subTestDataList)
 {
     // \uFFFF yields and incorrect string with G++ 4.8. So we work around it.
     char16_t u16ffff[2] = {0xffff, 0};
@@ -73,28 +68,19 @@ void initTextSinkStreamBufSubTestData<char16_t>(
         // it.
         {u16ffff, u32ffff, "above surrogate range C"},
 
-        {u"\xD801\U00024B62", U"\ufffd\U00024B62",
-         "high surrogate at start, pair follows"},
-        {u"\xD801\u0345", U"\ufffd\u0345",
-         "high surrogate at start, single follows"},
-        {u"\U00024B62\xD801\U00010437", U"\U00024B62\ufffd\U00010437",
-         "high surrogate between pairs"},
-        {u"\u0345\xD801\u0567", U"\u0345\ufffd\u0567",
-         "high surrogate between singles"},
+        {u"\xD801\U00024B62", U"\ufffd\U00024B62", "high surrogate at start, pair follows"},
+        {u"\xD801\u0345", U"\ufffd\u0345", "high surrogate at start, single follows"},
+        {u"\U00024B62\xD801\U00010437", U"\U00024B62\ufffd\U00010437", "high surrogate between pairs"},
+        {u"\u0345\xD801\u0567", U"\u0345\ufffd\u0567", "high surrogate between singles"},
 
-        {u"\xDC37\U00024B62", U"\ufffd\U00024B62",
-         "low surrogate at start, pair follows"},
-        {u"\xDC37\u0345", U"\ufffd\u0345",
-         "low surrogate at start, single follows"},
-        {u"\U00024B62\xDC37\U00010437", U"\U00024B62\ufffd\U00010437",
-         "low surrogate between pairs"},
-        {u"\u0345\xDC37\u0567", U"\u0345\ufffd\u0567",
-         "low surrogate between singles"}};
+        {u"\xDC37\U00024B62", U"\ufffd\U00024B62", "low surrogate at start, pair follows"},
+        {u"\xDC37\u0345", U"\ufffd\u0345", "low surrogate at start, single follows"},
+        {u"\U00024B62\xDC37\U00010437", U"\U00024B62\ufffd\U00010437", "low surrogate between pairs"},
+        {u"\u0345\xDC37\u0567", U"\u0345\ufffd\u0567", "low surrogate between singles"}};
 }
 
 template <>
-void initTextSinkStreamBufSubTestData<char32_t>(
-    std::list<TextSinkStreamBufSubTestData_<char32_t>> &subTestDataList)
+void initTextSinkStreamBufSubTestData<char32_t>(std::list<TextSinkStreamBufSubTestData_<char32_t>> &subTestDataList)
 {
     subTestDataList = std::list<TextSinkStreamBufSubTestData_<char32_t>>{
         {U"", U"", "empty"},
@@ -109,8 +95,7 @@ void initTextSinkStreamBufSubTestData<char32_t>(
 }
 
 template <>
-void initTextSinkStreamBufSubTestData<wchar_t>(
-    std::list<TextSinkStreamBufSubTestData_<wchar_t>> &subTestDataList)
+void initTextSinkStreamBufSubTestData<wchar_t>(std::list<TextSinkStreamBufSubTestData_<wchar_t>> &subTestDataList)
 {
     if (sizeof(wchar_t) == 2) {
         std::list<TextSinkStreamBufSubTestData_<char16_t>> u16List;
@@ -118,9 +103,7 @@ void initTextSinkStreamBufSubTestData<wchar_t>(
 
         for (auto &u16Entry : u16List) {
             TextSinkStreamBufSubTestData_<wchar_t> entry;
-            entry.encoded =
-                std::wstring((const wchar_t *)u16Entry.encoded.c_str(),
-                             u16Entry.encoded.length());
+            entry.encoded = std::wstring((const wchar_t *)u16Entry.encoded.c_str(), u16Entry.encoded.length());
             entry.expectedDecoded = u16Entry.expectedDecoded;
             entry.desc = u16Entry.desc;
 
@@ -132,9 +115,7 @@ void initTextSinkStreamBufSubTestData<wchar_t>(
 
         for (auto &u32Entry : u32List) {
             TextSinkStreamBufSubTestData_<wchar_t> entry;
-            entry.encoded =
-                std::wstring((const wchar_t *)u32Entry.encoded.c_str(),
-                             u32Entry.encoded.length());
+            entry.encoded = std::wstring((const wchar_t *)u32Entry.encoded.c_str(), u32Entry.encoded.length());
             entry.expectedDecoded = u32Entry.expectedDecoded;
             entry.desc = u32Entry.desc;
 
@@ -144,10 +125,8 @@ void initTextSinkStreamBufSubTestData<wchar_t>(
 }
 
 template <class CharType>
-static void
-testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink,
-                                     TextSinkStdStreamBuf<CharType> &buf,
-                                     bool multiByteIsUtf8)
+static void testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink, TextSinkStdStreamBuf<CharType> &buf,
+                                                 bool multiByteIsUtf8)
 {
     const Array<String> &writtenChunks = pSink->getWrittenChunks();
 
@@ -298,29 +277,24 @@ testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink,
                 {
                     SECTION("sputn")
                     {
-                        buf.sputn(subTestData.encoded.c_str(),
-                                  subTestData.encoded.length());
+                        buf.sputn(subTestData.encoded.c_str(), subTestData.encoded.length());
                         buf.pubsync();
 
                         if (subTestData.encoded.length() == 0) {
                             REQUIRE(writtenChunks.size() == 0);
                         } else {
                             REQUIRE(writtenChunks.size() == 1);
-                            REQUIRE(writtenChunks[0] ==
-                                    subTestData.expectedDecoded);
+                            REQUIRE(writtenChunks[0] == subTestData.expectedDecoded);
                         }
                     }
 
                     SECTION("sputc with syncs")
                     {
-                        for (int charIndex = 0;
-                             charIndex < (int)subTestData.encoded.length();
-                             charIndex++) {
+                        for (int charIndex = 0; charIndex < (int)subTestData.encoded.length(); charIndex++) {
                             buf.sputc(subTestData.encoded[charIndex]);
                             buf.pubsync();
 
-                            if (charIndex <
-                                    (int)subTestData.encoded.length() - 1 &&
+                            if (charIndex < (int)subTestData.encoded.length() - 1 &&
                                 subTestData.expectedDecoded.length() == 1) {
                                 // The encoded data represents a single
                                 // character. So we should not get any output
@@ -351,24 +325,18 @@ testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink,
                         } else {
                             // each decoded character should have been written
                             // individually.
-                            REQUIRE(writtenChunks.size() ==
-                                    subTestData.expectedDecoded.length());
+                            REQUIRE(writtenChunks.size() == subTestData.expectedDecoded.length());
 
-                            for (int decodedCharIndex = 0;
-                                 decodedCharIndex <
-                                 (int)subTestData.expectedDecoded.length();
+                            for (int decodedCharIndex = 0; decodedCharIndex < (int)subTestData.expectedDecoded.length();
                                  decodedCharIndex++) {
                                 REQUIRE(writtenChunks[decodedCharIndex] ==
-                                        subTestData.expectedDecoded.substr(
-                                            decodedCharIndex, 1));
+                                        subTestData.expectedDecoded.substr(decodedCharIndex, 1));
                             }
                         }
                     }
 
-                    if (subTestData.encoded.length() >= 2 &&
-                        subTestData.expectedDecoded.length() == 1) {
-                        SECTION(
-                            "almost filled buffer - encoded char does not fit")
+                    if (subTestData.encoded.length() >= 2 && subTestData.expectedDecoded.length() == 1) {
+                        SECTION("almost filled buffer - encoded char does not fit")
                         {
                             String expected;
 
@@ -381,8 +349,7 @@ testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink,
                             // then write the encoded data - note that this is
                             // always at least 2 encoded elements long (see if
                             // statement above)
-                            buf.sputn(subTestData.encoded.c_str(),
-                                      subTestData.encoded.length());
+                            buf.sputn(subTestData.encoded.c_str(), subTestData.encoded.length());
 
                             // this should have triggered an overflow and flush
                             REQUIRE(writtenChunks.size() == 1);
@@ -400,8 +367,7 @@ testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink,
                             // now the utf8 character should have been written
                             REQUIRE(writtenChunks.size() == 2);
                             REQUIRE(writtenChunks[0] == expected);
-                            REQUIRE(writtenChunks[1] ==
-                                    subTestData.expectedDecoded);
+                            REQUIRE(writtenChunks[1] == subTestData.expectedDecoded);
                         }
                     }
                 }
@@ -416,10 +382,7 @@ template <class CharType> static void testTextSinkStreamBuf()
 
     TextSinkStdStreamBuf<CharType> buf(pSink);
 
-    SECTION("default locale")
-    {
-        testTextSinkStreamBuf_Preinitialized(pSink, buf, false);
-    }
+    SECTION("default locale") { testTextSinkStreamBuf_Preinitialized(pSink, buf, false); }
 
     SECTION("utf8 locale")
     {

@@ -51,10 +51,7 @@ TEST_CASE("Base")
           public:
             TestBase(bool *pDeleted) { _pDeleted = pDeleted; }
 
-            ~TestBase()
-            {
-                *_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero();
-            }
+            ~TestBase() { *_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero(); }
 
           protected:
             bool *_pDeleted;
@@ -76,10 +73,7 @@ TEST_CASE("Base")
         class TestBase : public Base
         {
           public:
-            TestBase(int *pDeleteThisCounter)
-            {
-                _pDeleteThisCounter = pDeleteThisCounter;
-            }
+            TestBase(int *pDeleteThisCounter) { _pDeleteThisCounter = pDeleteThisCounter; }
 
           protected:
             void deleteThis() override

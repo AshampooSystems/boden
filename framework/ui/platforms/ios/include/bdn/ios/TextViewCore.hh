@@ -17,8 +17,7 @@ namespace bdn
           private:
             static UILabel *_createUILabel(TextView *pOuterTextView)
             {
-                UILabel *label =
-                    [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
                 label.numberOfLines = 0;
 
@@ -26,8 +25,7 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *pOuterTextView)
-                : ViewCore(pOuterTextView, _createUILabel(pOuterTextView))
+            TextViewCore(TextView *pOuterTextView) : ViewCore(pOuterTextView, _createUILabel(pOuterTextView))
             {
                 _uiLabel = (UILabel *)getUIView();
 
@@ -36,13 +34,9 @@ namespace bdn
 
             UILabel *getUILabel() { return _uiLabel; }
 
-            void setText(const String &text) override
-            {
-                _uiLabel.text = stringToIosString(text);
-            }
+            void setText(const String &text) override { _uiLabel.text = stringToIosString(text); }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 // we want the preferred width hint to act as the wrap width
                 // where the view wraps its text. To achieve that we incorporate
@@ -64,10 +58,7 @@ namespace bdn
             }
 
           protected:
-            double getFontSize() const override
-            {
-                return _uiLabel.font.pointSize;
-            }
+            double getFontSize() const override { return _uiLabel.font.pointSize; }
 
             bool canAdjustToAvailableWidth() const override { return true; }
 

@@ -11,8 +11,7 @@ namespace bdn
 
         /** Accessor for Java-side
          * io.boden.android.NativeTextViewOnEditorActionListener objects.*/
-        class JNativeTextViewOnEditorActionListener
-            : public JTextView::OnEditorActionListener
+        class JNativeTextViewOnEditorActionListener : public JTextView::OnEditorActionListener
         {
           private:
             static bdn::java::Reference newInstance_()
@@ -22,9 +21,7 @@ namespace bdn
             }
 
           public:
-            JNativeTextViewOnEditorActionListener()
-                : JNativeTextViewOnEditorActionListener(newInstance_())
-            {}
+            JNativeTextViewOnEditorActionListener() : JNativeTextViewOnEditorActionListener(newInstance_()) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -32,8 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeTextViewOnEditorActionListener(
-                const bdn::java::Reference &objectRef)
+            explicit JNativeTextViewOnEditorActionListener(const bdn::java::Reference &objectRef)
                 : JTextView::OnEditorActionListener(objectRef)
             {}
 
@@ -48,15 +44,11 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeTextViewOnEditorActionListener");
+                static bdn::java::JClass cls("io/boden/android/NativeTextViewOnEditorActionListener");
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

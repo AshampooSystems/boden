@@ -125,8 +125,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 #else
             // we cannot sleep. So we have to busy wait until the time has
             // elapsed.
-            auto endTime = std::chrono::steady_clock::now() +
-                           std::chrono::milliseconds(1000);
+            auto endTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000);
 
             double x = 1.23456;
             while (true) {
@@ -264,8 +263,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 #else
             // we cannot sleep. So we have to busy wait until the time has
             // elapsed.
-            auto endTime = std::chrono::steady_clock::now() +
-                           std::chrono::milliseconds(1000);
+            auto endTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000);
 
             double x = 1.23456;
             while (true) {

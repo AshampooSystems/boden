@@ -18,9 +18,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JRuntimeException(const Reference &javaRef)
-                : JException(javaRef)
-            {}
+            explicit JRuntimeException(const Reference &javaRef) : JException(javaRef) {}
 
             /** Returns the JClass object for this class.
              *

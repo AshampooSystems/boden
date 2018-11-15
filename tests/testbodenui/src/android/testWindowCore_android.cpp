@@ -9,15 +9,10 @@
 
 using namespace bdn;
 
-class TestAndroidWindowCore
-    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>
+class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>
 {
   protected:
-    void initCore() override
-    {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestWindowCore>::initCore();
-    }
+    void initCore() override { bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>::initCore(); }
 
     void verifyCoreTitle() override
     {
@@ -31,8 +26,7 @@ class TestAndroidWindowCore
     /** Removes all references to the core object.*/
     void clearAllReferencesToCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestWindowCore>::clearAllReferencesToCore();
+        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>::clearAllReferencesToCore();
 
         _pAndroidViewCore = nullptr;
         _jView = bdn::android::JView();
@@ -56,8 +50,7 @@ class TestAndroidWindowCore
 
     void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        bdn::android::JView jv =
-            cast<DestructVerificationInfo>(pVerificationInfo)->jView;
+        bdn::android::JView jv = cast<DestructVerificationInfo>(pVerificationInfo)->jView;
 
         // the view object should have been removed from its parent
         REQUIRE(jv.getParent().isNull_());

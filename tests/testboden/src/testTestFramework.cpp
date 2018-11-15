@@ -233,28 +233,21 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls", "[test]")
     SECTION("b") { subTest(true); }
 }
 
-TEST_CASE(
-    "test.conditionalNestedSectionsNoExtraCalls.withoutThenWithSubsections",
-    "[test]")
+TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withoutThenWithSubsections", "[test]")
 {
     SECTION("a") { subTest(false); }
 
     SECTION("b") { subTest(true); }
 }
 
-TEST_CASE(
-    "test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections",
-    "[test]")
+TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections", "[test]")
 {
     SECTION("a") { subTest(true); }
 
     SECTION("b") { subTest(false); }
 }
 
-TEST_CASE("test.shouldFailWithFailOnTopLevel", "[!shouldfail]")
-{
-    REQUIRE(false);
-}
+TEST_CASE("test.shouldFailWithFailOnTopLevel", "[!shouldfail]") { REQUIRE(false); }
 
 TEST_CASE("test.shouldFailWithFailInSection", "[!shouldfail]")
 {
@@ -400,8 +393,7 @@ struct TestContinuationDataRelease : public Base
     P<TestData> _pData;
 };
 
-template <typename FuncType>
-void testContinueSectionWith(FuncType scheduleContinueWith)
+template <typename FuncType> void testContinueSectionWith(FuncType scheduleContinueWith)
 {
     // we verify that CONTINUE_SECTION_WHEN_IDLE works as expected
 
@@ -447,8 +439,7 @@ void testContinueSectionWith(FuncType scheduleContinueWith)
     {
         pContinuationFuncReleasedBeforeNextSectionData = pData;
 
-        P<TestContinuationDataRelease> pReleaseTestData =
-            newObj<TestContinuationDataRelease>(pData);
+        P<TestContinuationDataRelease> pReleaseTestData = newObj<TestContinuationDataRelease>(pData);
 
         scheduleContinueWith([pReleaseTestData]() {});
 
@@ -503,14 +494,10 @@ void testContinueSectionWith(FuncType scheduleContinueWith)
         });
     }
 
-    SECTION("subSectionInContinuation-b")
-    {
-        REQUIRE(subSectionInContinuationMask == 63);
-    }
+    SECTION("subSectionInContinuation-b") { REQUIRE(subSectionInContinuationMask == 63); }
 }
 
-void testContinueSectionWith_expectedFail(
-    void (*scheduleContinueWith)(std::function<void()>))
+void testContinueSectionWith_expectedFail(void (*scheduleContinueWith)(std::function<void()>))
 {
     SECTION("exceptionInContinuation")
     {
@@ -532,8 +519,7 @@ void testContinueSectionWith_expectedFail(
     }
 }
 
-void scheduleContinueAfterPendingEventsWith(
-    std::function<void()> continuationFunc)
+void scheduleContinueAfterPendingEventsWith(std::function<void()> continuationFunc)
 {
     CONTINUE_SECTION_WHEN_IDLE_WITH([continuationFunc]() {
         REQUIRE(Thread::isCurrentMain());
@@ -541,19 +527,14 @@ void scheduleContinueAfterPendingEventsWith(
     });
 }
 
-TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH")
-{
-    testContinueSectionWith(scheduleContinueAfterPendingEventsWith);
-}
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH") { testContinueSectionWith(scheduleContinueAfterPendingEventsWith); }
 
 TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH-expectedFail", "[!shouldfail]")
 {
-    testContinueSectionWith_expectedFail(
-        scheduleContinueAfterPendingEventsWith);
+    testContinueSectionWith_expectedFail(scheduleContinueAfterPendingEventsWith);
 }
 
-TEST_CASE(
-    "CONTINUE_SECTION_WHEN_IDLE_WITH-asyncAfterSectionThatHadAsyncContinuation")
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH-asyncAfterSectionThatHadAsyncContinuation")
 {
     bool enteredSection = false;
 
@@ -572,8 +553,7 @@ TEST_CASE(
     if (enteredSection) {
         // we should get a programmingerror here. It is not allowed to schedule
         // a continuation when one was already scheduled
-        REQUIRE_THROWS_PROGRAMMING_ERROR(
-            CONTINUE_SECTION_WHEN_IDLE_WITH(continuation));
+        REQUIRE_THROWS_PROGRAMMING_ERROR(CONTINUE_SECTION_WHEN_IDLE_WITH(continuation));
     } else {
         // if we did not enter the section then it should be fine to schedule
         // the continuation here.
@@ -591,18 +571,14 @@ void scheduleContinueInThreadWith(std::function<void()> continuationFunc)
 
 #if BDN_HAVE_THREADS
 
-TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH")
-{
-    testContinueSectionWith(scheduleContinueInThreadWith);
-}
+TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH") { testContinueSectionWith(scheduleContinueInThreadWith); }
 
 TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH-expectedFail", "[!shouldfail]")
 {
     testContinueSectionWith_expectedFail(scheduleContinueInThreadWith);
 }
 
-TEST_CASE(
-    "CONTINUE_SECTION_IN_THREAD_WITH-asyncAfterSectionThatHadAsyncContinuation")
+TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH-asyncAfterSectionThatHadAsyncContinuation")
 {
     bool enteredSection = false;
 
@@ -622,8 +598,7 @@ TEST_CASE(
     if (enteredSection) {
         // we should get a programmingerror here. It is not allowed to schedule
         // a continuation when one was already scheduled
-        REQUIRE_THROWS_PROGRAMMING_ERROR(
-            CONTINUE_SECTION_IN_THREAD_WITH(continuation));
+        REQUIRE_THROWS_PROGRAMMING_ERROR(CONTINUE_SECTION_IN_THREAD_WITH(continuation));
     } else {
         // if we did not enter the section then it should be fine to schedule
         // the continuation here.
@@ -778,10 +753,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE")
         };
     }
 
-    SECTION("subSectionInContinuation-b")
-    {
-        REQUIRE(subSectionInContinuationMask == 63);
-    }
+    SECTION("subSectionInContinuation-b") { REQUIRE(subSectionInContinuationMask == 63); }
 
     SECTION("called after events that schedule additional events")
     {
@@ -789,10 +761,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE")
         REQUIRE(!scheduledEventChainDone);
 
         asyncCallFromMainThread([]() {
-            asyncCallFromMainThread([]() {
-                asyncCallFromMainThread(
-                    []() { scheduledEventChainDone = true; });
-            });
+            asyncCallFromMainThread([]() { asyncCallFromMainThread([]() { scheduledEventChainDone = true; }); });
         });
 
         // should still not be set
@@ -811,10 +780,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-fail", "[!shouldfail]")
 {
     SECTION("exceptionInContinuation")
     {
-        CONTINUE_SECTION_WHEN_IDLE(=)
-        {
-            throw std::runtime_error("dummy error");
-        };
+        CONTINUE_SECTION_WHEN_IDLE(=) { throw std::runtime_error("dummy error"); };
     }
 
     SECTION("exceptionAfterContinuationScheduled")
@@ -865,8 +831,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-complicated")
 
     SECTION("a")
     {
-        CONTINUE_SECTION_WHEN_IDLE(){
-            SECTION("sub"){CONTINUE_SECTION_WHEN_IDLE(){async1Called = true;
+        CONTINUE_SECTION_WHEN_IDLE(){SECTION("sub"){CONTINUE_SECTION_WHEN_IDLE(){async1Called = true;
 
         CONTINUE_SECTION_WHEN_IDLE() { async2Called = true; };
     };
@@ -984,20 +949,14 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD")
         };
     }
 
-    SECTION("subSectionInContinuation-b")
-    {
-        REQUIRE(subSectionInContinuationMask == 63);
-    }
+    SECTION("subSectionInContinuation-b") { REQUIRE(subSectionInContinuationMask == 63); }
 }
 
 TEST_CASE("CONTINUE_SECTION_IN_THREAD-fail", "[!shouldfail]")
 {
     SECTION("exceptionInContinuation")
     {
-        CONTINUE_SECTION_IN_THREAD(=)
-        {
-            throw std::runtime_error("dummy error");
-        };
+        CONTINUE_SECTION_IN_THREAD(=) { throw std::runtime_error("dummy error"); };
     }
 
     SECTION("exceptionAfterContinuationScheduled")
@@ -1015,8 +974,7 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-fail", "[!shouldfail]")
     }
 }
 
-TEST_CASE(
-    "CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation")
+TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation")
 {
     bool enteredSection = false;
 
@@ -1060,10 +1018,7 @@ TEST_CASE("testEndCallback", "", testEndCallbackForTest)
         {
             REQUIRE(testEndCallbackForTestCallCount == 3);
 
-            CONTINUE_SECTION_WHEN_IDLE()
-            {
-                REQUIRE(testEndCallbackForTestCallCount == 3);
-            };
+            CONTINUE_SECTION_WHEN_IDLE() { REQUIRE(testEndCallbackForTestCallCount == 3); };
         }
 
         SECTION("bSub3") { REQUIRE(testEndCallbackForTestCallCount == 4); }
@@ -1077,10 +1032,7 @@ TEST_CASE("testEndCallback", "", testEndCallbackForTest)
         {
             REQUIRE(testEndCallbackForTestCallCount == 5);
 
-            CONTINUE_SECTION_WHEN_IDLE()
-            {
-                REQUIRE(testEndCallbackForTestCallCount == 5);
-            };
+            CONTINUE_SECTION_WHEN_IDLE() { REQUIRE(testEndCallbackForTestCallCount == 5); };
 
             REQUIRE(testEndCallbackForTestCallCount == 5);
         };
@@ -1096,6 +1048,4 @@ TEST_CASE("testEndCallback", "", testEndCallbackForTest)
 
 static void testEndCallbackForTest_CausesFail() { REQUIRE(false); }
 
-TEST_CASE("testEndCallback-callbackCausesFail", "[!shouldfail]",
-          testEndCallbackForTest_CausesFail)
-{}
+TEST_CASE("testEndCallback-callbackCausesFail", "[!shouldfail]", testEndCallbackForTest_CausesFail) {}

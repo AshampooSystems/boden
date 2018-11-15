@@ -72,24 +72,15 @@ namespace bdn
 
         /** Creates a UiLength object with the specified value and the
          * UiLength::Unit::sem unit.*/
-        static UiLength sem(double value)
-        {
-            return UiLength(value, UiLength::Unit::sem);
-        }
+        static UiLength sem(double value) { return UiLength(value, UiLength::Unit::sem); }
 
         /** Creates a UiLength object with the specified value and the
          * UiLength::Unit::em unit.*/
-        static UiLength em(double value)
-        {
-            return UiLength(value, UiLength::Unit::em);
-        }
+        static UiLength em(double value) { return UiLength(value, UiLength::Unit::em); }
 
         /** Creates a UiLength object with the specified value and the
          * UiLength::Unit::dip unit.*/
-        static UiLength dip(double value)
-        {
-            return UiLength(value, UiLength::Unit::dip);
-        }
+        static UiLength dip(double value) { return UiLength(value, UiLength::Unit::dip); }
 
         /** Creates a UiLength object with the UiLength::Unit::none unit (same
          * as default-constructed UiLength).*/
@@ -103,9 +94,8 @@ namespace bdn
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const UiLength &l)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const UiLength &l)
     {
         if (l.unit == UiLength::Unit::none)
             return stream << "none";
@@ -129,9 +119,6 @@ inline bool operator==(const bdn::UiLength &a, const bdn::UiLength &b)
     return (a.unit == b.unit && a.value == b.value);
 }
 
-inline bool operator!=(const bdn::UiLength &a, const bdn::UiLength &b)
-{
-    return !operator==(a, b);
-}
+inline bool operator!=(const bdn::UiLength &a, const bdn::UiLength &b) { return !operator==(a, b); }
 
 #endif

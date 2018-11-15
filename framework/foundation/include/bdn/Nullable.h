@@ -43,24 +43,15 @@ namespace bdn
 
         Nullable(ValueType &&value) : _null(false), _value(value) {}
 
-        Nullable(const Nullable<ValueType> &o)
-            : _null(o._null), _value(o._value)
-        {}
+        Nullable(const Nullable<ValueType> &o) : _null(o._null), _value(o._value) {}
 
-        Nullable(Nullable<ValueType> &&o)
-            : _null(o._null), _value(std::move(o._value))
-        {
-            o._null = true;
-        }
+        Nullable(Nullable<ValueType> &&o) : _null(o._null), _value(std::move(o._value)) { o._null = true; }
 
         bool operator==(std::nullptr_t) const { return _null; }
 
         bool operator!=(std::nullptr_t) const { return !_null; }
 
-        bool operator==(const ValueType &v) const
-        {
-            return (!_null && _value == v);
-        }
+        bool operator==(const ValueType &v) const { return (!_null && _value == v); }
 
         bool operator!=(const ValueType &v) const { return !operator==(v); }
 
@@ -69,10 +60,7 @@ namespace bdn
             return (_null == o._null && (_null || _value == o._value));
         }
 
-        bool operator!=(const Nullable<ValueType> &o) const
-        {
-            return !operator==(o);
-        }
+        bool operator!=(const Nullable<ValueType> &o) const { return !operator==(o); }
 
         Nullable &operator=(std::nullptr_t)
         {

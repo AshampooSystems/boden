@@ -11,8 +11,7 @@ namespace bdn
     {
       public:
         ViewCoreTypeNotSupportedError(const String &coreTypeName)
-            : std::runtime_error("The view core type '" + coreTypeName +
-                                 "' is not supported.")
+            : std::runtime_error("The view core type '" + coreTypeName + "' is not supported.")
         {}
     };
 }

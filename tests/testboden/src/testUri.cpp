@@ -18,12 +18,10 @@ void testUnescape()
     REQUIRE(Uri::unescape(U"he\U00012345lloworld") == U"he\U00012345lloworld");
 
     SECTION("asciiEscaped")
-    REQUIRE(Uri::unescape(U"he\U00012345llo%40w%31%20%55orld") ==
-            U"he\U00012345llo@w1 Uorld");
+    REQUIRE(Uri::unescape(U"he\U00012345llo%40w%31%20%55orld") == U"he\U00012345llo@w1 Uorld");
 
     SECTION("withEscapedPercent")
-    REQUIRE(Uri::unescape(U"he\U00012345llow%2531%25%25orld") ==
-            U"he\U00012345llow%31%%orld");
+    REQUIRE(Uri::unescape(U"he\U00012345llow%2531%25%25orld") == U"he\U00012345llow%31%%orld");
 
     SECTION("escapedUtf8")
     {
@@ -45,25 +43,13 @@ void testUnescape()
         REQUIRE(Uri::unescape(escaped) == orig);
     }
 
-    SECTION("invalidSequence")
-    {
-        REQUIRE(Uri::unescape("hell%1go") == "hell%1go");
-    }
+    SECTION("invalidSequence") { REQUIRE(Uri::unescape("hell%1go") == "hell%1go"); }
 
-    SECTION("invalidSequenceFollowedByNormalSequence")
-    {
-        REQUIRE(Uri::unescape("hell%1g%20o") == "hell%1g o");
-    }
+    SECTION("invalidSequenceFollowedByNormalSequence") { REQUIRE(Uri::unescape("hell%1g%20o") == "hell%1g o"); }
 
-    SECTION("invalidPercentFollowedByNormalSequence")
-    {
-        REQUIRE(Uri::unescape("hell%%20o") == "hell% o");
-    }
+    SECTION("invalidPercentFollowedByNormalSequence") { REQUIRE(Uri::unescape("hell%%20o") == "hell% o"); }
 
-    SECTION("invalidPercentWithDigitFollowedByNormalSequence")
-    {
-        REQUIRE(Uri::unescape("hell%1%20o") == "hell%1 o");
-    }
+    SECTION("invalidPercentWithDigitFollowedByNormalSequence") { REQUIRE(Uri::unescape("hell%1%20o") == "hell%1 o"); }
 
     SECTION("sequenceAtEnd") { REQUIRE(Uri::unescape("hello%20") == "hello "); }
 
@@ -76,20 +62,11 @@ void testUnescape()
         REQUIRE(Uri::unescape("hello%2") == "hello%2");
     }
 
-    SECTION("invalidUtf8")
-    {
-        REQUIRE(Uri::unescape("hell%ff%feo") == U"hell\ufffd\ufffdo");
-    }
+    SECTION("invalidUtf8") { REQUIRE(Uri::unescape("hell%ff%feo") == U"hell\ufffd\ufffdo"); }
 
-    SECTION("invalidUtf8AtEnd")
-    {
-        REQUIRE(Uri::unescape("hell%ff") == U"hell\ufffd");
-    }
+    SECTION("invalidUtf8AtEnd") { REQUIRE(Uri::unescape("hell%ff") == U"hell\ufffd"); }
 
-    SECTION("unfinishedUtf8AtEnd")
-    {
-        REQUIRE(Uri::unescape("hell%e1") == U"hell\ufffd");
-    }
+    SECTION("unfinishedUtf8AtEnd") { REQUIRE(Uri::unescape("hell%e1") == U"hell\ufffd"); }
 }
 
 TEST_CASE("Uri")

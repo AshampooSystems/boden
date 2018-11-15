@@ -13,22 +13,17 @@ namespace bdn
         /** A mixin class that adds implementations of mock view specific
            functionality on top of the base class specified in the template
            parameter BaseClass.*/
-        template <class BaseClass>
-        class TestMockViewCoreMixin : public BaseClass
+        template <class BaseClass> class TestMockViewCoreMixin : public BaseClass
         {
           public:
-            TestMockViewCoreMixin()
-            {
-                _pMockProvider = newObj<bdn::test::MockUiProvider>();
-            }
+            TestMockViewCoreMixin() { _pMockProvider = newObj<bdn::test::MockUiProvider>(); }
 
           protected:
             void initCore() override
             {
                 BaseClass::initCore();
 
-                _pMockCore =
-                    cast<bdn::test::MockViewCore>(this->_pView->getViewCore());
+                _pMockCore = cast<bdn::test::MockViewCore>(this->_pView->getViewCore());
                 REQUIRE(_pMockCore != nullptr);
             }
 
@@ -51,8 +46,7 @@ namespace bdn
             {
                 Point expectedPosition = this->_pView->position();
 
-                REQUIRE(_pMockCore->getBounds().getPosition() ==
-                        expectedPosition);
+                REQUIRE(_pMockCore->getBounds().getPosition() == expectedPosition);
             }
 
             void verifyCoreSize() override
@@ -71,8 +65,7 @@ namespace bdn
                 else {
                     REQUIRE(!_pMockCore->getPadding().isNull());
 
-                    REQUIRE(_pMockCore->getPadding().get() ==
-                            expectedPadding.get());
+                    REQUIRE(_pMockCore->getPadding().get() == expectedPadding.get());
                 }
             }
 

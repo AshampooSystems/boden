@@ -33,17 +33,11 @@ template <typename COLL> static void _testSetToString(COLL &coll)
 }
 
 template <typename ElType, typename... ConstructArgs>
-static void testSet(std::initializer_list<ElType> initElList,
-                    std::initializer_list<ElType> expectedInitElOrder,
-                    std::initializer_list<ElType> newElList,
-                    std::function<bool(const ElType &)> isMovedRemnant,
-                    ElType expectedConstructedEl,
-                    ConstructArgs... constructArgs)
+static void testSet(std::initializer_list<ElType> initElList, std::initializer_list<ElType> expectedInitElOrder,
+                    std::initializer_list<ElType> newElList, std::function<bool(const ElType &)> isMovedRemnant,
+                    ElType expectedConstructedEl, ConstructArgs... constructArgs)
 {
-    SECTION("test traits")
-    {
-        REQUIRE(CollectionSupportsBiDirIteration_<Set<ElType>>::value);
-    }
+    SECTION("test traits") { REQUIRE(CollectionSupportsBiDirIteration_<Set<ElType>>::value); }
 
     SECTION("construct")
     {
@@ -61,8 +55,7 @@ static void testSet(std::initializer_list<ElType> initElList,
             {
                 Set<ElType> coll(newElList.begin(), newElList.end());
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -76,8 +69,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 
                 Set<ElType> coll(src);
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -88,8 +80,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 
                 Set<ElType> coll(src);
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -103,8 +94,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 
                 Set<ElType> coll(std::move(src));
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
 
                 REQUIRE(src.size() == 0);
@@ -116,8 +106,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 
                 Set<ElType> coll(std::move(src));
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
 
                 REQUIRE(src.size() == 0);
@@ -128,8 +117,7 @@ static void testSet(std::initializer_list<ElType> initElList,
         {
             Set<ElType> coll(newElList);
 
-            expectedElements.insert(expectedElements.begin(), newElList.begin(),
-                                    newElList.end());
+            expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
             _verifyGenericCollectionReadOnly(coll, expectedElements);
         }
     }
@@ -138,8 +126,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 
     SECTION("empty")
     {
-        _verifyGenericCollection(coll, std::list<ElType>({}), newElList,
-                                 isMovedRemnant, expectedConstructedEl,
+        _verifyGenericCollection(coll, std::list<ElType>({}), newElList, isMovedRemnant, expectedConstructedEl,
                                  std::forward<ConstructArgs>(constructArgs)...);
 
         SECTION("prepareForSize")
@@ -154,10 +141,8 @@ static void testSet(std::initializer_list<ElType> initElList,
         for (auto &el : initElList)
             coll.add(el);
 
-        _verifyGenericCollection(coll, std::list<ElType>(expectedInitElOrder),
-                                 newElList, isMovedRemnant,
-                                 expectedConstructedEl,
-                                 std::forward<ConstructArgs>(constructArgs)...);
+        _verifyGenericCollection(coll, std::list<ElType>(expectedInitElOrder), newElList, isMovedRemnant,
+                                 expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
 
         SECTION("prepareForSize")
         _testGenericCollectionPrepareForSize(coll);
@@ -168,8 +153,7 @@ static void testSet(std::initializer_list<ElType> initElList,
 }
 
 template <class ElType>
-static void _testSetFindAndRemove(std::initializer_list<ElType> elList,
-                                  const ElType &elNotInList)
+static void _testSetFindAndRemove(std::initializer_list<ElType> elList, const ElType &elNotInList)
 {
     SECTION("empty")
     {
@@ -183,10 +167,9 @@ static void _testSetFindAndRemove(std::initializer_list<ElType> elList,
 
         SECTION("findCustomAndRemove")
         {
-            coll.findCustomAndRemove(
-                [elNotInList](const typename Set<ElType>::Iterator &it) {
-                    return _isCollectionElementEqual(*it, elNotInList);
-                });
+            coll.findCustomAndRemove([elNotInList](const typename Set<ElType>::Iterator &it) {
+                return _isCollectionElementEqual(*it, elNotInList);
+            });
             _verifyGenericCollectionReadOnly(coll, {});
         }
     }
@@ -213,20 +196,17 @@ static void _testSetFindAndRemove(std::initializer_list<ElType> elList,
                         coll.findAndRemove(el);
 
                         REQUIRE(coll.getSize() == sizeBefore - 1);
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
 
                     SECTION("findCustomAndRemove")
                     {
-                        coll.findCustomAndRemove(
-                            [el](const typename Set<ElType>::Iterator &it) {
-                                return _isCollectionElementEqual(el, *it);
-                            });
+                        coll.findCustomAndRemove([el](const typename Set<ElType>::Iterator &it) {
+                            return _isCollectionElementEqual(el, *it);
+                        });
 
                         REQUIRE(coll.getSize() == sizeBefore - 1);
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
                 }
 
@@ -249,10 +229,7 @@ static void _testSetFindAndRemove(std::initializer_list<ElType> elList,
 
             SECTION("findCustomAndRemove")
             {
-                coll.findCustomAndRemove(
-                    [](const typename Set<ElType>::Iterator &it) {
-                        return false;
-                    });
+                coll.findCustomAndRemove([](const typename Set<ElType>::Iterator &it) { return false; });
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
         }
@@ -263,10 +240,7 @@ static void _testSetFindAndRemove(std::initializer_list<ElType> elList,
 
             SECTION("findCustomAndRemove")
             {
-                coll.findCustomAndRemove(
-                    [](const typename Set<ElType>::Iterator &it) {
-                        return true;
-                    });
+                coll.findCustomAndRemove([](const typename Set<ElType>::Iterator &it) { return true; });
 
                 _verifyGenericCollectionReadOnly(coll, {});
             }
@@ -278,8 +252,7 @@ TEST_CASE("Set")
 {
     SECTION("simple type")
     {
-        testSet<int>({17, 42, 3}, {3, 17, 42}, {100, 101, 102},
-                     [](const int &el) { return true; }, 345, 345);
+        testSet<int>({17, 42, 3}, {3, 17, 42}, {100, 101, 102}, [](const int &el) { return true; }, 345, 345);
 
         _testCollectionFind<Set<int>>({17, 42, 3}, 78);
 
@@ -297,16 +270,13 @@ TEST_CASE("Set")
         SECTION("initializer_list")
         {
             coll.addSequence({String("hello"), String("world")});
-            _verifyGenericCollectionReadOnly(
-                coll, {std::string("hello"), std::string("world")});
+            _verifyGenericCollectionReadOnly(coll, {std::string("hello"), std::string("world")});
         }
 
         SECTION("std::list")
         {
-            coll.addSequence(
-                std::list<String>({String("hello"), String("world")}));
-            _verifyGenericCollectionReadOnly(
-                coll, {std::string("hello"), std::string("world")});
+            coll.addSequence(std::list<String>({String("hello"), String("world")}));
+            _verifyGenericCollectionReadOnly(coll, {std::string("hello"), std::string("world")});
         }
     }
 
@@ -315,31 +285,25 @@ TEST_CASE("Set")
         SECTION("ordered")
         {
             testSet<TestCollectionElement_OrderedComparable_>(
-                {TestCollectionElement_OrderedComparable_(17, 117),
-                 TestCollectionElement_OrderedComparable_(42, 142),
+                {TestCollectionElement_OrderedComparable_(17, 117), TestCollectionElement_OrderedComparable_(42, 142),
                  TestCollectionElement_OrderedComparable_(3, 103)},
                 {
                     TestCollectionElement_OrderedComparable_(3, 103),
                     TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                 },
-                {TestCollectionElement_OrderedComparable_(100, 201),
-                 TestCollectionElement_OrderedComparable_(102, 202),
+                {TestCollectionElement_OrderedComparable_(100, 201), TestCollectionElement_OrderedComparable_(102, 202),
                  TestCollectionElement_OrderedComparable_(103, 203)},
-                [](const TestCollectionElement_OrderedComparable_ &el) {
-                    return el._a == -2 && el._b == -2;
-                },
+                [](const TestCollectionElement_OrderedComparable_ &el) { return el._a == -2 && el._b == -2; },
                 TestCollectionElement_OrderedComparable_(345, 456), 345, 456);
 
             _testCollectionFind<Set<TestCollectionElement_OrderedComparable_>>(
-                {TestCollectionElement_OrderedComparable_(17, 117),
-                 TestCollectionElement_OrderedComparable_(42, 142),
+                {TestCollectionElement_OrderedComparable_(17, 117), TestCollectionElement_OrderedComparable_(42, 142),
                  TestCollectionElement_OrderedComparable_(3, 103)},
                 TestCollectionElement_OrderedComparable_(400, 401));
 
             _testSetFindAndRemove<TestCollectionElement_OrderedComparable_>(
-                {TestCollectionElement_OrderedComparable_(17, 117),
-                 TestCollectionElement_OrderedComparable_(42, 142),
+                {TestCollectionElement_OrderedComparable_(17, 117), TestCollectionElement_OrderedComparable_(42, 142),
                  TestCollectionElement_OrderedComparable_(3, 103)},
                 TestCollectionElement_OrderedComparable_(400, 401));
         }

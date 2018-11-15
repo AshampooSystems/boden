@@ -19,9 +19,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JConfiguration(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JConfiguration(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -34,16 +32,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "android/content/res/Configuration");
+                static bdn::java::JClass cls("android/content/res/Configuration");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 
             enum
             {
@@ -55,8 +49,7 @@ namespace bdn
              * density is specified.*/
             bdn::java::ObjectField<int> densityDpi()
             {
-                static bdn::java::ObjectField<int>::Id fieldId(
-                    getStaticClass_(), "densityDpi");
+                static bdn::java::ObjectField<int>::Id fieldId(getStaticClass_(), "densityDpi");
 
                 return bdn::java::ObjectField<int>(getRef_(), fieldId);
             }

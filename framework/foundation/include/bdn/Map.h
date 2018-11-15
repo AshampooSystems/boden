@@ -64,125 +64,87 @@ namespace bdn
        the default.
 
     */
-    template <typename KEYTYPE, typename VALTYPE,
-              typename COMPAREFUNCTYPE = std::less<KEYTYPE>,
-              class ALLOCATOR =
-                  std::allocator<std::pair<const KEYTYPE, VALTYPE>>>
-    class Map : public StdMapCollection<
-                    std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>
+    template <typename KEYTYPE, typename VALTYPE, typename COMPAREFUNCTYPE = std::less<KEYTYPE>,
+              class ALLOCATOR = std::allocator<std::pair<const KEYTYPE, VALTYPE>>>
+    class Map : public StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>
     {
       public:
-        using typename StdMapCollection<
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Element;
-        using typename StdMapCollection<
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Iterator;
-        using typename StdMapCollection<std::map<
-            KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::ConstIterator;
+        using typename StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Element;
+        using typename StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::Iterator;
+        using typename StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::ConstIterator;
 
         /** The class of iterator objects for iteration over the collection
          * elements in reverse order (with read/write access to the elements).*/
-        using ReverseIterator = typename StdMapCollection<std::map<
-            KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::reverse_iterator;
+        using ReverseIterator =
+            typename StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::reverse_iterator;
 
         /** The class of iterator objects for iteration over the collection
          * elements in reverse order (with read-only access to the elements).*/
-        using ConstReverseIterator = typename StdMapCollection<
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE,
-                     ALLOCATOR>>::const_reverse_iterator;
+        using ConstReverseIterator =
+            typename StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>::const_reverse_iterator;
 
         Map() : Map(COMPAREFUNCTYPE()) {}
 
-        explicit Map(const COMPAREFUNCTYPE &compareFunc,
-                     const ALLOCATOR &alloc = ALLOCATOR())
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  compareFunc, alloc)
+        explicit Map(const COMPAREFUNCTYPE &compareFunc, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(compareFunc, alloc)
         {}
 
         explicit Map(const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(alloc)
         {}
 
         template <class InputIt>
-        Map(InputIt beginIt, InputIt endIt,
-            const COMPAREFUNCTYPE &compareFunc = COMPAREFUNCTYPE(),
+        Map(InputIt beginIt, InputIt endIt, const COMPAREFUNCTYPE &compareFunc = COMPAREFUNCTYPE(),
             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  beginIt, endIt, compareFunc, alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(beginIt, endIt, compareFunc,
+                                                                                       alloc)
         {}
 
         template <class InputIt>
         Map(InputIt beginIt, InputIt endIt, const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  beginIt, endIt, COMPAREFUNCTYPE(), alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(beginIt, endIt,
+                                                                                       COMPAREFUNCTYPE(), alloc)
         {}
 
-        Map(const Map &other)
-            : Map(static_cast<const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE,
-                                             ALLOCATOR> &>(other))
+        Map(const Map &other) : Map(static_cast<const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &>(other))
         {}
 
         Map(const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other)
         {}
 
         Map(const Map &other, const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other,
-                                                                          alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other, alloc)
         {}
 
-        Map(const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other,
-            const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other,
-                                                                          alloc)
+        Map(const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other, const ALLOCATOR &alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(other, alloc)
         {}
 
         Map(Map &&other)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(
-                      static_cast<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE,
-                                           ALLOCATOR> &&>(other)))
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
+                  std::move(static_cast<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(other)))
         {}
 
         Map(std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(other))
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(std::move(other))
         {}
 
         Map(Map &&other, const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(
-                      static_cast<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE,
-                                           ALLOCATOR> &&>(other)),
-                  alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
+                  std::move(static_cast<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&>(other)), alloc)
         {}
 
-        Map(std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other,
-            const ALLOCATOR &alloc)
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  std::move(other), alloc)
+        Map(std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other, const ALLOCATOR &alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(std::move(other), alloc)
         {}
 
-        Map(std::initializer_list<Element> initList,
-            const COMPAREFUNCTYPE &compFunc = COMPAREFUNCTYPE(),
+        Map(std::initializer_list<Element> initList, const COMPAREFUNCTYPE &compFunc = COMPAREFUNCTYPE(),
             const ALLOCATOR &alloc = ALLOCATOR())
-            : StdMapCollection<
-                  std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(
-                  initList, compFunc, alloc)
+            : StdMapCollection<std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>>(initList, compFunc, alloc)
         {}
 
-        Map(std::initializer_list<Element> initList, const ALLOCATOR &alloc)
-            : Map(initList, COMPAREFUNCTYPE(), alloc)
+        Map(std::initializer_list<Element> initList, const ALLOCATOR &alloc) : Map(initList, COMPAREFUNCTYPE(), alloc)
         {}
 
         /** Replaces the current contents of the map with copies of the elements
@@ -192,8 +154,7 @@ namespace bdn
             */
         Map &operator=(const Map &other)
         {
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                other);
+            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(other);
             return *this;
         }
 
@@ -202,11 +163,9 @@ namespace bdn
 
             Returns a reference to this Map object.
             */
-        Map &operator=(
-            const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
+        Map &operator=(const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &other)
         {
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                other);
+            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(other);
             return *this;
         }
 
@@ -237,8 +196,7 @@ namespace bdn
            */
         Map &operator=(std::initializer_list<Element> initList)
         {
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                initList);
+            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(initList);
             return *this;
         }
 
@@ -248,8 +206,7 @@ namespace bdn
             */
         Map &operator=(Map &&other)
         {
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                std::move(other));
+            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(std::move(other));
             return *this;
         }
 
@@ -257,11 +214,9 @@ namespace bdn
            replacing any current contents in the process. The other Map object
            is invalidated by this operation.
             */
-        Map &operator=(
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other)
+        Map &operator=(std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> &&other)
         {
-            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(
-                std::move(other));
+            std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=(std::move(other));
             return *this;
         }
 
@@ -303,18 +258,12 @@ namespace bdn
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseBegin() const noexcept
-        {
-            return this->rbegin();
-        }
+        ConstReverseIterator reverseBegin() const noexcept { return this->rbegin(); }
 
         /** Const version of reverseBegin() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseBegin() const noexcept
-        {
-            return this->crbegin();
-        }
+        ConstReverseIterator constReverseBegin() const noexcept { return this->crbegin(); }
 
         /** Marks the end point of a reverse iteration.
 
@@ -332,18 +281,12 @@ namespace bdn
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator reverseEnd() const noexcept
-        {
-            return this->rend();
-        }
+        ConstReverseIterator reverseEnd() const noexcept { return this->rend(); }
 
         /** Const version of reverseEnd() - returns an iterator for read-only
          * access to the elements in reversed order.
          */
-        ConstReverseIterator constReverseEnd() const noexcept
-        {
-            return this->crend();
-        }
+        ConstReverseIterator constReverseEnd() const noexcept { return this->crend(); }
     };
 }
 

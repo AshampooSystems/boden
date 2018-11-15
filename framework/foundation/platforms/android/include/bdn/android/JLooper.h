@@ -19,9 +19,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JLooper(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JLooper(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Returns the application's main looper, which lives in the main
              * thread of the application. */
@@ -29,8 +27,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invokeStatic_<JLooper>(getStaticClass_(), methodId,
-                                              "getMainLooper");
+                return invokeStatic_<JLooper>(getStaticClass_(), methodId, "getMainLooper");
             }
 
             /** Returns the JClass object for this class.
@@ -49,10 +46,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

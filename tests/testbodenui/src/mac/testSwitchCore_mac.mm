@@ -10,14 +10,12 @@
 
 using namespace bdn;
 
-class TestMacSwitchCore
-    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestSwitchCore>
+class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestSwitchCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin<
-            bdn::test::TestSwitchCore>::initCore();
+        bdn::test::TestMacChildViewCoreMixin<bdn::test::TestSwitchCore>::initCore();
 
         _pSwitchComposite = (BdnMacSwitchComposite *)_pNSView;
         REQUIRE(_pSwitchComposite != nullptr);
@@ -27,8 +25,7 @@ class TestMacSwitchCore
     {
         String expectedLabel = _pSwitch->label();
 
-        String label =
-            bdn::mac::macStringToString(_pSwitchComposite.label.stringValue);
+        String label = bdn::mac::macStringToString(_pSwitchComposite.label.stringValue);
 
         REQUIRE(label == expectedLabel);
     }

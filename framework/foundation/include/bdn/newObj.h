@@ -26,17 +26,13 @@ namespace bdn
 
     template <typename T, typename... Arguments> T *rawNew(Arguments &&... args)
     {
-        return std::conditional<std::is_base_of<bdn::Base, T>::value,
-                                RawNewAllocator_Base_<T>,
-                                RawNewAllocator_NonBase_<T>>::type ::
-            alloc(std::forward<Arguments>(args)...);
+        return std::conditional<std::is_base_of<bdn::Base, T>::value, RawNewAllocator_Base_<T>,
+                                RawNewAllocator_NonBase_<T>>::type ::alloc(std::forward<Arguments>(args)...);
     }
 
-    template <typename T, typename... Arguments>
-    P<T> newObj(Arguments &&... args)
+    template <typename T, typename... Arguments> P<T> newObj(Arguments &&... args)
     {
-        return P<T>().attachPtr(new (Base::RawNew::Use)
-                                    T(std::forward<Arguments>(args)...));
+        return P<T>().attachPtr(new (Base::RawNew::Use) T(std::forward<Arguments>(args)...));
     }
 
     template <class T> class DeleteOrReleaseRef_Delete_
@@ -61,8 +57,7 @@ namespace bdn
         */
     template <class T> void deleteOrReleaseRef(T *p)
     {
-        return std::conditional<std::is_base_of<bdn::IBase, T>::value,
-                                DeleteOrReleaseRef_Release_<T>,
+        return std::conditional<std::is_base_of<bdn::IBase, T>::value, DeleteOrReleaseRef_Release_<T>,
                                 DeleteOrReleaseRef_Delete_<T>>::type ::doIt(p);
     }
 }

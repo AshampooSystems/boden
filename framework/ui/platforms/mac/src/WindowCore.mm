@@ -56,15 +56,11 @@ namespace bdn
             // the screen's coordinate system is inverted (origin is bottom
             // left). So we need to pass the screen height so that it will be
             // converted properly.
-            NSRect rect =
-                rectToMacRect(Rect(pOuter->position(), pOuter->size()),
-                              screen.frame.size.height);
+            NSRect rect = rectToMacRect(Rect(pOuter->position(), pOuter->size()), screen.frame.size.height);
 
             _nsWindow = [[NSWindow alloc]
                 initWithContentRect:rect
-                          styleMask:NSWindowStyleMaskTitled |
-                                    NSWindowStyleMaskClosable |
-                                    NSWindowStyleMaskResizable
+                          styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                             backing:NSBackingStoreBuffered
                               defer:NO];
 
@@ -76,8 +72,7 @@ namespace bdn
             NSRect contentRect{};
             contentRect.size = rect.size;
 
-            _nsContentParent = [[BdnMacWindowContentViewParent_ alloc]
-                initWithFrame:contentRect];
+            _nsContentParent = [[BdnMacWindowContentViewParent_ alloc] initWithFrame:contentRect];
 
             _nsWindow.contentView = _nsContentParent;
 
@@ -112,8 +107,7 @@ namespace bdn
         Rect WindowCore::adjustAndSetBounds(const Rect &requestedBounds)
         {
             // first adjust the bounds so that they are on pixel boundaries
-            Rect adjustedBounds = adjustBounds(
-                requestedBounds, RoundType::nearest, RoundType::nearest);
+            Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
             if (adjustedBounds != _currActualWindowBounds) {
                 // the screen's coordinate system is inverted (from our point of
@@ -122,8 +116,7 @@ namespace bdn
 
                 // the screen's coordinate system is inverted. So we need to
                 // flip the coordinates.
-                NSRect macRect =
-                    rectToMacRect(adjustedBounds, screen.frame.size.height);
+                NSRect macRect = rectToMacRect(adjustedBounds, screen.frame.size.height);
 
                 [_nsWindow setFrame:macRect display:FALSE];
 
@@ -138,8 +131,7 @@ namespace bdn
                     // is a different one then that can result in an incorrect
                     // final y position. If this happens then we simply readjust
                     // and reposition
-                    macRect = rectToMacRect(adjustedBounds,
-                                            screenAfter.frame.size.height);
+                    macRect = rectToMacRect(adjustedBounds, screenAfter.frame.size.height);
 
                     [_nsWindow setFrame:macRect display:FALSE];
                 }
@@ -150,8 +142,7 @@ namespace bdn
             return adjustedBounds;
         }
 
-        Rect WindowCore::adjustBounds(const Rect &requestedBounds,
-                                      RoundType positionRoundType,
+        Rect WindowCore::adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                                       RoundType sizeRoundType) const
         {
             NSScreen *screen = _getNsScreen();
@@ -185,8 +176,7 @@ namespace bdn
             else
                 alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
 
-            NSRect adjustedMacRect =
-                [_nsWindow backingAlignedRect:macRect options:alignOptions];
+            NSRect adjustedMacRect = [_nsWindow backingAlignedRect:macRect options:alignOptions];
 
             Rect adjustedBounds = macRectToRect(adjustedMacRect, screenHeight);
 
@@ -204,9 +194,8 @@ namespace bdn
         {
             P<Window> pWindow = _pOuterWindowWeak.toStrong();
             if (pWindow != nullptr) {
-                return defaultWindowCalcPreferredSizeImpl(
-                    pWindow, availableSpace, getNonClientMargin(),
-                    getMinimumSize());
+                return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, getNonClientMargin(),
+                                                          getMinimumSize());
             } else
                 return getMinimumSize();
         }
@@ -215,11 +204,9 @@ namespace bdn
         {
             P<Window> pWindow = _pOuterWindowWeak.toStrong();
             if (pWindow != nullptr) {
-                P<UiProvider> pProvider =
-                    tryCast<UiProvider>(pWindow->getUiProvider());
+                P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
                 if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(
-                        pWindow);
+                    pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
             }
         }
 
@@ -227,11 +214,9 @@ namespace bdn
         {
             P<Window> pWindow = _pOuterWindowWeak.toStrong();
             if (pWindow != nullptr) {
-                P<UiProvider> pProvider =
-                    tryCast<UiProvider>(pWindow->getUiProvider());
+                P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
                 if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->windowNeedsCentering(
-                        pWindow);
+                    pProvider->getLayoutCoordinator()->windowNeedsCentering(pWindow);
             }
         }
 
@@ -239,8 +224,7 @@ namespace bdn
         {
             P<Window> pWindow = _pOuterWindowWeak.toStrong();
             if (pWindow != nullptr)
-                defaultWindowAutoSizeImpl(pWindow,
-                                          getScreenWorkArea().getSize());
+                defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize());
         }
 
         void WindowCore::center()

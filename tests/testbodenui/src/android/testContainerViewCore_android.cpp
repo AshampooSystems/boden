@@ -8,21 +8,15 @@
 
 using namespace bdn;
 
-class TestAndroidContainerViewCore : public bdn::test::TestAndroidViewCoreMixin<
-                                         bdn::test::TestContainerViewCore>
+class TestAndroidContainerViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestContainerViewCore>
 {
   protected:
-    void initCore() override
-    {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestContainerViewCore>::initCore();
-    }
+    void initCore() override { bdn::test::TestAndroidViewCoreMixin<bdn::test::TestContainerViewCore>::initCore(); }
 };
 
 TEST_CASE("android.ContainerViewCore")
 {
-    P<TestAndroidContainerViewCore> pTest =
-        newObj<TestAndroidContainerViewCore>();
+    P<TestAndroidContainerViewCore> pTest = newObj<TestAndroidContainerViewCore>();
 
     pTest->runTests();
 }

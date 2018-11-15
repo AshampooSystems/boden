@@ -33,8 +33,7 @@ namespace bdn
        the character is simply skipped.
 
         */
-    std::string wideToLocaleEncoding(const std::wstring &wideString,
-                                     const std::locale &loc = std::locale());
+    std::string wideToLocaleEncoding(const std::wstring &wideString, const std::locale &loc = std::locale());
 
     /** Converts a string that is encoded with the multibyte encoding of the
        specified locale to a wide char string. If the locale is not specified
@@ -45,8 +44,7 @@ namespace bdn
        a question mark ('?') is used instead. If that is also unencodable then
        the character is simply skipped.
     */
-    std::wstring localeEncodingToWide(const std::string &multiByteString,
-                                      const std::locale &loc = std::locale());
+    std::wstring localeEncodingToWide(const std::string &multiByteString, const std::locale &loc = std::locale());
 
     /** Converts a wide char string to Utf-8. */
     std::string wideToUtf8(const std::wstring &wideString);
@@ -112,10 +110,9 @@ namespace bdn
            (including the unicode whitespace characters).*/
         static const StringImpl &getWhitespaceChars()
         {
-            static StringImpl whitespace(
-                U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000"
-                U"\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A"
-                U"\u2028\u2029\u202F\u205F\u3000");
+            static StringImpl whitespace(U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000"
+                                         U"\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A"
+                                         U"\u2028\u2029\u202F\u205F\u3000");
             return whitespace;
         }
 
@@ -230,10 +227,7 @@ namespace bdn
         typedef char32_t Element;
 
         /** Contructor for an empty string.*/
-        StringImpl() : StringImpl(&MainDataType::getEmptyData())
-        {
-            _lengthIfKnown = 0;
-        }
+        StringImpl() : StringImpl(&MainDataType::getEmptyData()) { _lengthIfKnown = 0; }
 
         /** Initializes the string with a copy of the specified string.
          */
@@ -257,8 +251,7 @@ namespace bdn
         }
 
         /** Initializes the string with a substring of the specified string.*/
-        StringImpl(const StringImpl &s, const Iterator &beginIt,
-                   const Iterator &endIt)
+        StringImpl(const StringImpl &s, const Iterator &beginIt, const Iterator &endIt)
         {
             _pData = s._pData;
 
@@ -284,8 +277,7 @@ namespace bdn
            subStringLength is String::toEnd or String::npos then the remaining
            part of the string after the start index is copied.
         */
-        StringImpl(const StringImpl &s, size_t subStringStartIndex,
-                   size_t subStringLength = toEnd)
+        StringImpl(const StringImpl &s, size_t subStringStartIndex, size_t subStringLength = toEnd)
         {
             _lengthIfKnown = npos;
 
@@ -302,8 +294,7 @@ namespace bdn
             To initialize with data in the locale-dependent multibyte encoding
             see #fromLocale.
         */
-        StringImpl(const char *s, size_t lengthElements = toEnd)
-            : StringImpl(newObj<MainDataType>(s, lengthElements))
+        StringImpl(const char *s, size_t lengthElements = toEnd) : StringImpl(newObj<MainDataType>(s, lengthElements))
         {}
 
         /** Initializes the object from a UTF-8 encoded std::string.
@@ -311,8 +302,7 @@ namespace bdn
             To initialize with data in the locale-dependent multibyte encoding
             see #fromLocale.
         */
-        StringImpl(const std::string &s) : StringImpl(newObj<MainDataType>(s))
-        {}
+        StringImpl(const std::string &s) : StringImpl(newObj<MainDataType>(s)) {}
 
         /** Initializes the object from a C-style wchar_t encoded string.
 
@@ -326,8 +316,7 @@ namespace bdn
         {}
 
         /** Initializes the object from a wide-char std::wstring.*/
-        StringImpl(const std::wstring &s) : StringImpl(newObj<MainDataType>(s))
-        {}
+        StringImpl(const std::wstring &s) : StringImpl(newObj<MainDataType>(s)) {}
 
         /** Initializes the object from a C-style UTF-16 encoded string.
 
@@ -341,9 +330,7 @@ namespace bdn
         {}
 
         /** Initializes the object from a UTF-16 std::u16string.*/
-        StringImpl(const std::u16string &s)
-            : StringImpl(newObj<MainDataType>(s))
-        {}
+        StringImpl(const std::u16string &s) : StringImpl(newObj<MainDataType>(s)) {}
 
         /** Initializes the object from a C-style UTF-32 encoded string.
 
@@ -357,16 +344,13 @@ namespace bdn
         {}
 
         /** Initializes the object from a UTF-32 std::u32string.*/
-        StringImpl(const std::u32string &s)
-            : StringImpl(newObj<MainDataType>(s))
-        {}
+        StringImpl(const std::u32string &s) : StringImpl(newObj<MainDataType>(s)) {}
 
         /** Initializes the object with the data between two character
            iterators. The iterators must return fully decoded 32 bit Unicode
            characters.*/
         template <class InputDecodedCharIterator>
-        StringImpl(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt)
+        StringImpl(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt)
             : StringImpl(newObj<MainDataType>(beginIt, endIt))
         {}
 
@@ -386,38 +370,31 @@ namespace bdn
 
             */
         template <class InputDecodedCharIterator>
-        StringImpl(InputDecodedCharIterator beginIt,
-                   InputDecodedCharIterator endIt, size_t charCount)
+        StringImpl(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount)
             : StringImpl(newObj<MainDataType>(beginIt, endIt, charCount))
         {}
 
         /** Initializes the string to be \c numChars times the \c chr character.
          */
-        StringImpl(size_t numChars, char32_t chr) : StringImpl()
-        {
-            assign(numChars, chr);
-        }
+        StringImpl(size_t numChars, char32_t chr) : StringImpl() { assign(numChars, chr); }
 
       private:
-        template <class STREAM_BUFFER>
-        static size_t tryDetermineStreamBufferSize(STREAM_BUFFER *pBuffer)
+        template <class STREAM_BUFFER> static size_t tryDetermineStreamBufferSize(STREAM_BUFFER *pBuffer)
         {
             if (pBuffer != nullptr) {
                 pBuffer->pubsync();
 
-                typename STREAM_BUFFER::pos_type currPos = pBuffer->pubseekoff(
-                    0, std::ios_base::cur, std::ios_base::in);
+                typename STREAM_BUFFER::pos_type currPos =
+                    pBuffer->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
 
                 if (currPos != (typename STREAM_BUFFER::pos_type) - 1) {
                     // seek to end to get the size
                     typename STREAM_BUFFER::pos_type endPos =
-                        pBuffer->pubseekoff(0, std::ios_base::end,
-                                            std::ios_base::in);
+                        pBuffer->pubseekoff(0, std::ios_base::end, std::ios_base::in);
 
                     if (endPos != (typename STREAM_BUFFER::pos_type) - 1) {
                         // seek back to old position
-                        currPos =
-                            pBuffer->pubseekpos(currPos, std::ios_base::in);
+                        currPos = pBuffer->pubseekpos(currPos, std::ios_base::in);
 
                         if (currPos != (typename STREAM_BUFFER::pos_type) - 1)
                             return (size_t)(endPos - currPos);
@@ -433,25 +410,22 @@ namespace bdn
          * buffer.*/
         template <class CHAR_TRAITS>
         StringImpl(std::basic_streambuf<char32_t, CHAR_TRAITS> *pBuffer)
-            : StringImpl(
-                  (pBuffer->pubsync(),
-                   std::istreambuf_iterator<char32_t, CHAR_TRAITS>(pBuffer)),
-                  std::istreambuf_iterator<char32_t, CHAR_TRAITS>(),
-                  // istreambuf iterators are input iterators. That means that
-                  // only a single pass can be made over their data. Because of
-                  // this, the string memory cannot be allocated correctly in
-                  // advance, since we do not yet know how big the resulting
-                  // string will be. So we try to get the number of chars from
-                  // the buffer, to give the string implementation some help for
-                  // optimizing the memory allocation.
-                  tryDetermineStreamBufferSize(pBuffer))
+            : StringImpl((pBuffer->pubsync(), std::istreambuf_iterator<char32_t, CHAR_TRAITS>(pBuffer)),
+                         std::istreambuf_iterator<char32_t, CHAR_TRAITS>(),
+                         // istreambuf iterators are input iterators. That means that
+                         // only a single pass can be made over their data. Because of
+                         // this, the string memory cannot be allocated correctly in
+                         // advance, since we do not yet know how big the resulting
+                         // string will be. So we try to get the number of chars from
+                         // the buffer, to give the string implementation some help for
+                         // optimizing the memory allocation.
+                         tryDetermineStreamBufferSize(pBuffer))
         {}
 
         /** Initializes the string with the data from the stream buffer of the
             specified char32_t input stream.*/
         template <class CHAR_TRAITS>
-        StringImpl(const std::basic_istream<char32_t, CHAR_TRAITS> &stream)
-            : StringImpl(stream.rdbuf())
+        StringImpl(const std::basic_istream<char32_t, CHAR_TRAITS> &stream) : StringImpl(stream.rdbuf())
         {}
 
         /** Initializes the string with the data from the stream buffer of the
@@ -463,8 +437,7 @@ namespace bdn
            support reading the written data back. The resulting string will be
            empty in those cases.*/
         template <class CHAR_TRAITS>
-        StringImpl(const std::basic_ostream<char32_t, CHAR_TRAITS> &stream)
-            : StringImpl(stream.rdbuf())
+        StringImpl(const std::basic_ostream<char32_t, CHAR_TRAITS> &stream) : StringImpl(stream.rdbuf())
         {}
 
         /** Initializes the string with a sequence of characters.
@@ -483,30 +456,24 @@ namespace bdn
         {}
 
         /** Constructs a string that uses the specified string data object.*/
-        StringImpl(MainDataType *pData)
-            : _pData(pData), _beginIt(pData->begin()), _endIt(pData->end())
+        StringImpl(MainDataType *pData) : _pData(pData), _beginIt(pData->begin()), _endIt(pData->end())
         {
             _lengthIfKnown = npos;
         }
 
         /** Static construction method. Creates a String object from a C-style
             string in the locale-dependent multibyte encoding.*/
-        static StringImpl
-        fromLocaleEncoding(const char *s,
-                           const std::locale &loc = std::locale(),
-                           size_t lengthElements = toEnd)
+        static StringImpl fromLocaleEncoding(const char *s, const std::locale &loc = std::locale(),
+                                             size_t lengthElements = toEnd)
         {
-            LocaleDecoder decoder(s, getStringEndPtr(s, lengthElements) - s,
-                                  loc);
+            LocaleDecoder decoder(s, getStringEndPtr(s, lengthElements) - s, loc);
 
             return StringImpl(decoder.begin(), decoder.end());
         }
 
         /** Static construction method. Creates a String object from a
         std::string in the locale-dependent multibyte encoding.*/
-        static StringImpl
-        fromLocaleEncoding(const std::string &s,
-                           const std::locale &loc = std::locale())
+        static StringImpl fromLocaleEncoding(const std::string &s, const std::locale &loc = std::locale())
         {
             LocaleDecoder decoder(s.c_str(), s.length(), loc);
 
@@ -525,10 +492,8 @@ namespace bdn
            with char.
 
             */
-        static StringImpl
-        fromLocaleEncoding(const wchar_t *s,
-                           const std::locale &loc = std::locale(),
-                           size_t lengthElements = toEnd)
+        static StringImpl fromLocaleEncoding(const wchar_t *s, const std::locale &loc = std::locale(),
+                                             size_t lengthElements = toEnd)
         {
             return StringImpl(s, lengthElements);
         }
@@ -545,9 +510,7 @@ namespace bdn
            fromLocaleEncoding can be used with all character types, not just
            with char.
             */
-        static StringImpl
-        fromLocaleEncoding(const std::wstring &s,
-                           const std::locale &loc = std::locale())
+        static StringImpl fromLocaleEncoding(const std::wstring &s, const std::locale &loc = std::locale())
         {
             return StringImpl(s);
         }
@@ -564,10 +527,8 @@ namespace bdn
            with char.
 
             */
-        static StringImpl
-        fromLocaleEncoding(const char16_t *s,
-                           const std::locale &loc = std::locale(),
-                           size_t lengthElements = toEnd)
+        static StringImpl fromLocaleEncoding(const char16_t *s, const std::locale &loc = std::locale(),
+                                             size_t lengthElements = toEnd)
         {
             return StringImpl(s, lengthElements);
         }
@@ -583,9 +544,7 @@ namespace bdn
            fromLocaleEncoding can be used with all character types, not just
            with char.
             */
-        static StringImpl
-        fromLocaleEncoding(const std::u16string &s,
-                           const std::locale &loc = std::locale())
+        static StringImpl fromLocaleEncoding(const std::u16string &s, const std::locale &loc = std::locale())
         {
             return StringImpl(s);
         }
@@ -602,10 +561,8 @@ namespace bdn
            with char.
 
             */
-        static StringImpl
-        fromLocaleEncoding(const char32_t *s,
-                           const std::locale &loc = std::locale(),
-                           size_t lengthElements = toEnd)
+        static StringImpl fromLocaleEncoding(const char32_t *s, const std::locale &loc = std::locale(),
+                                             size_t lengthElements = toEnd)
         {
             return StringImpl(s, lengthElements);
         }
@@ -621,9 +578,7 @@ namespace bdn
            fromLocaleEncoding can be used with all character types, not just
            with char.
             */
-        static StringImpl
-        fromLocaleEncoding(const std::u32string &s,
-                           const std::locale &loc = std::locale())
+        static StringImpl fromLocaleEncoding(const std::u32string &s, const std::locale &loc = std::locale())
         {
             return StringImpl(s);
         }
@@ -687,15 +642,12 @@ namespace bdn
             */
         void prepareForSize(size_t reserveChars)
         {
-            typename MainDataType::EncodedString::difference_type
-                excessCapacityCharacters = reserveChars - length();
+            typename MainDataType::EncodedString::difference_type excessCapacityCharacters = reserveChars - length();
             if (excessCapacityCharacters < 0)
                 excessCapacityCharacters = 0;
 
-            typename MainDataType::EncodedString::difference_type
-                excessCapacityElements =
-                    excessCapacityCharacters *
-                    MainDataType::Codec::getMaxEncodedElementsPerCharacter();
+            typename MainDataType::EncodedString::difference_type excessCapacityElements =
+                excessCapacityCharacters * MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 
             Modify m(this);
 
@@ -730,8 +682,7 @@ namespace bdn
         */
         size_t capacity() const noexcept
         {
-            typename MainDataType::EncodedString::difference_type
-                excessCapacityCharacters;
+            typename MainDataType::EncodedString::difference_type excessCapacityCharacters;
 
             if (_pData->getRefCount() != 1) {
                 // we are sharing the string with someone else. So every
@@ -739,19 +690,16 @@ namespace bdn
                 // => no excess capacity.
                 excessCapacityCharacters = 0;
             } else {
-                typename MainDataType::EncodedString *pStd =
-                    &_pData->getEncodedString();
+                typename MainDataType::EncodedString *pStd = &_pData->getEncodedString();
 
-                typename MainDataType::EncodedString::difference_type
-                    excessCapacity = pStd->capacity() - pStd->length();
+                typename MainDataType::EncodedString::difference_type excessCapacity =
+                    pStd->capacity() - pStd->length();
                 if (excessCapacity < 0)
                     excessCapacity = 0;
 
                 excessCapacity += pStd->cend() - _endIt.getInner();
 
-                excessCapacityCharacters =
-                    excessCapacity /
-                    MainDataType::Codec::getMaxEncodedElementsPerCharacter();
+                excessCapacityCharacters = excessCapacity / MainDataType::Codec::getMaxEncodedElementsPerCharacter();
             }
 
             return length() + excessCapacityCharacters;
@@ -819,31 +767,19 @@ namespace bdn
             This will print out "olleh" (the reverse of "hello").
 
             */
-        ReverseIterator reverseBegin() const noexcept
-        {
-            return std::reverse_iterator<Iterator>(end());
-        }
+        ReverseIterator reverseBegin() const noexcept { return std::reverse_iterator<Iterator>(end()); }
 
         /** Returns an iterator that points to the end of a reverse iteration.
             See rbegin().*/
-        ReverseIterator reverseEnd() const noexcept
-        {
-            return std::reverse_iterator<Iterator>(begin());
-        }
+        ReverseIterator reverseEnd() const noexcept { return std::reverse_iterator<Iterator>(begin()); }
 
         /** Same as reverseBegin(). This is included for compatibility with
          * std::string.*/
-        ReverseIterator rbegin() const noexcept
-        {
-            return std::reverse_iterator<Iterator>(end());
-        }
+        ReverseIterator rbegin() const noexcept { return std::reverse_iterator<Iterator>(end()); }
 
         /** Same as reverseEnd(). This is included for compatibility with
          * std::string.*/
-        ReverseIterator rend() const noexcept
-        {
-            return std::reverse_iterator<Iterator>(begin());
-        }
+        ReverseIterator rend() const noexcept { return std::reverse_iterator<Iterator>(begin()); }
 
         /** Same as begin(). This is included for compatibility with
          * std::string.*/
@@ -881,8 +817,7 @@ namespace bdn
            beginIt points to and ending at the character before the position
            pointed to by endIt.
         */
-        StringImpl subString(const Iterator &beginIt,
-                             const Iterator &endIt) const
+        StringImpl subString(const Iterator &beginIt, const Iterator &endIt) const
         {
             return StringImpl(*this, beginIt, endIt);
         }
@@ -901,15 +836,12 @@ namespace bdn
            equal the string length - in that case the resulting sub string is
            always empty.
         */
-        StringImpl subString(size_t startIndex = 0,
-                             size_t charCount = toEnd) const
+        StringImpl subString(size_t startIndex = 0, size_t charCount = toEnd) const
         {
             size_t myLength = getLength();
 
             if (startIndex > myLength)
-                throw OutOfRangeError(
-                    "String::subString: Invalid start index: " +
-                    std::to_string(startIndex));
+                throw OutOfRangeError("String::subString: Invalid start index: " + std::to_string(startIndex));
             if (charCount == toEnd || startIndex + charCount > myLength)
                 charCount = myLength - startIndex;
 
@@ -936,10 +868,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const char *asUtf8Ptr() const
-        {
-            return getEncoded((Utf8StringData *)nullptr).c_str();
-        }
+        const char *asUtf8Ptr() const { return getEncoded((Utf8StringData *)nullptr).c_str(); }
 
         /** Returns a reference to the string as a std::string object in UTF-8
            encoding.
@@ -949,10 +878,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const std::string &asUtf8() const
-        {
-            return getEncoded((Utf8StringData *)nullptr);
-        }
+        const std::string &asUtf8() const { return getEncoded((Utf8StringData *)nullptr); }
 
         /** Conversion operator to const char.
             Same as calling asUtf8Ptr().*/
@@ -997,10 +923,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const wchar_t *asWidePtr() const
-        {
-            return getEncoded((WideStringData *)nullptr).c_str();
-        }
+        const wchar_t *asWidePtr() const { return getEncoded((WideStringData *)nullptr).c_str(); }
 
         /** Returns a reference to the string as a std::wstring object in in
            "wide char" encoding (either UTF-16 or UTF-32, depending on the size
@@ -1011,10 +934,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const std::wstring &asWide() const
-        {
-            return getEncoded((WideStringData *)nullptr);
-        }
+        const std::wstring &asWide() const { return getEncoded((WideStringData *)nullptr); }
 
         /** Conversion operator to const wchar_t.
             Same as calling asWidePtr().*/
@@ -1033,10 +953,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const char16_t *asUtf16Ptr() const
-        {
-            return getEncoded((Utf16StringData *)nullptr).c_str();
-        }
+        const char16_t *asUtf16Ptr() const { return getEncoded((Utf16StringData *)nullptr).c_str(); }
 
         /** Returns a reference to the string as a std::u16string object in
            UTF-16 encoding
@@ -1046,10 +963,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const std::u16string &asUtf16() const
-        {
-            return getEncoded((Utf16StringData *)nullptr);
-        }
+        const std::u16string &asUtf16() const { return getEncoded((Utf16StringData *)nullptr); }
 
         /** Conversion operator to const char16_t.
             Same as calling asUtf16Ptr().*/
@@ -1068,10 +982,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const char32_t *asUtf32Ptr() const
-        {
-            return getEncoded((Utf32StringData *)nullptr).c_str();
-        }
+        const char32_t *asUtf32Ptr() const { return getEncoded((Utf32StringData *)nullptr).c_str(); }
 
         /** Returns a reference to the string as a std::u32string object in
         UTF-32 encoding
@@ -1080,10 +991,7 @@ namespace bdn
         reference remains valid at least until one of the other asXYZ conversion
         functions is called or the entire string object is destroyed.
         */
-        const std::u32string &asUtf32() const
-        {
-            return getEncoded((Utf32StringData *)nullptr);
-        }
+        const std::u32string &asUtf32() const { return getEncoded((Utf32StringData *)nullptr); }
 
         /** Conversion operator to const char32_t.
             Same as calling asUtf32Ptr().*/
@@ -1107,10 +1015,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const NativeEncodedString &asNative() const
-        {
-            return getEncoded((NativeStringData *)nullptr);
-        }
+        const NativeEncodedString &asNative() const { return getEncoded((NativeStringData *)nullptr); }
 
         /** Returns a pointer to the string as a zero terminated c-style string
            in "native" encoding encoding.
@@ -1127,10 +1032,7 @@ namespace bdn
            conversion functions is called or the entire string object is
            destroyed.
         */
-        const NativeEncodedElement *asNativePtr() const
-        {
-            return asNative().c_str();
-        }
+        const NativeEncodedElement *asNativePtr() const { return asNative().c_str(); }
 
         /** Returns a copy of the string as a std::string / std::basic_string
            object for the indicated locale.
@@ -1151,8 +1053,7 @@ namespace bdn
            always returns a new copy of the data.
         */
         template <typename CHAR_TYPE = char>
-        std::basic_string<CHAR_TYPE>
-        toLocaleEncoding(const std::locale &loc = std::locale()) const
+        std::basic_string<CHAR_TYPE> toLocaleEncoding(const std::locale &loc = std::locale()) const
         {
             return _toLocaleEncodingImpl((const CHAR_TYPE *)0, loc);
         }
@@ -1169,10 +1070,7 @@ namespace bdn
            two strings is shorter and all characters up to that point are the
            same then the shorter string is smaller.
         */
-        int compare(const StringImpl &o) const
-        {
-            return compare(o.begin(), o.end());
-        }
+        int compare(const StringImpl &o) const { return compare(o.begin(), o.end()); }
 
         /** Compares this string with a character sequence, specified by two
            iterators.
@@ -1194,22 +1092,15 @@ namespace bdn
            last character in the character sequence. The iterator must return
            char32_t Unicode characters!
         */
-        template <class IT> int compare(IT otherIt, IT otherEnd) const
-        {
-            return compare(0, toEnd, otherIt, otherEnd);
-        }
+        template <class IT> int compare(IT otherIt, IT otherEnd) const { return compare(0, toEnd, otherIt, otherEnd); }
 
-        template <class IT>
-        int compare(size_t compareStartIndex, size_t compareLength, IT otherIt,
-                    IT otherEnd) const
+        template <class IT> int compare(size_t compareStartIndex, size_t compareLength, IT otherIt, IT otherEnd) const
         {
             size_t myLength = getLength();
             if (compareStartIndex > myLength)
-                throw OutOfRangeError(
-                    "Invalid compareStartIndex passed to String::compare.");
+                throw OutOfRangeError("Invalid compareStartIndex passed to String::compare.");
 
-            if (compareLength == toEnd ||
-                compareStartIndex + compareLength > myLength)
+            if (compareLength == toEnd || compareStartIndex + compareLength > myLength)
                 compareLength = myLength - compareStartIndex;
 
             Iterator myIt = _beginIt + compareStartIndex;
@@ -1239,10 +1130,8 @@ namespace bdn
          */
         int compare(const std::string &o) const
         {
-            return compare(
-                Utf8Codec::DecodingStringIterator(o.begin(), o.begin(),
-                                                  o.end()),
-                Utf8Codec::DecodingStringIterator(o.end(), o.begin(), o.end()));
+            return compare(Utf8Codec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+                           Utf8Codec::DecodingStringIterator(o.end(), o.begin(), o.end()));
         }
 
         /** See compare()
@@ -1251,19 +1140,16 @@ namespace bdn
         {
             const char *oEnd = getStringEndPtr(other, otherLength);
 
-            return compare(
-                Utf8Codec::DecodingIterator<const char *>(other, other, oEnd),
-                Utf8Codec::DecodingIterator<const char *>(oEnd, other, oEnd));
+            return compare(Utf8Codec::DecodingIterator<const char *>(other, other, oEnd),
+                           Utf8Codec::DecodingIterator<const char *>(oEnd, other, oEnd));
         }
 
         /** See compare()
          */
         int compare(const std::u16string &other) const
         {
-            return compare(Utf16Codec::DecodingStringIterator(
-                               other.begin(), other.begin(), other.end()),
-                           Utf16Codec::DecodingStringIterator(
-                               other.end(), other.begin(), other.end()));
+            return compare(Utf16Codec::DecodingStringIterator(other.begin(), other.begin(), other.end()),
+                           Utf16Codec::DecodingStringIterator(other.end(), other.begin(), other.end()));
         }
 
         /** See compare()
@@ -1272,20 +1158,16 @@ namespace bdn
         {
             const char16_t *oEnd = getStringEndPtr(other, otherLength);
 
-            return compare(Utf16Codec::DecodingIterator<const char16_t *>(
-                               other, other, oEnd),
-                           Utf16Codec::DecodingIterator<const char16_t *>(
-                               oEnd, other, oEnd));
+            return compare(Utf16Codec::DecodingIterator<const char16_t *>(other, other, oEnd),
+                           Utf16Codec::DecodingIterator<const char16_t *>(oEnd, other, oEnd));
         }
 
         /** See compare()
          */
         int compare(const std::u32string &o) const
         {
-            return compare(Utf32Codec::DecodingStringIterator(
-                               o.begin(), o.begin(), o.end()),
-                           Utf32Codec::DecodingStringIterator(
-                               o.end(), o.begin(), o.end()));
+            return compare(Utf32Codec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+                           Utf32Codec::DecodingStringIterator(o.end(), o.begin(), o.end()));
         }
 
         /** See compare()
@@ -1301,10 +1183,8 @@ namespace bdn
          */
         int compare(const std::wstring &o) const
         {
-            return compare(
-                WideCodec::DecodingStringIterator(o.begin(), o.begin(),
-                                                  o.end()),
-                WideCodec::DecodingStringIterator(o.end(), o.begin(), o.end()));
+            return compare(WideCodec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+                           WideCodec::DecodingStringIterator(o.end(), o.begin(), o.end()));
         }
 
         /** See compare() */
@@ -1312,145 +1192,106 @@ namespace bdn
         {
             const wchar_t *oEnd = getStringEndPtr(other, otherLength);
 
-            return compare(WideCodec::DecodingIterator<const wchar_t *>(
-                               other, other, oEnd),
-                           WideCodec::DecodingIterator<const wchar_t *>(
-                               oEnd, other, oEnd));
+            return compare(WideCodec::DecodingIterator<const wchar_t *>(other, other, oEnd),
+                           WideCodec::DecodingIterator<const wchar_t *>(oEnd, other, oEnd));
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const StringImpl &other, size_type otherStartIndex = 0,
-                    size_type otherCompareLength = toEnd) const
+        int compare(size_t compareStartIndex, size_t compareLength, const StringImpl &other,
+                    size_type otherStartIndex = 0, size_type otherCompareLength = toEnd) const
         {
             size_t otherLength = other.getLength();
             if (otherStartIndex > otherLength)
-                throw OutOfRangeError(
-                    "Invalid otherStartIndex passed to String::compare");
+                throw OutOfRangeError("Invalid otherStartIndex passed to String::compare");
 
             Iterator otherCompareBegin(other.begin() + otherStartIndex);
             Iterator otherCompareEnd(
-                (otherCompareLength == toEnd ||
-                 otherStartIndex + otherCompareLength >= otherLength)
+                (otherCompareLength == toEnd || otherStartIndex + otherCompareLength >= otherLength)
                     ? other.end()
                     : (otherCompareBegin + otherCompareLength));
 
-            return compare(compareStartIndex, compareLength, otherCompareBegin,
-                           otherCompareEnd);
+            return compare(compareStartIndex, compareLength, otherCompareBegin, otherCompareEnd);
         }
 
         template <class InputCodec, class InputIterator>
-        int compareEncoded(const InputCodec &otherCodec,
-                           size_t compareStartIndex, size_t compareLength,
-                           const InputIterator &otherEncodedBeginIt,
-                           const InputIterator &otherEncodedEndIt) const
+        int compareEncoded(const InputCodec &otherCodec, size_t compareStartIndex, size_t compareLength,
+                           const InputIterator &otherEncodedBeginIt, const InputIterator &otherEncodedEndIt) const
         {
-            return compare(
-                compareStartIndex, compareLength,
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    otherEncodedBeginIt, otherEncodedBeginIt,
-                    otherEncodedEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt));
+            return compare(compareStartIndex, compareLength,
+                           typename InputCodec::template DecodingIterator<InputIterator>(
+                               otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt),
+                           typename InputCodec::template DecodingIterator<InputIterator>(
+                               otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt));
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const std::string &other) const
+        int compare(size_t compareStartIndex, size_t compareLength, const std::string &other) const
         {
-            return compareEncoded(Utf8Codec(), compareStartIndex, compareLength,
-                                  other.begin(), other.end());
+            return compareEncoded(Utf8Codec(), compareStartIndex, compareLength, other.begin(), other.end());
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const std::wstring &other) const
+        int compare(size_t compareStartIndex, size_t compareLength, const std::wstring &other) const
         {
-            return compareEncoded(WideCodec(), compareStartIndex, compareLength,
-                                  other.begin(), other.end());
+            return compareEncoded(WideCodec(), compareStartIndex, compareLength, other.begin(), other.end());
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const std::u16string &other) const
+        int compare(size_t compareStartIndex, size_t compareLength, const std::u16string &other) const
         {
-            return compareEncoded(Utf16Codec(), compareStartIndex,
-                                  compareLength, other.begin(), other.end());
+            return compareEncoded(Utf16Codec(), compareStartIndex, compareLength, other.begin(), other.end());
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const std::u32string &other) const
+        int compare(size_t compareStartIndex, size_t compareLength, const std::u32string &other) const
         {
-            return compareEncoded(Utf32Codec(), compareStartIndex,
-                                  compareLength, other.begin(), other.end());
+            return compareEncoded(Utf32Codec(), compareStartIndex, compareLength, other.begin(), other.end());
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const char *other, size_t otherLength = toEnd) const
+        int compare(size_t compareStartIndex, size_t compareLength, const char *other, size_t otherLength = toEnd) const
         {
-            return compareEncoded(Utf8Codec(), compareStartIndex, compareLength,
-                                  other, getStringEndPtr(other, otherLength));
-        }
-
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const wchar_t *other, size_t otherLength = toEnd) const
-        {
-            return compareEncoded(WideCodec(), compareStartIndex, compareLength,
-                                  other, getStringEndPtr(other, otherLength));
-        }
-
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const char16_t *other, size_t otherLength = toEnd) const
-        {
-            return compareEncoded(Utf16Codec(), compareStartIndex,
-                                  compareLength, other,
+            return compareEncoded(Utf8Codec(), compareStartIndex, compareLength, other,
                                   getStringEndPtr(other, otherLength));
         }
 
-        int compare(size_t compareStartIndex, size_t compareLength,
-                    const char32_t *other, size_t otherLength = toEnd) const
+        int compare(size_t compareStartIndex, size_t compareLength, const wchar_t *other,
+                    size_t otherLength = toEnd) const
         {
-            return compare(compareStartIndex, compareLength, other,
-                           getStringEndPtr(other, otherLength));
+            return compareEncoded(WideCodec(), compareStartIndex, compareLength, other,
+                                  getStringEndPtr(other, otherLength));
+        }
+
+        int compare(size_t compareStartIndex, size_t compareLength, const char16_t *other,
+                    size_t otherLength = toEnd) const
+        {
+            return compareEncoded(Utf16Codec(), compareStartIndex, compareLength, other,
+                                  getStringEndPtr(other, otherLength));
+        }
+
+        int compare(size_t compareStartIndex, size_t compareLength, const char32_t *other,
+                    size_t otherLength = toEnd) const
+        {
+            return compare(compareStartIndex, compareLength, other, getStringEndPtr(other, otherLength));
         }
 
         /** Returns true if this string and the specified other string are
          * equal.*/
-        template <class OTHER> bool operator==(const OTHER &o) const
-        {
-            return compare(o) == 0;
-        }
+        template <class OTHER> bool operator==(const OTHER &o) const { return compare(o) == 0; }
 
         /** Returns true if this string and the specified other string are not
          * equal.*/
-        template <class OTHER> bool operator!=(const OTHER &o) const
-        {
-            return compare(o) != 0;
-        }
+        template <class OTHER> bool operator!=(const OTHER &o) const { return compare(o) != 0; }
 
         /** Returns true if this string is "smaller" than the specified other
          * string. See compare().*/
-        template <class OTHER> bool operator<(const OTHER &o) const
-        {
-            return compare(o) < 0;
-        }
+        template <class OTHER> bool operator<(const OTHER &o) const { return compare(o) < 0; }
 
         /** Returns true if this string is "bigger" than the specified other
          * string. See compare().*/
-        template <class OTHER> bool operator>(const OTHER &o) const
-        {
-            return compare(o) > 0;
-        }
+        template <class OTHER> bool operator>(const OTHER &o) const { return compare(o) > 0; }
 
         /** Returns true if this string is "smaller" or equal to the specified
          * other string. See compare().*/
-        template <class OTHER> bool operator<=(const OTHER &o) const
-        {
-            return compare(o) <= 0;
-        }
+        template <class OTHER> bool operator<=(const OTHER &o) const { return compare(o) <= 0; }
 
         /** Returns true if this string is "bigger" or equal to the specified
          * other string. See compare().*/
-        template <class OTHER> bool operator>=(const OTHER &o) const
-        {
-            return compare(o) >= 0;
-        }
+        template <class OTHER> bool operator>=(const OTHER &o) const { return compare(o) >= 0; }
 
         /** \copydoc at()
          */
@@ -1461,8 +1302,7 @@ namespace bdn
                 if (index == len)
                     return U'\0';
 
-                throw OutOfRangeError("String::operator[]: Invalid index " +
-                                      std::to_string(index));
+                throw OutOfRangeError("String::operator[]: Invalid index " + std::to_string(index));
             }
 
             return *(_beginIt + index);
@@ -1483,8 +1323,7 @@ namespace bdn
                 if (index == len)
                     return U'\0';
 
-                throw OutOfRangeError("String::operator[]: Invalid index " +
-                                      std::to_string(index));
+                throw OutOfRangeError("String::operator[]: Invalid index " + std::to_string(index));
             }
 
             return *(_beginIt + index);
@@ -1495,8 +1334,7 @@ namespace bdn
         char32_t getLastChar() const
         {
             if (_beginIt == _endIt)
-                throw OutOfRangeError(
-                    "String::getLastChar called on empty string.");
+                throw OutOfRangeError("String::getLastChar called on empty string.");
 
             Iterator it = _endIt;
             --it;
@@ -1509,8 +1347,7 @@ namespace bdn
         char32_t getFirstChar() const
         {
             if (_beginIt == _endIt)
-                throw OutOfRangeError(
-                    "String::getFirstChar called on empty string.");
+                throw OutOfRangeError("String::getFirstChar called on empty string.");
 
             return *_beginIt;
         }
@@ -1525,26 +1362,19 @@ namespace bdn
            data between two other iterators. Use findAndReplace() instead, if
            you want to search for and replace a certain substring.*/
         template <class InputIterator>
-        StringImpl &replace(const Iterator &rangeBegin,
-                            const Iterator &rangeEnd,
-                            const InputIterator &replaceWithBegin,
+        StringImpl &replace(const Iterator &rangeBegin, const Iterator &rangeEnd, const InputIterator &replaceWithBegin,
                             const InputIterator &replaceWithEnd)
         {
             // we must convert the range to encoded indices because the
             // iterators can be invalidated by Modify.
-            size_t encodedBeginIndex =
-                rangeBegin.getInner() - _beginIt.getInner();
+            size_t encodedBeginIndex = rangeBegin.getInner() - _beginIt.getInner();
             size_t encodedLength = rangeEnd.getInner() - rangeBegin.getInner();
 
             Modify m(this);
 
-            m.pStd->replace(
-                m.pStd->begin() + encodedBeginIndex,
-                m.pStd->begin() + encodedBeginIndex + encodedLength,
-                typename MainDataType::Codec::template EncodingIterator<
-                    InputIterator>(replaceWithBegin),
-                typename MainDataType::Codec::template EncodingIterator<
-                    InputIterator>(replaceWithEnd));
+            m.pStd->replace(m.pStd->begin() + encodedBeginIndex, m.pStd->begin() + encodedBeginIndex + encodedLength,
+                            typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithBegin),
+                            typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithEnd));
 
             return *this;
         }
@@ -1552,23 +1382,18 @@ namespace bdn
         /** Replaces a section of the string (defined by two iterators) with the
            data between two other iterators. Use findAndReplace() instead, if
            you want to search for and replace a certain substring.*/
-        StringImpl &replace(const Iterator &rangeBegin,
-                            const Iterator &rangeEnd,
-                            const Iterator &replaceWithBegin,
+        StringImpl &replace(const Iterator &rangeBegin, const Iterator &rangeEnd, const Iterator &replaceWithBegin,
                             const Iterator &replaceWithEnd)
         {
             // we must convert the range to encoded indices because the
             // iterators can be invalidated by Modify.
-            size_t encodedBeginIndex =
-                rangeBegin.getInner() - _beginIt.getInner();
+            size_t encodedBeginIndex = rangeBegin.getInner() - _beginIt.getInner();
             size_t encodedLength = rangeEnd.getInner() - rangeBegin.getInner();
 
             Modify m(this);
 
-            m.pStd->replace(m.pStd->begin() + encodedBeginIndex,
-                            m.pStd->begin() + encodedBeginIndex + encodedLength,
-                            replaceWithBegin.getInner(),
-                            replaceWithEnd.getInner());
+            m.pStd->replace(m.pStd->begin() + encodedBeginIndex, m.pStd->begin() + encodedBeginIndex + encodedLength,
+                            replaceWithBegin.getInner(), replaceWithEnd.getInner());
 
             return *this;
         }
@@ -1585,25 +1410,21 @@ namespace bdn
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
         template <class InputIterator>
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const InputIterator &replaceWithBegin,
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const InputIterator &replaceWithBegin,
                             const InputIterator &replaceWithEnd)
         {
             size_t myLength = getLength();
 
             if (rangeStartIndex > myLength)
-                throw OutOfRangeError(
-                    "Invalid start index passed to String::replace");
+                throw OutOfRangeError("Invalid start index passed to String::replace");
 
             Iterator rangeStart(_beginIt + rangeStartIndex);
 
-            Iterator rangeEnd((rangeLength == toEnd ||
-                               rangeStartIndex + rangeLength >= myLength)
+            Iterator rangeEnd((rangeLength == toEnd || rangeStartIndex + rangeLength >= myLength)
                                   ? _endIt
                                   : (rangeStart + rangeLength));
 
-            return replace(rangeStart, rangeEnd, replaceWithBegin,
-                           replaceWithEnd);
+            return replace(rangeStart, rangeEnd, replaceWithBegin, replaceWithEnd);
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1622,33 +1443,24 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeBegin,
-                            const Iterator &rangeEnd,
-                            const StringImpl &replaceWith,
-                            size_t replaceWithStartIndex = 0,
-                            size_t replaceWithLength = toEnd)
+        StringImpl &replace(const Iterator &rangeBegin, const Iterator &rangeEnd, const StringImpl &replaceWith,
+                            size_t replaceWithStartIndex = 0, size_t replaceWithLength = toEnd)
         {
             if (replaceWithStartIndex == 0 && replaceWithLength == toEnd)
-                return replace(rangeBegin, rangeEnd, replaceWith.begin(),
-                               replaceWith.end());
+                return replace(rangeBegin, rangeEnd, replaceWith.begin(), replaceWith.end());
             else {
                 size_t actualReplaceWithLength = replaceWith.getLength();
                 if (replaceWithStartIndex > actualReplaceWithLength)
-                    throw OutOfRangeError(
-                        "Invalid start index passed to String::replace");
+                    throw OutOfRangeError("Invalid start index passed to String::replace");
 
-                Iterator replaceWithStart =
-                    replaceWith.begin() + replaceWithStartIndex;
+                Iterator replaceWithStart = replaceWith.begin() + replaceWithStartIndex;
 
                 Iterator replaceWithEnd(
-                    (replaceWithLength == toEnd ||
-                     replaceWithStartIndex + replaceWithLength >=
-                         actualReplaceWithLength)
+                    (replaceWithLength == toEnd || replaceWithStartIndex + replaceWithLength >= actualReplaceWithLength)
                         ? replaceWith.end()
                         : (replaceWithStart + replaceWithLength));
 
-                return replace(rangeBegin, rangeEnd, replaceWithStart,
-                               replaceWithEnd);
+                return replace(rangeBegin, rangeEnd, replaceWithStart, replaceWithEnd);
             }
         }
 
@@ -1674,32 +1486,24 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const StringImpl &replaceWith,
-                            size_t replaceWithStartIndex = 0,
-                            size_t replaceWithLength = toEnd)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const StringImpl &replaceWith,
+                            size_t replaceWithStartIndex = 0, size_t replaceWithLength = toEnd)
         {
             if (replaceWithStartIndex == 0 && replaceWithLength == toEnd)
-                return replace(rangeStartIndex, rangeLength,
-                               replaceWith.begin(), replaceWith.end());
+                return replace(rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end());
             else {
                 size_t actualReplaceWithLength = replaceWith.getLength();
                 if (replaceWithStartIndex > actualReplaceWithLength)
-                    throw OutOfRangeError(
-                        "Invalid start index passed to String::replace");
+                    throw OutOfRangeError("Invalid start index passed to String::replace");
 
-                Iterator replaceWithStart =
-                    replaceWith.begin() + replaceWithStartIndex;
+                Iterator replaceWithStart = replaceWith.begin() + replaceWithStartIndex;
 
                 Iterator replaceWithEnd(
-                    (replaceWithLength == toEnd ||
-                     replaceWithStartIndex + replaceWithLength >=
-                         actualReplaceWithLength)
+                    (replaceWithLength == toEnd || replaceWithStartIndex + replaceWithLength >= actualReplaceWithLength)
                         ? replaceWith.end()
                         : (replaceWithStart + replaceWithLength));
 
-                return replace(rangeStartIndex, rangeLength, replaceWithStart,
-                               replaceWithEnd);
+                return replace(rangeStartIndex, rangeLength, replaceWithStart, replaceWithEnd);
             }
         }
 
@@ -1716,19 +1520,14 @@ namespace bdn
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
         template <class CODEC, class InputIterator>
-        StringImpl &replaceEncoded(const CODEC &codec, size_t rangeStartIndex,
-                                   size_t rangeLength,
-                                   InputIterator encodedReplaceWithBegin,
-                                   InputIterator encodedReplaceWithEnd)
+        StringImpl &replaceEncoded(const CODEC &codec, size_t rangeStartIndex, size_t rangeLength,
+                                   InputIterator encodedReplaceWithBegin, InputIterator encodedReplaceWithEnd)
         {
-            return replace(
-                rangeStartIndex, rangeLength,
-                typename CODEC::template DecodingIterator<InputIterator>(
-                    encodedReplaceWithBegin, encodedReplaceWithBegin,
-                    encodedReplaceWithEnd),
-                typename CODEC::template DecodingIterator<InputIterator>(
-                    encodedReplaceWithEnd, encodedReplaceWithBegin,
-                    encodedReplaceWithEnd));
+            return replace(rangeStartIndex, rangeLength,
+                           typename CODEC::template DecodingIterator<InputIterator>(
+                               encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+                           typename CODEC::template DecodingIterator<InputIterator>(
+                               encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd));
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1738,20 +1537,14 @@ namespace bdn
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
         template <class CODEC, class InputIterator>
-        StringImpl &replaceEncoded(const CODEC &codec,
-                                   const Iterator &rangeStart,
-                                   const Iterator &rangeEnd,
-                                   InputIterator encodedReplaceWithBegin,
-                                   InputIterator encodedReplaceWithEnd)
+        StringImpl &replaceEncoded(const CODEC &codec, const Iterator &rangeStart, const Iterator &rangeEnd,
+                                   InputIterator encodedReplaceWithBegin, InputIterator encodedReplaceWithEnd)
         {
-            return replace(
-                rangeStart, rangeEnd,
-                typename CODEC::template DecodingIterator<InputIterator>(
-                    encodedReplaceWithBegin, encodedReplaceWithBegin,
-                    encodedReplaceWithEnd),
-                typename CODEC::template DecodingIterator<InputIterator>(
-                    encodedReplaceWithEnd, encodedReplaceWithBegin,
-                    encodedReplaceWithEnd));
+            return replace(rangeStart, rangeEnd,
+                           typename CODEC::template DecodingIterator<InputIterator>(
+                               encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+                           typename CODEC::template DecodingIterator<InputIterator>(
+                               encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd));
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1770,13 +1563,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const char *replaceWith,
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const char *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                Utf8Codec(), rangeStartIndex, rangeLength, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(Utf8Codec(), rangeStartIndex, rangeLength, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1788,13 +1579,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd, const char *replaceWith,
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const char *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                Utf8Codec(), rangeStart, rangeEnd, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(Utf8Codec(), rangeStart, rangeEnd, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1809,11 +1598,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const std::string &replaceWith)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const std::string &replaceWith)
         {
-            return replaceEncoded(Utf8Codec(), rangeStartIndex, rangeLength,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(Utf8Codec(), rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1821,12 +1608,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const std::string &replaceWith)
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const std::string &replaceWith)
         {
-            return replaceEncoded(Utf8Codec(), rangeStart, rangeEnd,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(Utf8Codec(), rangeStart, rangeEnd, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1845,13 +1629,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const char16_t *replaceWith,
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const char16_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                Utf16Codec(), rangeStartIndex, rangeLength, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(Utf16Codec(), rangeStartIndex, rangeLength, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1863,14 +1645,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const char16_t *replaceWith,
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const char16_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                Utf16Codec(), rangeStart, rangeEnd, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(Utf16Codec(), rangeStart, rangeEnd, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1885,11 +1664,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const std::u16string &replaceWith)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const std::u16string &replaceWith)
         {
-            return replaceEncoded(Utf16Codec(), rangeStartIndex, rangeLength,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(Utf16Codec(), rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1897,12 +1674,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const std::u16string &replaceWith)
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const std::u16string &replaceWith)
         {
-            return replaceEncoded(Utf16Codec(), rangeStart, rangeEnd,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(Utf16Codec(), rangeStart, rangeEnd, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1921,12 +1695,10 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const char32_t *replaceWith,
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const char32_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replace(rangeStartIndex, rangeLength, replaceWith,
-                           getStringEndPtr(replaceWith, replaceWithLength));
+            return replace(rangeStartIndex, rangeLength, replaceWith, getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1939,13 +1711,10 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const char32_t *replaceWith,
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const char32_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replace(rangeStart, rangeEnd, replaceWith,
-                           getStringEndPtr(replaceWith, replaceWithLength));
+            return replace(rangeStart, rangeEnd, replaceWith, getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1961,11 +1730,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const std::u32string &replaceWith)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const std::u32string &replaceWith)
         {
-            return replace(rangeStartIndex, rangeLength, replaceWith.begin(),
-                           replaceWith.end());
+            return replace(rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -1974,12 +1741,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const std::u32string &replaceWith)
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const std::u32string &replaceWith)
         {
-            return replace(rangeStart, rangeEnd, replaceWith.begin(),
-                           replaceWith.end());
+            return replace(rangeStart, rangeEnd, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -1997,13 +1761,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const wchar_t *replaceWith,
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const wchar_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                WideCodec(), rangeStartIndex, rangeLength, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(WideCodec(), rangeStartIndex, rangeLength, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -2015,14 +1777,11 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const wchar_t *replaceWith,
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const wchar_t *replaceWith,
                             size_t replaceWithLength = toEnd)
         {
-            return replaceEncoded(
-                WideCodec(), rangeStart, rangeEnd, replaceWith,
-                getStringEndPtr(replaceWith, replaceWithLength));
+            return replaceEncoded(WideCodec(), rangeStart, rangeEnd, replaceWith,
+                                  getStringEndPtr(replaceWith, replaceWithLength));
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -2036,11 +1795,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            const std::wstring &replaceWith)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, const std::wstring &replaceWith)
         {
-            return replaceEncoded(WideCodec(), rangeStartIndex, rangeLength,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(WideCodec(), rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with
@@ -2048,12 +1805,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
-                            const std::wstring &replaceWith)
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd, const std::wstring &replaceWith)
         {
-            return replaceEncoded(WideCodec(), rangeStart, rangeEnd,
-                                  replaceWith.begin(), replaceWith.end());
+            return replaceEncoded(WideCodec(), rangeStart, rangeEnd, replaceWith.begin(), replaceWith.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with a
@@ -2070,12 +1824,10 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeStart,
-                            const Iterator &rangeEnd,
+        StringImpl &replace(const Iterator &rangeStart, const Iterator &rangeEnd,
                             std::initializer_list<char32_t> charList)
         {
-            return replace(rangeStart, rangeEnd, charList.begin(),
-                           charList.end());
+            return replace(rangeStart, rangeEnd, charList.begin(), charList.end());
         }
 
         /** Replaces a section of this string (defined by a start index and
@@ -2098,11 +1850,9 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            std::initializer_list<char32_t> charList)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, std::initializer_list<char32_t> charList)
         {
-            return replace(rangeStartIndex, rangeLength, charList.begin(),
-                           charList.end());
+            return replace(rangeStartIndex, rangeLength, charList.begin(), charList.end());
         }
 
         /** Replaces a section of this string (defined by two iterators) with \c
@@ -2110,16 +1860,10 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(const Iterator &rangeBegin,
-                            const Iterator &rangeEnd, size_t numChars,
-                            char32_t chr)
+        StringImpl &replace(const Iterator &rangeBegin, const Iterator &rangeEnd, size_t numChars, char32_t chr)
         {
-            typename MainDataType::Codec::template EncodingIterator<
-                const char32_t *>
-                encodedBegin(&chr);
-            typename MainDataType::Codec::template EncodingIterator<
-                const char32_t *>
-                encodedEnd((&chr) + 1);
+            typename MainDataType::Codec::template EncodingIterator<const char32_t *> encodedBegin(&chr);
+            typename MainDataType::Codec::template EncodingIterator<const char32_t *> encodedEnd((&chr) + 1);
 
             // get the size of the encoded character
             int encodedCharSize = 0;
@@ -2131,10 +1875,8 @@ namespace bdn
 
             // we must convert the range to encoded indices because the
             // iterators can be invalidated by Modify.
-            size_t encodedRangeBeginIndex =
-                rangeBegin.getInner() - _beginIt.getInner();
-            size_t encodedRangeLength =
-                rangeEnd.getInner() - rangeBegin.getInner();
+            size_t encodedRangeBeginIndex = rangeBegin.getInner() - _beginIt.getInner();
+            size_t encodedRangeLength = rangeEnd.getInner() - rangeBegin.getInner();
 
             {
                 Modify m(this);
@@ -2144,14 +1886,12 @@ namespace bdn
                     m.pStd->erase(encodedRangeBeginIndex, encodedRangeLength);
                 } else if (encodedCharSize == 1) {
                     // we can use the std::string version of replace
-                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength,
-                                    numChars, lastEncodedElement);
+                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength, numChars, lastEncodedElement);
                 } else {
                     // we must insert in a loop.
                     // to make room we first fill with zero elements.
 
-                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength,
-                                    numChars * encodedCharSize, 0);
+                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength, numChars * encodedCharSize, 0);
 
                     auto destIt = m.pStd->begin() + encodedRangeBeginIndex;
                     for (size_t c = 0; c < numChars; c++) {
@@ -2177,19 +1917,16 @@ namespace bdn
 
             Use findAndReplace() instead, if you want to search for and replace
            a certain substring.*/
-        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength,
-                            size_t numChars, char32_t chr)
+        StringImpl &replace(size_t rangeStartIndex, size_t rangeLength, size_t numChars, char32_t chr)
         {
             size_t myLength = getLength();
 
             if (rangeStartIndex > myLength)
-                throw OutOfRangeError(
-                    "Invalid start index passed to String::replace");
+                throw OutOfRangeError("Invalid start index passed to String::replace");
 
             Iterator rangeStart(_beginIt + rangeStartIndex);
 
-            Iterator rangeEnd((rangeLength == toEnd ||
-                               rangeStartIndex + rangeLength >= myLength)
+            Iterator rangeEnd((rangeLength == toEnd || rangeStartIndex + rangeLength >= myLength)
                                   ? _endIt
                                   : (rangeStart + rangeLength));
 
@@ -2207,28 +1944,20 @@ namespace bdn
            for \c otherSubLength characters to be copied then only the available
             characters up to the end of \c other are copied.
         */
-        StringImpl &append(const StringImpl &other,
-                           size_t otherSubStartIndex = 0,
-                           size_t otherSubLength = toEnd)
+        StringImpl &append(const StringImpl &other, size_t otherSubStartIndex = 0, size_t otherSubLength = toEnd)
         {
-            return replace(_endIt, _endIt, other, otherSubStartIndex,
-                           otherSubLength);
+            return replace(_endIt, _endIt, other, otherSubStartIndex, otherSubLength);
         }
 
         /** Appends the string data between the specified two iterators to the
          * end of this string.*/
-        template <class InputIterator>
-        StringImpl &append(const InputIterator &beginIt,
-                           const InputIterator &endIt)
+        template <class InputIterator> StringImpl &append(const InputIterator &beginIt, const InputIterator &endIt)
         {
             return replace(_endIt, _endIt, beginIt, endIt);
         }
 
         /** Appends the specified string to this string.*/
-        StringImpl &append(const std::string &other)
-        {
-            return replace(_endIt, _endIt, other);
-        }
+        StringImpl &append(const std::string &other) { return replace(_endIt, _endIt, other); }
 
         /** Appends the specified string to this string.
 
@@ -2236,16 +1965,10 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            in bytes.
         */
-        StringImpl &append(const char *other, size_t length = toEnd)
-        {
-            return replace(_endIt, _endIt, other, length);
-        }
+        StringImpl &append(const char *other, size_t length = toEnd) { return replace(_endIt, _endIt, other, length); }
 
         /** Appends the specified string to this string.*/
-        StringImpl &append(const std::u16string &o)
-        {
-            return replace(_endIt, _endIt, o);
-        }
+        StringImpl &append(const std::u16string &o) { return replace(_endIt, _endIt, o); }
 
         /** Appends the specified string to this string.
 
@@ -2253,17 +1976,11 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            in 16 bit elements.
         */
-        StringImpl &append(const char16_t *o, size_t length = toEnd)
-        {
-            return replace(_endIt, _endIt, o, length);
-        }
+        StringImpl &append(const char16_t *o, size_t length = toEnd) { return replace(_endIt, _endIt, o, length); }
 
         /** Appends the specified string to this string.
          */
-        StringImpl &append(const std::u32string &o)
-        {
-            return replace(_endIt, _endIt, o);
-        }
+        StringImpl &append(const std::u32string &o) { return replace(_endIt, _endIt, o); }
 
         /** Appends the specified string to this string.
 
@@ -2271,17 +1988,11 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            in 32 bit elements.
         */
-        StringImpl &append(const char32_t *o, size_t length = toEnd)
-        {
-            return replace(_endIt, _endIt, o, length);
-        }
+        StringImpl &append(const char32_t *o, size_t length = toEnd) { return replace(_endIt, _endIt, o, length); }
 
         /** Appends the specified string to this string.
          */
-        StringImpl &append(const std::wstring &o)
-        {
-            return replace(_endIt, _endIt, o);
-        }
+        StringImpl &append(const std::wstring &o) { return replace(_endIt, _endIt, o); }
 
         /** Appends the specified string to this string.
 
@@ -2289,17 +2000,11 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            in wchar_t elements.
         */
-        StringImpl &append(const wchar_t *o, size_t length = toEnd)
-        {
-            return replace(_endIt, _endIt, o, length);
-        }
+        StringImpl &append(const wchar_t *o, size_t length = toEnd) { return replace(_endIt, _endIt, o, length); }
 
         /** Appends \c numChars occurrences of \c chr to this string.
          */
-        StringImpl &append(size_t numChars, char32_t chr)
-        {
-            return replace(_endIt, _endIt, numChars, chr);
-        }
+        StringImpl &append(size_t numChars, char32_t chr) { return replace(_endIt, _endIt, numChars, chr); }
 
         /** Appends a sequence of characters to this string.
 
@@ -2345,9 +2050,7 @@ namespace bdn
             Same as append - this is included for compatibility with the
            collection protocol.
         */
-        template <class InputIterator>
-        void addSequence(const InputIterator &beginIt,
-                         const InputIterator &endIt)
+        template <class InputIterator> void addSequence(const InputIterator &beginIt, const InputIterator &endIt)
         {
             append(beginIt, endIt);
         }
@@ -2362,10 +2065,7 @@ namespace bdn
                 s.addSequence( { 'a', 'x', 'M' } );	// appends "axM" to the
            string. \endcode
             */
-        void addSequence(std::initializer_list<char32_t> initList)
-        {
-            append(initList.begin(), initList.end());
-        }
+        void addSequence(std::initializer_list<char32_t> initList) { append(initList.begin(), initList.end()); }
 
         /** Adds the elements from the specified source character \ref
            sequence.md "sequence" to the collection.
@@ -2374,8 +2074,7 @@ namespace bdn
            all elements from any char32_t collection (for example, bdn::Array,
            bdn::List, etc.).
             */
-        template <class SequenceType>
-        void addSequence(const SequenceType &sequence)
+        template <class SequenceType> void addSequence(const SequenceType &sequence)
         {
             append(sequence.begin(), sequence.end());
         }
@@ -2423,12 +2122,10 @@ namespace bdn
            for \c otherSubLength characters to be copied then only the available
             characters up to the end of \c other are copied.
         */
-        StringImpl &insert(size_t atIndex, const StringImpl &other,
-                           size_t otherSubStartIndex = 0,
+        StringImpl &insert(size_t atIndex, const StringImpl &other, size_t otherSubStartIndex = 0,
                            size_t otherSubLength = toEnd)
         {
-            return insert(begin() + atIndex, other, otherSubStartIndex,
-                          otherSubLength);
+            return insert(begin() + atIndex, other, otherSubStartIndex, otherSubLength);
         }
 
         /** Inserts the specified string at the position corresponding to the \c
@@ -2443,12 +2140,10 @@ namespace bdn
            for \c otherSubLength characters to be copied then only the available
             characters up to the end of \c other are copied.
         */
-        StringImpl &insert(const Iterator &atIt, const StringImpl &other,
-                           size_t otherSubStartIndex = 0,
+        StringImpl &insert(const Iterator &atIt, const StringImpl &other, size_t otherSubStartIndex = 0,
                            size_t otherSubLength = toEnd)
         {
-            return replace(atIt, atIt, other, otherSubStartIndex,
-                           otherSubLength);
+            return replace(atIt, atIt, other, otherSubStartIndex, otherSubLength);
         }
 
         /** Inserts the specified string at the specified character index.
@@ -2469,8 +2164,7 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            to insert in encoded 8 bit elements.
         */
-        StringImpl &insert(const Iterator &atIt, const char *o,
-                           size_t length = toEnd)
+        StringImpl &insert(const Iterator &atIt, const char *o, size_t length = toEnd)
         {
             return replace(atIt, atIt, o, length);
         }
@@ -2484,10 +2178,7 @@ namespace bdn
 
         /** Inserts the specified string at the position corresponding to the \c
          * atIt iterator.*/
-        StringImpl &insert(const Iterator &atIt, const std::string &other)
-        {
-            return replace(atIt, atIt, other);
-        }
+        StringImpl &insert(const Iterator &atIt, const std::string &other) { return replace(atIt, atIt, other); }
 
         /** Inserts the specified string at the specified character index.
 
@@ -2495,8 +2186,7 @@ namespace bdn
            string.
             If it is specified then it indicates the length of the string to
            insert in encoded wchar_t elements.	*/
-        StringImpl &insert(size_t atIndex, const wchar_t *o,
-                           size_t length = toEnd)
+        StringImpl &insert(size_t atIndex, const wchar_t *o, size_t length = toEnd)
         {
             return insert(begin() + atIndex, o, length);
         }
@@ -2508,8 +2198,7 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            to insert in encoded wchar_t elements.
         */
-        StringImpl &insert(const Iterator &atIt, const wchar_t *o,
-                           size_t length = toEnd)
+        StringImpl &insert(const Iterator &atIt, const wchar_t *o, size_t length = toEnd)
         {
             return replace(atIt, atIt, o, length);
         }
@@ -2525,8 +2214,7 @@ namespace bdn
          * atIt iterator.*/
         StringImpl &insert(const Iterator &atIt, const std::wstring &other)
         {
-            return replaceEncoded(WideCodec(), atIt, atIt, other.begin(),
-                                  other.end());
+            return replaceEncoded(WideCodec(), atIt, atIt, other.begin(), other.end());
         }
 
         /** Inserts the specified string at the specified character index.
@@ -2535,8 +2223,7 @@ namespace bdn
            string.
             If it is specified then it indicates the length of the string to
            insert in encoded 16 bit elements.	*/
-        StringImpl &insert(size_t atIndex, const char16_t *o,
-                           size_t length = toEnd)
+        StringImpl &insert(size_t atIndex, const char16_t *o, size_t length = toEnd)
         {
             return insert(begin() + atIndex, o, length);
         }
@@ -2548,8 +2235,7 @@ namespace bdn
            string. If it is specified then it indicates the length of the string
            to insert in encoded 16 bit elements.
         */
-        StringImpl &insert(const Iterator &atIt, const char16_t *o,
-                           size_t length = toEnd)
+        StringImpl &insert(const Iterator &atIt, const char16_t *o, size_t length = toEnd)
         {
             return replace(atIt, atIt, o, length);
         }
@@ -2565,8 +2251,7 @@ namespace bdn
          * atIt iterator.*/
         StringImpl &insert(const Iterator &atIt, const std::u16string &other)
         {
-            return replaceEncoded(Utf16Codec(), atIt, atIt, other.begin(),
-                                  other.end());
+            return replaceEncoded(Utf16Codec(), atIt, atIt, other.begin(), other.end());
         }
 
         /** Inserts the specified string at the specified character index.
@@ -2575,8 +2260,7 @@ namespace bdn
            string.
             If it is specified then it indicates the length of the string to
            insert in encoded 32 bit elements.	*/
-        StringImpl &insert(size_t atIndex, const char32_t *other,
-                           size_t length = toEnd)
+        StringImpl &insert(size_t atIndex, const char32_t *other, size_t length = toEnd)
         {
             return insert(begin() + atIndex, other, length);
         }
@@ -2588,8 +2272,7 @@ namespace bdn
         string. If it is specified then it indicates the length of the string to
         insert in encoded 32 bit elements.
         */
-        StringImpl &insert(const Iterator &atIt, const char32_t *other,
-                           size_t length = toEnd)
+        StringImpl &insert(const Iterator &atIt, const char32_t *other, size_t length = toEnd)
         {
             return replace(atIt, atIt, other, length);
         }
@@ -2605,8 +2288,7 @@ namespace bdn
          * atIt iterator.*/
         StringImpl &insert(const Iterator &atIt, const std::u32string &other)
         {
-            return replaceEncoded(Utf32Codec(), atIt, atIt, other.begin(),
-                                  other.end());
+            return replaceEncoded(Utf32Codec(), atIt, atIt, other.begin(), other.end());
         }
 
         /** Inserts the specified character numChar times at the specified
@@ -2626,14 +2308,13 @@ namespace bdn
         */
         Iterator insert(const Iterator &atIt, size_t numChars, char32_t chr)
         {
-            typename MainDataType::EncodedString::difference_type
-                encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+            typename MainDataType::EncodedString::difference_type encodedInsertIndex =
+                atIt.getInner() - _beginIt.getInner();
 
             replace(atIt, atIt, numChars, chr);
 
             // we must return an iterator to the first inserted character
-            return Iterator(_beginIt.getInner() + encodedInsertIndex,
-                            _beginIt.getInner(), _endIt.getInner());
+            return Iterator(_beginIt.getInner() + encodedInsertIndex, _beginIt.getInner(), _endIt.getInner());
         }
 
         /** Inserts the specified character at the specified character index.
@@ -2642,10 +2323,7 @@ namespace bdn
            numChars is 0 and no character is inserted then it returns an
            iterator pointing to the position indicated by \c atIt.
             */
-        StringImpl &insert(size_t atIndex, char32_t chr)
-        {
-            return insert(atIndex, 1, chr);
-        }
+        StringImpl &insert(size_t atIndex, char32_t chr) { return insert(atIndex, 1, chr); }
 
         /** Inserts the specified character at the position indicated by \c
            atIt.
@@ -2654,17 +2332,12 @@ namespace bdn
            numChars is 0 and no character is inserted then it returns an
            iterator pointing to the position indicated by \c atIt.
             */
-        Iterator insert(const Iterator &atIt, char32_t chr)
-        {
-            return insert(atIt, 1, chr);
-        }
+        Iterator insert(const Iterator &atIt, char32_t chr) { return insert(atIt, 1, chr); }
 
         /** Inserts the data between the two character iterators toInsertBegin
            and toInsertEnd at the character index \c atIndex.
             */
-        template <class IT>
-        StringImpl &insert(size_t atIndex, const IT &toInsertBegin,
-                           const IT &toInsertEnd)
+        template <class IT> StringImpl &insert(size_t atIndex, const IT &toInsertBegin, const IT &toInsertEnd)
         {
             return replace(atIndex, 0, toInsertBegin, toInsertEnd);
         }
@@ -2676,18 +2349,15 @@ namespace bdn
            numChars is 0 and no character is inserted then it returns an
            iterator pointing to the position indicated by \c atIt.
             */
-        template <class IT>
-        Iterator insert(Iterator atIt, const IT &toInsertBegin,
-                        const IT &toInsertEnd)
+        template <class IT> Iterator insert(Iterator atIt, const IT &toInsertBegin, const IT &toInsertEnd)
         {
-            typename MainDataType::EncodedString::difference_type
-                encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+            typename MainDataType::EncodedString::difference_type encodedInsertIndex =
+                atIt.getInner() - _beginIt.getInner();
 
             replace(atIt, atIt, toInsertBegin, toInsertEnd);
 
             // we must return an iterator to the first inserted character
-            return Iterator(_beginIt.getInner() + encodedInsertIndex,
-                            _beginIt.getInner(), _endIt.getInner());
+            return Iterator(_beginIt.getInner() + encodedInsertIndex, _beginIt.getInner(), _endIt.getInner());
         }
 
         /** Inserts a sequence of characters at the character index \c atIndex.
@@ -2701,11 +2371,9 @@ namespace bdn
             myString.insert(atIndex, {'a', 'b', 'c' } );
             \endcode
             */
-        StringImpl &insert(size_t atIndex,
-                           std::initializer_list<char32_t> initializerList)
+        StringImpl &insert(size_t atIndex, std::initializer_list<char32_t> initializerList)
         {
-            return insert(atIndex, initializerList.begin(),
-                          initializerList.end());
+            return insert(atIndex, initializerList.begin(), initializerList.end());
         }
 
         /** Inserts a sequence of characters at the position indicated by \c
@@ -2720,8 +2388,7 @@ namespace bdn
             myString.insert(atIt, {'a', 'b', 'c' } );
             \endcode
             */
-        StringImpl &insert(const Iterator &atIt,
-                           std::initializer_list<char32_t> initializerList)
+        StringImpl &insert(const Iterator &atIt, std::initializer_list<char32_t> initializerList)
         {
             insert(atIt, initializerList.begin(), initializerList.end());
             return *this;
@@ -2744,14 +2411,13 @@ namespace bdn
            of the removed character (or end() if it was the last character).*/
         Iterator erase(const Iterator &it)
         {
-            typename MainDataType::EncodedString::difference_type
-                encodedEraseIndex = it.getInner() - _beginIt.getInner();
+            typename MainDataType::EncodedString::difference_type encodedEraseIndex =
+                it.getInner() - _beginIt.getInner();
 
             replace(it, it + 1, U"", 0);
 
             // we must return an iterator to the erased position
-            return Iterator(_beginIt.getInner() + encodedEraseIndex,
-                            _beginIt.getInner(), _endIt.getInner());
+            return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());
         }
 
         /** Removes a part of the string, starting at the position indicated by
@@ -2764,14 +2430,13 @@ namespace bdn
            string).*/
         Iterator erase(const Iterator &beginIt, const Iterator &endIt)
         {
-            typename MainDataType::EncodedString::difference_type
-                encodedEraseIndex = beginIt.getInner() - _beginIt.getInner();
+            typename MainDataType::EncodedString::difference_type encodedEraseIndex =
+                beginIt.getInner() - _beginIt.getInner();
 
             replace(beginIt, endIt, U"", 0);
 
             // we must return an iterator to the erased position
-            return Iterator(_beginIt.getInner() + encodedEraseIndex,
-                            _beginIt.getInner(), _endIt.getInner());
+            return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());
         }
 
         /** Removes the character at the position of the specified iterator.
@@ -2794,10 +2459,7 @@ namespace bdn
             Same as erase(beginIt, endIt). This alias is included for
            compatibility with the collection protocol.
             */
-        Iterator removeSection(const Iterator &beginIt, const Iterator &endIt)
-        {
-            return erase(beginIt, endIt);
-        }
+        Iterator removeSection(const Iterator &beginIt, const Iterator &endIt) { return erase(beginIt, endIt); }
 
         /** Erases the entire contents of the string. The string becomes an
          * empty string.*/
@@ -2823,13 +2485,10 @@ namespace bdn
            for \c otherSubLength characters to be copied then only the available
             characters up to the end of \c other are copied.
             */
-        StringImpl &assign(const StringImpl &other,
-                           size_t otherSubStartIndex = 0,
-                           size_t otherSubLength = toEnd)
+        StringImpl &assign(const StringImpl &other, size_t otherSubStartIndex = 0, size_t otherSubLength = toEnd)
         {
             if (otherSubStartIndex > other.getLength())
-                throw OutOfRangeError(
-                    "Invalid otherSubStartIndex passed to String::assign");
+                throw OutOfRangeError("Invalid otherSubStartIndex passed to String::assign");
 
             // just copy a reference to the source string's data
             _pData = other._pData;
@@ -2839,8 +2498,7 @@ namespace bdn
             if (otherSubStartIndex > 0)
                 _beginIt += otherSubStartIndex;
 
-            if (otherSubLength == toEnd ||
-                otherSubStartIndex + otherSubLength >= other.length()) {
+            if (otherSubLength == toEnd || otherSubStartIndex + otherSubLength >= other.length()) {
                 _endIt = other._endIt;
 
                 if (other._lengthIfKnown == npos)
@@ -2863,82 +2521,54 @@ namespace bdn
         }
 
         /** Assigns the value of another string to this string. 	*/
-        StringImpl &assign(const std::string &o)
-        {
-            return replace(_beginIt, _endIt, o);
-        }
+        StringImpl &assign(const std::string &o) { return replace(_beginIt, _endIt, o); }
 
         /** Assigns the value of a C-style UTF8 string to this string. If length
            is not String::toEnd or String::npos then it must be the length of
            the encoded UTF-8 string in bytes. If length is String::toEnd or
            String::npos then the other string must be zero-terminated.
             */
-        StringImpl &assign(const char *o, size_t length = toEnd)
-        {
-            return replace(_beginIt, _endIt, o, length);
-        }
+        StringImpl &assign(const char *o, size_t length = toEnd) { return replace(_beginIt, _endIt, o, length); }
 
         /** Assigns the value of another string to this string. 	*/
-        StringImpl &assign(const std::wstring &o)
-        {
-            return replace(_beginIt, _endIt, o);
-        }
+        StringImpl &assign(const std::wstring &o) { return replace(_beginIt, _endIt, o); }
 
         /** Assigns the value of a C-style wide char string to this string. If
            length is not String::toEnd or String::npos then it must be the
            number of encoded wchar_t elements. If length is String::toEnd or
            String::npos then the other string must be zero-terminated.
             */
-        StringImpl &assign(const wchar_t *o, size_t length = toEnd)
-        {
-            return replace(_beginIt, _endIt, o, length);
-        }
+        StringImpl &assign(const wchar_t *o, size_t length = toEnd) { return replace(_beginIt, _endIt, o, length); }
 
         /** Assigns the value of another string to this string. 	*/
-        StringImpl &assign(const std::u16string &o)
-        {
-            return replace(_beginIt, _endIt, o);
-        }
+        StringImpl &assign(const std::u16string &o) { return replace(_beginIt, _endIt, o); }
 
         /** Assigns the value of a C-style UTF-16 string to this string. If
            length is not String::toEnd or String::npos then it must be the
            number of encoded 16 bit UTF-16 elements. If length is String::toEnd
            or String::npos then the other string must be zero-terminated.
             */
-        StringImpl &assign(const char16_t *o, size_t length = toEnd)
-        {
-            return replace(_beginIt, _endIt, o, length);
-        }
+        StringImpl &assign(const char16_t *o, size_t length = toEnd) { return replace(_beginIt, _endIt, o, length); }
 
         /** Assigns the value of another string to this string. 	*/
-        StringImpl &assign(const std::u32string &o)
-        {
-            return replace(_beginIt, _endIt, o);
-        }
+        StringImpl &assign(const std::u32string &o) { return replace(_beginIt, _endIt, o); }
 
         /** Assigns the value of a C-style UTF-32 string to this string. If
            length is not String::toEnd or String::npos then it must be the
            number of encoded 32 bit UTF-32 elements. If length is String::toEnd
            or String::npos then the other string must be zero-terminated.
             */
-        StringImpl &assign(const char32_t *o, size_t length = toEnd)
-        {
-            return replace(_beginIt, _endIt, o, length);
-        }
+        StringImpl &assign(const char32_t *o, size_t length = toEnd) { return replace(_beginIt, _endIt, o, length); }
 
         /** Sets the contents of this string to be \c numChars times the \c chr
          * character.
          */
-        StringImpl &assign(size_t numChars, char32_t chr)
-        {
-            return replace(_beginIt, _endIt, numChars, chr);
-        }
+        StringImpl &assign(size_t numChars, char32_t chr) { return replace(_beginIt, _endIt, numChars, chr); }
 
         /** Assigns the characters between the specified two character iterators
          * to this string.
          */
-        template <class InputIterator>
-        StringImpl &assign(InputIterator beginIt, InputIterator endIt)
+        template <class InputIterator> StringImpl &assign(InputIterator beginIt, InputIterator endIt)
         {
             return replace(_beginIt, _endIt, beginIt, endIt);
         }
@@ -3034,10 +2664,7 @@ namespace bdn
         }
 
         /** Returns a copy of the allocator object associated with the string.*/
-        Allocator getAllocator() const noexcept
-        {
-            return _pData->getEncodedString().get_allocator();
-        }
+        Allocator getAllocator() const noexcept { return _pData->getEncodedString().get_allocator(); }
 
         /** Same as getAllocator(). This is included for compatibility with
          * std::string.*/
@@ -3055,12 +2682,10 @@ namespace bdn
             If copyStartIndex is bigger than the length of the string then
            OutOfRangeError is thrown.
             */
-        size_t copy(char32_t *pDest, size_t maxCopyLength,
-                    size_t copyStartIndex = 0) const
+        size_t copy(char32_t *pDest, size_t maxCopyLength, size_t copyStartIndex = 0) const
         {
             if (copyStartIndex < 0 || copyStartIndex > getLength())
-                throw OutOfRangeError(
-                    "String::copy called with invalid start index.");
+                throw OutOfRangeError("String::copy called with invalid start index.");
 
             Iterator it = _beginIt + copyStartIndex;
             for (size_t i = 0; i < maxCopyLength; i++) {
@@ -3081,10 +2706,7 @@ namespace bdn
 
             Always returns true if \c toFind is empty.
         */
-        bool contains(char32_t toFind) const
-        {
-            return (find(toFind, _beginIt) != _endIt);
-        }
+        bool contains(char32_t toFind) const { return (find(toFind, _beginIt) != _endIt); }
 
         /** Checks if the string contains the string \c toFind.
 
@@ -3220,14 +2842,12 @@ namespace bdn
             Always returns true if the specified string to find is empty.
         */
         template <class ToFindIteratorType>
-        bool contains(const ToFindIteratorType &toFindBegin,
-                      const ToFindIteratorType &toFindEnd) const
+        bool contains(const ToFindIteratorType &toFindBegin, const ToFindIteratorType &toFindEnd) const
         {
             if (toFindBegin == toFindEnd)
                 return true;
 
-            return (find<ToFindIteratorType>(toFindBegin, toFindEnd,
-                                             _beginIt) != _endIt);
+            return (find<ToFindIteratorType>(toFindBegin, toFindEnd, _beginIt) != _endIt);
         }
 
         /** Returns true if the string starts with the specified substring.
@@ -3297,37 +2917,25 @@ namespace bdn
 
             Always returns true if \c s is empty.
         */
-        bool startsWith(const char *s) const
-        {
-            return startsWith(Utf8Codec(), s, getStringEndPtr(s));
-        }
+        bool startsWith(const char *s) const { return startsWith(Utf8Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string starts with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool startsWith(const wchar_t *s) const
-        {
-            return startsWith(WideCodec(), s, getStringEndPtr(s));
-        }
+        bool startsWith(const wchar_t *s) const { return startsWith(WideCodec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string starts with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool startsWith(const char16_t *s) const
-        {
-            return startsWith(Utf16Codec(), s, getStringEndPtr(s));
-        }
+        bool startsWith(const char16_t *s) const { return startsWith(Utf16Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string starts with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool startsWith(const char32_t *s) const
-        {
-            return startsWith(Utf32Codec(), s, getStringEndPtr(s));
-        }
+        bool startsWith(const char32_t *s) const { return startsWith(Utf32Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string starts with the specified substring. The
            substring to check for is represented by a pair or character
@@ -3337,8 +2945,7 @@ namespace bdn
            toCheckBegin/toCheckEnd is empty.
         */
         template <class InputIteratorType>
-        bool startsWith(const InputIteratorType &toCheckBegin,
-                        const InputIteratorType &toCheckEnd) const
+        bool startsWith(const InputIteratorType &toCheckBegin, const InputIteratorType &toCheckEnd) const
         {
             InputIteratorType toCheckIt = toCheckBegin;
             Iterator myIt = _beginIt;
@@ -3365,18 +2972,13 @@ namespace bdn
            toCheckBegin/toCheckEnd is empty.
         */
         template <class CodecType, class EncodedInputIteratorType>
-        bool startsWith(const CodecType &codec,
-                        const EncodedInputIteratorType &encodedToCheckBegin,
+        bool startsWith(const CodecType &codec, const EncodedInputIteratorType &encodedToCheckBegin,
                         const EncodedInputIteratorType &encodedToCheckEnd) const
         {
-            return startsWith(typename CodecType::template DecodingIterator<
-                                  EncodedInputIteratorType>(encodedToCheckBegin,
-                                                            encodedToCheckBegin,
-                                                            encodedToCheckEnd),
-                              typename CodecType::template DecodingIterator<
-                                  EncodedInputIteratorType>(encodedToCheckEnd,
-                                                            encodedToCheckBegin,
-                                                            encodedToCheckEnd));
+            return startsWith(typename CodecType::template DecodingIterator<EncodedInputIteratorType>(
+                                  encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+                              typename CodecType::template DecodingIterator<EncodedInputIteratorType>(
+                                  encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd));
         }
 
         /** Returns true if the string ends with the specified substring.
@@ -3446,37 +3048,25 @@ namespace bdn
 
             Always returns true if \c s is empty.
         */
-        bool endsWith(const char *s) const
-        {
-            return endsWith(Utf8Codec(), s, getStringEndPtr(s));
-        }
+        bool endsWith(const char *s) const { return endsWith(Utf8Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string ends with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool endsWith(const wchar_t *s) const
-        {
-            return endsWith(WideCodec(), s, getStringEndPtr(s));
-        }
+        bool endsWith(const wchar_t *s) const { return endsWith(WideCodec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string ends with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool endsWith(const char16_t *s) const
-        {
-            return endsWith(Utf16Codec(), s, getStringEndPtr(s));
-        }
+        bool endsWith(const char16_t *s) const { return endsWith(Utf16Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string ends with the specified substring.
 
             Always returns true if \c s is empty.
         */
-        bool endsWith(const char32_t *s) const
-        {
-            return endsWith(Utf32Codec(), s, getStringEndPtr(s));
-        }
+        bool endsWith(const char32_t *s) const { return endsWith(Utf32Codec(), s, getStringEndPtr(s)); }
 
         /** Returns true if the string ends with the specified substring. The
            substring to check for is represented by a pair or character
@@ -3486,8 +3076,7 @@ namespace bdn
            toCheckBegin/toCheckEnd is empty.
         */
         template <class InputIteratorType>
-        bool endsWith(const InputIteratorType &toCheckBegin,
-                      const InputIteratorType &toCheckEnd) const
+        bool endsWith(const InputIteratorType &toCheckBegin, const InputIteratorType &toCheckEnd) const
         {
             InputIteratorType toCheckIt = toCheckEnd;
             Iterator myIt = _endIt;
@@ -3514,18 +3103,13 @@ namespace bdn
            toCheckBegin/toCheckEnd is empty.
         */
         template <class CodecType, class EncodedInputIteratorType>
-        bool endsWith(const CodecType &codec,
-                      const EncodedInputIteratorType &encodedToCheckBegin,
+        bool endsWith(const CodecType &codec, const EncodedInputIteratorType &encodedToCheckBegin,
                       const EncodedInputIteratorType &encodedToCheckEnd) const
         {
-            return endsWith(typename CodecType::template DecodingIterator<
-                                EncodedInputIteratorType>(encodedToCheckBegin,
-                                                          encodedToCheckBegin,
-                                                          encodedToCheckEnd),
-                            typename CodecType::template DecodingIterator<
-                                EncodedInputIteratorType>(encodedToCheckEnd,
-                                                          encodedToCheckBegin,
-                                                          encodedToCheckEnd));
+            return endsWith(typename CodecType::template DecodingIterator<EncodedInputIteratorType>(
+                                encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+                            typename CodecType::template DecodingIterator<EncodedInputIteratorType>(
+                                encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd));
         }
 
         /** Searches for a sequence of characters in this string, starting at
@@ -3547,16 +3131,13 @@ namespace bdn
            *pMatchEndIt is set to end().
         */
         template <class ToFindIteratorType>
-        Iterator find(const ToFindIteratorType &toFindBeginIt,
-                      const ToFindIteratorType &toFindEndIt,
-                      const Iterator &searchFromIt,
-                      Iterator *pMatchEndIt = nullptr) const
+        Iterator find(const ToFindIteratorType &toFindBeginIt, const ToFindIteratorType &toFindEndIt,
+                      const Iterator &searchFromIt, Iterator *pMatchEndIt = nullptr) const
         {
             if (pMatchEndIt == nullptr) {
                 // we can use std::search. We assume that it might be more
                 // optimized than our algorithm, so we prefer the standard one.
-                return std::search(searchFromIt, _endIt, toFindBeginIt,
-                                   toFindEndIt);
+                return std::search(searchFromIt, _endIt, toFindBeginIt, toFindEndIt);
             } else {
                 Iterator matchBeginIt(searchFromIt);
 
@@ -3611,15 +3192,12 @@ namespace bdn
             If pMatchEndIt is not null and toFind is not found then *pMatchEndIt
            is set to end().
         */
-        Iterator find(const StringImpl &toFind, const Iterator &searchFromIt,
-                      Iterator *pMatchEndIt = nullptr) const
+        Iterator find(const StringImpl &toFind, const Iterator &searchFromIt, Iterator *pMatchEndIt = nullptr) const
         {
             if (pMatchEndIt == nullptr)
-                return std::search(searchFromIt, _endIt, toFind._beginIt,
-                                   toFind._endIt);
+                return std::search(searchFromIt, _endIt, toFind._beginIt, toFind._endIt);
             else
-                return find(toFind._beginIt, toFind._endIt, searchFromIt,
-                            pMatchEndIt);
+                return find(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
         }
 
         /** Searches for another string in this string.
@@ -3635,8 +3213,7 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const StringImpl &toFind, size_t searchStartIndex = 0) const
-            noexcept
+        size_t find(const StringImpl &toFind, size_t searchStartIndex = 0) const noexcept
         {
             if (searchStartIndex > getLength())
                 return noMatch;
@@ -3645,10 +3222,8 @@ namespace bdn
                 return searchStartIndex;
 
             IteratorWithIndex foundIt =
-                std::search(IteratorWithIndex(_beginIt + searchStartIndex,
-                                              searchStartIndex),
-                            IteratorWithIndex(_endIt, getLength()),
-                            toFind._beginIt, toFind._endIt);
+                std::search(IteratorWithIndex(_beginIt + searchStartIndex, searchStartIndex),
+                            IteratorWithIndex(_endIt, getLength()), toFind._beginIt, toFind._endIt);
             if (foundIt.getInner() == _endIt)
                 return noMatch;
             else
@@ -3680,10 +3255,8 @@ namespace bdn
            returned.
         */
         template <class ToFindCodec, class EncodedIt>
-        size_t findEncoded(const ToFindCodec &codec,
-                           const EncodedIt &encodedToFindBeginIt,
-                           const EncodedIt &encodedToFindEndIt,
-                           size_t searchStartIndex = 0) const
+        size_t findEncoded(const ToFindCodec &codec, const EncodedIt &encodedToFindBeginIt,
+                           const EncodedIt &encodedToFindEndIt, size_t searchStartIndex = 0) const
         {
             if (searchStartIndex > getLength())
                 return noMatch;
@@ -3691,16 +3264,12 @@ namespace bdn
             if (encodedToFindBeginIt == encodedToFindEndIt)
                 return searchStartIndex;
 
-            IteratorWithIndex foundIt = std::search(
-                IteratorWithIndex(_beginIt + searchStartIndex,
-                                  searchStartIndex),
-                IteratorWithIndex(_endIt, getLength()),
-                typename ToFindCodec::template DecodingIterator<EncodedIt>(
-                    encodedToFindBeginIt, encodedToFindBeginIt,
-                    encodedToFindEndIt),
-                typename ToFindCodec::template DecodingIterator<EncodedIt>(
-                    encodedToFindEndIt, encodedToFindBeginIt,
-                    encodedToFindEndIt));
+            IteratorWithIndex foundIt = std::search(IteratorWithIndex(_beginIt + searchStartIndex, searchStartIndex),
+                                                    IteratorWithIndex(_endIt, getLength()),
+                                                    typename ToFindCodec::template DecodingIterator<EncodedIt>(
+                                                        encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+                                                    typename ToFindCodec::template DecodingIterator<EncodedIt>(
+                                                        encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt));
             if (foundIt.getInner() == _endIt)
                 return noMatch;
             else
@@ -3720,11 +3289,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const std::string &toFind,
-                    size_t searchStartIndex = 0) const
+        size_t find(const std::string &toFind, size_t searchStartIndex = 0) const
         {
-            return findEncoded(Utf8Codec(), toFind.begin(), toFind.end(),
-                               searchStartIndex);
+            return findEncoded(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3740,11 +3307,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const std::wstring &toFind,
-                    size_t searchStartIndex = 0) const
+        size_t find(const std::wstring &toFind, size_t searchStartIndex = 0) const
         {
-            return findEncoded(WideCodec(), toFind.begin(), toFind.end(),
-                               searchStartIndex);
+            return findEncoded(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3760,11 +3325,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const std::u16string &toFind,
-                    size_t searchStartIndex = 0) const
+        size_t find(const std::u16string &toFind, size_t searchStartIndex = 0) const
         {
-            return findEncoded(Utf16Codec(), toFind.begin(), toFind.end(),
-                               searchStartIndex);
+            return findEncoded(Utf16Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3780,11 +3343,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const std::u32string &toFind,
-                    size_t searchStartIndex = 0) const
+        size_t find(const std::u32string &toFind, size_t searchStartIndex = 0) const
         {
-            return findEncoded(Utf32Codec(), toFind.begin(), toFind.end(),
-                               searchStartIndex);
+            return findEncoded(Utf32Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3805,12 +3366,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const char *toFind, size_t searchStartIndex = 0,
-                    size_t toFindLength = toEnd) const
+        size_t find(const char *toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
         {
-            return findEncoded(Utf8Codec(), toFind,
-                               getStringEndPtr(toFind, toFindLength),
-                               searchStartIndex);
+            return findEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3831,12 +3389,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const wchar_t *toFind, size_t searchStartIndex = 0,
-                    size_t toFindLength = toEnd) const
+        size_t find(const wchar_t *toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
         {
-            return findEncoded(WideCodec(), toFind,
-                               getStringEndPtr(toFind, toFindLength),
-                               searchStartIndex);
+            return findEncoded(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3857,12 +3412,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const char16_t *toFind, size_t searchStartIndex = 0,
-                    size_t toFindLength = toEnd) const
+        size_t find(const char16_t *toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
         {
-            return findEncoded(Utf16Codec(), toFind,
-                               getStringEndPtr(toFind, toFindLength),
-                               searchStartIndex);
+            return findEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Searches for another string in this string.
@@ -3883,12 +3435,9 @@ namespace bdn
 
             If \c toFind is empty then searchStartIndex is returned.
         */
-        size_t find(const char32_t *toFind, size_t searchStartIndex = 0,
-                    size_t toFindLength = toEnd) const
+        size_t find(const char32_t *toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
         {
-            return findEncoded(Utf32Codec(), toFind,
-                               getStringEndPtr(toFind, toFindLength),
-                               searchStartIndex);
+            return findEncoded(Utf32Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Searches for the specified character in this string, starting at the
@@ -3898,8 +3447,7 @@ namespace bdn
            charToFind, if it is found. Returns end() if \c charToFind is not
            found.
         */
-        Iterator find(char32_t charToFind,
-                      const Iterator &searchStartPosIt) const noexcept
+        Iterator find(char32_t charToFind, const Iterator &searchStartPosIt) const noexcept
         {
             return std::find(searchStartPosIt, _endIt, charToFind);
         }
@@ -3915,16 +3463,13 @@ namespace bdn
            found. Returns String::noMatch (String::npos) if \c charToFind is not
            found.
         */
-        size_t find(char32_t charToFind, size_t searchStartIndex = 0) const
-            noexcept
+        size_t find(char32_t charToFind, size_t searchStartIndex = 0) const noexcept
         {
             if (searchStartIndex > getLength())
                 return noMatch;
 
-            IteratorWithIndex foundIt =
-                std::find(IteratorWithIndex(_beginIt + searchStartIndex,
-                                            searchStartIndex),
-                          IteratorWithIndex(_endIt, getLength()), charToFind);
+            IteratorWithIndex foundIt = std::find(IteratorWithIndex(_beginIt + searchStartIndex, searchStartIndex),
+                                                  IteratorWithIndex(_endIt, getLength()), charToFind);
             if (foundIt.getInner() == _endIt)
                 return noMatch;
             else
@@ -3954,9 +3499,7 @@ namespace bdn
            *pMatchEndIt is set to end().
         */
         template <class CHARIT>
-        Iterator reverseFind(const CHARIT &toFindBeginIt,
-                             const CHARIT &toFindEndIt,
-                             const Iterator &searchFromIt,
+        Iterator reverseFind(const CHARIT &toFindBeginIt, const CHARIT &toFindEndIt, const Iterator &searchFromIt,
                              Iterator *pMatchEndIt = nullptr) const
         {
             if (toFindBeginIt == toFindEndIt) {
@@ -4027,12 +3570,10 @@ namespace bdn
             If pMatchEndIt is not null and toFind is not found then *pMatchEndIt
            is set to end().
         */
-        Iterator reverseFind(const StringImpl &toFind,
-                             const Iterator &searchFromIt,
+        Iterator reverseFind(const StringImpl &toFind, const Iterator &searchFromIt,
                              Iterator *pMatchEndIt = nullptr) const
         {
-            return reverseFind(toFind._beginIt, toFind._endIt, searchFromIt,
-                               pMatchEndIt);
+            return reverseFind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
         }
 
         /** Searches for the LAST occurrence of another string in this string.
@@ -4054,8 +3595,7 @@ namespace bdn
             in which case the length of the string is returned.
         */
         template <class InputIterator>
-        size_t reverseFind(const InputIterator &toFindBeginIt,
-                           const InputIterator &toFindEndIt,
+        size_t reverseFind(const InputIterator &toFindBeginIt, const InputIterator &toFindEndIt,
                            size_t searchStartIndex = npos) const noexcept
         {
             size_t myLength = getLength();
@@ -4076,8 +3616,7 @@ namespace bdn
             if (searchStartIndex > myLength - toFindLength)
                 searchStartIndex = myLength - toFindLength;
 
-            IteratorWithIndex matchBeginIt(_beginIt + searchStartIndex,
-                                           searchStartIndex);
+            IteratorWithIndex matchBeginIt(_beginIt + searchStartIndex, searchStartIndex);
 
             while (true) {
                 Iterator myIt(matchBeginIt.getInner());
@@ -4127,17 +3666,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const StringImpl &toFind,
-                           size_t searchStartIndex = npos) const noexcept
+        size_t reverseFind(const StringImpl &toFind, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFind(toFind._beginIt, toFind._endIt,
-                               searchStartIndex);
+            return reverseFind(toFind._beginIt, toFind._endIt, searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const StringImpl &toFind,
-                     size_t searchStartIndex = npos) const noexcept
+        size_t rfind(const StringImpl &toFind, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -4167,19 +3703,14 @@ namespace bdn
             in which case the length of the string is returned.
         */
         template <class ToFindCodec, class EncodedIt>
-        size_t reverseFindEncoded(const ToFindCodec &codec,
-                                  const EncodedIt &encodedToFindBeginIt,
-                                  const EncodedIt &encodedToFindEndIt,
-                                  size_t searchStartIndex = npos) const
+        size_t reverseFindEncoded(const ToFindCodec &codec, const EncodedIt &encodedToFindBeginIt,
+                                  const EncodedIt &encodedToFindEndIt, size_t searchStartIndex = npos) const
         {
-            return reverseFind(
-                typename ToFindCodec::template DecodingIterator<EncodedIt>(
-                    encodedToFindBeginIt, encodedToFindBeginIt,
-                    encodedToFindEndIt),
-                typename ToFindCodec::template DecodingIterator<EncodedIt>(
-                    encodedToFindEndIt, encodedToFindBeginIt,
-                    encodedToFindEndIt),
-                searchStartIndex);
+            return reverseFind(typename ToFindCodec::template DecodingIterator<EncodedIt>(
+                                   encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+                               typename ToFindCodec::template DecodingIterator<EncodedIt>(
+                                   encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt),
+                               searchStartIndex);
         }
 
         /** Searches for the LAST occurrence of another string in this string.
@@ -4197,17 +3728,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const std::string &toFind,
-                           size_t searchStartIndex = npos) const
+        size_t reverseFind(const std::string &toFind, size_t searchStartIndex = npos) const
         {
-            return reverseFindEncoded(Utf8Codec(), toFind.begin(), toFind.end(),
-                                      searchStartIndex);
+            return reverseFindEncoded(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const std::string &toFind,
-                     size_t searchStartIndex = npos) const
+        size_t rfind(const std::string &toFind, size_t searchStartIndex = npos) const
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -4227,17 +3755,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const std::wstring &toFind,
-                           size_t searchStartIndex = npos) const
+        size_t reverseFind(const std::wstring &toFind, size_t searchStartIndex = npos) const
         {
-            return reverseFindEncoded(WideCodec(), toFind.begin(), toFind.end(),
-                                      searchStartIndex);
+            return reverseFindEncoded(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const std::wstring &toFind,
-                     size_t searchStartIndex = npos) const
+        size_t rfind(const std::wstring &toFind, size_t searchStartIndex = npos) const
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -4257,17 +3782,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const std::u16string &toFind,
-                           size_t searchStartIndex = npos) const
+        size_t reverseFind(const std::u16string &toFind, size_t searchStartIndex = npos) const
         {
-            return reverseFindEncoded(Utf16Codec(), toFind.begin(),
-                                      toFind.end(), searchStartIndex);
+            return reverseFindEncoded(Utf16Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const std::u16string &toFind,
-                     size_t searchStartIndex = npos) const
+        size_t rfind(const std::u16string &toFind, size_t searchStartIndex = npos) const
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -4287,17 +3809,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const std::u32string &toFind,
-                           size_t searchStartIndex = npos) const
+        size_t reverseFind(const std::u32string &toFind, size_t searchStartIndex = npos) const
         {
-            return reverseFindEncoded(Utf32Codec(), toFind.begin(),
-                                      toFind.end(), searchStartIndex);
+            return reverseFindEncoded(Utf32Codec(), toFind.begin(), toFind.end(), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const std::u32string &toFind,
-                     size_t searchStartIndex = npos) const
+        size_t rfind(const std::u32string &toFind, size_t searchStartIndex = npos) const
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -4322,18 +3841,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const char *toFind, size_t searchStartIndex = npos,
-                           size_t toFindLength = toEnd) const
+        size_t reverseFind(const char *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
-            return reverseFindEncoded(Utf8Codec(), toFind,
-                                      getStringEndPtr(toFind, toFindLength),
-                                      searchStartIndex);
+            return reverseFindEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const char *toFind, size_t searchStartIndex = npos,
-                     size_t toFindLength = toEnd) const
+        size_t rfind(const char *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
             return reverseFind(toFind, searchStartIndex, toFindLength);
         }
@@ -4359,19 +3874,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const wchar_t *toFind,
-                           size_t searchStartIndex = npos,
-                           size_t toFindLength = toEnd) const
+        size_t reverseFind(const wchar_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
-            return reverseFindEncoded(WideCodec(), toFind,
-                                      getStringEndPtr(toFind, toFindLength),
-                                      searchStartIndex);
+            return reverseFindEncoded(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const wchar_t *toFind, size_t searchStartIndex = npos,
-                     size_t toFindLength = toEnd) const
+        size_t rfind(const wchar_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
             return reverseFind(toFind, searchStartIndex, toFindLength);
         }
@@ -4396,19 +3906,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const char16_t *toFind,
-                           size_t searchStartIndex = npos,
-                           size_t toFindLength = toEnd) const
+        size_t reverseFind(const char16_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
-            return reverseFindEncoded(Utf16Codec(), toFind,
-                                      getStringEndPtr(toFind, toFindLength),
-                                      searchStartIndex);
+            return reverseFindEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const char16_t *toFind, size_t searchStartIndex = npos,
-                     size_t toFindLength = toEnd) const
+        size_t rfind(const char16_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
             return reverseFind(toFind, searchStartIndex, toFindLength);
         }
@@ -4433,19 +3938,14 @@ namespace bdn
            is npos or bigger than the length of the string. in which case the
            length of the string is returned.
         */
-        size_t reverseFind(const char32_t *toFind,
-                           size_t searchStartIndex = npos,
-                           size_t toFindLength = toEnd) const
+        size_t reverseFind(const char32_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
-            return reverseFindEncoded(Utf32Codec(), toFind,
-                                      getStringEndPtr(toFind, toFindLength),
-                                      searchStartIndex);
+            return reverseFindEncoded(Utf32Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
         }
 
         /** Same as reverseFind(). Included for compatibility with std::string.
          */
-        size_t rfind(const char32_t *toFind, size_t searchStartIndex = npos,
-                     size_t toFindLength = toEnd) const
+        size_t rfind(const char32_t *toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
         {
             return reverseFind(toFind, searchStartIndex, toFindLength);
         }
@@ -4461,8 +3961,7 @@ namespace bdn
            charToFind, if it is found. Returns end() if \c charToFind is not
            found.
         */
-        Iterator reverseFind(char32_t charToFind,
-                             const Iterator &searchStartPosIt) const noexcept
+        Iterator reverseFind(char32_t charToFind, const Iterator &searchStartPosIt) const noexcept
         {
             Iterator myIt(searchStartPosIt);
 
@@ -4497,8 +3996,7 @@ namespace bdn
            found. Returns String::noMatch (String::npos) if \c charToFind is not
            found.
         */
-        size_t reverseFind(char32_t charToFind,
-                           size_t searchStartIndex = npos) const noexcept
+        size_t reverseFind(char32_t charToFind, size_t searchStartIndex = npos) const noexcept
         {
             if (_beginIt == _endIt)
                 return noMatch;
@@ -4506,12 +4004,9 @@ namespace bdn
             size_t myLength = length();
 
             size_t index =
-                (searchStartIndex == npos || searchStartIndex > myLength - 1)
-                    ? (myLength - 1)
-                    : searchStartIndex;
+                (searchStartIndex == npos || searchStartIndex > myLength - 1) ? (myLength - 1) : searchStartIndex;
 
-            Iterator myIt((index == myLength - 1) ? (_endIt - 1)
-                                                  : (_beginIt + index));
+            Iterator myIt((index == myLength - 1) ? (_endIt - 1) : (_beginIt + index));
 
             while (true) {
                 if (*myIt == charToFind)
@@ -4554,8 +4049,7 @@ namespace bdn
            called).
         */
         template <typename MatchFuncType>
-        Iterator findCustom(MatchFuncType matchFunc,
-                            const Iterator &searchStartPosIt) const
+        Iterator findCustom(MatchFuncType matchFunc, const Iterator &searchStartPosIt) const
         {
             for (auto it = searchStartPosIt; it != _endIt; ++it) {
                 if (matchFunc(it))
@@ -4584,9 +4078,7 @@ namespace bdn
            start (i.e. the first position at which the match function is
            called).
         */
-        template <typename MatchFuncType>
-        size_t findCustom(MatchFuncType matchFunc,
-                          size_t searchStartIndex = 0) const
+        template <typename MatchFuncType> size_t findCustom(MatchFuncType matchFunc, size_t searchStartIndex = 0) const
         {
             size_t myLength = getLength();
             if (searchStartIndex == npos || searchStartIndex >= myLength)
@@ -4625,8 +4117,7 @@ namespace bdn
            start position.
         */
         template <typename MatchFuncType>
-        Iterator reverseFindCustom(MatchFuncType matchFunc,
-                                   const Iterator &searchStartPosIt) const
+        Iterator reverseFindCustom(MatchFuncType matchFunc, const Iterator &searchStartPosIt) const
         {
             if (_beginIt == _endIt)
                 return _endIt;
@@ -4669,8 +4160,7 @@ namespace bdn
            checked).
         */
         template <typename MatchFuncType>
-        size_t reverseFindCustom(MatchFuncType matchFunc,
-                                 size_t searchStartIndex = npos) const
+        size_t reverseFindCustom(MatchFuncType matchFunc, size_t searchStartIndex = npos) const
         {
             size_t myLength = getLength();
             if (myLength == 0)
@@ -4679,9 +4169,7 @@ namespace bdn
             if (searchStartIndex == npos || searchStartIndex >= myLength)
                 searchStartIndex = myLength - 1;
 
-            IteratorWithIndex it((searchStartIndex == myLength - 1)
-                                     ? (_endIt - 1)
-                                     : (_beginIt + searchStartIndex),
+            IteratorWithIndex it((searchStartIndex == myLength - 1) ? (_endIt - 1) : (_beginIt + searchStartIndex),
                                  searchStartIndex);
 
             while (true) {
@@ -4711,14 +4199,12 @@ namespace bdn
            characters is found.
         */
         template <class InputIterator>
-        Iterator findOneOf(const InputIterator &charsBeginIt,
-                           const InputIterator &charsEndIt,
+        Iterator findOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                            const Iterator &searchStartPosIt) const
         {
             return findCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) !=
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) != charsEndIt);
                 },
                 searchStartPosIt);
         }
@@ -4737,14 +4223,12 @@ namespace bdn
            (String::npos) if none of the characters is found.
         */
         template <class InputIterator>
-        size_t findOneOf(const InputIterator &charsBeginIt,
-                         const InputIterator &charsEndIt,
+        size_t findOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                          size_t searchStartIndex = 0) const noexcept
         {
             return findCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) !=
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) != charsEndIt);
                 },
                 searchStartIndex);
         }
@@ -4762,8 +4246,7 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const StringImpl &chars,
-                         size_t searchStartIndex = 0) const noexcept
+        size_t findOneOf(const StringImpl &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars._beginIt, chars._endIt, searchStartIndex);
         }
@@ -4784,18 +4267,14 @@ namespace bdn
            (String::npos) if none of the characters is found.
         */
         template <class InputCodec, class InputIterator>
-        size_t findOneOfEncoded(const InputCodec &codec,
-                                const InputIterator &encodedCharsBeginIt,
-                                const InputIterator &encodedCharsEndIt,
-                                size_t searchStartIndex = 0) const noexcept
+        size_t findOneOfEncoded(const InputCodec &codec, const InputIterator &encodedCharsBeginIt,
+                                const InputIterator &encodedCharsEndIt, size_t searchStartIndex = 0) const noexcept
         {
-            return findOneOf(
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsBeginIt, encodedCharsBeginIt,
-                    encodedCharsEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
-                searchStartIndex);
+            return findOneOf(typename InputCodec::template DecodingIterator<InputIterator>(
+                                 encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+                             typename InputCodec::template DecodingIterator<InputIterator>(
+                                 encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+                             searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4811,11 +4290,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const std::string &chars,
-                         size_t searchStartIndex = 0) const noexcept
+        size_t findOneOf(const std::string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4831,11 +4308,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const std::wstring &chars,
-                         size_t searchStartIndex = 0) const noexcept
+        size_t findOneOf(const std::wstring &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findOneOfEncoded(WideCodec(), chars.begin(), chars.end(),
-                                    searchStartIndex);
+            return findOneOfEncoded(WideCodec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4851,11 +4326,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const std::u16string &chars,
-                         size_t searchStartIndex = 0) const noexcept
+        size_t findOneOf(const std::u16string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4871,11 +4344,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const std::u32string &chars,
-                         size_t searchStartIndex = 0) const noexcept
+        size_t findOneOf(const std::u32string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4894,12 +4365,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const char *chars, size_t searchStartIndex = 0,
-                         size_t charsLength = toEnd) const noexcept
+        size_t findOneOf(const char *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
-            return findOneOfEncoded(Utf8Codec(), chars,
-                                    getStringEndPtr(chars, charsLength),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4918,12 +4386,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const wchar_t *chars, size_t searchStartIndex = 0,
-                         size_t charsLength = toEnd) const noexcept
+        size_t findOneOf(const wchar_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
-            return findOneOfEncoded(WideCodec(), chars,
-                                    getStringEndPtr(chars, charsLength),
-                                    searchStartIndex);
+            return findOneOfEncoded(WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4942,12 +4407,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch
            (String::npos) if none of the characters is found.
         */
-        size_t findOneOf(const char16_t *chars, size_t searchStartIndex = 0,
-                         size_t charsLength = toEnd) const noexcept
+        size_t findOneOf(const char16_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
-            return findOneOfEncoded(Utf16Codec(), chars,
-                                    getStringEndPtr(chars, charsLength),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first occurrence of any character in a set of
@@ -4967,80 +4429,70 @@ namespace bdn
            (String::npos) if none of the characters is found.
         */
 
-        size_t findOneOf(const char32_t *chars, size_t searchStartIndex = 0,
-                         size_t charsLength = toEnd) const noexcept
+        size_t findOneOf(const char32_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
-            return findOneOfEncoded(Utf32Codec(), chars,
-                                    getStringEndPtr(chars, charsLength),
-                                    searchStartIndex);
+            return findOneOfEncoded(Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const StringImpl &chars,
-                             size_t searchStartIndex = 0) const noexcept
+        size_t find_first_of(const StringImpl &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars, searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const std::string &chars,
-                             size_t searchStartIndex = 0) const noexcept
+        size_t find_first_of(const std::string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars, searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const std::wstring &chars,
-                             size_t searchStartIndex = 0) const noexcept
+        size_t find_first_of(const std::wstring &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars, searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const std::u16string &chars,
-                             size_t searchStartIndex = 0) const noexcept
+        size_t find_first_of(const std::u16string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars, searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const std::u32string &chars,
-                             size_t searchStartIndex = 0) const noexcept
+        size_t find_first_of(const std::u32string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findOneOf(chars, searchStartIndex);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const char *chars, size_t searchStartIndex = 0,
-                             size_t charsLength = toEnd) const noexcept
+        size_t find_first_of(const char *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
             return findOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const wchar_t *chars, size_t searchStartIndex = 0,
-                             size_t charsLength = toEnd) const noexcept
+        size_t find_first_of(const wchar_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const char16_t *chars, size_t searchStartIndex = 0,
-                             size_t charsLength = toEnd) const noexcept
+        size_t find_first_of(const char16_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findOneOf(). Included for compatibility with std::string.*/
-        size_t find_first_of(const char32_t *chars, size_t searchStartIndex = 0,
-                             size_t charsLength = toEnd) const noexcept
+        size_t find_first_of(const char32_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as find(). Included for compatibility with std::string.*/
-        size_t find_first_of(char32_t toFind, size_t searchStartIndex = 0) const
-            noexcept
+        size_t find_first_of(char32_t toFind, size_t searchStartIndex = 0) const noexcept
         {
             return find(toFind, searchStartIndex);
         }
@@ -5058,14 +4510,12 @@ namespace bdn
            in the specified set. Return end() if no such character is found.
         */
         template <class InputIterator>
-        Iterator findNotOneOf(const InputIterator &charsBeginIt,
-                              const InputIterator &charsEndIt,
+        Iterator findNotOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                               const Iterator &searchStartPosIt) const
         {
             return findCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) ==
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) == charsEndIt);
                 },
                 searchStartPosIt);
         }
@@ -5084,14 +4534,12 @@ namespace bdn
            such character is found.
         */
         template <class InputIterator>
-        size_t findNotOneOf(const InputIterator &charsBeginIt,
-                            const InputIterator &charsEndIt,
+        size_t findNotOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                             size_t searchStartIndex = 0) const noexcept
         {
             return findCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) ==
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) == charsEndIt);
                 },
                 searchStartIndex);
         }
@@ -5109,8 +4557,7 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const StringImpl &chars,
-                            size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOf(const StringImpl &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars._beginIt, chars._endIt, searchStartIndex);
         }
@@ -5131,18 +4578,14 @@ namespace bdn
            such character is found.
         */
         template <class InputCodec, class InputIterator>
-        size_t findNotOneOfEncoded(const InputCodec &codec,
-                                   const InputIterator &encodedCharsBeginIt,
-                                   const InputIterator &encodedCharsEndIt,
-                                   size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOfEncoded(const InputCodec &codec, const InputIterator &encodedCharsBeginIt,
+                                   const InputIterator &encodedCharsEndIt, size_t searchStartIndex = 0) const noexcept
         {
-            return findNotOneOf(
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsBeginIt, encodedCharsBeginIt,
-                    encodedCharsEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
-                searchStartIndex);
+            return findNotOneOf(typename InputCodec::template DecodingIterator<InputIterator>(
+                                    encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                typename InputCodec::template DecodingIterator<InputIterator>(
+                                    encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5158,11 +4601,9 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const std::string &chars,
-                            size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOf(const std::string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findNotOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5178,11 +4619,9 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const std::wstring &chars,
-                            size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOf(const std::wstring &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findNotOneOfEncoded(WideCodec(), chars.begin(), chars.end(),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(WideCodec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5198,11 +4637,9 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const std::u16string &chars,
-                            size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOf(const std::u16string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findNotOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5218,11 +4655,9 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const std::u32string &chars,
-                            size_t searchStartIndex = 0) const noexcept
+        size_t findNotOneOf(const std::u32string &chars, size_t searchStartIndex = 0) const noexcept
         {
-            return findNotOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5241,12 +4676,9 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const char *chars, size_t searchStartIndex = 0,
-                            size_t charsLength = toEnd) const noexcept
+        size_t findNotOneOf(const char *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const noexcept
         {
-            return findNotOneOfEncoded(Utf8Codec(), chars,
-                                       getStringEndPtr(chars, charsLength),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5265,12 +4697,10 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const wchar_t *chars, size_t searchStartIndex = 0,
-                            size_t charsLength = toEnd) const noexcept
+        size_t findNotOneOf(const wchar_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
-            return findNotOneOfEncoded(WideCodec(), chars,
-                                       getStringEndPtr(chars, charsLength),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5289,12 +4719,10 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const char16_t *chars, size_t searchStartIndex = 0,
-                            size_t charsLength = toEnd) const noexcept
+        size_t findNotOneOf(const char16_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
-            return findNotOneOfEncoded(Utf16Codec(), chars,
-                                       getStringEndPtr(chars, charsLength),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches of the first character in the string that is NOT in the
@@ -5313,93 +4741,82 @@ namespace bdn
            in the specified set. Returns String::noMatch (String::npos) if no
            such character is found.
         */
-        size_t findNotOneOf(const char32_t *chars, size_t searchStartIndex = 0,
-                            size_t charsLength = toEnd) const noexcept
+        size_t findNotOneOf(const char32_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
-            return findNotOneOfEncoded(Utf32Codec(), chars,
-                                       getStringEndPtr(chars, charsLength),
-                                       searchStartIndex);
+            return findNotOneOfEncoded(Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const StringImpl &chars,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(const StringImpl &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const std::string &chars,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(const std::string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const std::wstring &chars,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(const std::wstring &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const std::u16string &chars,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(const std::u16string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const std::u32string &chars,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(const std::u32string &chars, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const char *chars, size_t searchStartIndex = 0,
-                                 size_t charsLength = toEnd) const noexcept
+        size_t find_first_not_of(const char *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const wchar_t *chars,
-                                 size_t searchStartIndex = 0,
-                                 size_t charsLength = toEnd) const noexcept
+        size_t find_first_not_of(const wchar_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const char16_t *chars,
-                                 size_t searchStartIndex = 0,
-                                 size_t charsLength = toEnd) const noexcept
+        size_t find_first_not_of(const char16_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(const char32_t *chars,
-                                 size_t searchStartIndex = 0,
-                                 size_t charsLength = toEnd) const noexcept
+        size_t find_first_not_of(const char32_t *chars, size_t searchStartIndex = 0, size_t charsLength = toEnd) const
+            noexcept
         {
             return findNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as findNotOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_first_not_of(char32_t toFind,
-                                 size_t searchStartIndex = 0) const noexcept
+        size_t find_first_not_of(char32_t toFind, size_t searchStartIndex = 0) const noexcept
         {
             return findNotOneOf(&toFind, searchStartIndex, 1);
         }
@@ -5420,14 +4837,12 @@ namespace bdn
            characters is found.
         */
         template <class InputIterator>
-        Iterator reverseFindOneOf(const InputIterator &charsBeginIt,
-                                  const InputIterator &charsEndIt,
+        Iterator reverseFindOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                                   const Iterator &searchStartPosIt) const
         {
             return reverseFindCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) !=
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) != charsEndIt);
                 },
                 searchStartPosIt);
         }
@@ -5448,14 +4863,12 @@ namespace bdn
            the characters is found.
         */
         template <class InputIterator>
-        size_t reverseFindOneOf(const InputIterator &charsBeginIt,
-                                const InputIterator &charsEndIt,
+        size_t reverseFindOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                                 size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) !=
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) != charsEndIt);
                 },
                 searchStartIndex);
         }
@@ -5475,11 +4888,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const StringImpl &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t reverseFindOneOf(const StringImpl &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindOneOf(chars._beginIt, chars._endIt,
-                                    searchStartIndex);
+            return reverseFindOneOf(chars._beginIt, chars._endIt, searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5500,19 +4911,15 @@ namespace bdn
            the characters is found.
         */
         template <class InputCodec, class InputIterator>
-        size_t reverseFindOneOfEncoded(const InputCodec &codec,
-                                       const InputIterator &encodedCharsBeginIt,
-                                       const InputIterator &encodedCharsEndIt,
-                                       size_t searchStartIndex = npos) const
+        size_t reverseFindOneOfEncoded(const InputCodec &codec, const InputIterator &encodedCharsBeginIt,
+                                       const InputIterator &encodedCharsEndIt, size_t searchStartIndex = npos) const
             noexcept
         {
-            return reverseFindOneOf(
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsBeginIt, encodedCharsBeginIt,
-                    encodedCharsEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
-                searchStartIndex);
+            return reverseFindOneOf(typename InputCodec::template DecodingIterator<InputIterator>(
+                                        encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                    typename InputCodec::template DecodingIterator<InputIterator>(
+                                        encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                    searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5530,11 +4937,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const std::string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t reverseFindOneOf(const std::string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindOneOfEncoded(Utf8Codec(), chars.begin(),
-                                           chars.end(), searchStartIndex);
+            return reverseFindOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5552,11 +4957,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const std::wstring &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t reverseFindOneOf(const std::wstring &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindOneOfEncoded(WideCodec(), chars.begin(),
-                                           chars.end(), searchStartIndex);
+            return reverseFindOneOfEncoded(WideCodec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5574,11 +4977,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const std::u16string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t reverseFindOneOf(const std::u16string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindOneOfEncoded(Utf16Codec(), chars.begin(),
-                                           chars.end(), searchStartIndex);
+            return reverseFindOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5596,11 +4997,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const std::u32string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t reverseFindOneOf(const std::u32string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindOneOfEncoded(Utf32Codec(), chars.begin(),
-                                           chars.end(), searchStartIndex);
+            return reverseFindOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5621,13 +5020,10 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const char *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t reverseFindOneOf(const char *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
-            return reverseFindOneOfEncoded(Utf8Codec(), chars,
-                                           getStringEndPtr(chars, charsLength),
-                                           searchStartIndex);
+            return reverseFindOneOfEncoded(Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5648,13 +5044,10 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const wchar_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t reverseFindOneOf(const wchar_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
-            return reverseFindOneOfEncoded(WideCodec(), chars,
-                                           getStringEndPtr(chars, charsLength),
-                                           searchStartIndex);
+            return reverseFindOneOfEncoded(WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5675,13 +5068,10 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const char16_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t reverseFindOneOf(const char16_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
-            return reverseFindOneOfEncoded(Utf16Codec(), chars,
-                                           getStringEndPtr(chars, charsLength),
-                                           searchStartIndex);
+            return reverseFindOneOfEncoded(Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST
@@ -5702,94 +5092,82 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindOneOf(const char32_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t reverseFindOneOf(const char32_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
-            return reverseFindOneOfEncoded(Utf32Codec(), chars,
-                                           getStringEndPtr(chars, charsLength),
-                                           searchStartIndex);
+            return reverseFindOneOfEncoded(Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const StringImpl &chars,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(const StringImpl &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const std::string &chars,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(const std::string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const std::wstring &chars,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(const std::wstring &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const std::u16string &chars,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(const std::u16string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const std::u32string &chars,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(const std::u32string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const char *chars, size_t searchStartIndex = npos,
-                            size_t charsLength = toEnd) const noexcept
+        size_t find_last_of(const char *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const wchar_t *chars,
-                            size_t searchStartIndex = npos,
-                            size_t charsLength = toEnd) const noexcept
+        size_t find_last_of(const wchar_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const char16_t *chars,
-                            size_t searchStartIndex = npos,
-                            size_t charsLength = toEnd) const noexcept
+        size_t find_last_of(const char16_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindOneOf(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(const char32_t *chars,
-                            size_t searchStartIndex = npos,
-                            size_t charsLength = toEnd) const noexcept
+        size_t find_last_of(const char32_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFind(). Included for compatibility with
          * std::string.*/
-        size_t find_last_of(char32_t toFind,
-                            size_t searchStartIndex = npos) const noexcept
+        size_t find_last_of(char32_t toFind, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFind(toFind, searchStartIndex);
         }
@@ -5810,14 +5188,12 @@ namespace bdn
            characters is found.
         */
         template <class InputIterator>
-        Iterator reverseFindNotOneOf(const InputIterator &charsBeginIt,
-                                     const InputIterator &charsEndIt,
+        Iterator reverseFindNotOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
                                      const Iterator &searchStartPosIt) const
         {
             return reverseFindCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) ==
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) == charsEndIt);
                 },
                 searchStartPosIt);
         }
@@ -5838,15 +5214,12 @@ namespace bdn
            the characters is found.
         */
         template <class InputIterator>
-        size_t reverseFindNotOneOf(const InputIterator &charsBeginIt,
-                                   const InputIterator &charsEndIt,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const InputIterator &charsBeginIt, const InputIterator &charsEndIt,
+                                   size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindCustom(
                 [&charsBeginIt, &charsEndIt](const Iterator &it) {
-                    return (std::find(charsBeginIt, charsEndIt, *it) ==
-                            charsEndIt);
+                    return (std::find(charsBeginIt, charsEndIt, *it) == charsEndIt);
                 },
                 searchStartIndex);
         }
@@ -5866,12 +5239,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const StringImpl &chars,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const StringImpl &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindNotOneOf(chars._beginIt, chars._endIt,
-                                       searchStartIndex);
+            return reverseFindNotOneOf(chars._beginIt, chars._endIt, searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -5892,20 +5262,15 @@ namespace bdn
            the characters is found.
         */
         template <class InputCodec, class InputIterator>
-        size_t
-        reverseFindNotOneOfEncoded(const InputCodec &codec,
-                                   const InputIterator &encodedCharsBeginIt,
-                                   const InputIterator &encodedCharsEndIt,
-                                   size_t searchStartIndex = npos) const
+        size_t reverseFindNotOneOfEncoded(const InputCodec &codec, const InputIterator &encodedCharsBeginIt,
+                                          const InputIterator &encodedCharsEndIt, size_t searchStartIndex = npos) const
             noexcept
         {
-            return reverseFindNotOneOf(
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsBeginIt, encodedCharsBeginIt,
-                    encodedCharsEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
-                searchStartIndex);
+            return reverseFindNotOneOf(typename InputCodec::template DecodingIterator<InputIterator>(
+                                           encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                       typename InputCodec::template DecodingIterator<InputIterator>(
+                                           encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+                                       searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -5923,12 +5288,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const std::string &chars,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const std::string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindNotOneOfEncoded(Utf8Codec(), chars.begin(),
-                                              chars.end(), searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -5946,12 +5308,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const std::wstring &chars,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const std::wstring &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindNotOneOfEncoded(WideCodec(), chars.begin(),
-                                              chars.end(), searchStartIndex);
+            return reverseFindNotOneOfEncoded(WideCodec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -5969,12 +5328,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const std::u16string &chars,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const std::u16string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindNotOneOfEncoded(Utf16Codec(), chars.begin(),
-                                              chars.end(), searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -5992,12 +5348,9 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const std::u32string &chars,
-                                   size_t searchStartIndex = npos) const
-            noexcept
+        size_t reverseFindNotOneOf(const std::u32string &chars, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindNotOneOfEncoded(Utf32Codec(), chars.begin(),
-                                              chars.end(), searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -6018,13 +5371,11 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const char *chars,
-                                   size_t searchStartIndex = npos,
-                                   size_t charsLength = toEnd) const noexcept
+        size_t reverseFindNotOneOf(const char *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
-            return reverseFindNotOneOfEncoded(
-                Utf8Codec(), chars, getStringEndPtr(chars, charsLength),
-                searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf8Codec(), chars, getStringEndPtr(chars, charsLength),
+                                              searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -6045,13 +5396,11 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const wchar_t *chars,
-                                   size_t searchStartIndex = npos,
+        size_t reverseFindNotOneOf(const wchar_t *chars, size_t searchStartIndex = npos,
                                    size_t charsLength = toEnd) const noexcept
         {
-            return reverseFindNotOneOfEncoded(
-                WideCodec(), chars, getStringEndPtr(chars, charsLength),
-                searchStartIndex);
+            return reverseFindNotOneOfEncoded(WideCodec(), chars, getStringEndPtr(chars, charsLength),
+                                              searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -6072,13 +5421,11 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const char16_t *chars,
-                                   size_t searchStartIndex = npos,
+        size_t reverseFindNotOneOf(const char16_t *chars, size_t searchStartIndex = npos,
                                    size_t charsLength = toEnd) const noexcept
         {
-            return reverseFindNotOneOfEncoded(
-                Utf16Codec(), chars, getStringEndPtr(chars, charsLength),
-                searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf16Codec(), chars, getStringEndPtr(chars, charsLength),
+                                              searchStartIndex);
         }
 
         /** Searches backwards from the end of the string for the LAST character
@@ -6099,92 +5446,77 @@ namespace bdn
            one of the characters is found. Returns String::noMatch if none of
            the characters is found.
         */
-        size_t reverseFindNotOneOf(const char32_t *chars,
-                                   size_t searchStartIndex = npos,
+        size_t reverseFindNotOneOf(const char32_t *chars, size_t searchStartIndex = npos,
                                    size_t charsLength = toEnd) const noexcept
         {
-            return reverseFindNotOneOfEncoded(
-                Utf32Codec(), chars, getStringEndPtr(chars, charsLength),
-                searchStartIndex);
+            return reverseFindNotOneOfEncoded(Utf32Codec(), chars, getStringEndPtr(chars, charsLength),
+                                              searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const StringImpl &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(const StringImpl &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const std::string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(const std::string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const std::wstring &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(const std::wstring &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const std::u16string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(const std::u16string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const std::u32string &chars,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(const std::u32string &chars, size_t searchStartIndex = npos) const noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const char *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t find_last_not_of(const char *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const wchar_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t find_last_not_of(const wchar_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const char16_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t find_last_not_of(const char16_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Same as reverseFindNotOneOf() */
-        size_t find_last_not_of(const char32_t *chars,
-                                size_t searchStartIndex = npos,
-                                size_t charsLength = toEnd) const noexcept
+        size_t find_last_not_of(const char32_t *chars, size_t searchStartIndex = npos, size_t charsLength = toEnd) const
+            noexcept
         {
             return reverseFindNotOneOf(chars, searchStartIndex, charsLength);
         }
 
         /** Searches for the last character in the string that is NOT the
          * specified blackListChar. */
-        size_t find_last_not_of(char32_t blackListChar,
-                                size_t searchStartIndex = npos) const noexcept
+        size_t find_last_not_of(char32_t blackListChar, size_t searchStartIndex = npos) const noexcept
         {
-            return reverseFindCustom(
-                [&blackListChar](const Iterator &it) {
-                    return (*it != blackListChar);
-                },
-                searchStartIndex);
+            return reverseFindCustom([&blackListChar](const Iterator &it) { return (*it != blackListChar); },
+                                     searchStartIndex);
         }
 
         /** Assigns the value of another string to this string. 	*/
@@ -6233,33 +5565,21 @@ namespace bdn
             myString = {'a', 'b', 'c' };
             \endcode
             */
-        StringImpl &operator=(std::initializer_list<char32_t> initializerList)
-        {
-            return assign(initializerList);
-        }
+        StringImpl &operator=(std::initializer_list<char32_t> initializerList) { return assign(initializerList); }
 
         /** Move-operator. "Steals" the contents from another string.
             Sets the contents of this string to the contents of
             \c moveSource. Afterwards moveSource will contain only the empty
            string.
             */
-        StringImpl &operator=(StringImpl &&moveSource) noexcept
-        {
-            return assign(std::move(moveSource));
-        }
+        StringImpl &operator=(StringImpl &&moveSource) noexcept { return assign(std::move(moveSource)); }
 
         /** Appends the specified string to the end of this string.
          */
-        StringImpl &operator+=(const StringImpl &other)
-        {
-            return append(other);
-        }
+        StringImpl &operator+=(const StringImpl &other) { return append(other); }
 
         /** Appends the specified string to this string.*/
-        StringImpl &operator+=(const std::string &other)
-        {
-            return append(other);
-        }
+        StringImpl &operator+=(const std::string &other) { return append(other); }
 
         /** Appends the specified string to this string.
          */
@@ -6307,10 +5627,7 @@ namespace bdn
             myString.append( {'a', 'b', 'c' } );
             \endcode
         */
-        StringImpl &operator+=(std::initializer_list<char32_t> initializerList)
-        {
-            return append(initializerList);
-        }
+        StringImpl &operator+=(std::initializer_list<char32_t> initializerList) { return append(initializerList); }
 
         /** Searches for all occurrences of the character \c toFind and replaces
            them with the character \c replaceWith.
@@ -6319,8 +5636,7 @@ namespace bdn
             */
         int findAndReplace(char32_t toFind, char32_t replaceWith)
         {
-            return findAndReplace(&toFind, (&toFind) + 1, &replaceWith,
-                                  (&replaceWith) + 1);
+            return findAndReplace(&toFind, (&toFind) + 1, &replaceWith, (&replaceWith) + 1);
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6330,11 +5646,9 @@ namespace bdn
 
             If \c toFind is empty then the function does nothing and returns 0.
             */
-        int findAndReplace(const StringImpl &toFind,
-                           const StringImpl &replaceWith)
+        int findAndReplace(const StringImpl &toFind, const StringImpl &replaceWith)
         {
-            return findAndReplace(toFind.begin(), toFind.end(),
-                                  replaceWith.begin(), replaceWith.end());
+            return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end());
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6344,12 +5658,10 @@ namespace bdn
 
             If \c toFind is empty then the function does nothing and returns 0.
             */
-        int findAndReplace(const std::string &toFind,
-                           const std::string &replaceWith)
+        int findAndReplace(const std::string &toFind, const std::string &replaceWith)
         {
-            return findAndReplaceEncoded(
-                Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(),
-                replaceWith.begin(), replaceWith.end());
+            return findAndReplaceEncoded(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(),
+                                         replaceWith.end());
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6359,12 +5671,10 @@ namespace bdn
 
             If \c toFind is empty then the function does nothing and returns 0.
             */
-        int findAndReplace(const std::wstring &toFind,
-                           const std::wstring &replaceWith)
+        int findAndReplace(const std::wstring &toFind, const std::wstring &replaceWith)
         {
-            return findAndReplaceEncoded(
-                WideCodec(), toFind.begin(), toFind.end(), WideCodec(),
-                replaceWith.begin(), replaceWith.end());
+            return findAndReplaceEncoded(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(),
+                                         replaceWith.end());
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6374,12 +5684,10 @@ namespace bdn
 
             If \c toFind is empty then the function does nothing and returns 0.
             */
-        int findAndReplace(const std::u16string &toFind,
-                           const std::u16string &replaceWith)
+        int findAndReplace(const std::u16string &toFind, const std::u16string &replaceWith)
         {
-            return findAndReplaceEncoded(
-                Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(),
-                replaceWith.begin(), replaceWith.end());
+            return findAndReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(),
+                                         replaceWith.end());
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6389,11 +5697,9 @@ namespace bdn
 
             If \c toFind is empty then the function does nothing and returns 0.
             */
-        int findAndReplace(const std::u32string &toFind,
-                           const std::u32string &replaceWith)
+        int findAndReplace(const std::u32string &toFind, const std::u32string &replaceWith)
         {
-            return findAndReplace(toFind.begin(), toFind.end(),
-                                  replaceWith.begin(), replaceWith.end());
+            return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end());
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6405,9 +5711,8 @@ namespace bdn
             */
         int findAndReplace(const char *toFind, const char *replaceWith)
         {
-            return findAndReplaceEncoded(
-                Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(),
-                replaceWith, getStringEndPtr(replaceWith));
+            return findAndReplaceEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith,
+                                         getStringEndPtr(replaceWith));
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6419,9 +5724,8 @@ namespace bdn
             */
         int findAndReplace(const wchar_t *toFind, const wchar_t *replaceWith)
         {
-            return findAndReplaceEncoded(
-                WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(),
-                replaceWith, getStringEndPtr(replaceWith));
+            return findAndReplaceEncoded(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith,
+                                         getStringEndPtr(replaceWith));
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6433,9 +5737,8 @@ namespace bdn
             */
         int findAndReplace(const char16_t *toFind, const char16_t *replaceWith)
         {
-            return findAndReplaceEncoded(
-                Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(),
-                replaceWith, getStringEndPtr(replaceWith));
+            return findAndReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith,
+                                         getStringEndPtr(replaceWith));
         }
 
         /** Searches for all occurrences of the String \c toFind and replaces
@@ -6448,8 +5751,7 @@ namespace bdn
             */
         int findAndReplace(const char32_t *toFind, const char32_t *replaceWith)
         {
-            return findAndReplace(toFind, getStringEndPtr(toFind), replaceWith,
-                                  getStringEndPtr(replaceWith));
+            return findAndReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith));
         }
 
         /** Searches for all occurrences of the String defined by the iterators
@@ -6462,10 +5764,8 @@ namespace bdn
            then the function does nothing and returns 0.
             */
         template <class ToFindIterator, class ReplaceWithIterator>
-        int findAndReplace(const ToFindIterator &toFindBegin,
-                           const ToFindIterator &toFindEnd,
-                           const ReplaceWithIterator &replaceWithBegin,
-                           const ReplaceWithIterator &replaceWithEnd)
+        int findAndReplace(const ToFindIterator &toFindBegin, const ToFindIterator &toFindEnd,
+                           const ReplaceWithIterator &replaceWithBegin, const ReplaceWithIterator &replaceWithEnd)
         {
             int matchCount = 0;
 
@@ -6473,8 +5773,7 @@ namespace bdn
                 Iterator pos = _beginIt;
                 while (pos != _endIt) {
                     Iterator matchEnd;
-                    Iterator matchBegin =
-                        find(toFindBegin, toFindEnd, pos, &matchEnd);
+                    Iterator matchBegin = find(toFindBegin, toFindEnd, pos, &matchEnd);
                     if (matchBegin == _endIt) {
                         // no more matches.
                         break;
@@ -6483,18 +5782,13 @@ namespace bdn
                     matchCount++;
 
                     size_t encodedLengthAfterMatch =
-                        _pData->getEncodedString().length() -
-                        (matchEnd.getInner() - _beginIt.getInner());
+                        _pData->getEncodedString().length() - (matchEnd.getInner() - _beginIt.getInner());
 
-                    replace(matchBegin, matchEnd, replaceWithBegin,
-                            replaceWithEnd);
+                    replace(matchBegin, matchEnd, replaceWithBegin, replaceWithEnd);
 
-                    size_t replacedEndOffset =
-                        _pData->getEncodedString().length() -
-                        encodedLengthAfterMatch;
+                    size_t replacedEndOffset = _pData->getEncodedString().length() - encodedLengthAfterMatch;
 
-                    pos = Iterator(_beginIt.getInner() + replacedEndOffset,
-                                   _beginIt.getInner(), _endIt.getInner());
+                    pos = Iterator(_beginIt.getInner() + replacedEndOffset, _beginIt.getInner(), _endIt.getInner());
                 }
             }
 
@@ -6516,29 +5810,20 @@ namespace bdn
             If \c toFindEncodedBegin equals toFindEncodedBegin (i.e. the toFind
            string is empty) then the function does nothing and returns 0.
             */
-        template <class ToFindCodec, class ToFindIterator,
-                  class ReplaceWithCodec, class ReplaceWithIterator>
-        int findAndReplaceEncoded(
-            const ToFindCodec &toFindCodec,
-            const ToFindIterator &toFindEncodedBegin,
-            const ToFindIterator &toFindEncodedEnd,
-            const ReplaceWithCodec &replaceWithCodec,
-            const ReplaceWithIterator &replaceWithEncodedBegin,
-            const ReplaceWithIterator &replaceWithEncodedEnd)
+        template <class ToFindCodec, class ToFindIterator, class ReplaceWithCodec, class ReplaceWithIterator>
+        int findAndReplaceEncoded(const ToFindCodec &toFindCodec, const ToFindIterator &toFindEncodedBegin,
+                                  const ToFindIterator &toFindEncodedEnd, const ReplaceWithCodec &replaceWithCodec,
+                                  const ReplaceWithIterator &replaceWithEncodedBegin,
+                                  const ReplaceWithIterator &replaceWithEncodedEnd)
         {
-            return findAndReplace(
-                typename ToFindCodec::template DecodingIterator<ToFindIterator>(
-                    toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
-                typename ToFindCodec::template DecodingIterator<ToFindIterator>(
-                    toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
-                typename ReplaceWithCodec::template DecodingIterator<
-                    ReplaceWithIterator>(replaceWithEncodedBegin,
-                                         replaceWithEncodedBegin,
-                                         replaceWithEncodedEnd),
-                typename ReplaceWithCodec::template DecodingIterator<
-                    ReplaceWithIterator>(replaceWithEncodedEnd,
-                                         replaceWithEncodedBegin,
-                                         replaceWithEncodedEnd));
+            return findAndReplace(typename ToFindCodec::template DecodingIterator<ToFindIterator>(
+                                      toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
+                                  typename ToFindCodec::template DecodingIterator<ToFindIterator>(
+                                      toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
+                                  typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>(
+                                      replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
+                                  typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>(
+                                      replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd));
         }
 
         /* operator% has been removed for the time being, while it is being
@@ -6654,110 +5939,84 @@ namespace bdn
 
             \endcode
             */
-        StringImpl splitOffToken(const StringImpl &separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const StringImpl &separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffToken(separatorChars.begin(), separatorChars.end(),
-                                 returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator);
         }
 
-        StringImpl splitOffToken(const std::string &separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const std::string &separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(),
-                                        separatorChars.end(), returnEmptyTokens,
+            return splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
                                         pSeparator);
         }
 
-        StringImpl splitOffToken(const std::wstring &separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const std::wstring &separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffTokenEncoded(WideCodec(), separatorChars.begin(),
-                                        separatorChars.end(), returnEmptyTokens,
+            return splitOffTokenEncoded(WideCodec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
                                         pSeparator);
         }
 
-        StringImpl splitOffToken(const std::u16string &separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const std::u16string &separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffTokenEncoded(Utf16Codec(), separatorChars.begin(),
-                                        separatorChars.end(), returnEmptyTokens,
+            return splitOffTokenEncoded(Utf16Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
                                         pSeparator);
         }
 
-        StringImpl splitOffToken(const std::u32string &separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const std::u32string &separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffToken(separatorChars.begin(), separatorChars.end(),
-                                 returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator);
         }
 
-        StringImpl splitOffToken(const char *separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const char *separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffTokenEncoded(Utf8Codec(), separatorChars,
-                                        getStringEndPtr(separatorChars),
+            return splitOffTokenEncoded(Utf8Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens,
+                                        pSeparator);
+        }
+
+        StringImpl splitOffToken(const wchar_t *separatorChars, bool returnEmptyTokens = true,
+                                 char32_t *pSeparator = nullptr)
+        {
+            return splitOffTokenEncoded(WideCodec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens,
+                                        pSeparator);
+        }
+
+        StringImpl splitOffToken(const char16_t *separatorChars, bool returnEmptyTokens = true,
+                                 char32_t *pSeparator = nullptr)
+        {
+            return splitOffTokenEncoded(Utf16Codec(), separatorChars, getStringEndPtr(separatorChars),
                                         returnEmptyTokens, pSeparator);
         }
 
-        StringImpl splitOffToken(const wchar_t *separatorChars,
-                                 bool returnEmptyTokens = true,
+        StringImpl splitOffToken(const char32_t *separatorChars, bool returnEmptyTokens = true,
                                  char32_t *pSeparator = nullptr)
         {
-            return splitOffTokenEncoded(WideCodec(), separatorChars,
-                                        getStringEndPtr(separatorChars),
-                                        returnEmptyTokens, pSeparator);
-        }
-
-        StringImpl splitOffToken(const char16_t *separatorChars,
-                                 bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
-        {
-            return splitOffTokenEncoded(Utf16Codec(), separatorChars,
-                                        getStringEndPtr(separatorChars),
-                                        returnEmptyTokens, pSeparator);
-        }
-
-        StringImpl splitOffToken(const char32_t *separatorChars,
-                                 bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
-        {
-            return splitOffToken(separatorChars,
-                                 getStringEndPtr(separatorChars),
-                                 returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator);
         }
 
         template <class InputCodec, class InputIterator>
-        StringImpl splitOffTokenEncoded(
-            const InputCodec &codec, const InputIterator &separatorCharsBeginIt,
-            const InputIterator &separatorCharsEndIt,
-            bool returnEmptyTokens = true, char32_t *pSeparator = nullptr)
+        StringImpl splitOffTokenEncoded(const InputCodec &codec, const InputIterator &separatorCharsBeginIt,
+                                        const InputIterator &separatorCharsEndIt, bool returnEmptyTokens = true,
+                                        char32_t *pSeparator = nullptr)
         {
-            return splitOffToken(
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    separatorCharsBeginIt, separatorCharsBeginIt,
-                    separatorCharsEndIt),
-                typename InputCodec::template DecodingIterator<InputIterator>(
-                    separatorCharsEndIt, separatorCharsBeginIt,
-                    separatorCharsEndIt),
-                returnEmptyTokens, pSeparator);
+            return splitOffToken(typename InputCodec::template DecodingIterator<InputIterator>(
+                                     separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
+                                 typename InputCodec::template DecodingIterator<InputIterator>(
+                                     separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
+                                 returnEmptyTokens, pSeparator);
         }
 
         template <class InputIterator>
-        StringImpl splitOffToken(const InputIterator &separatorCharsBeginIt,
-                                 const InputIterator &separatorCharsEndIt,
-                                 bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+        StringImpl splitOffToken(const InputIterator &separatorCharsBeginIt, const InputIterator &separatorCharsEndIt,
+                                 bool returnEmptyTokens = true, char32_t *pSeparator = nullptr)
         {
             while (_beginIt != _endIt) {
-                Iterator tokenEndIt = findOneOf(separatorCharsBeginIt,
-                                                separatorCharsEndIt, _beginIt);
+                Iterator tokenEndIt = findOneOf(separatorCharsBeginIt, separatorCharsEndIt, _beginIt);
                 if (tokenEndIt == _beginIt && !returnEmptyTokens) {
                     // empty token. Skip over it.
                     ++_beginIt;
@@ -6834,10 +6093,7 @@ namespace bdn
 
             \endcode
             */
-        StringImpl splitOffWord()
-        {
-            return splitOffToken(getWhitespaceChars(), false);
-        }
+        StringImpl splitOffWord() { return splitOffToken(getWhitespaceChars(), false); }
 
         /** A special iterator for keeping track of the character index
            associated with its current position.
@@ -6845,21 +6101,19 @@ namespace bdn
             Wraps a normal Iterator.
         */
         class IteratorWithIndex
-            : public std::iterator<
-                  std::bidirectional_iterator_tag, char32_t, std::ptrdiff_t,
-                  char32_t *,
-                  // this is a bit of a hack. We define Reference to be a value,
-                  // not an actual reference. That is necessary, because we
-                  // return values generated on the fly that are not actually
-                  // stored by the underlying container. While we could return a
-                  // reference to a member of the iterator, that would only
-                  // remain valid while the iterator is alive. And parts of the
-                  // standard library (for example std::reverse_iterator) will
-                  // create temporary local iterators and return their value
-                  // references, which would cause a crash. By defining
-                  // reference as a value, we ensure that the standard library
-                  // functions return valid objects.
-                  char32_t>
+            : public std::iterator<std::bidirectional_iterator_tag, char32_t, std::ptrdiff_t, char32_t *,
+                                   // this is a bit of a hack. We define Reference to be a value,
+                                   // not an actual reference. That is necessary, because we
+                                   // return values generated on the fly that are not actually
+                                   // stored by the underlying container. While we could return a
+                                   // reference to a member of the iterator, that would only
+                                   // remain valid while the iterator is alive. And parts of the
+                                   // standard library (for example std::reverse_iterator) will
+                                   // create temporary local iterators and return their value
+                                   // references, which would cause a crash. By defining
+                                   // reference as a value, we ensure that the standard library
+                                   // functions return valid objects.
+                                   char32_t>
         {
           public:
             /** @param innerIt the iterator to wrap
@@ -6937,15 +6191,9 @@ namespace bdn
 
             char32_t operator*() { return *_innerIt; }
 
-            bool operator==(const IteratorWithIndex &o) const
-            {
-                return (_innerIt == o._innerIt);
-            }
+            bool operator==(const IteratorWithIndex &o) const { return (_innerIt == o._innerIt); }
 
-            bool operator!=(const IteratorWithIndex &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const IteratorWithIndex &o) const { return !operator==(o); }
 
             /** Returns an iterator to the inner encoded string that the
                decoding iterator is working on. The inner iterator points to the
@@ -6985,32 +6233,23 @@ namespace bdn
         };
 
         template <typename MatchFuncType>
-        using CustomFinder =
-            SequenceFilter<const StringImpl, FuncMatcher_<MatchFuncType>>;
+        using CustomFinder = SequenceFilter<const StringImpl, FuncMatcher_<MatchFuncType>>;
 
         template <class ToFindType> class ElementAndSubStringMatcher_
         {
           public:
-            ElementAndSubStringMatcher_(const ToFindType &toFind)
-                : _toFind(toFind)
-            {}
+            ElementAndSubStringMatcher_(const ToFindType &toFind) : _toFind(toFind) {}
 
-            void operator()(const StringImpl &s, Iterator &it)
-            {
-                it = s.find(_toFind, it);
-            }
+            void operator()(const StringImpl &s, Iterator &it) { it = s.find(_toFind, it); }
 
           private:
             ToFindType _toFind;
         };
 
         template <typename ToFindType>
-        using ElementAndSubStringFinder =
-            SequenceFilter<const StringImpl,
-                           ElementAndSubStringMatcher_<ToFindType>>;
+        using ElementAndSubStringFinder = SequenceFilter<const StringImpl, ElementAndSubStringMatcher_<ToFindType>>;
 
-        template <typename ToFindType>
-        using SubStringFinder = ElementAndSubStringFinder<ToFindType>;
+        template <typename ToFindType> using SubStringFinder = ElementAndSubStringFinder<ToFindType>;
 
         using ElementFinder = ElementAndSubStringFinder<Element>;
 
@@ -7018,82 +6257,70 @@ namespace bdn
            a \ref finder.md "finder object" with the results.*/
         ElementFinder findAll(char32_t charToFind) const
         {
-            return ElementFinder(
-                *this, ElementAndSubStringMatcher_<char32_t>(charToFind));
+            return ElementFinder(*this, ElementAndSubStringMatcher_<char32_t>(charToFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<StringImpl> findAll(const StringImpl &toFind) const
         {
-            return SubStringFinder<StringImpl>(
-                *this, ElementAndSubStringMatcher_<StringImpl>(toFind));
+            return SubStringFinder<StringImpl>(*this, ElementAndSubStringMatcher_<StringImpl>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<const char *> findAll(const char *toFind) const
         {
-            return SubStringFinder<const char *>(
-                *this, ElementAndSubStringMatcher_<const char *>(toFind));
+            return SubStringFinder<const char *>(*this, ElementAndSubStringMatcher_<const char *>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<const wchar_t *> findAll(const wchar_t *toFind) const
         {
-            return SubStringFinder<const wchar_t *>(
-                *this, ElementAndSubStringMatcher_<const wchar_t *>(toFind));
+            return SubStringFinder<const wchar_t *>(*this, ElementAndSubStringMatcher_<const wchar_t *>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<const char16_t *> findAll(const char16_t *toFind) const
         {
-            return SubStringFinder<const char16_t *>(
-                *this, ElementAndSubStringMatcher_<const char16_t *>(toFind));
+            return SubStringFinder<const char16_t *>(*this, ElementAndSubStringMatcher_<const char16_t *>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<const char32_t *> findAll(const char32_t *toFind) const
         {
-            return SubStringFinder<const char32_t *>(
-                *this, ElementAndSubStringMatcher_<const char32_t *>(toFind));
+            return SubStringFinder<const char32_t *>(*this, ElementAndSubStringMatcher_<const char32_t *>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<std::string> findAll(const std::string &toFind) const
         {
-            return SubStringFinder<std::string>(
-                *this, ElementAndSubStringMatcher_<std::string>(toFind));
+            return SubStringFinder<std::string>(*this, ElementAndSubStringMatcher_<std::string>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
         SubStringFinder<std::wstring> findAll(const std::wstring &toFind) const
         {
-            return SubStringFinder<std::wstring>(
-                *this, ElementAndSubStringMatcher_<std::wstring>(toFind));
+            return SubStringFinder<std::wstring>(*this, ElementAndSubStringMatcher_<std::wstring>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
-        SubStringFinder<std::u16string>
-        findAll(const std::u16string &toFind) const
+        SubStringFinder<std::u16string> findAll(const std::u16string &toFind) const
         {
-            return SubStringFinder<std::u16string>(
-                *this, ElementAndSubStringMatcher_<std::u16string>(toFind));
+            return SubStringFinder<std::u16string>(*this, ElementAndSubStringMatcher_<std::u16string>(toFind));
         }
 
         /** Searches for all occurrences of the specified substring and returns
            a \ref finder.md "finder object" with the results.*/
-        SubStringFinder<std::u32string>
-        findAll(const std::u32string &toFind) const
+        SubStringFinder<std::u32string> findAll(const std::u32string &toFind) const
         {
-            return SubStringFinder<std::u32string>(
-                *this, ElementAndSubStringMatcher_<std::u32string>(toFind));
+            return SubStringFinder<std::u32string>(*this, ElementAndSubStringMatcher_<std::u32string>(toFind));
         }
 
         /** Searches for all places in the string for which the specified match
@@ -7108,18 +6335,15 @@ namespace bdn
             bool myMatchFunction(const Iterator& it);
             \endcode
         */
-        template <typename MatchFuncType>
-        CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunc) const
+        template <typename MatchFuncType> CustomFinder<MatchFuncType> findAllCustom(MatchFuncType matchFunc) const
         {
-            return CustomFinder<MatchFuncType>(
-                *this, FuncMatcher_<MatchFuncType>(matchFunc));
+            return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunc));
         }
 
         /** Removes all occurrences of the specified character.*/
         void findAndRemove(char32_t chr)
         {
-            findAndReplace(&chr, (&chr) + 1, (const char32_t *)nullptr,
-                           (const char32_t *)nullptr);
+            findAndReplace(&chr, (&chr) + 1, (const char32_t *)nullptr, (const char32_t *)nullptr);
         }
 
         /** Removes all characters for which the specified match function
@@ -7134,8 +6358,7 @@ namespace bdn
             \endcode
 
             */
-        template <typename MatchFuncType>
-        void findCustomAndRemove(MatchFuncType matchFunc)
+        template <typename MatchFuncType> void findCustomAndRemove(MatchFuncType matchFunc)
         {
             Iterator it = this->_beginIt;
 
@@ -7166,18 +6389,14 @@ namespace bdn
             auto encodedBegin = _beginIt.getInner();
             auto encodedEnd = _endIt.getInner();
 
-            const typename MainDataType::EncodedElement *pEncodedData =
-                &*encodedBegin;
+            const typename MainDataType::EncodedElement *pEncodedData = &*encodedBegin;
             size_t encodedDataLengthBytes =
-                std::distance(encodedBegin, encodedEnd) *
-                sizeof(typename MainDataType::EncodedElement);
+                std::distance(encodedBegin, encodedEnd) * sizeof(typename MainDataType::EncodedElement);
 
             if (sizeof(size_t) > 4)
-                return (size_t)XxHash64::calcHash(pEncodedData,
-                                                  encodedDataLengthBytes);
+                return (size_t)XxHash64::calcHash(pEncodedData, encodedDataLengthBytes);
             else
-                return (size_t)XxHash32::calcHash(pEncodedData,
-                                                  encodedDataLengthBytes);
+                return (size_t)XxHash32::calcHash(pEncodedData, encodedDataLengthBytes);
         }
 
         /** Calculates a hash value from this string. The way this is calculated
@@ -7207,9 +6426,7 @@ namespace bdn
         class XxHash32DataProvider_
         {
           public:
-            XxHash32DataProvider_(const Iterator &it, size_t charCount)
-                : _it(it), _charsLeft(charCount)
-            {}
+            XxHash32DataProvider_(const Iterator &it, size_t charCount) : _it(it), _charsLeft(charCount) {}
 
             const uint32_t *next4x4ByteBlock()
             {
@@ -7250,8 +6467,7 @@ namespace bdn
         };
         friend class XxHash32;
 
-        template <class T>
-        const typename T::EncodedString &getEncoded(T *dummy) const
+        template <class T> const typename T::EncodedString &getEncoded(T *dummy) const
         {
             T *p = dynamic_cast<T *>(_pDataInDifferentEncoding.getPtr());
             if (p == nullptr) {
@@ -7264,8 +6480,7 @@ namespace bdn
             return p->getEncodedString();
         }
 
-        const typename MainDataType::EncodedString &
-        getEncoded(MainDataType *dummy) const
+        const typename MainDataType::EncodedString &getEncoded(MainDataType *dummy) const
         {
             if (_endIt != _pData->end() || _beginIt != _pData->begin()) {
                 // we are a sub-slice of another string. Copy it now, so that we
@@ -7303,18 +6518,14 @@ namespace bdn
             if (_pData->getRefCount() != 1) {
                 // we are sharing the data => need to copy.
 
-                _pData = newObj<MainDataType>(typename MainDataType::Codec(),
-                                              _beginIt.getInner(),
-                                              _endIt.getInner());
+                _pData = newObj<MainDataType>(typename MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner());
 
                 _beginIt = _pData->begin();
                 _endIt = _pData->end();
             } else {
-                typename MainDataType::EncodedString *pStd =
-                    &_pData->getEncodedString();
+                typename MainDataType::EncodedString *pStd = &_pData->getEncodedString();
 
-                if (_beginIt.getInner() != pStd->cbegin() ||
-                    _endIt.getInner() != pStd->cend()) {
+                if (_beginIt.getInner() != pStd->cbegin() || _endIt.getInner() != pStd->cend()) {
                     // we are working on a substring of the data. Throw away the
                     // other parts. Note that we want to avoid re-allocation, so
                     // we want to do this in place. First we cut off what we do
@@ -7323,17 +6534,15 @@ namespace bdn
                     // our begin iterator, so we need to save its value as an
                     // index.
 
-                    typename MainDataType::EncodedString::difference_type
-                        startIndex = _beginIt.getInner() - pStd->cbegin();
+                    typename MainDataType::EncodedString::difference_type startIndex =
+                        _beginIt.getInner() - pStd->cbegin();
 
                     if (_endIt.getInner() != pStd->cend()) {
 // there is a bug in g++ 4.8. Erase only takes normal iterators, instead of
 // const_iterators. work around it.
 #if defined(__GNUC__) && __GNUC__ < 5
 
-                        pStd->erase(pStd->begin() +
-                                        (_endIt.getInner() - pStd->cbegin()),
-                                    pStd->end());
+                        pStd->erase(pStd->begin() + (_endIt.getInner() - pStd->cbegin()), pStd->end());
 
 #else
 
@@ -7384,30 +6593,26 @@ namespace bdn
         };
         friend struct Modify;
 
-        std::string _toLocaleEncodingImpl(const char *,
-                                          const std::locale &loc) const
+        std::string _toLocaleEncodingImpl(const char *, const std::locale &loc) const
         {
             LocaleEncoder<Iterator> encoder(begin(), end(), loc);
 
             return std::string(encoder.begin(), encoder.end());
         }
 
-        const std::wstring &_toLocaleEncodingImpl(const wchar_t *,
-                                                  const std::locale &loc) const
+        const std::wstring &_toLocaleEncodingImpl(const wchar_t *, const std::locale &loc) const
         {
             // the locale does not influence the wide char encoding
             return asWide();
         }
 
-        const std::u16string &
-        _toLocaleEncodingImpl(const char16_t *, const std::locale &loc) const
+        const std::u16string &_toLocaleEncodingImpl(const char16_t *, const std::locale &loc) const
         {
             // the locale does not influence the UTF-16 encoding
             return asUtf16();
         }
 
-        const std::u32string &
-        _toLocaleEncodingImpl(const char32_t *, const std::locale &loc) const
+        const std::u32string &_toLocaleEncodingImpl(const char32_t *, const std::locale &loc) const
         {
             // the locale does not influence the UTF-32 encoding
             return asUtf32();
@@ -7427,9 +6632,8 @@ namespace bdn
     template <> struct StringImplStreamWriterImpl_<char32_t>
     {
         template <typename CHAR_TRAITS, class STRING_DATA>
-        static inline void
-        write(std::basic_ostream<char32_t, CHAR_TRAITS> &stream,
-              const bdn::StringImpl<STRING_DATA> &s)
+        static inline void write(std::basic_ostream<char32_t, CHAR_TRAITS> &stream,
+                                 const bdn::StringImpl<STRING_DATA> &s)
         {
             bdn::streamPutCharSequence(stream, s.begin(), s.end());
         }
@@ -7438,16 +6642,11 @@ namespace bdn
     template <> struct StringImplStreamWriterImpl_<char16_t>
     {
         template <typename CHAR_TRAITS, class STRING_DATA>
-        static inline void
-        write(std::basic_ostream<char16_t, CHAR_TRAITS> &stream,
-              const bdn::StringImpl<STRING_DATA> &s)
+        static inline void write(std::basic_ostream<char16_t, CHAR_TRAITS> &stream,
+                                 const bdn::StringImpl<STRING_DATA> &s)
         {
-            Utf16Codec::EncodingIterator<
-                typename bdn::StringImpl<STRING_DATA>::Iterator>
-                beginIt(s.begin());
-            Utf16Codec::EncodingIterator<
-                typename bdn::StringImpl<STRING_DATA>::Iterator>
-                endIt(s.end());
+            Utf16Codec::EncodingIterator<typename bdn::StringImpl<STRING_DATA>::Iterator> beginIt(s.begin());
+            Utf16Codec::EncodingIterator<typename bdn::StringImpl<STRING_DATA>::Iterator> endIt(s.end());
 
             bdn::streamPutCharSequence(stream, beginIt, endIt);
         }
@@ -7456,16 +6655,11 @@ namespace bdn
     template <> struct StringImplStreamWriterImpl_<wchar_t>
     {
         template <typename CHAR_TRAITS, typename STRING_DATA>
-        static inline void
-        write(std::basic_ostream<wchar_t, CHAR_TRAITS> &stream,
-              const bdn::StringImpl<STRING_DATA> &s)
+        static inline void write(std::basic_ostream<wchar_t, CHAR_TRAITS> &stream,
+                                 const bdn::StringImpl<STRING_DATA> &s)
         {
-            WideCodec::EncodingIterator<
-                typename bdn::StringImpl<STRING_DATA>::Iterator>
-                beginIt(s.begin());
-            WideCodec::EncodingIterator<
-                typename bdn::StringImpl<STRING_DATA>::Iterator>
-                endIt(s.end());
+            WideCodec::EncodingIterator<typename bdn::StringImpl<STRING_DATA>::Iterator> beginIt(s.begin());
+            WideCodec::EncodingIterator<typename bdn::StringImpl<STRING_DATA>::Iterator> endIt(s.end());
 
             bdn::streamPutCharSequence(stream, beginIt, endIt);
         }
@@ -7474,11 +6668,9 @@ namespace bdn
     template <> struct StringImplStreamWriterImpl_<char>
     {
         template <typename CHAR_TRAITS, typename STRING_DATA>
-        static inline void write(std::basic_ostream<char, CHAR_TRAITS> &stream,
-                                 const bdn::StringImpl<STRING_DATA> &s)
+        static inline void write(std::basic_ostream<char, CHAR_TRAITS> &stream, const bdn::StringImpl<STRING_DATA> &s)
         {
-            LocaleEncoder<typename bdn::StringImpl<STRING_DATA>::Iterator>
-                encoder(s.begin(), s.end(), stream.getloc());
+            LocaleEncoder<typename bdn::StringImpl<STRING_DATA>::Iterator> encoder(s.begin(), s.end(), stream.getloc());
 
             bdn::streamPutCharSequence(stream, encoder.begin(), encoder.end());
         }
@@ -7497,13 +6689,10 @@ namespace bdn
        std::basic_string and const char_t*
     */
     template <typename CHAR_TYPE, typename CHAR_TRAITS, class STRING_DATA>
-    inline std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const bdn::StringImpl<STRING_DATA> &s)
+    inline std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                                  const bdn::StringImpl<STRING_DATA> &s)
     {
-        StringImplStreamWriterImpl_<CHAR_TYPE>::template write<CHAR_TRAITS,
-                                                               STRING_DATA>(
-            stream, s);
+        StringImplStreamWriterImpl_<CHAR_TYPE>::template write<CHAR_TRAITS, STRING_DATA>(stream, s);
         return stream;
     }
 }

@@ -17,13 +17,9 @@ namespace bdn
             exception.*/
         ExceptionReference() noexcept {}
 
-        ExceptionReference(const std::exception_ptr &p) noexcept
-            : _exceptionPtr(p)
-        {}
+        ExceptionReference(const std::exception_ptr &p) noexcept : _exceptionPtr(p) {}
 
-        ExceptionReference(const ExceptionReference &o) noexcept
-            : _exceptionPtr(o._exceptionPtr)
-        {}
+        ExceptionReference(const ExceptionReference &o) noexcept : _exceptionPtr(o._exceptionPtr) {}
 
         /** Returns an ExceptionReference object that refers to the currently
             active exception. An exception is active inside a catch clause.
@@ -59,8 +55,7 @@ namespace bdn
             If the creating the reference object involves allocating memory
            internally and there is not enough memory for that then the returned
            reference will refer to a std::bad_alloc exception.*/
-        template <class ParamType>
-        static ExceptionReference fromException(ParamType exc) noexcept
+        template <class ParamType> static ExceptionReference fromException(ParamType exc) noexcept
         {
             return ExceptionReference(std::make_exception_ptr(exc));
         }
@@ -69,8 +64,7 @@ namespace bdn
             is allocated with newObj and a pointer to the reference object is
            returned.
          */
-        template <class ParamType>
-        static P<ExceptionReference> newFromException(ParamType exc) noexcept
+        template <class ParamType> static P<ExceptionReference> newFromException(ParamType exc) noexcept
         {
             try {
                 return newObj<ExceptionReference>(std::make_exception_ptr(exc));
@@ -92,16 +86,10 @@ namespace bdn
 
         /** Returns true if either both reference are null, or if they
             point to the same exception object.*/
-        bool operator==(const ExceptionReference &o) const
-        {
-            return _exceptionPtr == o._exceptionPtr;
-        }
+        bool operator==(const ExceptionReference &o) const { return _exceptionPtr == o._exceptionPtr; }
 
         /** Inverse of operator==*/
-        bool operator!=(const ExceptionReference &o) const
-        {
-            return _exceptionPtr != o._exceptionPtr;
-        }
+        bool operator!=(const ExceptionReference &o) const { return _exceptionPtr != o._exceptionPtr; }
 
       private:
         static ExceptionReference &getGlobalBadAllocReference() noexcept
@@ -110,8 +98,7 @@ namespace bdn
             // involves allocating with new. And we need the global bad alloc
             // reference when there is not enough memory, so new should be
             // avoided.
-            static ExceptionReference ref(
-                std::make_exception_ptr(std::bad_alloc()));
+            static ExceptionReference ref(std::make_exception_ptr(std::bad_alloc()));
 
             return ref;
         }

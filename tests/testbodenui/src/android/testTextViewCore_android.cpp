@@ -8,14 +8,12 @@
 
 using namespace bdn;
 
-class TestAndroidTextViewCore
-    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>
+class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestTextViewCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
 
         _jTextView = bdn::android::JTextView(_jView.getRef_());
     }

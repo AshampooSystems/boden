@@ -19,8 +19,7 @@ class TestTextSinkForTextSinkStdOStream : public Base, BDN_IMPLEMENTS ITextSink
 
 template <class CharType> static void testTextSinkStdOStream()
 {
-    P<TestTextSinkForTextSinkStdOStream> pSink =
-        newObj<TestTextSinkForTextSinkStdOStream>();
+    P<TestTextSinkForTextSinkStdOStream> pSink = newObj<TestTextSinkForTextSinkStdOStream>();
 
     const Array<String> &writtenChunks = pSink->writtenChunks;
 
@@ -78,9 +77,7 @@ template <class CharType> static void testTextSinkStdOStream()
         stream << "X";
 
         REQUIRE(writtenChunks.size() == 1);
-        REQUIRE(
-            writtenChunks[0] ==
-            "0123456701234567012345670123456701234567012345670123456701234567");
+        REQUIRE(writtenChunks[0] == "0123456701234567012345670123456701234567012345670123456701234567");
     }
 }
 

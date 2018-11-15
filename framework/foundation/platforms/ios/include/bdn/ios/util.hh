@@ -12,8 +12,7 @@ namespace bdn
         {
             // iOS also uses DIPs, so no conversion necessary
 
-            return Rect(rect.origin.x, rect.origin.y, rect.size.width,
-                        rect.size.height);
+            return Rect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         }
 
         /** Converts a bdn::Rect to an iOS rect. */
@@ -30,10 +29,7 @@ namespace bdn
             return iosRect;
         }
 
-        inline Size iosSizeToSize(const CGSize &iosSize)
-        {
-            return Size(iosSize.width, iosSize.height);
-        }
+        inline Size iosSizeToSize(const CGSize &iosSize) { return Size(iosSize.width, iosSize.height); }
 
         inline CGSize sizeToIosSize(const Size &size)
         {
@@ -45,10 +41,7 @@ namespace bdn
             return iosSize;
         }
 
-        inline Point iosPointToPoint(const CGPoint &iosPoint)
-        {
-            return Point(iosPoint.x, iosPoint.y);
-        }
+        inline Point iosPointToPoint(const CGPoint &iosPoint) { return Point(iosPoint.x, iosPoint.y); }
 
         inline CGPoint pointToIosPoint(const Point &p)
         {
@@ -62,8 +55,7 @@ namespace bdn
 
         inline NSString *stringToIosString(const String &val)
         {
-            return [NSString stringWithCString:val.asUtf8Ptr()
-                                      encoding:NSUTF8StringEncoding];
+            return [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding];
         }
 
         inline String iosStringToString(NSString *nsString)

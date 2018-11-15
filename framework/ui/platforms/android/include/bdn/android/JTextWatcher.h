@@ -12,9 +12,7 @@ class JTextWatcher : public bdn::java::JObject
      *      then you need to call toStrong() on the reference first and pass the
      * result.
      *      */
-    explicit JTextWatcher(const bdn::java::Reference &javaRef)
-        : JObject(javaRef)
-    {}
+    explicit JTextWatcher(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
     /** Returns the JClass object for this class.
      *

@@ -5,8 +5,7 @@
 
 using namespace bdn;
 
-template <class AType, class BType>
-static void verifyDipRelationImpl(AType a, BType b, double expectedRelation)
+template <class AType, class BType> static void verifyDipRelationImpl(AType a, BType b, double expectedRelation)
 {
     double rel = Dip::compare(a, b);
 
@@ -26,8 +25,7 @@ static void verifyDipRelationImpl(AType a, BType b, double expectedRelation)
     REQUIRE(Dip::equal(a, b) == (rel == 0));
 }
 
-template <class AType, class BType>
-static void verifyDipRelation(AType a, BType b, double expectedRelation)
+template <class AType, class BType> static void verifyDipRelation(AType a, BType b, double expectedRelation)
 {
     SECTION("normal")
     verifyDipRelationImpl<AType, BType>(a, b, expectedRelation);
@@ -56,14 +54,11 @@ void testDipComparison(double a, double b, double expectedRelation)
     verifyDipRelation<Dip, Dip>(adip, Dip(b), expectedRelation);
 }
 
-static void _verifyDipPixelAlignImpl(double inVal, double pixelsPerDip,
-                                     RoundType roundType, double expectedOutVal)
+static void _verifyDipPixelAlignImpl(double inVal, double pixelsPerDip, RoundType roundType, double expectedOutVal)
 {
     // to make sure that the pixel aligner uses the correct roundType for
     // position and size we specify another round type for the unused value
-    RoundType otherRoundType = (roundType == RoundType::nearest)
-                                   ? RoundType::down
-                                   : RoundType::nearest;
+    RoundType otherRoundType = (roundType == RoundType::nearest) ? RoundType::down : RoundType::nearest;
 
     SECTION("pixelAlign")
     {
@@ -81,44 +76,35 @@ static void _verifyDipPixelAlignImpl(double inVal, double pixelsPerDip,
     {
         SECTION("x")
         {
-            double outVal = Dip::pixelAlign(Rect(inVal, 0, 0, 0), pixelsPerDip,
-                                            roundType, otherRoundType)
-                                .x;
+            double outVal = Dip::pixelAlign(Rect(inVal, 0, 0, 0), pixelsPerDip, roundType, otherRoundType).x;
 
             REQUIRE_ALMOST_EQUAL(outVal, expectedOutVal, 0.00000001);
         }
 
         SECTION("y")
         {
-            double outVal = Dip::pixelAlign(Rect(0, inVal, 0, 0), pixelsPerDip,
-                                            roundType, otherRoundType)
-                                .y;
+            double outVal = Dip::pixelAlign(Rect(0, inVal, 0, 0), pixelsPerDip, roundType, otherRoundType).y;
 
             REQUIRE_ALMOST_EQUAL(outVal, expectedOutVal, 0.00000001);
         }
 
         SECTION("width")
         {
-            double outVal = Dip::pixelAlign(Rect(0, 0, inVal, 0), pixelsPerDip,
-                                            otherRoundType, roundType)
-                                .width;
+            double outVal = Dip::pixelAlign(Rect(0, 0, inVal, 0), pixelsPerDip, otherRoundType, roundType).width;
 
             REQUIRE_ALMOST_EQUAL(outVal, expectedOutVal, 0.00000001);
         }
 
         SECTION("height")
         {
-            double outVal = Dip::pixelAlign(Rect(0, 0, 0, inVal), pixelsPerDip,
-                                            otherRoundType, roundType)
-                                .height;
+            double outVal = Dip::pixelAlign(Rect(0, 0, 0, inVal), pixelsPerDip, otherRoundType, roundType).height;
 
             REQUIRE_ALMOST_EQUAL(outVal, expectedOutVal, 0.00000001);
         }
     }
 }
 
-static void verifyDipPixelAlign(double inVal, double pixelsPerDip,
-                                RoundType roundType, double expectedOutVal)
+static void verifyDipPixelAlign(double inVal, double pixelsPerDip, RoundType roundType, double expectedOutVal)
 {
     SECTION("positive")
     _verifyDipPixelAlignImpl(inVal, pixelsPerDip, roundType, expectedOutVal);
@@ -134,8 +120,7 @@ static void verifyDipPixelAlign(double inVal, double pixelsPerDip,
         else if (roundType == RoundType::down)
             roundType = RoundType::up;
 
-        _verifyDipPixelAlignImpl(-inVal, pixelsPerDip, roundType,
-                                 -expectedOutVal);
+        _verifyDipPixelAlignImpl(-inVal, pixelsPerDip, roundType, -expectedOutVal);
     }
 }
 
@@ -207,8 +192,7 @@ TEST_CASE("Dip")
         testDipComparison(12345678.9123, 12345678.9123 - epsilon, 0);
 
         SECTION("big significantly bigger")
-        testDipComparison(12345678.9123,
-                          12345678.9123 + significanceBoundary + epsilon, -1);
+        testDipComparison(12345678.9123, 12345678.9123 + significanceBoundary + epsilon, -1);
 
         SECTION("sign significant")
         testDipComparison(-1.23456, 1.23456, -1);
@@ -218,62 +202,52 @@ TEST_CASE("Dip")
         SECTION("infinity")
         {
             SECTION("to infinity")
-            testDipComparison(std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::infinity(), 0);
+            testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), 0);
 
             SECTION("to -infinity")
-            testDipComparison(std::numeric_limits<double>::infinity(),
-                              -std::numeric_limits<double>::infinity(), 1);
+            testDipComparison(std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 1);
 
             SECTION("to non-infinity")
             testDipComparison(std::numeric_limits<double>::infinity(), 1, 1);
 
             SECTION("to nan")
-            testDipComparison(std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::quiet_NaN(),
+            testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
                               std::numeric_limits<double>::quiet_NaN());
         }
 
         SECTION("-infinity")
         {
             SECTION("to infinity")
-            testDipComparison(-std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::infinity(), -1);
+            testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), -1);
 
             SECTION("to -infinity")
-            testDipComparison(-std::numeric_limits<double>::infinity(),
-                              -std::numeric_limits<double>::infinity(), 0);
+            testDipComparison(-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 0);
 
             SECTION("to non-infinity")
             testDipComparison(-std::numeric_limits<double>::infinity(), 1, -1);
 
             SECTION("to nan")
-            testDipComparison(-std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::quiet_NaN(),
+            testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
                               std::numeric_limits<double>::quiet_NaN());
         }
 
         SECTION("nan")
         {
             SECTION("to infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(),
-                              std::numeric_limits<double>::infinity(),
+            testDipComparison(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity(),
                               std::numeric_limits<double>::quiet_NaN());
 
             SECTION("to -infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(),
-                              -std::numeric_limits<double>::infinity(),
+            testDipComparison(std::numeric_limits<double>::quiet_NaN(), -std::numeric_limits<double>::infinity(),
                               std::numeric_limits<double>::quiet_NaN());
 
             SECTION("to non-infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(), 1,
-                              std::numeric_limits<double>::quiet_NaN());
+            testDipComparison(std::numeric_limits<double>::quiet_NaN(), 1, std::numeric_limits<double>::quiet_NaN());
 
             SECTION("to nan")
             {
                 // nan is not equal to anything, not even itself
-                testDipComparison(std::numeric_limits<double>::quiet_NaN(),
-                                  std::numeric_limits<double>::quiet_NaN(),
+                testDipComparison(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(),
                                   std::numeric_limits<double>::quiet_NaN());
             }
         }
@@ -286,33 +260,23 @@ TEST_CASE("Dip")
         {
             REQUIRE(Dip::equal(Size(1, 2), Size(1, 2)));
 
-            REQUIRE(Dip::equal(Size(1 + significanceBoundary - epsilon, 2),
-                               Size(1, 2)));
-            REQUIRE(!Dip::equal(Size(1 + significanceBoundary + epsilon, 2),
-                                Size(1, 2)));
+            REQUIRE(Dip::equal(Size(1 + significanceBoundary - epsilon, 2), Size(1, 2)));
+            REQUIRE(!Dip::equal(Size(1 + significanceBoundary + epsilon, 2), Size(1, 2)));
 
-            REQUIRE(Dip::equal(Size(1, 2 + significanceBoundary - epsilon),
-                               Size(1, 2)));
-            REQUIRE(!Dip::equal(Size(1, 2 + significanceBoundary + epsilon),
-                                Size(1, 2)));
+            REQUIRE(Dip::equal(Size(1, 2 + significanceBoundary - epsilon), Size(1, 2)));
+            REQUIRE(!Dip::equal(Size(1, 2 + significanceBoundary + epsilon), Size(1, 2)));
 
 #if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
 
-            REQUIRE(
-                Dip::equal(Size(std::numeric_limits<double>::infinity(), 2),
-                           Size(std::numeric_limits<double>::infinity(), 2)));
-            REQUIRE(!Dip::equal(
-                Size(std::numeric_limits<double>::infinity(), 2), Size(1, 2)));
-            REQUIRE(!Dip::equal(
-                Size(std::numeric_limits<double>::quiet_NaN(), 2), Size(1, 2)));
+            REQUIRE(Dip::equal(Size(std::numeric_limits<double>::infinity(), 2),
+                               Size(std::numeric_limits<double>::infinity(), 2)));
+            REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::infinity(), 2), Size(1, 2)));
+            REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::quiet_NaN(), 2), Size(1, 2)));
 
-            REQUIRE(
-                Dip::equal(Size(1, std::numeric_limits<double>::infinity()),
-                           Size(1, std::numeric_limits<double>::infinity())));
-            REQUIRE(!Dip::equal(
-                Size(1, std::numeric_limits<double>::infinity()), Size(1, 2)));
-            REQUIRE(!Dip::equal(
-                Size(1, std::numeric_limits<double>::quiet_NaN()), Size(1, 2)));
+            REQUIRE(Dip::equal(Size(1, std::numeric_limits<double>::infinity()),
+                               Size(1, std::numeric_limits<double>::infinity())));
+            REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::infinity()), Size(1, 2)));
+            REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::quiet_NaN()), Size(1, 2)));
 #endif
         }
 
@@ -320,37 +284,23 @@ TEST_CASE("Dip")
         {
             REQUIRE(Dip::equal(Point(1, 2), Point(1, 2)));
 
-            REQUIRE(Dip::equal(Point(1 + significanceBoundary - epsilon, 2),
-                               Point(1, 2)));
-            REQUIRE(!Dip::equal(Point(1 + significanceBoundary + epsilon, 2),
-                                Point(1, 2)));
+            REQUIRE(Dip::equal(Point(1 + significanceBoundary - epsilon, 2), Point(1, 2)));
+            REQUIRE(!Dip::equal(Point(1 + significanceBoundary + epsilon, 2), Point(1, 2)));
 
-            REQUIRE(Dip::equal(Point(1, 2 + significanceBoundary - epsilon),
-                               Point(1, 2)));
-            REQUIRE(!Dip::equal(Point(1, 2 + significanceBoundary + epsilon),
-                                Point(1, 2)));
+            REQUIRE(Dip::equal(Point(1, 2 + significanceBoundary - epsilon), Point(1, 2)));
+            REQUIRE(!Dip::equal(Point(1, 2 + significanceBoundary + epsilon), Point(1, 2)));
 
 #if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
 
-            REQUIRE(
-                Dip::equal(Point(std::numeric_limits<double>::infinity(), 2),
-                           Point(std::numeric_limits<double>::infinity(), 2)));
-            REQUIRE(
-                !Dip::equal(Point(std::numeric_limits<double>::infinity(), 2),
-                            Point(1, 2)));
-            REQUIRE(
-                !Dip::equal(Point(std::numeric_limits<double>::quiet_NaN(), 2),
-                            Point(1, 2)));
+            REQUIRE(Dip::equal(Point(std::numeric_limits<double>::infinity(), 2),
+                               Point(std::numeric_limits<double>::infinity(), 2)));
+            REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::infinity(), 2), Point(1, 2)));
+            REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::quiet_NaN(), 2), Point(1, 2)));
 
-            REQUIRE(
-                Dip::equal(Point(1, std::numeric_limits<double>::infinity()),
-                           Point(1, std::numeric_limits<double>::infinity())));
-            REQUIRE(
-                !Dip::equal(Point(1, std::numeric_limits<double>::infinity()),
-                            Point(1, 2)));
-            REQUIRE(
-                !Dip::equal(Point(1, std::numeric_limits<double>::quiet_NaN()),
-                            Point(1, 2)));
+            REQUIRE(Dip::equal(Point(1, std::numeric_limits<double>::infinity()),
+                               Point(1, std::numeric_limits<double>::infinity())));
+            REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::infinity()), Point(1, 2)));
+            REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::quiet_NaN()), Point(1, 2)));
 #endif
         }
 
@@ -358,82 +308,45 @@ TEST_CASE("Dip")
         {
             REQUIRE(Dip::equal(Rect(1, 2, 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(
-                Dip::equal(Rect(1 + significanceBoundary - epsilon, 2, 3, 4),
-                           Rect(1, 2, 3, 4)));
-            REQUIRE(
-                !Dip::equal(Rect(1 + significanceBoundary + epsilon, 2, 3, 4),
-                            Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1 + significanceBoundary - epsilon, 2, 3, 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1 + significanceBoundary + epsilon, 2, 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(
-                Dip::equal(Rect(1, 2 + significanceBoundary - epsilon, 3, 4),
-                           Rect(1, 2, 3, 4)));
-            REQUIRE(
-                !Dip::equal(Rect(1, 2 + significanceBoundary + epsilon, 3, 4),
-                            Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, 2 + significanceBoundary - epsilon, 3, 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2 + significanceBoundary + epsilon, 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(
-                Dip::equal(Rect(1, 2, 3 + significanceBoundary - epsilon, 4),
-                           Rect(1, 2, 3, 4)));
-            REQUIRE(
-                !Dip::equal(Rect(1, 2, 3 + significanceBoundary + epsilon, 4),
-                            Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, 2, 3 + significanceBoundary - epsilon, 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2, 3 + significanceBoundary + epsilon, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(
-                Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary - epsilon),
-                           Rect(1, 2, 3, 4)));
-            REQUIRE(
-                !Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary + epsilon),
-                            Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary - epsilon), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary + epsilon), Rect(1, 2, 3, 4)));
 
 #if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
-            REQUIRE(Dip::equal(
-                Rect(std::numeric_limits<double>::infinity(), 2, 3, 4),
-                Rect(std::numeric_limits<double>::infinity(), 2, 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(std::numeric_limits<double>::infinity(), 2, 3, 4),
-                Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(std::numeric_limits<double>::quiet_NaN(), 2, 3, 4),
-                Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4),
+                               Rect(std::numeric_limits<double>::infinity(), 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::quiet_NaN(), 2, 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(Dip::equal(
-                Rect(1, std::numeric_limits<double>::infinity(), 3, 4),
-                Rect(1, std::numeric_limits<double>::infinity(), 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(1, std::numeric_limits<double>::infinity(), 3, 4),
-                Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(1, std::numeric_limits<double>::quiet_NaN(), 3, 4),
-                Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4),
+                               Rect(1, std::numeric_limits<double>::infinity(), 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::quiet_NaN(), 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(Dip::equal(
-                Rect(1, 2, std::numeric_limits<double>::infinity(), 4),
-                Rect(1, 2, std::numeric_limits<double>::infinity(), 4)));
-            REQUIRE(!Dip::equal(
-                Rect(1, 2, std::numeric_limits<double>::infinity(), 4),
-                Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(1, 2, std::numeric_limits<double>::quiet_NaN(), 4),
-                Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4),
+                               Rect(1, 2, std::numeric_limits<double>::infinity(), 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::quiet_NaN(), 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(Dip::equal(
-                Rect(1, 2, 3, std::numeric_limits<double>::infinity()),
-                Rect(1, 2, 3, std::numeric_limits<double>::infinity())));
-            REQUIRE(!Dip::equal(
-                Rect(1, 2, 3, std::numeric_limits<double>::infinity()),
-                Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(
-                Rect(1, 2, 3, std::numeric_limits<double>::quiet_NaN()),
-                Rect(1, 2, 3, 4)));
+            REQUIRE(Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()),
+                               Rect(1, 2, 3, std::numeric_limits<double>::infinity())));
+            REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()), Rect(1, 2, 3, 4)));
+            REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::quiet_NaN()), Rect(1, 2, 3, 4)));
 #endif
         }
     }
 
     SECTION("pixel alignment")
     {
-        RoundType roundTypes[] = {RoundType::nearest, RoundType::down,
-                                  RoundType::up};
+        RoundType roundTypes[] = {RoundType::nearest, RoundType::down, RoundType::up};
 
         const double significanceBoundary = Dip::significanceBoundary();
         const double tiny = significanceBoundary / 100;
@@ -454,67 +367,57 @@ TEST_CASE("Dip")
                 {
                     // should not matter, since the difference is
                     // "insignificant"
-                    verifyDipPixelAlign(1.6 + significanceBoundary - tiny,
-                                        pixelsPerDip, roundType, 1.6);
+                    verifyDipPixelAlign(1.6 + significanceBoundary - tiny, pixelsPerDip, roundType, 1.6);
                 }
 
                 SECTION("insignificantly less")
                 {
                     // should not matter, since the difference is
                     // "insignificant"
-                    verifyDipPixelAlign(1.6 - significanceBoundary + tiny,
-                                        pixelsPerDip, roundType, 1.6);
+                    verifyDipPixelAlign(1.6 - significanceBoundary + tiny, pixelsPerDip, roundType, 1.6);
                 }
 
                 SECTION("significantly more")
                 {
-                    verifyDipPixelAlign(
-                        1.6 + significanceBoundary + tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::up) ? 2.4 : 1.6);
+                    verifyDipPixelAlign(1.6 + significanceBoundary + tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::up) ? 2.4 : 1.6);
                 }
 
                 SECTION("significantly less")
                 {
-                    verifyDipPixelAlign(
-                        1.6 - significanceBoundary - tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::down) ? 0.8 : 1.6);
+                    verifyDipPixelAlign(1.6 - significanceBoundary - tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::down) ? 0.8 : 1.6);
                 }
 
                 SECTION("halfway")
                 {
-                    verifyDipPixelAlign(1.2, pixelsPerDip, roundType,
-                                        (roundType == RoundType::down) ? 0.8
-                                                                       : 1.6);
+                    verifyDipPixelAlign(1.2, pixelsPerDip, roundType, (roundType == RoundType::down) ? 0.8 : 1.6);
                 }
 
                 SECTION("insignificantly less than halfway")
                 {
-                    verifyDipPixelAlign(
-                        1.2 - significanceBoundary + tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::down) ? 0.8 : 1.6);
+                    verifyDipPixelAlign(1.2 - significanceBoundary + tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::down) ? 0.8 : 1.6);
                 }
 
                 SECTION("insignificantly more than halfway")
                 {
-                    verifyDipPixelAlign(
-                        1.2 + significanceBoundary - tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::down) ? 0.8 : 1.6);
+                    verifyDipPixelAlign(1.2 + significanceBoundary - tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::down) ? 0.8 : 1.6);
                 }
 
                 SECTION("significantly less than halfway")
                 {
                     // nearest and down should both round down
-                    verifyDipPixelAlign(
-                        1.2 - significanceBoundary - tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::up) ? 1.6 : 0.8);
+                    verifyDipPixelAlign(1.2 - significanceBoundary - tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::up) ? 1.6 : 0.8);
                 }
 
                 SECTION("significantly more than halfway")
                 {
                     // nearest and up should both round up
-                    verifyDipPixelAlign(
-                        1.2 + significanceBoundary + tiny, pixelsPerDip,
-                        roundType, (roundType == RoundType::down) ? 0.8 : 1.6);
+                    verifyDipPixelAlign(1.2 + significanceBoundary + tiny, pixelsPerDip, roundType,
+                                        (roundType == RoundType::down) ? 0.8 : 1.6);
                 }
             }
         }

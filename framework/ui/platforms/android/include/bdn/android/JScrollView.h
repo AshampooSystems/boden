@@ -28,12 +28,9 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JScrollView(const bdn::java::Reference &objectRef)
-                : JFrameLayout(objectRef)
-            {}
+            explicit JScrollView(const bdn::java::Reference &objectRef) : JFrameLayout(objectRef) {}
 
-            JScrollView(JContext context) : JScrollView(newInstance_(context))
-            {}
+            JScrollView(JContext context) : JScrollView(newInstance_(context)) {}
 
             /** Set the scrolled position of your view. This will cause a call
                to onScrollChanged(int, int, int, int) and the view will be
@@ -55,8 +52,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x,
-                              y);
+                invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x, y);
             }
 
             /** Returns the JClass object for this class.

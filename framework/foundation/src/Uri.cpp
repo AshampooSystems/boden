@@ -41,9 +41,7 @@ namespace bdn
                         if (isHexDigit(chr2)) {
                             ++pos;
 
-                            unescapedUtf8 +=
-                                (char)((decodeHexDigit(chr1) << 4) |
-                                       decodeHexDigit(chr2));
+                            unescapedUtf8 += (char)((decodeHexDigit(chr1) << 4) | decodeHexDigit(chr2));
                             lastEscapeEnd = pos;
                         }
                     }

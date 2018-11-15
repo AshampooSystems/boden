@@ -23,8 +23,7 @@ namespace bdn
     namespace mac
     {
 
-        ButtonCore::ButtonCore(Button *pOuterButton)
-            : ButtonCoreBase(pOuterButton, _createNsButton(pOuterButton))
+        ButtonCore::ButtonCore(Button *pOuterButton) : ButtonCoreBase(pOuterButton, _createNsButton(pOuterButton))
         {
             _currBezelStyle = NSBezelStyleRounded;
 
@@ -34,8 +33,7 @@ namespace bdn
 
             setLabel(pOuterButton->label());
 
-            _heightWithRoundedBezelStyle =
-                macSizeToSize(getNSView().fittingSize).height;
+            _heightWithRoundedBezelStyle = macSizeToSize(getNSView().fittingSize).height;
 
             [_nsButton setTarget:clickMan];
             [_nsButton setAction:@selector(clicked)];
@@ -72,8 +70,7 @@ namespace bdn
 
         void ButtonCore::generateClick()
         {
-            P<Button> pOuterButton =
-                cast<Button>(getOuterViewIfStillAttached());
+            P<Button> pOuterButton = cast<Button>(getOuterViewIfStillAttached());
             if (pOuterButton != nullptr) {
                 bdn::ClickEvent evt(pOuterButton);
 

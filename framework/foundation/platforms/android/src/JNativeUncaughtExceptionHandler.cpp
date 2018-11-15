@@ -6,8 +6,7 @@
 
 #include <bdn/ExceptionReference.h>
 
-extern "C" JNIEXPORT jboolean JNICALL
-Java_io_boden_android_NativeUncaughtExceptionHandler_nativeUncaughtException(
+extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeUncaughtExceptionHandler_nativeUncaughtException(
     JNIEnv *pEnv, jclass rawCls, jobject rawThrowable, jboolean canKeepRunning)
 {
     jboolean returnValue = JNI_FALSE;
@@ -15,17 +14,13 @@ Java_io_boden_android_NativeUncaughtExceptionHandler_nativeUncaughtException(
     bdn::platformEntryWrapper(
         [&]() {
             try {
-                bdn::java::JThrowable throwable(
-                    bdn::java::Reference::convertExternalLocal(rawThrowable));
+                bdn::java::JThrowable throwable(bdn::java::Reference::convertExternalLocal(rawThrowable));
 
                 bdn::java::JavaException::rethrowThrowable(throwable);
             }
             catch (...) {
                 // note that we can always keep running on android.
-                returnValue =
-                    bdn::unhandledException(canKeepRunning != JNI_FALSE)
-                        ? JNI_TRUE
-                        : JNI_FALSE;
+                returnValue = bdn::unhandledException(canKeepRunning != JNI_FALSE) ? JNI_TRUE : JNI_FALSE;
             }
         },
         true, pEnv);

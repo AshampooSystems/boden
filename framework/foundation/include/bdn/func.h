@@ -16,27 +16,20 @@ namespace bdn
       public:
         StrongMethod_() : _method(nullptr) {}
 
-        StrongMethod_(ObjectType *pObject, MethodType method)
-            : _pObject(pObject), _method(method)
-        {}
+        StrongMethod_(ObjectType *pObject, MethodType method) : _pObject(pObject), _method(method) {}
 
         template <class... ArgTypes>
-        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type
-        operator()(ArgTypes &&... args) const
+        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
         {
             if (!isValid())
                 throw std::bad_function_call();
 
-            return (*(_pObject.getPtr()).*
-                    _method)(std::forward<ArgTypes>(args)...);
+            return (*(_pObject.getPtr()).*_method)(std::forward<ArgTypes>(args)...);
         }
 
         /** Returns true if the method pointer is valid.
             Invalid methods will throw an exception when they are called.*/
-        bool isValid() const
-        {
-            return (_pObject != nullptr && _method != nullptr);
-        }
+        bool isValid() const { return (_pObject != nullptr && _method != nullptr); }
 
         /** Returns true if the method is invalid (see isValid()).*/
         bool operator==(std::nullptr_t) const { return !isValid(); }
@@ -60,13 +53,11 @@ namespace bdn
         WeakMethod_() : _method(nullptr), _valid(false) {}
 
         WeakMethod_(ObjectType *pObject, MethodType method)
-            : _pObjectWeak(pObject), _method(method),
-              _valid((pObject != nullptr) && method != nullptr)
+            : _pObjectWeak(pObject), _method(method), _valid((pObject != nullptr) && method != nullptr)
         {}
 
         template <class... ArgTypes>
-        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type
-        operator()(ArgTypes &&... args) const
+        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
         {
             if (!isValid())
                 throw std::bad_function_call();
@@ -105,13 +96,10 @@ namespace bdn
       public:
         PlainMethod_() : _pObject(nullptr), _method(nullptr) {}
 
-        PlainMethod_(ObjectType *pObject, MethodType method)
-            : _pObject(pObject), _method(method)
-        {}
+        PlainMethod_(ObjectType *pObject, MethodType method) : _pObject(pObject), _method(method) {}
 
         template <class... ArgTypes>
-        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type
-        operator()(ArgTypes &&... args) const
+        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
         {
             if (!isValid())
                 throw std::bad_function_call();
@@ -121,10 +109,7 @@ namespace bdn
 
         /** Returns true if the method pointer is valid.
          Invalid methods will throw an exception when they are called.*/
-        bool isValid() const
-        {
-            return (_pObject != nullptr && _method != nullptr);
-        }
+        bool isValid() const { return (_pObject != nullptr && _method != nullptr); }
 
         /** Returns true if the method is invalid (see isValid()).*/
         bool operator==(std::nullptr_t) const { return !isValid(); }
@@ -183,25 +168,21 @@ namespace bdn
 
          */
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> strongMethod(ObjectType *pObject,
-                                         FuncType ObjectType::*method)
+    std::function<FuncType> strongMethod(ObjectType *pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(pObject,
-                                                                      method);
+            return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(pObject, method);
     }
 
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> strongMethod(const P<ObjectType> &pObject,
-                                         FuncType ObjectType::*method)
+    std::function<FuncType> strongMethod(const P<ObjectType> &pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(
-                pObject.getPtr(), method);
+            return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(pObject.getPtr(), method);
     }
 
     /** This is similar to strongMethod(), except that the returned callable
@@ -220,25 +201,21 @@ namespace bdn
 
         */
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> weakMethod(ObjectType *pObject,
-                                       FuncType ObjectType::*method)
+    std::function<FuncType> weakMethod(ObjectType *pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(pObject,
-                                                                    method);
+            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(pObject, method);
     }
 
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> weakMethod(const P<ObjectType> &pObject,
-                                       FuncType ObjectType::*method)
+    std::function<FuncType> weakMethod(const P<ObjectType> &pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(
-                pObject.getPtr(), method);
+            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(pObject.getPtr(), method);
     }
 
     /** Packages a method together with its object pointer and allows it to be
@@ -267,25 +244,21 @@ namespace bdn
 
         */
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> plainMethod(ObjectType *pObject,
-                                        FuncType ObjectType::*method)
+    std::function<FuncType> plainMethod(ObjectType *pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(pObject,
-                                                                     method);
+            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(pObject, method);
     }
 
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> plainMethod(const P<ObjectType> &pObject,
-                                        FuncType ObjectType::*method)
+    std::function<FuncType> plainMethod(const P<ObjectType> &pObject, FuncType ObjectType::*method)
     {
         if (pObject == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(
-                pObject.getPtr(), method);
+            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(pObject.getPtr(), method);
     }
 }
 

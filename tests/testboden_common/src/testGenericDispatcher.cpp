@@ -14,8 +14,7 @@ using namespace bdn;
 TEST_CASE("GenericDispatcher")
 {
     static P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
-    static P<Thread> pThread =
-        newObj<Thread>(newObj<GenericDispatcher::ThreadRunnable>(pDispatcher));
+    static P<Thread> pThread = newObj<Thread>(newObj<GenericDispatcher::ThreadRunnable>(pDispatcher));
 
     bool enableTimingTests = false;
 #ifdef BDN_ENABLE_TIMING_TESTS

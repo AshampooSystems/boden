@@ -22,16 +22,13 @@ namespace bdn
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "TextViewCore instance requested for a TextView that "
-                        "does not have a parent.");
+                    throw ProgrammingError("TextViewCore instance requested for a TextView that "
+                                           "does not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
-                    throw ProgrammingError(
-                        "TextViewCore instance requested for a TextView with "
-                        "core-less parent.");
+                    throw ProgrammingError("TextViewCore instance requested for a TextView with "
+                                           "core-less parent.");
 
                 JContext context = pParentCore->getJView().getContext();
 
@@ -46,8 +43,7 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *pOuterTextView)
-                : ViewCore(pOuterTextView, _createJTextView(pOuterTextView))
+            TextViewCore(TextView *pOuterTextView) : ViewCore(pOuterTextView, _createJTextView(pOuterTextView))
             {
                 _pJTextView = cast<JTextView>(&getJView());
 
@@ -72,15 +68,13 @@ namespace bdn
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
-                Rect adjustedBounds =
-                    ViewCore::adjustAndSetBounds(requestedBounds);
+                Rect adjustedBounds = ViewCore::adjustAndSetBounds(requestedBounds);
 
                 // for some reason the TextView does not wrap its text, unless
                 // we explicitly set the width with setMaxWidth (even if the
                 // widget's size is actually smaller than the text). This seems
                 // to be a bug in android.
-                int widthPixels =
-                    std::lround(adjustedBounds.width * getUiScaleFactor());
+                int widthPixels = std::lround(adjustedBounds.width * getUiScaleFactor());
 
                 _pJTextView->setMaxWidth(widthPixels);
                 _currWidthPixels = widthPixels;
@@ -88,8 +82,7 @@ namespace bdn
                 return adjustedBounds;
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 // we must unset the fixed width we set in the last setSize
                 // call, otherwise it will influence the size we measure here.
@@ -106,8 +99,7 @@ namespace bdn
                         limit.applyMaximum(pView->preferredSizeMaximum());
 
                         if (std::isfinite(limit.width))
-                            maxWidthPixels =
-                                std::lround(limit.width * getUiScaleFactor());
+                            maxWidthPixels = std::lround(limit.width * getUiScaleFactor());
                     }
 
                     _pJTextView->setMaxWidth(maxWidthPixels);
@@ -137,10 +129,7 @@ namespace bdn
             }
 
           protected:
-            bool canAdjustWidthToAvailableSpace() const override
-            {
-                return true;
-            }
+            bool canAdjustWidthToAvailableSpace() const override { return true; }
 
             double getFontSizeDips() const override
             {

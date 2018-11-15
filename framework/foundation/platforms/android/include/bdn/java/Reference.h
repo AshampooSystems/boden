@@ -101,8 +101,7 @@ namespace bdn
             bool operator!=(const Reference &o) const { return !operator==(o); }
 
           private:
-            Reference(jobject strongRef) : _pShared(newObj<Shared>(strongRef))
-            {}
+            Reference(jobject strongRef) : _pShared(newObj<Shared>(strongRef)) {}
 
             class Shared : public Base
             {

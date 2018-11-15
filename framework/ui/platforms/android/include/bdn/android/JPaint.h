@@ -18,17 +18,14 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JPaint(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JPaint(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Returns the paint's text size.*/
             float getTextSize()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<float>(getStaticClass_(), methodId,
-                                      "getTextSize");
+                return invoke_<float>(getStaticClass_(), methodId, "getTextSize");
             }
 
             /** Returns the JClass object for this class.
@@ -47,10 +44,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

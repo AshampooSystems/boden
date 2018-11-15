@@ -8,11 +8,7 @@ using namespace bdn;
 class WeakPHelper : public Base
 {
   public:
-    WeakPHelper(volatile bool *pDeleted = nullptr)
-        : _addCounter(0), _releaseCounter(0)
-    {
-        _pDeleted = pDeleted;
-    }
+    WeakPHelper(volatile bool *pDeleted = nullptr) : _addCounter(0), _releaseCounter(0) { _pDeleted = pDeleted; }
 
     ~WeakPHelper()
     {
@@ -52,8 +48,7 @@ class SubWeakPHelper : public WeakPHelper
     SubWeakPHelper(volatile bool *pDeleted = nullptr) : WeakPHelper(pDeleted) {}
 };
 
-template <class ArgType>
-void testConstructToStrongDestruct(WeakPHelper &helper, ArgType helperArg)
+template <class ArgType> void testConstructToStrongDestruct(WeakPHelper &helper, ArgType helperArg)
 {
     // clear the counters
     helper._addCounter = 0;
@@ -93,8 +88,7 @@ void testConstructToStrongDestruct(WeakPHelper &helper, ArgType helperArg)
 }
 
 template <class ArgType>
-void testAssignWithPreCreatedWeakP(WeakP<WeakPHelper> &w, WeakPHelper &helper,
-                                   ArgType helperArg)
+void testAssignWithPreCreatedWeakP(WeakP<WeakPHelper> &w, WeakPHelper &helper, ArgType helperArg)
 {
     w = helperArg;
 
@@ -338,20 +332,19 @@ TEST_CASE("WeakP")
         P<Signal> pLastThreadSignal = newObj<Signal>();
 
         for (int i = 0; i < 100; i++) {
-            futureList.push_back(
-                Thread::exec([w, &successCounter, i, pLastThreadSignal] {
-                    WeakP<WeakPHelper> w2(w);
+            futureList.push_back(Thread::exec([w, &successCounter, i, pLastThreadSignal] {
+                WeakP<WeakPHelper> w2(w);
 
-                    if (i == 99) {
-                        // we let the last thread wait for a signal until he
-                        // continues, to ensure that for at least one thread the
-                        // toStrong call below will yield null.
-                        pLastThreadSignal->wait();
-                    }
+                if (i == 99) {
+                    // we let the last thread wait for a signal until he
+                    // continues, to ensure that for at least one thread the
+                    // toStrong call below will yield null.
+                    pLastThreadSignal->wait();
+                }
 
-                    if (w2.toStrong() != nullptr)
-                        successCounter++;
-                }));
+                if (w2.toStrong() != nullptr)
+                    successCounter++;
+            }));
         }
 
         REQUIRE(!deleted);

@@ -5,8 +5,7 @@
 
 using namespace bdn;
 
-template <class LeftType, class RightType>
-inline void verifyGlobalConcatenation()
+template <class LeftType, class RightType> inline void verifyGlobalConcatenation()
 {
     String leftObj("hello");
     String rightObj("world");
@@ -19,8 +18,7 @@ inline void verifyGlobalConcatenation()
     verifyContents(result, U"helloworld");
 }
 
-template <class LeftType, class RightType>
-inline void verifyGlobalConcatenationMoveFromLeft()
+template <class LeftType, class RightType> inline void verifyGlobalConcatenationMoveFromLeft()
 {
     String leftObj("hello");
     String rightObj("world");
@@ -207,63 +205,48 @@ inline void testGlobalComparison()
     verifyGlobalComparison<const char32_t *, String>();
 }
 
-template <class CharType>
-String fromStreamData(const std::basic_string<CharType> &data,
-                      const std::locale &loc)
+template <class CharType> String fromStreamData(const std::basic_string<CharType> &data, const std::locale &loc)
 {
     return String(data);
 }
 
-template <>
-String fromStreamData<char>(const std::basic_string<char> &data,
-                            const std::locale &loc)
+template <> String fromStreamData<char>(const std::basic_string<char> &data, const std::locale &loc)
 {
     return String::fromLocaleEncoding(data, loc);
 }
 
-template <class CharType>
-std::basic_string<CharType> toStreamData(const String &s,
-                                         const std::locale &loc)
+template <class CharType> std::basic_string<CharType> toStreamData(const String &s, const std::locale &loc)
 {
     return (const std::basic_string<CharType> &)s;
 }
 
-template <>
-std::basic_string<char> toStreamData<char>(const String &s,
-                                           const std::locale &loc)
+template <> std::basic_string<char> toStreamData<char>(const String &s, const std::locale &loc)
 {
     // special version for char. This uses the locale encoding.
     return s.toLocaleEncoding(loc);
 }
 
 template <class CharType>
-void verifyStringFromStream(const String &s, const String &expectedValue,
-                            const std::locale &loc)
+void verifyStringFromStream(const String &s, const String &expectedValue, const std::locale &loc)
 {
     REQUIRE(s == expectedValue);
 }
 
-template <>
-void verifyStringFromStream<char>(const String &s, const String &expectedValue,
-                                  const std::locale &loc)
+template <> void verifyStringFromStream<char>(const String &s, const String &expectedValue, const std::locale &loc)
 {
     std::string streamData = toStreamData<char>(expectedValue, loc);
 
-    String expectedValueAfterLocaleRoundTrip =
-        fromStreamData<char>(streamData, loc);
+    String expectedValueAfterLocaleRoundTrip = fromStreamData<char>(streamData, loc);
 
     // sanity check
-    REQUIRE(expectedValueAfterLocaleRoundTrip.getLength() >=
-            expectedValue.getLength());
+    REQUIRE(expectedValueAfterLocaleRoundTrip.getLength() >= expectedValue.getLength());
 
     REQUIRE(s == expectedValueAfterLocaleRoundTrip);
 }
 
-template <class CharType>
-std::basic_string<CharType> makeInStreamData(const String &in)
+template <class CharType> std::basic_string<CharType> makeInStreamData(const String &in)
 {
-    std::basic_string<CharType> streamData = toStreamData<CharType>(
-        in, std::basic_ostringstream<CharType>().getloc());
+    std::basic_string<CharType> streamData = toStreamData<CharType>(in, std::basic_ostringstream<CharType>().getloc());
 
     return streamData;
 }
@@ -289,15 +272,13 @@ template <class CharType> inline void verifyStreamIntegration()
     {
         String in(U"\U00012345hello world");
 
-        std::basic_istringstream<CharType> stream(
-            makeInStreamData<CharType>(in));
+        std::basic_istringstream<CharType> stream(makeInStreamData<CharType>(in));
 
         String s;
 
         stream >> s;
 
-        verifyStringFromStream<CharType>(s, U"\U00012345hello",
-                                         stream.getloc());
+        verifyStringFromStream<CharType>(s, U"\U00012345hello", stream.getloc());
 
         stream >> s;
 
@@ -307,15 +288,13 @@ template <class CharType> inline void verifyStreamIntegration()
     SECTION("getLineFromStream-noDelim")
     {
         String in(U"\U00012345hello world\nbla gubbel");
-        std::basic_istringstream<CharType> stream(
-            makeInStreamData<CharType>(in));
+        std::basic_istringstream<CharType> stream(makeInStreamData<CharType>(in));
 
         String s;
 
         getLineFromStream(stream, s);
 
-        verifyStringFromStream<CharType>(s, U"\U00012345hello world",
-                                         stream.getloc());
+        verifyStringFromStream<CharType>(s, U"\U00012345hello world", stream.getloc());
 
         getLineFromStream(stream, s);
 
@@ -325,15 +304,13 @@ template <class CharType> inline void verifyStreamIntegration()
     SECTION("getLineFromStream-delim")
     {
         String in(U"\U00012345hello world!bla gubbel");
-        std::basic_istringstream<CharType> stream(
-            makeInStreamData<CharType>(in));
+        std::basic_istringstream<CharType> stream(makeInStreamData<CharType>(in));
 
         String s;
 
         getLineFromStream(stream, s, '!');
 
-        verifyStringFromStream<CharType>(s, U"\U00012345hello world",
-                                         stream.getloc());
+        verifyStringFromStream<CharType>(s, U"\U00012345hello world", stream.getloc());
 
         getLineFromStream(stream, s, '!');
 
@@ -398,9 +375,8 @@ struct StringShiftOperatorTest_
 };
 
 template <typename CHAR_TYPE, typename TRAITS>
-std::basic_ostream<CHAR_TYPE, TRAITS> &
-operator<<(std::basic_ostream<CHAR_TYPE, TRAITS> &os,
-           const StringShiftOperatorTest_ &o)
+std::basic_ostream<CHAR_TYPE, TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, TRAITS> &os,
+                                                  const StringShiftOperatorTest_ &o)
 {
     return os << "shiftoptest";
 }

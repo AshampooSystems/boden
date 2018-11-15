@@ -7,20 +7,17 @@
 
 #include <bdn/android/TextFieldCore.h>
 
-extern "C" JNIEXPORT bool JNICALL
-Java_io_boden_android_NativeTextViewOnEditorActionListener_viewCoreOnEditorAction(
-    JNIEnv *pEnv, jobject rawSelf, jobject rawView, jint actionId,
-    jobject rawEvent)
+extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeTextViewOnEditorActionListener_viewCoreOnEditorAction(
+    JNIEnv *pEnv, jobject rawSelf, jobject rawView, jint actionId, jobject rawEvent)
 {
     bool consumed = false;
 
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::TextFieldCore *core = (bdn::android::TextFieldCore *)
-                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+            bdn::android::TextFieldCore *core =
+                (bdn::android::TextFieldCore *)bdn::android::ViewCore::getViewCoreFromJavaViewRef(
                     bdn::java::Reference::convertExternalLocal(rawView));
-            bdn::android::JKeyEvent keyEvent(
-                bdn::java::Reference::convertExternalLocal(rawEvent));
+            bdn::android::JKeyEvent keyEvent(bdn::java::Reference::convertExternalLocal(rawEvent));
 
             if (core == nullptr) {
                 // no view core is associated with the view => ignore the event

@@ -4,7 +4,4 @@
 // encoding into multiple CPP files. Some C++ compilers can otherwise choke on
 // the huge amounts of template variations generated in a single file.
 
-TEST_CASE("StringImpl-native", "[.][long][String]")
-{
-    testStringImpl<NativeStringData>();
-}
+TEST_CASE("StringImpl-native", "[.][long][String]") { testStringImpl<NativeStringData>(); }

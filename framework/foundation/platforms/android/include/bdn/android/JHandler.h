@@ -19,9 +19,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JHandler(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JHandler(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Causes the Runnable object to be added to the message queue.
              *  The runnable will be run on the thread to which this handler is
@@ -35,8 +33,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<bool>(getStaticClass_(), methodId, "post",
-                                     runnable);
+                return invoke_<bool>(getStaticClass_(), methodId, "post", runnable);
             }
 
             /** Causes the Runnable r to be added to the message queue, to be
@@ -56,8 +53,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<bool>(getStaticClass_(), methodId, "postDelayed",
-                                     runnable, delayMillis);
+                return invoke_<bool>(getStaticClass_(), methodId, "postDelayed", runnable, delayMillis);
             }
 
             /** Returns the JClass object for this class.
@@ -76,10 +72,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

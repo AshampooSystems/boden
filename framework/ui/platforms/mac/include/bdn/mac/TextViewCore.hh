@@ -25,8 +25,7 @@
 {
     NSPoint origin = [super textContainerOrigin];
     NSPoint displacedOrigin =
-        NSMakePoint(origin.x + _textContainerDisplacement.width,
-                    origin.y + _textContainerDisplacement.height);
+        NSMakePoint(origin.x + _textContainerDisplacement.width, origin.y + _textContainerDisplacement.height);
 
     return displacedOrigin;
 }
@@ -43,8 +42,7 @@ namespace bdn
           private:
             static BdnMacTextView_ *_createNSTextView(TextView *pOuterTextView)
             {
-                BdnMacTextView_ *view = [[BdnMacTextView_ alloc]
-                    initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
                 view.editable = false;
                 view.selectable = false;
@@ -57,9 +55,7 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *pOuterTextView)
-                : ChildViewCore(pOuterTextView,
-                                _createNSTextView(pOuterTextView))
+            TextViewCore(TextView *pOuterTextView) : ChildViewCore(pOuterTextView, _createNSTextView(pOuterTextView))
             {
                 _nsTextView = (BdnMacTextView_ *)getNSView();
 
@@ -72,8 +68,7 @@ namespace bdn
                 _nsTextView.string = macText;
 
                 // force immediate re-layout
-                [_nsTextView.layoutManager
-                    glyphRangeForTextContainer:_nsTextView.textContainer];
+                [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
             }
 
             void setPadding(const Nullable<UiMargin> &padding) override
@@ -119,13 +114,11 @@ namespace bdn
                 return ChildViewCore::adjustAndSetBounds(requestedBounds);
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                NSTextStorage *textStorage =
-                    [[NSTextStorage alloc] initWithString:_nsTextView.string];
-                NSTextContainer *textContainer = [[NSTextContainer alloc]
-                    initWithContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+                NSTextStorage *textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string];
+                NSTextContainer *textContainer =
+                    [[NSTextContainer alloc] initWithContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
                 NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
 
                 [layoutManager addTextContainer:textContainer];
@@ -147,10 +140,9 @@ namespace bdn
                 Size additionalSpace = insetSize + insetSize;
 
                 // add margins
-                NSRect boundingMacRect = [_nsTextView.layoutManager
-                    boundingRectForGlyphRange:NSMakeRange(0,
-                                                          [textStorage length])
-                              inTextContainer:_nsTextView.textContainer];
+                NSRect boundingMacRect =
+                    [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
+                                                         inTextContainer:_nsTextView.textContainer];
 
                 Rect boundingRect = macRectToRect(boundingMacRect, -1);
 
@@ -171,15 +163,12 @@ namespace bdn
                 }
 
                 if (std::isfinite(wrapSize.width))
-                    textContainer.size =
-                        NSMakeSize(wrapSize.width - additionalSpace.width,
-                                   textContainer.size.height);
+                    textContainer.size = NSMakeSize(wrapSize.width - additionalSpace.width, textContainer.size.height);
 
                 // force immediate layout
                 (void)[layoutManager glyphRangeForTextContainer:textContainer];
 
-                NSSize macSize =
-                    [layoutManager usedRectForTextContainer:textContainer].size;
+                NSSize macSize = [layoutManager usedRectForTextContainer:textContainer].size;
 
                 Size size = macSizeToSize(macSize);
 
@@ -199,10 +188,7 @@ namespace bdn
             }
 
           protected:
-            double getFontSize() const override
-            {
-                return _nsTextView.font.pointSize;
-            }
+            double getFontSize() const override { return _nsTextView.font.pointSize; }
 
           private:
             BdnMacTextView_ *_nsTextView;

@@ -18,17 +18,13 @@ namespace bdn
       public:
         UiMargin() {}
 
-        UiMargin(const UiLength &all)
-            : top(all), right(all), bottom(all), left(all)
-        {}
+        UiMargin(const UiLength &all) : top(all), right(all), bottom(all), left(all) {}
 
         UiMargin(const UiLength &topBottom, const UiLength &leftRight)
-            : top(topBottom), right(leftRight), bottom(topBottom),
-              left(leftRight)
+            : top(topBottom), right(leftRight), bottom(topBottom), left(leftRight)
         {}
 
-        UiMargin(const UiLength &top, const UiLength &right,
-                 const UiLength &bottom, const UiLength &left)
+        UiMargin(const UiLength &top, const UiLength &right, const UiLength &bottom, const UiLength &left)
             : top(top), right(right), bottom(bottom), left(left)
         {}
 
@@ -39,24 +35,18 @@ namespace bdn
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>
-    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-               const UiMargin &m)
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const UiMargin &m)
     {
-        return stream << "(" << m.top << ", " << m.right << ", " << m.bottom
-                      << ", " << m.left << ")";
+        return stream << "(" << m.top << ", " << m.right << ", " << m.bottom << ", " << m.left << ")";
     }
 }
 
 inline bool operator==(const bdn::UiMargin &a, const bdn::UiMargin &b)
 {
-    return (a.top == b.top && a.right == b.right && a.bottom == b.bottom &&
-            a.left == b.left);
+    return (a.top == b.top && a.right == b.right && a.bottom == b.bottom && a.left == b.left);
 }
 
-inline bool operator!=(const bdn::UiMargin &a, const bdn::UiMargin &b)
-{
-    return !operator==(a, b);
-}
+inline bool operator!=(const bdn::UiMargin &a, const bdn::UiMargin &b) { return !operator==(a, b); }
 
 #endif

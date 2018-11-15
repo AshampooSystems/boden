@@ -21,8 +21,7 @@ namespace bdn
             {
                 static bdn::java::MethodId constructorId;
 
-                return getStaticClass_().newInstance_(constructorId, width,
-                                                      height);
+                return getStaticClass_().newInstance_(constructorId, width, height);
             }
 
           public:
@@ -32,8 +31,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JViewGroup__JMarginLayoutParams(
-                const bdn::java::Reference &javaRef)
+            explicit JViewGroup__JMarginLayoutParams(const bdn::java::Reference &javaRef)
                 : JViewGroup__JLayoutParams(javaRef)
             {}
 
@@ -52,16 +50,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "android/view/ViewGroup$MarginLayoutParams");
+                static bdn::java::JClass cls("android/view/ViewGroup$MarginLayoutParams");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

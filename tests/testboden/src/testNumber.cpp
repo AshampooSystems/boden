@@ -8,16 +8,14 @@
 using namespace bdn;
 
 template <typename BaseType, typename ArgNumberType,
-          typename std::enable_if<sizeof(ArgNumberType) <= sizeof(BaseType),
-                                  int>::type = 0>
+          typename std::enable_if<sizeof(ArgNumberType) <= sizeof(BaseType), int>::type = 0>
 ArgNumberType _downCastIfNotImplicitlyConvertible(ArgNumberType arg)
 {
     return arg;
 }
 
 template <typename BaseType, typename ArgNumberType,
-          typename std::enable_if<sizeof(BaseType) < sizeof(ArgNumberType),
-                                  int>::type = 0>
+          typename std::enable_if<sizeof(BaseType) < sizeof(ArgNumberType), int>::type = 0>
 BaseType _downCastIfNotImplicitlyConvertible(ArgNumberType arg)
 {
     return (BaseType)arg;
@@ -66,16 +64,12 @@ template <> struct MakeUnsigned_<long double>
 template <typename BaseType, typename ArgNumberType> struct MakeSameSign_
 {
     using Type = typename std::conditional<
-        std::is_signed<ArgNumberType>::value == std::is_signed<BaseType>::value,
-        ArgNumberType,
-        typename std::conditional<
-            std::is_signed<BaseType>::value,
-            typename MakeSigned_<ArgNumberType>::Type,
-            typename MakeUnsigned_<ArgNumberType>::Type>::type>::type;
+        std::is_signed<ArgNumberType>::value == std::is_signed<BaseType>::value, ArgNumberType,
+        typename std::conditional<std::is_signed<BaseType>::value, typename MakeSigned_<ArgNumberType>::Type,
+                                  typename MakeUnsigned_<ArgNumberType>::Type>::type>::type;
 };
 
-template <class ObjectType, typename ValueType>
-static void _verifyNumber(ValueType value)
+template <class ObjectType, typename ValueType> static void _verifyNumber(ValueType value)
 {
     ObjectType numObject(3);
 
@@ -88,12 +82,8 @@ static void _verifyNumber(ValueType value)
         value = -(typename MakeSigned_<ValueType>::Type)value;
     }
 
-    auto arg =
-        _downCastIfNotImplicitlyConvertible<typename ObjectType::SimpleType,
-                                            ValueType>(value);
-    using ArgTypeWithSameSign =
-        typename MakeSameSign_<typename ObjectType::SimpleType,
-                               decltype(arg)>::Type;
+    auto arg = _downCastIfNotImplicitlyConvertible<typename ObjectType::SimpleType, ValueType>(value);
+    using ArgTypeWithSameSign = typename MakeSameSign_<typename ObjectType::SimpleType, decltype(arg)>::Type;
 
     ArgTypeWithSameSign argWithSameSign = (ArgTypeWithSameSign)arg;
 
@@ -251,8 +241,7 @@ static void _verifyNumber(ValueType value)
     }
 }
 
-template <class ObjectType, typename ValueType>
-static void _verifyIntNumberAndUtilityFunctions(ValueType value)
+template <class ObjectType, typename ValueType> static void _verifyIntNumberAndUtilityFunctions(ValueType value)
 {
     _verifyNumber<ObjectType, ValueType>(value);
 
@@ -275,8 +264,7 @@ static void _verifyIntNumberAndUtilityFunctions(ValueType value)
                 uint32_t a = static_cast<uint32_t>(value);
 
                 uint32_t expectedResult =
-                    ((a & 0xff) << 24) | ((a & 0xff00) << 8) |
-                    ((a & 0xff0000) >> 8) | ((a & 0xff000000) >> 24);
+                    ((a & 0xff) << 24) | ((a & 0xff00) << 8) | ((a & 0xff0000) >> 8) | ((a & 0xff000000) >> 24);
 
                 REQUIRE(result == (ValueType)expectedResult);
             }
@@ -284,12 +272,10 @@ static void _verifyIntNumberAndUtilityFunctions(ValueType value)
             if (sizeof(ValueType) == 8) {
                 uint64_t a = static_cast<uint64_t>(value);
 
-                uint64_t expectedResult =
-                    ((a & 0xff) << 56) | ((a & 0xff00) << 40) |
-                    ((a & 0xff0000) << 24) | ((a & 0xff000000) << 8) |
-                    ((a & 0xff00000000) >> 8) | ((a & 0xff0000000000) >> 24) |
-                    ((a & 0xff000000000000) >> 40) |
-                    ((a & 0xff00000000000000) >> 56);
+                uint64_t expectedResult = ((a & 0xff) << 56) | ((a & 0xff00) << 40) | ((a & 0xff0000) << 24) |
+                                          ((a & 0xff000000) << 8) | ((a & 0xff00000000) >> 8) |
+                                          ((a & 0xff0000000000) >> 24) | ((a & 0xff000000000000) >> 40) |
+                                          ((a & 0xff00000000000000) >> 56);
 
                 REQUIRE(result == (ValueType)expectedResult);
             }
@@ -299,8 +285,7 @@ static void _verifyIntNumberAndUtilityFunctions(ValueType value)
         {
             ValueType result = rotateBitsLeft(value, 4);
 
-            ValueType expectedResult =
-                value << 4 | ((value >> (sizeof(ValueType) * 8 - 4)) & 0xf);
+            ValueType expectedResult = value << 4 | ((value >> (sizeof(ValueType) * 8 - 4)) & 0xf);
 
             REQUIRE(result == expectedResult);
         }
@@ -313,24 +298,18 @@ static void _verifyIntNumberAndUtilityFunctions(ValueType value)
             mask <<= sizeof(ValueType) * 8 - 4;
             mask = ~mask;
 
-            ValueType expectedResult =
-                ((value >> 4) & mask) | (value << (sizeof(ValueType) * 8 - 4));
+            ValueType expectedResult = ((value >> 4) & mask) | (value << (sizeof(ValueType) * 8 - 4));
 
             REQUIRE(result == expectedResult);
         }
     }
 }
 
-template <typename BaseSimpleType, typename ObjectType>
-static void _testNumberBase()
+template <typename BaseSimpleType, typename ObjectType> static void _testNumberBase()
 {
     SECTION("subtypes")
     {
-        SECTION("SimpleType")
-        {
-            REQUIRE(typeid(typename ObjectType::SimpleType) ==
-                    typeid(BaseSimpleType));
-        }
+        SECTION("SimpleType") { REQUIRE(typeid(typename ObjectType::SimpleType) == typeid(BaseSimpleType)); }
     }
 
     SECTION("constants")
@@ -492,16 +471,14 @@ static void _testNumberBase()
         REQUIRE(minHash != maxHash);
 
         ObjectType maxWithoutHighBitObj(ObjectType::maxValue() / 2);
-        size_t maxWithoutHighBitHash =
-            std::hash<ObjectType>()(maxWithoutHighBitObj);
+        size_t maxWithoutHighBitHash = std::hash<ObjectType>()(maxWithoutHighBitObj);
 
         REQUIRE(maxWithoutHighBitHash != maxHash);
         REQUIRE(maxWithoutHighBitHash != minHash);
     }
 }
 
-template <typename BaseSimpleType, typename ObjectType>
-static void _testIntNumber()
+template <typename BaseSimpleType, typename ObjectType> static void _testIntNumber()
 {
     _testNumberBase<BaseSimpleType, ObjectType>();
 
@@ -526,23 +503,18 @@ static void _testIntNumber()
         _verifyIntNumberAndUtilityFunctions<ObjectType, int32_t>(-0x12345678);
 
         SECTION("uint64_t")
-        _verifyIntNumberAndUtilityFunctions<ObjectType, uint64_t>(
-            0x1234567812345678ll);
+        _verifyIntNumberAndUtilityFunctions<ObjectType, uint64_t>(0x1234567812345678ll);
 
         SECTION("int64_t")
-        _verifyIntNumberAndUtilityFunctions<ObjectType, int64_t>(
-            -0x1234567812345678ll);
+        _verifyIntNumberAndUtilityFunctions<ObjectType, int64_t>(-0x1234567812345678ll);
     }
 }
 
-template <class ObjectType, typename ValueType>
-static void _verifyFloatNumber(ValueType value)
+template <class ObjectType, typename ValueType> static void _verifyFloatNumber(ValueType value)
 {
     ObjectType numObject(3.456f);
 
-    auto arg =
-        _downCastIfNotImplicitlyConvertible<typename ObjectType::SimpleType,
-                                            ValueType>(value);
+    auto arg = _downCastIfNotImplicitlyConvertible<typename ObjectType::SimpleType, ValueType>(value);
     Number<decltype(arg)> argObj(arg);
 
     SECTION("operator=")
@@ -696,8 +668,7 @@ static void _verifyFloatNumber(ValueType value)
     }
 }
 
-template <typename BaseSimpleType, typename ObjectType>
-static void _testFloatNumber()
+template <typename BaseSimpleType, typename ObjectType> static void _testFloatNumber()
 {
     _testNumberBase<BaseSimpleType, ObjectType>();
 

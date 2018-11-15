@@ -19,10 +19,7 @@ namespace bdn
 
         DummyUtf32TestIterator_ &operator++() { return *this; }
 
-        DummyUtf32TestIterator_ operator++(int)
-        {
-            return DummyUtf32TestIterator_();
-        }
+        DummyUtf32TestIterator_ operator++(int) { return DummyUtf32TestIterator_(); }
 
         reference operator*() const { return *(char32_t *)nullptr; }
     };
@@ -37,27 +34,21 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf32Codec::DecodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf32Codec::DecodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
                 SECTION("inner bidir")
                 {
                     REQUIRE(typeid(typename Utf32Codec::DecodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::bidirectional_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::bidirectional_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
@@ -67,16 +58,13 @@ namespace bdn
                     // iterator is random access (since we have a 1:1
                     // relationship between input and output)
                     REQUIRE(typeid(typename Utf32Codec::DecodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::random_access_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::random_access_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf32Codec::DecodingIterator<
-                                   char32_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf32Codec::DecodingIterator<char32_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }
@@ -86,43 +74,34 @@ namespace bdn
                 SECTION("inner input")
                 {
                     REQUIRE(typeid(typename Utf32Codec::EncodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::input_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::input_iterator_tag>>::iterator_category) ==
                             typeid(std::input_iterator_tag));
                 }
 
                 SECTION("inner forward")
                 {
                     REQUIRE(typeid(typename Utf32Codec::EncodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::forward_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::forward_iterator_tag>>::iterator_category) ==
                             typeid(std::forward_iterator_tag));
                 }
 
                 SECTION("inner bidir")
                 {
                     REQUIRE(typeid(typename Utf32Codec::EncodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::bidirectional_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::bidirectional_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner random")
                 {
                     REQUIRE(typeid(typename Utf32Codec::EncodingIterator<
-                                   DummyUtf32TestIterator_<
-                                       std::random_access_iterator_tag>>::
-                                       iterator_category) ==
+                                   DummyUtf32TestIterator_<std::random_access_iterator_tag>>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
 
                 SECTION("inner pointer")
                 {
-                    REQUIRE(typeid(typename Utf32Codec::EncodingIterator<
-                                   char32_t *>::iterator_category) ==
+                    REQUIRE(typeid(typename Utf32Codec::EncodingIterator<char32_t *>::iterator_category) ==
                             typeid(std::bidirectional_iterator_tag));
                 }
             }

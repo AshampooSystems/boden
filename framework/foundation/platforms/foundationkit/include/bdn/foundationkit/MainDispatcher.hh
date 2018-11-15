@@ -20,15 +20,12 @@ namespace bdn
             MainDispatcher();
             ~MainDispatcher();
 
-            void enqueue(std::function<void()> func,
-                         Priority priority = Priority::normal) override;
+            void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-            void
-            enqueueInSeconds(double seconds, std::function<void()> func,
-                             Priority priority = Priority::normal) override;
+            void enqueueInSeconds(double seconds, std::function<void()> func,
+                                  Priority priority = Priority::normal) override;
 
-            void createTimer(double intervalSeconds,
-                             std::function<bool()> func) override;
+            void createTimer(double intervalSeconds, std::function<bool()> func) override;
 
             void dispose();
 
@@ -46,10 +43,7 @@ namespace bdn
             class IdleQueue : public Base
             {
               public:
-                void add(std::function<void()> func)
-                {
-                    _funcList.push_back(func);
-                }
+                void add(std::function<void()> func) { _funcList.push_back(func); }
 
                 void activateNext();
 
@@ -59,9 +53,7 @@ namespace bdn
                 std::list<std::function<void()>> _funcList;
             };
 
-            static void
-            _scheduleMainThreadCall(const std::function<void()> &func,
-                                    double delaySeconds = 0);
+            static void _scheduleMainThreadCall(const std::function<void()> &func, double delaySeconds = 0);
 
             void ensureIdleObserverInstalled();
 

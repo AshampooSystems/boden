@@ -48,12 +48,10 @@ namespace bdn
         Checkbox() { _pOnClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
         /** The checkbox's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ICheckboxCore,
-                          influencesPreferredSize());
+        BDN_VIEW_PROPERTY(String, label, setLabel, ICheckboxCore, influencesPreferredSize());
 
         /** State of the checkbox, see TriState */
-        BDN_VIEW_PROPERTY(TriState, state, setState, ICheckboxCore,
-                          influencesNothing());
+        BDN_VIEW_PROPERTY(TriState, state, setState, ICheckboxCore, influencesNothing());
 
         /** A notifier for click events. Subscribe to this notifier if you want
            to be notified about click events. Click events are posted when the
@@ -65,10 +63,7 @@ namespace bdn
         static String getCheckboxCoreTypeName() { return "bdn.CheckboxCore"; }
 
         /** Returns the core type name */
-        String getCoreTypeName() const override
-        {
-            return getCheckboxCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getCheckboxCoreTypeName(); }
 
       protected:
         P<SimpleNotifier<const ClickEvent &>> _pOnClick;

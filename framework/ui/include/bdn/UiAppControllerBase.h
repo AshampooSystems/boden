@@ -11,15 +11,8 @@ namespace bdn
       public:
         using AppControllerBase::AppControllerBase;
 
-        virtual P<IUiProvider> getUiProvider()
-        {
-            return getDefaultUiProvider();
-        }
+        virtual P<IUiProvider> getUiProvider() { return getDefaultUiProvider(); }
 
-        static P<UiAppControllerBase> get()
-        {
-            return dynamic_cast<UiAppControllerBase *>(
-                _getGlobalRef().getPtr());
-        }
+        static P<UiAppControllerBase> get() { return dynamic_cast<UiAppControllerBase *>(_getGlobalRef().getPtr()); }
     };
 }

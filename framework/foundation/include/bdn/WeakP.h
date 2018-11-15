@@ -89,8 +89,7 @@ namespace bdn
 
         WeakP(WeakP &&p) : _pState(std::move(p._pState)) {}
 
-        template <class F>
-        inline WeakP(const WeakP<F> &p) : _pState(p._getWeakReferenceState())
+        template <class F> inline WeakP(const WeakP<F> &p) : _pState(p._getWeakReferenceState())
         {
             // make sure that F is actually a compatible type
             T *dummy = (F *)nullptr;
@@ -146,10 +145,7 @@ namespace bdn
             return *this;
         }
 
-        template <class F> WeakP &operator=(const P<F> &o)
-        {
-            return operator=(o.getPtr());
-        }
+        template <class F> WeakP &operator=(const P<F> &o) { return operator=(o.getPtr()); }
 
         P<T> toStrong() const
         {
@@ -164,10 +160,7 @@ namespace bdn
         }
 
         /** For internal use only - do not call.*/
-        P<IWeakReferenceState> _getWeakReferenceState() const
-        {
-            return _pState;
-        }
+        P<IWeakReferenceState> _getWeakReferenceState() const { return _pState; }
 
       private:
         P<IWeakReferenceState> _pState;

@@ -44,8 +44,7 @@ namespace bdn
 
             _pScrolledColumnView = newObj<ColumnView>();
 
-            _pScrolledColumnView->sizeChanged().subscribeParamless(
-                weakMethod(this, &ViewTextUi::scrolledSizeChanged));
+            _pScrolledColumnView->sizeChanged().subscribeParamless(weakMethod(this, &ViewTextUi::scrolledSizeChanged));
 
             _pScrollView->setContentView(_pScrolledColumnView);
 
@@ -64,15 +63,11 @@ namespace bdn
             // that can introduce considerable overhead if it happens too often.
             // Instead we use a timer and update the UI at most 10 times per
             // second.
-            getMainDispatcher()->createTimer(
-                0.1, weakMethod(this, &ViewTextUi::timerCallback));
+            getMainDispatcher()->createTimer(0.1, weakMethod(this, &ViewTextUi::timerCallback));
         }
     }
 
-    P<IAsyncOp<String>> ViewTextUi::readLine()
-    {
-        throw NotImplementedError("ViewTextUi::readLine");
-    }
+    P<IAsyncOp<String>> ViewTextUi::readLine() { throw NotImplementedError("ViewTextUi::readLine"); }
 
     void ViewTextUi::write(const String &s)
     {

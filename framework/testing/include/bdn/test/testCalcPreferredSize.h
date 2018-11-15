@@ -9,32 +9,27 @@ namespace bdn
     namespace test
     {
 
-        template <class ViewType>
-        inline bool shouldPrefererredWidthHintHaveAnEffect()
+        template <class ViewType> inline bool shouldPrefererredWidthHintHaveAnEffect()
         {
             // for most views the hint has no effect
             return false;
         }
 
-        template <>
-        inline bool shouldPrefererredWidthHintHaveAnEffect<TextView>()
+        template <> inline bool shouldPrefererredWidthHintHaveAnEffect<TextView>()
         {
             // Text views can adjust their text wrapping. So the size hint
             // should have an effect
             return true;
         }
 
-        template <class ViewType>
-        inline bool shouldPrefererredHeightHintHaveAnEffect()
+        template <class ViewType> inline bool shouldPrefererredHeightHintHaveAnEffect()
         {
             // for most views the hint has no effect
             return false;
         }
 
         template <class ViewType, class ObjectType>
-        inline void
-        _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject,
-                               P<IBase> pKeepAliveDuringContinuations)
+        inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase> pKeepAliveDuringContinuations)
         {
             SECTION("plausible")
             {
@@ -75,10 +70,7 @@ namespace bdn
                     // do nothing
                 }
 
-                SECTION("with padding")
-                {
-                    pView->setPadding(UiMargin(10, 20, 30, 40));
-                }
+                SECTION("with padding") { pView->setPadding(UiMargin(10, 20, 30, 40)); }
 
                 Size prefSize = pObject->calcPreferredSize();
 
@@ -111,8 +103,7 @@ namespace bdn
 
                 SECTION("width bigger than preferred width")
                 {
-                    pView->setPreferredSizeMinimum(
-                        Size(prefSizeBefore.width + 1, -1));
+                    pView->setPreferredSizeMinimum(Size(prefSizeBefore.width + 1, -1));
 
                     Size prefSize = pObject->calcPreferredSize();
 
@@ -121,8 +112,7 @@ namespace bdn
 
                 SECTION("height bigger than preferred height")
                 {
-                    pView->setPreferredSizeMinimum(
-                        Size(-1, prefSizeBefore.height + 1));
+                    pView->setPreferredSizeMinimum(Size(-1, prefSizeBefore.height + 1));
 
                     Size prefSize = pObject->calcPreferredSize();
 
@@ -141,15 +131,13 @@ namespace bdn
 
                 pView->setPadding(UiMargin(300));
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject,
-                                           pKeepAliveDuringContinuations)
+                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations)
                 {
                     Size prefSizeBefore = pObject->calcPreferredSize();
 
                     SECTION("bigger than preferred size")
                     {
-                        pView->setPreferredSizeMaximum(prefSizeBefore +
-                                                       Size(1, 1));
+                        pView->setPreferredSizeMaximum(prefSizeBefore + Size(1, 1));
 
                         Size prefSize = pObject->calcPreferredSize();
 
@@ -167,8 +155,7 @@ namespace bdn
 
                     SECTION("width smaller than preferred width")
                     {
-                        pView->setPreferredSizeMaximum(Size(
-                            prefSizeBefore.width - 1, Size::componentNone()));
+                        pView->setPreferredSizeMaximum(Size(prefSizeBefore.width - 1, Size::componentNone()));
 
                         Size prefSize = pObject->calcPreferredSize();
 
@@ -177,8 +164,7 @@ namespace bdn
 
                     SECTION("height smaller than preferred height")
                     {
-                        pView->setPreferredSizeMaximum(Size(
-                            Size::componentNone(), prefSizeBefore.height - 1));
+                        pView->setPreferredSizeMaximum(Size(Size::componentNone(), prefSizeBefore.height - 1));
 
                         Size prefSize = pObject->calcPreferredSize();
 
@@ -202,26 +188,19 @@ namespace bdn
                     // When we specify exactly the unconditional preferred width
                     // then we should get exactly the unconditional preferred
                     // height
-                    REQUIRE(pObject
-                                ->calcPreferredSize(
-                                    Size(prefSize.width, Size::componentNone()))
-                                .height == prefSize.height);
+                    REQUIRE(pObject->calcPreferredSize(Size(prefSize.width, Size::componentNone())).height ==
+                            prefSize.height);
                 }
 
                 SECTION("unconditionalWidth/2")
                 {
-                    REQUIRE(pObject
-                                ->calcPreferredSize(Size(prefSize.width / 2,
-                                                         Size::componentNone()))
-                                .height >= prefSize.height);
+                    REQUIRE(pObject->calcPreferredSize(Size(prefSize.width / 2, Size::componentNone())).height >=
+                            prefSize.height);
                 }
 
                 SECTION("zero")
                 {
-                    REQUIRE(
-                        pObject
-                            ->calcPreferredSize(Size(0, Size::componentNone()))
-                            .height >= prefSize.height);
+                    REQUIRE(pObject->calcPreferredSize(Size(0, Size::componentNone())).height >= prefSize.height);
                 }
             }
 
@@ -230,21 +209,15 @@ namespace bdn
                 Size prefSize = pObject->calcPreferredSize();
 
                 SECTION("unconditionalHeight")
-                REQUIRE(pObject
-                            ->calcPreferredSize(
-                                Size(Size::componentNone(), prefSize.height))
-                            .width == prefSize.width);
+                REQUIRE(pObject->calcPreferredSize(Size(Size::componentNone(), prefSize.height)).width ==
+                        prefSize.width);
 
                 SECTION("unconditionalHeight/2")
-                REQUIRE(pObject
-                            ->calcPreferredSize(Size(Size::componentNone(),
-                                                     prefSize.height / 2))
-                            .width >= prefSize.width);
+                REQUIRE(pObject->calcPreferredSize(Size(Size::componentNone(), prefSize.height / 2)).width >=
+                        prefSize.width);
 
                 SECTION("zero")
-                REQUIRE(
-                    pObject->calcPreferredSize(Size(Size::componentNone(), 0))
-                        .width >= prefSize.width);
+                REQUIRE(pObject->calcPreferredSize(Size(Size::componentNone(), 0)).width >= prefSize.width);
             }
 
             SECTION("preferredSizeHint influence")
@@ -258,15 +231,13 @@ namespace bdn
 
                 pView->setPadding(UiMargin(300));
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject,
-                                           pKeepAliveDuringContinuations)
+                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations)
                 {
                     Size prefSizeBefore = pObject->calcPreferredSize();
 
                     SECTION("bigger than preferred size")
                     {
-                        pView->setPreferredSizeHint(prefSizeBefore +
-                                                    Size(1, 1));
+                        pView->setPreferredSizeHint(prefSizeBefore + Size(1, 1));
 
                         Size prefSize = pObject->calcPreferredSize();
 
@@ -284,15 +255,13 @@ namespace bdn
 
                     SECTION("width smaller than preferred width")
                     {
-                        pView->setPreferredSizeHint(Size(
-                            prefSizeBefore.width - 1, Size::componentNone()));
+                        pView->setPreferredSizeHint(Size(prefSizeBefore.width - 1, Size::componentNone()));
 
                         Size prefSize = pObject->calcPreferredSize();
 
                         // it depends on the view whether or not the width hint
                         // has an effect
-                        if (shouldPrefererredWidthHintHaveAnEffect<
-                                ViewType>()) {
+                        if (shouldPrefererredWidthHintHaveAnEffect<ViewType>()) {
                             REQUIRE(prefSize.width < prefSizeBefore.width);
 
                             // the height may have increase as a result of the
@@ -307,13 +276,11 @@ namespace bdn
 
                     SECTION("height smaller than preferred height")
                     {
-                        pView->setPreferredSizeHint(Size(
-                            Size::componentNone(), prefSizeBefore.height - 1));
+                        pView->setPreferredSizeHint(Size(Size::componentNone(), prefSizeBefore.height - 1));
 
                         Size prefSize = pObject->calcPreferredSize();
 
-                        if (shouldPrefererredHeightHintHaveAnEffect<
-                                ViewType>()) {
+                        if (shouldPrefererredHeightHintHaveAnEffect<ViewType>()) {
                             REQUIRE(prefSize.height < prefSizeBefore.height);
 
                             REQUIRE(prefSize.width > 0);

@@ -19,10 +19,7 @@ namespace bdn
         class MockButtonCore : public MockViewCore, BDN_IMPLEMENTS IButtonCore
         {
           public:
-            MockButtonCore(Button *pButton) : MockViewCore(pButton)
-            {
-                _label = pButton->label();
-            }
+            MockButtonCore(Button *pButton) : MockViewCore(pButton) { _label = pButton->label(); }
 
             /** Returns the current label of the button.*/
             String getLabel() const { return _label; }
@@ -36,8 +33,7 @@ namespace bdn
                 _labelChangeCount++;
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 

@@ -8,8 +8,7 @@ namespace bdn
     namespace java
     {
 
-        jobject TypeConversionBase_::_createJString(
-            const String &s, std::list<Reference> &createdJavaObjects)
+        jobject TypeConversionBase_::_createJString(const String &s, std::list<Reference> &createdJavaObjects)
         {
             // we have to create a new java-side string object.
             // We must ensure that the java object still exists after we return,

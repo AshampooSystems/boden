@@ -115,8 +115,7 @@ namespace bdn
            values to be equal, if their difference is "insignifant" (see
            significanceBoundary() ).
             */
-        static double pixelAlign(double val, double pixelsPerDip,
-                                 RoundType roundType)
+        static double pixelAlign(double val, double pixelsPerDip, RoundType roundType)
         {
             if (!std::isfinite(val))
                 return val;
@@ -124,8 +123,7 @@ namespace bdn
             // first we need to check if the value is "invisibly close" to a
             // pixel boundary (i.e. less than significanceBoundary away from a
             // pixel boundary).
-            double boundaryBelow =
-                std::floor(val * pixelsPerDip) / pixelsPerDip;
+            double boundaryBelow = std::floor(val * pixelsPerDip) / pixelsPerDip;
             double boundaryAbove = std::ceil(val * pixelsPerDip) / pixelsPerDip;
 
             if (equal(val, boundaryBelow))
@@ -164,8 +162,7 @@ namespace bdn
            how this alignment is done.
 
             */
-        static Rect pixelAlign(const Rect &rect, double pixelsPerDip,
-                               RoundType positionRoundType,
+        static Rect pixelAlign(const Rect &rect, double pixelsPerDip, RoundType positionRoundType,
                                RoundType sizeRoundType)
         {
             return Rect(pixelAlign(rect.x, pixelsPerDip, positionRoundType),
@@ -228,17 +225,13 @@ namespace bdn
 
         /** Returns true if the specified Point objects with Dip values are
            "equal" in the sense that their differences are insignificant.*/
-        static bool equal(const Point &a, const Point &b)
-        {
-            return (equal(a.x, b.x) && equal(a.y, b.y));
-        }
+        static bool equal(const Point &a, const Point &b) { return (equal(a.x, b.x) && equal(a.y, b.y)); }
 
         /** Returns true if the specified Rect objects with Dip values are
            "equal" in the sense that their differences are insignificant.*/
         static bool equal(const Rect &a, const Rect &b)
         {
-            return (equal(a.x, b.x) && equal(a.y, b.y) &&
-                    equal(a.width, b.width) && equal(a.height, b.height));
+            return (equal(a.x, b.x) && equal(a.y, b.y) && equal(a.width, b.width) && equal(a.height, b.height));
         }
 
         double getValue() const { return _value; }
@@ -247,35 +240,17 @@ namespace bdn
 
         operator double() const { return _value; }
 
-        bool operator==(const Dip &o) const
-        {
-            return compare(_value, o._value) == 0;
-        }
+        bool operator==(const Dip &o) const { return compare(_value, o._value) == 0; }
 
-        bool operator!=(const Dip &o) const
-        {
-            return compare(_value, o._value) != 0;
-        }
+        bool operator!=(const Dip &o) const { return compare(_value, o._value) != 0; }
 
-        bool operator<(const Dip &o) const
-        {
-            return compare(_value, o._value) < 0;
-        }
+        bool operator<(const Dip &o) const { return compare(_value, o._value) < 0; }
 
-        bool operator>(const Dip &o) const
-        {
-            return compare(_value, o._value) > 0;
-        }
+        bool operator>(const Dip &o) const { return compare(_value, o._value) > 0; }
 
-        bool operator<=(const Dip &o) const
-        {
-            return compare(_value, o._value) <= 0;
-        }
+        bool operator<=(const Dip &o) const { return compare(_value, o._value) <= 0; }
 
-        bool operator>=(const Dip &o) const
-        {
-            return compare(_value, o._value) >= 0;
-        }
+        bool operator>=(const Dip &o) const { return compare(_value, o._value) >= 0; }
 
         bool operator==(double o) const { return compare(_value, o) == 0; }
 

@@ -32,8 +32,7 @@ namespace bdn
 
         /** Returns the TextView's text content.
          */
-        BDN_VIEW_PROPERTY(String, text, setText, ITextViewCore,
-                          influencesPreferredSize());
+        BDN_VIEW_PROPERTY(String, text, setText, ITextViewCore, influencesPreferredSize());
 
         /* * Can be used to give the text view a hint as to what the preferred
         width or height should be.
@@ -61,10 +60,7 @@ namespace bdn
          * objects.*/
         static String getTextViewCoreTypeName() { return "bdn.TextViewCore"; }
 
-        String getCoreTypeName() const override
-        {
-            return getTextViewCoreTypeName();
-        }
+        String getCoreTypeName() const override { return getTextViewCoreTypeName(); }
 
       protected:
     };

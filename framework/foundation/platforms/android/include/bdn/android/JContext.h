@@ -19,9 +19,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JContext(const bdn::java::Reference &javaRef)
-                : JObject(javaRef)
-            {}
+            explicit JContext(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
             /** Returns the JClass object for this class.
              *
@@ -39,17 +37,13 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 
             JResources getResources()
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JResources>(getStaticClass_(), methodId,
-                                           "getResources");
+                return invoke_<JResources>(getStaticClass_(), methodId, "getResources");
             }
         };
     }

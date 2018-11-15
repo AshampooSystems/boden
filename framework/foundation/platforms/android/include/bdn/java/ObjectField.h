@@ -27,14 +27,12 @@ namespace bdn
          * alive, even if the Field instance was returned by the accessor object
          *
          * */
-        template <class NativeType>
-        class ObjectField : public Field<NativeType, ObjectFieldKind>
+        template <class NativeType> class ObjectField : public Field<NativeType, ObjectFieldKind>
         {
           public:
             typedef ObjectFieldKind::template Id<NativeType> Id;
 
-            ObjectField(const Reference &obj,
-                        const ObjectFieldKind::Id<NativeType> &fieldId)
+            ObjectField(const Reference &obj, const ObjectFieldKind::Id<NativeType> &fieldId)
                 : Field<NativeType, ObjectFieldKind>(obj, fieldId)
             {}
         };

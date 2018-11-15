@@ -30,8 +30,7 @@ class IMethodPTestHelper : BDN_IMPLEMENTS IBase
     virtual int ii(int a) = 0;
 };
 
-class MethodPTestHelper : public MethodPTestHelperBase,
-                          BDN_IMPLEMENTS IMethodPTestHelper
+class MethodPTestHelper : public MethodPTestHelperBase, BDN_IMPLEMENTS IMethodPTestHelper
 {
   public:
     int i()
@@ -50,8 +49,7 @@ class MethodPTestHelper : public MethodPTestHelperBase,
 
     void vi(int a) { _lastCalled = "void(int)"; }
 
-    MethodPTestStruct sss(const MethodPTestStruct &a,
-                          const MethodPTestStruct &b)
+    MethodPTestStruct sss(const MethodPTestStruct &a, const MethodPTestStruct &b)
     {
         _lastCalled = "struct(struct,struct)";
 
@@ -59,8 +57,7 @@ class MethodPTestHelper : public MethodPTestHelperBase,
     }
 };
 
-template <class MethodType>
-static void verifyMethodValid(const MethodType &m, bool expectedValid)
+template <class MethodType> static void verifyMethodValid(const MethodType &m, bool expectedValid)
 {
     REQUIRE(static_cast<bool>(m) == expectedValid);
     REQUIRE((m == nullptr) == !expectedValid);
@@ -110,8 +107,7 @@ TEST_CASE("strongMethod")
     SECTION("int(int) virtual base")
     {
         {
-            auto m = strongMethod((MethodPTestHelperBase *)&helper,
-                                  &MethodPTestHelperBase::ii);
+            auto m = strongMethod((MethodPTestHelperBase *)&helper, &MethodPTestHelperBase::ii);
 
             REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -128,8 +124,7 @@ TEST_CASE("strongMethod")
     SECTION("int(int) virtual interface")
     {
         {
-            auto m = strongMethod((IMethodPTestHelper *)&helper,
-                                  &IMethodPTestHelper::ii);
+            auto m = strongMethod((IMethodPTestHelper *)&helper, &IMethodPTestHelper::ii);
 
             REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -217,8 +212,7 @@ TEST_CASE("strongMethod")
 
     SECTION("object=null")
     {
-        auto m =
-            strongMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
+        auto m = strongMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
 
         verifyMethodValid(m, false);
 
@@ -254,11 +248,9 @@ TEST_CASE("strongMethod")
     {
         SECTION("defaultInit")
         {
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
-                m;
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
 
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
-                m2(m);
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
 
             verifyMethodValid(m2, false);
 
@@ -297,11 +289,9 @@ TEST_CASE("strongMethod")
     {
         SECTION("defaultInit")
         {
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
-                m;
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
 
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
-                m2;
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
 
             m2 = m;
 
@@ -388,8 +378,7 @@ TEST_CASE("weakMethod")
     SECTION("int(int) virtual base")
     {
         {
-            auto m = weakMethod((MethodPTestHelperBase *)&helper,
-                                &MethodPTestHelperBase::ii);
+            auto m = weakMethod((MethodPTestHelperBase *)&helper, &MethodPTestHelperBase::ii);
 
             REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
@@ -479,8 +468,7 @@ TEST_CASE("weakMethod")
 
     SECTION("object=null")
     {
-        auto m =
-            weakMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
+        auto m = weakMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
 
         verifyMethodValid(m, false);
 
@@ -518,8 +506,7 @@ TEST_CASE("weakMethod")
         {
             WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
 
-            WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(
-                m);
+            WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
 
             verifyMethodValid(m2, false);
 
@@ -699,9 +686,7 @@ TEST_CASE("plainMethod")
 
     SECTION("defaultInit")
     {
-        PlainMethod_<PlainMethodTestHelperNonBase,
-                     void (PlainMethodTestHelperNonBase::*)(int)>
-            m;
+        PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
 
         verifyMethodValid(m, false);
 
@@ -711,8 +696,7 @@ TEST_CASE("plainMethod")
 
     SECTION("object=null")
     {
-        auto m = plainMethod((PlainMethodTestHelperNonBase *)nullptr,
-                             &PlainMethodTestHelperNonBase::ii);
+        auto m = plainMethod((PlainMethodTestHelperNonBase *)nullptr, &PlainMethodTestHelperNonBase::ii);
 
         verifyMethodValid(m, false);
 
@@ -736,13 +720,9 @@ TEST_CASE("plainMethod")
     {
         SECTION("defaultInit")
         {
-            PlainMethod_<PlainMethodTestHelperNonBase,
-                         void (PlainMethodTestHelperNonBase::*)(int)>
-                m;
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
 
-            PlainMethod_<PlainMethodTestHelperNonBase,
-                         void (PlainMethodTestHelperNonBase::*)(int)>
-                m2(m);
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2(m);
 
             verifyMethodValid(m2, false);
 
@@ -753,8 +733,7 @@ TEST_CASE("plainMethod")
         SECTION("ok")
         {
             {
-                auto m =
-                    plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
                 verifyMethodValid(m, true);
 
                 std::function<int(int)> m2(m);
@@ -778,13 +757,9 @@ TEST_CASE("plainMethod")
     {
         SECTION("defaultInit")
         {
-            PlainMethod_<PlainMethodTestHelperNonBase,
-                         void (PlainMethodTestHelperNonBase::*)(int)>
-                m;
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
 
-            PlainMethod_<PlainMethodTestHelperNonBase,
-                         void (PlainMethodTestHelperNonBase::*)(int)>
-                m2;
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2;
 
             m2 = m;
 
@@ -797,8 +772,7 @@ TEST_CASE("plainMethod")
         SECTION("ok")
         {
             {
-                auto m =
-                    plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
                 verifyMethodValid(m, true);
 
                 std::function<int(int)> m2;

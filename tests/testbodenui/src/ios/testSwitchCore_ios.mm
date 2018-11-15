@@ -10,8 +10,7 @@
 
 using namespace bdn;
 
-class TestIosSwitchCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>
+class TestIosSwitchCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>
 {
   protected:
     void initCore() override
@@ -31,8 +30,7 @@ class TestIosSwitchCore
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
-        String label =
-            bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
+        String label = bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
 

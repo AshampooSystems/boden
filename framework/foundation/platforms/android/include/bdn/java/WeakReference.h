@@ -32,8 +32,7 @@ namespace bdn
             WeakReference(const WeakReference &o) : _pShared(o._pShared) {}
 
             /** Move constructor.*/
-            WeakReference(WeakReference &&o) : _pShared(std::move(o._pShared))
-            {}
+            WeakReference(WeakReference &&o) : _pShared(std::move(o._pShared)) {}
 
             /** Constructs a null-reference*/
             WeakReference() {}
@@ -53,19 +52,12 @@ namespace bdn
             /** Temporarily converts the weak reference to a strong reference
              * and checks if the strong reference refers to the same object as
              * the specified one.*/
-            bool operator==(const Reference &strongRef) const
-            {
-                return toStrong() == strongRef;
-            }
+            bool operator==(const Reference &strongRef) const { return toStrong() == strongRef; }
 
-            bool operator!=(const Reference &strongRef) const
-            {
-                return !operator==(strongRef);
-            }
+            bool operator!=(const Reference &strongRef) const { return !operator==(strongRef); }
 
           private:
-            WeakReference(jobject weakRef) : _pShared(newObj<Shared>(weakRef))
-            {}
+            WeakReference(jobject weakRef) : _pShared(newObj<Shared>(weakRef)) {}
 
             class Shared : public Base
             {

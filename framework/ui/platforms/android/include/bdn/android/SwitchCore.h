@@ -12,8 +12,7 @@ namespace bdn
     namespace android
     {
 
-        template <class T>
-        class SwitchCore : public ViewCore, BDN_IMPLEMENTS ISwitchCore
+        template <class T> class SwitchCore : public ViewCore, BDN_IMPLEMENTS ISwitchCore
         {
           private:
             static P<JSwitch> _createJSwitch(T *pOuter)
@@ -23,12 +22,10 @@ namespace bdn
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "SwitchCore instance requested for a Switch that does "
-                        "not have a parent.");
+                    throw ProgrammingError("SwitchCore instance requested for a Switch that does "
+                                           "not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
                     throw ProgrammingError("SwitchCore instance requested for "
                                            "a Switch with core-less parent.");

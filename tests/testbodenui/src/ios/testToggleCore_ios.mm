@@ -10,8 +10,7 @@
 
 using namespace bdn;
 
-class TestIosToggleCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestToggleCore>
+class TestIosToggleCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestToggleCore>
 {
   protected:
     void initCore() override
@@ -31,8 +30,7 @@ class TestIosToggleCore
     void verifyCoreLabel() override
     {
         String expectedLabel = _pToggle->label();
-        String label =
-            bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
+        String label = bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
 

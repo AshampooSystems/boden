@@ -33,8 +33,7 @@ namespace bdn
            an arbitrary source iterator into Unicode characters (char32_t).
         */
         template <class SourceIterator>
-        class DecodingIterator
-            : public std::iterator<std::bidirectional_iterator_tag, char32_t>
+        class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
         {
           public:
             /** @param sourceIt the source iterator that provides the UTF-16
@@ -48,8 +47,7 @@ namespace bdn
                element). The implementation uses this to avoid overshooting the
                data boundaries if the UTF-16 data is corrupted.
             */
-            DecodingIterator(const SourceIterator &sourceIt,
-                             const SourceIterator &beginSourceIt,
+            DecodingIterator(const SourceIterator &sourceIt, const SourceIterator &beginSourceIt,
                              const SourceIterator &endSourceIt);
             DecodingIterator();
 
@@ -67,14 +65,11 @@ namespace bdn
 
         /** A decoding iterator that works on the iterator type of the encoded
            standard string type #EncodedString.*/
-        typedef DecodingIterator<typename EncodedString::iterator>
-            DecodingStringIterator;
+        typedef DecodingIterator<typename EncodedString::iterator> DecodingStringIterator;
 
         /** Encodes unicode characters to wchar_t encoding.*/
         template <class SourceIterator>
-        class EncodingIterator
-            : public std::iterator<std::bidirectional_iterator_tag,
-                                   EncodedElement>
+        class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag, EncodedElement>
         {
           public:
             EncodingIterator(const SourceIterator &sourceIt);

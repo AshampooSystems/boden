@@ -21,8 +21,7 @@ template <typename COLL> static void _testMapToString(COLL &coll)
         for (auto &el : coll) {
             if (!first)
                 expected += ",\n  ";
-            expected +=
-                bdn::toString(el.first) + ": " + bdn::toString(el.second);
+            expected += bdn::toString(el.first) + ": " + bdn::toString(el.second);
 
             first = false;
         }
@@ -36,21 +35,13 @@ template <typename COLL> static void _testMapToString(COLL &coll)
 }
 
 template <typename KeyType, typename ValType, typename... ConstructArgs>
-static void
-testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
-        std::initializer_list<std::pair<const KeyType, ValType>>
-            expectedInitElOrder,
-        std::initializer_list<std::pair<const KeyType, ValType>> newElList,
-        std::function<bool(const std::pair<const KeyType, ValType> &)>
-            isMovedRemnant,
-        std::pair<const KeyType, ValType> expectedConstructedEl,
-        ConstructArgs... constructArgs)
+static void testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
+                    std::initializer_list<std::pair<const KeyType, ValType>> expectedInitElOrder,
+                    std::initializer_list<std::pair<const KeyType, ValType>> newElList,
+                    std::function<bool(const std::pair<const KeyType, ValType> &)> isMovedRemnant,
+                    std::pair<const KeyType, ValType> expectedConstructedEl, ConstructArgs... constructArgs)
 {
-    SECTION("test traits")
-    {
-        REQUIRE(
-            (CollectionSupportsBiDirIteration_<Map<KeyType, ValType>>::value));
-    }
+    SECTION("test traits") { REQUIRE((CollectionSupportsBiDirIteration_<Map<KeyType, ValType>>::value)); }
 
     SECTION("construct")
     {
@@ -60,8 +51,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
         {
             SECTION("empty")
             {
-                Map<KeyType, ValType> coll(newElList.begin(),
-                                           newElList.begin());
+                Map<KeyType, ValType> coll(newElList.begin(), newElList.begin());
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
 
@@ -69,8 +59,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
             {
                 Map<KeyType, ValType> coll(newElList.begin(), newElList.end());
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -84,8 +73,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
                 Map<KeyType, ValType> coll(src);
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -94,11 +82,9 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
             {
                 std::map<KeyType, ValType> src(newElList);
 
-                Map<KeyType, ValType> coll(
-                    (const std::map<KeyType, ValType> &)src);
+                Map<KeyType, ValType> coll((const std::map<KeyType, ValType> &)src);
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
 
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
@@ -112,8 +98,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
                 Map<KeyType, ValType> coll(std::move(src));
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
 
                 REQUIRE(src.size() == 0);
@@ -125,8 +110,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
                 Map<KeyType, ValType> coll(std::move(src));
 
-                expectedElements.insert(expectedElements.begin(),
-                                        newElList.begin(), newElList.end());
+                expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
 
                 REQUIRE(src.size() == 0);
@@ -137,8 +121,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
         {
             Map<KeyType, ValType> coll(newElList);
 
-            expectedElements.insert(expectedElements.begin(), newElList.begin(),
-                                    newElList.end());
+            expectedElements.insert(expectedElements.begin(), newElList.begin(), newElList.end());
             _verifyGenericCollectionReadOnly(coll, expectedElements);
         }
     }
@@ -146,10 +129,8 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
     SECTION("empty")
     {
-        _verifyGenericCollection(
-            coll, std::list<std::pair<const KeyType, ValType>>({}), newElList,
-            isMovedRemnant, expectedConstructedEl,
-            std::forward<ConstructArgs>(constructArgs)...);
+        _verifyGenericCollection(coll, std::list<std::pair<const KeyType, ValType>>({}), newElList, isMovedRemnant,
+                                 expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
 
         SECTION("prepareForSize")
         _testGenericCollectionPrepareForSize(coll);
@@ -163,11 +144,8 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
         for (auto &el : initElList)
             coll.add(el);
 
-        _verifyGenericCollection(
-            coll,
-            std::list<std::pair<const KeyType, ValType>>(expectedInitElOrder),
-            newElList, isMovedRemnant, expectedConstructedEl,
-            std::forward<ConstructArgs>(constructArgs)...);
+        _verifyGenericCollection(coll, std::list<std::pair<const KeyType, ValType>>(expectedInitElOrder), newElList,
+                                 isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)...);
 
         SECTION("prepareForSize")
         _testGenericCollectionPrepareForSize(coll);
@@ -177,10 +155,8 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
         SECTION("add(key, value)")
         {
-            typename Map<KeyType, ValType>::Element elToAdd =
-                *newElList.begin();
-            std::list<typename Map<KeyType, ValType>::Element>
-                newExpectedElementList = expectedInitElOrder;
+            typename Map<KeyType, ValType>::Element elToAdd = *newElList.begin();
+            std::list<typename Map<KeyType, ValType>::Element> newExpectedElementList = expectedInitElOrder;
             newExpectedElementList.push_back(elToAdd);
 
             coll.add(elToAdd.first, elToAdd.second);
@@ -190,11 +166,9 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
         SECTION("add(key, value) movable")
         {
-            typename Map<KeyType, ValType>::Element elToAdd =
-                *newElList.begin();
+            typename Map<KeyType, ValType>::Element elToAdd = *newElList.begin();
 
-            std::list<typename Map<KeyType, ValType>::Element>
-                newExpectedElementList = expectedInitElOrder;
+            std::list<typename Map<KeyType, ValType>::Element> newExpectedElementList = expectedInitElOrder;
             newExpectedElementList.push_back(elToAdd);
 
             SECTION("both")
@@ -243,8 +217,7 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
                 ++secondNewElIt;
                 ValType val2 = secondNewElIt->second;
 
-                std::list<typename Map<KeyType, ValType>::Element>
-                    expectedElementList = expectedInitElOrder;
+                std::list<typename Map<KeyType, ValType>::Element> expectedElementList = expectedInitElOrder;
                 expectedElementList.push_back(std::make_pair(key, val2));
 
                 SECTION("add(pair)")
@@ -269,15 +242,11 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
                 SECTION("addNew")
                 {
-                    std::pair<const KeyType, ValType> &initialMapEl =
-                        coll.addNew(key, val1);
-                    REQUIRE(_isCollectionElementEqual(
-                        initialMapEl, std::make_pair(key, val1)));
+                    std::pair<const KeyType, ValType> &initialMapEl = coll.addNew(key, val1);
+                    REQUIRE(_isCollectionElementEqual(initialMapEl, std::make_pair(key, val1)));
 
-                    std::pair<const KeyType, ValType> &mapEl =
-                        coll.addNew(key, val2);
-                    REQUIRE(_isCollectionElementEqual(
-                        mapEl, std::make_pair(key, val2)));
+                    std::pair<const KeyType, ValType> &mapEl = coll.addNew(key, val2);
+                    REQUIRE(_isCollectionElementEqual(mapEl, std::make_pair(key, val2)));
 
                     _verifyGenericCollectionReadOnly(coll, expectedElementList);
                 }
@@ -285,10 +254,8 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 
             SECTION("iterators")
             {
-                std::list<typename Map<KeyType, ValType>::Element>
-                    expectedElementList = expectedInitElOrder;
-                expectedElementList.insert(expectedElementList.end(),
-                                           newElList.begin(), newElList.end());
+                std::list<typename Map<KeyType, ValType>::Element> expectedElementList = expectedInitElOrder;
+                expectedElementList.insert(expectedElementList.end(), newElList.begin(), newElList.end());
 
                 // first add the items with a default-constructed value
                 for (auto &el : newElList)
@@ -304,9 +271,8 @@ testMap(std::initializer_list<std::pair<const KeyType, ValType>> initElList,
 }
 
 template <typename KeyType, typename ValType>
-static void
-_testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
-             const std::pair<const KeyType, ValType> &elNotInList)
+static void _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
+                         const std::pair<const KeyType, ValType> &elNotInList)
 {
     _testCollectionFind<Map<KeyType, ValType>>(elList, elNotInList);
 
@@ -317,36 +283,25 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
         SECTION("contains(element)")
         {
             SECTION("key in list, value in list")
-            REQUIRE(coll.contains(
-                std::make_pair(elList.begin()->first, elList.begin()->second)));
+            REQUIRE(coll.contains(std::make_pair(elList.begin()->first, elList.begin()->second)));
             SECTION("key in list, value not in list")
-            REQUIRE(!coll.contains(
-                std::make_pair(elList.begin()->first, elNotInList.second)));
+            REQUIRE(!coll.contains(std::make_pair(elList.begin()->first, elNotInList.second)));
             SECTION("key not in list, value in list")
-            REQUIRE(!coll.contains(
-                std::make_pair(elNotInList.first, elList.begin()->second)));
+            REQUIRE(!coll.contains(std::make_pair(elNotInList.first, elList.begin()->second)));
             SECTION("key not in list, value not in list")
-            REQUIRE(!coll.contains(
-                std::make_pair(elNotInList.first, elNotInList.second)));
+            REQUIRE(!coll.contains(std::make_pair(elNotInList.first, elNotInList.second)));
         }
 
         SECTION("find(element)")
         {
             SECTION("key in list, value in list")
-            REQUIRE(coll.find(std::make_pair(elList.begin()->first,
-                                             elList.begin()->second)) !=
-                    coll.end());
+            REQUIRE(coll.find(std::make_pair(elList.begin()->first, elList.begin()->second)) != coll.end());
             SECTION("key in list, value not in list")
-            REQUIRE(coll.find(std::make_pair(elList.begin()->first,
-                                             elNotInList.second)) ==
-                    coll.end());
+            REQUIRE(coll.find(std::make_pair(elList.begin()->first, elNotInList.second)) == coll.end());
             SECTION("key not in list, value in list")
-            REQUIRE(coll.find(std::make_pair(elNotInList.first,
-                                             elList.begin()->second)) ==
-                    coll.end());
+            REQUIRE(coll.find(std::make_pair(elNotInList.first, elList.begin()->second)) == coll.end());
             SECTION("key not in list, value not in list")
-            REQUIRE(coll.find(std::make_pair(
-                        elNotInList.first, elNotInList.second)) == coll.end());
+            REQUIRE(coll.find(std::make_pair(elNotInList.first, elNotInList.second)) == coll.end());
         }
 
         SECTION("findAndRemove(element)")
@@ -356,8 +311,7 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
 
             SECTION("key in list, value in list")
             {
-                auto toFind = std::make_pair(elList.begin()->first,
-                                             elList.begin()->second);
+                auto toFind = std::make_pair(elList.begin()->first, elList.begin()->second);
 
                 REQUIRE(coll.contains(toFind)); // sanity check
                 size_t sizeBefore = coll.getSize();
@@ -370,8 +324,7 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
 
             SECTION("key in list, value not in list")
             {
-                auto toFind =
-                    std::make_pair(elList.begin()->first, elNotInList.second);
+                auto toFind = std::make_pair(elList.begin()->first, elNotInList.second);
 
                 REQUIRE(!coll.contains(toFind)); // sanity check
                 size_t sizeBefore = coll.getSize();
@@ -384,8 +337,7 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
 
             SECTION("key not in list, value in list")
             {
-                auto toFind =
-                    std::make_pair(elNotInList.first, elList.begin()->second);
+                auto toFind = std::make_pair(elNotInList.first, elList.begin()->second);
 
                 REQUIRE(!coll.contains(toFind)); // sanity check
                 size_t sizeBefore = coll.getSize();
@@ -398,8 +350,7 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
 
             SECTION("key not in list, value not in list")
             {
-                auto toFind =
-                    std::make_pair(elNotInList.first, elNotInList.second);
+                auto toFind = std::make_pair(elNotInList.first, elNotInList.second);
 
                 REQUIRE(!coll.contains(toFind)); // sanity check
                 size_t sizeBefore = coll.getSize();
@@ -426,8 +377,7 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
         {
             _testCollectionFindXWithCaller<Map<KeyType, ValType>>(
                 elList, elNotInList,
-                [](Map<KeyType, ValType> &coll,
-                   const typename Map<KeyType, ValType>::Element &elToFind) {
+                [](Map<KeyType, ValType> &coll, const typename Map<KeyType, ValType>::Element &elToFind) {
                     return coll.findAll(elToFind.first);
                 });
         }
@@ -436,10 +386,8 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
         {
             _testCollectionFindXWithCaller<Map<KeyType, ValType>>(
                 elList, elNotInList,
-                [](Map<KeyType, ValType> &coll,
-                   const typename Map<KeyType, ValType>::Element &elToFind) {
-                    return ((const Map<KeyType, ValType> &)coll)
-                        .findAll(elToFind.first);
+                [](Map<KeyType, ValType> &coll, const typename Map<KeyType, ValType>::Element &elToFind) {
+                    return ((const Map<KeyType, ValType> &)coll).findAll(elToFind.first);
                 });
         }
     }
@@ -464,9 +412,8 @@ _testMapFind(std::initializer_list<std::pair<const KeyType, ValType>> elList,
 }
 
 template <class KeyType, class ValType>
-static void _testMapFindAndRemove(
-    std::initializer_list<std::pair<const KeyType, ValType>> elList,
-    const std::pair<const KeyType, ValType> &elNotInList)
+static void _testMapFindAndRemove(std::initializer_list<std::pair<const KeyType, ValType>> elList,
+                                  const std::pair<const KeyType, ValType> &elNotInList)
 {
     SECTION("empty")
     {
@@ -480,11 +427,9 @@ static void _testMapFindAndRemove(
 
         SECTION("findCustomAndRemove")
         {
-            coll.findCustomAndRemove(
-                [elNotInList](
-                    const typename Map<KeyType, ValType>::Iterator &it) {
-                    return _isCollectionElementEqual(*it, elNotInList);
-                });
+            coll.findCustomAndRemove([elNotInList](const typename Map<KeyType, ValType>::Iterator &it) {
+                return _isCollectionElementEqual(*it, elNotInList);
+            });
             _verifyGenericCollectionReadOnly(coll, {});
         }
     }
@@ -502,8 +447,7 @@ static void _testMapFindAndRemove(
 
                     size_t sizeBefore = coll.getSize();
 
-                    std::list<std::pair<const KeyType, ValType>>
-                        expectedElements(elList);
+                    std::list<std::pair<const KeyType, ValType>> expectedElements(elList);
                     expectedElements.remove(el);
 
                     SECTION("findAndRemove")
@@ -511,21 +455,17 @@ static void _testMapFindAndRemove(
                         coll.findAndRemove(el);
 
                         REQUIRE(coll.getSize() == sizeBefore - 1);
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
 
                     SECTION("findCustomAndRemove")
                     {
-                        coll.findCustomAndRemove(
-                            [el](const typename Map<KeyType, ValType>::Iterator
-                                     &it) {
-                                return _isCollectionElementEqual(el, *it);
-                            });
+                        coll.findCustomAndRemove([el](const typename Map<KeyType, ValType>::Iterator &it) {
+                            return _isCollectionElementEqual(el, *it);
+                        });
 
                         REQUIRE(coll.getSize() == sizeBefore - 1);
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
                 }
 
@@ -537,8 +477,7 @@ static void _testMapFindAndRemove(
         {
             Map<KeyType, ValType> coll(elList);
 
-            std::list<std::pair<const KeyType, ValType>> expectedElements(
-                elList);
+            std::list<std::pair<const KeyType, ValType>> expectedElements(elList);
 
             SECTION("findAndRemove")
             {
@@ -551,28 +490,21 @@ static void _testMapFindAndRemove(
                 if (elList.begin() != elList.end()) {
                     SECTION("key different")
                     {
-                        coll.findAndRemove(std::make_pair(
-                            elNotInList.first, elList.begin()->second));
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        coll.findAndRemove(std::make_pair(elNotInList.first, elList.begin()->second));
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
 
                     SECTION("value different")
                     {
-                        coll.findAndRemove(std::make_pair(elList.begin()->first,
-                                                          elNotInList.second));
-                        _verifyGenericCollectionReadOnly(coll,
-                                                         expectedElements);
+                        coll.findAndRemove(std::make_pair(elList.begin()->first, elNotInList.second));
+                        _verifyGenericCollectionReadOnly(coll, expectedElements);
                     }
                 }
             }
 
             SECTION("findCustomAndRemove")
             {
-                coll.findCustomAndRemove(
-                    [](const typename Map<KeyType, ValType>::Iterator &it) {
-                        return false;
-                    });
+                coll.findCustomAndRemove([](const typename Map<KeyType, ValType>::Iterator &it) { return false; });
                 _verifyGenericCollectionReadOnly(coll, expectedElements);
             }
         }
@@ -583,10 +515,7 @@ static void _testMapFindAndRemove(
 
             SECTION("findCustomAndRemove")
             {
-                coll.findCustomAndRemove(
-                    [](const typename Map<KeyType, ValType>::Iterator &it) {
-                        return true;
-                    });
+                coll.findCustomAndRemove([](const typename Map<KeyType, ValType>::Iterator &it) { return true; });
 
                 _verifyGenericCollectionReadOnly(coll, {});
             }
@@ -598,17 +527,13 @@ TEST_CASE("Map")
 {
     SECTION("key simple type")
     {
-        testMap<int, double>(
-            {{17, 1.7}, {42, 4.2}, {3, 0.3}}, {{3, 0.3}, {17, 1.7}, {42, 4.2}},
-            {{100, 10.0}, {101, 10.1}, {102, 10.2}},
-            [](const std::pair<const int, double> &el) { return true; },
-            {345, 34.5}, 345, 34.5);
+        testMap<int, double>({{17, 1.7}, {42, 4.2}, {3, 0.3}}, {{3, 0.3}, {17, 1.7}, {42, 4.2}},
+                             {{100, 10.0}, {101, 10.1}, {102, 10.2}},
+                             [](const std::pair<const int, double> &el) { return true; }, {345, 34.5}, 345, 34.5);
 
-        _testMapFind<int, double>({{3, 0.3}, {17, 1.7}, {42, 4.2}},
-                                  {100, 10.0});
+        _testMapFind<int, double>({{3, 0.3}, {17, 1.7}, {42, 4.2}}, {100, 10.0});
 
-        _testMapFindAndRemove<int, double>({{3, 0.3}, {17, 1.7}, {42, 4.2}},
-                                           {100, 10.0});
+        _testMapFindAndRemove<int, double>({{3, 0.3}, {17, 1.7}, {42, 4.2}}, {100, 10.0});
     }
 
     SECTION("addSequence with compatible but different type")
@@ -622,23 +547,19 @@ TEST_CASE("Map")
         SECTION("initializer_list")
         {
             coll.addSequence({{1, String("hello")}, {2, String("world")}});
-            _verifyGenericCollectionReadOnly(
-                coll, {{1, std::string("hello")}, {2, std::string("world")}});
+            _verifyGenericCollectionReadOnly(coll, {{1, std::string("hello")}, {2, std::string("world")}});
         }
 
         SECTION("std::list")
         {
-            coll.addSequence(std::list<std::pair<int, String>>(
-                {{1, String("hello")}, {2, String("world")}}));
-            _verifyGenericCollectionReadOnly(
-                coll, {{1, std::string("hello")}, {2, std::string("world")}});
+            coll.addSequence(std::list<std::pair<int, String>>({{1, String("hello")}, {2, String("world")}}));
+            _verifyGenericCollectionReadOnly(coll, {{1, std::string("hello")}, {2, std::string("world")}});
         }
     }
 
     SECTION("key complex type")
     {
-        testMap<TestCollectionElement_OrderedComparable_,
-                TestCollectionElement_UnorderedComparable_>(
+        testMap<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(
             {
                 {TestCollectionElement_OrderedComparable_(17, 117), {333, 333}},
                 {TestCollectionElement_OrderedComparable_(42, 142), {111, 111}},
@@ -650,31 +571,24 @@ TEST_CASE("Map")
                 {TestCollectionElement_OrderedComparable_(42, 142), {111, 111}},
             },
             {
-                {TestCollectionElement_OrderedComparable_(103, 203),
-                 {555, 555}},
-                {TestCollectionElement_OrderedComparable_(117, 217),
-                 {666, 666}},
-                {TestCollectionElement_OrderedComparable_(142, 242),
-                 {444, 444}},
+                {TestCollectionElement_OrderedComparable_(103, 203), {555, 555}},
+                {TestCollectionElement_OrderedComparable_(117, 217), {666, 666}},
+                {TestCollectionElement_OrderedComparable_(142, 242), {444, 444}},
             },
             [](const std::pair<const TestCollectionElement_OrderedComparable_,
-                               TestCollectionElement_UnorderedComparable_>
-                   &el) {
+                               TestCollectionElement_UnorderedComparable_> &el) {
                 // the first pair element (key) is only moved if the element was
                 // not yet in the list. So we do not require that the key was
                 // moved away.
                 return // el.first._a==-2 && el.first._b==-2
                     el.second._a == -2 && el.second._b == -2;
             },
-            {std::make_pair(
-                TestCollectionElement_OrderedComparable_(345, 456),
-                TestCollectionElement_UnorderedComparable_(345, 345))},
-            std::make_pair(
-                TestCollectionElement_OrderedComparable_(345, 456),
-                TestCollectionElement_UnorderedComparable_(345, 345)));
+            {std::make_pair(TestCollectionElement_OrderedComparable_(345, 456),
+                            TestCollectionElement_UnorderedComparable_(345, 345))},
+            std::make_pair(TestCollectionElement_OrderedComparable_(345, 456),
+                           TestCollectionElement_UnorderedComparable_(345, 345)));
 
-        _testMapFind<TestCollectionElement_OrderedComparable_,
-                     TestCollectionElement_UnorderedComparable_>(
+        _testMapFind<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(
             {
                 {TestCollectionElement_OrderedComparable_(3, 103), {222, 222}},
                 {TestCollectionElement_OrderedComparable_(17, 117), {333, 333}},
@@ -682,8 +596,7 @@ TEST_CASE("Map")
             },
             {TestCollectionElement_OrderedComparable_(103, 203), {555, 555}});
 
-        _testMapFindAndRemove<TestCollectionElement_OrderedComparable_,
-                              TestCollectionElement_UnorderedComparable_>(
+        _testMapFindAndRemove<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(
             {
                 {TestCollectionElement_OrderedComparable_(3, 103), {222, 222}},
                 {TestCollectionElement_OrderedComparable_(17, 117), {333, 333}},

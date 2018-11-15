@@ -19,11 +19,10 @@ namespace bdn
     namespace mac
     {
 
-        class WindowCore
-            : public Base,
-              BDN_IMPLEMENTS IWindowCore,
-              BDN_IMPLEMENTS IParentViewCore,
-              BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+        class WindowCore : public Base,
+                           BDN_IMPLEMENTS IWindowCore,
+                           BDN_IMPLEMENTS IParentViewCore,
+                           BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           public:
             WindowCore(View *pOuter);
@@ -32,20 +31,11 @@ namespace bdn
 
             NSWindow *getNSWindow() { return _nsWindow; }
 
-            P<Window> getOuterWindowIfStillAttached()
-            {
-                return _pOuterWindowWeak.toStrong();
-            }
+            P<Window> getOuterWindowIfStillAttached() { return _pOuterWindowWeak.toStrong(); }
 
-            P<const Window> getOuterWindowIfStillAttached() const
-            {
-                return _pOuterWindowWeak.toStrong();
-            }
+            P<const Window> getOuterWindowIfStillAttached() const { return _pOuterWindowWeak.toStrong(); }
 
-            void setTitle(const String &title) override
-            {
-                [_nsWindow setTitle:stringToMacString(title)];
-            }
+            void setTitle(const String &title) override { [_nsWindow setTitle:stringToMacString(title)]; }
 
             void setVisible(const bool &visible) override
             {
@@ -75,11 +65,9 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterWindowIfStillAttached();
                 if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pOuterView->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(
-                            pOuterView);
+                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
                 }
             }
 
@@ -87,21 +75,17 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterWindowIfStillAttached();
                 if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(
-                        View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(
-                        View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
-            void setHorizontalAlignment(
-                const View::HorizontalAlignment &align) override
+            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
 
-            void
-            setVerticalAlignment(const View::VerticalAlignment &align) override
+            void setVerticalAlignment(const View::VerticalAlignment &align) override
             {
                 // do nothing. The View handles this.
             }
@@ -123,8 +107,7 @@ namespace bdn
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override;
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override;
 
             double uiLengthToDips(const UiLength &uiLength) const override
@@ -143,23 +126,20 @@ namespace bdn
                     return uiLength.value * getSemSizeDips();
 
                 default:
-                    throw InvalidArgumentError(
-                        "Invalid UiLength unit passed to "
-                        "ViewCore::uiLengthToDips: " +
-                        std::to_string((int)uiLength.unit));
+                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                                               "ViewCore::uiLengthToDips: " +
+                                               std::to_string((int)uiLength.unit));
                 }
             }
 
             Margin uiMarginToDipMargin(const UiMargin &margin) const override
             {
-                return Margin(
-                    uiLengthToDips(margin.top), uiLengthToDips(margin.right),
-                    uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
+                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
+                              uiLengthToDips(margin.left));
             }
 
             void layout() override;
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override;
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override;
 
             void requestAutoSize() override;
             void requestCenter() override;
@@ -184,15 +164,11 @@ namespace bdn
                 // nothing
             }
 
-            void addChildNsView(NSView *childView) override
-            {
-                [_nsContentParent addSubview:childView];
-            }
+            void addChildNsView(NSView *childView) override { [_nsContentParent addSubview:childView]; }
 
             void _movedOrResized()
             {
-                _currActualWindowBounds = macRectToRect(
-                    _nsWindow.frame, _getNsScreen().frame.size.height);
+                _currActualWindowBounds = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
 
                 P<Window> pOuter = getOuterWindowIfStillAttached();
                 if (pOuter != nullptr)
@@ -205,8 +181,7 @@ namespace bdn
                 // the content parent is inside the inverted coordinate space of
                 // the window origin is bottom left. So we need to pass the
                 // content height, so that the coordinates can be flipped.
-                return macRectToRect(_nsContentParent.frame,
-                                     _nsContentParent.frame.size.height);
+                return macRectToRect(_nsContentParent.frame, _nsContentParent.frame.size.height);
             }
 
             Rect getScreenWorkArea() const
@@ -219,39 +194,28 @@ namespace bdn
                 return macRectToRect(workArea, fullArea.size.height);
             }
 
-            Size getMinimumSize() const
-            {
-                return macSizeToSize(_nsWindow.minSize);
-            }
+            Size getMinimumSize() const { return macSizeToSize(_nsWindow.minSize); }
 
             Margin getNonClientMargin() const
             {
                 Size dummyContentSize = getMinimumSize();
 
-                NSRect macContentRect =
-                    rectToMacRect(Rect(Point(0, 0), dummyContentSize), -1);
-                NSRect macWindowRect =
-                    [_nsWindow frameRectForContentRect:macContentRect];
+                NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), dummyContentSize), -1);
+                NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
 
                 Rect windowRect = macRectToRect(macWindowRect, -1);
 
-                return Margin(fabs(windowRect.y),
-                              fabs(windowRect.x + windowRect.width -
-                                   dummyContentSize.width),
-                              fabs(windowRect.y + windowRect.height -
-                                   dummyContentSize.height),
-                              fabs(windowRect.x));
+                return Margin(fabs(windowRect.y), fabs(windowRect.x + windowRect.width - dummyContentSize.width),
+                              fabs(windowRect.y + windowRect.height - dummyContentSize.height), fabs(windowRect.x));
             }
 
             Size calcWindowSizeFromContentAreaSize(const Size &contentSize)
             {
                 // we can ignore the coordinate space being inverted here. We do
                 // not care about the position, just the size.
-                NSRect macContentRect =
-                    rectToMacRect(Rect(Point(0, 0), contentSize), -1);
+                NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), contentSize), -1);
 
-                NSRect macWindowRect =
-                    [_nsWindow frameRectForContentRect:macContentRect];
+                NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
 
                 return macRectToRect(macWindowRect, -1).getSize();
             }
@@ -260,11 +224,9 @@ namespace bdn
             {
                 // we can ignore the coordinate space being inverted here. We do
                 // not care about the position, just the size.
-                NSRect macWindowRect =
-                    rectToMacRect(Rect(Point(0, 0), windowSize), -1);
+                NSRect macWindowRect = rectToMacRect(Rect(Point(0, 0), windowSize), -1);
 
-                NSRect macContentRect =
-                    [_nsWindow contentRectForFrameRect:macWindowRect];
+                NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
 
                 Size resultSize = macRectToRect(macContentRect, -1).getSize();
 

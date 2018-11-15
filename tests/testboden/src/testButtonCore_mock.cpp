@@ -9,8 +9,7 @@
 
 using namespace bdn;
 
-class TestMockButtonCore
-    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestButtonCore>
+class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin<bdn::test::TestButtonCore>
 {
   protected:
     void verifyCoreLabel() override

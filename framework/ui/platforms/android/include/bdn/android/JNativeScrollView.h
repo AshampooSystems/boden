@@ -19,9 +19,7 @@ namespace bdn
             }
 
           public:
-            JNativeScrollView(JContext &context)
-                : JObject(newInstance_(context))
-            {}
+            JNativeScrollView(JContext &context) : JObject(newInstance_(context)) {}
 
             /** @param javaRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -29,9 +27,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeScrollView(const bdn::java::Reference &javaRef)
-                : bdn::java::JObject(javaRef)
-            {}
+            explicit JNativeScrollView(const bdn::java::Reference &javaRef) : bdn::java::JObject(javaRef) {}
 
             /** Returns the outermost view object that wraps the whole scroll
              * view.
@@ -44,8 +40,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JView>(getStaticClass_(), methodId,
-                                      "getWrapperView");
+                return invoke_<JView>(getStaticClass_(), methodId, "getWrapperView");
             }
 
             /** Returns the view group that is the parent of the scroll view's
@@ -56,8 +51,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<JNativeViewGroup>(getStaticClass_(), methodId,
-                                                 "getContentParent");
+                return invoke_<JNativeViewGroup>(getStaticClass_(), methodId, "getContentParent");
             }
 
             /** Scrolls to the specified scroll position (without animation)*/
@@ -65,8 +59,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(getStaticClass_(), methodId, "scrollTo", x,
-                                     y);
+                return invoke_<void>(getStaticClass_(), methodId, "scrollTo", x, y);
             }
 
             /** Scrolls to the specified scroll position with a smooth
@@ -75,8 +68,7 @@ namespace bdn
             {
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(getStaticClass_(), methodId,
-                                     "smoothScrollTo", x, y);
+                return invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x, y);
             }
 
             /** Returns the X coordinate of the scroll position.*/
@@ -122,16 +114,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeScrollView");
+                static bdn::java::JClass cls("io/boden/android/NativeScrollView");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

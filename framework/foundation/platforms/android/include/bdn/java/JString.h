@@ -30,9 +30,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JString(const Reference &objectRef)
-                : JCharSequence(objectRef)
-            {}
+            explicit JString(const Reference &objectRef) : JCharSequence(objectRef) {}
 
             JString(const String &inString) : JString(newInstance_(inString)) {}
 

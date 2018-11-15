@@ -22,9 +22,7 @@ namespace bdn
             }
 
           public:
-            JNativeViewCoreClickListener()
-                : JNativeViewCoreClickListener(newInstance_())
-            {}
+            JNativeViewCoreClickListener() : JNativeViewCoreClickListener(newInstance_()) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -32,8 +30,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeViewCoreClickListener(
-                const bdn::java::Reference &objectRef)
+            explicit JNativeViewCoreClickListener(const bdn::java::Reference &objectRef)
                 : JView::OnClickListener(objectRef)
             {}
 
@@ -48,16 +45,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "io/boden/android/NativeViewCoreClickListener");
+                static bdn::java::JClass cls("io/boden/android/NativeViewCoreClickListener");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

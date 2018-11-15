@@ -19,8 +19,7 @@ namespace bdn
 
         - VALUE_TYPE: the inner value type of the property
      */
-    template <typename VALUE_TYPE>
-    class IPropertyReadAccessor : BDN_IMPLEMENTS IBase
+    template <typename VALUE_TYPE> class IPropertyReadAccessor : BDN_IMPLEMENTS IBase
     {
       public:
         using ValueType = VALUE_TYPE;

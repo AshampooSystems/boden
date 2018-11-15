@@ -17,12 +17,9 @@ namespace bdn
         class JavaException : public std::exception
         {
           public:
-            JavaException(JThrowable throwable)
-                : _throwable(throwable.getRef_())
+            JavaException(JThrowable throwable) : _throwable(throwable.getRef_())
             {
-                _messageUtf8 = (throwable.getCanonicalClassName_() + ": " +
-                                throwable.getMessage())
-                                   .asUtf8();
+                _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage()).asUtf8();
             }
 
             /** Rethrows the specified java throwable as a C++ exception.
@@ -35,10 +32,7 @@ namespace bdn
 
             JThrowable getJThrowable_() { return _throwable; }
 
-            virtual const char *what() const noexcept override
-            {
-                return _messageUtf8.c_str();
-            }
+            virtual const char *what() const noexcept override { return _messageUtf8.c_str(); }
 
           private:
             JThrowable _throwable;

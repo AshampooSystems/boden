@@ -10,14 +10,12 @@
 
 using namespace bdn;
 
-class TestIosCheckboxCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestCheckboxCore>
+class TestIosCheckboxCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestCheckboxCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestIosViewCoreMixin<
-            bdn::test::TestCheckboxCore>::initCore();
+        bdn::test::TestIosViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
         _composite = (BdnIosCheckboxComposite *)_pUIView;
         REQUIRE(_composite != nullptr);

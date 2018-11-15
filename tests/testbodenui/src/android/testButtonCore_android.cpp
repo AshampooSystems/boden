@@ -9,14 +9,12 @@
 
 using namespace bdn;
 
-class TestAndroidButtonCore
-    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>
+class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestButtonCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
         _jButton = bdn::android::JButton(_jView.getRef_());
     }

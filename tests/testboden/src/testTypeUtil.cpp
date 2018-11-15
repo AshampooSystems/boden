@@ -19,14 +19,12 @@ static void testTypeSupportsShiftLeftWith()
     {
     };
 
-    REQUIRE(!(typeSupportsShiftLeftWith<std::ostream,
-                                        OStreamLeftShiftNotSupported>()));
+    REQUIRE(!(typeSupportsShiftLeftWith<std::ostream, OStreamLeftShiftNotSupported>()));
 
     // the following verifies that the function can be used in compile time
     // statements.
-    static_assert(
-        typeSupportsShiftLeftWith<std::ostream, int>(),
-        "typeSupportsShiftLeftWith must be usable as a compile expression");
+    static_assert(typeSupportsShiftLeftWith<std::ostream, int>(),
+                  "typeSupportsShiftLeftWith must be usable as a compile expression");
 }
 
 static void testTypeHasCustomArrowOperator()
@@ -43,9 +41,8 @@ static void testTypeHasCustomArrowOperator()
 
     // the following verifies that the function can be used in compile time
     // statements.
-    static_assert(
-        typeHasCustomArrowOperator<P<Base>>(),
-        "typeHasCustomArrowOperator must be usable as a compile expression");
+    static_assert(typeHasCustomArrowOperator<P<Base>>(),
+                  "typeHasCustomArrowOperator must be usable as a compile expression");
 }
 
 TEST_CASE("typeUtil")

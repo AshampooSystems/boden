@@ -14,8 +14,7 @@ namespace bdn
         If the << statement is valid then TypeSupportsShiftLeftWith_< XType,
        YType >::value is true, otherwise it is false.
      */
-    template <class LEFT_TYPE, typename ARG_TYPE>
-    struct TypeSupportsShiftLeftWith_
+    template <class LEFT_TYPE, typename ARG_TYPE> struct TypeSupportsShiftLeftWith_
     {
       private:
         // note: we MUST NOT use std::declval<TYPE>() here.
@@ -30,10 +29,8 @@ namespace bdn
         // *((TYPE*)nullptr) instead, which is an lvalue reference.
 
         template <typename TEST_ARG_TYPE>
-        static uint8_t
-        _test(int dummy,
-              decltype(&((*(LEFT_TYPE *)nullptr)
-                         << std::declval<TEST_ARG_TYPE>())) pDummy = nullptr);
+        static uint8_t _test(int dummy,
+                             decltype(&((*(LEFT_TYPE *)nullptr) << std::declval<TEST_ARG_TYPE>())) pDummy = nullptr);
 
         template <typename TEST_ARG_TYPE> static uint16_t _test(...);
 
@@ -42,8 +39,7 @@ namespace bdn
         // here then the test below will always fail, for all value types.
         // Probably has something to do with the fact that the static_assert
         // instantiates the template, which causes the bug not to be triggered.
-        static_assert(sizeof(_test<ARG_TYPE>(0)) != 0,
-                      "This should never trigger");
+        static_assert(sizeof(_test<ARG_TYPE>(0)) != 0, "This should never trigger");
 
       public:
         enum
@@ -78,8 +74,7 @@ namespace bdn
 
         \endcode
         */
-    template <class TYPE, typename ARG_TYPE>
-    constexpr bool typeSupportsShiftLeftWith()
+    template <class TYPE, typename ARG_TYPE> constexpr bool typeSupportsShiftLeftWith()
     {
         return TypeSupportsShiftLeftWith_<TYPE, ARG_TYPE>::value;
     }
@@ -94,9 +89,7 @@ namespace bdn
         // detect non-const operator-> overloads
 
         template <typename TEST_TYPE>
-        static uint8_t
-        _test(int dummy,
-              decltype(((TEST_TYPE *)nullptr)->operator->()) *pDummy = nullptr);
+        static uint8_t _test(int dummy, decltype(((TEST_TYPE *)nullptr)->operator->()) *pDummy = nullptr);
 
         template <typename TEST_TYPE> static uint16_t _test(...);
 

@@ -10,8 +10,7 @@ using namespace bdn;
 
 void verifyToFromException(HRESULT result, int expectedCode)
 {
-    SystemError err = bdn::win32::hresultToSystemError(
-        result, ErrorFields().add("bla", "blub"));
+    SystemError err = bdn::win32::hresultToSystemError(result, ErrorFields().add("bla", "blub"));
 
     REQUIRE(err.code().category() == std::system_category());
     REQUIRE(err.code().value() == expectedCode);
@@ -42,8 +41,7 @@ TEST_CASE("hresultError")
     {
         SECTION("std::exception")
         {
-            HRESULT outResult =
-                bdn::win32::exceptionToHresult(std::exception());
+            HRESULT outResult = bdn::win32::exceptionToHresult(std::exception());
             REQUIRE(outResult == E_FAIL);
         }
     }

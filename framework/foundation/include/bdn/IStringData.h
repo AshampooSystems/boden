@@ -13,8 +13,7 @@ namespace bdn
         virtual CharIterator begin() = 0;
         virtual CharIterator end() = 0;
 
-        virtual bool operator==(CharIterator otherBegin,
-                                CharIterator otherEnd) = 0;
+        virtual bool operator==(CharIterator otherBegin, CharIterator otherEnd) = 0;
     };
 }
 

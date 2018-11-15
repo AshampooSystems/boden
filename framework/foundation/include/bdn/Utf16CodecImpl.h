@@ -11,20 +11,17 @@ namespace bdn
         using Type = std::input_iterator_tag;
     };
 
-    template <>
-    struct Utf16CodecImplIteratorCategory_<std::forward_iterator_tag>
+    template <> struct Utf16CodecImplIteratorCategory_<std::forward_iterator_tag>
     {
         using Type = std::forward_iterator_tag;
     };
 
-    template <>
-    struct Utf16CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
+    template <> struct Utf16CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
     {
         using Type = std::bidirectional_iterator_tag;
     };
 
-    template <>
-    struct Utf16CodecImplIteratorCategory_<std::random_access_iterator_tag>
+    template <> struct Utf16CodecImplIteratorCategory_<std::random_access_iterator_tag>
     {
         // when the source iterator is random access then the resulting
         // iterator is bidir (since we do not know the size of the encoded
@@ -60,8 +57,7 @@ namespace bdn
         {
           public:
             using iterator_category = typename Utf16CodecImplIteratorCategory_<
-                typename std::iterator_traits<
-                    SourceIterator>::iterator_category>::Type;
+                typename std::iterator_traits<SourceIterator>::iterator_category>::Type;
             using value_type = char32_t;
             using difference_type = std::ptrdiff_t;
             using pointer = const char32_t *;
@@ -100,8 +96,7 @@ namespace bdn
                element). The implementation uses this to avoid overshooting the
                data boundaries if the UTF-16 data is corrupted.
             */
-            DecodingIterator(const SourceIterator &sourceIt,
-                             const SourceIterator &beginSourceIt,
+            DecodingIterator(const SourceIterator &sourceIt, const SourceIterator &beginSourceIt,
                              const SourceIterator &endSourceIt)
             {
                 _sourceIt = sourceIt;
@@ -196,15 +191,9 @@ namespace bdn
                 return _chr;
             }
 
-            bool operator==(const DecodingIterator &o) const
-            {
-                return (_sourceIt == o._sourceIt);
-            }
+            bool operator==(const DecodingIterator &o) const { return (_sourceIt == o._sourceIt); }
 
-            bool operator!=(const DecodingIterator &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const DecodingIterator &o) const { return !operator==(o); }
 
             /** Returns an iterator to the inner encoded string that the
                decoding iterator is working on. The inner iterator points to the
@@ -265,16 +254,14 @@ namespace bdn
 
         /** A decoding iterator that works on the iterator type of the encoded
            standard string type #EncodedString.*/
-        typedef DecodingIterator<typename EncodedString::const_iterator>
-            DecodingStringIterator;
+        typedef DecodingIterator<typename EncodedString::const_iterator> DecodingStringIterator;
 
         /** Encodes unicode characters to UTF-16.*/
         template <class SourceIterator> class EncodingIterator
         {
           public:
             using iterator_category = typename Utf16CodecImplIteratorCategory_<
-                typename std::iterator_traits<
-                    SourceIterator>::iterator_category>::Type;
+                typename std::iterator_traits<SourceIterator>::iterator_category>::Type;
             using value_type = EncodedElement;
             using difference_type = std::ptrdiff_t;
             using pointer = const EncodedElement *;
@@ -390,14 +377,10 @@ namespace bdn
 
                 // 0 and -1 are the same position (-1 means "0 but still need to
                 // call encode")
-                return (_offset == o._offset ||
-                        (_offset <= 0 && o._offset <= 0));
+                return (_offset == o._offset || (_offset <= 0 && o._offset <= 0));
             }
 
-            bool operator!=(const EncodingIterator<SourceIterator> &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const EncodingIterator<SourceIterator> &o) const { return !operator==(o); }
 
           protected:
             void encode() const

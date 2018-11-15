@@ -10,25 +10,16 @@
 
 using namespace bdn;
 
-String getStreamString(std::ostringstream &stream)
-{
-    return String::fromLocaleEncoding(stream.str(), stream.getloc());
-}
+String getStreamString(std::ostringstream &stream) { return String::fromLocaleEncoding(stream.str(), stream.getloc()); }
 
-String getStreamString(std::wostringstream &stream)
-{
-    return String(stream.str());
-}
+String getStreamString(std::wostringstream &stream) { return String(stream.str()); }
 
-template <class StreamType, class StringType>
-void writeStringToStream(StreamType &stream, StringType in)
+template <class StreamType, class StringType> void writeStringToStream(StreamType &stream, StringType in)
 {
     stream << in;
 }
 
-template <>
-void writeStringToStream<std::ostringstream, std::string>(
-    std::ostringstream &stream, std::string in)
+template <> void writeStringToStream<std::ostringstream, std::string>(std::ostringstream &stream, std::string in)
 {
     // this is a special case. The stream will assume that a std::string is in
     // its locale encoding, but ours is in UTF-8. We need to pass it in in
@@ -36,9 +27,7 @@ void writeStringToStream<std::ostringstream, std::string>(
     stream << String(in).toLocaleEncoding(stream.getloc());
 }
 
-template <>
-void writeStringToStream<std::ostringstream, const char *>(
-    std::ostringstream &stream, const char *in)
+template <> void writeStringToStream<std::ostringstream, const char *>(std::ostringstream &stream, const char *in)
 {
     // this is a special case. The stream will assume that a const char* is in
     // its locale encoding, but ours is in UTF-8. We need to pass it in in
@@ -46,8 +35,7 @@ void writeStringToStream<std::ostringstream, const char *>(
     stream << String(in).toLocaleEncoding(stream.getloc());
 }
 
-template <class StreamType, class StringType>
-inline void testStreamStringOutput(bool useUtf8Locale)
+template <class StreamType, class StringType> inline void testStreamStringOutput(bool useUtf8Locale)
 {
     String inObj(U"he\U00002345llo");
     StringType in = (StringType)inObj;
@@ -70,17 +58,14 @@ inline void testStreamStringOutput(bool useUtf8Locale)
     // locale. Note that when we write char strings to a wide char stream then
     // each char is individually widened so we also do not get the correct
     // result.
-    bool expectExactResult =
-        typeid(typename StreamType::char_type) == typeid(in[0]);
-    if (!useUtf8Locale &&
-        typeid(typename StreamType::char_type) == typeid(char))
+    bool expectExactResult = typeid(typename StreamType::char_type) == typeid(in[0]);
+    if (!useUtf8Locale && typeid(typename StreamType::char_type) == typeid(char))
         expectExactResult = false;
 
     // we also always expect an exact result if the input type is String
     // and the stream type is either utf-8 char or wchar_t
     if (typeid(StringType) == typeid(String) &&
-        (typeid(typename StreamType::char_type) != typeid(char) ||
-         useUtf8Locale)) {
+        (typeid(typename StreamType::char_type) != typeid(char) || useUtf8Locale)) {
         expectExactResult = true;
     }
 
@@ -93,8 +78,7 @@ inline void testStreamStringOutput(bool useUtf8Locale)
     }
 }
 
-template <class StreamType, class StringType>
-inline void testStreamStringOutput()
+template <class StreamType, class StringType> inline void testStreamStringOutput()
 {
     SECTION("utf8Encoding")
     testStreamStringOutput<StreamType, StringType>(true);
@@ -114,12 +98,10 @@ template <class StreamType> inline void testStreamOutput()
     testStreamStringOutput<StreamType, const char *>();
 
     SECTION("std::basic_string<CharT>")
-    testStreamStringOutput<StreamType,
-                           std::basic_string<typename StreamType::char_type>>();
+    testStreamStringOutput<StreamType, std::basic_string<typename StreamType::char_type>>();
 
     SECTION("const CharT*")
-    testStreamStringOutput<StreamType,
-                           const typename StreamType::char_type *>();
+    testStreamStringOutput<StreamType, const typename StreamType::char_type *>();
 }
 
 TEST_CASE("std stream string output")

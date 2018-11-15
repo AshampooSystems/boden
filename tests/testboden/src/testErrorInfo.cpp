@@ -5,15 +5,13 @@
 
 using namespace bdn;
 
-void verifyInfo(const ErrorInfo &info, const String &expectedMessage,
-                const String &expectedFieldsString)
+void verifyInfo(const ErrorInfo &info, const String &expectedMessage, const String &expectedFieldsString)
 {
     REQUIRE(info.getMessage() == expectedMessage);
     REQUIRE(info.getFields().toString() == expectedFieldsString);
 }
 
-void verifyConstruct(const String &inputMessage, const String &expectedMessage,
-                     const String &expectedFieldsString)
+void verifyConstruct(const String &inputMessage, const String &expectedMessage, const String &expectedFieldsString)
 {
     SECTION("fromString")
     {
@@ -38,24 +36,19 @@ void testConstruct()
     verifyConstruct("hello world", "hello world", "");
 
     SECTION("fieldsAtEnd")
-    verifyConstruct("hello world [[bla: \"blub\"]]", "hello world",
-                    "[[bla: \"blub\"]]");
+    verifyConstruct("hello world [[bla: \"blub\"]]", "hello world", "[[bla: \"blub\"]]");
 
     SECTION("fieldsAtStart")
-    verifyConstruct("[[bla: \"blub\"]] hello world", "hello world",
-                    "[[bla: \"blub\"]]");
+    verifyConstruct("[[bla: \"blub\"]] hello world", "hello world", "[[bla: \"blub\"]]");
 
     SECTION("fieldsAtStartWithColon")
-    verifyConstruct("[[bla: \"blub\"]]: hello world", "hello world",
-                    "[[bla: \"blub\"]]");
+    verifyConstruct("[[bla: \"blub\"]]: hello world", "hello world", "[[bla: \"blub\"]]");
 
     SECTION("fieldsAtStartWithSpaceAndColon")
-    verifyConstruct("[[bla: \"blub\"]] : hello world", "hello world",
-                    "[[bla: \"blub\"]]");
+    verifyConstruct("[[bla: \"blub\"]] : hello world", "hello world", "[[bla: \"blub\"]]");
 
     SECTION("fieldsInMiddleAtStart")
-    verifyConstruct("hello [[bla: \"blub\"]] world", "hello world",
-                    "[[bla: \"blub\"]]");
+    verifyConstruct("hello [[bla: \"blub\"]] world", "hello world", "[[bla: \"blub\"]]");
 }
 
 void testFieldAccess()

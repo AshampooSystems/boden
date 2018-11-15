@@ -32,17 +32,13 @@ namespace bdn
    BDN_ABSTRACT_PROPERTY). final can optionally be specified to "lock down" the
    property and prevent derived classes from changing its behavior.
     */
-#define BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(                                     \
-    valueType, readAccess, name, writeAccess, setterName, ...)                               \
-    readAccess:                                                                              \
-    using PropertyValueType_##name = valueType;                                              \
-                                                                                             \
-  protected:                                                                                 \
-    virtual void                                                                             \
-        _propertiesCannotBeRedeclaredInDerivedClass_OverrideGetterSetterToCustomize_##name() \
-            final                                                                            \
-    {}                                                                                       \
-                                                                                             \
+#define BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(valueType, readAccess, name, writeAccess, setterName, ...)     \
+    readAccess:                                                                                                        \
+    using PropertyValueType_##name = valueType;                                                                        \
+                                                                                                                       \
+  protected:                                                                                                           \
+    virtual void _propertiesCannotBeRedeclaredInDerivedClass_OverrideGetterSetterToCustomize_##name() final {}         \
+                                                                                                                       \
   public:
 
 /** \def BDN_FINALIZE_CUSTOM_READ_ONLY_PROPERTY( valueType, name, ...)
@@ -52,15 +48,12 @@ namespace bdn
      This macro works the same way as \ref BDN_FINALIZE_CUSTOM_PROPERTY, except
      that the property has no setter function (so it is read-only).
  */
-#define BDN_FINALIZE_CUSTOM_READ_ONLY_PROPERTY(valueType, name, ...)                         \
-    using PropertyValueType_##name = valueType;                                              \
-                                                                                             \
-  protected:                                                                                 \
-    virtual void                                                                             \
-        _propertiesCannotBeRedeclaredInDerivedClass_OverrideGetterSetterToCustomize_##name() \
-            final                                                                            \
-    {}                                                                                       \
-                                                                                             \
+#define BDN_FINALIZE_CUSTOM_READ_ONLY_PROPERTY(valueType, name, ...)                                                   \
+    using PropertyValueType_##name = valueType;                                                                        \
+                                                                                                                       \
+  protected:                                                                                                           \
+    virtual void _propertiesCannotBeRedeclaredInDerivedClass_OverrideGetterSetterToCustomize_##name() final {}         \
+                                                                                                                       \
   public:
 
 /** \def BDN_FINALIZE_CUSTOM_PROPERTY( valueType, name, setterName, ...)
@@ -166,7 +159,7 @@ namespace bdn
    specified to "lock down" the property and prevent derived classes from
    changing its behavior.
     */
-#define BDN_FINALIZE_CUSTOM_PROPERTY(valueType, name, setterName, ...)         \
+#define BDN_FINALIZE_CUSTOM_PROPERTY(valueType, name, setterName, ...)                                                 \
     BDN_FINALIZE_CUSTOM_READ_ONLY_PROPERTY(valueType, name);
 
 /** Provides a default implemenation for the "changed" function of a custom
@@ -191,21 +184,17 @@ namespace bdn
    BDN_ABSTRACT_PROPERTY). final can optionally be specified to "lock down" the
    property and prevent derived classes from changing its behavior.
     */
-#define BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, propertyName,   \
-                                                    ...)                       \
-    virtual bdn::IPropertyNotifier<valueType> &propertyName##Changed()         \
-        const __VA_ARGS__                                                      \
-    {                                                                          \
-        if (_pPropertyChanged_##propertyName == nullptr)                       \
-            _pPropertyChanged_##propertyName =                                 \
-                bdn::newObj<bdn::PropertyNotifier<valueType>>();               \
-        return *_pPropertyChanged_##propertyName;                              \
-    }                                                                          \
-                                                                               \
-  private:                                                                     \
-    mutable bdn::P<bdn::PropertyNotifier<valueType>>                           \
-        _pPropertyChanged_##propertyName;                                      \
-                                                                               \
+#define BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, propertyName, ...)                                      \
+    virtual bdn::IPropertyNotifier<valueType> &propertyName##Changed() const __VA_ARGS__                               \
+    {                                                                                                                  \
+        if (_pPropertyChanged_##propertyName == nullptr)                                                               \
+            _pPropertyChanged_##propertyName = bdn::newObj<bdn::PropertyNotifier<valueType>>();                        \
+        return *_pPropertyChanged_##propertyName;                                                                      \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    mutable bdn::P<bdn::PropertyNotifier<valueType>> _pPropertyChanged_##propertyName;                                 \
+                                                                                                                       \
   public:
 
 /** \def BDN_PROPERTY_WITH_CUSTOM_ACCESS( valueType, readAccess, name,
@@ -231,28 +220,23 @@ namespace bdn
    to "lock down" the property and prevent derived classes from changing its
    behavior.
     */
-#define BDN_PROPERTY_WITH_CUSTOM_ACCESS(valueType, readAccess, name,           \
-                                        writeAccess, setterName, ...)          \
-    readAccess:                                                                \
-    virtual valueType name() const __VA_ARGS__                                 \
-    {                                                                          \
-        return _propertyValue_##name;                                          \
-    }                                                                          \
-    writeAccess:                                                               \
-    virtual void setterName(const valueType &value) __VA_ARGS__                \
-    {                                                                          \
-        if (_propertyValue_##name != value) {                                  \
-            _propertyValue_##name = value;                                     \
-            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                          \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
-  private:                                                                     \
-    valueType _propertyValue_##name{};                                         \
-    readAccess:                                                                \
-    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, name);              \
-    BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(                           \
-        valueType, readAccess, name, writeAccess, setterName, __VA_ARGS__);
+#define BDN_PROPERTY_WITH_CUSTOM_ACCESS(valueType, readAccess, name, writeAccess, setterName, ...)                     \
+    readAccess:                                                                                                        \
+    virtual valueType name() const __VA_ARGS__ { return _propertyValue_##name; }                                       \
+    writeAccess:                                                                                                       \
+    virtual void setterName(const valueType &value) __VA_ARGS__                                                        \
+    {                                                                                                                  \
+        if (_propertyValue_##name != value) {                                                                          \
+            _propertyValue_##name = value;                                                                             \
+            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                                                                  \
+        }                                                                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    valueType _propertyValue_##name{};                                                                                 \
+    readAccess:                                                                                                        \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, name);                                                      \
+    BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS(valueType, readAccess, name, writeAccess, setterName, __VA_ARGS__);
 
 /** \def BDN_PROPERTY( valueType, name, setterName, ... )
 
@@ -295,24 +279,21 @@ namespace bdn
    specified to "lock down" the property and prevent derived classes from
    changing its behavior.
     */
-#define BDN_PROPERTY(valueType, name, setterName, ...)                         \
-    virtual valueType name() const __VA_ARGS__                                 \
-    {                                                                          \
-        return _propertyValue_##name;                                          \
-    }                                                                          \
-    virtual void setterName(const valueType &value) __VA_ARGS__                \
-    {                                                                          \
-        if (_propertyValue_##name != value) {                                  \
-            _propertyValue_##name = value;                                     \
-            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                          \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
-  private:                                                                     \
-    valueType _propertyValue_##name{};                                         \
-                                                                               \
-  public:                                                                      \
-    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, name);              \
+#define BDN_PROPERTY(valueType, name, setterName, ...)                                                                 \
+    virtual valueType name() const __VA_ARGS__ { return _propertyValue_##name; }                                       \
+    virtual void setterName(const valueType &value) __VA_ARGS__                                                        \
+    {                                                                                                                  \
+        if (_propertyValue_##name != value) {                                                                          \
+            _propertyValue_##name = value;                                                                             \
+            BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                                                                  \
+        }                                                                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    valueType _propertyValue_##name{};                                                                                 \
+                                                                                                                       \
+  public:                                                                                                              \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, name);                                                      \
     BDN_FINALIZE_CUSTOM_PROPERTY(valueType, name, setterName, __VA_ARGS__);
 
 /** \def BDN_ABSTRACT_PROPERTY( valueType, name, setterName )
@@ -360,10 +341,10 @@ namespace bdn
    valid C++ type or class name. \param name the name of the property \param
    setterName the name of the property's setter function
  */
-#define BDN_ABSTRACT_PROPERTY(valueType, name, setterName)                     \
-    virtual valueType name() const = 0;                                        \
-    virtual void setterName(const valueType &value) = 0;                       \
-    virtual IPropertyNotifier<valueType> &name##Changed() const = 0;           \
+#define BDN_ABSTRACT_PROPERTY(valueType, name, setterName)                                                             \
+    virtual valueType name() const = 0;                                                                                \
+    virtual void setterName(const valueType &value) = 0;                                                               \
+    virtual IPropertyNotifier<valueType> &name##Changed() const = 0;                                                   \
     using PropertyValueType_##name = valueType;
 
 /** \def BDN_NOTIFY_PROPERTY_CHANGED( owner, name )
@@ -376,7 +357,7 @@ namespace bdn
    that was also specified when the property was defined (see \ref
    BDN_PROPERTY).
     */
-#define BDN_NOTIFY_PROPERTY_CHANGED(owner, name)                               \
+#define BDN_NOTIFY_PROPERTY_CHANGED(owner, name)                                                                       \
     (owner).name##Changed().notify(BDN_PROPERTY_READ_ACCESSOR(owner, name));
 
 /** Provides a way to disambiguate a property when the same property is
@@ -396,27 +377,18 @@ namespace bdn
    class and from an interface, then the normal base class should be specified
    here.
  */
-#define BDN_DISAMBIGUATE_PROPERTY(valueType, name, setterName,                 \
-                                  baseClassToUsePropertyFrom)                  \
-    virtual valueType name() const override                                    \
-    {                                                                          \
-        return baseClassToUsePropertyFrom::name();                             \
-    }                                                                          \
-    virtual void setterName(const valueType &value) override                   \
-    {                                                                          \
-        baseClassToUsePropertyFrom::setterName(value);                         \
-    }                                                                          \
-    virtual bdn::IPropertyNotifier<valueType> &name##Changed() const override  \
-    {                                                                          \
-        return baseClassToUsePropertyFrom::name##Changed();                    \
-    }                                                                          \
+#define BDN_DISAMBIGUATE_PROPERTY(valueType, name, setterName, baseClassToUsePropertyFrom)                             \
+    virtual valueType name() const override { return baseClassToUsePropertyFrom::name(); }                             \
+    virtual void setterName(const valueType &value) override { baseClassToUsePropertyFrom::setterName(value); }        \
+    virtual bdn::IPropertyNotifier<valueType> &name##Changed() const override                                          \
+    {                                                                                                                  \
+        return baseClassToUsePropertyFrom::name##Changed();                                                            \
+    }                                                                                                                  \
     using PropertyValueType_##name = valueType;
 
-    template <typename VALUE_TYPE, typename OWNER_TYPE,
-              typename SETTER_METHOD_TYPE>
-    std::function<void(const VALUE_TYPE &)>
-    _makePropertySubscriber(OWNER_TYPE *pOwner,
-                            SETTER_METHOD_TYPE &&setterMethod)
+    template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE>
+    std::function<void(const VALUE_TYPE &)> _makePropertySubscriber(OWNER_TYPE *pOwner,
+                                                                    SETTER_METHOD_TYPE &&setterMethod)
     {
         WeakP<OWNER_TYPE> weakOwner(pOwner);
 
@@ -429,12 +401,10 @@ namespace bdn
         };
     }
 
-    template <typename VALUE_TYPE, typename OWNER_TYPE,
-              typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
-    std::function<void(const VALUE_TYPE &)>
-    _makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
-                                      SETTER_METHOD_TYPE &&setterMethod,
-                                      FILTER_FUNC_TYPE &&filterFunc)
+    template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
+    std::function<void(const VALUE_TYPE &)> _makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
+                                                                              SETTER_METHOD_TYPE &&setterMethod,
+                                                                              FILTER_FUNC_TYPE &&filterFunc)
     {
         WeakP<OWNER_TYPE> weakOwner(pOwner);
 
@@ -479,29 +449,21 @@ namespace bdn
    owner of the sender property.  This must be the owner object or a reference
    to it (not a pointer). \param senderPropName the name of the sender property.
  */
-#define BDN_BIND_TO_PROPERTY(receiverOwner, receiverSetterName, senderOwner,   \
-                             senderPropName)                                   \
-    (senderOwner)                                                              \
-        .senderPropName##Changed()                                             \
-        .subscribe(                                                            \
-            bdn::_makePropertySubscriber<                                      \
-                typename std::remove_reference<decltype(                       \
-                    senderOwner)>::type ::PropertyValueType_##senderPropName>( \
-                &(receiverOwner),                                              \
-                &std::remove_reference<decltype(                               \
-                    receiverOwner)>::type ::receiverSetterName));              \
+#define BDN_BIND_TO_PROPERTY(receiverOwner, receiverSetterName, senderOwner, senderPropName)                           \
+    (senderOwner)                                                                                                      \
+        .senderPropName##Changed()                                                                                     \
+        .subscribe(bdn::_makePropertySubscriber<                                                                       \
+                   typename std::remove_reference<decltype(senderOwner)>::type ::PropertyValueType_##senderPropName>(  \
+            &(receiverOwner), &std::remove_reference<decltype(receiverOwner)>::type ::receiverSetterName));            \
     (receiverOwner).receiverSetterName((senderOwner).senderPropName());
 
-    template <typename VALUE_TYPE, typename OWNER_TYPE,
-              typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
-    std::function<void(const VALUE_TYPE &)>
-    makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
-                                     SETTER_METHOD_TYPE &&setterMethod,
-                                     FILTER_FUNC_TYPE &&filterFunc)
+    template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
+    std::function<void(const VALUE_TYPE &)> makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
+                                                                             SETTER_METHOD_TYPE &&setterMethod,
+                                                                             FILTER_FUNC_TYPE &&filterFunc)
     {
-        return [pOwner, setterMethod, filterFunc](const VALUE_TYPE &value) {
-            (pOwner->*setterMethod)(filterFunc(value));
-        };
+        return
+            [pOwner, setterMethod, filterFunc](const VALUE_TYPE &value) { (pOwner->*setterMethod)(filterFunc(value)); };
     }
 
 /** \def BDN_BIND_TO_PROPERTY_WITH_FILTER( receiverOwner, receiverSetterName,
@@ -580,21 +542,14 @@ namespace bdn
    to it (not a pointer). \param senderPropName the name of the sender property.
     \param filterFunc the filter function to use.
  */
-#define BDN_BIND_TO_PROPERTY_WITH_FILTER(receiverOwner, receiverSetterName,    \
-                                         senderOwner, senderPropName,          \
-                                         filterFunc)                           \
-    (senderOwner)                                                              \
-        .senderPropName##Changed()                                             \
-        .subscribe(                                                            \
-            bdn::_makePropertySubscriberWithFilter<                            \
-                typename std::remove_reference<decltype(                       \
-                    senderOwner)>::type ::PropertyValueType_##senderPropName>( \
-                &(receiverOwner),                                              \
-                &std::remove_reference<decltype(                               \
-                    receiverOwner)>::type ::receiverSetterName,                \
-                filterFunc));                                                  \
-    (receiverOwner)                                                            \
-        .receiverSetterName((filterFunc)((senderOwner).senderPropName()));
+#define BDN_BIND_TO_PROPERTY_WITH_FILTER(receiverOwner, receiverSetterName, senderOwner, senderPropName, filterFunc)   \
+    (senderOwner)                                                                                                      \
+        .senderPropName##Changed()                                                                                     \
+        .subscribe(bdn::_makePropertySubscriberWithFilter<                                                             \
+                   typename std::remove_reference<decltype(senderOwner)>::type ::PropertyValueType_##senderPropName>(  \
+            &(receiverOwner), &std::remove_reference<decltype(receiverOwner)>::type ::receiverSetterName,              \
+            filterFunc));                                                                                              \
+    (receiverOwner).receiverSetterName((filterFunc)((senderOwner).senderPropName()));
 
 /** Binds two properties to each other, so that when either one changes then the
    other one is automatically set to the same value (bidirectional binding).
@@ -613,9 +568,8 @@ namespace bdn
    to it (not a pointer). \param senderPropName the name of the sender property.
     \param filterFunc the filter function to use.
  */
-#define BDN_BIND_PROPERTIES(ownerA, getterNameA, setterNameA, ownerB,          \
-                            getterNameB, setterNameB)                          \
-    BDN_BIND_TO_PROPERTY(ownerA, setterNameA, ownerB, getterNameB);            \
+#define BDN_BIND_PROPERTIES(ownerA, getterNameA, setterNameA, ownerB, getterNameB, setterNameB)                        \
+    BDN_BIND_TO_PROPERTY(ownerA, setterNameA, ownerB, getterNameB);                                                    \
     BDN_BIND_TO_PROPERTY(ownerB, setterNameB, ownerA, getterNameA);
 }
 

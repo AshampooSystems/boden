@@ -17,9 +17,7 @@ namespace bdn
     {
 
         /** Helper for tests that verify IViewCore implementations.*/
-        template <class ViewType>
-        class TestViewCore
-            : public RequireNewAlloc<Base, TestViewCore<ViewType>>
+        template <class ViewType> class TestViewCore : public RequireNewAlloc<Base, TestViewCore<ViewType>>
         {
           public:
             /** Performs the tests.*/
@@ -64,10 +62,7 @@ namespace bdn
                     // ensure that all pending initializations have finished.
                     P<TestViewCore<ViewType>> pThis = this;
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis)
-                    {
-                        pThis->runPostInitTests();
-                    };
+                    CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->runPostInitTests(); };
                 }
             }
 
@@ -130,8 +125,7 @@ namespace bdn
                     SECTION("explicit")
                     {
                         _pView->setPadding(
-                            UiMargin(UiLength::sem(11), UiLength::sem(22),
-                                     UiLength::sem(33), UiLength::sem(44)));
+                            UiMargin(UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44)));
 
                         initCore();
                         verifyCorePadding();
@@ -160,53 +154,43 @@ namespace bdn
                 SECTION("uiLengthToDips")
                 {
                     REQUIRE(_pCore->uiLengthToDips(UiLength::none()) == 0);
-                    REQUIRE(_pCore->uiLengthToDips(
-                                UiLength(17, UiLength::Unit::none)) == 0);
+                    REQUIRE(_pCore->uiLengthToDips(UiLength(17, UiLength::Unit::none)) == 0);
                     REQUIRE(_pCore->uiLengthToDips(UiLength::dip(0)) == 0);
                     REQUIRE(_pCore->uiLengthToDips(UiLength::sem(0)) == 0);
                     REQUIRE(_pCore->uiLengthToDips(UiLength::em(0)) == 0);
 
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::dip(17.34)) ==
-                            17.34);
+                    REQUIRE(_pCore->uiLengthToDips(UiLength::dip(17.34)) == 17.34);
 
                     double semSize = _pCore->uiLengthToDips(UiLength::sem(1));
                     REQUIRE(semSize > 0);
-                    REQUIRE_ALMOST_EQUAL(
-                        _pCore->uiLengthToDips(UiLength::sem(3)), semSize * 3,
-                        3);
+                    REQUIRE_ALMOST_EQUAL(_pCore->uiLengthToDips(UiLength::sem(3)), semSize * 3, 3);
 
                     double emSize = _pCore->uiLengthToDips(UiLength::em(1));
                     REQUIRE(emSize > 0);
-                    REQUIRE_ALMOST_EQUAL(
-                        _pCore->uiLengthToDips(UiLength::em(3)), emSize * 3, 3);
+                    REQUIRE_ALMOST_EQUAL(_pCore->uiLengthToDips(UiLength::em(3)), emSize * 3, 3);
                 }
 
                 SECTION("uiMarginToDipMargin")
                 {
                     SECTION("none")
                     {
-                        REQUIRE(_pCore->uiMarginToDipMargin(UiMargin(
-                                    UiLength(10, UiLength::Unit::none),
-                                    UiLength(20, UiLength::Unit::none),
-                                    UiLength(30, UiLength::Unit::none),
-                                    UiLength(40, UiLength::Unit::none))) ==
+                        REQUIRE(_pCore->uiMarginToDipMargin(
+                                    UiMargin(UiLength(10, UiLength::Unit::none), UiLength(20, UiLength::Unit::none),
+                                             UiLength(30, UiLength::Unit::none), UiLength(40, UiLength::Unit::none))) ==
                                 Margin(0, 0, 0, 0));
                     }
 
                     SECTION("dip")
                     {
-                        REQUIRE(_pCore->uiMarginToDipMargin(UiMargin(
-                                    10, 20, 30, 40)) == Margin(10, 20, 30, 40));
+                        REQUIRE(_pCore->uiMarginToDipMargin(UiMargin(10, 20, 30, 40)) == Margin(10, 20, 30, 40));
                     }
 
                     SECTION("sem")
                     {
-                        double semDips =
-                            _pCore->uiLengthToDips(UiLength::sem(1));
+                        double semDips = _pCore->uiLengthToDips(UiLength::sem(1));
 
                         Margin m = _pCore->uiMarginToDipMargin(
-                            UiMargin(UiLength::sem(10), UiLength::sem(20),
-                                     UiLength::sem(30), UiLength::sem(40)));
+                            UiMargin(UiLength::sem(10), UiLength::sem(20), UiLength::sem(30), UiLength::sem(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * semDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * semDips, 20);
                         REQUIRE_ALMOST_EQUAL(m.bottom, 30 * semDips, 30);
@@ -218,8 +202,7 @@ namespace bdn
                         double emDips = _pCore->uiLengthToDips(UiLength::em(1));
 
                         Margin m = _pCore->uiMarginToDipMargin(
-                            UiMargin(UiLength::em(10), UiLength::em(20),
-                                     UiLength::em(30), UiLength::em(40)));
+                            UiMargin(UiLength::em(10), UiLength::em(20), UiLength::em(30), UiLength::em(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * emDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * emDips, 20);
                         REQUIRE_ALMOST_EQUAL(m.bottom, 30 * emDips, 30);
@@ -229,8 +212,7 @@ namespace bdn
 
                 if (coreCanCalculatePreferredSize()) {
                     SECTION("calcPreferredSize")
-                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(
-                        _pView, _pCore, this);
+                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(_pView, _pCore, this);
                 }
 
                 SECTION("visibility")
@@ -239,20 +221,14 @@ namespace bdn
                     {
                         _pView->setVisible(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreVisibility();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreVisibility(); };
                     }
 
                     SECTION("invisible")
                     {
                         _pView->setVisible(false);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreVisibility();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreVisibility(); };
                     }
 
                     if (coreCanCalculatePreferredSize()) {
@@ -264,18 +240,15 @@ namespace bdn
 
                             _pView->setVisible(true);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() ==
-                                    prefSizeBefore);
+                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
 
                             pThis->_pView->setVisible(false);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() ==
-                                    prefSizeBefore);
+                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
 
                             pThis->_pView->setVisible(true);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() ==
-                                    prefSizeBefore);
+                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
                         }
                     }
                 }
@@ -286,10 +259,7 @@ namespace bdn
                     {
                         _pView->setPadding(UiMargin(11, 22, 33, 44));
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCorePadding();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCorePadding(); };
                     }
 
                     SECTION("default after custom")
@@ -299,10 +269,7 @@ namespace bdn
                         _pView->setPadding(UiMargin(11, 22, 33, 44));
                         _pView->setPadding(nullptr);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCorePadding();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCorePadding(); };
                     }
 
                     if (coreCanCalculatePreferredSize()) {
@@ -324,46 +291,31 @@ namespace bdn
                             // wait a little so that sizing info is updated.
                             CONTINUE_SECTION_WHEN_IDLE(pThis, paddingBefore)
                             {
-                                Size prefSizeBefore =
-                                    pThis->_pCore->calcPreferredSize();
+                                Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
 
-                                UiMargin additionalPadding(
-                                    UiLength::sem(1), UiLength::sem(2),
-                                    UiLength::sem(3), UiLength::sem(4));
-                                UiMargin increasedPadding = UiMargin(
-                                    UiLength::sem(paddingBefore.top.value +
-                                                  additionalPadding.top.value),
-                                    UiLength::sem(
-                                        paddingBefore.right.value +
-                                        additionalPadding.right.value),
-                                    UiLength::sem(
-                                        paddingBefore.bottom.value +
-                                        additionalPadding.bottom.value),
-                                    UiLength::sem(
-                                        paddingBefore.left.value +
-                                        additionalPadding.left.value));
+                                UiMargin additionalPadding(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3),
+                                                           UiLength::sem(4));
+                                UiMargin increasedPadding =
+                                    UiMargin(UiLength::sem(paddingBefore.top.value + additionalPadding.top.value),
+                                             UiLength::sem(paddingBefore.right.value + additionalPadding.right.value),
+                                             UiLength::sem(paddingBefore.bottom.value + additionalPadding.bottom.value),
+                                             UiLength::sem(paddingBefore.left.value + additionalPadding.left.value));
 
                                 // setting padding should increase the preferred
                                 // size of the core.
                                 pThis->_pView->setPadding(increasedPadding);
 
-                                CONTINUE_SECTION_WHEN_IDLE(
-                                    pThis, prefSizeBefore, additionalPadding)
+                                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, additionalPadding)
                                 {
                                     // the padding should increase the preferred
                                     // size.
-                                    Size prefSize =
-                                        pThis->_pCore->calcPreferredSize();
+                                    Size prefSize = pThis->_pCore->calcPreferredSize();
 
                                     Margin additionalPaddingPixels =
-                                        pThis->_pView->uiMarginToDipMargin(
-                                            additionalPadding);
+                                        pThis->_pView->uiMarginToDipMargin(additionalPadding);
 
-                                    REQUIRE_ALMOST_EQUAL(
-                                        prefSize,
-                                        prefSizeBefore +
-                                            additionalPaddingPixels,
-                                        Size(1, 1));
+                                    REQUIRE_ALMOST_EQUAL(prefSize, prefSizeBefore + additionalPaddingPixels,
+                                                         Size(1, 1));
                                 };
                             };
                         }
@@ -379,8 +331,7 @@ namespace bdn
                     {
                         // pre-adjust bounds so that we know that they are valid
                         bounds = Rect(110, 220, 660, 510);
-                        bounds = _pCore->adjustBounds(
-                            bounds, RoundType::nearest, RoundType::nearest);
+                        bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
                     }
 
                     SECTION("need adjustments")
@@ -395,8 +346,7 @@ namespace bdn
                     // to ensure that our changes have been applied
                     CONTINUE_SECTION_WHEN_IDLE(pThis, bounds, returnedBounds)
                     {
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, bounds,
-                                                           returnedBounds)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, bounds, returnedBounds)
                         {
                             // the core size and position should always
                             // represent what is configured in the view.
@@ -407,10 +357,8 @@ namespace bdn
                                 // when the view cannot modify its position then
                                 // trying to set another position should yield
                                 // the same resulting position
-                                Rect returnedBounds2 =
-                                    pThis->_pCore->adjustAndSetBounds(
-                                        Rect(bounds.x * 2, bounds.y * 2,
-                                             bounds.width, bounds.height));
+                                Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds(
+                                    Rect(bounds.x * 2, bounds.y * 2, bounds.width, bounds.height));
                                 REQUIRE(returnedBounds2 == returnedBounds);
 
                                 CONTINUE_SECTION_WHEN_IDLE(pThis)
@@ -432,8 +380,7 @@ namespace bdn
 
                         _pView->adjustAndSetBounds(Rect(110, 220, 660, 510));
 
-                        REQUIRE(pThis->_pCore->calcPreferredSize() ==
-                                prefSizeBefore);
+                        REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
                     }
                 }
 
@@ -444,22 +391,17 @@ namespace bdn
                         Rect bounds(110, 220, 660, 510);
 
                         // pre-adjust the bounds
-                        bounds = _pCore->adjustBounds(
-                            bounds, RoundType::nearest, RoundType::nearest);
+                        bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
 
-                        List<RoundType> roundTypes{
-                            RoundType::nearest, RoundType::up, RoundType::down};
+                        List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                         for (RoundType positionRoundType : roundTypes) {
                             for (RoundType sizeRoundType : roundTypes) {
-                                SECTION("positionRoundType: " +
-                                        std::to_string((int)positionRoundType) +
-                                        ", " +
+                                SECTION("positionRoundType: " + std::to_string((int)positionRoundType) + ", " +
                                         std::to_string((int)sizeRoundType))
                                 {
-                                    Rect adjustedBounds = _pCore->adjustBounds(
-                                        bounds, positionRoundType,
-                                        sizeRoundType);
+                                    Rect adjustedBounds =
+                                        _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
                                     // no adjustments are necessary. So we
                                     // should always get out the same that we
@@ -475,15 +417,13 @@ namespace bdn
 
                         Rect bounds(110.12345, 220.12345, 660.12345, 510.12345);
 
-                        List<RoundType> roundTypes{
-                            RoundType::down, RoundType::nearest, RoundType::up};
+                        List<RoundType> roundTypes{RoundType::down, RoundType::nearest, RoundType::up};
 
                         Array<Rect> adjustedBoundsArray;
 
                         for (RoundType sizeRoundType : roundTypes) {
                             for (RoundType positionRoundType : roundTypes) {
-                                Rect adjustedBounds = _pCore->adjustBounds(
-                                    bounds, positionRoundType, sizeRoundType);
+                                Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
                                 adjustedBoundsArray.push_back(adjustedBounds);
                             }
@@ -495,50 +435,29 @@ namespace bdn
 
                         // down-rounded must be <= nearest <=up
 
-                        for (int sizeRoundTypeIndex = 0; sizeRoundTypeIndex < 3;
-                             sizeRoundTypeIndex++) {
-                            Point downRoundedPosition =
-                                adjustedBoundsArray[sizeRoundTypeIndex * 3 + 0]
-                                    .getPosition();
+                        for (int sizeRoundTypeIndex = 0; sizeRoundTypeIndex < 3; sizeRoundTypeIndex++) {
+                            Point downRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex * 3 + 0].getPosition();
                             Point nearestRoundedPosition =
-                                adjustedBoundsArray[sizeRoundTypeIndex * 3 + 1]
-                                    .getPosition();
-                            Point upRoundedPosition =
-                                adjustedBoundsArray[sizeRoundTypeIndex * 3 + 2]
-                                    .getPosition();
+                                adjustedBoundsArray[sizeRoundTypeIndex * 3 + 1].getPosition();
+                            Point upRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex * 3 + 2].getPosition();
 
-                            REQUIRE(downRoundedPosition <=
-                                    nearestRoundedPosition);
-                            REQUIRE(nearestRoundedPosition <=
-                                    upRoundedPosition);
+                            REQUIRE(downRoundedPosition <= nearestRoundedPosition);
+                            REQUIRE(nearestRoundedPosition <= upRoundedPosition);
 
                             // if canManuallyChangePosition returns false then
                             // it means that the view has no control over its
                             // position. That means that adjustBounds will
                             // always return the view's current position.
                             if (canManuallyChangePosition()) {
-                                REQUIRE(downRoundedPosition <=
-                                        bounds.getPosition());
-                                REQUIRE(upRoundedPosition >=
-                                        bounds.getPosition());
+                                REQUIRE(downRoundedPosition <= bounds.getPosition());
+                                REQUIRE(upRoundedPosition >= bounds.getPosition());
                             }
                         }
 
-                        for (int positionRoundTypeIndex = 0;
-                             positionRoundTypeIndex < 3;
-                             positionRoundTypeIndex++) {
-                            Size downRoundedSize =
-                                adjustedBoundsArray[0 * 3 +
-                                                    positionRoundTypeIndex]
-                                    .getSize();
-                            Size nearestRoundedSize =
-                                adjustedBoundsArray[1 * 3 +
-                                                    positionRoundTypeIndex]
-                                    .getSize();
-                            Size upRoundedSize =
-                                adjustedBoundsArray[2 * 3 +
-                                                    positionRoundTypeIndex]
-                                    .getSize();
+                        for (int positionRoundTypeIndex = 0; positionRoundTypeIndex < 3; positionRoundTypeIndex++) {
+                            Size downRoundedSize = adjustedBoundsArray[0 * 3 + positionRoundTypeIndex].getSize();
+                            Size nearestRoundedSize = adjustedBoundsArray[1 * 3 + positionRoundTypeIndex].getSize();
+                            Size upRoundedSize = adjustedBoundsArray[2 * 3 + positionRoundTypeIndex].getSize();
 
                             REQUIRE(downRoundedSize <= nearestRoundedSize);
                             REQUIRE(nearestRoundedSize <= upRoundedSize);
@@ -557,14 +476,11 @@ namespace bdn
 
                 SECTION("invalidateSizingInfo invalidates parent sizing info")
                 {
-                    int invalidateCountBefore =
-                        _pWindow->getInvalidateSizingInfoCount();
+                    int invalidateCountBefore = _pWindow->getInvalidateSizingInfoCount();
 
-                    _pView->invalidateSizingInfo(
-                        View::InvalidateReason::customDataChanged);
+                    _pView->invalidateSizingInfo(View::InvalidateReason::customDataChanged);
 
-                    REQUIRE(_pWindow->getInvalidateSizingInfoCount() >
-                            invalidateCountBefore);
+                    REQUIRE(_pWindow->getInvalidateSizingInfoCount() > invalidateCountBefore);
                 }
             }
 
@@ -629,9 +545,7 @@ namespace bdn
             class WindowForTest : public Window
             {
               public:
-                WindowForTest(IUiProvider *pUiProvider = nullptr)
-                    : Window(pUiProvider)
-                {}
+                WindowForTest(IUiProvider *pUiProvider = nullptr) : Window(pUiProvider) {}
 
                 void invalidateSizingInfo(InvalidateReason reason) override
                 {
@@ -640,10 +554,7 @@ namespace bdn
                     Window::invalidateSizingInfo(reason);
                 }
 
-                int getInvalidateSizingInfoCount() const
-                {
-                    return _invalidateSizingInfoCount;
-                }
+                int getInvalidateSizingInfoCount() const { return _invalidateSizingInfoCount; }
 
               private:
                 int _invalidateSizingInfoCount = 0;

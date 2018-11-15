@@ -15,26 +15,21 @@ namespace bdn
         /** A mixin class that adds implementations of mac view specific
          functionality on top of the base class specified in the template
          parameter BaseClass.*/
-        template <class BaseClass>
-        class TestMacChildViewCoreMixin : public BaseClass
+        template <class BaseClass> class TestMacChildViewCoreMixin : public BaseClass
         {
           protected:
             void initCore() override
             {
                 BaseClass::initCore();
 
-                _pMacChildViewCore = cast<bdn::mac::ChildViewCore>(
-                    BaseClass::_pView->getViewCore());
+                _pMacChildViewCore = cast<bdn::mac::ChildViewCore>(BaseClass::_pView->getViewCore());
                 REQUIRE(_pMacChildViewCore != nullptr);
 
                 _pNSView = _pMacChildViewCore->getNSView();
                 REQUIRE(_pNSView != nullptr);
             }
 
-            IUiProvider &getUiProvider() override
-            {
-                return bdn::mac::UiProvider::get();
-            }
+            IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {

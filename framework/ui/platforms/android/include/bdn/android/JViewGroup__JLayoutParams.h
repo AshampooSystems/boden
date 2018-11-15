@@ -21,8 +21,7 @@ namespace bdn
             {
                 static bdn::java::MethodId constructorId;
 
-                return getStaticClass_().newInstance_(constructorId, width,
-                                                      height);
+                return getStaticClass_().newInstance_(constructorId, width, height);
             }
 
           public:
@@ -32,14 +31,9 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JViewGroup__JLayoutParams(
-                const bdn::java::Reference &javaRef)
-                : bdn::java::JObject(javaRef)
-            {}
+            explicit JViewGroup__JLayoutParams(const bdn::java::Reference &javaRef) : bdn::java::JObject(javaRef) {}
 
-            JViewGroup__JLayoutParams(int width, int height)
-                : bdn::java::JObject(newInstance_(width, height))
-            {}
+            JViewGroup__JLayoutParams(int width, int height) : bdn::java::JObject(newInstance_(width, height)) {}
 
             enum
             {
@@ -62,8 +56,7 @@ namespace bdn
              * */
             bdn::java::ObjectField<int> width()
             {
-                static bdn::java::ObjectField<int>::Id fieldId(
-                    getStaticClass_(), "width");
+                static bdn::java::ObjectField<int>::Id fieldId(getStaticClass_(), "width");
 
                 return bdn::java::ObjectField<int>(getRef_(), fieldId);
             }
@@ -74,8 +67,7 @@ namespace bdn
              * */
             bdn::java::ObjectField<int> height()
             {
-                static bdn::java::ObjectField<int>::Id fieldId(
-                    getStaticClass_(), "height");
+                static bdn::java::ObjectField<int>::Id fieldId(getStaticClass_(), "height");
 
                 return bdn::java::ObjectField<int>(getRef_(), fieldId);
             }
@@ -91,16 +83,12 @@ namespace bdn
              *  */
             static bdn::java::JClass &getStaticClass_()
             {
-                static bdn::java::JClass cls(
-                    "android/view/ViewGroup$LayoutParams");
+                static bdn::java::JClass cls("android/view/ViewGroup$LayoutParams");
 
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

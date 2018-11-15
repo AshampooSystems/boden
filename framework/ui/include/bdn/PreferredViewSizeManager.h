@@ -55,8 +55,7 @@ namespace bdn
             // space preferred size then we can assume that it is correct and
             // return the infinite one.
             if (_haveInfiniteSpacePreferredSize &&
-                (!std::isfinite(availableSpace.width) ||
-                 availableSpace.width >= _infiniteSpacePreferredSize.width) &&
+                (!std::isfinite(availableSpace.width) || availableSpace.width >= _infiniteSpacePreferredSize.width) &&
                 (!std::isfinite(availableSpace.height) ||
                  availableSpace.height >= _infiniteSpacePreferredSize.height)) {
                 preferredSize = _infiniteSpacePreferredSize;

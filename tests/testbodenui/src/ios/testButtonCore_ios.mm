@@ -9,8 +9,7 @@
 
 using namespace bdn;
 
-class TestIosButtonCore
-    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestButtonCore>
+class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::TestButtonCore>
 {
   protected:
     void initCore() override

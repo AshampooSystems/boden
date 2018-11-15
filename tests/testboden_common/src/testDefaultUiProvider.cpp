@@ -11,9 +11,7 @@ using namespace bdn;
 template <typename CHAR_TYPE> class RedirectStdStream
 {
   public:
-    RedirectStdStream(std::basic_ostream<CHAR_TYPE> &stream,
-                      std::basic_streambuf<CHAR_TYPE> &buffer)
-        : _stream(stream)
+    RedirectStdStream(std::basic_ostream<CHAR_TYPE> &stream, std::basic_streambuf<CHAR_TYPE> &buffer) : _stream(stream)
     {
         _pOldBuffer = _stream.rdbuf(&buffer);
     }
@@ -26,8 +24,7 @@ template <typename CHAR_TYPE> class RedirectStdStream
 };
 
 template <typename CHAR_TYPE>
-void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream,
-                           std::basic_ostream<CHAR_TYPE> &stdErrStream)
+void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream, std::basic_ostream<CHAR_TYPE> &stdErrStream)
 {
     SECTION("textUi")
     {
@@ -42,10 +39,8 @@ void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream,
             TextSinkStdStreamBuf<CHAR_TYPE> errBuffer(&errSink);
 
             {
-                RedirectStdStream<CHAR_TYPE> redirectOut(stdOutStream,
-                                                         outBuffer);
-                RedirectStdStream<CHAR_TYPE> redirectErr(stdErrStream,
-                                                         errBuffer);
+                RedirectStdStream<CHAR_TYPE> redirectOut(stdOutStream, outBuffer);
+                RedirectStdStream<CHAR_TYPE> redirectErr(stdErrStream, errBuffer);
 
                 // IMPORTANT: we should not start any new sections
                 // here, nor make any assertions while the streams

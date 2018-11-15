@@ -13,14 +13,12 @@ namespace bdn
     {
 
         /** Base class for all toggle-like control cores on macOS */
-        class ToggleCoreBase : public ButtonCoreBase,
-                               BDN_IMPLEMENTS IToggleCoreBase
+        class ToggleCoreBase : public ButtonCoreBase, BDN_IMPLEMENTS IToggleCoreBase
         {
           private:
             static NSButton *_createNsButton()
             {
-                NSButton *button =
-                    [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                NSButton *button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 [button setButtonType:NSButtonTypeSwitch];
                 return button;
             }
@@ -28,10 +26,7 @@ namespace bdn
           public:
             ToggleCoreBase(View *pOuterToggle);
 
-            virtual void setLabel(const String &label) override
-            {
-                ButtonCoreBase::setLabel(label);
-            }
+            virtual void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 
             virtual void generateClick() = 0;
 

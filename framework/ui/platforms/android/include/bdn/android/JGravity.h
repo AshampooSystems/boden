@@ -18,9 +18,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JGravity(const bdn::java::Reference &javaRef)
-                : bdn::java::JObject(javaRef)
-            {}
+            explicit JGravity(const bdn::java::Reference &javaRef) : bdn::java::JObject(javaRef) {}
 
             enum
             {
@@ -49,10 +47,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

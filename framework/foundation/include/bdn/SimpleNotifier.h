@@ -30,10 +30,7 @@ namespace bdn
 
         ~SimpleNotifier() {}
 
-        void notify(ARG_TYPES... args)
-        {
-            BASE::doNotify(std::forward<ARG_TYPES>(args)...);
-        }
+        void notify(ARG_TYPES... args) { BASE::doNotify(std::forward<ARG_TYPES>(args)...); }
 
       private:
     };

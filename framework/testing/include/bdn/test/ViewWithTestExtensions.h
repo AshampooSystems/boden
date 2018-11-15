@@ -12,13 +12,10 @@ namespace bdn
             Exposes some statistics to test how often certain functions have
            been called.
             */
-        template <class BaseViewClass>
-        class ViewWithTestExtensions : public BaseViewClass
+        template <class BaseViewClass> class ViewWithTestExtensions : public BaseViewClass
         {
           public:
-            template <typename... Arguments>
-            ViewWithTestExtensions(Arguments... args) : BaseViewClass(args...)
-            {}
+            template <typename... Arguments> ViewWithTestExtensions(Arguments... args) : BaseViewClass(args...) {}
 
             ~ViewWithTestExtensions()
             {
@@ -31,16 +28,13 @@ namespace bdn
                 The function gets a pointer to the object being destructed as
                its sole parameter.
             */
-            void setDestructFunc(
-                std::function<void(ViewWithTestExtensions<BaseViewClass> *)>
-                    func)
+            void setDestructFunc(std::function<void(ViewWithTestExtensions<BaseViewClass> *)> func)
             {
                 _destructFunc = func;
             }
 
           protected:
-            std::function<void(ViewWithTestExtensions<BaseViewClass> *)>
-                _destructFunc;
+            std::function<void(ViewWithTestExtensions<BaseViewClass> *)> _destructFunc;
         };
     }
 }

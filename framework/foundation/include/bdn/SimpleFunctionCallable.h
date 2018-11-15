@@ -13,10 +13,7 @@ namespace bdn
     class SimpleFunctionCallable : public Base, BDN_IMPLEMENTS ISimpleCallable
     {
       public:
-        SimpleFunctionCallable(const std::function<void()> &func)
-        {
-            _func = func;
-        }
+        SimpleFunctionCallable(const std::function<void()> &func) { _func = func; }
 
         void call() override { _func(); }
 

@@ -59,8 +59,7 @@ namespace bdn
             See #IDispatcher class documentation for information about how
            exceptions thrown by func are handled.
             */
-        virtual void enqueue(std::function<void()> func,
-                             Priority priority = Priority::normal) = 0;
+        virtual void enqueue(std::function<void()> func, Priority priority = Priority::normal) = 0;
 
         /** Schedules the specified function to be executed after
             the specified number of seconds.
@@ -79,8 +78,7 @@ namespace bdn
             See #IDispatcher class documentation for information about how
            exceptions thrown by func are handled.
             */
-        virtual void enqueueInSeconds(double seconds,
-                                      std::function<void()> func,
+        virtual void enqueueInSeconds(double seconds, std::function<void()> func,
                                       Priority priority = Priority::normal) = 0;
 
         /** Creates a timer that calls the specified function regularly with the
@@ -111,8 +109,7 @@ namespace bdn
            exceptions thrown by func are handled.
 
             */
-        virtual void createTimer(double intervalSeconds,
-                                 std::function<bool()> func) = 0;
+        virtual void createTimer(double intervalSeconds, std::function<bool()> func) = 0;
     };
 
     /** Returns the main dispatcher of the app.

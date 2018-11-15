@@ -9,8 +9,7 @@
 
 using namespace bdn;
 
-class TestMockTextViewCore
-    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestTextViewCore>
+class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test::TestTextViewCore>
 {
   protected:
     void verifyCoreText() override
@@ -22,10 +21,7 @@ class TestMockTextViewCore
         REQUIRE(text == expectedText);
     }
 
-    bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
-    {
-        return true;
-    }
+    bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override { return true; }
 };
 
 TEST_CASE("mock.TextViewCore")

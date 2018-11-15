@@ -103,8 +103,7 @@ namespace bdn
         // mess up our timeout
         std::chrono::time_point<std::chrono::steady_clock> absoluteTimeoutTime;
         if (timeoutMillis > 0)
-            absoluteTimeoutTime = std::chrono::steady_clock::now() +
-                                  std::chrono::milliseconds(timeoutMillis);
+            absoluteTimeoutTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMillis);
 
         // we must lock the mutex with unique_lock so that the condition
         // variable can unlock it.
@@ -133,16 +132,13 @@ namespace bdn
                         // use wait_for on first iteration to ensure that short
                         // timeouts do not cause wait to return immediately
                         // without checking the condition.
-                        waitResult = _condition.wait_for(
-                            lock, std::chrono::milliseconds(timeoutMillis));
+                        waitResult = _condition.wait_for(lock, std::chrono::milliseconds(timeoutMillis));
                     } else {
                         // use the absolute timeout time on subsequent
                         // iterations. If the system clock has been adjusted
                         // forwards then the timeout will expire "early", but
                         // that is acceptable.
-                        waitResult =
-                            _condition.wait_until<std::chrono::steady_clock>(
-                                lock, absoluteTimeoutTime);
+                        waitResult = _condition.wait_until<std::chrono::steady_clock>(lock, absoluteTimeoutTime);
                     }
 
                     if (waitResult == std::cv_status::timeout) {

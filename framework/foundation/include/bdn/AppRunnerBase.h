@@ -20,9 +20,7 @@ namespace bdn
     class AppRunnerBase : public Base, BDN_IMPLEMENTS IAppRunner
     {
       public:
-        AppRunnerBase(
-            std::function<P<AppControllerBase>()> appControllerCreator,
-            const AppLaunchInfo &launchInfo)
+        AppRunnerBase(std::function<P<AppControllerBase>()> appControllerCreator, const AppLaunchInfo &launchInfo)
         {
             _appControllerCreator = appControllerCreator;
             _launchInfo = launchInfo;
@@ -48,10 +46,7 @@ namespace bdn
         virtual void finishLaunch();
 
         /** Returns the app's launch information.*/
-        const AppLaunchInfo &getLaunchInfo() const override
-        {
-            return _launchInfo;
-        }
+        const AppLaunchInfo &getLaunchInfo() const override { return _launchInfo; }
 
         /** Notifies the app runner that an unhandled exception was encountered.
 
@@ -72,10 +67,7 @@ namespace bdn
         bool unhandledException(bool canKeepRunning) override;
 
       protected:
-        void setLaunchInfo(const AppLaunchInfo &launchInfo)
-        {
-            _launchInfo = launchInfo;
-        }
+        void setLaunchInfo(const AppLaunchInfo &launchInfo) { _launchInfo = launchInfo; }
 
         virtual void platformSpecificInit()
         {

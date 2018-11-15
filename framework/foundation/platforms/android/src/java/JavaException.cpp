@@ -14,8 +14,7 @@ namespace bdn
                 // this is a C++ exception that was wrapped. Throw that.
                 JNativeException nativeException(throwable.getRef_());
 
-                P<ExceptionReference> pRef =
-                    nativeException.getExceptionReference_();
+                P<ExceptionReference> pRef = nativeException.getExceptionReference_();
 
                 pRef->rethrow();
             } else {

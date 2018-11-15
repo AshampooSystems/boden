@@ -38,8 +38,8 @@ namespace bdn
     */
     template <typename CHAR_TYPE, class CHAR_TRAITS, typename IT_TYPE>
     std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &
-    streamPutCharSequence(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
-                          const IT_TYPE &beginIt, const IT_TYPE &endIt)
+    streamPutCharSequence(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream, const IT_TYPE &beginIt,
+                          const IT_TYPE &endIt)
     {
         typename std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>::sentry s(stream);
         if (s) {
@@ -49,9 +49,7 @@ namespace bdn
                     stream.setstate(std::ios_base::badbit);
                 else {
                     std::streamsize padTo = stream.width();
-                    bool leftAlign =
-                        ((stream.flags() & std::ios_base::adjustfield) ==
-                         std::ios_base::left);
+                    bool leftAlign = ((stream.flags() & std::ios_base::adjustfield) == std::ios_base::left);
 
                     bool ok = true;
                     if (padTo > 0 && !leftAlign) {
@@ -59,9 +57,7 @@ namespace bdn
                         // characters we are about to write.
                         size_t length = std::distance(beginIt, endIt);
                         for (size_t i = length; i < (size_t)padTo; i++) {
-                            if (CHAR_TRAITS::eq_int_type(
-                                    pBuffer->sputc(stream.fill()),
-                                    CHAR_TRAITS::eof())) {
+                            if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
                                 stream.setstate(std::ios_base::badbit);
                                 ok = false;
                                 break;
@@ -72,8 +68,7 @@ namespace bdn
                     if (ok) {
                         size_t written = 0;
                         for (IT_TYPE it = beginIt; it != endIt; ++it) {
-                            if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(*it),
-                                                         CHAR_TRAITS::eof())) {
+                            if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(*it), CHAR_TRAITS::eof())) {
                                 stream.setstate(std::ios_base::badbit);
                                 ok = false;
                                 break;
@@ -84,9 +79,7 @@ namespace bdn
 
                         if (ok && leftAlign && padTo > 0) {
                             while (written < (size_t)padTo) {
-                                if (CHAR_TRAITS::eq_int_type(
-                                        pBuffer->sputc(stream.fill()),
-                                        CHAR_TRAITS::eof())) {
+                                if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
                                     stream.setstate(std::ios_base::badbit);
                                     ok = false;
                                     break;
@@ -106,8 +99,7 @@ namespace bdn
             }
 
             if (stream.rdstate() & stream.exceptions())
-                throw typename std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>::
-                    failure("Error writing character sequence.");
+                throw typename std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>::failure("Error writing character sequence.");
         }
 
         return stream;
@@ -120,17 +112,12 @@ namespace std
     // we have to provide a specialization for basic_ios::widen and narrow
     // because the default implementation uses std::ctype<char32_t> in some
     // implementations - and that does not always exist
-    template <>
-    inline char32_t
-    basic_ios<char32_t, bdn::UnicodeCharTraits>::widen(char c) const
+    template <> inline char32_t basic_ios<char32_t, bdn::UnicodeCharTraits>::widen(char c) const
     {
         return (char32_t)use_facet<ctype<wchar_t>>(getloc()).widen(c);
     }
 
-    template <>
-    inline char
-    basic_ios<char32_t, bdn::UnicodeCharTraits>::narrow(char32_t c,
-                                                        char defChar) const
+    template <> inline char basic_ios<char32_t, bdn::UnicodeCharTraits>::narrow(char32_t c, char defChar) const
     {
         return use_facet<ctype<wchar_t>>(getloc()).narrow((wchar_t)c, defChar);
     }
@@ -141,11 +128,9 @@ namespace std
         See bdn::TextOutStream
         */
     template <>
-    class basic_ostream<char32_t, bdn::UnicodeCharTraits>
-        : public std::basic_ios<char32_t, bdn::UnicodeCharTraits>
+    class basic_ostream<char32_t, bdn::UnicodeCharTraits> : public std::basic_ios<char32_t, bdn::UnicodeCharTraits>
     {
-        using BasicIos =
-            typename std::basic_ios<char32_t, bdn::UnicodeCharTraits>;
+        using BasicIos = typename std::basic_ios<char32_t, bdn::UnicodeCharTraits>;
 
       public:
         using typename BasicIos::char_type;
@@ -159,14 +144,11 @@ namespace std
             for which the "char" encoding was replaced with UTF-8.*/
         static std::locale defaultLocale()
         {
-            static std::locale _loc =
-                bdn::deriveUtf8Locale(std::locale::classic());
+            static std::locale _loc = bdn::deriveUtf8Locale(std::locale::classic());
             return _loc;
         }
 
-        explicit basic_ostream(
-            std::basic_streambuf<char_type, traits_type> *pBuffer)
-            : BasicIos(pBuffer)
+        explicit basic_ostream(std::basic_streambuf<char_type, traits_type> *pBuffer) : BasicIos(pBuffer)
         {
             // by default we use a variant of the classic locale, with the
             // multibyte encoding replaced with UTF-8.
@@ -189,8 +171,7 @@ namespace std
             _pWideAdapterStreamBuffer = new WideAdapterStreamBuffer(this);
         }
 
-        void
-        init(std::basic_streambuf<char32_t, bdn::UnicodeCharTraits> *pBuffer)
+        void init(std::basic_streambuf<char32_t, bdn::UnicodeCharTraits> *pBuffer)
         {
             BasicIos::init(pBuffer);
 
@@ -249,8 +230,7 @@ namespace std
         class sentry
         {
           public:
-            explicit sentry(std::basic_ostream<char_type, traits_type> &stream)
-                : _stream(stream)
+            explicit sentry(std::basic_ostream<char_type, traits_type> &stream) : _stream(stream)
             {
                 _preparationGood = stream.good();
                 if (_preparationGood) {
@@ -264,8 +244,7 @@ namespace std
 
             ~sentry()
             {
-                if ((_stream.flags() & std::ios_base::unitbuf) &&
-                    !std::uncaught_exception() && _stream.good()) {
+                if ((_stream.flags() & std::ios_base::unitbuf) && !std::uncaught_exception() && _stream.good()) {
                     auto pBuffer = _stream.rdbuf();
                     if (pBuffer != nullptr && pBuffer->pubsync() == -1)
                         _stream.setstate(std::ios_base::badbit);
@@ -289,10 +268,7 @@ namespace std
                 return operator<<((long)value);
         }
 
-        basic_ostream &operator<<(unsigned short value)
-        {
-            return operator<<((unsigned long)value);
-        }
+        basic_ostream &operator<<(unsigned short value) { return operator<<((unsigned long)value); }
 
         basic_ostream &operator<<(int value)
         {
@@ -302,25 +278,18 @@ namespace std
                 return operator<<((long)value);
         }
 
-        basic_ostream &operator<<(unsigned int value)
-        {
-            return operator<<((unsigned long)value);
-        }
+        basic_ostream &operator<<(unsigned int value) { return operator<<((unsigned long)value); }
 
       private:
-        template <typename VALUE>
-        basic_ostream &_doSentriedNumPut(VALUE value, ios_base &fmt,
-                                         char32_t fillChar)
+        template <typename VALUE> basic_ostream &_doSentriedNumPut(VALUE value, ios_base &fmt, char32_t fillChar)
         {
             sentry s(*this);
             if (s) {
                 std::locale loc = getloc();
                 auto it = std::use_facet<std::num_put<wchar_t>>(loc).put(
-                    ostreambuf_iterator<wchar_t>(_pWideAdapterStreamBuffer),
-                    fmt, (wchar_t)fillChar, value);
+                    ostreambuf_iterator<wchar_t>(_pWideAdapterStreamBuffer), fmt, (wchar_t)fillChar, value);
 
-                if (!_pWideAdapterStreamBuffer->syncToRealBuffer() ||
-                    it.failed())
+                if (!_pWideAdapterStreamBuffer->syncToRealBuffer() || it.failed())
                     setstate(std::ios_base::badbit);
             }
 
@@ -328,55 +297,27 @@ namespace std
         }
 
       public:
-        basic_ostream &operator<<(long value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(long value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(unsigned long value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(unsigned long value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(long long value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(long long value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(unsigned long long value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(unsigned long long value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(float value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(float value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(double value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(double value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(long double value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(long double value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(bool value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(bool value) { return _doSentriedNumPut(value, *this, fill()); }
 
-        basic_ostream &operator<<(const void *value)
-        {
-            return _doSentriedNumPut(value, *this, fill());
-        }
+        basic_ostream &operator<<(const void *value) { return _doSentriedNumPut(value, *this, fill()); }
 
         basic_ostream &operator<<(std::nullptr_t) { return (*this) << U"null"; }
 
-        basic_ostream &
-        operator<<(std::basic_streambuf<char_type, traits_type> *pBuffer)
+        basic_ostream &operator<<(std::basic_streambuf<char_type, traits_type> *pBuffer)
         {
             sentry s(*this);
             if (s) {
@@ -400,8 +341,7 @@ namespace std
                                     break;
 
                                 chr = pBuffer->snextc();
-                            } while (!traits_type::eq_int_type(
-                                chr, traits_type::eof()));
+                            } while (!traits_type::eq_int_type(chr, traits_type::eof()));
                         }
                     }
                     catch (...) {
@@ -422,15 +362,15 @@ namespace std
             return *this;
         }
 
-        basic_ostream &operator<<(std::basic_ios<char_type, traits_type> &(
-            *func)(std::basic_ios<char_type, traits_type> &))
+        basic_ostream &
+        operator<<(std::basic_ios<char_type, traits_type> &(*func)(std::basic_ios<char_type, traits_type> &))
         {
             func(*this);
             return *this;
         }
 
-        basic_ostream &operator<<(std::basic_ostream<char_type, traits_type> &(
-            *func)(std::basic_ostream<char_type, traits_type> &))
+        basic_ostream &
+        operator<<(std::basic_ostream<char_type, traits_type> &(*func)(std::basic_ostream<char_type, traits_type> &))
         {
             func(*this);
             return *this;
@@ -453,41 +393,34 @@ namespace std
                 // decode ourselves
                 const char *endOfS = s + std::char_traits<char>::length(s);
 
-                bdn::Utf8Codec::DecodingIterator<const char *> beginIt(s, s,
-                                                                       endOfS);
-                bdn::Utf8Codec::DecodingIterator<const char *> endIt(endOfS, s,
-                                                                     endOfS);
+                bdn::Utf8Codec::DecodingIterator<const char *> beginIt(s, s, endOfS);
+                bdn::Utf8Codec::DecodingIterator<const char *> endIt(endOfS, s, endOfS);
 
                 return bdn::streamPutCharSequence(*this, beginIt, endIt);
             } else {
-                bdn::LocaleDecoder decoder(s, std::char_traits<char>::length(s),
-                                           BasicIos::getloc());
+                bdn::LocaleDecoder decoder(s, std::char_traits<char>::length(s), BasicIos::getloc());
 
-                return bdn::streamPutCharSequence(*this, decoder.begin(),
-                                                  decoder.end());
+                return bdn::streamPutCharSequence(*this, decoder.begin(), decoder.end());
             }
         }
 
         template <class STRING_TRAITS, class ALLOCATOR>
-        basic_ostream &
-        operator<<(const std::basic_string<char, STRING_TRAITS, ALLOCATOR> &s)
+        basic_ostream &operator<<(const std::basic_string<char, STRING_TRAITS, ALLOCATOR> &s)
         {
             if (usingUtf8Encoding()) {
-                bdn::Utf8Codec::DecodingIterator<typename std::basic_string<
-                    char, STRING_TRAITS, ALLOCATOR>::const_iterator>
+                bdn::Utf8Codec::DecodingIterator<
+                    typename std::basic_string<char, STRING_TRAITS, ALLOCATOR>::const_iterator>
                     beginIt(s.begin(), s.begin(), s.end());
 
-                bdn::Utf8Codec::DecodingIterator<typename std::basic_string<
-                    char, STRING_TRAITS, ALLOCATOR>::const_iterator>
+                bdn::Utf8Codec::DecodingIterator<
+                    typename std::basic_string<char, STRING_TRAITS, ALLOCATOR>::const_iterator>
                     endIt(s.end(), s.begin(), s.end());
 
                 return bdn::streamPutCharSequence(*this, beginIt, endIt);
             } else {
-                bdn::LocaleDecoder decoder(s.c_str(), s.length(),
-                                           BasicIos::getloc());
+                bdn::LocaleDecoder decoder(s.c_str(), s.length(), BasicIos::getloc());
 
-                return bdn::streamPutCharSequence(*this, decoder.begin(),
-                                                  decoder.end());
+                return bdn::streamPutCharSequence(*this, decoder.begin(), decoder.end());
             }
         }
 
@@ -495,24 +428,21 @@ namespace std
         {
             const wchar_t *endOfS = s + std::char_traits<wchar_t>::length(s);
 
-            bdn::WideCodec::DecodingIterator<const wchar_t *> beginIt(s, s,
-                                                                      endOfS);
-            bdn::WideCodec::DecodingIterator<const wchar_t *> endIt(endOfS, s,
-                                                                    endOfS);
+            bdn::WideCodec::DecodingIterator<const wchar_t *> beginIt(s, s, endOfS);
+            bdn::WideCodec::DecodingIterator<const wchar_t *> endIt(endOfS, s, endOfS);
 
             return bdn::streamPutCharSequence(*this, beginIt, endIt);
         }
 
         template <class STRING_TRAITS, class ALLOCATOR>
-        basic_ostream &operator<<(
-            const std::basic_string<wchar_t, STRING_TRAITS, ALLOCATOR> &s)
+        basic_ostream &operator<<(const std::basic_string<wchar_t, STRING_TRAITS, ALLOCATOR> &s)
         {
-            bdn::WideCodec::DecodingIterator<typename std::basic_string<
-                wchar_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
+            bdn::WideCodec::DecodingIterator<
+                typename std::basic_string<wchar_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
                 beginIt(s.begin(), s.begin(), s.end());
 
-            bdn::WideCodec::DecodingIterator<typename std::basic_string<
-                wchar_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
+            bdn::WideCodec::DecodingIterator<
+                typename std::basic_string<wchar_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
                 endIt(s.end(), s.begin(), s.end());
 
             return bdn::streamPutCharSequence(*this, beginIt, endIt);
@@ -522,24 +452,21 @@ namespace std
         {
             const char16_t *endOfS = s + std::char_traits<char16_t>::length(s);
 
-            bdn::Utf16Codec::DecodingIterator<const char16_t *> beginIt(s, s,
-                                                                        endOfS);
-            bdn::Utf16Codec::DecodingIterator<const char16_t *> endIt(endOfS, s,
-                                                                      endOfS);
+            bdn::Utf16Codec::DecodingIterator<const char16_t *> beginIt(s, s, endOfS);
+            bdn::Utf16Codec::DecodingIterator<const char16_t *> endIt(endOfS, s, endOfS);
 
             return bdn::streamPutCharSequence(*this, beginIt, endIt);
         }
 
         template <class STRING_TRAITS, class ALLOCATOR>
-        basic_ostream &operator<<(
-            const std::basic_string<char16_t, STRING_TRAITS, ALLOCATOR> &s)
+        basic_ostream &operator<<(const std::basic_string<char16_t, STRING_TRAITS, ALLOCATOR> &s)
         {
-            bdn::Utf16Codec::DecodingIterator<typename std::basic_string<
-                char16_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
+            bdn::Utf16Codec::DecodingIterator<
+                typename std::basic_string<char16_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
                 beginIt(s.begin(), s.begin(), s.end());
 
-            bdn::Utf16Codec::DecodingIterator<typename std::basic_string<
-                char16_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
+            bdn::Utf16Codec::DecodingIterator<
+                typename std::basic_string<char16_t, STRING_TRAITS, ALLOCATOR>::const_iterator>
                 endIt(s.end(), s.begin(), s.end());
 
             return bdn::streamPutCharSequence(*this, beginIt, endIt);
@@ -553,40 +480,25 @@ namespace std
         }
 
         template <class STRING_TRAITS, class ALLOCATOR>
-        basic_ostream &operator<<(
-            const std::basic_string<char32_t, STRING_TRAITS, ALLOCATOR> &s)
+        basic_ostream &operator<<(const std::basic_string<char32_t, STRING_TRAITS, ALLOCATOR> &s)
         {
             return bdn::streamPutCharSequence(*this, s.begin(), s.end());
         }
 
-        basic_ostream &operator<<(char chr)
-        {
-            return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1);
-        }
+        basic_ostream &operator<<(char chr) { return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1); }
 
-        basic_ostream &operator<<(wchar_t chr)
-        {
-            return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1);
-        }
+        basic_ostream &operator<<(wchar_t chr) { return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1); }
 
-        basic_ostream &operator<<(char16_t chr)
-        {
-            return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1);
-        }
+        basic_ostream &operator<<(char16_t chr) { return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1); }
 
-        basic_ostream &operator<<(char32_t chr)
-        {
-            return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1);
-        }
+        basic_ostream &operator<<(char32_t chr) { return bdn::streamPutCharSequence(*this, &chr, (&chr) + 1); }
 
         basic_ostream &put(char_type ch)
         {
             sentry s(*this);
             if (s) {
                 auto pBuffer = rdbuf();
-                if (pBuffer == nullptr ||
-                    traits_type::eq_int_type(pBuffer->sputc(ch),
-                                             traits_type::eof())) {
+                if (pBuffer == nullptr || traits_type::eq_int_type(pBuffer->sputc(ch), traits_type::eof())) {
                     setstate(ios_base::badbit);
                 }
             }
@@ -600,8 +512,7 @@ namespace std
             if (sentr) {
                 try {
                     auto pBuffer = rdbuf();
-                    if (pBuffer == nullptr ||
-                        pBuffer->sputn(s, count) != count) {
+                    if (pBuffer == nullptr || pBuffer->sputn(s, count) != count) {
                         setstate(ios_base::badbit);
                         if (exceptions() & ios_base::badbit)
                             throw failure("Error writing to stream");
@@ -626,15 +537,13 @@ namespace std
             if (fail())
                 return pos_type(-1);
             else
-                return pBuffer->pubseekoff(0, std::ios_base::cur,
-                                           std::ios_base::out);
+                return pBuffer->pubseekoff(0, std::ios_base::cur, std::ios_base::out);
         }
 
         basic_ostream &seekp(pos_type pos)
         {
             auto pBuffer = rdbuf();
-            if (pBuffer == nullptr ||
-                pBuffer->pubseekpos(pos, std::ios_base::out) == pos_type(-1)) {
+            if (pBuffer == nullptr || pBuffer->pubseekpos(pos, std::ios_base::out) == pos_type(-1)) {
                 setstate(ios_base::failbit);
                 if (exceptions() & ios_base::failbit)
                     throw failure("seek failed");
@@ -646,9 +555,7 @@ namespace std
         basic_ostream &seekp(off_type off, std::ios_base::seekdir dir)
         {
             auto pBuffer = rdbuf();
-            if (pBuffer == nullptr ||
-                pBuffer->pubseekoff(off, dir, std::ios_base::out) ==
-                    pos_type(-1)) {
+            if (pBuffer == nullptr || pBuffer->pubseekoff(off, dir, std::ios_base::out) == pos_type(-1)) {
                 setstate(ios_base::failbit);
                 if (exceptions() & ios_base::failbit)
                     throw failure("seek failed");
@@ -716,14 +623,10 @@ namespace std
                 }
             }
 
-            void swap(WideAdapterStreamBuffer &other)
-            {
-                std::basic_streambuf<wchar_t>::swap(other);
-            }
+            void swap(WideAdapterStreamBuffer &other) { std::basic_streambuf<wchar_t>::swap(other); }
 
           protected:
-            std::basic_streambuf<wchar_t>::int_type
-            overflow(std::basic_streambuf<wchar_t>::int_type chr) override
+            std::basic_streambuf<wchar_t>::int_type overflow(std::basic_streambuf<wchar_t>::int_type chr) override
             {
                 if (!syncToRealBuffer())
                     return std::basic_streambuf<wchar_t>::traits_type::eof();
@@ -767,12 +670,10 @@ namespace std
 
         bool usingUtf8Encoding()
         {
-            if (_lastCheckedLocaleIsUtf8 == -1 ||
-                _lastCheckedLocale != getloc()) {
+            if (_lastCheckedLocaleIsUtf8 == -1 || _lastCheckedLocale != getloc()) {
                 _lastCheckedLocale = getloc();
 
-                _lastCheckedLocaleIsUtf8 =
-                    bdn::isUtf8Locale(_lastCheckedLocale) ? 1 : 0;
+                _lastCheckedLocaleIsUtf8 = bdn::isUtf8Locale(_lastCheckedLocale) ? 1 : 0;
             }
 
             return _lastCheckedLocaleIsUtf8 != 0;
@@ -911,8 +812,7 @@ namespace bdn
     // enough. For example, for MSVC the standard library conversion operator is
     // only there for std::ostream, not for basic_ostream object of other char
     // or traits types.
-    template <typename VALUE_TYPE>
-    TextOutStream &operator<<(TextOutStream &&stream, VALUE_TYPE &&value)
+    template <typename VALUE_TYPE> TextOutStream &operator<<(TextOutStream &&stream, VALUE_TYPE &&value)
     {
         return stream << std::forward<VALUE_TYPE>(value);
     }
@@ -921,22 +821,17 @@ namespace bdn
 
     template <bool SUPPORTED> struct StreamWriterImpl_
     {
-        template <typename STREAM_TYPE, typename VALUE_TYPE>
-        static void write(STREAM_TYPE &&stream, VALUE_TYPE &&value)
+        template <typename STREAM_TYPE, typename VALUE_TYPE> static void write(STREAM_TYPE &&stream, VALUE_TYPE &&value)
         {
-            std::forward<STREAM_TYPE>(stream)
-                << std::forward<VALUE_TYPE>(value);
+            std::forward<STREAM_TYPE>(stream) << std::forward<VALUE_TYPE>(value);
         }
     };
 
     template <> struct StreamWriterImpl_<false>
     {
-        template <typename STREAM_TYPE, typename VALUE_TYPE>
-        static void write(STREAM_TYPE &&stream, VALUE_TYPE &&value)
+        template <typename STREAM_TYPE, typename VALUE_TYPE> static void write(STREAM_TYPE &&stream, VALUE_TYPE &&value)
         {
-            std::forward<STREAM_TYPE>(stream)
-                << "<" << typeid(value).name() << " @ " << (const void *)&value
-                << ">";
+            std::forward<STREAM_TYPE>(stream) << "<" << typeid(value).name() << " @ " << (const void *)&value << ">";
         }
     };
 
@@ -957,9 +852,8 @@ namespace bdn
     template <typename STREAM_TYPE, typename VALUE_TYPE>
     STREAM_TYPE &writeAnyToStream(STREAM_TYPE &&stream, VALUE_TYPE &&value)
     {
-        StreamWriterImpl_<typeSupportsShiftLeftWith<
-            typename std::decay<STREAM_TYPE>::type,
-            decltype(value)>()>::write(stream, std::forward<VALUE_TYPE>(value));
+        StreamWriterImpl_<typeSupportsShiftLeftWith<typename std::decay<STREAM_TYPE>::type, decltype(value)>()>::write(
+            stream, std::forward<VALUE_TYPE>(value));
 
         return stream;
     }

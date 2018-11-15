@@ -38,28 +38,19 @@ namespace bdn
     class Array : public StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>
     {
       public:
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::Element;
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::Size;
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::Iterator;
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::ConstIterator;
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::ReverseIterator;
-        using typename StdPositionalCollection<
-            std::vector<ELTYPE, ALLOCATOR>>::ConstReverseIterator;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::Element;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::Size;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::Iterator;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::ConstIterator;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::ReverseIterator;
+        using typename StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::ConstReverseIterator;
 
         /** Creates an empty array.*/
-        Array() noexcept(noexcept(ALLOCATOR()))
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
-                  ALLOCATOR())
+        Array() noexcept(noexcept(ALLOCATOR())) : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(ALLOCATOR())
         {}
 
         /** Constructs an array that uses a specific allocator object.*/
-        explicit Array(const ALLOCATOR &alloc) noexcept
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(alloc)
+        explicit Array(const ALLOCATOR &alloc) noexcept : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(alloc)
         {}
 
         /** Initializes the array with \c count copies of \c el.
@@ -67,10 +58,8 @@ namespace bdn
             Optionally, one can also pass an allocator object for custom memory
            management.
         */
-        Array(Size count, const Element &el,
-              const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(count, el,
-                                                                      alloc)
+        Array(Size count, const Element &el, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(count, el, alloc)
         {}
 
         /** Initializes the array with \c count default-constructed elements.
@@ -78,9 +67,7 @@ namespace bdn
             Optionally, one can also pass an allocator object for custom memory
            management.
         */
-        explicit Array(Size count)
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(count)
-        {}
+        explicit Array(Size count) : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(count) {}
 
         /** Initializes the array with copies of the elements from the iterator
            range [beginIt ... endIt)
@@ -89,10 +76,8 @@ namespace bdn
            management.
         */
         template <class InputIt>
-        Array(InputIt beginIt, InputIt endIt,
-              const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
-                  beginIt, endIt, alloc)
+        Array(InputIt beginIt, InputIt endIt, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(beginIt, endIt, alloc)
         {}
 
         /** Initializes the Array with copies of the elements from the specified
@@ -114,24 +99,21 @@ namespace bdn
             The specified allocator object is used to initialize the array's
            internal allocator.
             */
-        Array(const std::vector<ELTYPE, ALLOCATOR> &other,
-              const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(other,
-                                                                      alloc)
+        Array(const std::vector<ELTYPE, ALLOCATOR> &other, const ALLOCATOR &alloc)
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(other, alloc)
         {}
 
         /** Moves the data from the specified other array to this array. The
          * other array is invalidated by this.*/
         Array(Array &&other) noexcept
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(std::move(
-                  static_cast<std::vector<ELTYPE, ALLOCATOR> &&>(other)))
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
+                  std::move(static_cast<std::vector<ELTYPE, ALLOCATOR> &&>(other)))
         {}
 
         /** Moves the data from the specified other vector to this array. The
          * other array is invalidated by this.*/
         Array(std::vector<ELTYPE, ALLOCATOR> &&other) noexcept
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
-                  std::move(other))
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(std::move(other))
         {}
 
         /** Moves the data from the specified other array to this array. The
@@ -141,8 +123,7 @@ namespace bdn
            internal allocator.
             */
         Array(Array &&other, const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
-                  std::forward(other), alloc)
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(std::forward(other), alloc)
         {}
 
         /** Moves the data from the specified other vector to this array. The
@@ -151,8 +132,7 @@ namespace bdn
             The specified allocator object is used to initialize the array's
            internal allocator.*/
         Array(std::vector<ELTYPE, ALLOCATOR> &&other, const ALLOCATOR &alloc)
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(
-                  std::forward(other), alloc)
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(std::forward(other), alloc)
         {}
 
         /** Initializes the array with the specified initializer list. This is
@@ -171,10 +151,8 @@ namespace bdn
 
             \endcode
         */
-        Array(std::initializer_list<Element> initList,
-              const ALLOCATOR &alloc = ALLOCATOR())
-            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(initList,
-                                                                      alloc)
+        Array(std::initializer_list<Element> initList, const ALLOCATOR &alloc = ALLOCATOR())
+            : StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>(initList, alloc)
         {}
 
         /** Replaces the current contents of the array with copies of the
@@ -275,18 +253,13 @@ namespace bdn
         const Element &operator[](Size index) const { return this->at(index); }
 
         /** Returns a pointer to the underlying raw array data.*/
-        Element *getData() noexcept
-        {
-            return StdPositionalCollection<
-                std::vector<ELTYPE, ALLOCATOR>>::data();
-        }
+        Element *getData() noexcept { return StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::data(); }
 
         /** Const version of getData() - returns a const pointer to the
          * underlying raw array data.*/
         const Element *getData() const noexcept
         {
-            return StdPositionalCollection<
-                std::vector<ELTYPE, ALLOCATOR>>::data();
+            return StdPositionalCollection<std::vector<ELTYPE, ALLOCATOR>>::data();
         }
 
         /** Prepares the array for a bigger insert operation. This is purely for
@@ -304,10 +277,7 @@ namespace bdn
 
         /** Returns the zero based index that corresponds to the specified
          * iterator.*/
-        Size iteratorToIndex(ConstIterator it) const
-        {
-            return it - this->begin();
-        }
+        Size iteratorToIndex(ConstIterator it) const { return it - this->begin(); }
 
         /** Returns an iterator to the element at the specified zero based
            index.
@@ -319,10 +289,7 @@ namespace bdn
 
         /** Const version of indexToIterator() - returns an const iterator to
            the element at the specified zero based index.*/
-        ConstIterator indexToIterator(Size index) const
-        {
-            return this->begin() + index;
-        }
+        ConstIterator indexToIterator(Size index) const { return this->begin() + index; }
 
         /** Sorts the elements in ascending order (small first), using the
            element's < operator to compare them.
@@ -420,8 +387,7 @@ namespace bdn
 
             If you need a stable sorting algorithm use stableSort() instead.
             */
-        template <class ComesBeforeFuncType>
-        void sort(ComesBeforeFuncType comesBefore)
+        template <class ComesBeforeFuncType> void sort(ComesBeforeFuncType comesBefore)
         {
             std::sort(this->begin(), this->end(), comesBefore);
         }
@@ -436,8 +402,7 @@ namespace bdn
            stable. See sort() documentation for more information about what this
            means.
         */
-        template <class ComesBeforeFuncType>
-        void stableSort(ComesBeforeFuncType comesBeforeFunc)
+        template <class ComesBeforeFuncType> void stableSort(ComesBeforeFuncType comesBeforeFunc)
         {
             std::stable_sort(this->begin(), this->end(), comesBeforeFunc);
         }
@@ -460,8 +425,7 @@ namespace bdn
             matchFunc must be a function that takes a collection iterator as its
            parameter and returns true if the element should be removed.
         */
-        template <typename MATCH_FUNC_TYPE>
-        void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
+        template <typename MATCH_FUNC_TYPE> void findCustomAndRemove(MATCH_FUNC_TYPE &&matchFunc)
         {
             auto it = this->begin();
             while (it != this->end()) {

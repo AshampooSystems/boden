@@ -20,9 +20,8 @@ namespace bdn
             wchar_t *pOutBegin = _pDecodeState->outBuffer;
             wchar_t *pOutNext = pOutBegin;
 
-            int convResult =
-                _pCodec->in(_pDecodeState->state, pInBegin, _pInEnd, _pInNext,
-                            pOutBegin, pOutBegin + outBufferSize, pOutNext);
+            int convResult = _pCodec->in(_pDecodeState->state, pInBegin, _pInEnd, _pInNext, pOutBegin,
+                                         pOutBegin + outBufferSize, pOutNext);
 
             outWritten = pOutNext - pOutBegin;
 
@@ -38,8 +37,7 @@ namespace bdn
             // character will be at the start, thus returning 0 written and 0
             // read.
             if (outWritten == 0 && (convResult == std::codecvt_base::error ||
-                                    (convResult == std::codecvt_base::partial &&
-                                     _pInNext == pInBegin))) {
+                                    (convResult == std::codecvt_base::partial && _pInNext == pInBegin))) {
                 // no character can be converted because of an error. This
                 // should be pretty rare. On most systems wchar_t is 32 bit and
                 // can hold the whole unicode range. On Windows it is 16 bit,
@@ -74,12 +72,8 @@ namespace bdn
             const wchar_t *pOut = _pDecodeState->outBuffer;
             const wchar_t *pOutEnd = pOut + outWritten;
 
-            _pDecodeState->outCurr =
-                WideCodec::DecodingIterator<const wchar_t *>(pOut, pOut,
-                                                             pOutEnd);
-            _pDecodeState->outEnd =
-                WideCodec::DecodingIterator<const wchar_t *>(pOutEnd, pOut,
-                                                             pOutEnd);
+            _pDecodeState->outCurr = WideCodec::DecodingIterator<const wchar_t *>(pOut, pOut, pOutEnd);
+            _pDecodeState->outEnd = WideCodec::DecodingIterator<const wchar_t *>(pOutEnd, pOut, pOutEnd);
 
             return true;
         }

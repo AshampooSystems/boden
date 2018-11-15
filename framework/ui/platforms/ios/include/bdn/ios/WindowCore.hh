@@ -17,17 +17,15 @@ namespace bdn
     namespace ios
     {
 
-        class WindowCore
-            : public ViewCore,
-              BDN_IMPLEMENTS IWindowCore,
-              BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+        class WindowCore : public ViewCore,
+                           BDN_IMPLEMENTS IWindowCore,
+                           BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           private:
             UIWindow *_createUIWindow(Window *pOuterWindow);
 
           public:
-            WindowCore(Window *pOuterWindow)
-                : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow))
+            WindowCore(Window *pOuterWindow) : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow))
             {
                 _window = (UIWindow *)getUIView();
 
@@ -61,8 +59,7 @@ namespace bdn
 
             UIWindow *getUIWindow() const { return _window; }
 
-            Rect adjustBounds(const Rect &requestedBounds,
-                              RoundType positionRoundType,
+            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override
             {
                 // we do not modify our frame. Just "adjust" the specified
@@ -70,10 +67,7 @@ namespace bdn
                 return iosRectToRect(_window.frame);
             }
 
-            void setTitle(const String &title) override
-            {
-                _window.rootViewController.title = stringToIosString(title);
-            }
+            void setTitle(const String &title) override { _window.rootViewController.title = stringToIosString(title); }
 
             void invalidateSizingInfo(View::InvalidateReason reason) override
             {
@@ -84,11 +78,9 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pOuterView->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(
-                            pOuterView);
+                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
                 }
             }
 
@@ -96,20 +88,16 @@ namespace bdn
             {
                 P<View> pOuterView = getOuterViewIfStillAttached();
                 if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(
-                        View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(
-                        View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                 if (pWindow != nullptr)
-                    return defaultWindowCalcPreferredSizeImpl(
-                        pWindow, availableSpace, Margin(), Size());
+                    return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, Margin(), Size());
                 else
                     return Size(0, 0);
             }
@@ -126,11 +114,9 @@ namespace bdn
                 // TODO: Why request auto size if we are not able to resize ?
                 P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                 if (pWindow != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pWindow->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()
-                            ->windowNeedsAutoSizing(pWindow);
+                        pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
                 }
             }
 
@@ -138,11 +124,9 @@ namespace bdn
             {
                 P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                 if (pWindow != nullptr) {
-                    P<UiProvider> pProvider =
-                        tryCast<UiProvider>(pWindow->getUiProvider());
+                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
                     if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->windowNeedsCentering(
-                            pWindow);
+                        pProvider->getLayoutCoordinator()->windowNeedsCentering(pWindow);
                 }
             }
 
@@ -192,10 +176,8 @@ namespace bdn
                     }
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
                     else {
-                        topBarHeight =
-                            _window.rootViewController.topLayoutGuide.length;
-                        bottomBarHeight =
-                            _window.rootViewController.bottomLayoutGuide.length;
+                        topBarHeight = _window.rootViewController.topLayoutGuide.length;
+                        bottomBarHeight = _window.rootViewController.bottomLayoutGuide.length;
                     }
 #endif
 

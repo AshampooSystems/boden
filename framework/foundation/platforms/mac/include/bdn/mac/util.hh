@@ -24,8 +24,7 @@ namespace bdn
 
             If coordinateSpaceHeightForFlipping is -1 then no flipping is done.
             */
-        inline Rect macRectToRect(const NSRect &rect,
-                                  int coordinateSpaceHeightForFlipping)
+        inline Rect macRectToRect(const NSRect &rect, int coordinateSpaceHeightForFlipping)
         {
             // the mac uses DIPs, just like us. So no conversion necessary,
             // except possibly for coordinate flipping
@@ -62,8 +61,7 @@ namespace bdn
 
             If coordinateSpaceHeightForFlipping is -1 then no flipping is done.
             */
-        inline NSRect rectToMacRect(const Rect &rect,
-                                    int coordinateSpaceHeightForFlipping)
+        inline NSRect rectToMacRect(const Rect &rect, int coordinateSpaceHeightForFlipping)
         {
             // the mac uses DIPs, just like us. So no conversion necessary,
             // except possibly for coordinate flipping
@@ -79,8 +77,7 @@ namespace bdn
                 // see macRectToRect for an explanation.
 
                 macRect.origin.y += macRect.size.height;
-                macRect.origin.y =
-                    coordinateSpaceHeightForFlipping - macRect.origin.y;
+                macRect.origin.y = coordinateSpaceHeightForFlipping - macRect.origin.y;
             }
 
             return macRect;
@@ -104,18 +101,11 @@ namespace bdn
             return macSize;
         }
 
-        inline NSString *stringToMacString(const String &val)
-        {
-            return bdn::fk::stringToNSString(val);
-        }
+        inline NSString *stringToMacString(const String &val) { return bdn::fk::stringToNSString(val); }
 
-        inline String macStringToString(NSString *nsString)
-        {
-            return bdn::fk::nsStringToString(nsString);
-        }
+        inline String macStringToString(NSString *nsString) { return bdn::fk::nsStringToString(nsString); }
 
-#if defined(MAC_OS_X_VERSION_10_13) &&                                         \
-    MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
+#if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
 
         inline NSControlStateValue triStateToNSControlStateValue(TriState state)
             __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_NA)
@@ -131,8 +121,7 @@ namespace bdn
             return NSControlStateValueOff;
         }
 
-        inline TriState
-        nsControlStateValueToTriState(NSControlStateValue nsState)
+        inline TriState nsControlStateValueToTriState(NSControlStateValue nsState)
             __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_NA)
         {
             switch (nsState) {

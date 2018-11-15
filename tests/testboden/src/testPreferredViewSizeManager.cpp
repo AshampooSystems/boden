@@ -5,8 +5,7 @@
 
 using namespace bdn;
 
-static void verifyGet(PreferredViewSizeManager &man, const Size &availableSpace,
-                      const Size &expectedResultSize)
+static void verifyGet(PreferredViewSizeManager &man, const Size &availableSpace, const Size &expectedResultSize)
 {
     Size resultSize;
     bool succeeded = man.get(availableSpace, resultSize);
@@ -15,8 +14,7 @@ static void verifyGet(PreferredViewSizeManager &man, const Size &availableSpace,
     REQUIRE(succeeded == (expectedResultSize != Size::none()));
 }
 
-static void verifyGetFails(PreferredViewSizeManager &man,
-                           const Size &availableSpace)
+static void verifyGetFails(PreferredViewSizeManager &man, const Size &availableSpace)
 {
     verifyGet(man, availableSpace, Size::none());
 }

@@ -25,10 +25,7 @@ namespace bdn
 #if defined(__ppc64__) || defined(__ppc__)
 
             if (bdn::_isDebuggerActive()) {
-                __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n"
-                        :
-                        :
-                        : "memory", "r0", "r3", "r4");
+                __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" : : : "memory", "r0", "r3", "r4");
             }
 
 #else
@@ -74,8 +71,7 @@ namespace bdn
             mib[3] = getpid();
 
             size = sizeof(info);
-            if (sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr,
-                       0) != 0) {
+            if (sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0) != 0) {
                 // unable to determine if debugger is running. Assuming that it
                 // is not.
                 return false;
@@ -87,9 +83,6 @@ namespace bdn
 
             return active;
         }
-        bool MacHooks::debuggerPrintGoesToStdErr()
-        {
-            return !getAppRunner()->isCommandLineApp();
-        }
+        bool MacHooks::debuggerPrintGoesToStdErr() { return !getAppRunner()->isCommandLineApp(); }
     }
 }

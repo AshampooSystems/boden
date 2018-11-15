@@ -33,12 +33,10 @@ TEST_CASE("SimpleNotifier")
 
         bool subscriptionDataDeleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionDataDeleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionDataDeleted);
 
         P<INotifierSubscription> pSub =
-            pNotifier->subscribe([&gotParam, pTestSubscriptionData](
-                                     String param) { gotParam.add(param); });
+            pNotifier->subscribe([&gotParam, pTestSubscriptionData](String param) { gotParam.add(param); });
 
         pTestSubscriptionData = nullptr;
         // the subscription data should still be alive because it was
@@ -90,11 +88,10 @@ TEST_CASE("SimpleNotifier")
 
         bool subscriptionDataDeleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionDataDeleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionDataDeleted);
 
-        P<INotifierSubscription> pSub = pNotifier->subscribeParamless(
-            [&callCount, pTestSubscriptionData]() { callCount++; });
+        P<INotifierSubscription> pSub =
+            pNotifier->subscribeParamless([&callCount, pTestSubscriptionData]() { callCount++; });
 
         pTestSubscriptionData = nullptr;
         // the subscription data should still be alive because it was
@@ -147,30 +144,24 @@ TEST_CASE("SimpleNotifier")
 
         bool subscriptionData1Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData1 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData1Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData2 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData2Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData3 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData3Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
         P<INotifierSubscription> pSub1 =
-            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](
-                                     String param) { gotParam1.add(param); });
+            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
 
         P<INotifierSubscription> pSub2 =
-            pNotifier->subscribe([&gotParam2, pTestSubscriptionData2](
-                                     String param) { gotParam2.add(param); });
+            pNotifier->subscribe([&gotParam2, pTestSubscriptionData2](String param) { gotParam2.add(param); });
 
         P<INotifierSubscription> pSub3 =
-            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](
-                                     String param) { gotParam3.add(param); });
+            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
 
         pTestSubscriptionData1 = nullptr;
         pTestSubscriptionData2 = nullptr;
@@ -249,25 +240,21 @@ TEST_CASE("SimpleNotifier")
 
         bool subscriptionData1Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData1 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData1Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData2 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData2Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData3 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData3Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
         P<INotifierSubscription> pSub1 =
-            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](
-                                     String param) { gotParam1.add(param); });
+            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
 
-        P<INotifierSubscription> pSub2 = pNotifier->subscribe(
-            [&gotParam2, pTestSubscriptionData2, pNotifier](String param) {
+        P<INotifierSubscription> pSub2 =
+            pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, pNotifier](String param) {
                 gotParam2.add(param);
 
                 if (gotParam2.size() == 1)
@@ -275,8 +262,7 @@ TEST_CASE("SimpleNotifier")
             });
 
         P<INotifierSubscription> pSub3 =
-            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](
-                                     String param) { gotParam3.add(param); });
+            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
 
         pTestSubscriptionData1 = nullptr;
         pTestSubscriptionData2 = nullptr;
@@ -307,40 +293,31 @@ TEST_CASE("SimpleNotifier")
 
         bool subscriptionData1Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData1 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData1Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData2 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData2Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
         P<SimpleNotifierTestSubscriptionData> pTestSubscriptionData3 =
-            newObj<SimpleNotifierTestSubscriptionData>(
-                &subscriptionData3Deleted);
+            newObj<SimpleNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
         SECTION("unsub following")
         {
-            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
-                [&gotParam1, pTestSubscriptionData1](String param) {
-                    gotParam1.add(param);
-                });
+            P<INotifierSubscription> pSub1 =
+                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
 
             P<INotifierSubscription> pSub3;
 
             P<INotifierSubscription> pSub2 =
-                pNotifier->subscribe([&gotParam2, pTestSubscriptionData2,
-                                      &pSub3, &pNotifier](String param) {
+                pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, &pSub3, &pNotifier](String param) {
                     gotParam2.add(param);
 
                     pNotifier->unsubscribe(pSub3);
                 });
 
-            pSub3 = pNotifier->subscribe(
-                [&gotParam3, pTestSubscriptionData3](String param) {
-                    gotParam3.add(param);
-                });
+            pSub3 = pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
 
             pTestSubscriptionData1 = nullptr;
             pTestSubscriptionData2 = nullptr;
@@ -370,24 +347,19 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsub current")
         {
-            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
-                [&gotParam1, pTestSubscriptionData1](String param) {
-                    gotParam1.add(param);
-                });
+            P<INotifierSubscription> pSub1 =
+                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
 
             P<INotifierSubscription> pSub2;
 
-            pSub2 = pNotifier->subscribe([&gotParam2, pTestSubscriptionData2,
-                                          &pSub2, &pNotifier](String param) {
+            pSub2 = pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, &pSub2, &pNotifier](String param) {
                 gotParam2.add(param);
 
                 pNotifier->unsubscribe(pSub2);
             });
 
-            P<INotifierSubscription> pSub3 = pNotifier->subscribe(
-                [&gotParam3, pTestSubscriptionData3](String param) {
-                    gotParam3.add(param);
-                });
+            P<INotifierSubscription> pSub3 =
+                pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
 
             pTestSubscriptionData1 = nullptr;
             pTestSubscriptionData2 = nullptr;
@@ -418,22 +390,18 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsub all")
         {
-            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
-                [&gotParam1, pTestSubscriptionData1](String param) {
-                    gotParam1.add(param);
-                });
+            P<INotifierSubscription> pSub1 =
+                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
 
-            P<INotifierSubscription> pSub2 = pNotifier->subscribe(
-                [&gotParam2, pTestSubscriptionData2, pNotifier](String param) {
+            P<INotifierSubscription> pSub2 =
+                pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, pNotifier](String param) {
                     gotParam2.add(param);
 
                     pNotifier->unsubscribeAll();
                 });
 
-            P<INotifierSubscription> pSub3 = pNotifier->subscribe(
-                [&gotParam3, pTestSubscriptionData3](String param) {
-                    gotParam3.add(param);
-                });
+            P<INotifierSubscription> pSub3 =
+                pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
 
             pTestSubscriptionData1 = nullptr;
             pTestSubscriptionData2 = nullptr;

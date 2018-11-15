@@ -8,8 +8,7 @@
 
 using namespace bdn;
 
-void verifyErrorCodeMapping(int errorCode,
-                            const std::list<int> &expectedPosixCodeList)
+void verifyErrorCodeMapping(int errorCode, const std::list<int> &expectedPosixCodeList)
 {
     const std::error_category &cat = std::system_category();
 
@@ -28,8 +27,7 @@ void verifyErrorCodeMapping(int errorCode,
 
 struct ExpectedMapping
 {
-    ExpectedMapping(const String &sectionName, int errorCode,
-                    std::list<int> posixCodeList)
+    ExpectedMapping(const String &sectionName, int errorCode, std::list<int> posixCodeList)
     {
         this->sectionName = sectionName;
         this->errorCode = errorCode;
@@ -41,8 +39,7 @@ struct ExpectedMapping
     std::list<int> posixCodeList;
 };
 
-#define EXPECTED_MAPPING(errorCode, ...)                                       \
-    ExpectedMapping(#errorCode " in " #__VA_ARGS__, errorCode, __VA_ARGS__)
+#define EXPECTED_MAPPING(errorCode, ...) ExpectedMapping(#errorCode " in " #__VA_ARGS__, errorCode, __VA_ARGS__)
 
 void testErrorCodeMapping()
 {
@@ -67,8 +64,7 @@ void testErrorCodeMapping()
 
     for (auto expectedMapping : expectedMappings) {
         SECTION(expectedMapping.sectionName)
-        verifyErrorCodeMapping(expectedMapping.errorCode,
-                               expectedMapping.posixCodeList);
+        verifyErrorCodeMapping(expectedMapping.errorCode, expectedMapping.posixCodeList);
     }
 }
 
@@ -96,9 +92,8 @@ void verifyNotFoundSystemSysError(const SystemError &err)
 
 void testWin32ErrorCodeToSystemError()
 {
-    SystemError err = bdn::win32::win32ErrorCodeToSystemError(
-        ERROR_FILE_NOT_FOUND,
-        ErrorFields().add("bla", "blub").add("gubbel", "hurz"));
+    SystemError err = bdn::win32::win32ErrorCodeToSystemError(ERROR_FILE_NOT_FOUND,
+                                                              ErrorFields().add("bla", "blub").add("gubbel", "hurz"));
 
     verifyNotFoundSystemSysError(err);
 }
@@ -117,8 +112,7 @@ void testThrowLastError()
         ::SetLastError(ERROR_FILE_NOT_FOUND);
 
         try {
-            BDN_WIN32_throwLastError(
-                ErrorFields().add("bla", "blub").add("gubbel", "hurz"));
+            BDN_WIN32_throwLastError(ErrorFields().add("bla", "blub").add("gubbel", "hurz"));
 
             REQUIRE(false);
         }
@@ -136,12 +130,11 @@ void testThrowLastError()
             // then call BDN_throwLastSysError with a parameter object that will
             // modify the last sys error
 
-            BDN_WIN32_throwLastError(
-                ErrorFields()
-                    // construct the ErrorFields object in a way so that it
-                    // modifies the last error
-                    .add(setAccessError() ? "bla" : "blax", "blub")
-                    .add("gubbel", "hurz"));
+            BDN_WIN32_throwLastError(ErrorFields()
+                                         // construct the ErrorFields object in a way so that it
+                                         // modifies the last error
+                                         .add(setAccessError() ? "bla" : "blax", "blub")
+                                         .add("gubbel", "hurz"));
 
             REQUIRE(false);
         }

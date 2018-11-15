@@ -12,12 +12,11 @@ namespace bdn
        IPropertyNotifier decription for more info).
     */
     template <typename PROPERTY_VALUE_TYPE>
-    class PropertyNotifier
-        : public NotifierBase<DummyMutex, const PROPERTY_VALUE_TYPE &>
+    class PropertyNotifier : public NotifierBase<DummyMutex, const PROPERTY_VALUE_TYPE &>
         // note that we use DummyMutex (i.e. no actual mutex operations will
         // happen)
         ,
-          BDN_IMPLEMENTS IPropertyNotifier<PROPERTY_VALUE_TYPE>
+                             BDN_IMPLEMENTS IPropertyNotifier<PROPERTY_VALUE_TYPE>
     {
       private:
         using BASE = NotifierBase<DummyMutex, const PROPERTY_VALUE_TYPE &>;
@@ -27,12 +26,10 @@ namespace bdn
 
         ~PropertyNotifier() {}
 
-        void notify(const IPropertyReadAccessor<PROPERTY_VALUE_TYPE>
-                        &propertyAccessor) override
+        void notify(const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &propertyAccessor) override
         {
-            BASE::template notifyImpl<
-                decltype(&PropertyNotifier::callPropertySubscriber),
-                const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &>(
+            BASE::template notifyImpl<decltype(&PropertyNotifier::callPropertySubscriber),
+                                      const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &>(
                 &PropertyNotifier::callPropertySubscriber, propertyAccessor);
         }
 
@@ -41,10 +38,8 @@ namespace bdn
             Call maker ensures that the current value of a property is provided
            to subscribers even if a property is set recursively from within a
            subscriber method.*/
-        static void callPropertySubscriber(
-            const std::function<void(const PROPERTY_VALUE_TYPE &)>
-                &subscribedFunc,
-            const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &propertyAccessor)
+        static void callPropertySubscriber(const std::function<void(const PROPERTY_VALUE_TYPE &)> &subscribedFunc,
+                                           const IPropertyReadAccessor<PROPERTY_VALUE_TYPE> &propertyAccessor)
         {
             subscribedFunc(propertyAccessor.get());
         }

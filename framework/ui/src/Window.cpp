@@ -13,10 +13,7 @@ namespace bdn
         // windows are invisible by default
         setVisible(false);
 
-        _pUiProvider =
-            (pUiProvider != nullptr)
-                ? pUiProvider
-                : UiAppControllerBase::get()->getUiProvider().getPtr();
+        _pUiProvider = (pUiProvider != nullptr) ? pUiProvider : UiAppControllerBase::get()->getUiProvider().getPtr();
 
         reinitCore();
     }

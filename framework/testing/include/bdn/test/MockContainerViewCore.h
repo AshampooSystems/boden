@@ -23,17 +23,14 @@ namespace bdn
           public:
             MockContainerViewCore(ContainerView *pView) : MockViewCore(pView) {}
 
-            Size calcPreferredSize(
-                const Size &availableSpace = Size::none()) const override
+            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
                 // call the outer container's preferred size calculation
-                P<ContainerView> pOuterView =
-                    cast<ContainerView>(getOuterViewIfStillAttached());
+                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
                 if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(
-                        availableSpace);
+                    return pOuterView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -45,11 +42,9 @@ namespace bdn
                 _layoutCount++;
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<ContainerView> pView =
-                        cast<ContainerView>(getOuterViewIfStillAttached());
+                    P<ContainerView> pView = cast<ContainerView>(getOuterViewIfStillAttached());
 
-                    P<ViewLayout> pLayout =
-                        pView->calcContainerLayout(pView->size());
+                    P<ViewLayout> pLayout = pView->calcContainerLayout(pView->size());
                     pLayout->applyTo(pView);
                 }
             }

@@ -17,8 +17,7 @@ namespace bdn
 
         String JObject::getCanonicalClassName_()
         {
-            jclass clazz =
-                Env::get().getJniEnv()->GetObjectClass(getJObject_());
+            jclass clazz = Env::get().getJniEnv()->GetObjectClass(getJObject_());
 
             // GetObjectClass never throws java-side exceptions
 
@@ -30,14 +29,12 @@ namespace bdn
         bool JObject::isInstanceOf_(JClass &cls)
         {
             // never throws java-side exceptions
-            return Env::get().getJniEnv()->IsInstanceOf(
-                getJObject_(), (jclass)cls.getJObject_());
+            return Env::get().getJniEnv()->IsInstanceOf(getJObject_(), (jclass)cls.getJObject_());
         }
 
         bool JObject::isSameObject_(JObject &o)
         {
-            return Env::get().getJniEnv()->IsSameObject(getJObject_(),
-                                                        o.getJObject_());
+            return Env::get().getJniEnv()->IsSameObject(getJObject_(), o.getJObject_());
         }
     }
 }

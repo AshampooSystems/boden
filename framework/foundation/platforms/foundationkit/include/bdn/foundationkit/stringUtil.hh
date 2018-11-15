@@ -10,8 +10,7 @@ namespace bdn
 
         inline NSString *stringToNSString(const String &val)
         {
-            return [NSString stringWithCString:val.asUtf8Ptr()
-                                      encoding:NSUTF8StringEncoding];
+            return [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding];
         }
 
         inline String nsStringToString(NSString *nsString)

@@ -35,12 +35,9 @@ namespace bdn
            arguments \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(
-            std::function<P<AppControllerBase>()> appControllerCreator,
-            int argCount, char *args[], bool commandLineApp)
-            : AppRunnerBase(appControllerCreator,
-                            _makeLaunchInfo(argCount, args)),
-              _commandLineApp(commandLineApp)
+        GenericAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[],
+                         bool commandLineApp)
+            : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args)), _commandLineApp(commandLineApp)
         {
             _pDispatcher = newObj<GenericDispatcher>();
         }
@@ -50,11 +47,9 @@ namespace bdn
            information \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(
-            std::function<P<AppControllerBase>()> appControllerCreator,
-            const AppLaunchInfo &launchInfo, bool commandLineApp)
-            : AppRunnerBase(appControllerCreator, launchInfo),
-              _commandLineApp(commandLineApp)
+        GenericAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, const AppLaunchInfo &launchInfo,
+                         bool commandLineApp)
+            : AppRunnerBase(appControllerCreator, launchInfo), _commandLineApp(commandLineApp)
         {
             _pDispatcher = newObj<GenericDispatcher>();
         }

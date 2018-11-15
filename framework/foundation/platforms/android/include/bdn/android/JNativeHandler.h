@@ -23,16 +23,13 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeHandler(const bdn::java::Reference &javaRef)
-                : JHandler(javaRef)
-            {}
+            explicit JNativeHandler(const bdn::java::Reference &javaRef) : JHandler(javaRef) {}
 
             static JNativeHandler getMainNativeHandler()
             {
                 static bdn::java::MethodId methodId;
 
-                return invokeStatic_<JNativeHandler>(
-                    getStaticClass_(), methodId, "getMainNativeHandler");
+                return invokeStatic_<JNativeHandler>(getStaticClass_(), methodId, "getMainNativeHandler");
             }
 
             /** Returns the JClass object for this class.
@@ -51,10 +48,7 @@ namespace bdn
                 return cls;
             }
 
-            bdn::java::JClass &getClass_() override
-            {
-                return getStaticClass_();
-            }
+            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

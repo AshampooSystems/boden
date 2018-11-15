@@ -16,14 +16,12 @@ namespace bdn
         using Type = std::forward_iterator_tag;
     };
 
-    template <>
-    struct Utf8CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
+    template <> struct Utf8CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
     {
         using Type = std::bidirectional_iterator_tag;
     };
 
-    template <>
-    struct Utf8CodecImplIteratorCategory_<std::random_access_iterator_tag>
+    template <> struct Utf8CodecImplIteratorCategory_<std::random_access_iterator_tag>
     {
         // when the source iterator is random access then the resulting
         // iterator is bidir (since we do not know the size of the encoded
@@ -73,8 +71,7 @@ namespace bdn
             \return the decoded character or 0xfffd in case of an error (see
            above for more information).
         */
-        template <typename IteratorType>
-        static char32_t decodeChar(IteratorType &it, const IteratorType &endIt)
+        template <typename IteratorType> static char32_t decodeChar(IteratorType &it, const IteratorType &endIt)
         {
             if (it == endIt)
                 return 0xfffd;
@@ -132,8 +129,7 @@ namespace bdn
                     // only consume a single byte.
                     it = secondByteIt;
                 } else {
-                    chr |= (((char32_t)firstByte) & (mask - 1))
-                           << ((length - 1) * 6);
+                    chr |= (((char32_t)firstByte) & (mask - 1)) << ((length - 1) * 6);
                 }
 
                 return chr;
@@ -151,8 +147,7 @@ namespace bdn
         {
           public:
             using iterator_category = typename Utf8CodecImplIteratorCategory_<
-                typename std::iterator_traits<
-                    SourceIterator>::iterator_category>::Type;
+                typename std::iterator_traits<SourceIterator>::iterator_category>::Type;
             using value_type = char32_t;
             using difference_type = std::ptrdiff_t;
             using pointer = const char32_t *;
@@ -191,8 +186,7 @@ namespace bdn
                element). The implementation uses this to avoid overshooting the
                data boundaries if the UTF-8 data is corrupted.
                     */
-            DecodingIterator(const SourceIterator &sourceIt,
-                             const SourceIterator &beginSourceIt,
+            DecodingIterator(const SourceIterator &sourceIt, const SourceIterator &beginSourceIt,
                              const SourceIterator &endSourceIt)
             {
                 _sourceIt = sourceIt;
@@ -283,15 +277,9 @@ namespace bdn
                 return _chr;
             }
 
-            bool operator==(const DecodingIterator &o) const
-            {
-                return (_sourceIt == o._sourceIt);
-            }
+            bool operator==(const DecodingIterator &o) const { return (_sourceIt == o._sourceIt); }
 
-            bool operator!=(const DecodingIterator &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const DecodingIterator &o) const { return !operator==(o); }
 
             /** Returns an iterator to the inner encoded string that the
                decoding iterator is working on. The inner iterator points to the
@@ -317,8 +305,7 @@ namespace bdn
 
         /** A decoding iterator that works on the iterator type of the encoded
            standard string type #EncodedString.*/
-        typedef DecodingIterator<EncodedString::const_iterator>
-            DecodingStringIterator;
+        typedef DecodingIterator<EncodedString::const_iterator> DecodingStringIterator;
 
         /** Encodes unicode characters (char32_t) from an arbitary source
          * iterator to UTF-8 (char elements).*/
@@ -326,8 +313,7 @@ namespace bdn
         {
           public:
             using iterator_category = typename Utf8CodecImplIteratorCategory_<
-                typename std::iterator_traits<
-                    SourceIterator>::iterator_category>::Type;
+                typename std::iterator_traits<SourceIterator>::iterator_category>::Type;
             using value_type = char;
             using difference_type = std::ptrdiff_t;
             using pointer = const char *;
@@ -445,10 +431,7 @@ namespace bdn
                 return false;
             }
 
-            bool operator!=(const EncodingIterator &o) const
-            {
-                return !operator==(o);
-            }
+            bool operator!=(const EncodingIterator &o) const { return !operator==(o); }
 
           protected:
             void encode() const
@@ -477,9 +460,7 @@ namespace bdn
                         _offset--;
                     } while ((chr & firstBytePayloadMask) != chr);
 
-                    _encoded[_offset] =
-                        (uint8_t)(((~firstBytePayloadMask) << 1) |
-                                  (chr & firstBytePayloadMask));
+                    _encoded[_offset] = (uint8_t)(((~firstBytePayloadMask) << 1) | (chr & firstBytePayloadMask));
                 }
 
                 // end marker

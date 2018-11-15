@@ -10,14 +10,12 @@
 
 using namespace bdn;
 
-class TestAndroidCheckboxCore
-    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>
+class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>
 {
   protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<
-            bdn::test::TestCheckboxCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
         _jCheckBox = bdn::android::JCheckBox(_jView.getRef_());
     }
@@ -32,9 +30,7 @@ class TestAndroidCheckboxCore
     void verifyCoreState() override
     {
         TriState expectedState = _pCheckbox->state();
-        TriState state =
-            cast<bdn::android::CheckboxCore<Checkbox>>(_pAndroidViewCore)
-                ->getState();
+        TriState state = cast<bdn::android::CheckboxCore<Checkbox>>(_pAndroidViewCore)->getState();
         REQUIRE(state == expectedState);
     }
 

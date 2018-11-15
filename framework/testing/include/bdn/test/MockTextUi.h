@@ -27,10 +27,7 @@ namespace bdn
                list. The writeLine routines add a newline at the end of the
                written text.
                 */
-            const Array<String> &getWrittenOutputChunks() const
-            {
-                return _pOutputSink->getWrittenChunks();
-            }
+            const Array<String> &getWrittenOutputChunks() const { return _pOutputSink->getWrittenChunks(); }
 
             /** Returns the list of text chunks that have been written to the
                statusOrProblem text sink. Each write call creates a new entry in
@@ -42,15 +39,9 @@ namespace bdn
                 return _pStatusOrProblemSink->getWrittenChunks();
             }
 
-            P<IAsyncOp<String>> readLine() override
-            {
-                throw NotImplementedError("MockTextUi::readLine");
-            }
+            P<IAsyncOp<String>> readLine() override { throw NotImplementedError("MockTextUi::readLine"); }
 
-            P<ITextSink> statusOrProblem() override
-            {
-                return _pStatusOrProblemSink;
-            }
+            P<ITextSink> statusOrProblem() override { return _pStatusOrProblemSink; }
 
             P<ITextSink> output() override { return _pOutputSink; }
 

@@ -16,9 +16,7 @@ namespace bdn
             AppLaunchInfo _makeLaunchInfo(int argCount, char *args[]);
 
           public:
-            UiAppRunner(
-                std::function<P<AppControllerBase>()> appControllerCreator,
-                int argCount, char *args[]);
+            UiAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[]);
 
             bool isCommandLineApp() const override;
 
@@ -26,10 +24,7 @@ namespace bdn
 
             void initiateExitIfPossible(int exitCode) override;
 
-            P<IDispatcher> getMainDispatcher() override
-            {
-                return _pMainDispatcher;
-            }
+            P<IDispatcher> getMainDispatcher() override { return _pMainDispatcher; }
 
             void disposeMainDispatcher() override;
 

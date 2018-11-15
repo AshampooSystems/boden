@@ -15,11 +15,7 @@ namespace bdn
         class ButtonCoreBase : public ChildViewCore
         {
           public:
-            ButtonCoreBase(View *pOuter, NSButton *nsButton)
-                : ChildViewCore(pOuter, nsButton)
-            {
-                _nsButton = nsButton;
-            }
+            ButtonCoreBase(View *pOuter, NSButton *nsButton) : ChildViewCore(pOuter, nsButton) { _nsButton = nsButton; }
 
             void setLabel(const String &label)
             {
@@ -28,10 +24,7 @@ namespace bdn
             }
 
           protected:
-            double getFontSize() const override
-            {
-                return _nsButton.font.pointSize;
-            }
+            double getFontSize() const override { return _nsButton.font.pointSize; }
 
             NSButton *_nsButton;
         };

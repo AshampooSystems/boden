@@ -8,8 +8,7 @@
 using namespace bdn;
 
 template <typename STREAM_TYPE, typename FORMAT_REF, typename GET_STRING_FUNC>
-static void _verifyAutoFloat(STREAM_TYPE &stream, FORMAT_REF &&format,
-                             GET_STRING_FUNC getStringFunc)
+static void _verifyAutoFloat(STREAM_TYPE &stream, FORMAT_REF &&format, GET_STRING_FUNC getStringFunc)
 {
     SECTION("123456.125")
     {
@@ -37,12 +36,10 @@ static void _verifyAutoFloat(STREAM_TYPE &stream, FORMAT_REF &&format,
 }
 
 template <typename FORMAT_REF, typename CHAR_TYPE,
-          typename STREAM_TYPE =
-              std::basic_ostream<CHAR_TYPE, std::char_traits<CHAR_TYPE>>>
+          typename STREAM_TYPE = std::basic_ostream<CHAR_TYPE, std::char_traits<CHAR_TYPE>>>
 static void _testStreamFormatEffect(FORMAT_REF &&format)
 {
-    std::basic_stringbuf<CHAR_TYPE, typename STREAM_TYPE::traits_type>
-        streamBuffer;
+    std::basic_stringbuf<CHAR_TYPE, typename STREAM_TYPE::traits_type> streamBuffer;
     STREAM_TYPE stream(&streamBuffer);
 
     stream.imbue(std::locale::classic());
@@ -52,9 +49,7 @@ static void _testStreamFormatEffect(FORMAT_REF &&format)
     auto precisionBefore = stream.precision();
     auto fillCharBefore = stream.fill();
 
-    auto getString = [&streamBuffer]() {
-        return String(streamBuffer.str().c_str());
-    };
+    auto getString = [&streamBuffer]() { return String(streamBuffer.str().c_str()); };
 
     SECTION("nothing")
     {
@@ -200,21 +195,18 @@ static void _testStreamFormatEffect(FORMAT_REF &&format)
         SECTION("auto")
         {
             SECTION("no call")
-            _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format),
-                             getString);
+            _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format), getString);
 
             SECTION("autoFloat called")
             {
                 format.autoFloat(6);
-                _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format),
-                                 getString);
+                _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format), getString);
             }
 
             SECTION("autoFloat after scientificFloat")
             {
                 format.scientificFloat(9).autoFloat(6);
-                _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format),
-                                 getString);
+                _verifyAutoFloat(stream, std::forward<FORMAT_REF>(format), getString);
             }
         }
 
@@ -319,15 +311,13 @@ static void _testStreamFormatEffect(FORMAT_REF &&format)
                 {
                     SECTION("1234567.125")
                     {
-                        stream << format.simpleFloat(0).forcePoint()
-                               << 1234567.125;
+                        stream << format.simpleFloat(0).forcePoint() << 1234567.125;
                         REQUIRE(getString() == "1234567.");
                     }
 
                     SECTION("-1234567.125")
                     {
-                        stream << format.simpleFloat(0).forcePoint()
-                               << -1234567.125;
+                        stream << format.simpleFloat(0).forcePoint() << -1234567.125;
                         REQUIRE(getString() == "-1234567.");
                     }
                 }
@@ -355,8 +345,7 @@ static void _testStreamFormatEffect(FORMAT_REF &&format)
     REQUIRE(stream.fill() == fillCharBefore);
 }
 
-template <typename FORMAT_REF>
-static void _testStreamFormat(FORMAT_REF &&format, bool expectedRValue)
+template <typename FORMAT_REF> static void _testStreamFormat(FORMAT_REF &&format, bool expectedRValue)
 {
     // verify that the test setup is as expected
     bool isRValue = std::is_rvalue_reference<decltype(format)>::value;
@@ -389,10 +378,8 @@ static void _testStreamFormat(FORMAT_REF &&format, bool expectedRValue)
         REQUIRE(format.precision() == -1);
         REQUIRE(format.padTo() == -1);
         REQUIRE(format.padChar() == StreamFormat::padCharNotSet);
-        REQUIRE(format.flags() ==
-                (std::ios_base::hex | std::ios_base::showbase));
-        REQUIRE(format.flagsMask() ==
-                (std::ios_base::basefield | std::ios_base::showbase));
+        REQUIRE(format.flags() == (std::ios_base::hex | std::ios_base::showbase));
+        REQUIRE(format.flagsMask() == (std::ios_base::basefield | std::ios_base::showbase));
     }
 
     SECTION("zeroPad")
@@ -518,8 +505,7 @@ static void _testStreamFormat(FORMAT_REF &&format, bool expectedRValue)
 
     SECTION("setFlags")
     {
-        format.setFlags((std::ios_base::fmtflags)0x12345678,
-                        (std::ios_base::fmtflags)0x76543210);
+        format.setFlags((std::ios_base::fmtflags)0x12345678, (std::ios_base::fmtflags)0x76543210);
 
         REQUIRE(format.precision() == -1);
         REQUIRE(format.padTo() == -1);
@@ -542,24 +528,19 @@ static void _testStreamFormat(FORMAT_REF &&format, bool expectedRValue)
     SECTION("effect")
     {
         SECTION("char")
-        _testStreamFormatEffect<FORMAT_REF, char>(
-            std::forward<FORMAT_REF>(format));
+        _testStreamFormatEffect<FORMAT_REF, char>(std::forward<FORMAT_REF>(format));
 
         SECTION("wchar_t")
-        _testStreamFormatEffect<FORMAT_REF, wchar_t>(
-            std::forward<FORMAT_REF>(format));
+        _testStreamFormatEffect<FORMAT_REF, wchar_t>(std::forward<FORMAT_REF>(format));
 
         SECTION("char32_t")
         {
             SECTION("basic_ostream")
-            _testStreamFormatEffect<
-                FORMAT_REF, char32_t,
-                std::basic_ostream<char32_t, UnicodeCharTraits>>(
+            _testStreamFormatEffect<FORMAT_REF, char32_t, std::basic_ostream<char32_t, UnicodeCharTraits>>(
                 std::forward<FORMAT_REF>(format));
 
             SECTION("TextOutStream")
-            _testStreamFormatEffect<FORMAT_REF, char32_t, TextOutStream>(
-                std::forward<FORMAT_REF>(format));
+            _testStreamFormatEffect<FORMAT_REF, char32_t, TextOutStream>(std::forward<FORMAT_REF>(format));
         }
     }
 }

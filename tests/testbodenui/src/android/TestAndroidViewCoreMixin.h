@@ -13,53 +13,44 @@ namespace bdn
         /** A mixin class that adds implementations of android view specific
          functionality on top of the base class specified in the template
          parameter BaseClass.*/
-        template <class BaseClass>
-        class TestAndroidViewCoreMixin : public BaseClass
+        template <class BaseClass> class TestAndroidViewCoreMixin : public BaseClass
         {
           protected:
             void initCore() override
             {
                 BaseClass::initCore();
 
-                _pAndroidViewCore = cast<bdn::android::ViewCore>(
-                    BaseClass::_pView->getViewCore());
+                _pAndroidViewCore = cast<bdn::android::ViewCore>(BaseClass::_pView->getViewCore());
                 REQUIRE(_pAndroidViewCore != nullptr);
 
                 _jView = _pAndroidViewCore->getJView();
                 REQUIRE(!_jView.isNull_());
             }
 
-            IUiProvider &getUiProvider() override
-            {
-                return bdn::android::UiProvider::get();
-            }
+            IUiProvider &getUiProvider() override { return bdn::android::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
                 bool expectedVisible = BaseClass::_pView->visible();
 
                 if (expectedVisible)
-                    REQUIRE(_jView.getVisibility() ==
-                            bdn::android::JView::Visibility::visible);
+                    REQUIRE(_jView.getVisibility() == bdn::android::JView::Visibility::visible);
                 else
-                    REQUIRE(_jView.getVisibility() ==
-                            bdn::android::JView::Visibility::invisible);
+                    REQUIRE(_jView.getVisibility() == bdn::android::JView::Visibility::invisible);
             }
 
             Point getViewPosition()
             {
                 double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-                return Point(_jView.getLeft() / scaleFactor,
-                             _jView.getTop() / scaleFactor);
+                return Point(_jView.getLeft() / scaleFactor, _jView.getTop() / scaleFactor);
             }
 
             Size getViewSize()
             {
                 double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-                return Size(_jView.getWidth() / scaleFactor,
-                            _jView.getHeight() / scaleFactor);
+                return Size(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
             }
 
             void verifyInitialDummyCoreSize() override
@@ -104,19 +95,14 @@ namespace bdn
                     return;
                 }
 
-                Margin expectedDipPadding =
-                    BaseClass::_pView->uiMarginToDipMargin(pad.get());
+                Margin expectedDipPadding = BaseClass::_pView->uiMarginToDipMargin(pad.get());
 
                 double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-                REQUIRE_ALMOST_EQUAL(top / scaleFactor, expectedDipPadding.top,
-                                     1);
-                REQUIRE_ALMOST_EQUAL(right / scaleFactor,
-                                     expectedDipPadding.right, 1);
-                REQUIRE_ALMOST_EQUAL(bottom / scaleFactor,
-                                     expectedDipPadding.bottom, 1);
-                REQUIRE_ALMOST_EQUAL(left / scaleFactor,
-                                     expectedDipPadding.left, 1);
+                REQUIRE_ALMOST_EQUAL(top / scaleFactor, expectedDipPadding.top, 1);
+                REQUIRE_ALMOST_EQUAL(right / scaleFactor, expectedDipPadding.right, 1);
+                REQUIRE_ALMOST_EQUAL(bottom / scaleFactor, expectedDipPadding.bottom, 1);
+                REQUIRE_ALMOST_EQUAL(left / scaleFactor, expectedDipPadding.left, 1);
             }
 
             P<bdn::android::ViewCore> _pAndroidViewCore;

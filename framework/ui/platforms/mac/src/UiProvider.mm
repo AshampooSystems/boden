@@ -26,9 +26,7 @@ namespace bdn
     P<IUiProvider> getDefaultUiProvider()
     {
         if (getAppRunner()->isCommandLineApp()) {
-            static P<StdioUiProvider<char>> pProvider(
-                newObj<StdioUiProvider<char>>(&std::cin, &std::cout,
-                                              &std::cerr));
+            static P<StdioUiProvider<char>> pProvider(newObj<StdioUiProvider<char>>(&std::cin, &std::cout, &std::cerr));
 
             return pProvider;
         } else {
@@ -62,18 +60,15 @@ namespace bdn
                     // we want the output of the text UI to go to both the
                     // View-based text UI, as well as the stdout/stderr streams.
 
-                    _pTextUi = newObj<TextUiCombiner>(
-                        newObj<ViewTextUi>(),
-                        newObj<StdioTextUi<char>>(&std::cin, &std::cout,
-                                                  &std::cerr));
+                    _pTextUi = newObj<TextUiCombiner>(newObj<ViewTextUi>(),
+                                                      newObj<StdioTextUi<char>>(&std::cin, &std::cout, &std::cerr));
                 }
             }
 
             return _pTextUi;
         }
 
-        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName,
-                                                View *pView)
+        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName, View *pView)
         {
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
                 return newObj<ContainerViewCore>(cast<ContainerView>(pView));

@@ -147,8 +147,7 @@ namespace bdn
         \endcode
 
     */
-    template <class... ArgTypes>
-    class IAsyncNotifier : BDN_IMPLEMENTS INotifierBase<ArgTypes...>
+    template <class... ArgTypes> class IAsyncNotifier : BDN_IMPLEMENTS INotifierBase<ArgTypes...>
     {
       public:
         /** Schedules a call to all subscribed functions with the specified

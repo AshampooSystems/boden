@@ -20,8 +20,7 @@ TEST_CASE("UiMargin")
 
     SECTION("constructAllIndividuallyUiLength")
     {
-        UiMargin a(UiLength::dip(1.1), UiLength::sem(2.2), UiLength::em(3.3),
-                   UiLength::dip(4.4));
+        UiMargin a(UiLength::dip(1.1), UiLength::sem(2.2), UiLength::em(3.3), UiLength::dip(4.4));
 
         REQUIRE(a.top == UiLength::dip(1.1));
         REQUIRE(a.right == UiLength::sem(2.2));

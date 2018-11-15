@@ -13,10 +13,7 @@ namespace bdn
         If pObject is nullptr then tryCast also returns nullptr.
 
         */
-    template <class DestType> DestType *tryCast(IBase *pObject)
-    {
-        return dynamic_cast<DestType *>(pObject);
-    }
+    template <class DestType> DestType *tryCast(IBase *pObject) { return dynamic_cast<DestType *>(pObject); }
 
     /** Tries to cast the specified object pointer to a DestType pointer
        (DestType is the template parameter). Returns nullptr if the object does

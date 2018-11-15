@@ -22,24 +22,16 @@ class TestViewTextUiFixture : public Base
     void doTest()
     {
         SECTION("output.writeLine")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(),
-                               &ITextSink::writeLine),
-                  "\n");
+        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::writeLine), "\n");
 
         SECTION("output.write")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(),
-                               &ITextSink::write),
-                  "");
+        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::write), "");
 
         SECTION("statusOrProblem.writeLine")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(),
-                               &ITextSink::writeLine),
-                  "\n");
+        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n");
 
         SECTION("statusOrProblem.writeError")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(),
-                               &ITextSink::write),
-                  "");
+        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::write), "");
     }
 
     String getWrittenText()
@@ -84,8 +76,7 @@ class TestViewTextUiFixture : public Base
         REQUIRE(text == expectedText);
     }
 
-    void testWrite(std::function<void(String)> writeFunc,
-                   String expectedWriteSuffix)
+    void testWrite(std::function<void(String)> writeFunc, String expectedWriteSuffix)
     {
         P<TestViewTextUiFixture> pThis = this;
 
@@ -95,8 +86,7 @@ class TestViewTextUiFixture : public Base
 
             // ViewTextUI updates the written text only 10 times per second.
             // So we need to wait until we can check it.
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, writeFunc,
-                                               expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, writeFunc, expectedWriteSuffix)
             {
                 // note that the expectedWriteSuffix (either linebreak or empty)
                 // only takes effect when the next line is begun.
@@ -107,9 +97,7 @@ class TestViewTextUiFixture : public Base
 
                 writeFunc("second");
 
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this,
-                                                   expectedText, writeFunc,
-                                                   expectedWriteSuffix)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText, writeFunc, expectedWriteSuffix)
                 {
                     String expectedText2 = expectedText + "second";
                     verifyWrittenText(expectedText2);
@@ -120,8 +108,7 @@ class TestViewTextUiFixture : public Base
 
                     expectedText2 += "third";
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this,
-                                                       expectedText2, writeFunc)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText2, writeFunc)
                     {
                         verifyWrittenText(expectedText2);
                     };
@@ -137,11 +124,9 @@ class TestViewTextUiFixture : public Base
             // is written. So we write another dummy string to force the write.
             _pUi->output()->write("X");
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this,
-                                               expectedWriteSuffix, writeFunc)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix, writeFunc)
             {
-                verifyWrittenText("hello\n\n\nworld\n" + expectedWriteSuffix +
-                                  "X");
+                verifyWrittenText("hello\n\n\nworld\n" + expectedWriteSuffix + "X");
             };
         }
 
@@ -150,23 +135,20 @@ class TestViewTextUiFixture : public Base
         {
             P<Signal> pSignal = newObj<Signal>();
 
-            std::future<void> thread1Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",first");
-                });
+            std::future<void> thread1Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",first");
+            });
 
-            std::future<void> thread2Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",second");
-                });
+            std::future<void> thread2Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",second");
+            });
 
-            std::future<void> thread3Result =
-                Thread::exec([writeFunc, pSignal]() {
-                    pSignal->wait();
-                    writeFunc(",third");
-                });
+            std::future<void> thread3Result = Thread::exec([writeFunc, pSignal]() {
+                pSignal->wait();
+                writeFunc(",third");
+            });
 
             // wait a little to ensure that all three threads are waiting on
             // out signal.
@@ -180,8 +162,7 @@ class TestViewTextUiFixture : public Base
             thread2Result.get();
             thread3Result.get();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this,
-                                               expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix)
             {
                 String result = getWrittenText();
 

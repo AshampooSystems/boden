@@ -35,9 +35,7 @@ namespace bdn
             }
 
           public:
-            explicit NativeWeakPointer(void *pPointer)
-                : JObject(newInstance(pPointer))
-            {}
+            explicit NativeWeakPointer(void *pPointer) : JObject(newInstance(pPointer)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -45,9 +43,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit NativeWeakPointer(const Reference &objectRef)
-                : JObject(objectRef)
-            {}
+            explicit NativeWeakPointer(const Reference &objectRef) : JObject(objectRef) {}
 
             /** An optimized function to retrieve the stored pointer directly
              * from the specified jobject. The java-side object must have been
@@ -82,10 +78,7 @@ namespace bdn
              *  This is the same class object as that JavaByteBuffer, since the
              * Java-side peer object is simply a plain ByteBuffer instance.
              *  */
-            static JClass &getStaticClass_()
-            {
-                return JByteBuffer::getStaticClass_();
-            }
+            static JClass &getStaticClass_() { return JByteBuffer::getStaticClass_(); }
 
             JClass &getClass_() override { return getStaticClass_(); }
         };

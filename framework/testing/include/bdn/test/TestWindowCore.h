@@ -58,10 +58,7 @@ namespace bdn
                     {
                         _pWindow->setTitle("hello world");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
-                        {
-                            pThis->verifyCoreTitle();
-                        };
+                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreTitle(); };
                     }
 
                     SECTION("does not affect preferred size")
@@ -70,14 +67,12 @@ namespace bdn
                         // size.
                         Size prefSizeBefore = _pWindow->calcPreferredSize();
 
-                        _pWindow->setTitle(
-                            "this is a long long long long long long long long "
-                            "long long long long title");
+                        _pWindow->setTitle("this is a long long long long long long long long "
+                                           "long long long long title");
 
                         CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                         {
-                            Size prefSize =
-                                pThis->_pWindow->calcPreferredSize();
+                            Size prefSize = pThis->_pWindow->calcPreferredSize();
 
                             REQUIRE(prefSize == prefSizeBefore);
                         };
@@ -93,8 +88,7 @@ namespace bdn
                     // set a left/top margin for the child so that it is moved
                     // to the bottom right
                     Margin margin(11, 0, 0, 22);
-                    pChild->setMargin(UiMargin(margin.top, margin.right,
-                                               margin.bottom, margin.left));
+                    pChild->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                     // then autosize the window
                     _pWindow->requestAutoSize();
@@ -108,23 +102,20 @@ namespace bdn
 
                         // then invert the margin and make the top margin a
                         // bottom margin and the left margin a right margin
-                        pChild->setMargin(
-                            UiMargin(0, margin.left, margin.top, 0));
+                        pChild->setMargin(UiMargin(0, margin.left, margin.top, 0));
 
                         // this should cause a layout. We know the layout
                         // happens (we test that in another case). Here we only
                         // verify that the layout actually updates the content
                         // view.
-                        BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, pChild, oldPos,
-                                                       oldSize, margin)
+                        BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, pChild, oldPos, oldSize, margin)
                         {
                             // if a layout was done then the child position
                             // should now be moved to the left and up by the
                             // amount of the removed margin. The position might
                             // not match exactly, since it is rounded to full
                             // pixels
-                            Point expectedPos(oldPos.x - margin.left,
-                                              oldPos.y - margin.top);
+                            Point expectedPos(oldPos.x - margin.left, oldPos.y - margin.top);
                             Point pos = pChild->position();
                             REQUIRE_ALMOST_EQUAL(pos.x, expectedPos.x, 2);
                             REQUIRE_ALMOST_EQUAL(pos.y, expectedPos.y, 2);
@@ -140,10 +131,7 @@ namespace bdn
                     // there may be pending sizing info updates for the window,
                     // which keep it alive. Ensure that those are done first.
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis)
-                    {
-                        pThis->testCoreUiElementDestroyedWhenObjectDestroyed();
-                    };
+                    CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->testCoreUiElementDestroyedWhenObjectDestroyed(); };
                 }
             }
 
@@ -167,8 +155,7 @@ namespace bdn
                information that was returned by an earlier call to
                createInfoToVerifyCoreUiElementDestruction().
                 */
-            virtual void
-            verifyCoreUiElementDestruction(IBase *pVerificationInfo) = 0;
+            virtual void verifyCoreUiElementDestruction(IBase *pVerificationInfo) = 0;
 
             /** Removes all references to the outer window object, causing it to
              * be destroyed.*/
@@ -187,8 +174,7 @@ namespace bdn
 
             void testCoreUiElementDestroyedWhenObjectDestroyed()
             {
-                P<IBase> pVerifyInfo =
-                    createInfoToVerifyCoreUiElementDestruction();
+                P<IBase> pVerifyInfo = createInfoToVerifyCoreUiElementDestruction();
 
                 clearAllReferencesToOuterWindow();
 

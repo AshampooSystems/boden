@@ -16,10 +16,7 @@ namespace bdn
 
         void Hooks::debugBreak() { debugBreakDummy(); }
 
-        void Hooks::debuggerPrint(const String &text)
-        {
-            std::cerr << text.asUtf8() << std::endl;
-        }
+        void Hooks::debuggerPrint(const String &text) { std::cerr << text.asUtf8() << std::endl; }
 
         bool Hooks::_isDebuggerActive() { return false; }
 

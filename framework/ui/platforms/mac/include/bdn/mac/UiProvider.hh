@@ -17,8 +17,7 @@ namespace bdn
 
             String getName() const override;
 
-            P<IViewCore> createViewCore(const String &coreTypeName,
-                                        View *pView) override;
+            P<IViewCore> createViewCore(const String &coreTypeName, View *pView) override;
 
             P<ITextUi> getTextUi() override;
 
@@ -28,10 +27,7 @@ namespace bdn
 
             /** Returns the layout coordinator that is used by view cores
              * created by this UI provider.*/
-            P<LayoutCoordinator> getLayoutCoordinator()
-            {
-                return _pLayoutCoordinator;
-            }
+            P<LayoutCoordinator> getLayoutCoordinator() { return _pLayoutCoordinator; }
 
           private:
             double _semDips;

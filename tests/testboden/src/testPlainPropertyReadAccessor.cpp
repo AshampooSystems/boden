@@ -6,13 +6,10 @@
 
 using namespace bdn;
 
-template <typename VALUE_TYPE>
-class TestPlainPropertyReadAccessorOwner : public Base
+template <typename VALUE_TYPE> class TestPlainPropertyReadAccessorOwner : public Base
 {
   public:
-    TestPlainPropertyReadAccessorOwner(bool *pDeleted,
-                                       const VALUE_TYPE &initialValue)
-        : _myProp(initialValue)
+    TestPlainPropertyReadAccessorOwner(bool *pDeleted, const VALUE_TYPE &initialValue) : _myProp(initialValue)
     {
         _pDeleted = pDeleted;
     }
@@ -21,17 +18,13 @@ class TestPlainPropertyReadAccessorOwner : public Base
 
     VALUE_TYPE myProp() const { return _myProp; }
 
-    IPropertyNotifier<VALUE_TYPE> &myPropChanged() const
-    {
-        return *_pMyPropChanged;
-    }
+    IPropertyNotifier<VALUE_TYPE> &myPropChanged() const { return *_pMyPropChanged; }
 
     using PropertyValueType_myProp = VALUE_TYPE;
 
   private:
     VALUE_TYPE _myProp;
-    mutable P<PropertyNotifier<VALUE_TYPE>> _pMyPropChanged =
-        newObj<PropertyNotifier<VALUE_TYPE>>();
+    mutable P<PropertyNotifier<VALUE_TYPE>> _pMyPropChanged = newObj<PropertyNotifier<VALUE_TYPE>>();
     bool *_pDeleted;
 };
 
@@ -39,12 +32,10 @@ TEST_CASE("PlainPropertyReadAccessor")
 {
     bool ownerDeleted = false;
     P<TestPlainPropertyReadAccessorOwner<String>> pOwner =
-        newObj<TestPlainPropertyReadAccessorOwner<String>>(&ownerDeleted,
-                                                           "hello");
+        newObj<TestPlainPropertyReadAccessorOwner<String>>(&ownerDeleted, "hello");
 
     auto accessor = BDN_PROPERTY_READ_ACCESSOR(*pOwner, myProp);
-    REQUIRE(dynamic_cast<IPropertyReadAccessor<String> *>(&accessor) !=
-            nullptr);
+    REQUIRE(dynamic_cast<IPropertyReadAccessor<String> *>(&accessor) != nullptr);
 
     REQUIRE(!ownerDeleted);
 
@@ -57,8 +48,5 @@ TEST_CASE("PlainPropertyReadAccessor")
 
     SECTION("calls getter correctly") { REQUIRE(accessor.get() == "hello"); }
 
-    SECTION("returns correct changed notifier")
-    {
-        REQUIRE(&accessor.changed() == &pOwner->myPropChanged());
-    }
+    SECTION("returns correct changed notifier") { REQUIRE(&accessor.changed() == &pOwner->myPropChanged()); }
 }

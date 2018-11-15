@@ -12,8 +12,7 @@ namespace bdn
     namespace android
     {
 
-        template <class T>
-        class CheckboxCore : public ViewCore, BDN_IMPLEMENTS ICheckboxCore
+        template <class T> class CheckboxCore : public ViewCore, BDN_IMPLEMENTS ICheckboxCore
         {
           private:
             static P<JCheckBox> _createJCheckBox(T *pOuter)
@@ -23,16 +22,13 @@ namespace bdn
                 // core.
                 P<View> pParent = pOuter->getParentView();
                 if (pParent == nullptr)
-                    throw ProgrammingError(
-                        "CheckboxCore instance requested for a Checkbox that "
-                        "does not have a parent.");
+                    throw ProgrammingError("CheckboxCore instance requested for a Checkbox that "
+                                           "does not have a parent.");
 
-                P<ViewCore> pParentCore =
-                    cast<ViewCore>(pParent->getViewCore());
+                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
                 if (pParentCore == nullptr)
-                    throw ProgrammingError(
-                        "CheckboxCore instance requested for a Checkbox with "
-                        "core-less parent.");
+                    throw ProgrammingError("CheckboxCore instance requested for a Checkbox with "
+                                           "core-less parent.");
 
                 JContext context = pParentCore->getJView().getContext();
 
@@ -79,8 +75,7 @@ namespace bdn
                     P<Toggle> pToggle = tryCast<Toggle>(pView);
 
                     // User interaction cannot set the checkbox into mixed state
-                    _state =
-                        _pJCheckBox->isChecked() ? TriState::on : TriState::off;
+                    _state = _pJCheckBox->isChecked() ? TriState::on : TriState::off;
 
                     if (pCheckbox)
                         pCheckbox->setState(_state);
