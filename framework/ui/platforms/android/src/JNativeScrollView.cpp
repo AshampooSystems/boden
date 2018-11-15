@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#include <bdn/android/JNativeScrollViewManager.h>
+#include <bdn/android/JNativeScrollView.h>
 
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
@@ -8,7 +8,7 @@
 #include <bdn/android/ScrollViewCore.h>
 
 extern "C" JNIEXPORT void JNICALL
-Java_io_boden_android_NativeScrollViewManager_scrollChange(
+Java_io_boden_android_NativeScrollView_scrollChange(
     JNIEnv *pEnv, jobject rawCls, jobject rawWraperView, int scrollX,
     int scrollY, int oldScrollX, int oldScrollY)
 {

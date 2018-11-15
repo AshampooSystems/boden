@@ -1,9 +1,8 @@
 package io.boden.android;
 
 import android.content.Context;
+import android.support.v4.widget.NestedScrollView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.util.AttributeSet;
 import android.widget.HorizontalScrollView;
 
@@ -15,11 +14,11 @@ import android.widget.HorizontalScrollView;
  * It is designed to be controlled by a bdn::android::ScrollViewCore native component.
  *
  */
-public class NativeScrollViewManager
+public class NativeScrollView
 {
-    public NativeScrollViewManager(Context context)
+    public NativeScrollView(Context context)
     {
-        _vertScrollView = new VerticalSubScrollView(context);
+        _vertScrollView = new VerticalScrollView(context);
 
         _horzScrollView = new HorizontalScrollView(context);
         _vertScrollView.addView(_horzScrollView);
@@ -27,7 +26,7 @@ public class NativeScrollViewManager
         _vertScrollView.setOnScrollChangeListener( new VerticalScrollChangeListener(this) );
         _horzScrollView.setOnScrollChangeListener( new HorizontalScrollChangeListener(this) );
 
-        _contentParent = new NativeViewGroup(context);
+        _contentParent = new io.boden.android.NativeViewGroup(context);
         _horzScrollView.addView(_contentParent);
     }
 
@@ -45,7 +44,7 @@ public class NativeScrollViewManager
     /** Returns the ViewGroup that acts as the parent for the scroll view's
      *  content view. The content view should be the only child of this view.
      */
-    public NativeViewGroup getContentParent()
+    public io.boden.android.NativeViewGroup getContentParent()
     {
         return _contentParent;
     }
@@ -63,10 +62,6 @@ public class NativeScrollViewManager
     public void smoothScrollTo (int x,
                                 int y)
     {
-        int vw = _vertScrollView.getWidth();
-        int hw = _horzScrollView.getWidth();
-        int cw = _contentParent.getWidth();
-
         _vertScrollView.smoothScrollTo(0, y);
         _horzScrollView.smoothScrollTo(x, 0);
     }
@@ -100,14 +95,14 @@ public class NativeScrollViewManager
 
     private native static void scrollChange(View wrapperView, int scrollX, int scrollY, int oldScrollX, int oldScrollY);
 
-    private void vertScrollChange(int scrollY, int oldScrollY)
+    private void verticalScrollChange(int scrollY, int oldScrollY)
     {
         int scrollX = _horzScrollView.getScrollX();
 
         scrollChange(_vertScrollView, scrollX, scrollY, scrollX, oldScrollY);
     }
 
-    private void horzScrollChange(int scrollX, int oldScrollX)
+    private void horizontalScrollChange(int scrollX, int oldScrollX)
     {
         int scrollY = _horzScrollView.getScrollY();
 
@@ -116,9 +111,9 @@ public class NativeScrollViewManager
 
     private class VerticalScrollChangeListener implements View.OnScrollChangeListener
     {
-        VerticalScrollChangeListener( NativeScrollViewManager man )
+        VerticalScrollChangeListener( NativeScrollView scrollView )
         {
-            _man = man;
+            _scrollView = scrollView;
         }
 
         public void onScrollChange (View view,
@@ -127,17 +122,17 @@ public class NativeScrollViewManager
                                     int oldScrollX,
                                     int oldScrollY)
         {
-            _man.vertScrollChange(scrollY, oldScrollY);
+            _scrollView.verticalScrollChange(scrollY, oldScrollY);
         }
 
-        private NativeScrollViewManager _man;
+        private NativeScrollView _scrollView;
     }
 
     private class HorizontalScrollChangeListener implements View.OnScrollChangeListener
     {
-        HorizontalScrollChangeListener( NativeScrollViewManager man )
+        HorizontalScrollChangeListener( NativeScrollView scrollView )
         {
-            _man = man;
+            _scrollView = scrollView;
         }
 
         public void onScrollChange (View view,
@@ -146,40 +141,39 @@ public class NativeScrollViewManager
                                     int oldScrollX,
                                     int oldScrollY)
         {
-            _man.horzScrollChange(scrollX, oldScrollX);
+            _scrollView.horizontalScrollChange(scrollX, oldScrollX);
         }
 
-        private NativeScrollViewManager _man;
+        private NativeScrollView _scrollView;
     }
 
 
 
-    private class VerticalSubScrollView extends ScrollView
+    private class VerticalScrollView extends NestedScrollView
     {
-        public VerticalSubScrollView(Context context)
+        public VerticalScrollView(Context context)
         {
             super(context);
         }
 
-        public VerticalSubScrollView(Context context, AttributeSet attrs)
+        public VerticalScrollView(Context context, AttributeSet attrs)
         {
             super(context, attrs);
         }
 
-        public VerticalSubScrollView(Context context, AttributeSet attrs, int defStyleAttr)
+        public VerticalScrollView(Context context, AttributeSet attrs, int defStyleAttr)
         {
             super(context, attrs, defStyleAttr);
         }
 
 
         protected void onLayout (boolean changed,
-                       int l,
-                       int t,
-                       int r,
-                       int b)
+                                 int left,
+                                 int top,
+                                 int right,
+                                 int bottom)
         {
-            int count = getChildCount();
-            if(count>0)
+            if(getChildCount()>0)
             {
                 View child = getChildAt(0);
 
@@ -189,13 +183,13 @@ public class NativeScrollViewManager
                 child.layout(
                         0,
                         0,
-                        r-l,
+                        right-left,
                         child.getMeasuredHeight() );
             }
         }
     }
 
-    private VerticalSubScrollView   _vertScrollView;
-    private HorizontalScrollView    _horzScrollView;
-    private NativeViewGroup         _contentParent;
+    private VerticalScrollView _vertScrollView;
+    private HorizontalScrollView _horzScrollView;
+    private io.boden.android.NativeViewGroup _contentParent;
 };

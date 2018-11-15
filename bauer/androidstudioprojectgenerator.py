@@ -219,7 +219,7 @@ android {
     compileSdkVersion $$BuildSdkVersion$$
     defaultConfig {
         $$AppIdCode$$
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion $$BuildSdkVersion$$
         versionCode 1
         versionName "1.0"

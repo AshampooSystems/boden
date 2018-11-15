@@ -6,10 +6,10 @@
 #include <bdn/ScrollViewLayoutHelper.h>
 #include <bdn/java/NativeWeakPointer.h>
 #include <bdn/android/ViewCore.h>
-#include <bdn/android/JNativeScrollViewManager.h>
+#include <bdn/android/JNativeScrollView.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JViewGroup.h>
-#include <bdn/android/JNativeScrollViewManager.h>
+#include <bdn/android/JNativeScrollView.h>
 
 namespace bdn
 {
@@ -21,8 +21,8 @@ namespace bdn
                                BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            static P<JNativeScrollViewManager>
-            _createNativeScrollViewManager(ScrollView *pOuter)
+            static P<JNativeScrollView>
+            _createNativeScrollView(ScrollView *pOuter)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
@@ -42,19 +42,18 @@ namespace bdn
 
                 JContext context = pParentCore->getJView().getContext();
 
-                P<JNativeScrollViewManager> pMan =
-                    newObj<JNativeScrollViewManager>(context);
+                P<JNativeScrollView> pMan = newObj<JNativeScrollView>(context);
 
                 return pMan;
             }
 
           public:
             ScrollViewCore(ScrollView *pOuter)
-                : ScrollViewCore(pOuter, _createNativeScrollViewManager(pOuter))
+                : ScrollViewCore(pOuter, _createNativeScrollView(pOuter))
             {}
 
           private:
-            ScrollViewCore(ScrollView *pOuter, P<JNativeScrollViewManager> pMan)
+            ScrollViewCore(ScrollView *pOuter, P<JNativeScrollView> pMan)
                 : ViewCore(pOuter, newObj<JView>(pMan->getWrapperView()))
             {
                 _pMan = pMan;
@@ -334,7 +333,7 @@ namespace bdn
                 }
             }
 
-            P<JNativeScrollViewManager> _pMan;
+            P<JNativeScrollView> _pMan;
             P<JNativeViewGroup> _pContentParent;
 
             JView _currContentJView;

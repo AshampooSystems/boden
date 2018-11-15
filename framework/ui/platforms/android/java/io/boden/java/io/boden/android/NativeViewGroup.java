@@ -78,9 +78,6 @@ public class NativeViewGroup extends ViewGroup
 
     public void addView (View child)
     {
-        int x=0;
-        x++;
-
         super.addView(child);
     }
 

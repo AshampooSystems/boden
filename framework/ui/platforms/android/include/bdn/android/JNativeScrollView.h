@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNativeScrollViewManager_H_
-#define BDN_ANDROID_JNativeScrollViewManager_H_
+#pragma once
 
 #include <bdn/android/JNativeViewGroup.h>
 
@@ -8,8 +7,8 @@ namespace bdn
     namespace android
     {
 
-        /** Accessor for io.boden.android.NativeScrollViewManager objects.*/
-        class JNativeScrollViewManager : public bdn::java::JObject
+        /** Accessor for io.boden.android.NativeScrollView objects.*/
+        class JNativeScrollView : public bdn::java::JObject
         {
           private:
             static bdn::java::Reference newInstance_(JContext &context)
@@ -20,7 +19,7 @@ namespace bdn
             }
 
           public:
-            JNativeScrollViewManager(JContext &context)
+            JNativeScrollView(JContext &context)
                 : JObject(newInstance_(context))
             {}
 
@@ -30,8 +29,7 @@ namespace bdn
              * reference then you need to call toStrong() on the reference first
              * and pass the result.
              *      */
-            explicit JNativeScrollViewManager(
-                const bdn::java::Reference &javaRef)
+            explicit JNativeScrollView(const bdn::java::Reference &javaRef)
                 : bdn::java::JObject(javaRef)
             {}
 
@@ -125,7 +123,7 @@ namespace bdn
             static bdn::java::JClass &getStaticClass_()
             {
                 static bdn::java::JClass cls(
-                    "io/boden/android/NativeScrollViewManager");
+                    "io/boden/android/NativeScrollView");
 
                 return cls;
             }
@@ -137,5 +135,3 @@ namespace bdn
         };
     }
 }
-
-#endif
