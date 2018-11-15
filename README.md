@@ -137,6 +137,8 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
+> If Android Studio displays an error stating that permission to `/dev/kvm` is denied, make sure that you have added your user to the `kvm` group.
+
 ## Dependency Installation Guide
 
 ### Setting up macOS for iOS builds
@@ -286,4 +288,15 @@ Open up a terminal and run the following command:
 
 ## Additional
 
-## FAQ/Contact/Troubleshooting
+## Troubleshooting
+
+### 1. Android Emulator won't start on Ubuntu Linux due to permission denied error
+
+Make sure that the `qemu-kvm` package is installed and your user is a member of the `kvm` group. See [Configure Ubuntu for Running Android Emulator](#3-configure-ubuntu-for-running-android-emulator) for further instructions.
+
+### 2. `boden prepare` fails with a CMake error when setting up a Windows machine for Android development
+
+Double-check whether the right Java version is installed. Android Studio requires the `openjdk-8-jdk` package on Ubuntu Linux or [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) on Windows. Other Java versions are not supported.
+
+## Contact
+
