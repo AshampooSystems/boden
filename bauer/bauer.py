@@ -13,6 +13,8 @@ from buildfolder import BuildFolder
 from bauerutilities import BauerGlobals
 from generatorinfo import GeneratorInfo
 from coloredlogger import ColorizingStreamHandler
+from templatecreator import TemplateCreator
+
 
 def setupLogging(argv):
     root = logging.getLogger()
@@ -41,11 +43,17 @@ def run(argv):
     if args == None:
         return
 
+    if args.command == 'new':
+        templateCreator = TemplateCreator()
+        templateCreator.generate(args)
+        return
+
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))
+    source_folder = os.getcwd()
 
-    buildFolder = BuildFolder(bauerGlobals, generatorInfo, rootPath, args)
+    buildFolder = BuildFolder(bauerGlobals, generatorInfo, source_folder, args)
 
-    commandProcessor = CommandProcessor(bauerGlobals, generatorInfo, args, rootPath, buildFolder)
+    commandProcessor = CommandProcessor(bauerGlobals, generatorInfo, args, rootPath, source_folder, buildFolder)
     commandProcessor.process()
 
 def main(argv):

@@ -9,11 +9,13 @@ from compilerinfo import CompilerInfo
 
 
 class BuildExecutor:
-    def __init__(self, generatorInfo, sourceDirectory, buildFolder):
+    def __init__(self, generatorInfo, rootDirectory, sourceDirectory, buildFolder):
         self.logger = logging.getLogger(__name__)
         self.cmake = CMake()
         self.generatorInfo = generatorInfo
         self.sourceDirectory = sourceDirectory
+        self.rootDirectory = rootDirectory
+
         self.buildFolder = buildFolder
 
     def build(self, configuration, args):
@@ -118,7 +120,7 @@ class BuildExecutor:
                 toolChainFileName = "ios.make.toolchain.cmake";
 
         if toolChainFileName:
-            toolChainFilePath = os.path.join(self.sourceDirectory, "cmake/toolchains", toolChainFileName);               
+            toolChainFilePath = os.path.join(self.rootDirectory, "cmake/toolchains", toolChainFileName);               
 
             if not os.path.isfile(toolChainFilePath):
                 self.logger.error("Required CMake toolchain file not found: %s" , toolChainFilePath);

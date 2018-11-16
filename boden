@@ -1,2 +1,5 @@
 #!/bin/sh
-python3 boden.py $@
+
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+python3 $DIR/boden.py $@

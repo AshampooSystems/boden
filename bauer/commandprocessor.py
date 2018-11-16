@@ -15,13 +15,14 @@ from codesigner import CodeSigner
 
 
 class CommandProcessor:
-    def __init__(self, bauerGlobals, generatorInfo, args, sourceFolder, buildFolder):
+    def __init__(self, bauerGlobals, generatorInfo, args, rootPath, sourceFolder, buildFolder):
         self.args = args
         self.logger = logging.getLogger(__name__)
         self.bauerGlobals = bauerGlobals
         self.generatorInfo = generatorInfo
         self.buildFolder = buildFolder
-        self.buildExecutor = BuildExecutor(generatorInfo, sourceFolder, buildFolder)
+        self.rootPath = rootPath
+        self.buildExecutor = BuildExecutor(generatorInfo, rootPath, sourceFolder, buildFolder)
         self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder)
 
         self.defaultLadder = {

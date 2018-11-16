@@ -132,6 +132,7 @@ class BauerArgParser():
           ('copy', "Copy a folder into the build folder", self.getCopyEpilog()),
           ('open', "Open the project files", None),
           ('manual', "Shows futher information", None),
+          ('new', "Builds a template project", self.getNewEpilog())
         ]
 
         if sys.platform == 'darwin':
@@ -157,6 +158,10 @@ class BauerArgParser():
         package = command_map["package"]
         copy = command_map["copy"]
         open_project = command_map["open"]
+
+        new = command_map["new"]
+        new.add_argument('-f', '--project-folder', help="Where to create the project", default=".")
+        new.add_argument('-p', '--project-name', help="Name of the project", default="Untitled")
 
         if sys.platform == 'darwin':
           sign = command_map["codesign"]
@@ -262,6 +267,9 @@ parameters for build.py from those that are intended for the executed target."""
         return """"""
 
     def getCopyEpilog(self):
+        return """"""
+
+    def getNewEpilog(self):
         return """"""
 
     def getManual(self):
