@@ -3,6 +3,7 @@
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JContext.h>
+#include <bdn/android/JIBinder.h>
 #include <bdn/android/JViewParent.h>
 
 #include <bdn/android/JViewGroup__JLayoutParams.h>
@@ -386,6 +387,14 @@ namespace bdn
                 static bdn::java::MethodId methodId;
 
                 invoke_<void>(getStaticClass_(), methodId, "setLayoutParams", params);
+            }
+
+            /** Retrieve a unique token identifying the window this view is attached to.*/
+            JIBinder getWindowToken()
+            {
+                static bdn::java::MethodId methodId;
+
+                return invoke_<JIBinder>(getStaticClass_(), methodId, "getWindowToken");
             }
         };
     }

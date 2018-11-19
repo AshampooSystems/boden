@@ -55,6 +55,9 @@
         outerTextField->submit();
     }
 
+    // close virtual keyboard
+    [textField resignFirstResponder];
+
     return YES;
 }
 

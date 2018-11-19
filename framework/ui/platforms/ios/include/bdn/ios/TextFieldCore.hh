@@ -28,6 +28,8 @@ namespace bdn
                 textField.keyboardType = UIKeyboardTypeDefault;
                 textField.autocorrectionType = UITextAutocorrectionTypeNo;
                 textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+                textField.returnKeyType = UIReturnKeyDone;
+
                 return textField;
             }
 

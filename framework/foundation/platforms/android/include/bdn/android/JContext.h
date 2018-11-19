@@ -21,6 +21,20 @@ namespace bdn
              *      */
             explicit JContext(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
 
+            /** Use with getSystemService(String) to retrieve a
+                InputMethodManager for accessing input methods.*/
+            static String INPUT_METHOD_SERVICE;
+
+            /** Return the handle to a system-level service by name. The
+                class of the returned object varies by the requested name.
+                */
+            JObject getSystemService(const String &name)
+            {
+                static bdn::java::MethodId methodId;
+
+                return invoke_<JObject>(getStaticClass_(), methodId, "getSystemService", name);
+            }
+
             /** Returns the JClass object for this class.
              *
              *  Note that the returned class object is not necessarily unique

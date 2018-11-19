@@ -3,6 +3,7 @@
 
 #include <bdn/android/JEditText.h>
 #include <bdn/android/JKeyEvent.h>
+#include <bdn/android/JInputMethodManager.h>
 #include <bdn/android/JNativeEditTextTextWatcher.h>
 #include <bdn/android/JNativeTextViewOnEditorActionListener.h>
 
@@ -85,6 +86,11 @@ namespace bdn
 
             bool onEditorAction(int actionId, JKeyEvent keyEvent)
             {
+                // hide virtual keyboard
+                JInputMethodManager inputManager(
+                    _pJEditText->getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
+                inputManager.hideSoftInputFromWindow(_pJEditText->getWindowToken(), 0);
+
                 P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
                     outerTextField->submit();
