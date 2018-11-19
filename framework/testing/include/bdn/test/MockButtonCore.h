@@ -19,7 +19,7 @@ namespace bdn
         class MockButtonCore : public MockViewCore, BDN_IMPLEMENTS IButtonCore
         {
           public:
-            MockButtonCore(Button *pButton) : MockViewCore(pButton) { _label = pButton->label(); }
+            MockButtonCore(Button *button) : MockViewCore(button) { _label = button->label(); }
 
             /** Returns the current label of the button.*/
             String getLabel() const { return _label; }
@@ -42,10 +42,10 @@ namespace bdn
                 Size size = _getTextSize(_label);
 
                 // add our padding
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    if (!pView->padding().isNull())
-                        size += uiMarginToDipMargin(pView->padding());
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    if (!view->padding().isNull())
+                        size += uiMarginToDipMargin(view->padding());
                 }
 
                 // add some space for the fake button border
@@ -53,10 +53,10 @@ namespace bdn
 
                 // ignore available space. We have a fixed size.
 
-                if (pView != nullptr) {
+                if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;
@@ -64,11 +64,11 @@ namespace bdn
 
             void generateClick()
             {
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
-                    cast<Button>(pView)->onClick().notify(evt);
+                    cast<Button>(view)->onClick().notify(evt);
                 }
             }
 

@@ -95,56 +95,55 @@ namespace bdn
                                    typename std::iterator_traits<BaseIterator>::reference>
         {
           public:
-            Iterator() : _pFilter(nullptr) {}
+            Iterator() : _filter(nullptr) {}
 
-            Iterator(const Iterator &o) : _pFilter(o._pFilter), _baseIt(o._baseIt) {}
+            Iterator(const Iterator &o) : _filter(o._filter), _baseIt(o._baseIt) {}
 
-            Iterator(Iterator &&o) : _pFilter(o._pFilter), _baseIt(std::move(o._baseIt)) {}
+            Iterator(Iterator &&o) : _filter(o._filter), _baseIt(std::move(o._baseIt)) {}
 
-            Iterator(const SequenceFilter &filter, const BaseIterator &baseIt) : _pFilter(&filter), _baseIt(baseIt) {}
+            Iterator(const SequenceFilter &filter, const BaseIterator &baseIt) : _filter(&filter), _baseIt(baseIt) {}
 
-            Iterator(const SequenceFilter &filter, BaseIterator &&baseIt)
-                : _pFilter(&filter), _baseIt(std::move(baseIt))
+            Iterator(const SequenceFilter &filter, BaseIterator &&baseIt) : _filter(&filter), _baseIt(std::move(baseIt))
             {}
 
             operator BaseIterator() { return _baseIt; }
 
             Iterator &operator=(Iterator &&other)
             {
-                _pFilter = other._pFilter;
+                _filter = other._filter;
                 _baseIt = std::move(other._baseIt);
                 return *this;
             }
 
             Iterator &operator=(const Iterator &other)
             {
-                _pFilter = other._pFilter;
+                _filter = other._filter;
                 _baseIt = other._baseIt;
                 return *this;
             }
 
             Iterator &advanceAfterRemoval(const BaseIterator &baseIt)
             {
-                if (_pFilter == nullptr)
+                if (_filter == nullptr)
                     throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() "
                                            "called, but no filter object is associated with the "
                                            "iterator.");
 
                 _baseIt = baseIt;
-                _pFilter->_skipExcluded(_baseIt);
+                _filter->_skipExcluded(_baseIt);
 
                 return *this;
             }
 
             Iterator &advanceAfterRemoval(BaseIterator &&baseIt)
             {
-                if (_pFilter == nullptr)
+                if (_filter == nullptr)
                     throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() "
                                            "called, but no filter object is associated with the "
                                            "iterator.");
 
                 _baseIt = std::move(baseIt);
-                _pFilter->_skipExcluded(_baseIt);
+                _filter->_skipExcluded(_baseIt);
 
                 return *this;
             }
@@ -157,19 +156,19 @@ namespace bdn
 
             bool operator==(const Iterator &other) const
             {
-                return (_pFilter == other._pFilter && _baseIt == other._baseIt);
+                return (_filter == other._filter && _baseIt == other._baseIt);
             }
 
             bool operator!=(const Iterator &other) const
             {
-                return (_pFilter != other._pFilter || _baseIt != other._baseIt);
+                return (_filter != other._filter || _baseIt != other._baseIt);
             }
 
             Iterator &operator++()
             {
                 ++_baseIt;
 
-                _pFilter->_skipExcluded(_baseIt);
+                _filter->_skipExcluded(_baseIt);
 
                 return *this;
             }
@@ -183,7 +182,7 @@ namespace bdn
             }
 
           private:
-            const SequenceFilter *_pFilter;
+            const SequenceFilter *_filter;
             BaseIterator _baseIt;
         };
         friend class Iterator;

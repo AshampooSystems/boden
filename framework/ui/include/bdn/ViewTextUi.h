@@ -19,11 +19,11 @@ namespace bdn
     class ViewTextUi : public Base, BDN_IMPLEMENTS ITextUi, BDN_IMPLEMENTS ITextSink
     {
       public:
-        /** @param pUiProvider the UI provider that the text UI should use.
+        /** @param uiProvider the UI provider that the text UI should use.
             See the IUiProvider documentation for more information.
             If this is nullptr then the default UI provider for the platform is
            used.*/
-        ViewTextUi(IUiProvider *pUiProvider = nullptr);
+        ViewTextUi(IUiProvider *uiProvider = nullptr);
 
         P<IAsyncOp<String>> readLine() override;
 
@@ -32,7 +32,7 @@ namespace bdn
         P<ITextSink> output() override { return this; }
 
         /** Returns the window that the UI object uses to display the text.*/
-        P<Window> getWindow() { return _pWindow; }
+        P<Window> getWindow() { return _window; }
 
       private:
         // ITextSink functions
@@ -47,13 +47,13 @@ namespace bdn
         void _flushPendingWhileMutexLocked();
         void _doWriteWhileMutexLocked(const String &s);
 
-        P<IUiProvider> _pUiProvider;
+        P<IUiProvider> _uiProvider;
 
         Mutex _mutex;
-        P<Window> _pWindow;
-        P<ScrollView> _pScrollView;
-        P<ColumnView> _pScrolledColumnView;
-        P<TextView> _pCurrParagraphView;
+        P<Window> _window;
+        P<ScrollView> _scrollView;
+        P<ColumnView> _scrolledColumnView;
+        P<TextView> _currParagraphView;
 
         bool _initialized;
         List<String> _pendingList;

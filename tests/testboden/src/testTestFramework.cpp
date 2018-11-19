@@ -382,88 +382,88 @@ struct TestData : public Base
 
 struct TestContinuationDataRelease : public Base
 {
-    TestContinuationDataRelease(TestData *pData) { _pData = pData; }
+    TestContinuationDataRelease(TestData *data) { _data = data; }
 
     ~TestContinuationDataRelease()
     {
         Thread::sleepMillis(2000);
-        _pData->callCount++;
+        _data->callCount++;
     }
 
-    P<TestData> _pData;
+    P<TestData> _data;
 };
 
 template <typename FuncType> void testContinueSectionWith(FuncType scheduleContinueWith)
 {
     // we verify that CONTINUE_SECTION_WHEN_IDLE works as expected
 
-    P<TestData> pData = newObj<TestData>();
+    P<TestData> data = newObj<TestData>();
 
     SECTION("notCalledImmediately")
     {
-        scheduleContinueWith([pData]() { pData->callCount++; });
+        scheduleContinueWith([data]() { data->callCount++; });
 
         // should not have been called yet
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
     SECTION("notCalledBeforeExitingInitialFunction")
     {
-        scheduleContinueWith([pData]() { pData->callCount++; });
+        scheduleContinueWith([data]() { data->callCount++; });
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
         Thread::sleepMillis(2000);
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> pCalledBeforeNextSectionData;
+    static P<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
-        pCalledBeforeNextSectionData = pData;
+        calledBeforeNextSectionData = data;
 
-        scheduleContinueWith([pData]() { pData->callCount++; });
+        scheduleContinueWith([data]() { data->callCount++; });
     }
 
     SECTION("calledBeforeNextSection-b")
     {
-        REQUIRE(pCalledBeforeNextSectionData != nullptr);
+        REQUIRE(calledBeforeNextSectionData != nullptr);
 
         // the continuation of the previous section should have been called
 
-        REQUIRE(pCalledBeforeNextSectionData->callCount == 1);
+        REQUIRE(calledBeforeNextSectionData->callCount == 1);
     }
 
-    static P<TestData> pContinuationFuncReleasedBeforeNextSectionData;
+    static P<TestData> continuationFuncReleasedBeforeNextSectionData;
     SECTION("continuationFuncReleasedBeforeNextSection-a")
     {
-        pContinuationFuncReleasedBeforeNextSectionData = pData;
+        continuationFuncReleasedBeforeNextSectionData = data;
 
-        P<TestContinuationDataRelease> pReleaseTestData = newObj<TestContinuationDataRelease>(pData);
+        P<TestContinuationDataRelease> releaseTestData = newObj<TestContinuationDataRelease>(data);
 
-        scheduleContinueWith([pReleaseTestData]() {});
+        scheduleContinueWith([releaseTestData]() {});
 
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
     SECTION("continuationFuncReleasedBeforeNextSection-b")
     {
-        REQUIRE(pContinuationFuncReleasedBeforeNextSectionData != nullptr);
+        REQUIRE(continuationFuncReleasedBeforeNextSectionData != nullptr);
 
         // the next section should only be called AFTER the continuation
         // function of the previous section has been destroyed. This test is
         // mostly intended for thread continuation to ensure that the thread
         // from the previous section has actually exited before the next section
         // is started.
-        REQUIRE(pContinuationFuncReleasedBeforeNextSectionData->callCount == 1);
+        REQUIRE(continuationFuncReleasedBeforeNextSectionData->callCount == 1);
     }
 
     SECTION("notCalledMultipleTimes")
     {
-        scheduleContinueWith([pData]() {
-            pData->callCount++;
+        scheduleContinueWith([data]() {
+            data->callCount++;
 
-            REQUIRE(pData->callCount == 1);
+            REQUIRE(data->callCount == 1);
         });
     }
 
@@ -677,50 +677,50 @@ static bool scheduledEventChainDone = false;
 
 TEST_CASE("CONTINUE_SECTION_WHEN_IDLE")
 {
-    P<TestData> pData = newObj<TestData>();
+    P<TestData> data = newObj<TestData>();
 
     SECTION("notCalledImmediately")
     {
-        CONTINUE_SECTION_WHEN_IDLE(=) { pData->callCount++; };
+        CONTINUE_SECTION_WHEN_IDLE(=) { data->callCount++; };
 
         // should not have been called yet
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
     SECTION("notCalledBeforeExitingInitialFunction")
     {
-        CONTINUE_SECTION_WHEN_IDLE(=) { pData->callCount++; };
+        CONTINUE_SECTION_WHEN_IDLE(=) { data->callCount++; };
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
         Thread::sleepMillis(2000);
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> pCalledBeforeNextSectionData;
+    static P<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
-        pCalledBeforeNextSectionData = pData;
+        calledBeforeNextSectionData = data;
 
-        CONTINUE_SECTION_WHEN_IDLE(=) { pData->callCount++; };
+        CONTINUE_SECTION_WHEN_IDLE(=) { data->callCount++; };
     }
 
     SECTION("calledBeforeNextSection-b")
     {
-        REQUIRE(pCalledBeforeNextSectionData != nullptr);
+        REQUIRE(calledBeforeNextSectionData != nullptr);
 
         // the continuation of the previous section should have been called
 
-        REQUIRE(pCalledBeforeNextSectionData->callCount == 1);
+        REQUIRE(calledBeforeNextSectionData->callCount == 1);
     }
 
     SECTION("notCalledMultipleTimes")
     {
         CONTINUE_SECTION_WHEN_IDLE(=)
         {
-            pData->callCount++;
+            data->callCount++;
 
-            REQUIRE(pData->callCount == 1);
+            REQUIRE(data->callCount == 1);
         };
     }
 
@@ -873,50 +873,50 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-complicated-B")
 
 TEST_CASE("CONTINUE_SECTION_IN_THREAD")
 {
-    P<TestData> pData = newObj<TestData>();
+    P<TestData> data = newObj<TestData>();
 
     SECTION("notCalledImmediately")
     {
-        CONTINUE_SECTION_IN_THREAD(=) { pData->callCount++; };
+        CONTINUE_SECTION_IN_THREAD(=) { data->callCount++; };
 
         // should not have been called yet
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
     SECTION("notCalledBeforeExitingInitialFunction")
     {
-        CONTINUE_SECTION_IN_THREAD(=) { pData->callCount++; };
+        CONTINUE_SECTION_IN_THREAD(=) { data->callCount++; };
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
         Thread::sleepMillis(2000);
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> pCalledBeforeNextSectionData;
+    static P<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
-        pCalledBeforeNextSectionData = pData;
+        calledBeforeNextSectionData = data;
 
-        CONTINUE_SECTION_IN_THREAD(=) { pData->callCount++; };
+        CONTINUE_SECTION_IN_THREAD(=) { data->callCount++; };
     }
 
     SECTION("calledBeforeNextSection-b")
     {
-        REQUIRE(pCalledBeforeNextSectionData != nullptr);
+        REQUIRE(calledBeforeNextSectionData != nullptr);
 
         // the continuation of the previous section should have been called
 
-        REQUIRE(pCalledBeforeNextSectionData->callCount == 1);
+        REQUIRE(calledBeforeNextSectionData->callCount == 1);
     }
 
     SECTION("notCalledMultipleTimes")
     {
         CONTINUE_SECTION_IN_THREAD(=)
         {
-            pData->callCount++;
+            data->callCount++;
 
-            REQUIRE(pData->callCount == 1);
+            REQUIRE(data->callCount == 1);
         };
     }
 

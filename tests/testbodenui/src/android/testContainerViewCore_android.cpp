@@ -16,7 +16,7 @@ class TestAndroidContainerViewCore : public bdn::test::TestAndroidViewCoreMixin<
 
 TEST_CASE("android.ContainerViewCore")
 {
-    P<TestAndroidContainerViewCore> pTest = newObj<TestAndroidContainerViewCore>();
+    P<TestAndroidContainerViewCore> test = newObj<TestAndroidContainerViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

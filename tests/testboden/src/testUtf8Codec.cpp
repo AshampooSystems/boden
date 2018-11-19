@@ -181,12 +181,12 @@ namespace bdn
             int dataCount = std::extent<decltype(allData)>().value;
 
             for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-                SubTestData *pCurrData = &allData[dataIndex];
+                SubTestData *currData = &allData[dataIndex];
 
-                SECTION(pCurrData->desc)
+                SECTION(currData->desc)
                 {
-                    std::string encoded(pCurrData->utf8);
-                    std::u32string expectedDecoded(pCurrData->expectedDecoded);
+                    std::string encoded(currData->utf8);
+                    std::u32string expectedDecoded(currData->expectedDecoded);
 
                     SECTION("decodeChar")
                     testUtf8CodecDecodeChar(encoded, expectedDecoded);
@@ -238,12 +238,12 @@ namespace bdn
             int dataCount = std::extent<decltype(allData)>().value;
 
             for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-                SubTestData *pCurrData = &allData[dataIndex];
+                SubTestData *currData = &allData[dataIndex];
 
-                SECTION(pCurrData->desc)
+                SECTION(currData->desc)
                 {
-                    std::u32string input(pCurrData->input);
-                    std::string expectedUtf8(pCurrData->expectedUtf8);
+                    std::u32string input(currData->input);
+                    std::string expectedUtf8(currData->expectedUtf8);
 
                     testCodecEncodingIterator<Utf8Codec>(input, expectedUtf8);
                 }

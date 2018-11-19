@@ -88,9 +88,9 @@ namespace bdn
             else {
                 Duration interval = secondsToDuration(intervalSeconds);
 
-                P<Timer> pTimer = newObj<Timer>(this, func, interval);
+                P<Timer> timer = newObj<Timer>(this, func, interval);
 
-                pTimer->scheduleNextEvent();
+                timer->scheduleNextEvent();
             }
         }
 
@@ -118,14 +118,14 @@ namespace bdn
 
             \code
 
-            P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
-            P<Thread>            pThread = newObj<Thread>(
-           newObj<GenericDispatcher::Runnable>( pDispatcher) );
+            P<GenericDispatcher> dispatcher = newObj<GenericDispatcher>();
+            P<Thread>            thread = newObj<Thread>(
+           newObj<GenericDispatcher::Runnable>( dispatcher) );
 
             // the thread will now execute the items from the dispatcher.
 
             // to stop the thread:
-            pThread->stop( Thread::ExceptionIgnore );
+            thread->stop( Thread::ExceptionIgnore );
 
             \endcode
 
@@ -133,7 +133,7 @@ namespace bdn
         class ThreadRunnable : public ThreadRunnableBase
         {
           public:
-            ThreadRunnable(GenericDispatcher *pDispatcher) { _pDispatcher = pDispatcher; }
+            ThreadRunnable(GenericDispatcher *dispatcher) { _dispatcher = dispatcher; }
 
             void signalStop() override
             {
@@ -141,18 +141,18 @@ namespace bdn
 
                 // post a dummy item so that we will wake up if we are currently
                 // waiting.
-                _pDispatcher->enqueue([]() {});
+                _dispatcher->enqueue([]() {});
             }
 
             void run() override
             {
                 while (!shouldStop()) {
                     try {
-                        if (!_pDispatcher->executeNext()) {
+                        if (!_dispatcher->executeNext()) {
                             // we can wait for a long time here because when
                             // signalStop is called we will get an item posted.
                             // So we automatically wake up.
-                            _pDispatcher->waitForNext(10);
+                            _dispatcher->waitForNext(10);
                         }
                     }
                     catch (...) {
@@ -165,7 +165,7 @@ namespace bdn
             }
 
           private:
-            P<GenericDispatcher> _pDispatcher;
+            P<GenericDispatcher> _dispatcher;
         };
 
       private:
@@ -257,27 +257,27 @@ namespace bdn
         class Timer : public Base
         {
           public:
-            Timer(GenericDispatcher *pDispatcherWeak, std::function<bool()> func, Duration interval)
+            Timer(GenericDispatcher *dispatcherWeak, std::function<bool()> func, Duration interval)
             {
-                _pDispatcherWeak = pDispatcherWeak;
+                _dispatcherWeak = dispatcherWeak;
 
                 _nextEventTime = Clock::now() + interval;
                 _func = func;
                 _interval = interval;
             }
 
-            void scheduleNextEvent() { _pDispatcherWeak->addTimedItem(_nextEventTime, Caller(this), Priority::normal); }
+            void scheduleNextEvent() { _dispatcherWeak->addTimedItem(_nextEventTime, Caller(this), Priority::normal); }
 
           private:
             class Caller
             {
               public:
-                Caller(Timer *pTimer) { _pTimer = pTimer; }
+                Caller(Timer *timer) { _timer = timer; }
 
-                void operator()() { _pTimer->onEvent(); }
+                void operator()() { _timer->onEvent(); }
 
               protected:
-                P<Timer> _pTimer;
+                P<Timer> _timer;
             };
             friend class Caller;
 
@@ -338,7 +338,7 @@ namespace bdn
                 }
             }
 
-            GenericDispatcher *_pDispatcherWeak;
+            GenericDispatcher *_dispatcherWeak;
 
             TimePoint _nextEventTime;
             std::function<bool()> _func;

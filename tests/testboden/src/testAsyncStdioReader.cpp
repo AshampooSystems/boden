@@ -13,7 +13,7 @@ template <typename CharType> class AsyncStdioReader_OneAtTheTimeTestContext : pu
     {
         _stream << "line 1" << std::endl << "line 2" << std::endl << "line 3";
 
-        _pReader = newObj<AsyncStdioReader<CharType>>(&_stream);
+        _reader = newObj<AsyncStdioReader<CharType>>(&_stream);
     }
 
     void startTest()
@@ -29,16 +29,16 @@ template <typename CharType> class AsyncStdioReader_OneAtTheTimeTestContext : pu
         if (_nextStep < 3) {
             _nextStep++;
 
-            P<IAsyncOp<String>> pOp = _pReader->readLine();
-            pOp->onDone() += weakMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext<CharType>::readDone);
+            P<IAsyncOp<String>> op = _reader->readLine();
+            op->onDone() += weakMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext<CharType>::readDone);
         }
     }
 
-    void readDone(IAsyncOp<String> *pOp)
+    void readDone(IAsyncOp<String> *op)
     {
         Mutex::Lock lock(_mutex);
 
-        _results.push_back(pOp->getResult());
+        _results.push_back(op->getResult());
         nextStep();
     }
 
@@ -64,7 +64,7 @@ template <typename CharType> class AsyncStdioReader_OneAtTheTimeTestContext : pu
     }
 
     std::basic_stringstream<CharType> _stream;
-    P<AsyncStdioReader<CharType>> _pReader;
+    P<AsyncStdioReader<CharType>> _reader;
 
     int _nextStep = 0;
     Array<String> _results;
@@ -85,25 +85,25 @@ template <typename CharType> class AsyncStdioReader_AllAtOnceTestContext : publi
             _stream << "line " << i;
         }
 
-        _pReader = newObj<AsyncStdioReader<CharType>>(&_stream);
+        _reader = newObj<AsyncStdioReader<CharType>>(&_stream);
     }
 
     void startTest()
     {
         for (int i = 0; i < 100; i++) {
-            P<IAsyncOp<String>> pOp = _pReader->readLine();
-            pOp->onDone() += weakMethod(this, &AsyncStdioReader_AllAtOnceTestContext<CharType>::readDone);
+            P<IAsyncOp<String>> op = _reader->readLine();
+            op->onDone() += weakMethod(this, &AsyncStdioReader_AllAtOnceTestContext<CharType>::readDone);
         }
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
             0.5, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
     }
 
-    void readDone(IAsyncOp<String> *pOp)
+    void readDone(IAsyncOp<String> *op)
     {
         Mutex::Lock lock(_mutex);
 
-        _results.push_back(pOp->getResult());
+        _results.push_back(op->getResult());
     }
 
     void continueTest()
@@ -127,7 +127,7 @@ template <typename CharType> class AsyncStdioReader_AllAtOnceTestContext : publi
     }
 
     std::basic_stringstream<CharType> _stream;
-    P<AsyncStdioReader<CharType>> _pReader;
+    P<AsyncStdioReader<CharType>> _reader;
 
     Array<String> _results;
 
@@ -140,18 +140,18 @@ template <typename CharType> void testAsyncStdioReader()
 {
     SECTION("one at a time")
     {
-        P<AsyncStdioReader_OneAtTheTimeTestContext<CharType>> pContext =
+        P<AsyncStdioReader_OneAtTheTimeTestContext<CharType>> context =
             newObj<AsyncStdioReader_OneAtTheTimeTestContext<CharType>>();
 
-        pContext->startTest();
+        context->startTest();
     }
 
     SECTION("all at once")
     {
-        P<AsyncStdioReader_AllAtOnceTestContext<CharType>> pContext =
+        P<AsyncStdioReader_AllAtOnceTestContext<CharType>> context =
             newObj<AsyncStdioReader_AllAtOnceTestContext<CharType>>();
 
-        pContext->startTest();
+        context->startTest();
     }
 }
 

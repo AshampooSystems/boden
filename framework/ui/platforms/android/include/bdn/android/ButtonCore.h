@@ -14,54 +14,54 @@ namespace bdn
         class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
         {
           private:
-            static P<JButton> _createJButton(Button *pOuter)
+            static P<JButton> _createJButton(Button *outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> pParent = pOuter->getParentView();
-                if (pParent == nullptr)
+                P<View> parent = outer->getParentView();
+                if (parent == nullptr)
                     throw ProgrammingError("ButtonCore instance requested for a Button that does "
                                            "not have a parent.");
 
-                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
-                if (pParentCore == nullptr)
+                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                if (parentCore == nullptr)
                     throw ProgrammingError("ButtonCore instance requested for "
                                            "a Button with core-less parent.");
 
-                JContext context = pParentCore->getJView().getContext();
+                JContext context = parentCore->getJView().getContext();
 
                 return newObj<JButton>(context);
             }
 
           public:
-            ButtonCore(Button *pOuterButton) : ViewCore(pOuterButton, _createJButton(pOuterButton))
+            ButtonCore(Button *outerButton) : ViewCore(outerButton, _createJButton(outerButton))
             {
-                _pJButton = cast<JButton>(&getJView());
+                _jButton = cast<JButton>(&getJView());
 
-                _pJButton->setSingleLine(true);
+                _jButton->setSingleLine(true);
 
-                setLabel(pOuterButton->label());
+                setLabel(outerButton->label());
             }
 
-            JButton &getJButton() { return *_pJButton; }
+            JButton &getJButton() { return *_jButton; }
 
             void setLabel(const String &label) override
             {
-                _pJButton->setText(label);
+                _jButton->setText(label);
 
                 // we must re-layout the button - otherwise its preferred size
                 // is not updated.
-                _pJButton->requestLayout();
+                _jButton->requestLayout();
             }
 
             void clicked() override
             {
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
-                    cast<Button>(pView)->onClick().notify(evt);
+                    cast<Button>(view)->onClick().notify(evt);
                 }
             }
 
@@ -69,11 +69,11 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _pJButton->getTextSize() / getUiScaleFactor();
+                return _jButton->getTextSize() / getUiScaleFactor();
             }
 
           private:
-            P<JButton> _pJButton;
+            P<JButton> _jButton;
         };
     }
 }

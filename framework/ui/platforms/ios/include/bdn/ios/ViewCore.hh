@@ -20,15 +20,15 @@ namespace bdn
         class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
-            ViewCore(View *pOuterView, UIView *view)
+            ViewCore(View *outerView, UIView *view)
             {
-                _outerViewWeak = pOuterView;
+                _outerViewWeak = outerView;
                 _view = view;
 
-                _addToParent(pOuterView->getParentView());
+                _addToParent(outerView->getParentView());
 
-                setVisible(pOuterView->visible());
-                setPadding(pOuterView->padding());
+                setVisible(outerView->visible());
+                setPadding(outerView->padding());
             }
 
             ~ViewCore() { _view = nil; }
@@ -50,20 +50,20 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *pChild) override
+            void childSizingInfoInvalidated(View *child) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
@@ -196,10 +196,10 @@ namespace bdn
                 if (size.height < 0)
                     size.height = 0;
 
-                P<const View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                P<const View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;
@@ -214,11 +214,11 @@ namespace bdn
 
             void moveToParentView(View &newParentView) override
             {
-                P<View> pOuter = getOuterViewIfStillAttached();
-                if (pOuter != nullptr) {
-                    P<View> pParent = pOuter->getParentView();
+                P<View> outer = getOuterViewIfStillAttached();
+                if (outer != nullptr) {
+                    P<View> parent = outer->getParentView();
 
-                    if (&newParentView != pParent.getPtr()) {
+                    if (&newParentView != parent.getPtr()) {
                         // Parent has changed. Remove the view from its current
                         // super view.
                         dispose();
@@ -244,9 +244,9 @@ namespace bdn
                 Margin padding;
 
                 Nullable<UiMargin> pad;
-                P<const View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr)
-                    pad = pView->padding();
+                P<const View> view = getOuterViewIfStillAttached();
+                if (view != nullptr)
+                    pad = view->padding();
 
                 if (pad.isNull())
                     padding = getDefaultPaddingDips();
@@ -269,22 +269,22 @@ namespace bdn
             virtual bool canAdjustToAvailableHeight() const { return false; }
 
           private:
-            void _addToParent(View *pParentView)
+            void _addToParent(View *parentView)
             {
-                if (pParentView == nullptr) {
+                if (parentView == nullptr) {
                     // top level window. Nothing to do.
                     return;
                 }
 
-                P<IViewCore> pParentCore = pParentView->getViewCore();
-                if (pParentCore == nullptr) {
+                P<IViewCore> parentCore = parentView->getViewCore();
+                if (parentCore == nullptr) {
                     // this should not happen. The parent MUST have a core -
                     // otherwise we cannot initialize ourselves.
                     throw ProgrammingError("bdn::ios::ViewCore constructed for a view whose "
                                            "parent does not have a core.");
                 }
 
-                cast<ViewCore>(pParentCore)->addChildUIView(_view);
+                cast<ViewCore>(parentCore)->addChildUIView(_view);
             }
 
             virtual double getFontSize() const

@@ -3,15 +3,15 @@
 
 @interface BdnIosToggleClickManager : NSObject
 
-@property bdn::ios::ToggleCoreBase *pCore;
+@property bdn::ios::ToggleCoreBase *core;
 
 @end
 
 @implementation BdnIosToggleClickManager
 
-- (void)setToggleCore:(bdn::ios::ToggleCoreBase *)pCore { _pCore = pCore; }
+- (void)setToggleCore:(bdn::ios::ToggleCoreBase *)core { _core = core; }
 
-- (void)clicked { _pCore->_clicked(); }
+- (void)clicked { _core->_clicked(); }
 
 @end
 
@@ -24,8 +24,8 @@ namespace bdn
     namespace ios
     {
 
-        ToggleCoreBase::ToggleCoreBase(View *pOuter, BdnIosToggleCompositeBase *pToggleComposite)
-            : ViewCore(pOuter, pToggleComposite)
+        ToggleCoreBase::ToggleCoreBase(View *outer, BdnIosToggleCompositeBase *toggleComposite)
+            : ViewCore(outer, toggleComposite)
         {
             _composite = (BdnIosToggleCompositeBase *)getUIView();
 

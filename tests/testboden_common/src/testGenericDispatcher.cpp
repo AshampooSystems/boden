@@ -13,23 +13,23 @@ using namespace bdn;
 
 TEST_CASE("GenericDispatcher")
 {
-    static P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
-    static P<Thread> pThread = newObj<Thread>(newObj<GenericDispatcher::ThreadRunnable>(pDispatcher));
+    static P<GenericDispatcher> dispatcher = newObj<GenericDispatcher>();
+    static P<Thread> thread = newObj<Thread>(newObj<GenericDispatcher::ThreadRunnable>(dispatcher));
 
     bool enableTimingTests = false;
 #ifdef BDN_ENABLE_TIMING_TESTS
     enableTimingTests = true;
 #endif
 
-    bdn::test::testDispatcher(pDispatcher, pThread->getId(), enableTimingTests);
+    bdn::test::testDispatcher(dispatcher, thread->getId(), enableTimingTests);
 
     SECTION("cleanup")
     {
         // this is a dummy section that is used to clean up the dispatcher and
         // thread we created.
-        pThread->stop(Thread::ExceptionIgnore);
-        pThread = nullptr;
-        pDispatcher = nullptr;
+        thread->stop(Thread::ExceptionIgnore);
+        thread = nullptr;
+        dispatcher = nullptr;
     }
 }
 

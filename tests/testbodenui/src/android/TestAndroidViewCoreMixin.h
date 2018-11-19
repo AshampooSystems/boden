@@ -20,10 +20,10 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _pAndroidViewCore = cast<bdn::android::ViewCore>(BaseClass::_pView->getViewCore());
-                REQUIRE(_pAndroidViewCore != nullptr);
+                _androidViewCore = cast<bdn::android::ViewCore>(BaseClass::_view->getViewCore());
+                REQUIRE(_androidViewCore != nullptr);
 
-                _jView = _pAndroidViewCore->getJView();
+                _jView = _androidViewCore->getJView();
                 REQUIRE(!_jView.isNull_());
             }
 
@@ -31,7 +31,7 @@ namespace bdn
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_pView->visible();
+                bool expectedVisible = BaseClass::_view->visible();
 
                 if (expectedVisible)
                     REQUIRE(_jView.getVisibility() == bdn::android::JView::Visibility::visible);
@@ -41,14 +41,14 @@ namespace bdn
 
             Point getViewPosition()
             {
-                double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUiScaleFactor();
 
                 return Point(_jView.getLeft() / scaleFactor, _jView.getTop() / scaleFactor);
             }
 
             Size getViewSize()
             {
-                double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUiScaleFactor();
 
                 return Size(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
             }
@@ -63,7 +63,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getViewPosition();
-                Point expectedPosition = BaseClass::_pView->position();
+                Point expectedPosition = BaseClass::_view->position();
 
                 REQUIRE_ALMOST_EQUAL(position.x, expectedPosition.x, 1);
                 REQUIRE_ALMOST_EQUAL(position.y, expectedPosition.y, 1);
@@ -72,7 +72,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getViewSize();
-                Size expectedSize = BaseClass::_pView->size();
+                Size expectedSize = BaseClass::_view->size();
 
                 REQUIRE_ALMOST_EQUAL(size.width, expectedSize.width, 1);
                 REQUIRE_ALMOST_EQUAL(size.height, expectedSize.height, 1);
@@ -85,7 +85,7 @@ namespace bdn
                 int bottom = _jView.getPaddingBottom();
                 int left = _jView.getPaddingLeft();
 
-                Nullable<UiMargin> pad = BaseClass::_pView->padding();
+                Nullable<UiMargin> pad = BaseClass::_view->padding();
 
                 if (pad.isNull()) {
                     // the default padding is used. This is simply the padding
@@ -95,9 +95,9 @@ namespace bdn
                     return;
                 }
 
-                Margin expectedDipPadding = BaseClass::_pView->uiMarginToDipMargin(pad.get());
+                Margin expectedDipPadding = BaseClass::_view->uiMarginToDipMargin(pad.get());
 
-                double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUiScaleFactor();
 
                 REQUIRE_ALMOST_EQUAL(top / scaleFactor, expectedDipPadding.top, 1);
                 REQUIRE_ALMOST_EQUAL(right / scaleFactor, expectedDipPadding.right, 1);
@@ -105,7 +105,7 @@ namespace bdn
                 REQUIRE_ALMOST_EQUAL(left / scaleFactor, expectedDipPadding.left, 1);
             }
 
-            P<bdn::android::ViewCore> _pAndroidViewCore;
+            P<bdn::android::ViewCore> _androidViewCore;
             bdn::android::JView _jView;
         };
     }

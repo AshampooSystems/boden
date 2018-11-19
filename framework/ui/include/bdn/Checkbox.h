@@ -45,7 +45,7 @@ namespace bdn
     class Checkbox : public View
     {
       public:
-        Checkbox() { _pOnClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Checkbox() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
         /** The checkbox's label */
         BDN_VIEW_PROPERTY(String, label, setLabel, ICheckboxCore, influencesPreferredSize());
@@ -57,7 +57,7 @@ namespace bdn
            to be notified about click events. Click events are posted when the
            user clicks on the checkbox or checkbox label.
          */
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_pOnClick; }
+        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
         /** Returns the name of Checkbox core objects */
         static String getCheckboxCoreTypeName() { return "bdn.CheckboxCore"; }
@@ -66,7 +66,7 @@ namespace bdn
         String getCoreTypeName() const override { return getCheckboxCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _pOnClick;
+        P<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
 

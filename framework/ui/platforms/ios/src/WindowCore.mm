@@ -8,7 +8,7 @@ namespace bdn
     namespace ios
     {
 
-        UIWindow *WindowCore::_createUIWindow(Window *pOuterWindow)
+        UIWindow *WindowCore::_createUIWindow(Window *outerWindow)
         {
             UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 

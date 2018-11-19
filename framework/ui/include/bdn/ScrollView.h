@@ -64,18 +64,18 @@ namespace bdn
             Note that ScrollView object can only have a single child content
            view. If one is already set then it will be replaced.
             See #ScrollView class documentation for more information.*/
-        virtual void setContentView(View *pContentView)
+        virtual void setContentView(View *contentView)
         {
             Thread::assertInMainThread();
 
-            if (pContentView != _pContentView) {
-                if (_pContentView != nullptr)
-                    _pContentView->_setParentView(nullptr);
+            if (contentView != _contentView) {
+                if (_contentView != nullptr)
+                    _contentView->_setParentView(nullptr);
 
-                _pContentView = pContentView;
+                _contentView = contentView;
 
-                if (_pContentView != nullptr)
-                    _pContentView->_setParentView(this);
+                if (_contentView != nullptr)
+                    _contentView->_setParentView(this);
 
                 invalidateSizingInfo(View::InvalidateReason::childAddedOrRemoved);
                 needLayout(View::InvalidateReason::childAddedOrRemoved);
@@ -88,7 +88,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            return _pContentView;
+            return _contentView;
         }
 
         /** Returns the scroll view's content view (see #getContentView()).
@@ -97,7 +97,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            return _pContentView;
+            return _contentView;
         }
 
         /** Changes the scroll position so that the specified part of the
@@ -139,29 +139,29 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            if (_pContentView != nullptr)
-                childViews.push_back(_pContentView);
+            if (_contentView != nullptr)
+                childViews.push_back(_contentView);
         }
 
         void removeAllChildViews() override { setContentView(nullptr); }
 
-        P<View> findPreviousChildView(View *pChildView) override
+        P<View> findPreviousChildView(View *childView) override
         {
             // we do not have multiple child views with an order - just a single
             // content view
             return nullptr;
         }
 
-        void _childViewStolen(View *pChildView) override
+        void _childViewStolen(View *childView) override
         {
             Thread::assertInMainThread();
 
-            if (pChildView == _pContentView)
-                _pContentView = nullptr;
+            if (childView == _contentView)
+                _contentView = nullptr;
         }
 
       private:
-        P<View> _pContentView;
+        P<View> _contentView;
     };
 }
 

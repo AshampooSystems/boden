@@ -16,9 +16,9 @@ namespace bdn
      */
     inline bool unhandledException(bool canKeepRunningAfterException)
     {
-        P<IAppRunner> pAppRunner = getAppRunner();
-        if (pAppRunner != nullptr) {
-            return pAppRunner->unhandledException(canKeepRunningAfterException);
+        P<IAppRunner> appRunner = getAppRunner();
+        if (appRunner != nullptr) {
+            return appRunner->unhandledException(canKeepRunningAfterException);
         }
 
         return false;

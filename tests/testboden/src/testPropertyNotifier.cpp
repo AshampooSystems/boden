@@ -9,12 +9,12 @@ using namespace bdn;
 class PropertyNotifierTestSubscriptionData : public Base
 {
   public:
-    PropertyNotifierTestSubscriptionData(bool *pDeleted) : _pDeleted(pDeleted) {}
+    PropertyNotifierTestSubscriptionData(bool *deleted) : _deleted(deleted) {}
 
-    ~PropertyNotifierTestSubscriptionData() { *_pDeleted = true; }
+    ~PropertyNotifierTestSubscriptionData() { *_deleted = true; }
 
   private:
-    bool *_pDeleted;
+    bool *_deleted;
 };
 
 template <typename VALUE_TYPE>
@@ -37,12 +37,12 @@ class PropertyNotifierTestAccessor : public Base, BDN_IMPLEMENTS IPropertyReadAc
 
 TEST_CASE("PropertyNotifier")
 {
-    P<PropertyNotifier<String>> pNotifier = newObj<PropertyNotifier<String>>();
+    P<PropertyNotifier<String>> notifier = newObj<PropertyNotifier<String>>();
 
     SECTION("empty")
     {
         // here we simply verify that no crash happens
-        pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "bla"));
+        notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "bla"));
     }
 
     SECTION("one subscriber")
@@ -50,52 +50,52 @@ TEST_CASE("PropertyNotifier")
         Array<String> gotParam;
 
         bool subscriptionDataDeleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionDataDeleted);
 
-        P<INotifierSubscription> pSub =
-            pNotifier->subscribe([&gotParam, pTestSubscriptionData](String param) { gotParam.add(param); });
+        P<INotifierSubscription> sub =
+            notifier->subscribe([&gotParam, testSubscriptionData](String param) { gotParam.add(param); });
 
-        pTestSubscriptionData = nullptr;
+        testSubscriptionData = nullptr;
         // the subscription data should still be alive because it was
         // captured
         REQUIRE(!subscriptionDataDeleted);
 
         SECTION("single notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam == Array<String>{"hello"});
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("double notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam == Array<String>{"hello"});
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE((gotParam == Array<String>{"hello", "world"}));
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("unsubscribe")
         {
-            pNotifier->unsubscribe(pSub);
+            notifier->unsubscribe(sub);
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam == Array<String>{});
         }
 
         SECTION("unsubscribeAll")
         {
-            pNotifier->unsubscribeAll();
+            notifier->unsubscribeAll();
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam == Array<String>{});
         }
     }
@@ -105,51 +105,51 @@ TEST_CASE("PropertyNotifier")
         int callCount = 0;
 
         bool subscriptionDataDeleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionDataDeleted);
 
-        P<INotifierSubscription> pSub =
-            pNotifier->subscribeParamless([&callCount, pTestSubscriptionData]() { callCount++; });
+        P<INotifierSubscription> sub =
+            notifier->subscribeParamless([&callCount, testSubscriptionData]() { callCount++; });
 
-        pTestSubscriptionData = nullptr;
+        testSubscriptionData = nullptr;
         // the subscription data should still be alive because it was
         // captured
         REQUIRE(!subscriptionDataDeleted);
 
         SECTION("single notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(callCount == 1);
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("double notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE(callCount == 2);
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("unsubscribe")
         {
-            pNotifier->unsubscribe(pSub);
+            notifier->unsubscribe(sub);
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(callCount == 0);
         }
 
         SECTION("unsubscribeAll")
         {
-            pNotifier->unsubscribeAll();
+            notifier->unsubscribeAll();
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(callCount == 0);
         }
     }
@@ -161,29 +161,29 @@ TEST_CASE("PropertyNotifier")
         Array<String> gotParam3;
 
         bool subscriptionData1Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData1 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData1 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData2 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData2 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData3 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData3 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
-        P<INotifierSubscription> pSub1 =
-            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
+        P<INotifierSubscription> sub1 =
+            notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.add(param); });
 
-        P<INotifierSubscription> pSub2 =
-            pNotifier->subscribe([&gotParam2, pTestSubscriptionData2](String param) { gotParam2.add(param); });
+        P<INotifierSubscription> sub2 =
+            notifier->subscribe([&gotParam2, testSubscriptionData2](String param) { gotParam2.add(param); });
 
-        P<INotifierSubscription> pSub3 =
-            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
+        P<INotifierSubscription> sub3 =
+            notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.add(param); });
 
-        pTestSubscriptionData1 = nullptr;
-        pTestSubscriptionData2 = nullptr;
-        pTestSubscriptionData3 = nullptr;
+        testSubscriptionData1 = nullptr;
+        testSubscriptionData2 = nullptr;
+        testSubscriptionData3 = nullptr;
         // the subscription data should still be alive because it was
         // captured
         REQUIRE(!subscriptionData1Deleted);
@@ -192,7 +192,7 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("single notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam1 == Array<String>{"hello"});
             REQUIRE(gotParam2 == Array<String>{"hello"});
             REQUIRE(gotParam3 == Array<String>{"hello"});
@@ -203,12 +203,12 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("double notify")
         {
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam1 == Array<String>{"hello"});
             REQUIRE(gotParam2 == Array<String>{"hello"});
             REQUIRE(gotParam3 == Array<String>{"hello"});
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE((gotParam1 == Array<String>{"hello", "world"}));
             REQUIRE((gotParam2 == Array<String>{"hello", "world"}));
             REQUIRE((gotParam3 == Array<String>{"hello", "world"}));
@@ -220,7 +220,7 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("unsubscribe")
         {
-            pNotifier->unsubscribe(pSub2);
+            notifier->unsubscribe(sub2);
 
             // subscription data should have been deleted
             REQUIRE(subscriptionData2Deleted);
@@ -228,7 +228,7 @@ TEST_CASE("PropertyNotifier")
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE((gotParam1 == Array<String>{"hello"}));
             REQUIRE((gotParam2 == Array<String>{}));
             REQUIRE((gotParam3 == Array<String>{"hello"}));
@@ -236,14 +236,14 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("unsubscribeAll")
         {
-            pNotifier->unsubscribeAll();
+            notifier->unsubscribeAll();
 
             // subscription data should have been deleted
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(gotParam1.isEmpty());
             REQUIRE(gotParam2.isEmpty());
             REQUIRE(gotParam3.isEmpty());
@@ -257,38 +257,38 @@ TEST_CASE("PropertyNotifier")
         Array<String> gotParam3;
 
         bool subscriptionData1Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData1 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData1 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData2 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData2 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData3 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData3 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
-        PropertyNotifierTestAccessor<String> accessor(*pNotifier, "");
+        PropertyNotifierTestAccessor<String> accessor(*notifier, "");
 
-        P<INotifierSubscription> pSub1 =
-            pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
+        P<INotifierSubscription> sub1 =
+            notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.add(param); });
 
-        P<INotifierSubscription> pSub2 =
-            pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, pNotifier, &accessor](String param) {
+        P<INotifierSubscription> sub2 =
+            notifier->subscribe([&gotParam2, testSubscriptionData2, notifier, &accessor](String param) {
                 gotParam2.add(param);
 
                 if (gotParam2.size() == 1) {
                     accessor.currVal = "world";
-                    pNotifier->notify(accessor);
+                    notifier->notify(accessor);
                 }
             });
 
-        P<INotifierSubscription> pSub3 =
-            pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
+        P<INotifierSubscription> sub3 =
+            notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.add(param); });
 
-        pTestSubscriptionData1 = nullptr;
-        pTestSubscriptionData2 = nullptr;
-        pTestSubscriptionData3 = nullptr;
+        testSubscriptionData1 = nullptr;
+        testSubscriptionData2 = nullptr;
+        testSubscriptionData3 = nullptr;
         // the subscription data should still be alive because it was
         // captured
         REQUIRE(!subscriptionData1Deleted);
@@ -297,7 +297,7 @@ TEST_CASE("PropertyNotifier")
 
         accessor.currVal = "hello";
 
-        pNotifier->notify(accessor);
+        notifier->notify(accessor);
         REQUIRE(!subscriptionData1Deleted);
         REQUIRE(!subscriptionData2Deleted);
         REQUIRE(!subscriptionData3Deleted);
@@ -316,49 +316,49 @@ TEST_CASE("PropertyNotifier")
         Array<String> gotParam3;
 
         bool subscriptionData1Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData1 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData1 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData1Deleted);
 
         bool subscriptionData2Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData2 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData2 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData2Deleted);
 
         bool subscriptionData3Deleted = false;
-        P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData3 =
+        P<PropertyNotifierTestSubscriptionData> testSubscriptionData3 =
             newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
         SECTION("unsub following")
         {
-            P<INotifierSubscription> pSub1 =
-                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
+            P<INotifierSubscription> sub1 =
+                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.add(param); });
 
-            P<INotifierSubscription> pSub3;
+            P<INotifierSubscription> sub3;
 
-            P<INotifierSubscription> pSub2 =
-                pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, &pSub3, &pNotifier](String param) {
+            P<INotifierSubscription> sub2 =
+                notifier->subscribe([&gotParam2, testSubscriptionData2, &sub3, &notifier](String param) {
                     gotParam2.add(param);
 
-                    pNotifier->unsubscribe(pSub3);
+                    notifier->unsubscribe(sub3);
                 });
 
-            pSub3 = pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
+            sub3 = notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.add(param); });
 
-            pTestSubscriptionData1 = nullptr;
-            pTestSubscriptionData2 = nullptr;
-            pTestSubscriptionData3 = nullptr;
+            testSubscriptionData1 = nullptr;
+            testSubscriptionData2 = nullptr;
+            testSubscriptionData3 = nullptr;
             // the subscription data should still be alive because it was
             // captured
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             // 3 has been unsubscribed
             REQUIRE(subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
@@ -371,36 +371,36 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("unsub current")
         {
-            P<INotifierSubscription> pSub1 =
-                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
+            P<INotifierSubscription> sub1 =
+                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.add(param); });
 
-            P<INotifierSubscription> pSub2;
+            P<INotifierSubscription> sub2;
 
-            pSub2 = pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, &pSub2, &pNotifier](String param) {
+            sub2 = notifier->subscribe([&gotParam2, testSubscriptionData2, &sub2, &notifier](String param) {
                 gotParam2.add(param);
 
-                pNotifier->unsubscribe(pSub2);
+                notifier->unsubscribe(sub2);
             });
 
-            P<INotifierSubscription> pSub3 =
-                pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
+            P<INotifierSubscription> sub3 =
+                notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.add(param); });
 
-            pTestSubscriptionData1 = nullptr;
-            pTestSubscriptionData2 = nullptr;
-            pTestSubscriptionData3 = nullptr;
+            testSubscriptionData1 = nullptr;
+            testSubscriptionData2 = nullptr;
+            testSubscriptionData3 = nullptr;
             // the subscription data should still be alive because it was
             // captured
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(!subscriptionData1Deleted);
             // 3 should have been unsubscribed
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
@@ -414,34 +414,34 @@ TEST_CASE("PropertyNotifier")
 
         SECTION("unsub all")
         {
-            P<INotifierSubscription> pSub1 =
-                pNotifier->subscribe([&gotParam1, pTestSubscriptionData1](String param) { gotParam1.add(param); });
+            P<INotifierSubscription> sub1 =
+                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.add(param); });
 
-            P<INotifierSubscription> pSub2 =
-                pNotifier->subscribe([&gotParam2, pTestSubscriptionData2, pNotifier](String param) {
+            P<INotifierSubscription> sub2 =
+                notifier->subscribe([&gotParam2, testSubscriptionData2, notifier](String param) {
                     gotParam2.add(param);
 
-                    pNotifier->unsubscribeAll();
+                    notifier->unsubscribeAll();
                 });
 
-            P<INotifierSubscription> pSub3 =
-                pNotifier->subscribe([&gotParam3, pTestSubscriptionData3](String param) { gotParam3.add(param); });
+            P<INotifierSubscription> sub3 =
+                notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.add(param); });
 
-            pTestSubscriptionData1 = nullptr;
-            pTestSubscriptionData2 = nullptr;
-            pTestSubscriptionData3 = nullptr;
+            testSubscriptionData1 = nullptr;
+            testSubscriptionData2 = nullptr;
+            testSubscriptionData3 = nullptr;
             // the subscription data should still be alive because it was
             // captured
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "hello"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "hello"));
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
 
-            pNotifier->notify(PropertyNotifierTestAccessor<String>(*pNotifier, "world"));
+            notifier->notify(PropertyNotifierTestAccessor<String>(*notifier, "world"));
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);

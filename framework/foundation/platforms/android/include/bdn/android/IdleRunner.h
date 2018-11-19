@@ -17,7 +17,7 @@ namespace bdn
           public:
             static IdleRunner &get();
 
-            void callOnceWhenIdle(ISimpleCallable *pCallable);
+            void callOnceWhenIdle(ISimpleCallable *callable);
 
             /** Used internally. Notifies the idle runner that an idle phase has
              * begun.*/

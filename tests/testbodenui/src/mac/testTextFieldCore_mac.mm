@@ -16,24 +16,24 @@ class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin<bdn::te
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextFieldCore>::initCore();
 
-        _pNSTextField = (NSTextField *)_pNSView;
-        REQUIRE(_pNSTextField != nullptr);
+        _nSTextField = (NSTextField *)_nSView;
+        REQUIRE(_nSTextField != nullptr);
     }
 
     void verifyCoreText() override
     {
-        String expectedText = _pTextField->text();
-        String text = bdn::mac::macStringToString(_pNSTextField.stringValue);
+        String expectedText = _textField->text();
+        String text = bdn::mac::macStringToString(_nSTextField.stringValue);
         REQUIRE(text == expectedText);
     }
 
   protected:
-    NSTextField *_pNSTextField;
+    NSTextField *_nSTextField;
 };
 
 TEST_CASE("mac.TextFieldCore")
 {
-    P<TestMacTextFieldCore> pTest = newObj<TestMacTextFieldCore>();
+    P<TestMacTextFieldCore> test = newObj<TestMacTextFieldCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

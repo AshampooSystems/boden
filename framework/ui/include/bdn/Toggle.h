@@ -25,7 +25,7 @@ namespace bdn
     class Toggle : public View
     {
       public:
-        Toggle() { _pOnClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Toggle() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
         // XXX should this be ISwitchCore???
 
@@ -46,7 +46,7 @@ namespace bdn
            the label is not clickable. If the toggle is displayed as a checkbox,
             the label is clickable.
          */
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_pOnClick; }
+        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
         static String getToggleCoreTypeName()
         {
@@ -58,7 +58,7 @@ namespace bdn
         String getCoreTypeName() const override { return getToggleCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _pOnClick;
+        P<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
 

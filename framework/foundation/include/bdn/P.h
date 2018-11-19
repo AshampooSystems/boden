@@ -15,9 +15,9 @@ namespace bdn
        results in the expected behaviour.
 
         \code
-        P<SomeClass> pA = newObj<SomeClass>();
-        SomeClass* pPlainA = pA;
-        P<SomeClass pB = pPlainA;
+        P<SomeClass> a = newObj<SomeClass>();
+        SomeClass* plainA = a;
+        P<SomeClass b = plainA;
         \endcode
 
         The only thing you need to keep in mind when using #P pointers is to
@@ -30,28 +30,28 @@ namespace bdn
     template <class T> class P
     {
       public:
-        P() : _pObject(nullptr) {}
+        P() : _object(nullptr) {}
 
-        P(std::nullptr_t) : _pObject(nullptr) {}
+        P(std::nullptr_t) : _object(nullptr) {}
 
-        P(const P &p) : P(p._pObject) {}
+        P(const P &p) : P(p._object) {}
 
-        P(P &&p) : _pObject(p.detachPtr()) {}
+        P(P &&p) : _object(p.detachPtr()) {}
 
         template <class F> inline P(const P<F> &p) : P(p.getPtr()) {}
 
-        template <class F> inline P(P<F> &&p) : _pObject(p.detachPtr()) {}
+        template <class F> inline P(P<F> &&p) : _object(p.detachPtr()) {}
 
-        P(T *p) : _pObject(p)
+        P(T *p) : _object(p)
         {
-            if (_pObject != nullptr)
-                _pObject->addRef();
+            if (_object != nullptr)
+                _object->addRef();
         }
 
         ~P()
         {
-            if (_pObject != nullptr)
-                _pObject->releaseRef();
+            if (_object != nullptr)
+                _object->releaseRef();
         }
 
         /** Assigns a pointer to an object to the smart pointer and increases
@@ -59,64 +59,64 @@ namespace bdn
 
             If the smart pointer already held a reference to another object then
             that reference is released.*/
-        void assign(T *pObj)
+        void assign(T *obj)
         {
-            T *pMyOld = _pObject;
+            T *myOld = _object;
 
             // it is important that we increase the reference count on the new
             // object first. Otherwise the following could cause the object to
             // be deleted by mistake: P<SomeClass> p = ...; p = p;
 
-            _pObject = pObj;
-            if (_pObject != nullptr)
-                _pObject->addRef();
+            _object = obj;
+            if (_object != nullptr)
+                _object->addRef();
 
-            if (pMyOld != nullptr)
-                pMyOld->releaseRef();
+            if (myOld != nullptr)
+                myOld->releaseRef();
         }
 
-        void assign(P &&pObj)
+        void assign(P &&obj)
         {
-            attachPtr(pObj.getPtr());
-            pObj.detachPtr();
+            attachPtr(obj.getPtr());
+            obj.detachPtr();
         }
 
-        template <class F> void assign(P<F> &&pObj)
+        template <class F> void assign(P<F> &&obj)
         {
-            attachPtr(pObj.getPtr());
-            pObj.detachPtr();
+            attachPtr(obj.getPtr());
+            obj.detachPtr();
         }
 
-        P<T> &operator=(T *pObj)
+        P<T> &operator=(T *obj)
         {
-            assign(pObj);
+            assign(obj);
             return *this;
         }
 
-        P<T> &operator=(const P<T> &pObj)
+        P<T> &operator=(const P<T> &obj)
         {
-            assign(pObj.getPtr());
+            assign(obj.getPtr());
             return *this;
         }
 
-        P<T> &operator=(P<T> &&pObj)
+        P<T> &operator=(P<T> &&obj)
         {
-            attachPtr(pObj.getPtr());
-            pObj.detachPtr();
+            attachPtr(obj.getPtr());
+            obj.detachPtr();
 
             return *this;
         }
 
-        template <class O> inline P<T> &operator=(const P<O> &pObj)
+        template <class O> inline P<T> &operator=(const P<O> &obj)
         {
-            assign(pObj.getPtr());
+            assign(obj.getPtr());
             return *this;
         }
 
-        template <class O> inline P<T> &operator=(P<O> &&pObj)
+        template <class O> inline P<T> &operator=(P<O> &&obj)
         {
-            attachPtr(pObj.getPtr());
-            pObj.detachPtr();
+            attachPtr(obj.getPtr());
+            obj.detachPtr();
 
             return *this;
         }
@@ -131,11 +131,11 @@ namespace bdn
             */
         T *detachPtr()
         {
-            T *pObj = _pObject;
+            T *obj = _object;
 
-            _pObject = nullptr;
+            _object = nullptr;
 
-            return pObj;
+            return obj;
         }
 
         /** Sets the smart pointer to point to an object without incrementing
@@ -144,39 +144,39 @@ namespace bdn
             The object's reference count will be released as normal when the
            smart pointer is deleted or gets another pointer assigned.
         */
-        P &attachPtr(T *pObj)
+        P &attachPtr(T *obj)
         {
-            if (_pObject != nullptr)
-                _pObject->releaseRef();
+            if (_object != nullptr)
+                _object->releaseRef();
 
-            _pObject = pObj;
+            _object = obj;
 
             return *this;
         }
 
         /** Conversion operator to a plain pointer.*/
-        operator T *() const { return _pObject; }
+        operator T *() const { return _object; }
 
         /** Allows direct access to the members that this pointer points to.*/
-        T *operator->() const { return _pObject; }
+        T *operator->() const { return _object; }
 
-        bool operator==(const P<T> &p) const { return _pObject == p._pObject; }
+        bool operator==(const P<T> &p) const { return _object == p._object; }
 
-        bool operator==(T *p) const { return _pObject == p; }
+        bool operator==(T *p) const { return _object == p; }
 
-        bool operator==(std::nullptr_t) const { return _pObject == nullptr; }
+        bool operator==(std::nullptr_t) const { return _object == nullptr; }
 
-        bool operator!=(const P<T> &pObj) const { return _pObject != pObj._pObject; }
+        bool operator!=(const P<T> &obj) const { return _object != obj._object; }
 
-        bool operator!=(T *pObj) const { return _pObject != pObj; }
+        bool operator!=(T *obj) const { return _object != obj; }
 
-        bool operator!=(std::nullptr_t) const { return _pObject != nullptr; }
+        bool operator!=(std::nullptr_t) const { return _object != nullptr; }
 
         /** Returns the value of the smart pointer as a plain pointer.*/
-        T *getPtr() const { return _pObject; }
+        T *getPtr() const { return _object; }
 
       protected:
-        T *_pObject;
+        T *_object;
     };
 }
 

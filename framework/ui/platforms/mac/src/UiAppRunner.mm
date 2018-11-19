@@ -11,37 +11,37 @@
 
 @interface BdnMacAppDelegate_ : NSObject <NSApplicationDelegate>
 
-- (void)setAppRunner:(bdn::mac::UiAppRunner *)pRunner;
+- (void)setAppRunner:(bdn::mac::UiAppRunner *)runner;
 
 @end
 
 @implementation BdnMacAppDelegate_
 
-bdn::mac::UiAppRunner *_pRunner;
+bdn::mac::UiAppRunner *_runner;
 
-- (void)setAppRunner:(bdn::mac::UiAppRunner *)pRunner { _pRunner = pRunner; }
+- (void)setAppRunner:(bdn::mac::UiAppRunner *)runner { _runner = runner; }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-    _pRunner->_applicationWillFinishLaunching(aNotification);
+    _runner->_applicationWillFinishLaunching(aNotification);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidFinishLaunching(aNotification);
+    _runner->_applicationDidFinishLaunching(aNotification);
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidBecomeActive(aNotification);
+    _runner->_applicationDidBecomeActive(aNotification);
 }
 
 - (void)applicationDidResignActive:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidResignActive(aNotification);
+    _runner->_applicationDidResignActive(aNotification);
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification { _pRunner->_applicationWillTerminate(aNotification); }
+- (void)applicationWillTerminate:(NSNotification *)aNotification { _runner->_applicationWillTerminate(aNotification); }
 
 @end
 
@@ -68,7 +68,7 @@ namespace bdn
         UiAppRunner::UiAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[])
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
-            _pMainDispatcher = newObj<bdn::fk::MainDispatcher>();
+            _mainDispatcher = newObj<bdn::fk::MainDispatcher>();
         }
 
         static void _globalUnhandledNSException(NSException *exception)
@@ -78,15 +78,15 @@ namespace bdn
             if (exception.userInfo != nil)
                 cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
-            P<ExceptionReference> pCppExceptionRef;
+            P<ExceptionReference> cppExceptionRef;
             if (cppExceptionWrapper != nil)
-                pCppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
+                cppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
             try {
                 // if the exception is a wrapped C++ exception then we rethrow
                 // the original
-                if (pCppExceptionRef != nullptr)
-                    pCppExceptionRef->rethrow();
+                if (cppExceptionRef != nullptr)
+                    cppExceptionRef->rethrow();
                 else {
                     // otherwise we throw the NSException pointer.
                     throw exception;
@@ -146,10 +146,10 @@ namespace bdn
 
         void UiAppRunner::initiateExitIfPossible(int exitCode)
         {
-            _pMainDispatcher->enqueue(
+            _mainDispatcher->enqueue(
                 []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
         }
 
-        void UiAppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose(); }
+        void UiAppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose(); }
     }
 }

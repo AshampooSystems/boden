@@ -131,14 +131,14 @@ namespace bdn
          If you prefer to pass a function pointer or function object directly
          then please look at the static function Thread::exec() instead.
          */
-        Thread(IThreadRunnable *pRunnable);
+        Thread(IThreadRunnable *runnable);
 
 #else
 
       private:
         // If you get an error here then multithreading is not supported on this
         // platform.
-        Thread(IThreadRunnable *pRunnable);
+        Thread(IThreadRunnable *runnable);
 
       public:
 
@@ -386,27 +386,27 @@ namespace bdn
             class ExecThreadRunnable : public ThreadRunnableBase
             {
               public:
-                ExecThreadRunnable(std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *pTask)
+                ExecThreadRunnable(std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *task)
                 {
-                    _pTask = pTask;
+                    _task = task;
                 }
 
-                ~ExecThreadRunnable() { delete _pTask; }
+                ~ExecThreadRunnable() { delete _task; }
 
-                void run() { (*_pTask)(); }
+                void run() { (*_task)(); }
 
               protected:
-                std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *_pTask;
+                std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *_task;
             };
 
-            std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *pTask =
+            std::packaged_task<typename std::result_of<FuncType(Args...)>::type()> *task =
                 new std::packaged_task<typename std::result_of<FuncType(Args...)>::type()>(boundFunc);
 
             // we must fetch the future here. The thread deletes the task object
             // when it finishes.
-            std::future<typename std::result_of<FuncType(Args...)>::type> resultFuture = pTask->get_future();
+            std::future<typename std::result_of<FuncType(Args...)>::type> resultFuture = task->get_future();
 
-            Thread execThread(newObj<ExecThreadRunnable>(pTask));
+            Thread execThread(newObj<ExecThreadRunnable>(task));
 
             execThread.detach();
 
@@ -438,11 +438,11 @@ namespace bdn
         struct ThreadData : public Base
         {
             Mutex runnableMutex;
-            P<IThreadRunnable> pRunnable;
+            P<IThreadRunnable> runnable;
             std::exception_ptr threadException;
         };
 
-        static void run(P<ThreadData> pThreadData);
+        static void run(P<ThreadData> threadData);
 
         static Id &getMainIdRef()
         {
@@ -453,7 +453,7 @@ namespace bdn
 
         std::future<void> _future;
 
-        P<ThreadData> _pThreadData;
+        P<ThreadData> _threadData;
         std::thread _thread;
         Id _threadId;
 

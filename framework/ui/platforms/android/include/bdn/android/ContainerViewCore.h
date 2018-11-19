@@ -14,36 +14,36 @@ namespace bdn
         class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            static P<JNativeViewGroup> _createJNativeViewGroup(ContainerView *pOuter)
+            static P<JNativeViewGroup> _createJNativeViewGroup(ContainerView *outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> pParent = pOuter->getParentView();
-                if (pParent == nullptr)
+                P<View> parent = outer->getParentView();
+                if (parent == nullptr)
                     throw ProgrammingError("ContainerViewCore instance requested for a "
                                            "ContainerView that does not have a parent.");
 
-                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
-                if (pParentCore == nullptr)
+                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                if (parentCore == nullptr)
                     throw ProgrammingError("ContainerViewCore instance requested for a "
                                            "ContainerView with core-less parent.");
 
-                JContext context = pParentCore->getJView().getContext();
+                JContext context = parentCore->getJView().getContext();
 
                 return newObj<JNativeViewGroup>(context);
             }
 
           public:
-            ContainerViewCore(ContainerView *pOuter) : ViewCore(pOuter, _createJNativeViewGroup(pOuter)) {}
+            ContainerViewCore(ContainerView *outer) : ViewCore(outer, _createJNativeViewGroup(outer)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(availableSpace);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr)
+                    return outerView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -52,10 +52,10 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr) {
-                    P<ViewLayout> pLayout = pOuterView->calcContainerLayout(pOuterView->size());
-                    pLayout->applyTo(pOuterView);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr) {
+                    P<ViewLayout> layout = outerView->calcContainerLayout(outerView->size());
+                    layout->applyTo(outerView);
                 }
             }
 

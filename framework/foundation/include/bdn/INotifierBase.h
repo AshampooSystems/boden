@@ -90,7 +90,7 @@ namespace bdn
            after their object has been deleted.
 
          */
-        virtual void unsubscribe(INotifierSubscription *pSub) = 0;
+        virtual void unsubscribe(INotifierSubscription *sub) = 0;
 
         /** Unsubscribes all currently subscribed functions.
 

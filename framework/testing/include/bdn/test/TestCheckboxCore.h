@@ -16,17 +16,17 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<Checkbox> pCheckbox = newObj<Checkbox>();
-                pCheckbox->setLabel("hello");
+                P<Checkbox> checkbox = newObj<Checkbox>();
+                checkbox->setLabel("hello");
 
-                return pCheckbox;
+                return checkbox;
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pCheckbox = cast<Checkbox>(pView);
+                _checkbox = cast<Checkbox>(view);
             }
 
             void runInitTests() override
@@ -39,7 +39,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _pCheckbox->setLabel("helloworld");
+                        _checkbox->setLabel("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +47,7 @@ namespace bdn
                     // state set before init
                     SECTION("state")
                     {
-                        _pCheckbox->setState(TriState::on);
+                        _checkbox->setState(TriState::on);
                         initCore();
                         verifyCoreState();
                     }
@@ -56,7 +56,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestCheckboxCore> pThis(this);
+                P<TestCheckboxCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -65,25 +65,25 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pCheckbox->setLabel("helloworld");
+                        _checkbox->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _pCheckbox->label();
+                        String labelBefore = _checkbox->label();
 
                         // the label should not be empty here
                         REQUIRE(labelBefore.getLength() > 3);
 
-                        Size prefSizeBefore = _pCheckbox->calcPreferredSize();
+                        Size prefSizeBefore = _checkbox->calcPreferredSize();
 
-                        _pCheckbox->setLabel(labelBefore + labelBefore + labelBefore);
+                        _checkbox->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
-                            Size prefSize = pThis->_pCheckbox->calcPreferredSize();
+                            Size prefSize = self->_checkbox->calcPreferredSize();
 
                             // width must increase with a bigger label
                             REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -94,11 +94,11 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            pThis->_pCheckbox->setLabel(labelBefore);
+                            self->_checkbox->setLabel(labelBefore);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
-                                REQUIRE(pThis->_pCheckbox->calcPreferredSize() == prefSizeBefore);
+                                REQUIRE(self->_checkbox->calcPreferredSize() == prefSizeBefore);
                             };
                         };
                     }
@@ -109,23 +109,23 @@ namespace bdn
                 {
                     SECTION("valueOn")
                     {
-                        _pCheckbox->setState(TriState::on);
+                        _checkbox->setState(TriState::on);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
 
                     SECTION("valueOff")
                     {
-                        _pCheckbox->setState(TriState::off);
+                        _checkbox->setState(TriState::off);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
 
                     SECTION("valueMixed")
                     {
-                        _pCheckbox->setState(TriState::mixed);
+                        _checkbox->setState(TriState::mixed);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreState(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
                 }
             }
@@ -143,7 +143,7 @@ namespace bdn
                Checkbox::on() property.*/
             virtual void verifyCoreState() = 0;
 
-            P<Checkbox> _pCheckbox;
+            P<Checkbox> _checkbox;
         };
     }
 }

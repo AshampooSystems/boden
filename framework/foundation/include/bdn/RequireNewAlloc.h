@@ -35,7 +35,7 @@ namespace bdn
         MyClass obj;
 
         // this will work
-        P<MyClass> pObj = newObj< MyClass >();
+        P<MyClass> obj = newObj< MyClass >();
 
 
 

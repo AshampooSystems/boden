@@ -16,20 +16,20 @@ class TestIosSwitchCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     void initCore() override
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>::initCore();
-        _switchComposite = (BdnIosSwitchComposite *)_pUIView;
+        _switchComposite = (BdnIosSwitchComposite *)_uIView;
         REQUIRE(_switchComposite != nullptr);
     }
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _pSwitch->on();
+        bool expectedOn = _switch->on();
         bool on = _switchComposite.uiSwitch.on;
         REQUIRE(on == expectedOn);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pSwitch->label();
+        String expectedLabel = _switch->label();
         String label = bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
@@ -40,7 +40,7 @@ class TestIosSwitchCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
 
 TEST_CASE("ios.SwitchCore")
 {
-    P<TestIosSwitchCore> pTest = newObj<TestIosSwitchCore>();
+    P<TestIosSwitchCore> test = newObj<TestIosSwitchCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

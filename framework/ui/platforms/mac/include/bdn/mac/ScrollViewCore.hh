@@ -17,10 +17,10 @@ namespace bdn
         class ScrollViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore, BDN_IMPLEMENTS IScrollViewCore
         {
           private:
-            static NSScrollView *_createScrollView(ScrollView *pOuter);
+            static NSScrollView *_createScrollView(ScrollView *outer);
 
           public:
-            ScrollViewCore(ScrollView *pOuter);
+            ScrollViewCore(ScrollView *outer);
             ~ScrollViewCore();
 
             void setPadding(const Nullable<UiMargin> &padding) override;
@@ -43,10 +43,10 @@ namespace bdn
             /** Creates a ScrollViewLayoutHelper object that can be used to
                calculate preferred sizes and layouts for this scroll view.
 
-                \param pBorderSize an optional parameter that receives the size
+                \param borderSize an optional parameter that receives the size
                of the nonclient border around
-                    the scroll view (if pBorderSize is not null).*/
-            P<ScrollViewLayoutHelper> createLayoutHelper(Size *pBorderSize = nullptr) const;
+                    the scroll view (if borderSize is not null).*/
+            P<ScrollViewLayoutHelper> createLayoutHelper(Size *borderSize = nullptr) const;
 
             /** Updates the ScrollView::visibleClientRect property of the outer
              * view.*/

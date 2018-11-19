@@ -42,76 +42,76 @@ class TestAsyncOpData : public Base
 
 void verifyAsyncOpRunnable(bool withDoneListeners)
 {
-    P<TestAsyncOpRunnable> pRunnable = newObj<TestAsyncOpRunnable>();
+    P<TestAsyncOpRunnable> runnable = newObj<TestAsyncOpRunnable>();
 
-    P<TestAsyncOpData> pTestData = newObj<TestAsyncOpData>();
+    P<TestAsyncOpData> testData = newObj<TestAsyncOpData>();
 
     if (withDoneListeners) {
-        pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) { pTestData->done1CallCount++; };
-        pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) { pTestData->done2CallCount++; };
+        runnable->onDone() += [testData](IAsyncOp<String> *op) { testData->done1CallCount++; };
+        runnable->onDone() += [testData](IAsyncOp<String> *op) { testData->done2CallCount++; };
     }
 
     SECTION("no exception")
     {
-        REQUIRE_THROWS_AS(pRunnable->getResult(), UnfinishedError);
-        REQUIRE(!pRunnable->isDone());
+        REQUIRE_THROWS_AS(runnable->getResult(), UnfinishedError);
+        REQUIRE(!runnable->isDone());
 
-        Thread thread(pRunnable);
+        Thread thread(runnable);
 
-        REQUIRE(pTestData->done1CallCount == 0);
-        REQUIRE(pTestData->done2CallCount == 0);
+        REQUIRE(testData->done1CallCount == 0);
+        REQUIRE(testData->done2CallCount == 0);
 
         try {
-            REQUIRE(pRunnable->_startedSignal.wait(5000));
-            REQUIRE(pTestData->done1CallCount == 0);
-            REQUIRE(pTestData->done2CallCount == 0);
+            REQUIRE(runnable->_startedSignal.wait(5000));
+            REQUIRE(testData->done1CallCount == 0);
+            REQUIRE(testData->done2CallCount == 0);
 
-            REQUIRE_THROWS_AS(pRunnable->getResult(), UnfinishedError);
-            REQUIRE(pTestData->done1CallCount == 0);
-            REQUIRE(pTestData->done2CallCount == 0);
+            REQUIRE_THROWS_AS(runnable->getResult(), UnfinishedError);
+            REQUIRE(testData->done1CallCount == 0);
+            REQUIRE(testData->done2CallCount == 0);
 
-            pRunnable->_proceedSignal.set();
+            runnable->_proceedSignal.set();
 
             thread.join(Thread::ExceptionThrow);
 
             // the done listeners should still not have been called. The
             // notifications are processed asynchronously
-            REQUIRE(pTestData->done1CallCount == 0);
-            REQUIRE(pTestData->done2CallCount == 0);
+            REQUIRE(testData->done1CallCount == 0);
+            REQUIRE(testData->done2CallCount == 0);
 
-            CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
+            CONTINUE_SECTION_WHEN_IDLE(runnable, testData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done2CallCount == (withDoneListeners ? 1 : 0));
 
-                String result = pRunnable->getResult();
+                String result = runnable->getResult();
 
                 REQUIRE(result == "hello");
             };
         }
         catch (...) {
-            pRunnable->_proceedSignal.set();
+            runnable->_proceedSignal.set();
             throw;
         }
     }
 
     SECTION("exception")
     {
-        pRunnable->_throwException = true;
-        pRunnable->_proceedSignal.set();
+        runnable->_throwException = true;
+        runnable->_proceedSignal.set();
 
-        Thread thread(pRunnable);
+        Thread thread(runnable);
 
         thread.join(Thread::ExceptionThrow);
 
-        CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
+        CONTINUE_SECTION_WHEN_IDLE(runnable, testData, withDoneListeners)
         {
-            REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
-            REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
+            REQUIRE(testData->done1CallCount == (withDoneListeners ? 1 : 0));
+            REQUIRE(testData->done2CallCount == (withDoneListeners ? 1 : 0));
 
-            REQUIRE(pRunnable->isDone());
-            REQUIRE_THROWS_AS(pRunnable->getResult(), TestAsyncOpError);
-            REQUIRE(pRunnable->isDone());
+            REQUIRE(runnable->isDone());
+            REQUIRE_THROWS_AS(runnable->getResult(), TestAsyncOpError);
+            REQUIRE(runnable->isDone());
         };
     }
 
@@ -119,79 +119,79 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
     {
         SECTION("before start")
         {
-            pRunnable->signalStop();
+            runnable->signalStop();
 
             // done listeners should NOT have been called immediately. The
             // notifier must call them asynchronously to ensure that no mutexes
             // or other resources are locked when the subscribed functions are
             // called.
-            REQUIRE(pTestData->done1CallCount == 0);
-            REQUIRE(pTestData->done2CallCount == 0);
+            REQUIRE(testData->done1CallCount == 0);
+            REQUIRE(testData->done2CallCount == 0);
 
-            REQUIRE(pRunnable->isDone());
-            REQUIRE_THROWS_AS(pRunnable->getResult(), AbortedError);
+            REQUIRE(runnable->isDone());
+            REQUIRE_THROWS_AS(runnable->getResult(), AbortedError);
 
             // but done listener notification should have been scheduled
-            CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
+            CONTINUE_SECTION_WHEN_IDLE(runnable, testData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done2CallCount == (withDoneListeners ? 1 : 0));
 
-                REQUIRE(pRunnable->isDone());
-                REQUIRE_THROWS_AS(pRunnable->getResult(), AbortedError);
+                REQUIRE(runnable->isDone());
+                REQUIRE_THROWS_AS(runnable->getResult(), AbortedError);
 
-                pRunnable->_proceedSignal.set();
+                runnable->_proceedSignal.set();
 
-                Thread thread(pRunnable);
+                Thread thread(runnable);
 
                 thread.join(Thread::ExceptionThrow);
 
                 // doOp() should NOT have been called
-                REQUIRE(pRunnable->_startedSignal.isSet() == false);
+                REQUIRE(runnable->_startedSignal.isSet() == false);
 
                 // should be done and throw an AbortedError
-                REQUIRE(pRunnable->isDone());
+                REQUIRE(runnable->isDone());
 
-                CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
+                CONTINUE_SECTION_WHEN_IDLE(runnable, testData, withDoneListeners)
                 {
                     // still same call count
-                    REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
-                    REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
+                    REQUIRE(testData->done1CallCount == (withDoneListeners ? 1 : 0));
+                    REQUIRE(testData->done2CallCount == (withDoneListeners ? 1 : 0));
 
-                    REQUIRE_THROWS_AS(pRunnable->getResult(), AbortedError);
+                    REQUIRE_THROWS_AS(runnable->getResult(), AbortedError);
                 };
             };
         }
 
         SECTION("after start")
         {
-            Thread thread(pRunnable);
+            Thread thread(runnable);
 
             // runnable should have started, but wait for proceedSignal
-            REQUIRE(pRunnable->_startedSignal.wait(5000));
-            REQUIRE(!pRunnable->isDone());
+            REQUIRE(runnable->_startedSignal.wait(5000));
+            REQUIRE(!runnable->isDone());
 
             // now signal stop
-            pRunnable->signalStop();
+            runnable->signalStop();
 
             // let runnable continue
-            pRunnable->_proceedSignal.set();
+            runnable->_proceedSignal.set();
 
             thread.join(Thread::ExceptionThrow);
 
             // should have finished successfully (i.e. signalStop should not
             // have had any effect)
-            REQUIRE(pRunnable->isDone());
-            REQUIRE(pRunnable->getResult() == "hello");
+            REQUIRE(runnable->isDone());
+            REQUIRE(runnable->getResult() == "hello");
 
             // notifications should be called asynchronously
-            REQUIRE(pTestData->done1CallCount == 0);
-            REQUIRE(pTestData->done2CallCount == 0);
+            REQUIRE(testData->done1CallCount == 0);
+            REQUIRE(testData->done2CallCount == 0);
 
-            CONTINUE_SECTION_WHEN_IDLE(pRunnable, pTestData, withDoneListeners)
+            CONTINUE_SECTION_WHEN_IDLE(runnable, testData, withDoneListeners)
             {
-                REQUIRE(pTestData->done1CallCount == (withDoneListeners ? 1 : 0));
-                REQUIRE(pTestData->done2CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done1CallCount == (withDoneListeners ? 1 : 0));
+                REQUIRE(testData->done2CallCount == (withDoneListeners ? 1 : 0));
             };
         }
     }
@@ -199,61 +199,61 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
     if (withDoneListeners) {
         SECTION("done listener added directly after finish")
         {
-            Thread thread(pRunnable);
+            Thread thread(runnable);
 
-            pRunnable->_proceedSignal.set();
+            runnable->_proceedSignal.set();
 
             thread.join(Thread::ExceptionThrow);
 
-            String result = pRunnable->getResult();
+            String result = runnable->getResult();
 
             REQUIRE(result == "hello");
 
-            pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) {
-                REQUIRE(pOp->getResult() == "hello");
+            runnable->onDone() += [testData](IAsyncOp<String> *op) {
+                REQUIRE(op->getResult() == "hello");
 
-                pTestData->done3CallCount++;
+                testData->done3CallCount++;
             };
 
             // should not be called immediately
-            REQUIRE(pTestData->done3CallCount == 0);
+            REQUIRE(testData->done3CallCount == 0);
 
-            CONTINUE_SECTION_WHEN_IDLE(pTestData)
+            CONTINUE_SECTION_WHEN_IDLE(testData)
             {
                 // now it should have been called
-                REQUIRE(pTestData->done3CallCount == 1);
+                REQUIRE(testData->done3CallCount == 1);
             };
         }
 
         SECTION("done listener added after initial notifications")
         {
-            Thread thread(pRunnable);
+            Thread thread(runnable);
 
-            pRunnable->_proceedSignal.set();
+            runnable->_proceedSignal.set();
 
             thread.join(Thread::ExceptionThrow);
 
-            String result = pRunnable->getResult();
+            String result = runnable->getResult();
 
             REQUIRE(result == "hello");
 
             // let all pending events be processed
-            CONTINUE_SECTION_WHEN_IDLE(pTestData, pRunnable)
+            CONTINUE_SECTION_WHEN_IDLE(testData, runnable)
             {
                 // then add a new listener
-                pRunnable->onDone() += [pTestData](IAsyncOp<String> *pOp) {
-                    REQUIRE(pOp->getResult() == "hello");
+                runnable->onDone() += [testData](IAsyncOp<String> *op) {
+                    REQUIRE(op->getResult() == "hello");
 
-                    pTestData->done3CallCount++;
+                    testData->done3CallCount++;
                 };
 
                 // should not be called immediately
-                REQUIRE(pTestData->done3CallCount == 0);
+                REQUIRE(testData->done3CallCount == 0);
 
-                CONTINUE_SECTION_WHEN_IDLE(pTestData)
+                CONTINUE_SECTION_WHEN_IDLE(testData)
                 {
                     // now it should have been called
-                    REQUIRE(pTestData->done3CallCount == 1);
+                    REQUIRE(testData->done3CallCount == 1);
                 };
             };
         }

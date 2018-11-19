@@ -21,23 +21,23 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _pIosViewCore = cast<bdn::ios::ViewCore>(BaseClass::_pView->getViewCore());
-                REQUIRE(_pIosViewCore != nullptr);
+                _iosViewCore = cast<bdn::ios::ViewCore>(BaseClass::_view->getViewCore());
+                REQUIRE(_iosViewCore != nullptr);
 
-                _pUIView = _pIosViewCore->getUIView();
-                REQUIRE(_pUIView != nullptr);
+                _uIView = _iosViewCore->getUIView();
+                REQUIRE(_uIView != nullptr);
             }
 
             IUiProvider &getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_pView->visible();
+                bool expectedVisible = BaseClass::_view->visible();
 
-                REQUIRE(_pUIView.hidden == !expectedVisible);
+                REQUIRE(_uIView.hidden == !expectedVisible);
             }
 
-            Rect getFrameRect() const { return bdn::ios::iosRectToRect(_pUIView.frame); }
+            Rect getFrameRect() const { return bdn::ios::iosRectToRect(_uIView.frame); }
 
             void verifyInitialDummyCoreSize() override
             {
@@ -52,7 +52,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getFrameRect().getPosition();
-                Point expectedPosition = BaseClass::_pView->position();
+                Point expectedPosition = BaseClass::_view->position();
 
                 REQUIRE(position == expectedPosition);
             }
@@ -60,7 +60,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getFrameRect().getSize();
-                Size expectedSize = BaseClass::_pView->size();
+                Size expectedSize = BaseClass::_view->size();
 
                 REQUIRE(size == expectedSize);
             }
@@ -71,8 +71,8 @@ namespace bdn
                 // So nothing to test here.
             }
 
-            P<bdn::ios::ViewCore> _pIosViewCore;
-            UIView *_pUIView;
+            P<bdn::ios::ViewCore> _iosViewCore;
+            UIView *_uIView;
         };
     }
 }

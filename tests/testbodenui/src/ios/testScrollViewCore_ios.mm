@@ -21,7 +21,7 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _uiScrollView = (UIScrollView *)_pUIView;
+        _uiScrollView = (UIScrollView *)_uIView;
     }
 
     double getVertBarWidth() override
@@ -49,8 +49,8 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
         bdn::Size viewSize = viewPortSize + getNonClientSize();
 
         viewSize =
-            _pScrollView
-                ->adjustBounds(bdn::Rect(_pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
+            _scrollView
+                ->adjustBounds(bdn::Rect(_scrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // we cannot resize the scroll view directly with adjustAndSetBounds.
@@ -58,14 +58,14 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _pScrollView->setPreferredSizeMinimum(viewSize);
-        _pScrollView->setPreferredSizeMaximum(viewSize);
+        _scrollView->setPreferredSizeMinimum(viewSize);
+        _scrollView->setPreferredSizeMaximum(viewSize);
 
         // also request a re-layout here. With the normal propagation of the
         // property changes it would take two event cycles until the layout
         // happens. But we want it to happen immediately after the properties
         // have been changed.
-        _pScrollView->getParentView()->needLayout(View::InvalidateReason::customDataChanged);
+        _scrollView->getParentView()->needLayout(View::InvalidateReason::customDataChanged);
 
         return viewSize;
     }
@@ -99,10 +99,10 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> pContentView = _pScrollView->getContentView();
+        P<View> contentView = _scrollView->getContentView();
 
-        if (pContentView != nullptr) {
-            bdn::Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
+        if (contentView != nullptr) {
+            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -138,7 +138,7 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
 
 TEST_CASE("ios.ScrollViewCore")
 {
-    P<TestIosScrollViewCore> pTest = newObj<TestIosScrollViewCore>();
+    P<TestIosScrollViewCore> test = newObj<TestIosScrollViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

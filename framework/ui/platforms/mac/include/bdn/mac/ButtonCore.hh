@@ -14,7 +14,7 @@ namespace bdn
         class ButtonCore : public ButtonCoreBase, BDN_IMPLEMENTS IButtonCore
         {
           private:
-            static NSButton *_createNsButton(Button *pOuterButton)
+            static NSButton *_createNsButton(Button *outerButton)
             {
                 NSButton *button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -25,7 +25,7 @@ namespace bdn
             }
 
           public:
-            ButtonCore(Button *pOuterButton);
+            ButtonCore(Button *outerButton);
 
             void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 

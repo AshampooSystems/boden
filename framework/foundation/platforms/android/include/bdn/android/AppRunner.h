@@ -32,7 +32,7 @@ namespace bdn
           protected:
             void disposeMainDispatcher() override;
 
-            P<Dispatcher> _pMainDispatcher;
+            P<Dispatcher> _mainDispatcher;
         };
     }
 }

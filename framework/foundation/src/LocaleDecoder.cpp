@@ -12,18 +12,18 @@ namespace bdn
     bool LocaleDecoder::Iterator::fillOutBuffer() const
     {
         size_t outWritten = 0;
-        while (outWritten == 0 && _pInNext != _pInEnd) {
-            if (_pDecodeState == nullptr)
-                _pDecodeState = new DecodeState;
+        while (outWritten == 0 && _inNext != _inEnd) {
+            if (_decodeState == nullptr)
+                _decodeState = new DecodeState;
 
-            const char *pInBegin = _pInNext;
-            wchar_t *pOutBegin = _pDecodeState->outBuffer;
-            wchar_t *pOutNext = pOutBegin;
+            const char *inBegin = _inNext;
+            wchar_t *outBegin = _decodeState->outBuffer;
+            wchar_t *outNext = outBegin;
 
-            int convResult = _pCodec->in(_pDecodeState->state, pInBegin, _pInEnd, _pInNext, pOutBegin,
-                                         pOutBegin + outBufferSize, pOutNext);
+            int convResult =
+                _codec->in(_decodeState->state, inBegin, _inEnd, _inNext, outBegin, outBegin + outBufferSize, outNext);
 
-            outWritten = pOutNext - pOutBegin;
+            outWritten = outNext - outBegin;
 
             // some codec implementations return "partial" when they
             // cannot convert a character. At the same time, partial will be
@@ -37,7 +37,7 @@ namespace bdn
             // character will be at the start, thus returning 0 written and 0
             // read.
             if (outWritten == 0 && (convResult == std::codecvt_base::error ||
-                                    (convResult == std::codecvt_base::partial && _pInNext == pInBegin))) {
+                                    (convResult == std::codecvt_base::partial && _inNext == inBegin))) {
                 // no character can be converted because of an error. This
                 // should be pretty rare. On most systems wchar_t is 32 bit and
                 // can hold the whole unicode range. On Windows it is 16 bit,
@@ -50,16 +50,16 @@ namespace bdn
                 // However, on Macs this error happens when the input is a zero
                 // character (zero byte). In that case we simply want to copy
                 // the zero character through.
-                if (_pInNext != _pInEnd && *_pInNext == 0)
-                    _pDecodeState->outBuffer[0] = L'\0';
+                if (_inNext != _inEnd && *_inNext == 0)
+                    _decodeState->outBuffer[0] = L'\0';
                 else
-                    _pDecodeState->outBuffer[0] = L'\xfffd';
+                    _decodeState->outBuffer[0] = L'\xfffd';
 
-                if (_pInNext != _pInEnd) {
+                if (_inNext != _inEnd) {
                     // now we want to skip over the problematic character.
                     // Unfortunately we do not know how big it is. So we skip 1
                     // byte and hope that the codec is able to resynchronize.
-                    _pInNext++;
+                    _inNext++;
                 }
 
                 outWritten = 1;
@@ -69,11 +69,11 @@ namespace bdn
         if (outWritten == 0)
             return false;
         else {
-            const wchar_t *pOut = _pDecodeState->outBuffer;
-            const wchar_t *pOutEnd = pOut + outWritten;
+            const wchar_t *out = _decodeState->outBuffer;
+            const wchar_t *outEnd = out + outWritten;
 
-            _pDecodeState->outCurr = WideCodec::DecodingIterator<const wchar_t *>(pOut, pOut, pOutEnd);
-            _pDecodeState->outEnd = WideCodec::DecodingIterator<const wchar_t *>(pOutEnd, pOut, pOutEnd);
+            _decodeState->outCurr = WideCodec::DecodingIterator<const wchar_t *>(out, out, outEnd);
+            _decodeState->outEnd = WideCodec::DecodingIterator<const wchar_t *>(outEnd, out, outEnd);
 
             return true;
         }

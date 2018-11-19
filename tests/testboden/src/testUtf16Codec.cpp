@@ -159,12 +159,12 @@ namespace bdn
             int dataCount = std::extent<decltype(allData)>().value;
 
             for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-                SubTestData *pCurrData = &allData[dataIndex];
+                SubTestData *currData = &allData[dataIndex];
 
-                SECTION(pCurrData->desc)
+                SECTION(currData->desc)
                 {
-                    std::u16string encoded(pCurrData->utf16);
-                    std::u32string expectedDecoded(pCurrData->expectedDecoded);
+                    std::u16string encoded(currData->utf16);
+                    std::u32string expectedDecoded(currData->expectedDecoded);
 
                     testCodecDecodingIterator<Utf16Codec>(encoded, expectedDecoded);
                 }
@@ -225,11 +225,11 @@ namespace bdn
             int dataCount = std::extent<decltype(allData)>().value;
 
             for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-                SubTestData *pCurrData = &allData[dataIndex];
+                SubTestData *currData = &allData[dataIndex];
 
-                SECTION(pCurrData->desc)
+                SECTION(currData->desc)
                 {
-                    testCodecEncodingIterator<Utf16Codec>(pCurrData->input, pCurrData->expectedUtf16);
+                    testCodecEncodingIterator<Utf16Codec>(currData->input, currData->expectedUtf16);
                 }
             }
         }

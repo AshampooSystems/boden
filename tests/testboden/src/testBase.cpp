@@ -25,21 +25,21 @@ TEST_CASE("Base")
         class TestBase : public Base
         {
           public:
-            TestBase(bool *pDeleted) { _pDeleted = pDeleted; }
+            TestBase(bool *deleted) { _deleted = deleted; }
 
-            ~TestBase() { *_pDeleted = true; }
+            ~TestBase() { *_deleted = true; }
 
           protected:
-            bool *_pDeleted;
+            bool *_deleted;
         };
 
         bool deleted = false;
 
-        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleted);
+        TestBase *test = new (Base::RawNew::Use) TestBase(&deleted);
 
         REQUIRE(!deleted);
 
-        pTest->releaseRef();
+        test->releaseRef();
 
         REQUIRE(deleted);
     }
@@ -49,21 +49,21 @@ TEST_CASE("Base")
         class TestBase : public Base
         {
           public:
-            TestBase(bool *pDeleted) { _pDeleted = pDeleted; }
+            TestBase(bool *deleted) { _deleted = deleted; }
 
-            ~TestBase() { *_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero(); }
+            ~TestBase() { *_deleted = isBeingDeletedBecauseReferenceCountReachedZero(); }
 
           protected:
-            bool *_pDeleted;
+            bool *_deleted;
         };
 
         bool deleted = false;
 
-        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleted);
+        TestBase *test = new (Base::RawNew::Use) TestBase(&deleted);
 
         REQUIRE(!deleted);
 
-        pTest->releaseRef();
+        test->releaseRef();
 
         REQUIRE(deleted);
     }
@@ -73,34 +73,34 @@ TEST_CASE("Base")
         class TestBase : public Base
         {
           public:
-            TestBase(int *pDeleteThisCounter) { _pDeleteThisCounter = pDeleteThisCounter; }
+            TestBase(int *deleteThisCounter) { _deleteThisCounter = deleteThisCounter; }
 
           protected:
             void deleteThis() override
             {
-                (*_pDeleteThisCounter)++;
+                (*_deleteThisCounter)++;
 
                 reviveDuringDeleteThis().detachPtr();
             }
 
-            int *_pDeleteThisCounter;
+            int *_deleteThisCounter;
         };
 
         int deleteThisCounter = 0;
 
-        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleteThisCounter);
+        TestBase *test = new (Base::RawNew::Use) TestBase(&deleteThisCounter);
 
         REQUIRE(deleteThisCounter == 0);
 
-        pTest->releaseRef();
+        test->releaseRef();
 
         REQUIRE(deleteThisCounter == 1);
 
-        REQUIRE(pTest->getRefCount() == 1);
+        REQUIRE(test->getRefCount() == 1);
 
-        REQUIRE(!pTest->isBeingDeletedBecauseReferenceCountReachedZero());
+        REQUIRE(!test->isBeingDeletedBecauseReferenceCountReachedZero());
 
-        delete pTest;
+        delete test;
     }
 
     SECTION("addRef/releaseRef in destructor")
@@ -117,8 +117,8 @@ TEST_CASE("Base")
             }
         };
 
-        TestBase *pTest = new (Base::RawNew::Use) TestBase;
+        TestBase *test = new (Base::RawNew::Use) TestBase;
 
-        pTest->releaseRef();
+        test->releaseRef();
     }
 }

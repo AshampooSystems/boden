@@ -45,57 +45,56 @@ TEST_CASE("ContainerView")
 
     SECTION("ContainerView-specific")
     {
-        P<bdn::test::ViewTestPreparer<DummyContainerViewForTests>> pPreparer =
+        P<bdn::test::ViewTestPreparer<DummyContainerViewForTests>> preparer =
             newObj<bdn::test::ViewTestPreparer<DummyContainerViewForTests>>();
-        P<bdn::test::ViewWithTestExtensions<DummyContainerViewForTests>> pContainerView = pPreparer->createView();
-        P<bdn::test::MockContainerViewCore> pCore =
-            cast<bdn::test::MockContainerViewCore>(pContainerView->getViewCore());
+        P<bdn::test::ViewWithTestExtensions<DummyContainerViewForTests>> containerView = preparer->createView();
+        P<bdn::test::MockContainerViewCore> core = cast<bdn::test::MockContainerViewCore>(containerView->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
-        P<Button> pButton = newObj<Button>();
+        P<Button> button = newObj<Button>();
 
-        pButton->adjustAndSetBounds(Rect(10, 10, 10, 10));
+        button->adjustAndSetBounds(Rect(10, 10, 10, 10));
 
-        auto pOtherButton = newObj<Button>();
-        auto pOtherButton2 = newObj<Button>();
+        auto otherButton = newObj<Button>();
+        auto otherButton2 = newObj<Button>();
 
-        auto pNonChild = newObj<Button>();
+        auto nonChild = newObj<Button>();
 
         SECTION("no child view")
         {
             SECTION("getChildList")
             {
                 List<P<View>> childList;
-                pContainerView->getChildViews(childList);
+                containerView->getChildViews(childList);
 
                 REQUIRE(childList.empty());
             }
 
             SECTION("removeAllChildViews")
             {
-                pContainerView->removeAllChildViews();
+                containerView->removeAllChildViews();
 
                 List<P<View>> childList;
-                pContainerView->getChildViews(childList);
+                containerView->getChildViews(childList);
 
                 REQUIRE(childList.empty());
             }
 
             SECTION("addChildView")
             {
-                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pContainerView, pButton, pCore)
+                CONTINUE_SECTION_WHEN_IDLE(preparer, containerView, button, core)
                 {
                     int layoutCountBefore =
-                        cast<bdn::test::MockViewCore>(pContainerView->getViewCore())->getLayoutCount();
+                        cast<bdn::test::MockViewCore>(containerView->getViewCore())->getLayoutCount();
 
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(button);
 
                     // let scheduled property updates propagate
-                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pContainerView, pButton, pCore, layoutCountBefore)
+                    CONTINUE_SECTION_WHEN_IDLE(preparer, containerView, button, core, layoutCountBefore)
                     {
                         // should cause a layout update.
-                        REQUIRE(cast<bdn::test::MockViewCore>(pContainerView->getViewCore())->getLayoutCount() ==
+                        REQUIRE(cast<bdn::test::MockViewCore>(containerView->getViewCore())->getLayoutCount() ==
                                 layoutCountBefore + 1);
                     };
                 };
@@ -106,76 +105,76 @@ TEST_CASE("ContainerView")
         {
             SECTION("empty")
             {
-                pContainerView->addChildView(pButton);
+                containerView->addChildView(button);
 
-                REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                REQUIRE(button->getParentView() == cast<View>(containerView));
 
                 List<P<View>> childList;
-                pContainerView->getChildViews(childList);
+                containerView->getChildViews(childList);
 
-                REQUIRE(childList == List<P<View>>{pButton});
+                REQUIRE(childList == List<P<View>>{button});
             }
 
             SECTION("not empty")
             {
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(otherButton);
 
-                pContainerView->addChildView(pButton);
+                containerView->addChildView(button);
 
-                REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                REQUIRE(button->getParentView() == cast<View>(containerView));
 
                 List<P<View>> childList;
-                pContainerView->getChildViews(childList);
+                containerView->getChildViews(childList);
 
-                REQUIRE(childList == (List<P<View>>{pOtherButton, pButton}));
+                REQUIRE(childList == (List<P<View>>{otherButton, button}));
             }
 
             SECTION("already in view")
             {
                 SECTION("only child")
                 {
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(button);
 
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == List<P<View>>{pButton});
+                    REQUIRE(childList == List<P<View>>{button});
                 }
 
                 SECTION("first")
                 {
-                    pContainerView->addChildView(pButton);
-                    pContainerView->addChildView(pOtherButton);
+                    containerView->addChildView(button);
+                    containerView->addChildView(otherButton);
 
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     // should have moved to the end
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
                 }
 
                 SECTION("last")
                 {
-                    pContainerView->addChildView(pOtherButton);
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(otherButton);
+                    containerView->addChildView(button);
 
-                    pContainerView->addChildView(pButton);
+                    containerView->addChildView(button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     // should still be at the end
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
                 }
             }
         }
@@ -186,125 +185,125 @@ TEST_CASE("ContainerView")
             {
                 SECTION("insert at end")
                 {
-                    pContainerView->insertChildView(nullptr, pButton);
+                    containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == List<P<View>>{pButton});
+                    REQUIRE(childList == List<P<View>>{button});
                 }
 
                 SECTION("insert before non-child")
                 {
-                    pContainerView->insertChildView(pNonChild, pButton);
+                    containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == List<P<View>>{pButton});
+                    REQUIRE(childList == List<P<View>>{button});
                 }
             }
 
             SECTION("one other")
             {
-                auto pOtherButton = newObj<Button>();
+                auto otherButton = newObj<Button>();
 
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(otherButton);
 
                 SECTION("insert at end")
                 {
-                    pContainerView->insertChildView(nullptr, pButton);
+                    containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
                 }
 
                 SECTION("insert at start")
                 {
-                    pContainerView->insertChildView(pOtherButton, pButton);
+                    containerView->insertChildView(otherButton, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
                 }
 
                 SECTION("insert before non-child")
                 {
-                    pContainerView->insertChildView(pNonChild, pButton);
+                    containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
                 }
             }
 
             SECTION("two others")
             {
-                auto pOtherButton = newObj<Button>();
+                auto otherButton = newObj<Button>();
 
-                pContainerView->addChildView(pOtherButton);
-                pContainerView->addChildView(pOtherButton2);
+                containerView->addChildView(otherButton);
+                containerView->addChildView(otherButton2);
 
                 SECTION("insert at end")
                 {
-                    pContainerView->insertChildView(nullptr, pButton);
+                    containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pOtherButton2, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2, button}));
                 }
 
                 SECTION("insert at start")
                 {
-                    pContainerView->insertChildView(pOtherButton, pButton);
+                    containerView->insertChildView(otherButton, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
                 }
 
                 SECTION("insert in middle start")
                 {
-                    pContainerView->insertChildView(pOtherButton2, pButton);
+                    containerView->insertChildView(otherButton2, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, button, otherButton2}));
                 }
 
                 SECTION("insert before non-child")
                 {
-                    pContainerView->insertChildView(pNonChild, pButton);
+                    containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pOtherButton2, pButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2, button}));
                 }
             }
         }
@@ -315,10 +314,10 @@ TEST_CASE("ContainerView")
             {
                 SECTION("not a child")
                 {
-                    pContainerView->removeChildView(pNonChild);
+                    containerView->removeChildView(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     REQUIRE(childList == (List<P<View>>{}));
                 }
@@ -326,121 +325,121 @@ TEST_CASE("ContainerView")
 
             SECTION("one")
             {
-                pContainerView->addChildView(pButton);
+                containerView->addChildView(button);
 
                 SECTION("remove first")
                 {
-                    pContainerView->removeChildView(pButton);
+                    containerView->removeChildView(button);
 
-                    REQUIRE(pButton->getParentView() == nullptr);
+                    REQUIRE(button->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     REQUIRE(childList == (List<P<View>>{}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->removeChildView(pNonChild);
+                    containerView->removeChildView(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton}));
+                    REQUIRE(childList == (List<P<View>>{button}));
                 }
             }
 
             SECTION("two")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
 
                 SECTION("remove first")
                 {
-                    pContainerView->removeChildView(pButton);
+                    containerView->removeChildView(button);
 
-                    REQUIRE(pButton->getParentView() == nullptr);
+                    REQUIRE(button->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton}));
                 }
 
                 SECTION("remove second")
                 {
-                    pContainerView->removeChildView(pOtherButton);
+                    containerView->removeChildView(otherButton);
 
-                    REQUIRE(pOtherButton->getParentView() == nullptr);
+                    REQUIRE(otherButton->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton}));
+                    REQUIRE(childList == (List<P<View>>{button}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->removeChildView(pNonChild);
+                    containerView->removeChildView(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
                 }
             }
 
             SECTION("three")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
-                pContainerView->addChildView(pOtherButton2);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
+                containerView->addChildView(otherButton2);
 
                 SECTION("remove first")
                 {
-                    pContainerView->removeChildView(pButton);
+                    containerView->removeChildView(button);
 
-                    REQUIRE(pButton->getParentView() == nullptr);
+                    REQUIRE(button->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2}));
                 }
 
                 SECTION("remove second")
                 {
-                    pContainerView->removeChildView(pOtherButton);
+                    containerView->removeChildView(otherButton);
 
-                    REQUIRE(pOtherButton->getParentView() == nullptr);
+                    REQUIRE(otherButton->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton2}));
                 }
 
                 SECTION("remove third")
                 {
-                    pContainerView->removeChildView(pOtherButton2);
+                    containerView->removeChildView(otherButton2);
 
-                    REQUIRE(pOtherButton2->getParentView() == nullptr);
+                    REQUIRE(otherButton2->getParentView() == nullptr);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->removeChildView(pNonChild);
+                    containerView->removeChildView(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
                 }
             }
         }
@@ -451,10 +450,10 @@ TEST_CASE("ContainerView")
             {
                 SECTION("not a child")
                 {
-                    pContainerView->_childViewStolen(pNonChild);
+                    containerView->_childViewStolen(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     REQUIRE(childList == (List<P<View>>{}));
                 }
@@ -462,133 +461,133 @@ TEST_CASE("ContainerView")
 
             SECTION("one")
             {
-                pContainerView->addChildView(pButton);
+                containerView->addChildView(button);
 
                 SECTION("stole first")
                 {
-                    pContainerView->_childViewStolen(pButton);
+                    containerView->_childViewStolen(button);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
                     REQUIRE(childList == (List<P<View>>{}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->_childViewStolen(pNonChild);
+                    containerView->_childViewStolen(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton}));
+                    REQUIRE(childList == (List<P<View>>{button}));
                 }
             }
 
             SECTION("two")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
 
                 SECTION("stole first")
                 {
-                    pContainerView->_childViewStolen(pButton);
+                    containerView->_childViewStolen(button);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{otherButton}));
                 }
 
                 SECTION("stole second")
                 {
-                    pContainerView->_childViewStolen(pOtherButton);
+                    containerView->_childViewStolen(otherButton);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pOtherButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(otherButton->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton}));
+                    REQUIRE(childList == (List<P<View>>{button}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->_childViewStolen(pNonChild);
+                    containerView->_childViewStolen(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
                 }
             }
 
             SECTION("three")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
-                pContainerView->addChildView(pOtherButton2);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
+                containerView->addChildView(otherButton2);
 
                 SECTION("stole first")
                 {
-                    pContainerView->_childViewStolen(pButton);
+                    containerView->_childViewStolen(button);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(button->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pOtherButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2}));
                 }
 
                 SECTION("stole second")
                 {
-                    pContainerView->_childViewStolen(pOtherButton);
+                    containerView->_childViewStolen(otherButton);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pOtherButton->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(otherButton->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton2}));
                 }
 
                 SECTION("stole third")
                 {
-                    pContainerView->_childViewStolen(pOtherButton2);
+                    containerView->_childViewStolen(otherButton2);
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(pOtherButton2->getParentView() == cast<View>(pContainerView));
+                    REQUIRE(otherButton2->getParentView() == cast<View>(containerView));
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
                 }
 
                 SECTION("not a child")
                 {
-                    pContainerView->removeChildView(pNonChild);
+                    containerView->removeChildView(nonChild);
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
+                    containerView->getChildViews(childList);
 
-                    REQUIRE(childList == (List<P<View>>{pButton, pOtherButton, pOtherButton2}));
+                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
                 }
             }
         }
@@ -597,75 +596,69 @@ TEST_CASE("ContainerView")
         {
             SECTION("empty") {}
 
-            SECTION("one") { pContainerView->addChildView(pButton); }
+            SECTION("one") { containerView->addChildView(button); }
 
             SECTION("two")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
             }
 
-            pContainerView->removeAllChildViews();
+            containerView->removeAllChildViews();
 
             List<P<View>> childList;
-            pContainerView->getChildViews(childList);
+            containerView->getChildViews(childList);
 
             REQUIRE(childList == (List<P<View>>{}));
 
-            REQUIRE(pButton->getParentView() == nullptr);
-            REQUIRE(pOtherButton->getParentView() == nullptr);
+            REQUIRE(button->getParentView() == nullptr);
+            REQUIRE(otherButton->getParentView() == nullptr);
         }
 
         SECTION("findPreviousChildView")
         {
             SECTION("empty")
             {
-                SECTION("not a child") { REQUIRE(pContainerView->findPreviousChildView(pNonChild) == nullptr); }
+                SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
             }
 
             SECTION("one")
             {
-                pContainerView->addChildView(pButton);
+                containerView->addChildView(button);
 
-                SECTION("first") { REQUIRE(pContainerView->findPreviousChildView(pButton) == nullptr); }
+                SECTION("first") { REQUIRE(containerView->findPreviousChildView(button) == nullptr); }
 
-                SECTION("not a child") { REQUIRE(pContainerView->findPreviousChildView(pNonChild) == nullptr); }
+                SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
             }
 
             SECTION("two")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
 
-                SECTION("first") { REQUIRE(pContainerView->findPreviousChildView(pButton) == nullptr); }
+                SECTION("first") { REQUIRE(containerView->findPreviousChildView(button) == nullptr); }
 
-                SECTION("second")
-                {
-                    REQUIRE(pContainerView->findPreviousChildView(pOtherButton) == cast<View>(pButton));
-                }
+                SECTION("second") { REQUIRE(containerView->findPreviousChildView(otherButton) == cast<View>(button)); }
 
-                SECTION("not a child") { REQUIRE(pContainerView->findPreviousChildView(pNonChild) == nullptr); }
+                SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
             }
 
             SECTION("three")
             {
-                pContainerView->addChildView(pButton);
-                pContainerView->addChildView(pOtherButton);
-                pContainerView->addChildView(pOtherButton2);
+                containerView->addChildView(button);
+                containerView->addChildView(otherButton);
+                containerView->addChildView(otherButton2);
 
-                SECTION("first") { REQUIRE(pContainerView->findPreviousChildView(pButton) == nullptr); }
+                SECTION("first") { REQUIRE(containerView->findPreviousChildView(button) == nullptr); }
 
-                SECTION("second")
-                {
-                    REQUIRE(pContainerView->findPreviousChildView(pOtherButton) == cast<View>(pButton));
-                }
+                SECTION("second") { REQUIRE(containerView->findPreviousChildView(otherButton) == cast<View>(button)); }
 
                 SECTION("third")
                 {
-                    REQUIRE(pContainerView->findPreviousChildView(pOtherButton2) == cast<View>(pOtherButton));
+                    REQUIRE(containerView->findPreviousChildView(otherButton2) == cast<View>(otherButton));
                 }
 
-                SECTION("not a child") { REQUIRE(pContainerView->findPreviousChildView(pNonChild) == nullptr); }
+                SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
             }
         }
 
@@ -678,32 +671,32 @@ TEST_CASE("ContainerView")
                 int childListEmpty = -1;
             };
 
-            P<LocalTestData_> pData = newObj<LocalTestData_>();
+            P<LocalTestData_> data = newObj<LocalTestData_>();
 
-            pContainerView->setDestructFunc(
-                [pData, pButton](bdn::test::ViewWithTestExtensions<DummyContainerViewForTests> *pContainerView) {
-                    pData->destructorRun = true;
-                    pData->childParentStillSet = (pButton->getParentView() != nullptr) ? 1 : 0;
+            containerView->setDestructFunc(
+                [data, button](bdn::test::ViewWithTestExtensions<DummyContainerViewForTests> *containerView) {
+                    data->destructorRun = true;
+                    data->childParentStillSet = (button->getParentView() != nullptr) ? 1 : 0;
 
                     List<P<View>> childList;
-                    pContainerView->getChildViews(childList);
-                    pData->childListEmpty = (childList.empty() ? 1 : 0);
+                    containerView->getChildViews(childList);
+                    data->childListEmpty = (childList.empty() ? 1 : 0);
                 });
 
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pButton)
+            BDN_CONTINUE_SECTION_WHEN_IDLE(data, button)
             {
                 // All test objects should have been destroyed by now.
                 // First verify that the destructor was even called.
-                REQUIRE(pData->destructorRun);
+                REQUIRE(data->destructorRun);
 
                 // now verify what we actually want to test: that the
                 // content view's parent was set to null before the destructor
                 // of the parent was called.
-                REQUIRE(pData->childParentStillSet == 0);
+                REQUIRE(data->childParentStillSet == 0);
 
                 // the child should also not be a child of the parent
                 // from the parent's perspective anymore.
-                REQUIRE(pData->childListEmpty == 1);
+                REQUIRE(data->childListEmpty == 1);
             };
         }
     }

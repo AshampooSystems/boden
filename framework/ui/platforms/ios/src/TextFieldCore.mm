@@ -68,11 +68,11 @@ namespace bdn
     namespace ios
     {
 
-        TextFieldCore::TextFieldCore(TextField *pOuterTextField)
-            : ViewCore(pOuterTextField, _createUITextField(pOuterTextField)),
+        TextFieldCore::TextFieldCore(TextField *outerTextField)
+            : ViewCore(outerTextField, _createUITextField(outerTextField)),
               _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
         {
-            setText(pOuterTextField->text());
+            setText(outerTextField->text());
         }
 
         TextFieldCore::~TextFieldCore() { _delegate = nil; }

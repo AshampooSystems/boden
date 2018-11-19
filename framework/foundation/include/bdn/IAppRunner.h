@@ -76,7 +76,7 @@ namespace bdn
     /** Returns the app's runner object.*/
     P<IAppRunner> getAppRunner();
 
-    void _setAppRunner(IAppRunner *pAppRunner);
+    void _setAppRunner(IAppRunner *appRunner);
 }
 
 #endif

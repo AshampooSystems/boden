@@ -29,17 +29,17 @@ namespace bdn
             WeakReference(const Reference &o);
 
             /** Copy constructor.*/
-            WeakReference(const WeakReference &o) : _pShared(o._pShared) {}
+            WeakReference(const WeakReference &o) : _shared(o._shared) {}
 
             /** Move constructor.*/
-            WeakReference(WeakReference &&o) : _pShared(std::move(o._pShared)) {}
+            WeakReference(WeakReference &&o) : _shared(std::move(o._shared)) {}
 
             /** Constructs a null-reference*/
             WeakReference() {}
 
             WeakReference &operator=(const WeakReference &o)
             {
-                _pShared = o._pShared;
+                _shared = o._shared;
 
                 return *this;
             }
@@ -57,7 +57,7 @@ namespace bdn
             bool operator!=(const Reference &strongRef) const { return !operator==(strongRef); }
 
           private:
-            WeakReference(jobject weakRef) : _pShared(newObj<Shared>(weakRef)) {}
+            WeakReference(jobject weakRef) : _shared(newObj<Shared>(weakRef)) {}
 
             class Shared : public Base
             {
@@ -72,7 +72,7 @@ namespace bdn
                 jobject _ref;
             };
 
-            P<Shared> _pShared;
+            P<Shared> _shared;
         };
     }
 }

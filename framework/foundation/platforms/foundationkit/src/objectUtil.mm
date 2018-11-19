@@ -6,7 +6,7 @@
 /** Wraps an IBase pointer into an NSObject.*/
 @interface BdnFkNSObjectWrapper_ : NSObject
 
-- (void)setObject:(bdn::IBase *)pObject;
+- (void)setObject:(bdn::IBase *)object;
 
 - (bdn::IBase *)getObject;
 
@@ -14,11 +14,11 @@
 
 @implementation BdnFkNSObjectWrapper_
 
-bdn::P<bdn::IBase> _pObject;
+bdn::P<bdn::IBase> _object;
 
-- (void)setObject:(bdn::IBase *)pObject { _pObject = pObject; }
+- (void)setObject:(bdn::IBase *)object { _object = object; }
 
-- (bdn::IBase *)getObject { return _pObject; }
+- (bdn::IBase *)getObject { return _object; }
 
 @end
 

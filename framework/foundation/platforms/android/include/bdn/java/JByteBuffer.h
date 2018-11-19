@@ -26,11 +26,11 @@ namespace bdn
         class JByteBuffer : public JObject
         {
           private:
-            Reference newInstance_(void *pBuffer, int capacityBytes)
+            Reference newInstance_(void *buffer, int capacityBytes)
             {
                 Env &env = Env::get();
 
-                jobject obj = env.getJniEnv()->NewDirectByteBuffer(pBuffer, capacityBytes);
+                jobject obj = env.getJniEnv()->NewDirectByteBuffer(buffer, capacityBytes);
                 env.throwAndClearExceptionFromLastJavaCall();
 
                 return Reference::convertAndDestroyOwnedLocal(obj);
@@ -55,17 +55,17 @@ namespace bdn
              * dummy value >0 (e.g. 1).
              *
              *  */
-            JByteBuffer(void *pBuffer, int64_t capacityBytes) : JObject(newInstance_(pBuffer, capacityBytes)) {}
+            JByteBuffer(void *buffer, int64_t capacityBytes) : JObject(newInstance_(buffer, capacityBytes)) {}
 
             /** Return a pointer to the buffer data.*/
             void *getBuffer_()
             {
                 Env &env = Env::get();
 
-                void *pBuffer = env.getJniEnv()->GetDirectBufferAddress(getJObject_());
+                void *buffer = env.getJniEnv()->GetDirectBufferAddress(getJObject_());
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return pBuffer;
+                return buffer;
             }
 
             /** Returns the size of the buffer in bytes.*/

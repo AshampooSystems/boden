@@ -16,7 +16,7 @@ class TestMacContainerViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn
 
 TEST_CASE("mac.ContainerViewCore")
 {
-    P<TestMacContainerViewCore> pTest = newObj<TestMacContainerViewCore>();
+    P<TestMacContainerViewCore> test = newObj<TestMacContainerViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

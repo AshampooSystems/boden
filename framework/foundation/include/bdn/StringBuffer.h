@@ -133,26 +133,26 @@ namespace bdn
             class Chunk
             {
               public:
-                Chunk() : _pData(nullptr), _capacity(0), _used(0) {}
+                Chunk() : _data(nullptr), _capacity(0), _used(0) {}
 
-                Chunk(size_t capacity) : _capacity(capacity), _used(0) { _pData = new char32_t[capacity]; }
+                Chunk(size_t capacity) : _capacity(capacity), _used(0) { _data = new char32_t[capacity]; }
 
-                Chunk(Chunk &&other) : _pData(other._pData), _capacity(other._capacity), _used(other._used)
+                Chunk(Chunk &&other) : _data(other._data), _capacity(other._capacity), _used(other._used)
                 {
-                    other._pData = nullptr;
+                    other._data = nullptr;
                     other._capacity = 0;
                     other._used = 0;
                 }
 
                 ~Chunk()
                 {
-                    if (_pData != nullptr)
-                        delete[] _pData;
+                    if (_data != nullptr)
+                        delete[] _data;
                 }
 
-                char32_t *data() { return _pData; }
+                char32_t *data() { return _data; }
 
-                const char32_t *data() const { return _pData; }
+                const char32_t *data() const { return _data; }
 
                 size_t capacity() const { return _capacity; }
 
@@ -161,7 +161,7 @@ namespace bdn
                 size_t used() const { return _used; }
 
               private:
-                char32_t *_pData;
+                char32_t *_data;
                 size_t _capacity;
                 size_t _used;
             };
@@ -326,9 +326,9 @@ namespace bdn
                 } else
                     chunkAlreadyRead = gptr() - eback();
 
-                Chunk *pChunk = &*_readChunkIt;
+                Chunk *chunk = &*_readChunkIt;
 
-                if (pChunk->used() <= chunkAlreadyRead) {
+                if (chunk->used() <= chunkAlreadyRead) {
                     // advance to next chunk (if we have one).
                     ++_readChunkIt;
 
@@ -339,19 +339,19 @@ namespace bdn
                         return traits_type::eof();
                     }
 
-                    _readChunkStartPos += pChunk->used();
+                    _readChunkStartPos += chunk->used();
 
                     // note that we never have empty chunks. So we know that
                     // there is data in the new chunk.
-                    pChunk = &*_readChunkIt;
+                    chunk = &*_readChunkIt;
                     chunkAlreadyRead = 0;
                 }
 
-                char32_t *pChunkData = pChunk->data();
+                char32_t *chunkData = chunk->data();
 
-                setg(pChunkData, pChunkData + chunkAlreadyRead, pChunkData + pChunk->used());
+                setg(chunkData, chunkData + chunkAlreadyRead, chunkData + chunk->used());
 
-                return traits_type::to_int_type(pChunkData[chunkAlreadyRead]);
+                return traits_type::to_int_type(chunkData[chunkAlreadyRead]);
             }
 
             pos_type seekpos(pos_type pos, ios_base::openmode which = ios_base::in | ios_base::out) override
@@ -490,10 +490,10 @@ namespace bdn
           private:
             size_t getPosInChunk() const
             {
-                char32_t *pBase = pbase();
-                char32_t *pCurr = pptr();
-                if (pBase != nullptr && pCurr != nullptr)
-                    return pCurr - pBase;
+                char32_t *base = pbase();
+                char32_t *curr = pptr();
+                if (base != nullptr && curr != nullptr)
+                    return curr - base;
                 else
                     return 0;
             }
@@ -547,9 +547,9 @@ namespace bdn
 
                 Chunk &chunk = *_writeChunkIt;
 
-                char32_t *pData = chunk.data();
+                char32_t *data = chunk.data();
 
-                setp(pData, pData + chunk.capacity());
+                setp(data, data + chunk.capacity());
             }
 
             enum

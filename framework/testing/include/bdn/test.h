@@ -3686,7 +3686,7 @@ namespace bdn
     \code
 
     // do some generic initalization here that applies to all sections
-    P<SomeClass>    pSomeTestObject = newObj<SomeClass>();
+    P<SomeClass>    someTestObject = newObj<SomeClass>();
     int             someValue = 17;
     double          someOtherValue = 42;
     ... more initialization code....
@@ -3695,15 +3695,15 @@ namespace bdn
    capture all local variables by value
     {
         // this is the async test code.
-        // pSomeTestObject, someValue and someOtherValue can all be used here,
+        // someTestObject, someValue and someOtherValue can all be used here,
    since all local variables are captured by value.
     };
 
 
-    ASYNC_SECTION("some other section", pSomeTestObject, someValue )   //
+    ASYNC_SECTION("some other section", someTestObject, someValue )   //
    capture statement explicitly lists what to capture here
     {
-        // we can only access pSomeTestObject and someValue here, since only
+        // we can only access someTestObject and someValue here, since only
    those have been captured.
     };
 
@@ -3738,34 +3738,34 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    void continueButtonClickTest(bool* clicked, P<Window> window)
     {
-        REQUIRE( *pClicked );
+        REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
@@ -3774,7 +3774,7 @@ namespace bdn
    to be
         // actually executed. So we have to schedule an async continuation.
         CONTINUE_SECTION_WHEN_IDLE_WITH( std::bind( continueButtonClickTest,
-   pClicked, pWindow) );
+   clicked, window) );
     }
 
     \endcode
@@ -3814,41 +3814,41 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    void continueButtonClickTest(bool* clicked, P<Window> window)
     {
-        REQUIRE( *pClicked );
+        REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
 
         // wait for 2.5 seconds and then continue.
         CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( 2.5, std::bind(
-   continueButtonClickTest, pClicked, pWindow) );
+   continueButtonClickTest, clicked, window) );
     }
 
     \endcode
@@ -3891,41 +3891,41 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    void continueButtonClickTest(bool* clicked, P<Window> window)
     {
-        REQUIRE( *pClicked );
+        REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
 
         // wait for 2.5 seconds and then continue.
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( 2.5, std::bind(
-   continueButtonClickTest, pClicked, pWindow) );
+   continueButtonClickTest, clicked, window) );
     }
 
     \endcode
@@ -3994,27 +3994,27 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
@@ -4022,23 +4022,23 @@ namespace bdn
         // So we now need user interface events to be handled, causing the click
    to be
         // actually executed. So we have to schedule a continuation.
-        CONTINUE_SECTION_WHEN_IDLE( pClicked, pWindow ) // we want to access
-   pClicked in the continuation, so we use a lambda and add it to the capture
+        CONTINUE_SECTION_WHEN_IDLE( clicked, window ) // we want to access
+   clicked in the continuation, so we use a lambda and add it to the capture
    list.
-                                                    // pWindow is in the capture
+                                                    // window is in the capture
    list so that the window will not be deleted and destroyed when the
                                                     // initial test function
    exits (before the lambda continuation is called).
                                                     // We could also use
    std::bind here instead of a lambda. See below for an example
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
         // as an alternative we could also auto-capture all local variables with
    a "=" capture statement like this: CONTINUE_SECTION_WHEN_IDLE( = )
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
     }
@@ -4100,50 +4100,50 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
 
         // wait 2.5 seconds before continuing.
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS( 2.5, pClicked, pWindow ) // we
-   want to access pClicked in the continuation, so we use a lambda and add it to
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS( 2.5, clicked, window ) // we
+   want to access clicked in the continuation, so we use a lambda and add it to
    the capture list.
-                                                    // pWindow is in the capture
+                                                    // window is in the capture
    list so that the window will not be deleted and destroyed when the
                                                     // initial test function
    exits (before the lambda continuation is called).
                                                     // We could also use
    std::bind here instead of a lambda. See below for an example
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
         // as an alternative we could also have captured ALL local variables
    with a "=" capture statement like this:
         CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2.5, = )
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
     }
@@ -4206,50 +4206,50 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> pWindow = newObj<Window>();
-        P<Button> pButton = newObj<Button>();
+        P<Window> window = newObj<Window>();
+        P<Button> button = newObj<Button>();
 
-        pWindow->setContentView(pMyButton);
+        window->setContentView(myButton);
 
-        bool* pClicked = new bool;
-        *pClicked = false;
+        bool* clicked = new bool;
+        *clicked = false;
 
         // when the button is clicked then we
-        pMyButton->onClick().subscribeVoid(
-            [pClicked]()
+        myButton->onClick().subscribeVoid(
+            [clicked]()
             {
-                // set pClicked to true when the button is clicked.
-                *pClicked = true;
+                // set clicked to true when the button is clicked.
+                *clicked = true;
             } );
 
         // schedule a button click
-        P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-        pClicker->scheduleButtonClick(pMyButton);
+        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        clicker->scheduleButtonClick(myButton);
 
-        // *pClicked will not be true yet because the imaginary ButtonClicker
+        // *clicked will not be true yet because the imaginary ButtonClicker
    object
         // requires pending UI events to be handled to execute the scheduled
    event.
 
         // wait 2.5 seconds before continuing.
-        CONTINUE_SECTION_AFTER_RUN_SECONDS( 2.5, pClicked, pWindow ) // we want
-   to access pClicked in the continuation, so we use a lambda and add it to the
+        CONTINUE_SECTION_AFTER_RUN_SECONDS( 2.5, clicked, window ) // we want
+   to access clicked in the continuation, so we use a lambda and add it to the
    capture list.
-                                                    // pWindow is in the capture
+                                                    // window is in the capture
    list so that the window will not be deleted and destroyed when the
                                                     // initial test function
    exits (before the lambda continuation is called).
                                                     // We could also use
    std::bind here instead of a lambda. See below for an example
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
         // as an alternative we could also have captured ALL local variables
    with a "=" capture statement like this:
         CONTINUE_SECTION_AFTER_RUN_SECONDS(2.5, = )
         {
-            REQUIRE( *pClicked );
+            REQUIRE( *clicked );
         };
 
     }

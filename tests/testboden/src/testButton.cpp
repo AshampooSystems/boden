@@ -15,19 +15,19 @@ TEST_CASE("Button")
 
     SECTION("Button-specific")
     {
-        P<bdn::test::ViewTestPreparer<Button>> pPreparer = newObj<bdn::test::ViewTestPreparer<Button>>();
-        P<bdn::test::ViewWithTestExtensions<Button>> pButton = pPreparer->createView();
-        P<bdn::test::MockButtonCore> pCore = cast<bdn::test::MockButtonCore>(pButton->getViewCore());
+        P<bdn::test::ViewTestPreparer<Button>> preparer = newObj<bdn::test::ViewTestPreparer<Button>>();
+        P<bdn::test::ViewWithTestExtensions<Button>> button = preparer->createView();
+        P<bdn::test::MockButtonCore> core = cast<bdn::test::MockButtonCore>(button->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
         SECTION("initialButtonState")
         {
             SECTION("label")
             {
-                REQUIRE(pButton->label() == "");
-                REQUIRE(pCore->getLabel() == "");
-                REQUIRE(pCore->getLabelChangeCount() == 0);
+                REQUIRE(button->label() == "");
+                REQUIRE(core->getLabel() == "");
+                REQUIRE(core->getLabelChangeCount() == 0);
             }
         }
 
@@ -36,10 +36,10 @@ TEST_CASE("Button")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pButton, pPreparer, [pButton]() { pButton->setLabel("hello"); },
-                    [pCore, pButton] {
-                        REQUIRE(pCore->getLabel() == "hello");
-                        REQUIRE(pCore->getLabelChangeCount() == 1);
+                    button, preparer, [button]() { button->setLabel("hello"); },
+                    [core, button] {
+                        REQUIRE(core->getLabel() == "hello");
+                        REQUIRE(core->getLabelChangeCount() == 1);
                     },
                     (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
                                                                                       // info to be invalidated

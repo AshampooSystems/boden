@@ -8,22 +8,22 @@
 namespace bdn
 {
 
-    ViewTextUi::ViewTextUi(IUiProvider *pUiProvider)
+    ViewTextUi::ViewTextUi(IUiProvider *uiProvider)
     {
         _initialized = false;
         _flushPendingScheduled = false;
         _scrollDownPending = false;
 
-        _pUiProvider = pUiProvider;
+        _uiProvider = uiProvider;
 
         if (Thread::isCurrentMain()) {
             Mutex::Lock lock(_mutex);
 
             _ensureInitializedWhileMutexLocked();
         } else {
-            P<ViewTextUi> pThis = this;
+            P<ViewTextUi> self = this;
 
-            asyncCallFromMainThread([this, pThis]() {
+            asyncCallFromMainThread([self, this]() {
                 Mutex::Lock lock(_mutex);
 
                 _ensureInitializedWhileMutexLocked();
@@ -36,26 +36,26 @@ namespace bdn
         if (!_initialized) {
             _initialized = true;
 
-            _pWindow = newObj<Window>(_pUiProvider);
+            _window = newObj<Window>(_uiProvider);
 
-            _pWindow->setPadding(UiMargin(10));
+            _window->setPadding(UiMargin(10));
 
-            _pScrollView = newObj<ScrollView>();
+            _scrollView = newObj<ScrollView>();
 
-            _pScrolledColumnView = newObj<ColumnView>();
+            _scrolledColumnView = newObj<ColumnView>();
 
-            _pScrolledColumnView->sizeChanged().subscribeParamless(weakMethod(this, &ViewTextUi::scrolledSizeChanged));
+            _scrolledColumnView->sizeChanged().subscribeParamless(weakMethod(this, &ViewTextUi::scrolledSizeChanged));
 
-            _pScrollView->setContentView(_pScrolledColumnView);
+            _scrollView->setContentView(_scrolledColumnView);
 
-            _pWindow->setContentView(_pScrollView);
+            _window->setContentView(_scrollView);
 
-            _pWindow->setPreferredSizeMinimum(Size(600, 400));
+            _window->setPreferredSizeMinimum(Size(600, 400));
 
-            _pWindow->setVisible(true);
+            _window->setVisible(true);
 
-            _pWindow->requestAutoSize();
-            _pWindow->requestCenter();
+            _window->requestAutoSize();
+            _window->requestCenter();
 
             // it may be that we get called with many small writes in a short
             // period of time. In these cases we do NOT want to update the UI
@@ -95,11 +95,11 @@ namespace bdn
         {
             if(!_flushPendingScheduled)
             {
-                P<ViewTextUi> pThis = this;
+                P<ViewTextUi> self = this;
 
                 _flushPendingScheduled = true;
                 asyncCallFromMainThread(
-                    [this, pThis]()
+                    [self, this]()
                     {
                         Mutex::Lock lock( _mutex );
                         _flushPendingWhileMutexLocked();
@@ -134,16 +134,16 @@ namespace bdn
             char32_t separator = 0;
             String para = remaining.splitOffToken("\n", true, &separator);
 
-            if (_pCurrParagraphView == nullptr) {
-                _pCurrParagraphView = newObj<TextView>();
-                _pScrolledColumnView->addChildView(_pCurrParagraphView);
+            if (_currParagraphView == nullptr) {
+                _currParagraphView = newObj<TextView>();
+                _scrolledColumnView->addChildView(_currParagraphView);
             }
 
-            _pCurrParagraphView->setText(_pCurrParagraphView->text() + para);
+            _currParagraphView->setText(_currParagraphView->text() + para);
 
             if (separator != 0) {
                 // linebreak was found => finish current paragraph.
-                _pCurrParagraphView = nullptr;
+                _currParagraphView = nullptr;
             }
         }
     }
@@ -173,9 +173,9 @@ namespace bdn
             _scrollDownPending = true;
 
             // keep ourselves alive.
-            P<ViewTextUi> pThis = this;
+            P<ViewTextUi> self = this;
 
-            asyncCallFromMainThread([pThis, this]() {
+            asyncCallFromMainThread([self, this]() {
                 // we want to scroll to the end of the client area.
                 // scrollClientRectToVisible supports the infinity value
                 // to scroll to the end, so we just use that.
@@ -183,7 +183,7 @@ namespace bdn
 
                 _scrollDownPending = false;
 
-                _pScrollView->scrollClientRectToVisible(rect);
+                _scrollView->scrollClientRectToVisible(rect);
             });
         }
     }

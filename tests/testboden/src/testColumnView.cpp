@@ -9,52 +9,52 @@
 
 using namespace bdn;
 
-static void testChildAlignment(P<bdn::test::ViewTestPreparer<ColumnView>> pPreparer,
-                               P<bdn::test::ViewWithTestExtensions<ColumnView>> pColumnView, P<Button> pButton,
+static void testChildAlignment(P<bdn::test::ViewTestPreparer<ColumnView>> preparer,
+                               P<bdn::test::ViewWithTestExtensions<ColumnView>> columnView, P<Button> button,
                                View::HorizontalAlignment horzAlign, View::VerticalAlignment vertAlign)
 {
     // add a second button that is considerably bigger.
     // That will cause the column view to become bigger.
-    P<Button> pButton2 = newObj<Button>();
-    pButton2->setPadding(UiMargin(500, 500));
+    P<Button> button2 = newObj<Button>();
+    button2->setPadding(UiMargin(500, 500));
 
-    pColumnView->addChildView(pButton2);
+    columnView->addChildView(button2);
 
-    if (pButton->horizontalAlignment() == horzAlign) {
+    if (button->horizontalAlignment() == horzAlign) {
         // change to another horizontal alignment, so that the setting
         // of the requested alignment is registered as a change
-        pButton->setHorizontalAlignment((horzAlign == View::HorizontalAlignment::left)
-                                            ? View::HorizontalAlignment::right
-                                            : View::HorizontalAlignment::left);
+        button->setHorizontalAlignment((horzAlign == View::HorizontalAlignment::left)
+                                           ? View::HorizontalAlignment::right
+                                           : View::HorizontalAlignment::left);
     }
 
-    if (pButton->verticalAlignment() == vertAlign) {
+    if (button->verticalAlignment() == vertAlign) {
         // change to another vertical alignment, so that the setting
         // of the requested alignment is registered as a change
-        pButton->setVerticalAlignment((vertAlign == View::VerticalAlignment::top) ? View::VerticalAlignment::bottom
-                                                                                  : View::VerticalAlignment::top);
+        button->setVerticalAlignment((vertAlign == View::VerticalAlignment::top) ? View::VerticalAlignment::bottom
+                                                                                 : View::VerticalAlignment::top);
     }
 
-    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
+    CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, horzAlign, vertAlign)
     {
-        int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
+        int layoutCountBefore = cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount();
 
-        Rect buttonBoundsBefore = Rect(pButton->position(), pButton->size());
+        Rect buttonBoundsBefore = Rect(button->position(), button->size());
 
         SECTION("horizontal")
         {
-            pButton->setHorizontalAlignment(horzAlign);
+            button->setHorizontalAlignment(horzAlign);
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, horzAlign, layoutCountBefore)
             {
                 // but layout should have happened
-                REQUIRE(cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() ==
+                REQUIRE(cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
-                Margin margin = pButton->uiMarginToDipMargin(pButton->margin());
+                Margin margin = button->uiMarginToDipMargin(button->margin());
 
-                Rect bounds = Rect(pButton->position(), pButton->size());
-                Rect containerBounds = Rect(pColumnView->position(), pColumnView->size());
+                Rect bounds = Rect(button->position(), button->size());
+                Rect containerBounds = Rect(columnView->position(), columnView->size());
 
                 // sanity check: the button should be smaller than the
                 // columnview unless the alignment is "expand"
@@ -80,16 +80,16 @@ static void testChildAlignment(P<bdn::test::ViewTestPreparer<ColumnView>> pPrepa
 
         SECTION("vertical")
         {
-            pButton->setVerticalAlignment(vertAlign);
+            button->setVerticalAlignment(vertAlign);
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, layoutCountBefore, buttonBoundsBefore)
+            CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, layoutCountBefore, buttonBoundsBefore)
             {
                 // layout should have been invalidated
-                REQUIRE(cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() ==
+                REQUIRE(cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
                 // vertical alignment should have NO effect in a column view.
-                Rect bounds = Rect(pButton->position(), pButton->size());
+                Rect bounds = Rect(button->position(), button->size());
 
                 REQUIRE(bounds == buttonBoundsBefore);
             };
@@ -126,54 +126,54 @@ TEST_CASE("ColumnView")
 
     SECTION("ColumnView-specific")
     {
-        P<bdn::test::ViewTestPreparer<ColumnView>> pPreparer = newObj<bdn::test::ViewTestPreparer<ColumnView>>();
-        P<bdn::test::ViewWithTestExtensions<ColumnView>> pColumnView = pPreparer->createView();
-        P<bdn::test::MockContainerViewCore> pCore = cast<bdn::test::MockContainerViewCore>(pColumnView->getViewCore());
+        P<bdn::test::ViewTestPreparer<ColumnView>> preparer = newObj<bdn::test::ViewTestPreparer<ColumnView>>();
+        P<bdn::test::ViewWithTestExtensions<ColumnView>> columnView = preparer->createView();
+        P<bdn::test::MockContainerViewCore> core = cast<bdn::test::MockContainerViewCore>(columnView->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
-        P<Button> pButton = newObj<Button>();
+        P<Button> button = newObj<Button>();
 
-        pButton->adjustAndSetBounds(Rect(10, 10, 10, 10));
+        button->adjustAndSetBounds(Rect(10, 10, 10, 10));
 
         SECTION("no child view")
         {
             SECTION("getChildList")
             {
                 List<P<View>> childList;
-                pColumnView->getChildViews(childList);
+                columnView->getChildViews(childList);
 
                 REQUIRE(childList.empty());
             }
 
             SECTION("removeAllChildViews")
             {
-                pColumnView->removeAllChildViews();
+                columnView->removeAllChildViews();
 
                 List<P<View>> childList;
-                pColumnView->getChildViews(childList);
+                columnView->getChildViews(childList);
 
                 REQUIRE(childList.empty());
             }
 
             SECTION("addChildView")
             {
-                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
+                CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core)
                 {
-                    int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
+                    int layoutCountBefore = cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount();
 
-                    pColumnView->addChildView(pButton);
+                    columnView->addChildView(button);
 
                     // let scheduled property updates propagate
-                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, layoutCountBefore)
+                    CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core, layoutCountBefore)
                     {
                         // should cause a layout update.
-                        REQUIRE(cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() ==
+                        REQUIRE(cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount() ==
                                 layoutCountBefore + 1);
 
-                        Size preferredSize = pColumnView->calcPreferredSize();
+                        Size preferredSize = columnView->calcPreferredSize();
 
-                        Size buttonPreferredSize = pButton->calcPreferredSize();
+                        Size buttonPreferredSize = button->calcPreferredSize();
 
                         REQUIRE(preferredSize != Size(0, 0));
 
@@ -183,8 +183,7 @@ TEST_CASE("ColumnView")
                         // pixels. We have 3 mock pixels per DIP, so that is
                         // what we should get
                         Rect buttonBounds(Point(), buttonPreferredSize);
-                        Rect adjustedButtonBounds =
-                            pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+                        Rect adjustedButtonBounds = core->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
 
                         REQUIRE(preferredSize == adjustedButtonBounds.getSize());
                     };
@@ -194,23 +193,23 @@ TEST_CASE("ColumnView")
 
         SECTION("with child view")
         {
-            pColumnView->addChildView(pButton);
+            columnView->addChildView(button);
 
-            pPreparer->getWindow()->requestAutoSize();
+            preparer->getWindow()->requestAutoSize();
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore){
-                SECTION("child margins"){Size preferredSizeBefore = pColumnView->calcPreferredSize();
-            int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
+            CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core){
+                SECTION("child margins"){Size preferredSizeBefore = columnView->calcPreferredSize();
+            int layoutCountBefore = cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount();
 
-            pButton->setMargin(UiMargin(1, 2, 3, 4));
+            button->setMargin(UiMargin(1, 2, 3, 4));
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core, preferredSizeBefore, layoutCountBefore)
             {
                 // should cause a layout update for the column view
-                REQUIRE(cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() ==
+                REQUIRE(cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
-                Size preferredSize = pColumnView->calcPreferredSize();
+                Size preferredSize = columnView->calcPreferredSize();
 
                 REQUIRE(preferredSize == preferredSizeBefore + Margin(1, 2, 3, 4));
             };
@@ -225,14 +224,14 @@ TEST_CASE("ColumnView")
                     SECTION(std::to_string(horzAlign) + ", " + std::to_string(vertAlign))
                     {
                         SECTION("no margin")
-                        testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment)horzAlign,
+                        testChildAlignment(preparer, columnView, button, (View::HorizontalAlignment)horzAlign,
                                            (View::VerticalAlignment)vertAlign);
 
                         SECTION("with margin")
                         {
-                            pButton->setMargin(UiMargin(10, 20, 30, 40));
+                            button->setMargin(UiMargin(10, 20, 30, 40));
 
-                            testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment)horzAlign,
+                            testChildAlignment(preparer, columnView, button, (View::HorizontalAlignment)horzAlign,
                                                (View::VerticalAlignment)vertAlign);
                         }
                     }
@@ -244,12 +243,12 @@ TEST_CASE("ColumnView")
         {
             // add a weird margin to the button to bring everything out of pixel
             // alignment
-            pButton->setMargin(UiMargin(0.1234567));
+            button->setMargin(UiMargin(0.1234567));
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
+            CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core)
             {
-                verifyPixelMultiple(pButton->position());
-                verifyPixelMultiple(pButton->size());
+                verifyPixelMultiple(button->position());
+                verifyPixelMultiple(button->size());
             };
         }
 
@@ -257,10 +256,10 @@ TEST_CASE("ColumnView")
         {
             SECTION("availableWidth bigger than needed")
             {
-                Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
+                Size unrestrictedSize = columnView->calcContainerPreferredSize();
 
                 Size size =
-                    pColumnView->calcContainerPreferredSize(Size(unrestrictedSize.width + 1, Size::componentNone()));
+                    columnView->calcContainerPreferredSize(Size(unrestrictedSize.width + 1, Size::componentNone()));
 
                 // should be the same as the unresctricted size
                 REQUIRE_ALMOST_EQUAL(size, unrestrictedSize, Size(0.0000001, 0.0000001));
@@ -268,10 +267,9 @@ TEST_CASE("ColumnView")
 
             SECTION("availableWidth exactly same as needed")
             {
-                Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
+                Size unrestrictedSize = columnView->calcContainerPreferredSize();
 
-                Size size =
-                    pColumnView->calcContainerPreferredSize(Size(unrestrictedSize.width, Size::componentNone()));
+                Size size = columnView->calcContainerPreferredSize(Size(unrestrictedSize.width, Size::componentNone()));
 
                 // should be the same as the unresctricted size
                 REQUIRE_ALMOST_EQUAL(size, unrestrictedSize, Size(0.0000001, 0.0000001));
@@ -279,9 +277,9 @@ TEST_CASE("ColumnView")
 
             SECTION("availableWidth smaller than needed")
             {
-                Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
+                Size unrestrictedSize = columnView->calcContainerPreferredSize();
                 Size size =
-                    pColumnView->calcContainerPreferredSize(Size(unrestrictedSize.width / 2, Size::componentNone()));
+                    columnView->calcContainerPreferredSize(Size(unrestrictedSize.width / 2, Size::componentNone()));
 
                 // should still report almost the unrestricted size since none
                 // of the child views can be shrunk.
@@ -292,22 +290,22 @@ TEST_CASE("ColumnView")
         SECTION("getChildList")
         {
             List<P<View>> childList;
-            pColumnView->getChildViews(childList);
+            columnView->getChildViews(childList);
 
             REQUIRE(childList.size() == 1);
-            REQUIRE(childList.front() == cast<View>(pButton));
+            REQUIRE(childList.front() == cast<View>(button));
         }
 
         SECTION("removeAllChildViews")
         {
-            pColumnView->removeAllChildViews();
+            columnView->removeAllChildViews();
 
             List<P<View>> childList;
-            pColumnView->getChildViews(childList);
+            columnView->getChildViews(childList);
 
             REQUIRE(childList.empty());
 
-            REQUIRE(pButton->getParentView() == nullptr);
+            REQUIRE(button->getParentView() == nullptr);
         }
 
         SECTION("child views detached before destruction begins")
@@ -319,31 +317,31 @@ TEST_CASE("ColumnView")
                 int childListEmpty = -1;
             };
 
-            P<LocalTestData_> pData = newObj<LocalTestData_>();
+            P<LocalTestData_> data = newObj<LocalTestData_>();
 
-            pColumnView->setDestructFunc([pData, pButton](bdn::test::ViewWithTestExtensions<ColumnView> *pColView) {
-                pData->destructorRun = true;
-                pData->childParentStillSet = (pButton->getParentView() != nullptr) ? 1 : 0;
+            columnView->setDestructFunc([data, button](bdn::test::ViewWithTestExtensions<ColumnView> *colView) {
+                data->destructorRun = true;
+                data->childParentStillSet = (button->getParentView() != nullptr) ? 1 : 0;
 
                 List<P<View>> childList;
-                pColView->getChildViews(childList);
-                pData->childListEmpty = (childList.empty() ? 1 : 0);
+                colView->getChildViews(childList);
+                data->childListEmpty = (childList.empty() ? 1 : 0);
             });
 
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pButton)
+            BDN_CONTINUE_SECTION_WHEN_IDLE(data, button)
             {
                 // All test objects should have been destroyed by now.
                 // First verify that the destructor was even called.
-                REQUIRE(pData->destructorRun);
+                REQUIRE(data->destructorRun);
 
                 // now verify what we actually want to test: that the
                 // content view's parent was set to null before the destructor
                 // of the parent was called.
-                REQUIRE(pData->childParentStillSet == 0);
+                REQUIRE(data->childParentStillSet == 0);
 
                 // the child should also not be a child of the parent
                 // from the parent's perspective anymore.
-                REQUIRE(pData->childListEmpty == 1);
+                REQUIRE(data->childListEmpty == 1);
             };
         }
     };
@@ -351,12 +349,12 @@ TEST_CASE("ColumnView")
 
 SECTION("multiple child views properly arranged")
 {
-    pColumnView->addChildView(pButton);
+    columnView->addChildView(button);
 
-    P<Button> pButton2 = newObj<Button>();
-    pColumnView->addChildView(pButton2);
+    P<Button> button2 = newObj<Button>();
+    columnView->addChildView(button2);
 
-    pPreparer->getWindow()->requestAutoSize();
+    preparer->getWindow()->requestAutoSize();
 
     Margin m;
     Margin m2;
@@ -373,26 +371,26 @@ SECTION("multiple child views properly arranged")
         m2 = Margin(11, 22, 33, 44);
     }
 
-    pButton->setMargin(UiMargin(m.top, m.right, m.bottom, m.left));
-    pButton2->setMargin(UiMargin(m2.top, m2.right, m2.bottom, m2.left));
+    button->setMargin(UiMargin(m.top, m.right, m.bottom, m.left));
+    button2->setMargin(UiMargin(m2.top, m2.right, m2.bottom, m2.left));
 
-    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
+    CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, button2, core, m, m2)
     {
-        Rect bounds = Rect(pButton->position(), pButton->size());
-        Rect bounds2 = Rect(pButton2->position(), pButton2->size());
+        Rect bounds = Rect(button->position(), button->size());
+        Rect bounds2 = Rect(button2->position(), button2->size());
 
         REQUIRE(bounds.x == m.left);
         REQUIRE(bounds.y == m.top);
         // width and height should have been rounded up to full pixels.
         // Since our mock view has 3 pixels per DIP, we need to round up
         // accordingly.
-        REQUIRE(bounds.width == stableScaledRoundUp(pButton->calcPreferredSize().width, 3));
-        REQUIRE(bounds.height == stableScaledRoundUp(pButton->calcPreferredSize().height, 3));
+        REQUIRE(bounds.width == stableScaledRoundUp(button->calcPreferredSize().width, 3));
+        REQUIRE(bounds.height == stableScaledRoundUp(button->calcPreferredSize().height, 3));
 
         REQUIRE(bounds2.x == m2.left);
         REQUIRE(bounds2.y == bounds.y + bounds.height + m.bottom + m2.top);
-        REQUIRE(bounds2.width == stableScaledRoundUp(pButton2->calcPreferredSize().width, 3));
-        REQUIRE(bounds2.height == stableScaledRoundUp(pButton2->calcPreferredSize().height, 3));
+        REQUIRE(bounds2.width == stableScaledRoundUp(button2->calcPreferredSize().width, 3));
+        REQUIRE(bounds2.height == stableScaledRoundUp(button2->calcPreferredSize().height, 3));
     };
 }
 }

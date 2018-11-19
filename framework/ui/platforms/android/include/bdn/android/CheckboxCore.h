@@ -15,51 +15,51 @@ namespace bdn
         template <class T> class CheckboxCore : public ViewCore, BDN_IMPLEMENTS ICheckboxCore
         {
           private:
-            static P<JCheckBox> _createJCheckBox(T *pOuter)
+            static P<JCheckBox> _createJCheckBox(T *outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> pParent = pOuter->getParentView();
-                if (pParent == nullptr)
+                P<View> parent = outer->getParentView();
+                if (parent == nullptr)
                     throw ProgrammingError("CheckboxCore instance requested for a Checkbox that "
                                            "does not have a parent.");
 
-                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
-                if (pParentCore == nullptr)
+                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                if (parentCore == nullptr)
                     throw ProgrammingError("CheckboxCore instance requested for a Checkbox with "
                                            "core-less parent.");
 
-                JContext context = pParentCore->getJView().getContext();
+                JContext context = parentCore->getJView().getContext();
 
                 return newObj<JCheckBox>(context);
             }
 
           public:
-            CheckboxCore(T *pOuter) : ViewCore(pOuter, _createJCheckBox(pOuter))
+            CheckboxCore(T *outer) : ViewCore(outer, _createJCheckBox(outer))
             {
-                _pJCheckBox = cast<JCheckBox>(&getJView());
+                _jCheckBox = cast<JCheckBox>(&getJView());
 
-                _pJCheckBox->setSingleLine(true);
+                _jCheckBox->setSingleLine(true);
 
-                setLabel(pOuter->label());
-                setState(pOuter->state());
+                setLabel(outer->label());
+                setState(outer->state());
             }
 
-            JCheckBox &getJCheckBox() { return *_pJCheckBox; }
+            JCheckBox &getJCheckBox() { return *_jCheckBox; }
 
             void setLabel(const String &label) override
             {
-                _pJCheckBox->setText(label);
+                _jCheckBox->setText(label);
 
                 // we must re-layout the button - otherwise its preferred size
                 // is not updated.
-                _pJCheckBox->requestLayout();
+                _jCheckBox->requestLayout();
             }
 
             void setState(const TriState &state) override
             {
-                _pJCheckBox->setChecked(state == TriState::on);
+                _jCheckBox->setChecked(state == TriState::on);
                 _state = state;
             }
 
@@ -67,22 +67,22 @@ namespace bdn
 
             void clicked() override
             {
-                P<T> pView = cast<T>(getOuterViewIfStillAttached());
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<T> view = cast<T>(getOuterViewIfStillAttached());
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
-                    P<Checkbox> pCheckbox = tryCast<Checkbox>(pView);
-                    P<Toggle> pToggle = tryCast<Toggle>(pView);
+                    P<Checkbox> checkbox = tryCast<Checkbox>(view);
+                    P<Toggle> toggle = tryCast<Toggle>(view);
 
                     // User interaction cannot set the checkbox into mixed state
-                    _state = _pJCheckBox->isChecked() ? TriState::on : TriState::off;
+                    _state = _jCheckBox->isChecked() ? TriState::on : TriState::off;
 
-                    if (pCheckbox)
-                        pCheckbox->setState(_state);
-                    else if (pToggle)
-                        pToggle->setOn(_pJCheckBox->isChecked());
+                    if (checkbox)
+                        checkbox->setState(_state);
+                    else if (toggle)
+                        toggle->setOn(_jCheckBox->isChecked());
 
-                    pView->onClick().notify(evt);
+                    view->onClick().notify(evt);
                 }
             }
 
@@ -90,11 +90,11 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _pJCheckBox->getTextSize() / getUiScaleFactor();
+                return _jCheckBox->getTextSize() / getUiScaleFactor();
             }
 
           private:
-            P<JCheckBox> _pJCheckBox;
+            P<JCheckBox> _jCheckBox;
             TriState _state;
         };
     }

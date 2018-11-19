@@ -22,15 +22,15 @@ class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pCheckbox->label();
+        String expectedLabel = _checkbox->label();
         String label = _jCheckBox.getText();
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
-        TriState expectedState = _pCheckbox->state();
-        TriState state = cast<bdn::android::CheckboxCore<Checkbox>>(_pAndroidViewCore)->getState();
+        TriState expectedState = _checkbox->state();
+        TriState state = cast<bdn::android::CheckboxCore<Checkbox>>(_androidViewCore)->getState();
         REQUIRE(state == expectedState);
     }
 
@@ -40,7 +40,7 @@ class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
 TEST_CASE("android.CheckboxCore")
 {
-    P<TestAndroidCheckboxCore> pTest = newObj<TestAndroidCheckboxCore>();
+    P<TestAndroidCheckboxCore> test = newObj<TestAndroidCheckboxCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

@@ -5,15 +5,13 @@
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
 
-@property bdn::ios::ScrollViewCore *pScrollViewCore;
+@property(nonatomic) bdn::ios::ScrollViewCore *scrollViewCore;
 
 @end
 
 @implementation BdnIosScrollViewDelegate_
 
-- (void)setScrollViewCore:(bdn::ios::ScrollViewCore *)pCore { _pScrollViewCore = pCore; }
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView { _pScrollViewCore->_scrollViewDidScroll(); }
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView { _scrollViewCore->_scrollViewDidScroll(); }
 
 @end
 
@@ -22,7 +20,7 @@ namespace bdn
     namespace ios
     {
 
-        ScrollViewCore::ScrollViewCore(ScrollView *pOuter) : ViewCore(pOuter, _createScrollView(pOuter))
+        ScrollViewCore::ScrollViewCore(ScrollView *outer) : ViewCore(outer, _createScrollView(outer))
         {
             _uiScrollView = (UIScrollView *)getUIView();
 
@@ -32,10 +30,10 @@ namespace bdn
 
             [_uiScrollView addSubview:_uiContentViewParent];
 
-            setHorizontalScrollingEnabled(pOuter->horizontalScrollingEnabled());
-            setVerticalScrollingEnabled(pOuter->verticalScrollingEnabled());
+            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled());
+            setVerticalScrollingEnabled(outer->verticalScrollingEnabled());
 
-            setPadding(pOuter->padding());
+            setPadding(outer->padding());
 
             BdnIosScrollViewDelegate_ *delegate = [BdnIosScrollViewDelegate_ alloc];
             [delegate setScrollViewCore:this];
@@ -45,7 +43,7 @@ namespace bdn
             _uiScrollView.delegate = delegate;
         }
 
-        UIScrollView *ScrollViewCore::_createScrollView(ScrollView *pOuter)
+        UIScrollView *ScrollViewCore::_createScrollView(ScrollView *outer)
         {
             return [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         }
@@ -85,11 +83,11 @@ namespace bdn
         {
             Size preferredSize;
 
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
                 ScrollViewLayoutHelper helper(0, 0);
 
-                preferredSize = helper.calcPreferredSize(pOuterView, availableSpace);
+                preferredSize = helper.calcPreferredSize(outerView, availableSpace);
             }
 
             return preferredSize;
@@ -97,21 +95,21 @@ namespace bdn
 
         void ScrollViewCore::layout()
         {
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
                 ScrollViewLayoutHelper helper(0, 0);
 
-                Size viewPortSizeWithoutScrollbars = pOuterView->size();
+                Size viewPortSizeWithoutScrollbars = outerView->size();
 
-                helper.calcLayout(pOuterView, viewPortSizeWithoutScrollbars);
+                helper.calcLayout(outerView, viewPortSizeWithoutScrollbars);
 
                 CGSize iosScrolledAreaSize{0, 0};
 
-                P<View> pContentView = pOuterView->getContentView();
-                if (pContentView != nullptr) {
+                P<View> contentView = outerView->getContentView();
+                if (contentView != nullptr) {
                     Rect contentBounds = helper.getContentViewBounds();
 
-                    pContentView->adjustAndSetBounds(contentBounds);
+                    contentView->adjustAndSetBounds(contentBounds);
 
                     // we must also resize our content view parent accordingly.
                     Size scrolledAreaSize = helper.getScrolledAreaSize();
@@ -137,10 +135,10 @@ namespace bdn
                 // the disabled direction does not exceed the viewport size.
                 CGSize iosViewPortSize = _uiScrollView.frame.size;
 
-                if (!pOuterView->horizontalScrollingEnabled() && iosScrollContentSize.width > iosViewPortSize.width)
+                if (!outerView->horizontalScrollingEnabled() && iosScrollContentSize.width > iosViewPortSize.width)
                     iosScrollContentSize.width = iosViewPortSize.width;
 
-                if (!pOuterView->verticalScrollingEnabled() && iosScrollContentSize.height > iosViewPortSize.height)
+                if (!outerView->verticalScrollingEnabled() && iosScrollContentSize.height > iosViewPortSize.height)
                     iosScrollContentSize.height = iosViewPortSize.height;
 
                 _uiScrollView.contentSize = iosScrollContentSize;
@@ -316,8 +314,8 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
                 Point scrollPosition = iosPointToPoint(_uiScrollView.contentOffset);
 
                 // note that this is only correct if the scroll view does not
@@ -327,7 +325,7 @@ namespace bdn
 
                 Rect visibleClientRect(scrollPosition, visibleSize);
 
-                pOuterView->_setVisibleClientRect(visibleClientRect);
+                outerView->_setVisibleClientRect(visibleClientRect);
             }
         }
 

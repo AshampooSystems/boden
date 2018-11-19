@@ -233,8 +233,8 @@ namespace bdn
          */
         StringImpl(const StringImpl &s)
         {
-            _pData = s._pData;
-            _pDataInDifferentEncoding = s._pDataInDifferentEncoding;
+            _data = s._data;
+            _dataInDifferentEncoding = s._dataInDifferentEncoding;
 
             _beginIt = s._beginIt;
             _endIt = s._endIt;
@@ -253,9 +253,9 @@ namespace bdn
         /** Initializes the string with a substring of the specified string.*/
         StringImpl(const StringImpl &s, const Iterator &beginIt, const Iterator &endIt)
         {
-            _pData = s._pData;
+            _data = s._data;
 
-            // cannot copy _pDataInDifferentEncoding because we only want a
+            // cannot copy _dataInDifferentEncoding because we only want a
             // substring of it.
 
             _beginIt = beginIt;
@@ -379,22 +379,21 @@ namespace bdn
         StringImpl(size_t numChars, char32_t chr) : StringImpl() { assign(numChars, chr); }
 
       private:
-        template <class STREAM_BUFFER> static size_t tryDetermineStreamBufferSize(STREAM_BUFFER *pBuffer)
+        template <class STREAM_BUFFER> static size_t tryDetermineStreamBufferSize(STREAM_BUFFER *buffer)
         {
-            if (pBuffer != nullptr) {
-                pBuffer->pubsync();
+            if (buffer != nullptr) {
+                buffer->pubsync();
 
-                typename STREAM_BUFFER::pos_type currPos =
-                    pBuffer->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
+                typename STREAM_BUFFER::pos_type currPos = buffer->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
 
                 if (currPos != (typename STREAM_BUFFER::pos_type) - 1) {
                     // seek to end to get the size
                     typename STREAM_BUFFER::pos_type endPos =
-                        pBuffer->pubseekoff(0, std::ios_base::end, std::ios_base::in);
+                        buffer->pubseekoff(0, std::ios_base::end, std::ios_base::in);
 
                     if (endPos != (typename STREAM_BUFFER::pos_type) - 1) {
                         // seek back to old position
-                        currPos = pBuffer->pubseekpos(currPos, std::ios_base::in);
+                        currPos = buffer->pubseekpos(currPos, std::ios_base::in);
 
                         if (currPos != (typename STREAM_BUFFER::pos_type) - 1)
                             return (size_t)(endPos - currPos);
@@ -409,8 +408,8 @@ namespace bdn
         /** Initializes the string with the data from a char32_t stream
          * buffer.*/
         template <class CHAR_TRAITS>
-        StringImpl(std::basic_streambuf<char32_t, CHAR_TRAITS> *pBuffer)
-            : StringImpl((pBuffer->pubsync(), std::istreambuf_iterator<char32_t, CHAR_TRAITS>(pBuffer)),
+        StringImpl(std::basic_streambuf<char32_t, CHAR_TRAITS> *buffer)
+            : StringImpl((buffer->pubsync(), std::istreambuf_iterator<char32_t, CHAR_TRAITS>(buffer)),
                          std::istreambuf_iterator<char32_t, CHAR_TRAITS>(),
                          // istreambuf iterators are input iterators. That means that
                          // only a single pass can be made over their data. Because of
@@ -419,7 +418,7 @@ namespace bdn
                          // string will be. So we try to get the number of chars from
                          // the buffer, to give the string implementation some help for
                          // optimizing the memory allocation.
-                         tryDetermineStreamBufferSize(pBuffer))
+                         tryDetermineStreamBufferSize(buffer))
         {}
 
         /** Initializes the string with the data from the stream buffer of the
@@ -456,7 +455,7 @@ namespace bdn
         {}
 
         /** Constructs a string that uses the specified string data object.*/
-        StringImpl(MainDataType *pData) : _pData(pData), _beginIt(pData->begin()), _endIt(pData->end())
+        StringImpl(MainDataType *data) : _data(data), _beginIt(data->begin()), _endIt(data->end())
         {
             _lengthIfKnown = npos;
         }
@@ -651,7 +650,7 @@ namespace bdn
 
             Modify m(this);
 
-            m.pStd->reserve(m.pStd->length() + excessCapacityElements);
+            m.std->reserve(m.std->length() + excessCapacityElements);
         }
 
         /** Requests that the string object reduces its capacity (see
@@ -669,7 +668,7 @@ namespace bdn
         {
             Modify m(this);
 
-            m.pStd->shrink_to_fit();
+            m.std->shrink_to_fit();
         }
 
         /** Returns the size of the storage space currently allocated for the
@@ -684,20 +683,19 @@ namespace bdn
         {
             typename MainDataType::EncodedString::difference_type excessCapacityCharacters;
 
-            if (_pData->getRefCount() != 1) {
+            if (_data->getRefCount() != 1) {
                 // we are sharing the string with someone else. So every
                 // modification will cause us to copy it.
                 // => no excess capacity.
                 excessCapacityCharacters = 0;
             } else {
-                typename MainDataType::EncodedString *pStd = &_pData->getEncodedString();
+                typename MainDataType::EncodedString *std = &_data->getEncodedString();
 
-                typename MainDataType::EncodedString::difference_type excessCapacity =
-                    pStd->capacity() - pStd->length();
+                typename MainDataType::EncodedString::difference_type excessCapacity = std->capacity() - std->length();
                 if (excessCapacity < 0)
                     excessCapacity = 0;
 
-                excessCapacity += pStd->cend() - _endIt.getInner();
+                excessCapacity += std->cend() - _endIt.getInner();
 
                 excessCapacityCharacters = excessCapacity / MainDataType::Codec::getMaxEncodedElementsPerCharacter();
             }
@@ -712,7 +710,7 @@ namespace bdn
             */
         size_t getMaxSize() const noexcept
         {
-            size_t m = _pData->getEncodedString().max_size();
+            size_t m = _data->getEncodedString().max_size();
 
             m /= MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 
@@ -1372,9 +1370,9 @@ namespace bdn
 
             Modify m(this);
 
-            m.pStd->replace(m.pStd->begin() + encodedBeginIndex, m.pStd->begin() + encodedBeginIndex + encodedLength,
-                            typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithBegin),
-                            typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithEnd));
+            m.std->replace(m.std->begin() + encodedBeginIndex, m.std->begin() + encodedBeginIndex + encodedLength,
+                           typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithBegin),
+                           typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithEnd));
 
             return *this;
         }
@@ -1392,8 +1390,8 @@ namespace bdn
 
             Modify m(this);
 
-            m.pStd->replace(m.pStd->begin() + encodedBeginIndex, m.pStd->begin() + encodedBeginIndex + encodedLength,
-                            replaceWithBegin.getInner(), replaceWithEnd.getInner());
+            m.std->replace(m.std->begin() + encodedBeginIndex, m.std->begin() + encodedBeginIndex + encodedLength,
+                           replaceWithBegin.getInner(), replaceWithEnd.getInner());
 
             return *this;
         }
@@ -1883,17 +1881,17 @@ namespace bdn
 
                 if (encodedCharSize == 0 || numChars == 0) {
                     // we can use erase
-                    m.pStd->erase(encodedRangeBeginIndex, encodedRangeLength);
+                    m.std->erase(encodedRangeBeginIndex, encodedRangeLength);
                 } else if (encodedCharSize == 1) {
                     // we can use the std::string version of replace
-                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength, numChars, lastEncodedElement);
+                    m.std->replace(encodedRangeBeginIndex, encodedRangeLength, numChars, lastEncodedElement);
                 } else {
                     // we must insert in a loop.
                     // to make room we first fill with zero elements.
 
-                    m.pStd->replace(encodedRangeBeginIndex, encodedRangeLength, numChars * encodedCharSize, 0);
+                    m.std->replace(encodedRangeBeginIndex, encodedRangeLength, numChars * encodedCharSize, 0);
 
-                    auto destIt = m.pStd->begin() + encodedRangeBeginIndex;
+                    auto destIt = m.std->begin() + encodedRangeBeginIndex;
                     for (size_t c = 0; c < numChars; c++) {
                         for (auto it = encodedBegin; it != encodedEnd; it++) {
                             *destIt = *it;
@@ -2465,11 +2463,11 @@ namespace bdn
          * empty string.*/
         void clear() noexcept
         {
-            _pData = &MainDataType::getEmptyData();
-            _beginIt = _pData->begin();
-            _endIt = _pData->end();
+            _data = &MainDataType::getEmptyData();
+            _beginIt = _data->begin();
+            _endIt = _data->end();
 
-            _pDataInDifferentEncoding = nullptr;
+            _dataInDifferentEncoding = nullptr;
 
             _lengthIfKnown = 0;
         }
@@ -2491,7 +2489,7 @@ namespace bdn
                 throw OutOfRangeError("Invalid otherSubStartIndex passed to String::assign");
 
             // just copy a reference to the source string's data
-            _pData = other._pData;
+            _data = other._data;
 
             _beginIt = other._beginIt;
 
@@ -2507,14 +2505,14 @@ namespace bdn
                     _lengthIfKnown = other._lengthIfKnown - otherSubStartIndex;
 
                 if (otherSubStartIndex == 0)
-                    _pDataInDifferentEncoding = other._pDataInDifferentEncoding;
+                    _dataInDifferentEncoding = other._dataInDifferentEncoding;
                 else
-                    _pDataInDifferentEncoding = nullptr;
+                    _dataInDifferentEncoding = nullptr;
             } else {
                 _endIt = _beginIt + otherSubLength;
                 _lengthIfKnown = otherSubLength;
 
-                _pDataInDifferentEncoding = nullptr;
+                _dataInDifferentEncoding = nullptr;
             }
 
             return *this;
@@ -2597,10 +2595,10 @@ namespace bdn
         StringImpl &assign(StringImpl &&moveSource) noexcept
         {
             // just copy everything over
-            _pData = moveSource._pData;
+            _data = moveSource._data;
             _beginIt = moveSource._beginIt;
             _endIt = moveSource._endIt;
-            _pDataInDifferentEncoding = moveSource._pDataInDifferentEncoding;
+            _dataInDifferentEncoding = moveSource._dataInDifferentEncoding;
             _lengthIfKnown = moveSource._lengthIfKnown;
 
             // we could leave moveSource like this. The result state of
@@ -2615,10 +2613,10 @@ namespace bdn
             // operation is intended to be super-fast and avoid just this kind
             // of copying.
 
-            moveSource._pData = &MainDataType::getEmptyData();
-            moveSource._beginIt = moveSource._pData->begin();
-            moveSource._endIt = moveSource._pData->end();
-            moveSource._pDataInDifferentEncoding = nullptr;
+            moveSource._data = &MainDataType::getEmptyData();
+            moveSource._beginIt = moveSource._data->begin();
+            moveSource._endIt = moveSource._data->end();
+            moveSource._dataInDifferentEncoding = nullptr;
             moveSource._lengthIfKnown = 0;
 
             return *this;
@@ -2629,22 +2627,22 @@ namespace bdn
            string and this string will have the contents of the parameter.*/
         void swap(StringImpl &o)
         {
-            P<MainDataType> pData = _pData;
+            P<MainDataType> data = _data;
             Iterator beginIt = _beginIt;
             Iterator endIt = _endIt;
-            P<Base> pDataInDifferentEncoding = _pDataInDifferentEncoding;
+            P<Base> dataInDifferentEncoding = _dataInDifferentEncoding;
             size_t lengthIfKnown = _lengthIfKnown;
 
-            _pData = o._pData;
+            _data = o._data;
             _beginIt = o._beginIt;
             _endIt = o._endIt;
-            _pDataInDifferentEncoding = o._pDataInDifferentEncoding;
+            _dataInDifferentEncoding = o._dataInDifferentEncoding;
             _lengthIfKnown = o._lengthIfKnown;
 
-            o._pData = pData;
+            o._data = data;
             o._beginIt = beginIt;
             o._endIt = endIt;
-            o._pDataInDifferentEncoding = pDataInDifferentEncoding;
+            o._dataInDifferentEncoding = dataInDifferentEncoding;
             o._lengthIfKnown = lengthIfKnown;
         }
 
@@ -2664,7 +2662,7 @@ namespace bdn
         }
 
         /** Returns a copy of the allocator object associated with the string.*/
-        Allocator getAllocator() const noexcept { return _pData->getEncodedString().get_allocator(); }
+        Allocator getAllocator() const noexcept { return _data->getEncodedString().get_allocator(); }
 
         /** Same as getAllocator(). This is included for compatibility with
          * std::string.*/
@@ -2682,7 +2680,7 @@ namespace bdn
             If copyStartIndex is bigger than the length of the string then
            OutOfRangeError is thrown.
             */
-        size_t copy(char32_t *pDest, size_t maxCopyLength, size_t copyStartIndex = 0) const
+        size_t copy(char32_t *dest, size_t maxCopyLength, size_t copyStartIndex = 0) const
         {
             if (copyStartIndex < 0 || copyStartIndex > getLength())
                 throw OutOfRangeError("String::copy called with invalid start index.");
@@ -2692,7 +2690,7 @@ namespace bdn
                 if (it == _endIt)
                     return i;
 
-                pDest[i] = *it;
+                dest[i] = *it;
 
                 ++it;
             }
@@ -3122,19 +3120,19 @@ namespace bdn
             If the sequence of characters between toFindBeginIt and toFindEndIt
            is empty then searchFromIt is returned.
 
-            If pMatchEndIt is not null and the toFind sequence is found, then
-           *pMatchEndIt is set to the first character following the found
+            If matchEndIt is not null and the toFind sequence is found, then
+           *matchEndIt is set to the first character following the found
            sequence. If the sequence ends at the end of the string the
-           *pMatchEndIt is set to end().
+           *matchEndIt is set to end().
 
-            If pMatchEndIt is not null and the toFind sequence is not found then
-           *pMatchEndIt is set to end().
+            If matchEndIt is not null and the toFind sequence is not found then
+           *matchEndIt is set to end().
         */
         template <class ToFindIteratorType>
         Iterator find(const ToFindIteratorType &toFindBeginIt, const ToFindIteratorType &toFindEndIt,
-                      const Iterator &searchFromIt, Iterator *pMatchEndIt = nullptr) const
+                      const Iterator &searchFromIt, Iterator *matchEndIt = nullptr) const
         {
-            if (pMatchEndIt == nullptr) {
+            if (matchEndIt == nullptr) {
                 // we can use std::search. We assume that it might be more
                 // optimized than our algorithm, so we prefer the standard one.
                 return std::search(searchFromIt, _endIt, toFindBeginIt, toFindEndIt);
@@ -3150,7 +3148,7 @@ namespace bdn
                     while (toFindIt != toFindEndIt) {
                         if (myIt == _endIt) {
                             // no more occurrences possible.
-                            *pMatchEndIt = end();
+                            *matchEndIt = end();
                             return end();
                         }
 
@@ -3165,14 +3163,14 @@ namespace bdn
                     }
 
                     if (matches) {
-                        *pMatchEndIt = myIt;
+                        *matchEndIt = myIt;
                         return matchBeginIt;
                     }
 
                     ++matchBeginIt;
                 }
 
-                *pMatchEndIt = end();
+                *matchEndIt = end();
                 return end();
             }
         }
@@ -3185,19 +3183,19 @@ namespace bdn
 
             If \c toFind is empty then searchFromIt is returned.
 
-            If pMatchEndIt is not null and toFind is found, then *pMatchEndIt is
+            If matchEndIt is not null and toFind is found, then *matchEndIt is
            set to the first character following the end of the match. If the
-           match ends at the end of the string the *pMatchEndIt is set to end().
+           match ends at the end of the string the *matchEndIt is set to end().
 
-            If pMatchEndIt is not null and toFind is not found then *pMatchEndIt
+            If matchEndIt is not null and toFind is not found then *matchEndIt
            is set to end().
         */
-        Iterator find(const StringImpl &toFind, const Iterator &searchFromIt, Iterator *pMatchEndIt = nullptr) const
+        Iterator find(const StringImpl &toFind, const Iterator &searchFromIt, Iterator *matchEndIt = nullptr) const
         {
-            if (pMatchEndIt == nullptr)
+            if (matchEndIt == nullptr)
                 return std::search(searchFromIt, _endIt, toFind._beginIt, toFind._endIt);
             else
-                return find(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
+                return find(toFind._beginIt, toFind._endIt, searchFromIt, matchEndIt);
         }
 
         /** Searches for another string in this string.
@@ -3490,21 +3488,21 @@ namespace bdn
             If the sequence of characters between toFindBeginIt and toFindEndIt
            is empty then searchFromIt is returned.
 
-            If pMatchEndIt is not null and the toFind sequence is found, then
-           *pMatchEndIt is set to the first character following the found
+            If matchEndIt is not null and the toFind sequence is found, then
+           *matchEndIt is set to the first character following the found
            sequence. If the sequence ends at the end of the string then
-           *pMatchEndIt is set to end().
+           *matchEndIt is set to end().
 
-            If pMatchEndIt is not null and the toFind sequence is not found then
-           *pMatchEndIt is set to end().
+            If matchEndIt is not null and the toFind sequence is not found then
+           *matchEndIt is set to end().
         */
         template <class CHARIT>
         Iterator reverseFind(const CHARIT &toFindBeginIt, const CHARIT &toFindEndIt, const Iterator &searchFromIt,
-                             Iterator *pMatchEndIt = nullptr) const
+                             Iterator *matchEndIt = nullptr) const
         {
             if (toFindBeginIt == toFindEndIt) {
-                if (pMatchEndIt != nullptr)
-                    *pMatchEndIt = searchFromIt;
+                if (matchEndIt != nullptr)
+                    *matchEndIt = searchFromIt;
                 return searchFromIt;
             }
 
@@ -3536,8 +3534,8 @@ namespace bdn
                 }
 
                 if (matches) {
-                    if (pMatchEndIt != nullptr)
-                        *pMatchEndIt = myIt;
+                    if (matchEndIt != nullptr)
+                        *matchEndIt = myIt;
                     return matchBeginIt;
                 }
 
@@ -3547,8 +3545,8 @@ namespace bdn
                 --matchBeginIt;
             }
 
-            if (pMatchEndIt != nullptr)
-                *pMatchEndIt = _endIt;
+            if (matchEndIt != nullptr)
+                *matchEndIt = _endIt;
             return _endIt;
         }
 
@@ -3563,17 +3561,17 @@ namespace bdn
 
             If \c toFind is empty then searchFromIt is returned.
 
-            If pMatchEndIt is not null and toFind is found, then *pMatchEndIt is
+            If matchEndIt is not null and toFind is found, then *matchEndIt is
            set to the first character following the found sequence. If the match
-           ends at the end of the string then *pMatchEndIt is set to end().
+           ends at the end of the string then *matchEndIt is set to end().
 
-            If pMatchEndIt is not null and toFind is not found then *pMatchEndIt
+            If matchEndIt is not null and toFind is not found then *matchEndIt
            is set to end().
         */
         Iterator reverseFind(const StringImpl &toFind, const Iterator &searchFromIt,
-                             Iterator *pMatchEndIt = nullptr) const
+                             Iterator *matchEndIt = nullptr) const
         {
-            return reverseFind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
+            return reverseFind(toFind._beginIt, toFind._endIt, searchFromIt, matchEndIt);
         }
 
         /** Searches for the LAST occurrence of another string in this string.
@@ -5782,11 +5780,11 @@ namespace bdn
                     matchCount++;
 
                     size_t encodedLengthAfterMatch =
-                        _pData->getEncodedString().length() - (matchEnd.getInner() - _beginIt.getInner());
+                        _data->getEncodedString().length() - (matchEnd.getInner() - _beginIt.getInner());
 
                     replace(matchBegin, matchEnd, replaceWithBegin, replaceWithEnd);
 
-                    size_t replacedEndOffset = _pData->getEncodedString().length() - encodedLengthAfterMatch;
+                    size_t replacedEndOffset = _data->getEncodedString().length() - encodedLengthAfterMatch;
 
                     pos = Iterator(_beginIt.getInner() + replacedEndOffset, _beginIt.getInner(), _endIt.getInner());
                 }
@@ -5909,10 +5907,10 @@ namespace bdn
            such empty tokens will be skipped and the first non-empty token is
            returned. By default empty tokens are returned.
 
-            If pSeparator is not null and a token is found then *pSeparator will
+            If separator is not null and a token is found then *separator will
            be set to the separator that was encountered at the end of the token.
            If the token ends at the end of the string, or if no token is found
-           then *pSeparator is set to 0.
+           then *separator is set to 0.
 
             Also see splitOffWord().
 
@@ -5940,80 +5938,80 @@ namespace bdn
             \endcode
             */
         StringImpl splitOffToken(const StringImpl &separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
-            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, separator);
         }
 
         StringImpl splitOffToken(const std::string &separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
-                                        pSeparator);
+                                        separator);
         }
 
         StringImpl splitOffToken(const std::wstring &separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(WideCodec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
-                                        pSeparator);
+                                        separator);
         }
 
         StringImpl splitOffToken(const std::u16string &separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(Utf16Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens,
-                                        pSeparator);
+                                        separator);
         }
 
         StringImpl splitOffToken(const std::u32string &separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
-            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, separator);
         }
 
         StringImpl splitOffToken(const char *separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(Utf8Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens,
-                                        pSeparator);
+                                        separator);
         }
 
         StringImpl splitOffToken(const wchar_t *separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(WideCodec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens,
-                                        pSeparator);
+                                        separator);
         }
 
         StringImpl splitOffToken(const char16_t *separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
             return splitOffTokenEncoded(Utf16Codec(), separatorChars, getStringEndPtr(separatorChars),
-                                        returnEmptyTokens, pSeparator);
+                                        returnEmptyTokens, separator);
         }
 
         StringImpl splitOffToken(const char32_t *separatorChars, bool returnEmptyTokens = true,
-                                 char32_t *pSeparator = nullptr)
+                                 char32_t *separator = nullptr)
         {
-            return splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator);
+            return splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, separator);
         }
 
         template <class InputCodec, class InputIterator>
         StringImpl splitOffTokenEncoded(const InputCodec &codec, const InputIterator &separatorCharsBeginIt,
                                         const InputIterator &separatorCharsEndIt, bool returnEmptyTokens = true,
-                                        char32_t *pSeparator = nullptr)
+                                        char32_t *separator = nullptr)
         {
             return splitOffToken(typename InputCodec::template DecodingIterator<InputIterator>(
                                      separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
                                  typename InputCodec::template DecodingIterator<InputIterator>(
                                      separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
-                                 returnEmptyTokens, pSeparator);
+                                 returnEmptyTokens, separator);
         }
 
         template <class InputIterator>
         StringImpl splitOffToken(const InputIterator &separatorCharsBeginIt, const InputIterator &separatorCharsEndIt,
-                                 bool returnEmptyTokens = true, char32_t *pSeparator = nullptr)
+                                 bool returnEmptyTokens = true, char32_t *separator = nullptr)
         {
             while (_beginIt != _endIt) {
                 Iterator tokenEndIt = findOneOf(separatorCharsBeginIt, separatorCharsEndIt, _beginIt);
@@ -6022,30 +6020,30 @@ namespace bdn
                     ++_beginIt;
 
                     _lengthIfKnown = npos;
-                    _pDataInDifferentEncoding = nullptr;
+                    _dataInDifferentEncoding = nullptr;
                 } else {
                     StringImpl result = subString(_beginIt, tokenEndIt);
 
                     _beginIt = tokenEndIt;
                     if (_beginIt != _endIt) {
-                        if (pSeparator != nullptr)
-                            *pSeparator = *_beginIt;
+                        if (separator != nullptr)
+                            *separator = *_beginIt;
 
                         ++_beginIt;
                     } else {
-                        if (pSeparator != nullptr)
-                            *pSeparator = U'\0';
+                        if (separator != nullptr)
+                            *separator = U'\0';
                     }
 
                     _lengthIfKnown = npos;
-                    _pDataInDifferentEncoding = nullptr;
+                    _dataInDifferentEncoding = nullptr;
 
                     return result;
                 }
             }
 
-            if (pSeparator != nullptr)
-                *pSeparator = U'\0';
+            if (separator != nullptr)
+                *separator = U'\0';
 
             return StringImpl();
         }
@@ -6389,14 +6387,14 @@ namespace bdn
             auto encodedBegin = _beginIt.getInner();
             auto encodedEnd = _endIt.getInner();
 
-            const typename MainDataType::EncodedElement *pEncodedData = &*encodedBegin;
+            const typename MainDataType::EncodedElement *encodedData = &*encodedBegin;
             size_t encodedDataLengthBytes =
                 std::distance(encodedBegin, encodedEnd) * sizeof(typename MainDataType::EncodedElement);
 
             if (sizeof(size_t) > 4)
-                return (size_t)XxHash64::calcHash(pEncodedData, encodedDataLengthBytes);
+                return (size_t)XxHash64::calcHash(encodedData, encodedDataLengthBytes);
             else
-                return (size_t)XxHash32::calcHash(pEncodedData, encodedDataLengthBytes);
+                return (size_t)XxHash32::calcHash(encodedData, encodedDataLengthBytes);
         }
 
         /** Calculates a hash value from this string. The way this is calculated
@@ -6469,12 +6467,12 @@ namespace bdn
 
         template <class T> const typename T::EncodedString &getEncoded(T *dummy) const
         {
-            T *p = dynamic_cast<T *>(_pDataInDifferentEncoding.getPtr());
+            T *p = dynamic_cast<T *>(_dataInDifferentEncoding.getPtr());
             if (p == nullptr) {
-                P<T> pNewData = newObj<T>(_beginIt, _endIt);
-                _pDataInDifferentEncoding = pNewData;
+                P<T> newData = newObj<T>(_beginIt, _endIt);
+                _dataInDifferentEncoding = newData;
 
-                p = pNewData;
+                p = newData;
             }
 
             return p->getEncodedString();
@@ -6482,15 +6480,15 @@ namespace bdn
 
         const typename MainDataType::EncodedString &getEncoded(MainDataType *dummy) const
         {
-            if (_endIt != _pData->end() || _beginIt != _pData->begin()) {
+            if (_endIt != _data->end() || _beginIt != _data->begin()) {
                 // we are a sub-slice of another string. Copy it now, so that we
                 // can return the object.
-                _pData = newObj<MainDataType>(_beginIt, _endIt);
-                _beginIt = _pData->begin();
-                _endIt = _pData->end();
+                _data = newObj<MainDataType>(_beginIt, _endIt);
+                _beginIt = _data->begin();
+                _endIt = _data->end();
             }
 
-            return _pData->getEncodedString();
+            return _data->getEncodedString();
         }
 
         void setEnd(const Iterator &newEnd, size_t newLengthIfKnown)
@@ -6499,7 +6497,7 @@ namespace bdn
             _lengthIfKnown = newLengthIfKnown;
 
             // we must throw away any data in different encoding we might have.
-            _pDataInDifferentEncoding = nullptr;
+            _dataInDifferentEncoding = nullptr;
         }
 
         /** Prepares for the string to be modified.
@@ -6511,21 +6509,21 @@ namespace bdn
            for us.
 
             If the string data is replaced then a pointer to the old data is
-           stored in pOldData.
+           stored in oldData.
             */
         void beginModification()
         {
-            if (_pData->getRefCount() != 1) {
+            if (_data->getRefCount() != 1) {
                 // we are sharing the data => need to copy.
 
-                _pData = newObj<MainDataType>(typename MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner());
+                _data = newObj<MainDataType>(typename MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner());
 
-                _beginIt = _pData->begin();
-                _endIt = _pData->end();
+                _beginIt = _data->begin();
+                _endIt = _data->end();
             } else {
-                typename MainDataType::EncodedString *pStd = &_pData->getEncodedString();
+                typename MainDataType::EncodedString *std = &_data->getEncodedString();
 
-                if (_beginIt.getInner() != pStd->cbegin() || _endIt.getInner() != pStd->cend()) {
+                if (_beginIt.getInner() != std->cbegin() || _endIt.getInner() != std->cend()) {
                     // we are working on a substring of the data. Throw away the
                     // other parts. Note that we want to avoid re-allocation, so
                     // we want to do this in place. First we cut off what we do
@@ -6535,27 +6533,27 @@ namespace bdn
                     // index.
 
                     typename MainDataType::EncodedString::difference_type startIndex =
-                        _beginIt.getInner() - pStd->cbegin();
+                        _beginIt.getInner() - std->cbegin();
 
-                    if (_endIt.getInner() != pStd->cend()) {
+                    if (_endIt.getInner() != std->cend()) {
 // there is a bug in g++ 4.8. Erase only takes normal iterators, instead of
 // const_iterators. work around it.
 #if defined(__GNUC__) && __GNUC__ < 5
 
-                        pStd->erase(pStd->begin() + (_endIt.getInner() - pStd->cbegin()), pStd->end());
+                        std->erase(std->begin() + (_endIt.getInner() - std->cbegin()), std->end());
 
 #else
 
-                        pStd->erase(_endIt.getInner(), pStd->cend());
+                        std->erase(_endIt.getInner(), std->cend());
 
 #endif
                     }
 
                     if (startIndex > 0)
-                        pStd->erase(pStd->begin(), pStd->begin() + startIndex);
+                        std->erase(std->begin(), std->begin() + startIndex);
 
-                    _beginIt = _pData->begin();
-                    _endIt = _pData->end();
+                    _beginIt = _data->begin();
+                    _endIt = _data->end();
                 }
             }
         }
@@ -6568,28 +6566,28 @@ namespace bdn
             // substring. Now we can update our start and end iterators to the
             // new start and end of the data.
 
-            _beginIt = _pData->begin();
-            _endIt = _pData->end();
+            _beginIt = _data->begin();
+            _endIt = _data->end();
 
             _lengthIfKnown = npos;
-            _pDataInDifferentEncoding = nullptr;
+            _dataInDifferentEncoding = nullptr;
         }
 
         struct Modify
         {
-            Modify(StringImpl *pParentArg)
+            Modify(StringImpl *parentArg)
             {
-                pParent = pParentArg;
+                parent = parentArg;
 
-                pParent->beginModification();
+                parent->beginModification();
 
-                pStd = &pParent->_pData->getEncodedString();
+                std = &parent->_data->getEncodedString();
             }
 
-            ~Modify() { pParent->endModification(); }
+            ~Modify() { parent->endModification(); }
 
-            typename MainDataType::EncodedString *pStd;
-            StringImpl *pParent;
+            typename MainDataType::EncodedString *std;
+            StringImpl *parent;
         };
         friend struct Modify;
 
@@ -6618,11 +6616,11 @@ namespace bdn
             return asUtf32();
         }
 
-        mutable P<MainDataType> _pData;
+        mutable P<MainDataType> _data;
         mutable Iterator _beginIt;
         mutable Iterator _endIt;
 
-        mutable P<Base> _pDataInDifferentEncoding;
+        mutable P<Base> _dataInDifferentEncoding;
 
         mutable size_t _lengthIfKnown;
     };

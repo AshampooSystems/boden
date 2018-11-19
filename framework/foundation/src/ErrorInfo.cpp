@@ -12,10 +12,10 @@ namespace bdn
 
     ErrorInfo::ErrorInfo(const std::exception &error)
     {
-        auto pSysError = dynamic_cast<const std::system_error *>(&error);
+        auto sysError = dynamic_cast<const std::system_error *>(&error);
 
-        if (pSysError != nullptr) {
-            initFromSystemError(*pSysError);
+        if (sysError != nullptr) {
+            initFromSystemError(*sysError);
         } else {
             initFromErrorString(error.what());
         }

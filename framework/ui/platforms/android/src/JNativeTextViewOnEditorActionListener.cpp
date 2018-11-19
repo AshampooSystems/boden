@@ -8,7 +8,7 @@
 #include <bdn/android/TextFieldCore.h>
 
 extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeTextViewOnEditorActionListener_viewCoreOnEditorAction(
-    JNIEnv *pEnv, jobject rawSelf, jobject rawView, jint actionId, jobject rawEvent)
+    JNIEnv *env, jobject rawSelf, jobject rawView, jint actionId, jobject rawEvent)
 {
     bool consumed = false;
 
@@ -26,7 +26,7 @@ extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeTextViewOnEditorAc
                 consumed = core->onEditorAction(actionId, keyEvent);
             }
         },
-        true, pEnv);
+        true, env);
 
     return consumed;
 }

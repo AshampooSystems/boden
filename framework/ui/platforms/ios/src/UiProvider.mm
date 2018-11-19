@@ -36,39 +36,39 @@ namespace bdn
 
             _semDips = UIFont.systemFontSize;
 
-            _pLayoutCoordinator = newObj<LayoutCoordinator>();
+            _layoutCoordinator = newObj<LayoutCoordinator>();
         }
 
         String UiProvider::getName() const { return "ios"; }
 
-        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName, View *pView)
+        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName, View *view)
         {
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
-                return newObj<ContainerViewCore>(cast<ContainerView>(pView));
+                return newObj<ContainerViewCore>(cast<ContainerView>(view));
 
             else if (coreTypeName == Button::getButtonCoreTypeName())
-                return newObj<ButtonCore>(cast<Button>(pView));
+                return newObj<ButtonCore>(cast<Button>(view));
 
             else if (coreTypeName == Checkbox::getCheckboxCoreTypeName())
-                return newObj<CheckboxCore>(cast<Checkbox>(pView));
+                return newObj<CheckboxCore>(cast<Checkbox>(view));
 
             else if (coreTypeName == Toggle::getToggleCoreTypeName())
-                return newObj<SwitchCore<Toggle>>(cast<Toggle>(pView));
+                return newObj<SwitchCore<Toggle>>(cast<Toggle>(view));
 
             else if (coreTypeName == Switch::getSwitchCoreTypeName())
-                return newObj<SwitchCore<Switch>>(cast<Switch>(pView));
+                return newObj<SwitchCore<Switch>>(cast<Switch>(view));
 
             else if (coreTypeName == TextView::getTextViewCoreTypeName())
-                return newObj<TextViewCore>(cast<TextView>(pView));
+                return newObj<TextViewCore>(cast<TextView>(view));
 
             else if (coreTypeName == TextField::getTextFieldCoreTypeName())
-                return newObj<TextFieldCore>(cast<TextField>(pView));
+                return newObj<TextFieldCore>(cast<TextField>(view));
 
             else if (coreTypeName == ScrollView::getScrollViewCoreTypeName())
-                return newObj<ScrollViewCore>(cast<ScrollView>(pView));
+                return newObj<ScrollViewCore>(cast<ScrollView>(view));
 
             else if (coreTypeName == Window::getWindowCoreTypeName())
-                return newObj<WindowCore>(cast<Window>(pView));
+                return newObj<WindowCore>(cast<Window>(view));
 
             else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
@@ -78,16 +78,16 @@ namespace bdn
         {
             {
                 Mutex::Lock lock(_textUiInitMutex);
-                if (_pTextUi == nullptr) {
+                if (_textUi == nullptr) {
                     // we want the output of the text UI to go to both the
                     // View-based text UI, as well as the stdout/stderr streams.
 
-                    _pTextUi = newObj<TextUiCombiner>(newObj<ViewTextUi>(),
-                                                      newObj<StdioTextUi<char>>(&std::cin, &std::cout, &std::cerr));
+                    _textUi = newObj<TextUiCombiner>(newObj<ViewTextUi>(),
+                                                     newObj<StdioTextUi<char>>(&std::cin, &std::cout, &std::cerr));
                 }
             }
 
-            return _pTextUi;
+            return _textUi;
         }
     }
 }

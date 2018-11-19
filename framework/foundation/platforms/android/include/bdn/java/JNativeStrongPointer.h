@@ -26,10 +26,10 @@ namespace bdn
         class JNativeStrongPointer : public JObject
         {
           private:
-            static Reference newInstance_(IBase *pObject);
+            static Reference newInstance_(IBase *object);
 
           public:
-            explicit JNativeStrongPointer(IBase *pObject);
+            explicit JNativeStrongPointer(IBase *object);
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its

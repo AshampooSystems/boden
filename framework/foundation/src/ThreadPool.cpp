@@ -29,8 +29,8 @@ namespace bdn
         // signal the idle runners to stop.
         // They are currently waiting for new jobs - this will make them wake up
         // and end. Thus their thread will end as well.
-        for (auto &pRunner : _idleRunners)
-            pRunner->signalStop();
+        for (auto &runner : _idleRunners)
+            runner->signalStop();
 
         // release the idle runners. Note that the runner object will remain
         // alive until their thread has actually finished.
@@ -50,24 +50,24 @@ namespace bdn
         // abort.
 
         // stop busy runners
-        for (auto &pRunner : _busyRunners)
-            pRunner->signalStop();
+        for (auto &runner : _busyRunners)
+            runner->signalStop();
 
         // and then release them. The runner object will remain alive until the
         // abort is complete and their thread exits.
         _busyRunners.clear();
     }
 
-    bool ThreadPool::runnerFinishedJob(PoolRunner *pRunner)
+    bool ThreadPool::runnerFinishedJob(PoolRunner *runner)
     {
         Mutex::Lock lock(_mutex);
 
         if (!_queuedJobs.empty()) {
-            P<IThreadRunnable> pJob = _queuedJobs.front();
+            P<IThreadRunnable> job = _queuedJobs.front();
             _queuedJobs.pop_front();
 
             // give the runner a new job right away
-            pRunner->startJob(pJob);
+            runner->startJob(job);
 
             // Note that the runner remains in _busyRunners
 
@@ -76,14 +76,14 @@ namespace bdn
         } else {
             // we do not currently have anything queued.
 
-            _busyRunners.erase(pRunner);
+            _busyRunners.erase(runner);
 
             if (_busyRunners.size() >= (size_t)_minThreadCount) {
                 // we have more threads than necessary. Let this one die.
                 return false;
             } else {
                 // add the runner to the idle list and let it go to sleep
-                _idleRunners.push_back(pRunner);
+                _idleRunners.push_back(runner);
 
                 // runner should not end, but wait for the next job
                 return true;
@@ -93,7 +93,7 @@ namespace bdn
 
     // PoolRunner
 
-    void ThreadPool::addJob(IThreadRunnable *pRunnable)
+    void ThreadPool::addJob(IThreadRunnable *runnable)
     {
         Mutex::Lock lock(_mutex);
 
@@ -102,33 +102,33 @@ namespace bdn
 
             if (_busyRunners.size() >= (size_t)_maxThreadCount) {
                 // we cannot start a new thread. Add the job to the queue
-                _queuedJobs.push_back(pRunnable);
+                _queuedJobs.push_back(runnable);
             } else {
                 // start another thread.
-                P<PoolRunner> pRunner = newObj<PoolRunner>(this);
+                P<PoolRunner> runner = newObj<PoolRunner>(this);
 
-                pRunner->startJob(pRunnable);
+                runner->startJob(runnable);
 
-                _busyRunners.insert(pRunner);
+                _busyRunners.insert(runner);
 
                 try {
-                    P<Thread> pThread = newObj<Thread>(pRunner);
-                    pThread->detach();
+                    P<Thread> thread = newObj<Thread>(runner);
+                    thread->detach();
                 }
                 catch (...) {
                     // if there is an error starting the thread then we remove
                     // the runner again.
-                    _busyRunners.erase(pRunner);
+                    _busyRunners.erase(runner);
                 }
             }
         } else {
             // we have an idle runner waiting. Give it a new job
-            P<PoolRunner> pRunner = _idleRunners.front();
+            P<PoolRunner> runner = _idleRunners.front();
             _idleRunners.pop_front();
 
-            _busyRunners.insert(pRunner);
+            _busyRunners.insert(runner);
 
-            pRunner->startJob(pRunnable);
+            runner->startJob(runnable);
         }
     }
 
@@ -156,23 +156,23 @@ namespace bdn
             _shouldStop = true;
 
             // signal the active job to abort (if we have one).
-            if (_pJob != nullptr)
-                _pJob->signalStop();
+            if (_job != nullptr)
+                _job->signalStop();
         }
 
         // make sure that we wake up if we are waiting for a new job
         _wakeSignal.set();
     }
 
-    void ThreadPool::PoolRunner::startJob(IThreadRunnable *pJob)
+    void ThreadPool::PoolRunner::startJob(IThreadRunnable *job)
     {
         Mutex::Lock lock(_mutex);
 
-        if (_pJob != nullptr)
+        if (_job != nullptr)
             throw ProgrammingError("ThreadPool::PoolRunnable::startJob was "
                                    "called while the thread was still busy.");
 
-        _pJob = pJob;
+        _job = job;
 
         _wakeSignal.set();
     }
@@ -190,7 +190,7 @@ namespace bdn
                 if (_shouldStop)
                     break;
 
-                if (_pJob == nullptr) {
+                if (_job == nullptr) {
                     // this should never happen (note that Signals have no
                     // sporadic wake ups).
                     programmingError("ThreadPool PoolRunner was woken up, but it has no job "
@@ -199,7 +199,7 @@ namespace bdn
             }
 
             try {
-                _pJob->run();
+                _job->run();
             }
             catch (...) {
                 // we treat this just like a top-level exception that happens
@@ -211,7 +211,7 @@ namespace bdn
             }
 
             try {
-                _pJob = nullptr;
+                _job = nullptr;
             }
             catch (...) {
                 // exception in runnable destructor.
@@ -220,14 +220,14 @@ namespace bdn
                     std::terminate();
 
                 // continue and do not delete the runnable object
-                _pJob.detachPtr();
+                _job.detachPtr();
             }
 
-            P<ThreadPool> pPool = _pPoolWeak.toStrong();
-            if (pPool == nullptr)
+            P<ThreadPool> pool = _poolWeak.toStrong();
+            if (pool == nullptr)
                 break; // pool has been deleted
 
-            if (!pPool->runnerFinishedJob(this)) {
+            if (!pool->runnerFinishedJob(this)) {
                 // the pool wants us to end to reduce the total number of
                 // threads.
                 break;

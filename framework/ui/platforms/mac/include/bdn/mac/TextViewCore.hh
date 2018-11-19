@@ -40,7 +40,7 @@ namespace bdn
         class TextViewCore : public ChildViewCore, BDN_IMPLEMENTS ITextViewCore
         {
           private:
-            static BdnMacTextView_ *_createNSTextView(TextView *pOuterTextView)
+            static BdnMacTextView_ *_createNSTextView(TextView *outerTextView)
             {
                 BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -55,11 +55,11 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *pOuterTextView) : ChildViewCore(pOuterTextView, _createNSTextView(pOuterTextView))
+            TextViewCore(TextView *outerTextView) : ChildViewCore(outerTextView, _createNSTextView(outerTextView))
             {
                 _nsTextView = (BdnMacTextView_ *)getNSView();
 
-                setText(pOuterTextView->text());
+                setText(outerTextView->text());
             }
 
             void setText(const String &text) override
@@ -156,10 +156,10 @@ namespace bdn
                 // so that the wrapping will take that into account as well.
                 Size wrapSize = availableSpace;
 
-                P<const View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    wrapSize.applyMaximum(pView->preferredSizeHint());
-                    wrapSize.applyMaximum(pView->preferredSizeMaximum());
+                P<const View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    wrapSize.applyMaximum(view->preferredSizeHint());
+                    wrapSize.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 if (std::isfinite(wrapSize.width))
@@ -179,9 +179,9 @@ namespace bdn
 
                 size += additionalSpace;
 
-                if (pView != nullptr) {
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                if (view != nullptr) {
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;

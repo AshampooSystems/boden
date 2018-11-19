@@ -9,12 +9,12 @@ namespace bdn
     class ViewEvent : public Base
     {
       public:
-        ViewEvent(View *pView) { _pView = pView; }
+        ViewEvent(View *view) { _view = view; }
 
-        P<View> getView() { return _pView; }
+        P<View> getView() { return _view; }
 
       protected:
-        P<View> _pView;
+        P<View> _view;
     };
 }
 

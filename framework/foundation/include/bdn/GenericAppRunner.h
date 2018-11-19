@@ -39,7 +39,7 @@ namespace bdn
                          bool commandLineApp)
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args)), _commandLineApp(commandLineApp)
         {
-            _pDispatcher = newObj<GenericDispatcher>();
+            _dispatcher = newObj<GenericDispatcher>();
         }
 
         /** \param appControllerCreator function that creates the app controller
@@ -51,7 +51,7 @@ namespace bdn
                          bool commandLineApp)
             : AppRunnerBase(appControllerCreator, launchInfo), _commandLineApp(commandLineApp)
         {
-            _pDispatcher = newObj<GenericDispatcher>();
+            _dispatcher = newObj<GenericDispatcher>();
         }
 
         bool isCommandLineApp() const override { return _commandLineApp; }
@@ -79,7 +79,7 @@ namespace bdn
             }
         }
 
-        P<IDispatcher> getMainDispatcher() override { return _pDispatcher; }
+        P<IDispatcher> getMainDispatcher() override { return _dispatcher; }
 
       protected:
         virtual bool shouldExit() const
@@ -97,9 +97,9 @@ namespace bdn
 
             while (!shouldExit()) {
                 try {
-                    if (!_pDispatcher->executeNext()) {
+                    if (!_dispatcher->executeNext()) {
                         // just wait for the next work item.
-                        _pDispatcher->waitForNext(10);
+                        _dispatcher->waitForNext(10);
                     }
                 }
                 catch (...) {
@@ -111,13 +111,13 @@ namespace bdn
             }
         }
 
-        void disposeMainDispatcher() override { _pDispatcher->dispose(); }
+        void disposeMainDispatcher() override { _dispatcher->dispose(); }
 
         bool _commandLineApp;
 
         mutable Mutex _exitMutex;
 
-        P<GenericDispatcher> _pDispatcher;
+        P<GenericDispatcher> _dispatcher;
 
         bool _exitRequested = false;
         int _exitCode = 0;

@@ -9,29 +9,29 @@ namespace bdn
 
     LayoutCoordinator::LayoutCoordinator() {}
 
-    void LayoutCoordinator::windowNeedsAutoSizing(Window *pWindow)
+    void LayoutCoordinator::windowNeedsAutoSizing(Window *window)
     {
         Thread::assertInMainThread();
 
-        _windowAutoSizeSet.insert(pWindow);
+        _windowAutoSizeSet.insert(window);
 
         needUpdate();
     }
 
-    void LayoutCoordinator::windowNeedsCentering(Window *pWindow)
+    void LayoutCoordinator::windowNeedsCentering(Window *window)
     {
         Thread::assertInMainThread();
 
-        _windowCenterSet.insert(pWindow);
+        _windowCenterSet.insert(window);
 
         needUpdate();
     }
 
-    void LayoutCoordinator::viewNeedsLayout(View *pView)
+    void LayoutCoordinator::viewNeedsLayout(View *view)
     {
         Thread::assertInMainThread();
 
-        _layoutSet.insert(pView);
+        _layoutSet.insert(view);
 
         needUpdate();
     }
@@ -53,7 +53,7 @@ namespace bdn
                 return;
             }
 
-            P<LayoutCoordinator> pThis = this;
+            P<LayoutCoordinator> self = this;
 
             _updateScheduled = true;
 
@@ -62,10 +62,10 @@ namespace bdn
             // than run immediately.
             // That is what we want, because that allows us to collect and
             // combine multiple operations.
-            asyncCallFromMainThread([pThis]() {
-                pThis->_updateScheduled = false;
+            asyncCallFromMainThread([self]() {
+                self->_updateScheduled = false;
 
-                pThis->updateNow();
+                self->updateNow();
             });
         }
     }
@@ -93,25 +93,25 @@ namespace bdn
             {
                 ToDo() : level(-1) {}
 
-                ToDo(const P<View> &pView)
+                ToDo(const P<View> &view)
                 {
-                    this->pView = pView;
+                    this->view = view;
 
                     // find out the view's level inside the UI tree
                     this->level = 0;
-                    P<View> pCurrParent = pView->getParentView();
-                    while (pCurrParent != nullptr) {
+                    P<View> currParent = view->getParentView();
+                    while (currParent != nullptr) {
                         this->level++;
-                        pCurrParent = pCurrParent->getParentView();
+                        currParent = currParent->getParentView();
                     }
                 }
 
                 bool operator<(const ToDo &o) const
                 {
-                    return (level < o.level || (level == o.level && pView.getPtr() < o.pView.getPtr()));
+                    return (level < o.level || (level == o.level && view.getPtr() < o.view.getPtr()));
                 }
 
-                P<View> pView;
+                P<View> view;
                 int level;
             };
 
@@ -131,15 +131,15 @@ namespace bdn
                         break;
                     }
 
-                    P<Window> pWindow = *toDoSet.begin();
+                    P<Window> window = *toDoSet.begin();
                     toDoSet.erase(toDoSet.begin());
 
                     anyWindowsAutoSized = true;
 
-                    P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>(pWindow->getViewCore());
-                    if (pCore != nullptr) {
+                    P<IWindowCoreExtension> core = tryCast<IWindowCoreExtension>(window->getViewCore());
+                    if (core != nullptr) {
                         try {
-                            pCore->autoSize();
+                            core->autoSize();
                         }
                         catch (std::exception &e) {
                             handleException(&e, "LayoutCoordinator::"
@@ -185,29 +185,29 @@ namespace bdn
                             // select the one we want (parent first order) and
                             // leave the others in the set for now.
 
-                            for (auto &pView : layoutSetCopy) {
+                            for (auto &view : layoutSetCopy) {
                                 // construct ToDo object so that we know the
                                 // level.
-                                ToDo toDo(pView);
+                                ToDo toDo(view);
 
-                                if (nextToDo.pView == nullptr || toDo < nextToDo)
+                                if (nextToDo.view == nullptr || toDo < nextToDo)
                                     nextToDo = toDo;
                             }
                         }
                     }
 
-                    if (nextToDo.pView != nullptr) {
+                    if (nextToDo.view != nullptr) {
                         // remove the view we selected from the set
-                        _layoutSet.erase(nextToDo.pView);
+                        _layoutSet.erase(nextToDo.view);
                     }
 
-                    if (nextToDo.pView != nullptr) {
+                    if (nextToDo.view != nullptr) {
                         anyLayoutDone = true;
 
                         try {
-                            P<IViewCoreExtension> pCore = tryCast<IViewCoreExtension>(nextToDo.pView->getViewCore());
-                            if (pCore != nullptr)
-                                pCore->layout();
+                            P<IViewCoreExtension> core = tryCast<IViewCoreExtension>(nextToDo.view->getViewCore());
+                            if (core != nullptr)
+                                core->layout();
                         }
                         catch (std::exception &e) {
                             handleException(&e, "LayoutCoordinator::"
@@ -252,13 +252,13 @@ namespace bdn
                                 break;
                             }
 
-                            P<Window> pWindow = *toDoSet.begin();
+                            P<Window> window = *toDoSet.begin();
                             toDoSet.erase(toDoSet.begin());
 
-                            P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>(pWindow->getViewCore());
-                            if (pCore != nullptr) {
+                            P<IWindowCoreExtension> core = tryCast<IWindowCoreExtension>(window->getViewCore());
+                            if (core != nullptr) {
                                 try {
-                                    pCore->center();
+                                    core->center();
                                 }
                                 catch (std::exception &e) {
                                     handleException(&e, "LayoutCoordinator::"
@@ -282,11 +282,11 @@ namespace bdn
         _inUpdateNow = false;
     }
 
-    void LayoutCoordinator::handleException(const std::exception *pExceptionIfAvailable, const String &functionName)
+    void LayoutCoordinator::handleException(const std::exception *exceptionIfAvailable, const String &functionName)
     {
         // log and ignore
-        if (pExceptionIfAvailable != nullptr)
-            logError(*pExceptionIfAvailable,
+        if (exceptionIfAvailable != nullptr)
+            logError(*exceptionIfAvailable,
                      "Exception in " + functionName + " during LayoutCoordinator updating. Ignording.");
         else
             logError("Exception pf unknown type in " + functionName + " during LayoutCoordinator updating. Ignording.");

@@ -15,7 +15,7 @@ namespace bdn
         class ButtonCoreBase : public ChildViewCore
         {
           public:
-            ButtonCoreBase(View *pOuter, NSButton *nsButton) : ChildViewCore(pOuter, nsButton) { _nsButton = nsButton; }
+            ButtonCoreBase(View *outer, NSButton *nsButton) : ChildViewCore(outer, nsButton) { _nsButton = nsButton; }
 
             void setLabel(const String &label)
             {

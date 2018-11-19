@@ -15,26 +15,26 @@ TEST_CASE("Checkbox")
 
     SECTION("Checkbox-specific")
     {
-        P<bdn::test::ViewTestPreparer<Checkbox>> pPreparer = newObj<bdn::test::ViewTestPreparer<Checkbox>>();
-        P<bdn::test::ViewWithTestExtensions<Checkbox>> pCheckbox = pPreparer->createView();
-        P<bdn::test::MockCheckboxCore> pCore = cast<bdn::test::MockCheckboxCore>(pCheckbox->getViewCore());
+        P<bdn::test::ViewTestPreparer<Checkbox>> preparer = newObj<bdn::test::ViewTestPreparer<Checkbox>>();
+        P<bdn::test::ViewWithTestExtensions<Checkbox>> checkbox = preparer->createView();
+        P<bdn::test::MockCheckboxCore> core = cast<bdn::test::MockCheckboxCore>(checkbox->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
         SECTION("initialCheckboxState")
         {
             SECTION("label")
             {
-                REQUIRE(pCheckbox->label() == "");
-                REQUIRE(pCore->getLabel() == "");
-                REQUIRE(pCore->getLabelChangeCount() == 0);
+                REQUIRE(checkbox->label() == "");
+                REQUIRE(core->getLabel() == "");
+                REQUIRE(core->getLabelChangeCount() == 0);
             }
 
             SECTION("state")
             {
-                REQUIRE(pCheckbox->state() == TriState::off);
-                REQUIRE(pCore->getState() == TriState::off);
-                REQUIRE(pCore->getStateChangeCount() == 0);
+                REQUIRE(checkbox->state() == TriState::off);
+                REQUIRE(core->getState() == TriState::off);
+                REQUIRE(core->getStateChangeCount() == 0);
             }
         }
 
@@ -43,10 +43,10 @@ TEST_CASE("Checkbox")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pCheckbox, pPreparer, [pCheckbox]() { pCheckbox->setLabel("hello"); },
-                    [pCore, pCheckbox] {
-                        REQUIRE(pCore->getLabel() == "hello");
-                        REQUIRE(pCore->getLabelChangeCount() == 1);
+                    checkbox, preparer, [checkbox]() { checkbox->setLabel("hello"); },
+                    [core, checkbox] {
+                        REQUIRE(core->getLabel() == "hello");
+                        REQUIRE(core->getLabelChangeCount() == 1);
                     },
                     (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
                                                                                       // info to be invalidated
@@ -58,10 +58,10 @@ TEST_CASE("Checkbox")
 
             SECTION("state")
             {
-                bdn::test::_testViewOp(pCheckbox, pPreparer, [pCheckbox]() { pCheckbox->setState(TriState::on); },
-                                       [pCore, pCheckbox] {
-                                           REQUIRE(pCore->getState() == TriState::on);
-                                           REQUIRE(pCore->getStateChangeCount() == 1);
+                bdn::test::_testViewOp(checkbox, preparer, [checkbox]() { checkbox->setState(TriState::on); },
+                                       [core, checkbox] {
+                                           REQUIRE(core->getState() == TriState::on);
+                                           REQUIRE(core->getStateChangeCount() == 1);
                                        },
                                        0);
             }

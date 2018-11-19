@@ -44,8 +44,8 @@ namespace bdn
         typename std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>::sentry s(stream);
         if (s) {
             try {
-                auto pBuffer = stream.rdbuf();
-                if (pBuffer == nullptr)
+                auto buffer = stream.rdbuf();
+                if (buffer == nullptr)
                     stream.setstate(std::ios_base::badbit);
                 else {
                     std::streamsize padTo = stream.width();
@@ -57,7 +57,7 @@ namespace bdn
                         // characters we are about to write.
                         size_t length = std::distance(beginIt, endIt);
                         for (size_t i = length; i < (size_t)padTo; i++) {
-                            if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
+                            if (CHAR_TRAITS::eq_int_type(buffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
                                 stream.setstate(std::ios_base::badbit);
                                 ok = false;
                                 break;
@@ -68,7 +68,7 @@ namespace bdn
                     if (ok) {
                         size_t written = 0;
                         for (IT_TYPE it = beginIt; it != endIt; ++it) {
-                            if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(*it), CHAR_TRAITS::eof())) {
+                            if (CHAR_TRAITS::eq_int_type(buffer->sputc(*it), CHAR_TRAITS::eof())) {
                                 stream.setstate(std::ios_base::badbit);
                                 ok = false;
                                 break;
@@ -79,7 +79,7 @@ namespace bdn
 
                         if (ok && leftAlign && padTo > 0) {
                             while (written < (size_t)padTo) {
-                                if (CHAR_TRAITS::eq_int_type(pBuffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
+                                if (CHAR_TRAITS::eq_int_type(buffer->sputc(stream.fill()), CHAR_TRAITS::eof())) {
                                     stream.setstate(std::ios_base::badbit);
                                     ok = false;
                                     break;
@@ -148,7 +148,7 @@ namespace std
             return _loc;
         }
 
-        explicit basic_ostream(std::basic_streambuf<char_type, traits_type> *pBuffer) : BasicIos(pBuffer)
+        explicit basic_ostream(std::basic_streambuf<char_type, traits_type> *buffer) : BasicIos(buffer)
         {
             // by default we use a variant of the classic locale, with the
             // multibyte encoding replaced with UTF-8.
@@ -158,7 +158,7 @@ namespace std
             _lastCheckedLocale = BasicIos::getloc();
             _lastCheckedLocaleIsUtf8 = 1;
 
-            _pWideAdapterStreamBuffer = new WideAdapterStreamBuffer(this);
+            _wideAdapterStreamBuffer = new WideAdapterStreamBuffer(this);
 
             BasicIos::setf(std::ios_base::boolalpha);
         }
@@ -168,12 +168,12 @@ namespace std
         {
             _lastCheckedLocaleIsUtf8 = -1;
 
-            _pWideAdapterStreamBuffer = new WideAdapterStreamBuffer(this);
+            _wideAdapterStreamBuffer = new WideAdapterStreamBuffer(this);
         }
 
-        void init(std::basic_streambuf<char32_t, bdn::UnicodeCharTraits> *pBuffer)
+        void init(std::basic_streambuf<char32_t, bdn::UnicodeCharTraits> *buffer)
         {
-            BasicIos::init(pBuffer);
+            BasicIos::init(buffer);
 
             // by default we use a variant of the classic locale, with the
             // multibyte encoding replaced with UTF-8.
@@ -194,9 +194,9 @@ namespace std
         {
             rhs._lastCheckedLocaleIsUtf8 = -1;
 
-            _pWideAdapterStreamBuffer = rhs._pWideAdapterStreamBuffer;
-            rhs._pWideAdapterStreamBuffer = nullptr;
-            _pWideAdapterStreamBuffer->setStream(this);
+            _wideAdapterStreamBuffer = rhs._wideAdapterStreamBuffer;
+            rhs._wideAdapterStreamBuffer = nullptr;
+            _wideAdapterStreamBuffer->setStream(this);
 
             // we apparently must call init before move. Otherwise
             // we will get a crash in the destructor.
@@ -207,8 +207,8 @@ namespace std
       public:
         virtual ~basic_ostream()
         {
-            if (_pWideAdapterStreamBuffer != nullptr)
-                delete _pWideAdapterStreamBuffer;
+            if (_wideAdapterStreamBuffer != nullptr)
+                delete _wideAdapterStreamBuffer;
         }
 
       protected:
@@ -245,8 +245,8 @@ namespace std
             ~sentry()
             {
                 if ((_stream.flags() & std::ios_base::unitbuf) && !std::uncaught_exception() && _stream.good()) {
-                    auto pBuffer = _stream.rdbuf();
-                    if (pBuffer != nullptr && pBuffer->pubsync() == -1)
+                    auto buffer = _stream.rdbuf();
+                    if (buffer != nullptr && buffer->pubsync() == -1)
                         _stream.setstate(std::ios_base::badbit);
                 }
             }
@@ -287,9 +287,9 @@ namespace std
             if (s) {
                 std::locale loc = getloc();
                 auto it = std::use_facet<std::num_put<wchar_t>>(loc).put(
-                    ostreambuf_iterator<wchar_t>(_pWideAdapterStreamBuffer), fmt, (wchar_t)fillChar, value);
+                    ostreambuf_iterator<wchar_t>(_wideAdapterStreamBuffer), fmt, (wchar_t)fillChar, value);
 
-                if (!_pWideAdapterStreamBuffer->syncToRealBuffer() || it.failed())
+                if (!_wideAdapterStreamBuffer->syncToRealBuffer() || it.failed())
                     setstate(std::ios_base::badbit);
             }
 
@@ -317,11 +317,11 @@ namespace std
 
         basic_ostream &operator<<(std::nullptr_t) { return (*this) << U"null"; }
 
-        basic_ostream &operator<<(std::basic_streambuf<char_type, traits_type> *pBuffer)
+        basic_ostream &operator<<(std::basic_streambuf<char_type, traits_type> *buffer)
         {
             sentry s(*this);
             if (s) {
-                if (pBuffer == nullptr)
+                if (buffer == nullptr)
                     setstate(std::ios_base::badbit);
                 else {
                     try {
@@ -329,7 +329,7 @@ namespace std
                         // character. So we read first without advancing and
                         // then advance afterwards.
 
-                        int_type chr = pBuffer->sgetc();
+                        int_type chr = buffer->sgetc();
                         if (traits_type::eq_int_type(chr, traits_type::eof())) {
                             // if no characters are inserted (if the input
                             // buffer is empty) then we must set failbit
@@ -340,7 +340,7 @@ namespace std
                                 if (!good())
                                     break;
 
-                                chr = pBuffer->snextc();
+                                chr = buffer->snextc();
                             } while (!traits_type::eq_int_type(chr, traits_type::eof()));
                         }
                     }
@@ -497,8 +497,8 @@ namespace std
         {
             sentry s(*this);
             if (s) {
-                auto pBuffer = rdbuf();
-                if (pBuffer == nullptr || traits_type::eq_int_type(pBuffer->sputc(ch), traits_type::eof())) {
+                auto buffer = rdbuf();
+                if (buffer == nullptr || traits_type::eq_int_type(buffer->sputc(ch), traits_type::eof())) {
                     setstate(ios_base::badbit);
                 }
             }
@@ -511,8 +511,8 @@ namespace std
             sentry sentr(*this);
             if (sentr) {
                 try {
-                    auto pBuffer = rdbuf();
-                    if (pBuffer == nullptr || pBuffer->sputn(s, count) != count) {
+                    auto buffer = rdbuf();
+                    if (buffer == nullptr || buffer->sputn(s, count) != count) {
                         setstate(ios_base::badbit);
                         if (exceptions() & ios_base::badbit)
                             throw failure("Error writing to stream");
@@ -530,20 +530,20 @@ namespace std
 
         pos_type tellp()
         {
-            auto pBuffer = rdbuf();
-            if (pBuffer == nullptr)
+            auto buffer = rdbuf();
+            if (buffer == nullptr)
                 return pos_type(-1);
 
             if (fail())
                 return pos_type(-1);
             else
-                return pBuffer->pubseekoff(0, std::ios_base::cur, std::ios_base::out);
+                return buffer->pubseekoff(0, std::ios_base::cur, std::ios_base::out);
         }
 
         basic_ostream &seekp(pos_type pos)
         {
-            auto pBuffer = rdbuf();
-            if (pBuffer == nullptr || pBuffer->pubseekpos(pos, std::ios_base::out) == pos_type(-1)) {
+            auto buffer = rdbuf();
+            if (buffer == nullptr || buffer->pubseekpos(pos, std::ios_base::out) == pos_type(-1)) {
                 setstate(ios_base::failbit);
                 if (exceptions() & ios_base::failbit)
                     throw failure("seek failed");
@@ -554,8 +554,8 @@ namespace std
 
         basic_ostream &seekp(off_type off, std::ios_base::seekdir dir)
         {
-            auto pBuffer = rdbuf();
-            if (pBuffer == nullptr || pBuffer->pubseekoff(off, dir, std::ios_base::out) == pos_type(-1)) {
+            auto buffer = rdbuf();
+            if (buffer == nullptr || buffer->pubseekoff(off, dir, std::ios_base::out) == pos_type(-1)) {
                 setstate(ios_base::failbit);
                 if (exceptions() & ios_base::failbit)
                     throw failure("seek failed");
@@ -566,9 +566,9 @@ namespace std
 
         basic_ostream &flush()
         {
-            auto pBuffer = rdbuf();
-            if (pBuffer != nullptr) {
-                if (pBuffer->pubsync() == pos_type(-1)) {
+            auto buffer = rdbuf();
+            if (buffer != nullptr) {
+                if (buffer->pubsync() == pos_type(-1)) {
                     setstate(ios_base::badbit);
                     if (exceptions() & ios_base::badbit)
                         throw failure("flush failed");
@@ -583,9 +583,9 @@ namespace std
         {
             basic_ios::swap(rhs);
 
-            std::swap(_pWideAdapterStreamBuffer, rhs._pWideAdapterStreamBuffer);
-            _pWideAdapterStreamBuffer->setStream(this);
-            rhs._pWideAdapterStreamBuffer->setStream(&rhs);
+            std::swap(_wideAdapterStreamBuffer, rhs._wideAdapterStreamBuffer);
+            _wideAdapterStreamBuffer->setStream(this);
+            rhs._wideAdapterStreamBuffer->setStream(&rhs);
         }
 
       private:
@@ -596,12 +596,12 @@ namespace std
             using UniTraits = basic_ostream::traits_type;
 
           public:
-            WideAdapterStreamBuffer(basic_ostream *pStream) : _pStream(pStream)
+            WideAdapterStreamBuffer(basic_ostream *stream) : _stream(stream)
             {
                 setp(_wideChars, &_wideChars[capacity]);
             }
 
-            void setStream(basic_ostream *pStream) { _pStream = pStream; }
+            void setStream(basic_ostream *stream) { _stream = stream; }
 
             bool syncToRealBuffer()
             {
@@ -615,11 +615,11 @@ namespace std
 
                     setp(_wideChars, &_wideChars[capacity]);
 
-                    auto pBuffer = _pStream->rdbuf();
-                    if (pBuffer == nullptr)
+                    auto buffer = _stream->rdbuf();
+                    if (buffer == nullptr)
                         return false;
                     else
-                        return (pBuffer->sputn(_uniChars, count) == count);
+                        return (buffer->sputn(_uniChars, count) == count);
                 }
             }
 
@@ -633,11 +633,11 @@ namespace std
 
                 if (WideTraits::eq_int_type(chr, WideTraits::eof())) {
                     // end of stream. notify real buffer
-                    auto pBuffer = _pStream->rdbuf();
-                    if (pBuffer != nullptr) {
+                    auto buffer = _stream->rdbuf();
+                    if (buffer != nullptr) {
                         // we can ignore the return value here, since we will
                         // ALWAYS return eof
-                        pBuffer->sputc(UniTraits::eof());
+                        buffer->sputc(UniTraits::eof());
                     }
 
                     return chr;
@@ -650,11 +650,11 @@ namespace std
                 if (!syncToRealBuffer())
                     return -1;
 
-                auto pBuffer = _pStream->rdbuf();
-                if (pBuffer == nullptr)
+                auto buffer = _stream->rdbuf();
+                if (buffer == nullptr)
                     return 0;
                 else
-                    return pBuffer->pubsync();
+                    return buffer->pubsync();
             }
 
           private:
@@ -663,7 +663,7 @@ namespace std
                 capacity = 16
             };
 
-            basic_ostream *_pStream;
+            basic_ostream *_stream;
             char32_t _uniChars[capacity];
             wchar_t _wideChars[capacity];
         };
@@ -679,7 +679,7 @@ namespace std
             return _lastCheckedLocaleIsUtf8 != 0;
         }
 
-        WideAdapterStreamBuffer *_pWideAdapterStreamBuffer = nullptr;
+        WideAdapterStreamBuffer *_wideAdapterStreamBuffer = nullptr;
 
         std::locale _lastCheckedLocale;
         int _lastCheckedLocaleIsUtf8 = -1;

@@ -60,7 +60,7 @@ namespace bdn
         const int inElements = sizeof(inData) / sizeof(wchar_t) - 1;
         const char expectedUtf8[] = u8"g\u0197\uea7d";
         const int expectedSize = sizeof(expectedUtf8) - 1;
-        const wchar_t *pInNext = inData;
+        const wchar_t *inNext = inData;
 
         // the UTF-8 data would be 6 bytes long.
         // But we provide a much larger buffer to ensure that the encoded data
@@ -68,14 +68,14 @@ namespace bdn
         // trigger a bug in the codec that leads to a crash.
         const int outBufferSize = 3 * 8;
         char outBuffer[outBufferSize + 1] = {0};
-        char *pOutNext = outBuffer;
+        char *outNext = outBuffer;
 
         std::mbstate_t state = std::mbstate_t();
 
         std::codecvt_base::result result =
-            codec.out(state, inData, inData + inElements, pInNext, outBuffer, outBuffer + outBufferSize, pOutNext);
+            codec.out(state, inData, inData + inElements, inNext, outBuffer, outBuffer + outBufferSize, outNext);
 
-        return (result == std::codecvt_base::ok && pOutNext == outBuffer + expectedSize &&
+        return (result == std::codecvt_base::ok && outNext == outBuffer + expectedSize &&
                 std::memcmp(outBuffer, expectedUtf8, expectedSize) == 0);
     }
 }

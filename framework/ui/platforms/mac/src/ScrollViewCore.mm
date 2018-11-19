@@ -33,15 +33,15 @@
 
 @interface BdnMacScrollViewCoreEventForwarder_ : NSObject
 
-@property bdn::mac::ScrollViewCore *pScrollViewCore;
+@property bdn::mac::ScrollViewCore *scrollViewCore;
 
 @end
 
 @implementation BdnMacScrollViewCoreEventForwarder_
 
-- (void)setScrollViewCore:(bdn::mac::ScrollViewCore *)pCore { _pScrollViewCore = pCore; }
+- (void)setScrollViewCore:(bdn::mac::ScrollViewCore *)core { _scrollViewCore = core; }
 
-- (void)contentViewBoundsDidChange { _pScrollViewCore->_contentViewBoundsDidChange(); }
+- (void)contentViewBoundsDidChange { _scrollViewCore->_contentViewBoundsDidChange(); }
 
 @end
 
@@ -50,7 +50,7 @@ namespace bdn
     namespace mac
     {
 
-        ScrollViewCore::ScrollViewCore(ScrollView *pOuter) : ChildViewCore(pOuter, _createScrollView(pOuter))
+        ScrollViewCore::ScrollViewCore(ScrollView *outer) : ChildViewCore(outer, _createScrollView(outer))
         {
             _nsScrollView = (NSScrollView *)getNSView();
 
@@ -73,10 +73,10 @@ namespace bdn
                                                          name:NSViewBoundsDidChangeNotification
                                                        object:_nsScrollView.contentView];
 
-            setHorizontalScrollingEnabled(pOuter->horizontalScrollingEnabled());
-            setVerticalScrollingEnabled(pOuter->verticalScrollingEnabled());
+            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled());
+            setVerticalScrollingEnabled(outer->verticalScrollingEnabled());
 
-            setPadding(pOuter->padding());
+            setPadding(outer->padding());
         }
 
         ScrollViewCore::~ScrollViewCore()
@@ -86,7 +86,7 @@ namespace bdn
                                                           object:_nsScrollView.contentView];
         }
 
-        NSScrollView *ScrollViewCore::_createScrollView(ScrollView *pOuter)
+        NSScrollView *ScrollViewCore::_createScrollView(ScrollView *outer)
         {
             NSScrollView *scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -121,7 +121,7 @@ namespace bdn
             _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
         }
 
-        P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *pBorderSize) const
+        P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *borderSize) const
         {
             // first we need to find out the size of the border around the
             // scroll view and the space needed for scrollbars.
@@ -162,8 +162,8 @@ namespace bdn
             vertBarWidth = scrollerOverhead.width;
             horzBarHeight = scrollerOverhead.height;
 
-            if (pBorderSize != nullptr)
-                *pBorderSize = borderSize;
+            if (borderSize != nullptr)
+                *borderSize = borderSize;
 
             return newObj<ScrollViewLayoutHelper>(vertBarWidth, horzBarHeight);
         }
@@ -172,11 +172,11 @@ namespace bdn
         {
             Size preferredSize;
 
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
-                P<ScrollViewLayoutHelper> pHelper = createLayoutHelper();
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
+                P<ScrollViewLayoutHelper> helper = createLayoutHelper();
 
-                preferredSize = pHelper->calcPreferredSize(pOuterView, availableSpace);
+                preferredSize = helper->calcPreferredSize(outerView, availableSpace);
             }
 
             return preferredSize;
@@ -184,23 +184,23 @@ namespace bdn
 
         void ScrollViewCore::layout()
         {
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
                 Size borderSize;
-                P<ScrollViewLayoutHelper> pHelper = createLayoutHelper(&borderSize);
+                P<ScrollViewLayoutHelper> helper = createLayoutHelper(&borderSize);
 
-                Size viewPortSizeWithoutScrollbars = pOuterView->size() - borderSize;
+                Size viewPortSizeWithoutScrollbars = outerView->size() - borderSize;
 
-                pHelper->calcLayout(pOuterView, viewPortSizeWithoutScrollbars);
+                helper->calcLayout(outerView, viewPortSizeWithoutScrollbars);
 
-                P<View> pContentView = pOuterView->getContentView();
-                if (pContentView != nullptr) {
-                    Rect contentBounds = pHelper->getContentViewBounds();
+                P<View> contentView = outerView->getContentView();
+                if (contentView != nullptr) {
+                    Rect contentBounds = helper->getContentViewBounds();
 
-                    pContentView->adjustAndSetBounds(contentBounds);
+                    contentView->adjustAndSetBounds(contentBounds);
 
                     // we must also resize our content view parent accordingly.
-                    Size scrolledAreaSize = pHelper->getScrolledAreaSize();
+                    Size scrolledAreaSize = helper->getScrolledAreaSize();
 
                     NSSize wrapperSize = sizeToMacSize(scrolledAreaSize);
 
@@ -227,11 +227,11 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
-            if (pOuterView != nullptr) {
+            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            if (outerView != nullptr) {
                 Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
 
-                pOuterView->_setVisibleClientRect(visibleClientRect);
+                outerView->_setVisibleClientRect(visibleClientRect);
             }
         }
     }

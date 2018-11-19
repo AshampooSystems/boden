@@ -21,7 +21,7 @@ class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pButton->label();
+        String expectedLabel = _button->label();
 
         String label = _jButton.getText();
 
@@ -34,7 +34,7 @@ class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.ButtonCore")
 {
-    P<TestAndroidButtonCore> pTest = newObj<TestAndroidButtonCore>();
+    P<TestAndroidButtonCore> test = newObj<TestAndroidButtonCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

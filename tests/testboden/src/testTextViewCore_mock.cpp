@@ -14,9 +14,9 @@ class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test::
   protected:
     void verifyCoreText() override
     {
-        String expectedText = _pTextView->text();
+        String expectedText = _textView->text();
 
-        String text = cast<bdn::test::MockTextViewCore>(_pMockCore)->getText();
+        String text = cast<bdn::test::MockTextViewCore>(_mockCore)->getText();
 
         REQUIRE(text == expectedText);
     }
@@ -26,7 +26,7 @@ class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test::
 
 TEST_CASE("mock.TextViewCore")
 {
-    P<TestMockTextViewCore> pTest = newObj<TestMockTextViewCore>();
+    P<TestMockTextViewCore> test = newObj<TestMockTextViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

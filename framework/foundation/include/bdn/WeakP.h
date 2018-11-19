@@ -23,26 +23,26 @@ namespace bdn
 
         \code
 
-        P< String >     pOriginal = newObj<String>("hello");
-        WeakP< String > weakPtr = pOriginal;
+        P< String >     original = newObj<String>("hello");
+        WeakP< String > weakPtr = original;
 
         // A strong pointer has to be created from the weak pointer to access
-       the object P< String >     pTempStrong = weakPtr.toStrong();
+       the object P< String >     tempStrong = weakPtr.toStrong();
 
-        // pStrong2 will be valid (not null), because the object still exists at
+        // strong2 will be valid (not null), because the object still exists at
        this point.
         // Since we know that here, we can access the object directly.
         // Nevertheless, it is good practice to always check that the resulting
        pointer is really
         // valid.
-        if(pTempStrong == nullptr)
+        if(tempStrong == nullptr)
         {
             // not what we expected. We have a bug.
             throw std::logic_error("Object unexpectedly deleted");
         }
 
-        assert(pTempStrong != nullptr );
-        (*pTempStrong) = "world";
+        assert(tempStrong != nullptr );
+        (*tempStrong) = "world";
 
         // after we are done, accessing the object, we have to release the
        temporary
@@ -50,16 +50,16 @@ namespace bdn
         // Releasing the strong reference can be done by setting the strong
        pointer to nullptr,
         // or by ensuring that the strong pointer itself is destroyed.
-        pTempStrong = nullptr;
+        tempStrong = nullptr;
 
-        // at this point the only strong reference to the object is pOriginal.
+        // at this point the only strong reference to the object is original.
         // We release that now. This will cause the object to be deleted.
-        pOriginal = nullptr;
+        original = nullptr;
 
         // When we now try to get a strong pointer from the weak pointer, we
-       will get null. P< String >     pTempStrong2 = weakPtr.toStrong();
+       will get null. P< String >     tempStrong2 = weakPtr.toStrong();
 
-        if(pTempStrong2==nullptr)
+        if(tempStrong2==nullptr)
         {
             // this is what we expect to happen, since the object is now
        deleted.
@@ -75,21 +75,21 @@ namespace bdn
 
         WeakP(std::nullptr_t) {}
 
-        WeakP(T *pObject)
+        WeakP(T *object)
         {
             // note that we do not store a reference to the object itself.
             // Instead we only store a pointer to a shared data object that
             // all weak references share. This shared object also contains
             // a pointer to the object.
-            if (pObject != nullptr)
-                _pState = pObject->getWeakReferenceState();
+            if (object != nullptr)
+                _state = object->getWeakReferenceState();
         }
 
-        WeakP(const WeakP &p) : _pState(p._pState) {}
+        WeakP(const WeakP &p) : _state(p._state) {}
 
-        WeakP(WeakP &&p) : _pState(std::move(p._pState)) {}
+        WeakP(WeakP &&p) : _state(std::move(p._state)) {}
 
-        template <class F> inline WeakP(const WeakP<F> &p) : _pState(p._getWeakReferenceState())
+        template <class F> inline WeakP(const WeakP<F> &p) : _state(p._getWeakReferenceState())
         {
             // make sure that F is actually a compatible type
             T *dummy = (F *)nullptr;
@@ -105,38 +105,38 @@ namespace bdn
 
         WeakP &operator=(std::nullptr_t)
         {
-            _pState = nullptr;
+            _state = nullptr;
 
             return *this;
         }
 
-        WeakP &operator=(T *pObject)
+        WeakP &operator=(T *object)
         {
-            if (pObject != nullptr)
-                _pState = pObject->getWeakReferenceState();
+            if (object != nullptr)
+                _state = object->getWeakReferenceState();
             else
-                _pState = nullptr;
+                _state = nullptr;
 
             return *this;
         }
 
         WeakP &operator=(const WeakP &o)
         {
-            _pState = o._pState;
+            _state = o._state;
 
             return *this;
         }
 
         WeakP &operator=(WeakP &&o)
         {
-            _pState = std::move(o._pState);
+            _state = std::move(o._state);
 
             return *this;
         }
 
         template <class F> WeakP &operator=(const WeakP<F> &o)
         {
-            _pState = o._getWeakReferenceState();
+            _state = o._getWeakReferenceState();
 
             // make sure that F is actually a compatible type
             T *dummy = (F *)nullptr;
@@ -149,21 +149,21 @@ namespace bdn
 
         P<T> toStrong() const
         {
-            if (_pState == nullptr) {
-                // if _pShared is null then that means that we never had a
+            if (_state == nullptr) {
+                // if _shared is null then that means that we never had a
                 // reference to an actual object. So we know that the result is
                 // always null.
                 return nullptr;
             } else {
-                return cast<T>(_pState->newStrongReference());
+                return cast<T>(_state->newStrongReference());
             }
         }
 
         /** For internal use only - do not call.*/
-        P<IWeakReferenceState> _getWeakReferenceState() const { return _pState; }
+        P<IWeakReferenceState> _getWeakReferenceState() const { return _state; }
 
       private:
-        P<IWeakReferenceState> _pState;
+        P<IWeakReferenceState> _state;
     };
 }
 

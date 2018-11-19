@@ -24,7 +24,7 @@ namespace bdn
 
             void initiateExitIfPossible(int exitCode) override;
 
-            P<IDispatcher> getMainDispatcher() override { return _pMainDispatcher; }
+            P<IDispatcher> getMainDispatcher() override { return _mainDispatcher; }
 
             void disposeMainDispatcher() override;
 
@@ -44,7 +44,7 @@ namespace bdn
             void _applicationWillTerminate(NSNotification *notification);
 
           private:
-            P<IDispatcher> _pMainDispatcher;
+            P<IDispatcher> _mainDispatcher;
         };
     }
 }

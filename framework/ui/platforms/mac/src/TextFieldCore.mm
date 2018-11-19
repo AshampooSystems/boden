@@ -59,11 +59,11 @@ namespace bdn
     namespace mac
     {
 
-        TextFieldCore::TextFieldCore(TextField *pOuterTextField)
-            : ChildViewCore(pOuterTextField, _createNsTextView(pOuterTextField)),
+        TextFieldCore::TextFieldCore(TextField *outerTextField)
+            : ChildViewCore(outerTextField, _createNsTextView(outerTextField)),
               _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
         {
-            setText(pOuterTextField->text());
+            setText(outerTextField->text());
         }
 
         TextFieldCore::~TextFieldCore() { _delegate = nil; }

@@ -4,45 +4,45 @@
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *pEnv, jobject rawSelf,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *env, jobject rawSelf,
                                                                                   jobject rawByteBuffer)
 {
     bdn::platformEntryWrapper(
         [&]() {
             bdn::java::JByteBuffer byteBuffer((bdn::java::Reference::convertExternalLocal(rawByteBuffer)));
 
-            bdn::IBase *pObject = static_cast<bdn::IBase *>(byteBuffer.getBuffer_());
+            bdn::IBase *object = static_cast<bdn::IBase *>(byteBuffer.getBuffer_());
 
-            pObject->releaseRef();
+            object->releaseRef();
         },
-        true, pEnv);
+        true, env);
 }
 
 namespace bdn
 {
     namespace java
     {
-        Reference JNativeStrongPointer::newInstance_(IBase *pObject)
+        Reference JNativeStrongPointer::newInstance_(IBase *object)
         {
-            if (pObject == nullptr) {
+            if (object == nullptr) {
                 // When the C++ pointer is null then we just return a null
                 // java reference
                 return Reference();
             } else {
                 // wrap the pointer into a java byte buffer
-                JByteBuffer byteBuffer(static_cast<void *>(pObject), 1);
+                JByteBuffer byteBuffer(static_cast<void *>(object), 1);
 
                 static MethodId constructorId;
 
                 Reference ref = getStaticClass_().newInstance_(constructorId, byteBuffer);
 
-                pObject->addRef();
+                object->addRef();
 
                 return ref;
             }
         }
 
-        JNativeStrongPointer::JNativeStrongPointer(IBase *pObject) : JObject(newInstance_(pObject)) {}
+        JNativeStrongPointer::JNativeStrongPointer(IBase *object) : JObject(newInstance_(object)) {}
 
         JNativeStrongPointer::JNativeStrongPointer(const Reference &objectRef) : JObject(objectRef) {}
 
@@ -71,16 +71,16 @@ namespace bdn
         {
             Env &env = Env::get();
 
-            JNIEnv *pEnv = env.getJniEnv();
+            JNIEnv *jniEnv = env.getJniEnv();
 
-            if (pEnv->IsSameObject(obj, NULL))
+            if (jniEnv->IsSameObject(obj, NULL))
                 return nullptr;
             else {
-                void *pBuffer = env.getJniEnv()->GetDirectBufferAddress(obj);
+                void *buffer = env.getJniEnv()->GetDirectBufferAddress(obj);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return static_cast<IBase *>(pBuffer);
+                return static_cast<IBase *>(buffer);
             }
         }
 

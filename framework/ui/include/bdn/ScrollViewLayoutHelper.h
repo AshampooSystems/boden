@@ -35,7 +35,7 @@ namespace bdn
            getHorizontalScrollBarVisible(), getVerticalScrollBarVisible(),
            getContentViewBounds() ).
 
-            This function can handle cases when pScrollView or its content view
+            This function can handle cases when scrollView or its content view
            are null. In that case the layout result values will be initialized
            to default values.
 
@@ -43,42 +43,42 @@ namespace bdn
            content view port (the area where the visible part of the content is
            displayed) when no scroll bars are shown.
         */
-        void calcLayout(ScrollView *pScrollView, Size viewPortSizeWhenNotShowingScrollBars)
+        void calcLayout(ScrollView *scrollView, Size viewPortSizeWhenNotShowingScrollBars)
         {
             _showHorizontalScrollBar = false;
             _showVerticalScrollBar = false;
             _contentViewBounds = Rect();
             _viewPortSize = viewPortSizeWhenNotShowingScrollBars;
 
-            P<View> pContentView;
-            if (pScrollView != nullptr)
-                pContentView = pScrollView->getContentView();
+            P<View> contentView;
+            if (scrollView != nullptr)
+                contentView = scrollView->getContentView();
 
             bool horzScrollEnabled = false;
             bool vertScrollEnabled = false;
             Margin outerPadding;
 
-            if (pScrollView != nullptr) {
-                horzScrollEnabled = pScrollView->horizontalScrollingEnabled();
-                vertScrollEnabled = pScrollView->verticalScrollingEnabled();
+            if (scrollView != nullptr) {
+                horzScrollEnabled = scrollView->horizontalScrollingEnabled();
+                vertScrollEnabled = scrollView->verticalScrollingEnabled();
 
-                Nullable<UiMargin> pad = pScrollView->padding();
+                Nullable<UiMargin> pad = scrollView->padding();
                 if (!pad.isNull())
-                    outerPadding = pScrollView->uiMarginToDipMargin(pad);
+                    outerPadding = scrollView->uiMarginToDipMargin(pad);
             }
 
             for (int itNum = 0;; itNum++) {
                 Size actualContentSize;
                 Margin contentMargin;
-                if (pContentView != nullptr) {
-                    contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
+                if (contentView != nullptr) {
+                    contentMargin = scrollView->uiMarginToDipMargin(contentView->margin());
 
                     // if the amount of available space for the content view is
                     // limited then we must ask the content view for a dynamic
                     // preferred size. Some view's (like text views) might want
                     // to adapt.
 
-                    actualContentSize = pContentView->calcPreferredSize();
+                    actualContentSize = contentView->calcPreferredSize();
 
                     // In the first iteration (itNum==0) _viewPortSize is the
                     // size with no scrollbars shown. In the second iteration
@@ -101,10 +101,10 @@ namespace bdn
                         highEnough = (Dip(actualContentSize.height) <= contentAvailableSpace.height);
 
                     if (!wideEnough || !highEnough)
-                        actualContentSize = pContentView->calcPreferredSize(contentAvailableSpace);
+                        actualContentSize = contentView->calcPreferredSize(contentAvailableSpace);
 
                     Rect bounds(Point(), actualContentSize);
-                    Rect adjustedBounds = pContentView->adjustBounds(bounds, RoundType::nearest, RoundType::up);
+                    Rect adjustedBounds = contentView->adjustBounds(bounds, RoundType::nearest, RoundType::up);
 
                     actualContentSize = adjustedBounds.getSize();
                 }
@@ -167,7 +167,7 @@ namespace bdn
 
                 _scrolledAreaSize = contentSizeWithMarginAndPadding;
 
-                if (itNum == 0 && pContentView != nullptr &&
+                if (itNum == 0 && contentView != nullptr &&
                     ((widthClipped && _showVerticalScrollBar) || (heightClipped && _showHorizontalScrollBar))) {
                     // we have shown a scrollbar on a side where the content was
                     // clipped. That means that the viewport size has changed in
@@ -212,25 +212,25 @@ namespace bdn
         /** Calculates the preferred size of the scroll view (see
            View::calcPreferredSize()).
 
-            This function can handle cases when pScrollView or its content view
-           are null. If pScrollView is null then a zero size is returned. If its
+            This function can handle cases when scrollView or its content view
+           are null. If scrollView is null then a zero size is returned. If its
            content view is null then the preferred size for an empty scroll view
            is returned.
             */
-        Size calcPreferredSize(ScrollView *pScrollView, const Size &availableSpace = Size::none()) const
+        Size calcPreferredSize(ScrollView *scrollView, const Size &availableSpace = Size::none()) const
         {
-            P<View> pContentView;
-            if (pScrollView != nullptr)
-                pContentView = pScrollView->getContentView();
+            P<View> contentView;
+            if (scrollView != nullptr)
+                contentView = scrollView->getContentView();
 
             Margin outerPadding;
             Size maxSize(Size::none());
-            if (pScrollView != nullptr) {
-                Nullable<UiMargin> pad = pScrollView->padding();
+            if (scrollView != nullptr) {
+                Nullable<UiMargin> pad = scrollView->padding();
                 if (!pad.isNull())
-                    outerPadding = pScrollView->uiMarginToDipMargin(pad);
+                    outerPadding = scrollView->uiMarginToDipMargin(pad);
 
-                maxSize = pScrollView->preferredSizeMaximum();
+                maxSize = scrollView->preferredSizeMaximum();
             }
 
             maxSize.applyMaximum(availableSpace);
@@ -241,14 +241,14 @@ namespace bdn
             bool horzScrollEnabled = false;
             bool vertScrollEnabled = false;
 
-            if (pScrollView != nullptr) {
-                horzScrollEnabled = pScrollView->horizontalScrollingEnabled();
-                vertScrollEnabled = pScrollView->verticalScrollingEnabled();
+            if (scrollView != nullptr) {
+                horzScrollEnabled = scrollView->horizontalScrollingEnabled();
+                vertScrollEnabled = scrollView->verticalScrollingEnabled();
             }
 
             Margin contentMargin;
-            if (pContentView != nullptr)
-                contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
+            if (contentView != nullptr)
+                contentMargin = scrollView->uiMarginToDipMargin(contentView->margin());
 
             Size prefSize;
             Size contentSize;
@@ -257,7 +257,7 @@ namespace bdn
             bool showVerticalScrollBar = false;
 
             for (int itNum = 0;; itNum++) {
-                if (pContentView != nullptr) {
+                if (contentView != nullptr) {
                     // the available space we communicate to the content view is
                     // based on maxSize, which is the combination of
                     // availableSpace and the scroll view max preferred size.
@@ -290,7 +290,7 @@ namespace bdn
                             contentAvailableSpace.width = 0;
                     }
 
-                    contentSize = pContentView->calcPreferredSize(contentAvailableSpace);
+                    contentSize = contentView->calcPreferredSize(contentAvailableSpace);
                 } else
                     contentSize = Size(0, 0);
 
@@ -347,9 +347,9 @@ namespace bdn
                     }
                 }
 
-                if (pScrollView != nullptr) {
+                if (scrollView != nullptr) {
                     // apply the minimum constraint
-                    prefSize.applyMinimum(pScrollView->preferredSizeMinimum());
+                    prefSize.applyMinimum(scrollView->preferredSizeMinimum());
 
                     // also apply the preferredSizeMaximum. We already applied
                     // it at the start to take the constraint into account from
@@ -359,7 +359,7 @@ namespace bdn
                     // want it to be exceeded. Note that we do NOT clip against
                     // availableSpace, because we WANT that to be exceeded if
                     // the children do not fit.
-                    prefSize.applyMaximum(pScrollView->preferredSizeMaximum());
+                    prefSize.applyMaximum(scrollView->preferredSizeMaximum());
                 }
 
                 Size contentSizeAtPrefSizeWithoutScrolling = prefSize - outerPadding - contentMargin;
@@ -382,7 +382,7 @@ namespace bdn
                 // should give the content view a chance to adapt its preferred
                 // size to the reduced available space
 
-                if (itNum == 0 && pContentView != nullptr &&
+                if (itNum == 0 && contentView != nullptr &&
                     ((widthClipped && showVerticalScrollBar) || (heightClipped && showHorizontalScrollBar))) {
                     // the available space or min/max limits have constrained
                     // the preferred size of the scrollview. The result of this

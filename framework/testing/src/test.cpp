@@ -506,18 +506,18 @@ namespace bdn
     class TextSinkWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextSink
     {
       public:
-        TextSinkWrapperWithDebugPrint(ITextSink *pInnerSink) : _pInnerSink(pInnerSink) {}
+        TextSinkWrapperWithDebugPrint(ITextSink *innerSink) : _innerSink(innerSink) {}
 
         void write(const String &s)
         {
             doDebugPrint(s);
-            _pInnerSink->write(s);
+            _innerSink->write(s);
         }
 
         void writeLine(const String &s)
         {
             doDebugPrint(s + "\n");
-            _pInnerSink->writeLine(s);
+            _innerSink->writeLine(s);
         }
 
       private:
@@ -538,14 +538,14 @@ namespace bdn
             }
         }
 
-        P<ITextSink> _pInnerSink;
+        P<ITextSink> _innerSink;
         String _currDebugPrintLine;
     };
 
     class TextSinkStream : public IStream
     {
       public:
-        TextSinkStream(ITextSink *pSink) : _stdStream(pSink) {}
+        TextSinkStream(ITextSink *sink) : _stdStream(sink) {}
 
         virtual ~TextSinkStream() noexcept
         {
@@ -677,8 +677,8 @@ namespace bdn
       private:
         IStream const *openStatusStream()
         {
-            P<ITextUi> pUi = TestAppController::get()->getUiProvider()->getTextUi();
-            P<ITextSink> pSink = pUi->statusOrProblem();
+            P<ITextUi> ui = TestAppController::get()->getUiProvider()->getTextUi();
+            P<ITextSink> sink = ui->statusOrProblem();
 
             // we also want all output to be printed to the debugger,
             // IF debugger print does not go to stderr.
@@ -687,9 +687,9 @@ namespace bdn
             // prints to stderr. Even for graphical apps it prints to stderr
             // in addition to the view based output.
             if (!debuggerPrintGoesToStdErr())
-                pSink = newObj<TextSinkWrapperWithDebugPrint>(pSink);
+                sink = newObj<TextSinkWrapperWithDebugPrint>(sink);
 
-            return new TextSinkStream(pSink);
+            return new TextSinkStream(sink);
         }
 
         IStream const *openOutputStream()
@@ -3001,11 +3001,11 @@ namespace bdn
             _testRedirectedCout = "";
             _testRedirectedCerr = "";
 
-            _pCurrentTestCaseInfo = &testCase.getTestCaseInfo();
+            _currentTestCaseInfo = &testCase.getTestCaseInfo();
 
             _currentTestLeafSectionsExited = 0;
 
-            m_reporter->testCaseStarting(*_pCurrentTestCaseInfo);
+            m_reporter->testCaseStarting(*_currentTestCaseInfo);
 
             m_activeTestCase = &testCase;
 
@@ -3029,7 +3029,7 @@ namespace bdn
         {
             Mutex::Lock lock(_resultCaptureMutex);
 
-            const AssertionResult *pResultToReport = &result;
+            const AssertionResult *resultToReport = &result;
             AssertionResult changedResult;
 
             if (result.getResultType() == ResultWas::Ok) {
@@ -3044,21 +3044,21 @@ namespace bdn
                     changedResult = result;
                     changedResult.suppressFailure();
 
-                    pResultToReport = &changedResult;
+                    resultToReport = &changedResult;
                 } else
                     m_totals.assertions.failed++;
 
                 _currentTestAssertionFailed = true;
             }
 
-            if (m_reporter->assertionEnded(AssertionStats(*pResultToReport, m_messages, m_totals)))
+            if (m_reporter->assertionEnded(AssertionStats(*resultToReport, m_messages, m_totals)))
                 m_messages.clear();
 
             // Reset working state
             m_lastAssertionInfo =
                 AssertionInfo("", m_lastAssertionInfo.lineInfo, "{Unknown expression after the reported line}",
                               m_lastAssertionInfo.resultDisposition);
-            m_lastResult = *pResultToReport;
+            m_lastResult = *resultToReport;
         }
 
         bool testForMissingAssertions(Counts &assertions)
@@ -3173,12 +3173,12 @@ namespace bdn
                 bool missingAssertions = testForMissingAssertions(assertions);
 
                 if (!m_activeSections.empty()) {
-                    ITracker *pSectionTracker = m_activeSections.back();
+                    ITracker *sectionTracker = m_activeSections.back();
 
-                    if (!pSectionTracker->hasChildren())
+                    if (!sectionTracker->hasChildren())
                         _currentTestLeafSectionsExited++;
 
-                    pSectionTracker->close();
+                    sectionTracker->close();
                     m_activeSections.pop_back();
                 }
 
@@ -3201,15 +3201,15 @@ namespace bdn
 
                 postponeSectionEvent([this, endInfo]() { sectionEndedEarly(endInfo); });
             } else {
-                ITracker *pSectionTracker = m_activeSections.back();
+                ITracker *sectionTracker = m_activeSections.back();
 
-                if (!pSectionTracker->hasChildren())
+                if (!sectionTracker->hasChildren())
                     _currentTestLeafSectionsExited++;
 
                 if (m_unfinishedSections.empty())
-                    pSectionTracker->fail();
+                    sectionTracker->fail();
                 else
-                    pSectionTracker->close();
+                    sectionTracker->close();
                 if (!m_activeSections.empty())
                     m_activeSections.pop_back();
 
@@ -3397,10 +3397,10 @@ namespace bdn
         class ContinuationData : public Base
         {
           public:
-            ContinuationData(const std::function<void()> &continuationFunc, ContinuationSynchronizer *pSynchronizer)
+            ContinuationData(const std::function<void()> &continuationFunc, ContinuationSynchronizer *synchronizer)
             {
                 _continuationFunc = continuationFunc;
-                _pSynchronizer = pSynchronizer;
+                _synchronizer = synchronizer;
             }
 
             ~ContinuationData()
@@ -3410,7 +3410,7 @@ namespace bdn
                 // must be deleted.
                 _continuationFunc = std::function<void()>();
 
-                _pSynchronizer->notifyContinuationDataReleased();
+                _synchronizer->notifyContinuationDataReleased();
             }
 
             std::function<void()> &getContinuationFunc() { return _continuationFunc; }
@@ -3419,18 +3419,18 @@ namespace bdn
             ContinuationData(const ContinuationData &) = delete;
 
             std::function<void()> _continuationFunc;
-            P<ContinuationSynchronizer> _pSynchronizer;
+            P<ContinuationSynchronizer> _synchronizer;
         };
 
         void continueSectionWhenIdle(std::function<void()> continuationFunc) override
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> pContData = newObj<ContinuationData>(continuationFunc, pContSynchronizer);
+            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
+            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
 
-            asyncCallFromMainThreadWhenIdle([this, pContData, pContSynchronizer]() {
-                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
+            asyncCallFromMainThreadWhenIdle([this, contData, contSynchronizer]() {
+                doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
         }
 
@@ -3438,11 +3438,11 @@ namespace bdn
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> pContData = newObj<ContinuationData>(continuationFunc, pContSynchronizer);
+            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
+            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
 
-            asyncCallFromMainThreadAfterSeconds(seconds, [this, pContData, pContSynchronizer]() {
-                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
+            asyncCallFromMainThreadAfterSeconds(seconds, [this, contData, contSynchronizer]() {
+                doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
         }
 
@@ -3450,8 +3450,8 @@ namespace bdn
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> pContData = newObj<ContinuationData>(continuationFunc, pContSynchronizer);
+            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
+            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
 
             // We want to wait for a certain amount of process run time.
             // Since we cannot easily detect the actual run time in a platform
@@ -3476,11 +3476,11 @@ namespace bdn
             if (stepSeconds < 0.001)
                 stepSeconds = 0.001;
 
-            continueSectionAfterRunSeconds_Step(seconds, stepSeconds, pContData, pContSynchronizer);
+            continueSectionAfterRunSeconds_Step(seconds, stepSeconds, contData, contSynchronizer);
         }
 
-        void continueSectionAfterRunSeconds_Step(double secondsLeft, double stepSeconds, P<ContinuationData> pContData,
-                                                 P<ContinuationSynchronizer> pContSynchronizer)
+        void continueSectionAfterRunSeconds_Step(double secondsLeft, double stepSeconds, P<ContinuationData> contData,
+                                                 P<ContinuationSynchronizer> contSynchronizer)
         {
             if (stepSeconds + 0.001 >= secondsLeft) {
                 // last step
@@ -3490,11 +3490,11 @@ namespace bdn
                 secondsLeft -= stepSeconds;
 
             asyncCallFromMainThreadAfterSeconds(
-                stepSeconds, [this, pContData, pContSynchronizer, secondsLeft, stepSeconds]() {
+                stepSeconds, [this, contData, contSynchronizer, secondsLeft, stepSeconds]() {
                     if (secondsLeft <= 0)
-                        doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
+                        doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
                     else
-                        continueSectionAfterRunSeconds_Step(secondsLeft, stepSeconds, pContData, pContSynchronizer);
+                        continueSectionAfterRunSeconds_Step(secondsLeft, stepSeconds, contData, contSynchronizer);
                 });
         }
 
@@ -3503,11 +3503,11 @@ namespace bdn
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> pContData = newObj<ContinuationData>(continuationFunc, pContSynchronizer);
+            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
+            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
 
-            Thread::exec([this, pContData, pContSynchronizer]() {
-                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
+            Thread::exec([this, contData, contSynchronizer]() {
+                doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
         }
 
@@ -3525,7 +3525,7 @@ namespace bdn
 
 #endif
 
-        void doSectionContinuation(std::function<void()> continuationFunc, P<ContinuationSynchronizer> pSynchronizer)
+        void doSectionContinuation(std::function<void()> continuationFunc, P<ContinuationSynchronizer> synchronizer)
         {
             // lock the mutex to ensure that the code that scheduled the
             // continuation has exited.
@@ -3545,14 +3545,14 @@ namespace bdn
                 // We schedule this as "idle" to give any pending UI actions
                 // time to execute.
 
-                asyncCallFromMainThreadWhenIdle([this, pSynchronizer]() { endSectionContinuation(pSynchronizer); });
+                asyncCallFromMainThreadWhenIdle([this, synchronizer]() { endSectionContinuation(synchronizer); });
             } else {
                 // test is continued asynchronously. The async continuation is
                 // already scheduled, so there is nothing else we have to do.
             }
         }
 
-        void endSectionContinuation(P<ContinuationSynchronizer> pSynchronizer)
+        void endSectionContinuation(P<ContinuationSynchronizer> synchronizer)
         {
             // It may be that the previous continuation step is not fully done
             // yet. Its continuation func and captured data might not yet be
@@ -3561,9 +3561,9 @@ namespace bdn
             // section to be gone, otherwise we risk strange interactions
             // between test sections. So if the continuation is not gone yet
             // then we wait a little and check again.
-            if (!pSynchronizer->wasContinuationDataReleased()) {
+            if (!synchronizer->wasContinuationDataReleased()) {
                 asyncCallFromMainThreadAfterSeconds(0.05,
-                                                    [this, pSynchronizer]() { endSectionContinuation(pSynchronizer); });
+                                                    [this, synchronizer]() { endSectionContinuation(synchronizer); });
 
                 return;
             }
@@ -3601,7 +3601,7 @@ namespace bdn
             while (true) {
                 m_trackerContext.startCycle();
 
-                m_testCaseTracker = &SectionTracker::acquire(m_trackerContext, _pCurrentTestCaseInfo->name);
+                m_testCaseTracker = &SectionTracker::acquire(m_trackerContext, _currentTestCaseInfo->name);
 
                 _currentTestLeafSectionsExited = 0;
 
@@ -3635,12 +3635,12 @@ namespace bdn
 
             m_totals.testCases += deltaTotals.testCases;
 
-            m_reporter->testCaseEnded(TestCaseStats(*_pCurrentTestCaseInfo, deltaTotals, aborting()));
+            m_reporter->testCaseEnded(TestCaseStats(*_currentTestCaseInfo, deltaTotals, aborting()));
 
             m_activeTestCase = BDN_NULL;
             m_testCaseTracker = BDN_NULL;
 
-            _pCurrentTestCaseInfo = nullptr;
+            _currentTestCaseInfo = nullptr;
 
             _testDoneCallback(deltaTotals);
 
@@ -3692,15 +3692,15 @@ namespace bdn
                                          "please add the -stdlib=libc++ compiler parameter");
             }
 
-            _pCurrentTestCaseSection = new SectionInfo(_pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name,
-                                                       _pCurrentTestCaseInfo->description);
+            _currentTestCaseSection = new SectionInfo(_currentTestCaseInfo->lineInfo, _currentTestCaseInfo->name,
+                                                      _currentTestCaseInfo->description);
 
-            m_reporter->sectionStarting(*_pCurrentTestCaseSection, true);
+            m_reporter->sectionStarting(*_currentTestCaseSection, true);
 
             _currentTestPrevAssertions = m_totals.assertions;
 
             m_lastAssertionInfo =
-                AssertionInfo("TEST_CASE", _pCurrentTestCaseInfo->lineInfo, "", ResultDisposition::Normal);
+                AssertionInfo("TEST_CASE", _currentTestCaseInfo->lineInfo, "", ResultDisposition::Normal);
 
             seedRng(*m_config);
 
@@ -3756,8 +3756,8 @@ namespace bdn
             // then we might get failures from multiple threads at once.
 
             try {
-                if (_pCurrentTestCaseInfo->testEndCallback)
-                    _pCurrentTestCaseInfo->testEndCallback();
+                if (_currentTestCaseInfo->testEndCallback)
+                    _currentTestCaseInfo->testEndCallback();
             }
             catch (TestFailureException &) {
                 if (result == CurrentTestResult::Passed)
@@ -3862,7 +3862,7 @@ namespace bdn
             Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
             bool missingAssertions = testForMissingAssertions(assertions);
 
-            if (_pCurrentTestCaseInfo->okToFail()) {
+            if (_currentTestCaseInfo->okToFail()) {
                 // convert "failed" assertions to "failed but ok" assertions
                 m_totals.assertions.failed -= assertions.failed;
                 m_totals.assertions.failedButOk += assertions.failed;
@@ -3870,7 +3870,7 @@ namespace bdn
                 assertions.failedButOk += assertions.failed;
                 assertions.failed = 0;
 
-                if (_pCurrentTestCaseInfo->expectedToFail() && assertions.failedButOk == 0) {
+                if (_currentTestCaseInfo->expectedToFail() && assertions.failedButOk == 0) {
                     // test case was supposed to fail, but it did not fail.
 
                     // There is one special case where this is ok. If a child
@@ -3895,7 +3895,7 @@ namespace bdn
                         // not record this error.
                         _currentTestIgnoreExpectedToFail = true;
 
-                        ResultBuilder shouldFailResultBuilder("testShouldHaveFailed", _pCurrentTestCaseInfo->lineInfo,
+                        ResultBuilder shouldFailResultBuilder("testShouldHaveFailed", _currentTestCaseInfo->lineInfo,
                                                               "testResult",
                                                               // we must use the disposition "ContinueOnFailure"
                                                               // here. Otherwise the react call below will throw
@@ -3913,14 +3913,13 @@ namespace bdn
                 }
             }
 
-            SectionStats testCaseSectionStats(*_pCurrentTestCaseSection, assertions, duration, missingAssertions);
+            SectionStats testCaseSectionStats(*_currentTestCaseSection, assertions, duration, missingAssertions);
             m_reporter->sectionEnded(testCaseSectionStats);
-            m_reporter->testEnded(
-                TestStats(*_pCurrentTestCaseInfo, duration, _testRedirectedCout, _testRedirectedCerr));
+            m_reporter->testEnded(TestStats(*_currentTestCaseInfo, duration, _testRedirectedCout, _testRedirectedCerr));
 
-            if (_pCurrentTestCaseSection != nullptr) {
-                delete _pCurrentTestCaseSection;
-                _pCurrentTestCaseSection = nullptr;
+            if (_currentTestCaseSection != nullptr) {
+                delete _currentTestCaseSection;
+                _currentTestCaseSection = nullptr;
             }
         }
 
@@ -3962,8 +3961,8 @@ namespace bdn
 
         int m_printLevel;
 
-        const TestCaseInfo *_pCurrentTestCaseInfo = nullptr;
-        SectionInfo *_pCurrentTestCaseSection = nullptr;
+        const TestCaseInfo *_currentTestCaseInfo = nullptr;
+        SectionInfo *_currentTestCaseSection = nullptr;
         Timer _currentTestTimer;
         Counts _currentTestPrevAssertions;
 
@@ -4086,11 +4085,11 @@ namespace bdn
             _reporter = makeReporter(config);
             _reporter = addListeners(_iconfig, _reporter);
 
-            _pContext = new RunContext(_iconfig, _reporter);
+            _context = new RunContext(_iconfig, _reporter);
 
-            BDN_BIND_TO_PROPERTY(*this, setStatusText, *_pContext, statusText);
+            BDN_BIND_TO_PROPERTY(*this, setStatusText, *_context, statusText);
 
-            _pContext->testGroupStarting(config->name(), 1, 1);
+            _context->testGroupStarting(config->name(), 1, 1);
 
             _testSpec = config->testSpec();
             if (!_testSpec.hasFilters())
@@ -4102,7 +4101,7 @@ namespace bdn
             _endTestIt = allTestCases.end();
         }
 
-        ~TestRunner() { delete _pContext; }
+        ~TestRunner() { delete _context; }
 
         /** A text describing the current test status (which test case is being
            executed, and wether all tests are done.*/
@@ -4115,15 +4114,15 @@ namespace bdn
 
                 if (!_calledTestGroupEnded) {
                     _calledTestGroupEnded = true;
-                    _pContext->testGroupEnded(_iconfig->name(), _totals, 1, 1);
+                    _context->testGroupEnded(_iconfig->name(), _totals, 1, 1);
                 }
 
                 return false;
             } else {
                 _testDoneCallback = doneCallback;
 
-                if (!_pContext->aborting() && matchTest(*_currTestIt, _testSpec, *_iconfig)) {
-                    _pContext->beginRunTestCase(*_currTestIt, [this](Totals testTotals) { onTestDone(testTotals); });
+                if (!_context->aborting() && matchTest(*_currTestIt, _testSpec, *_iconfig)) {
+                    _context->beginRunTestCase(*_currTestIt, [this](Totals testTotals) { onTestDone(testTotals); });
                 } else {
                     _reporter->skipTest(*_currTestIt);
 
@@ -4149,7 +4148,7 @@ namespace bdn
         Ptr<IConfig const> _iconfig;
         Ptr<IStreamingReporter> _reporter;
 
-        RunContext *_pContext;
+        RunContext *_context;
 
         Totals _totals;
 
@@ -4166,12 +4165,12 @@ namespace bdn
     Totals runTests(Ptr<Config> const &config)
     {
 
-        P<TestRunner> pRunner = newObj<TestRunner>(config);
+        P<TestRunner> runner = newObj<TestRunner>(config);
 
         while (true) {
             bool doneCalled = false;
 
-            if (!pRunner->beginNextTest([&doneCalled]() { doneCalled = true; })) {
+            if (!runner->beginNextTest([&doneCalled]() { doneCalled = true; })) {
                 // no more tests.
                 break;
             }
@@ -4186,7 +4185,7 @@ namespace bdn
             }
         }
 
-        return pRunner->getTotals();
+        return runner->getTotals();
     }
 
     void applyFilenamesAsTags(IConfig const &config)
@@ -8422,8 +8421,8 @@ namespace bdn
       public:
         Impl()
         {
-            _pTestSession = nullptr;
-            _pTestRunner = nullptr;
+            _testSession = nullptr;
+            _testRunner = nullptr;
         }
 
         virtual ~Impl() {}
@@ -8433,7 +8432,7 @@ namespace bdn
             bool forceExit = false;
 
             try {
-                _pTestSession.reset(new bdn::Session());
+                _testSession.reset(new bdn::Session());
 
                 std::vector<const char *> argPtrs;
                 for (const String &arg : args)
@@ -8446,7 +8445,7 @@ namespace bdn
                 // argPtrs.push_back( "8" );
                 // argPtrs.push_back( "platformError" );
 
-                int exitCode = _pTestSession->applyCommandLine(static_cast<int>(argPtrs.size()), &argPtrs[0]);
+                int exitCode = _testSession->applyCommandLine(static_cast<int>(argPtrs.size()), &argPtrs[0]);
                 if (exitCode != 0) {
                     // invalid commandline arguments. Exit.
                     abortingBecauseOfInvalidCommandLineArguments();
@@ -8454,16 +8453,16 @@ namespace bdn
                     return;
                 }
 
-                forceExit = _pTestSession->config().forceExitAtEnd();
+                forceExit = _testSession->config().forceExitAtEnd();
 
-                if (!_pTestSession->prepareRun()) {
+                if (!_testSession->prepareRun()) {
                     // only showing help. Just exit.
                     abortingBecauseJustShowingHelp();
                     doTestProcessExit(exitCode, forceExit);
                     return;
                 }
 
-                _pTestRunner = newObj<TestRunner>(&_pTestSession->config());
+                _testRunner = newObj<TestRunner>(&_testSession->config());
             }
             catch (...) {
                 ErrorInfo errorInfo{std::current_exception()};
@@ -8496,20 +8495,20 @@ namespace bdn
         void runNextTest()
         {
             try {
-                if (_pTestRunner->beginNextTest(std::bind(&TestAppController::Impl::onTestDone, this))) {
+                if (_testRunner->beginNextTest(std::bind(&TestAppController::Impl::onTestDone, this))) {
                     // this was not the last test.
 
                     // onTestDone will be called when it finishes. So nothing to
                     // do here.
                 } else {
                     // no more tests. We want to exit.
-                    int failedCount = static_cast<int>(_pTestRunner->getTotals().assertions.failed);
+                    int failedCount = static_cast<int>(_testRunner->getTotals().assertions.failed);
 
                     int exitCode = failedCount;
 
                     finished(failedCount);
 
-                    _pTestRunner = nullptr;
+                    _testRunner = nullptr;
 
                     waitAndClose(exitCode);
                 }
@@ -8520,7 +8519,7 @@ namespace bdn
 
                 int exitCode = 1;
 
-                _pTestRunner = nullptr;
+                _testRunner = nullptr;
 
                 // we want to exit
                 waitAndClose(exitCode);
@@ -8555,30 +8554,30 @@ namespace bdn
 
         void waitAndClose(int exitCode)
         {
-            bool forceExit = _pTestSession->config().forceExitAtEnd();
+            bool forceExit = _testSession->config().forceExitAtEnd();
 
             asyncCallFromMainThreadAfterSeconds(3, [exitCode, forceExit]() { doTestProcessExit(exitCode, forceExit); });
         }
 
       protected:
-        std::unique_ptr<Session> _pTestSession;
-        P<TestRunner> _pTestRunner;
+        std::unique_ptr<Session> _testSession;
+        P<TestRunner> _testRunner;
     };
 
-    TestAppController::TestAppController() { _pImpl = new Impl; }
+    TestAppController::TestAppController() { _impl = new Impl; }
 
-    TestAppController::~TestAppController() { delete _pImpl; }
+    TestAppController::~TestAppController() { delete _impl; }
 
     void TestAppController::beginLaunch(const AppLaunchInfo &launchInfo)
     {
-        _pImpl->beginLaunch(launchInfo.getArguments());
+        _impl->beginLaunch(launchInfo.getArguments());
     }
 
-    void TestAppController::finishLaunch(const AppLaunchInfo &launchInfo) { _pImpl->finishLaunch(); }
+    void TestAppController::finishLaunch(const AppLaunchInfo &launchInfo) { _impl->finishLaunch(); }
 
     void TestAppController::unhandledProblem(IUnhandledProblem &problem)
     {
-        if (!_pImpl->unhandledProblem(problem))
+        if (!_impl->unhandledProblem(problem))
             AppControllerBase::unhandledProblem(problem);
     }
 }

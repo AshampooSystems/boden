@@ -23,29 +23,29 @@ namespace bdn
             /** Performs the tests.*/
             virtual void runTests()
             {
-                _pWindow = newObj<WindowForTest>(&getUiProvider());
+                _window = newObj<WindowForTest>(&getUiProvider());
 
-                _pWindow->setVisible(true);
+                _window->setVisible(true);
 
                 setView(createView());
 
                 // sanity check: the view should not have a parent yet
-                REQUIRE(_pView->getParentView() == nullptr);
+                REQUIRE(_view->getParentView() == nullptr);
 
                 SECTION("init")
                 {
-                    if (_pView == cast<View>(_pWindow)) {
+                    if (_view == cast<View>(_window)) {
                         // the view is a window. These always have a core from
                         // the start, so we cannot do any init tests with them.
 
                         // only check that the view core is indeed already
                         // there.
-                        REQUIRE(_pView->getViewCore() != nullptr);
+                        REQUIRE(_view->getViewCore() != nullptr);
                     } else {
                         // non-windows should not have a view core in the
                         // beginning (before they are added to the window).
 
-                        REQUIRE(_pView->getViewCore() == nullptr);
+                        REQUIRE(_view->getViewCore() == nullptr);
 
                         // run the init tests for them
                         runInitTests();
@@ -57,12 +57,12 @@ namespace bdn
                     initCore();
 
                     // view should always be visible for these tests
-                    _pView->setVisible(true);
+                    _view->setVisible(true);
 
                     // ensure that all pending initializations have finished.
-                    P<TestViewCore<ViewType>> pThis = this;
+                    P<TestViewCore<ViewType>> self = this;
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->runPostInitTests(); };
+                    CONTINUE_SECTION_WHEN_IDLE(self) { self->runPostInitTests(); };
                 }
             }
 
@@ -96,7 +96,7 @@ namespace bdn
             {
                 SECTION("visible")
                 {
-                    _pView->setVisible(true);
+                    _view->setVisible(true);
 
                     initCore();
                     verifyCoreVisibility();
@@ -104,7 +104,7 @@ namespace bdn
 
                 SECTION("invisible")
                 {
-                    _pView->setVisible(false);
+                    _view->setVisible(false);
 
                     initCore();
                     verifyCoreVisibility();
@@ -116,7 +116,7 @@ namespace bdn
                     {
                         // the default padding of the outer view should be null
                         // (i.e. "use default").
-                        REQUIRE(_pView->padding().isNull());
+                        REQUIRE(_view->padding().isNull());
 
                         initCore();
                         verifyCorePadding();
@@ -124,7 +124,7 @@ namespace bdn
 
                     SECTION("explicit")
                     {
-                        _pView->setPadding(
+                        _view->setPadding(
                             UiMargin(UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44)));
 
                         initCore();
@@ -134,7 +134,7 @@ namespace bdn
 
                 SECTION("bounds")
                 {
-                    _pView->adjustAndSetBounds(Rect(110, 220, 660, 510));
+                    _view->adjustAndSetBounds(Rect(110, 220, 660, 510));
 
                     initCore();
                     verifyInitialDummyCoreSize();
@@ -149,32 +149,32 @@ namespace bdn
                 */
             virtual void runPostInitTests()
             {
-                P<TestViewCore<ViewType>> pThis = this;
+                P<TestViewCore<ViewType>> self = this;
 
                 SECTION("uiLengthToDips")
                 {
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::none()) == 0);
-                    REQUIRE(_pCore->uiLengthToDips(UiLength(17, UiLength::Unit::none)) == 0);
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::dip(0)) == 0);
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::sem(0)) == 0);
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::em(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UiLength::none()) == 0);
+                    REQUIRE(_core->uiLengthToDips(UiLength(17, UiLength::Unit::none)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UiLength::dip(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UiLength::sem(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UiLength::em(0)) == 0);
 
-                    REQUIRE(_pCore->uiLengthToDips(UiLength::dip(17.34)) == 17.34);
+                    REQUIRE(_core->uiLengthToDips(UiLength::dip(17.34)) == 17.34);
 
-                    double semSize = _pCore->uiLengthToDips(UiLength::sem(1));
+                    double semSize = _core->uiLengthToDips(UiLength::sem(1));
                     REQUIRE(semSize > 0);
-                    REQUIRE_ALMOST_EQUAL(_pCore->uiLengthToDips(UiLength::sem(3)), semSize * 3, 3);
+                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UiLength::sem(3)), semSize * 3, 3);
 
-                    double emSize = _pCore->uiLengthToDips(UiLength::em(1));
+                    double emSize = _core->uiLengthToDips(UiLength::em(1));
                     REQUIRE(emSize > 0);
-                    REQUIRE_ALMOST_EQUAL(_pCore->uiLengthToDips(UiLength::em(3)), emSize * 3, 3);
+                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UiLength::em(3)), emSize * 3, 3);
                 }
 
                 SECTION("uiMarginToDipMargin")
                 {
                     SECTION("none")
                     {
-                        REQUIRE(_pCore->uiMarginToDipMargin(
+                        REQUIRE(_core->uiMarginToDipMargin(
                                     UiMargin(UiLength(10, UiLength::Unit::none), UiLength(20, UiLength::Unit::none),
                                              UiLength(30, UiLength::Unit::none), UiLength(40, UiLength::Unit::none))) ==
                                 Margin(0, 0, 0, 0));
@@ -182,14 +182,14 @@ namespace bdn
 
                     SECTION("dip")
                     {
-                        REQUIRE(_pCore->uiMarginToDipMargin(UiMargin(10, 20, 30, 40)) == Margin(10, 20, 30, 40));
+                        REQUIRE(_core->uiMarginToDipMargin(UiMargin(10, 20, 30, 40)) == Margin(10, 20, 30, 40));
                     }
 
                     SECTION("sem")
                     {
-                        double semDips = _pCore->uiLengthToDips(UiLength::sem(1));
+                        double semDips = _core->uiLengthToDips(UiLength::sem(1));
 
-                        Margin m = _pCore->uiMarginToDipMargin(
+                        Margin m = _core->uiMarginToDipMargin(
                             UiMargin(UiLength::sem(10), UiLength::sem(20), UiLength::sem(30), UiLength::sem(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * semDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * semDips, 20);
@@ -199,9 +199,9 @@ namespace bdn
 
                     SECTION("em")
                     {
-                        double emDips = _pCore->uiLengthToDips(UiLength::em(1));
+                        double emDips = _core->uiLengthToDips(UiLength::em(1));
 
-                        Margin m = _pCore->uiMarginToDipMargin(
+                        Margin m = _core->uiMarginToDipMargin(
                             UiMargin(UiLength::em(10), UiLength::em(20), UiLength::em(30), UiLength::em(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * emDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * emDips, 20);
@@ -212,23 +212,23 @@ namespace bdn
 
                 if (coreCanCalculatePreferredSize()) {
                     SECTION("calcPreferredSize")
-                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(_pView, _pCore, this);
+                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(_view, _core, this);
                 }
 
                 SECTION("visibility")
                 {
                     SECTION("visible")
                     {
-                        _pView->setVisible(true);
+                        _view->setVisible(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreVisibility(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreVisibility(); };
                     }
 
                     SECTION("invisible")
                     {
-                        _pView->setVisible(false);
+                        _view->setVisible(false);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreVisibility(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreVisibility(); };
                     }
 
                     if (coreCanCalculatePreferredSize()) {
@@ -236,19 +236,19 @@ namespace bdn
                         {
                             // verify that visibility has no effect on the
                             // preferred size
-                            Size prefSizeBefore = _pCore->calcPreferredSize();
+                            Size prefSizeBefore = _core->calcPreferredSize();
 
-                            _pView->setVisible(true);
+                            _view->setVisible(true);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
+                            REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
 
-                            pThis->_pView->setVisible(false);
+                            self->_view->setVisible(false);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
+                            REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
 
-                            pThis->_pView->setVisible(true);
+                            self->_view->setVisible(true);
 
-                            REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
+                            REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
                         }
                     }
                 }
@@ -257,19 +257,19 @@ namespace bdn
                 {
                     SECTION("custom")
                     {
-                        _pView->setPadding(UiMargin(11, 22, 33, 44));
+                        _view->setPadding(UiMargin(11, 22, 33, 44));
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCorePadding(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
                     }
 
                     SECTION("default after custom")
                     {
                         // set a non-default padding, then go back to default
                         // padding.
-                        _pView->setPadding(UiMargin(11, 22, 33, 44));
-                        _pView->setPadding(nullptr);
+                        _view->setPadding(UiMargin(11, 22, 33, 44));
+                        _view->setPadding(nullptr);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCorePadding(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
                     }
 
                     if (coreCanCalculatePreferredSize()) {
@@ -286,12 +286,12 @@ namespace bdn
 
                             UiMargin paddingBefore(UiLength::sem(10));
 
-                            _pView->setPadding(paddingBefore);
+                            _view->setPadding(paddingBefore);
 
                             // wait a little so that sizing info is updated.
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, paddingBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(self, paddingBefore)
                             {
-                                Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
+                                Size prefSizeBefore = self->_core->calcPreferredSize();
 
                                 UiMargin additionalPadding(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3),
                                                            UiLength::sem(4));
@@ -303,16 +303,16 @@ namespace bdn
 
                                 // setting padding should increase the preferred
                                 // size of the core.
-                                pThis->_pView->setPadding(increasedPadding);
+                                self->_view->setPadding(increasedPadding);
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, additionalPadding)
+                                CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, additionalPadding)
                                 {
                                     // the padding should increase the preferred
                                     // size.
-                                    Size prefSize = pThis->_pCore->calcPreferredSize();
+                                    Size prefSize = self->_core->calcPreferredSize();
 
                                     Margin additionalPaddingPixels =
-                                        pThis->_pView->uiMarginToDipMargin(additionalPadding);
+                                        self->_view->uiMarginToDipMargin(additionalPadding);
 
                                     REQUIRE_ALMOST_EQUAL(prefSize, prefSizeBefore + additionalPaddingPixels,
                                                          Size(1, 1));
@@ -325,48 +325,48 @@ namespace bdn
                 SECTION("adjustAndSetBounds")
                 {
                     Rect bounds;
-                    Point initialPosition = _pView->position();
+                    Point initialPosition = _view->position();
 
                     SECTION("no need to adjust")
                     {
                         // pre-adjust bounds so that we know that they are valid
                         bounds = Rect(110, 220, 660, 510);
-                        bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
+                        bounds = _core->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
                     }
 
                     SECTION("need adjustments")
                     bounds = Rect(110.12345, 220.12345, 660.12345, 510.12345);
 
-                    Rect returnedBounds = _pView->adjustAndSetBounds(bounds);
+                    Rect returnedBounds = _view->adjustAndSetBounds(bounds);
 
                     // on some platform and with some view types (Linux / GTK
                     // with top level window) waiting for idle is not enough to
                     // ensure that the position actually changed. So instead we
                     // first wait for idle and then wait some additional seconds
                     // to ensure that our changes have been applied
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, bounds, returnedBounds)
+                    CONTINUE_SECTION_WHEN_IDLE(self, bounds, returnedBounds)
                     {
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, bounds, returnedBounds)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, bounds, returnedBounds)
                         {
                             // the core size and position should always
                             // represent what is configured in the view.
-                            pThis->verifyCorePosition();
-                            pThis->verifyCoreSize();
+                            self->verifyCorePosition();
+                            self->verifyCoreSize();
 
-                            if (!pThis->canManuallyChangePosition()) {
+                            if (!self->canManuallyChangePosition()) {
                                 // when the view cannot modify its position then
                                 // trying to set another position should yield
                                 // the same resulting position
-                                Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds(
+                                Rect returnedBounds2 = self->_core->adjustAndSetBounds(
                                     Rect(bounds.x * 2, bounds.y * 2, bounds.width, bounds.height));
                                 REQUIRE(returnedBounds2 == returnedBounds);
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                                CONTINUE_SECTION_WHEN_IDLE(self)
                                 {
                                     // the core size and position should always
                                     // represent what is configured in the view.
-                                    pThis->verifyCorePosition();
-                                    pThis->verifyCoreSize();
+                                    self->verifyCorePosition();
+                                    self->verifyCoreSize();
                                 };
                             }
                         };
@@ -376,11 +376,11 @@ namespace bdn
                 if (coreCanCalculatePreferredSize()) {
                     SECTION("adjustAndSetBounds no effect on preferred size")
                     {
-                        Size prefSizeBefore = _pCore->calcPreferredSize();
+                        Size prefSizeBefore = _core->calcPreferredSize();
 
-                        _pView->adjustAndSetBounds(Rect(110, 220, 660, 510));
+                        _view->adjustAndSetBounds(Rect(110, 220, 660, 510));
 
-                        REQUIRE(pThis->_pCore->calcPreferredSize() == prefSizeBefore);
+                        REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
                     }
                 }
 
@@ -391,7 +391,7 @@ namespace bdn
                         Rect bounds(110, 220, 660, 510);
 
                         // pre-adjust the bounds
-                        bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
+                        bounds = _core->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
 
                         List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
@@ -400,8 +400,7 @@ namespace bdn
                                 SECTION("positionRoundType: " + std::to_string((int)positionRoundType) + ", " +
                                         std::to_string((int)sizeRoundType))
                                 {
-                                    Rect adjustedBounds =
-                                        _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+                                    Rect adjustedBounds = _core->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
                                     // no adjustments are necessary. So we
                                     // should always get out the same that we
@@ -423,7 +422,7 @@ namespace bdn
 
                         for (RoundType sizeRoundType : roundTypes) {
                             for (RoundType positionRoundType : roundTypes) {
-                                Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+                                Rect adjustedBounds = _core->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
                                 adjustedBoundsArray.push_back(adjustedBounds);
                             }
@@ -476,11 +475,11 @@ namespace bdn
 
                 SECTION("invalidateSizingInfo invalidates parent sizing info")
                 {
-                    int invalidateCountBefore = _pWindow->getInvalidateSizingInfoCount();
+                    int invalidateCountBefore = _window->getInvalidateSizingInfoCount();
 
-                    _pView->invalidateSizingInfo(View::InvalidateReason::customDataChanged);
+                    _view->invalidateSizingInfo(View::InvalidateReason::customDataChanged);
 
-                    REQUIRE(_pWindow->getInvalidateSizingInfoCount() > invalidateCountBefore);
+                    REQUIRE(_window->getInvalidateSizingInfoCount() > invalidateCountBefore);
                 }
             }
 
@@ -488,20 +487,20 @@ namespace bdn
                view as a child to a visible view container or window.*/
             virtual void initCore()
             {
-                if (_pView != cast<View>(_pWindow)) {
+                if (_view != cast<View>(_window)) {
                     // the view might need control over its size to be able to
                     // do some of its test. Because of this we cannot add it to
                     // the window directly. Instead we add an intermediate
                     // ColumnView.
-                    P<ColumnView> pContainer = newObj<ColumnView>();
-                    _pWindow->setContentView(pContainer);
+                    P<ColumnView> container = newObj<ColumnView>();
+                    _window->setContentView(container);
 
-                    pContainer->addChildView(_pView);
+                    container->addChildView(_view);
                 }
 
-                _pCore = _pView->getViewCore();
+                _core = _view->getViewCore();
 
-                REQUIRE(_pCore != nullptr);
+                REQUIRE(_core != nullptr);
             }
 
             /** Verifies that the core's visible property matches that of the
@@ -531,7 +530,7 @@ namespace bdn
             virtual P<View> createView() = 0;
 
             /** Sets the view object to use for the tests.*/
-            virtual void setView(View *pView) { _pView = pView; }
+            virtual void setView(View *view) { _view = view; }
 
             /** Returns true if the view core can calculate its preferred size.
                 Some core types depend on the outer view to calculate the
@@ -545,7 +544,7 @@ namespace bdn
             class WindowForTest : public Window
             {
               public:
-                WindowForTest(IUiProvider *pUiProvider = nullptr) : Window(pUiProvider) {}
+                WindowForTest(IUiProvider *uiProvider = nullptr) : Window(uiProvider) {}
 
                 void invalidateSizingInfo(InvalidateReason reason) override
                 {
@@ -560,10 +559,10 @@ namespace bdn
                 int _invalidateSizingInfoCount = 0;
             };
 
-            P<WindowForTest> _pWindow;
-            P<View> _pView;
+            P<WindowForTest> _window;
+            P<View> _view;
 
-            P<IViewCore> _pCore;
+            P<IViewCore> _core;
         };
     }
 }

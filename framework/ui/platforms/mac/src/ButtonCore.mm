@@ -6,15 +6,15 @@
 
 @interface BdnButtonClickManager : NSObject
 
-@property bdn::mac::ButtonCore *pButtonCore;
+@property bdn::mac::ButtonCore *buttonCore;
 
 @end
 
 @implementation BdnButtonClickManager
 
-- (void)setButtonCore:(bdn::mac::ButtonCore *)pCore { _pButtonCore = pCore; }
+- (void)setButtonCore:(bdn::mac::ButtonCore *)core { _buttonCore = core; }
 
-- (void)clicked { _pButtonCore->generateClick(); }
+- (void)clicked { _buttonCore->generateClick(); }
 
 @end
 
@@ -23,7 +23,7 @@ namespace bdn
     namespace mac
     {
 
-        ButtonCore::ButtonCore(Button *pOuterButton) : ButtonCoreBase(pOuterButton, _createNsButton(pOuterButton))
+        ButtonCore::ButtonCore(Button *outerButton) : ButtonCoreBase(outerButton, _createNsButton(outerButton))
         {
             _currBezelStyle = NSBezelStyleRounded;
 
@@ -31,7 +31,7 @@ namespace bdn
             [clickMan setButtonCore:this];
             _clickManager = clickMan;
 
-            setLabel(pOuterButton->label());
+            setLabel(outerButton->label());
 
             _heightWithRoundedBezelStyle = macSizeToSize(getNSView().fittingSize).height;
 
@@ -43,9 +43,9 @@ namespace bdn
         {
             Size size;
 
-            P<View> pView = getOuterViewIfStillAttached();
-            if (pView != nullptr)
-                size = pView->size();
+            P<View> view = getOuterViewIfStillAttached();
+            if (view != nullptr)
+                size = view->size();
             int height = size.height;
 
             // the "normal" button (NSRoundedBezelStyle) has a fixed height.
@@ -70,11 +70,11 @@ namespace bdn
 
         void ButtonCore::generateClick()
         {
-            P<Button> pOuterButton = cast<Button>(getOuterViewIfStillAttached());
-            if (pOuterButton != nullptr) {
-                bdn::ClickEvent evt(pOuterButton);
+            P<Button> outerButton = cast<Button>(getOuterViewIfStillAttached());
+            if (outerButton != nullptr) {
+                bdn::ClickEvent evt(outerButton);
 
-                pOuterButton->onClick().notify(evt);
+                outerButton->onClick().notify(evt);
             }
         }
     }

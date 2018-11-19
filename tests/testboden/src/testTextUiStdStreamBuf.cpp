@@ -125,10 +125,10 @@ void initTextSinkStreamBufSubTestData<wchar_t>(std::list<TextSinkStreamBufSubTes
 }
 
 template <class CharType>
-static void testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSink, TextSinkStdStreamBuf<CharType> &buf,
+static void testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> sink, TextSinkStdStreamBuf<CharType> &buf,
                                                  bool multiByteIsUtf8)
 {
-    const Array<String> &writtenChunks = pSink->getWrittenChunks();
+    const Array<String> &writtenChunks = sink->getWrittenChunks();
 
     SECTION("sputc auto flush")
     {
@@ -139,7 +139,7 @@ static void testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSin
             expectedDataA += "a";
         }
 
-        const Array<String> &writtenChunks = pSink->getWrittenChunks();
+        const Array<String> &writtenChunks = sink->getWrittenChunks();
 
         // nothing should have been written yet
         REQUIRE(writtenChunks.size() == 0);
@@ -378,11 +378,11 @@ static void testTextSinkStreamBuf_Preinitialized(P<bdn::test::MockTextSink> pSin
 
 template <class CharType> static void testTextSinkStreamBuf()
 {
-    P<bdn::test::MockTextSink> pSink = newObj<bdn::test::MockTextSink>();
+    P<bdn::test::MockTextSink> sink = newObj<bdn::test::MockTextSink>();
 
-    TextSinkStdStreamBuf<CharType> buf(pSink);
+    TextSinkStdStreamBuf<CharType> buf(sink);
 
-    SECTION("default locale") { testTextSinkStreamBuf_Preinitialized(pSink, buf, false); }
+    SECTION("default locale") { testTextSinkStreamBuf_Preinitialized(sink, buf, false); }
 
     SECTION("utf8 locale")
     {
@@ -390,7 +390,7 @@ template <class CharType> static void testTextSinkStreamBuf()
 
         buf.pubimbue(loc);
 
-        testTextSinkStreamBuf_Preinitialized(pSink, buf, true);
+        testTextSinkStreamBuf_Preinitialized(sink, buf, true);
     }
 }
 

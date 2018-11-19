@@ -17,11 +17,11 @@ namespace bdn
           protected:
             P<View> createView() override { return newObj<TestContainerView>(); }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pContainerView = cast<TestContainerView>(pView);
+                _containerView = cast<TestContainerView>(view);
             }
 
             void runInitTests() override
@@ -35,43 +35,43 @@ namespace bdn
             {
                 TestViewCore::runPostInitTests();
 
-                P<TestContainerViewCore> pThis = this;
+                P<TestContainerViewCore> self = this;
 
                 SECTION("calcPreferredSize forwarded to outer")
                 {
                     // container view cores should call
                     // calcContainerPreferredSize from the outer object
 
-                    int initialCount = _pContainerView->getCalcContainerPreferredSizeCount();
+                    int initialCount = _containerView->getCalcContainerPreferredSizeCount();
 
                     SECTION("infinite availableSpace")
                     {
-                        _pCore->calcPreferredSize();
+                        _core->calcPreferredSize();
 
-                        REQUIRE(_pContainerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
-                        REQUIRE(_pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size::none());
+                        REQUIRE(_containerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
+                        REQUIRE(_containerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size::none());
                     }
 
                     SECTION("finite availableSpace")
                     {
-                        _pCore->calcPreferredSize(Size(100, 200));
+                        _core->calcPreferredSize(Size(100, 200));
 
-                        REQUIRE(_pContainerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
-                        REQUIRE(_pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size(100, 200));
+                        REQUIRE(_containerView->getCalcContainerPreferredSizeCount() == initialCount + 1);
+                        REQUIRE(_containerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size(100, 200));
                     }
                 }
 
                 SECTION("layout forwarded to outer")
                 {
-                    int initialCount = _pContainerView->getCalcContainerLayoutCount();
+                    int initialCount = _containerView->getCalcContainerLayoutCount();
 
-                    _pContainerView->needLayout(View::InvalidateReason::customDataChanged);
+                    _containerView->needLayout(View::InvalidateReason::customDataChanged);
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, this, initialCount)
+                    CONTINUE_SECTION_WHEN_IDLE(self, this, initialCount)
                     {
-                        int currLayoutCount = _pContainerView->getCalcContainerLayoutCount();
+                        int currLayoutCount = _containerView->getCalcContainerLayoutCount();
                         REQUIRE(currLayoutCount == initialCount + 1);
-                        REQUIRE(_pContainerView->getLastCalcContainerLayoutContainerSize() == _pContainerView->size());
+                        REQUIRE(_containerView->getLastCalcContainerLayoutContainerSize() == _containerView->size());
                     };
                 }
             }
@@ -123,7 +123,7 @@ namespace bdn
                 mutable Size _lastCalcContainerLayoutContainerSize;
             };
 
-            P<TestContainerView> _pContainerView;
+            P<TestContainerView> _containerView;
         };
     }
 }

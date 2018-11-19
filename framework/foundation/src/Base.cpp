@@ -9,32 +9,32 @@ namespace bdn
         friend class Base;
 
       public:
-        WeakReferenceState_(Base *pObject) : pObject(pObject) {}
+        WeakReferenceState_(Base *object) : object(object) {}
 
         P<IBase> newStrongReference() override
         {
             Mutex::Lock lock(mutex);
 
-            // _pObject will be null if the object was already deleted.
+            // _object will be null if the object was already deleted.
             // That is exactly what we want.
 
             // However, there is another edge case here that we need to handle.
             // The reference count might just have reached zero for the object
             // in another thread. In that case Base::_refCountReachedZero may be
-            // just starting to execute, but it may not have updated pObject
+            // just starting to execute, but it may not have updated object
             // yet. In these cases it is imperative that we do not add create a
             // new strong reference here, since the destruction has begun.
 
-            if (pObject != nullptr) {
+            if (object != nullptr) {
                 // increase the object's reference count again
-                int refCountBefore = pObject->_refCount.fetch_add(1);
+                int refCountBefore = object->_refCount.fetch_add(1);
 
                 if (refCountBefore <= 0) {
                     // the refcount had already reached zero. So we have the
                     // case mentioned above, that Base::refCountReachedZero has
-                    // started, but has not yet set pObject to null. Undo the
+                    // started, but has not yet set object to null. Undo the
                     // refcount modification.
-                    pObject->_refCount -= 1;
+                    object->_refCount -= 1;
 
                     // Note that no one else can have modified the reference
                     // count. Other weak references to the same object cannot
@@ -59,11 +59,11 @@ namespace bdn
                     // to ensure that we do not increment a reference count that
                     // is zero. We cannot do that just by calling addRef.
 
-                    P<IBase> pResult(pObject);
+                    P<IBase> result(object);
 
-                    pObject->_refCount -= 1;
+                    object->_refCount -= 1;
 
-                    return pResult;
+                    return result;
                 }
             } else
                 return nullptr;
@@ -73,18 +73,18 @@ namespace bdn
         void objectDied()
         {
             Mutex::Lock lock(mutex);
-            pObject = nullptr;
+            object = nullptr;
         }
 
       private:
         Mutex mutex;
-        Base *pObject;
+        Base *object;
     };
 
     Base::~Base()
     {
-        WeakReferenceState_ *pWeakReferenceState = _weakReferenceState.load();
-        if (pWeakReferenceState != nullptr) {
+        WeakReferenceState_ *weakReferenceState = _weakReferenceState.load();
+        if (weakReferenceState != nullptr) {
             // this should never happen. Weak references should ONLY be created
             // to objects that were allocated with newObj. And for those
             // refCountReachedZero is called when the last reference is
@@ -117,10 +117,10 @@ namespace bdn
             // is not recommended.
 
             // In any case, we have to mark the object as deleted here.
-            pWeakReferenceState->objectDied();
+            weakReferenceState->objectDied();
 
             // and release our reference to the shared state
-            pWeakReferenceState->releaseRef();
+            weakReferenceState->releaseRef();
         }
     }
 
@@ -152,17 +152,17 @@ namespace bdn
         // have any strong references. So if the _weakReferenceState is null
         // then we know that there are no references AT ALL to this object.
 
-        WeakReferenceState_ *pWeakRefState = _weakReferenceState.load();
-        if (pWeakRefState != nullptr) {
+        WeakReferenceState_ *weakRefState = _weakReferenceState.load();
+        if (weakRefState != nullptr) {
             // we did have weak references at some point. So we have to set the
             // pointer to ourselves in the shared state to null now, before we
             // continue deleting ourselves.
-            pWeakRefState->objectDied();
+            weakRefState->objectDied();
 
             // release our reference to the shared data. If there are weak
             // pointers to us then they will keep the shared data alive until
             // they are gone.
-            pWeakRefState->releaseRef();
+            weakRefState->releaseRef();
 
             // also set the member pointer to the shared data to null. This
             // should normally not be necessary, but if the object is revived
@@ -185,28 +185,28 @@ namespace bdn
 
     P<IWeakReferenceState> Base::getWeakReferenceState()
     {
-        WeakReferenceState_ *pData = _weakReferenceState.load();
+        WeakReferenceState_ *data = _weakReferenceState.load();
 
-        if (pData == nullptr) {
-            P<WeakReferenceState_> pNewData = newObj<WeakReferenceState_>(this);
+        if (data == nullptr) {
+            P<WeakReferenceState_> newData = newObj<WeakReferenceState_>(this);
 
-            WeakReferenceState_ *pExpected = nullptr;
+            WeakReferenceState_ *expected = nullptr;
 
-            if (_weakReferenceState.compare_exchange_strong(pExpected, pNewData.getPtr())) {
+            if (_weakReferenceState.compare_exchange_strong(expected, newData.getPtr())) {
                 // successfully stored the pointer. Note that
                 // _weakReferenceState does not call addRef/releaseRef
-                // automatically. But pNewData has already addRef'ed. So we
-                // simply prevent pNewData from releaseRef'ing by detaching the
+                // automatically. But newData has already addRef'ed. So we
+                // simply prevent newData from releaseRef'ing by detaching the
                 // pointer from it. Conceptually this reference is now owned by
                 // _weakReferenceState from now on.
-                pData = pNewData.detachPtr();
+                data = newData.detachPtr();
             } else {
                 // someone else already allocated the weak pointer data in the
                 // meantime. Throw ours away.
-                pData = _weakReferenceState.load();
+                data = _weakReferenceState.load();
             }
         }
 
-        return pData;
+        return data;
     }
 }

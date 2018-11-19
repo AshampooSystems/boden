@@ -54,267 +54,267 @@ TEST_CASE("ThreadPool")
 
     SECTION("single thread")
     {
-        P<ThreadPool> pPool = newObj<ThreadPool>(1, 1);
+        P<ThreadPool> pool = newObj<ThreadPool>(1, 1);
 
         // the min number of threads are not started right away.
         // They are added when needed (but are subsequently not destroyed).
-        REQUIRE(pPool->getIdleThreadCount() == 0);
-        REQUIRE(pPool->getBusyThreadCount() == 0);
+        REQUIRE(pool->getIdleThreadCount() == 0);
+        REQUIRE(pool->getBusyThreadCount() == 0);
 
         SECTION("no backlog")
         {
-            P<ThreadPoolTestRunnable> pJob = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> job = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pJob);
+            pool->addJob(job);
 
             // still none idle
-            REQUIRE(pPool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getIdleThreadCount() == 0);
             // one thread should be busy
-            REQUIRE(pPool->getBusyThreadCount() == 1);
+            REQUIRE(pool->getBusyThreadCount() == 1);
 
             // wait until the job thread has actullally been started.
-            REQUIRE(pJob->startedSignal.wait(5000));
+            REQUIRE(job->startedSignal.wait(5000));
 
-            pJob->proceedSignal.set();
-            pJob->stopSignal.set();
+            job->proceedSignal.set();
+            job->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pool)
             {
                 // thread should have finished and not be busy anymore
-                REQUIRE(pPool->getBusyThreadCount() == 0);
+                REQUIRE(pool->getBusyThreadCount() == 0);
 
                 // the thread should not have been destroyed and should now be
                 // idle
-                REQUIRE(pPool->getIdleThreadCount() == 1);
+                REQUIRE(pool->getIdleThreadCount() == 1);
 
                 // start another job
 
-                P<ThreadPoolTestRunnable> pJob2 = newObj<ThreadPoolTestRunnable>();
-                pPool->addJob(pJob2);
+                P<ThreadPoolTestRunnable> job2 = newObj<ThreadPoolTestRunnable>();
+                pool->addJob(job2);
 
                 // now the idle thread should be busy.
-                REQUIRE(pPool->getBusyThreadCount() == 1);
-                REQUIRE(pPool->getIdleThreadCount() == 0);
+                REQUIRE(pool->getBusyThreadCount() == 1);
+                REQUIRE(pool->getIdleThreadCount() == 0);
 
                 // wait until the job thread has actullally been started.
-                REQUIRE(pJob2->startedSignal.wait(5000));
+                REQUIRE(job2->startedSignal.wait(5000));
 
-                pJob2->proceedSignal.set();
-                pJob2->stopSignal.set();
+                job2->proceedSignal.set();
+                job2->stopSignal.set();
 
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pool)
                 {
                     // we should now again have 0 busy, 1 idle
-                    REQUIRE(pPool->getBusyThreadCount() == 0);
-                    REQUIRE(pPool->getIdleThreadCount() == 1);
+                    REQUIRE(pool->getBusyThreadCount() == 0);
+                    REQUIRE(pool->getIdleThreadCount() == 1);
                 };
             };
         }
 
         SECTION("with backlog")
         {
-            P<ThreadPoolTestRunnable> pA = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pB = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> a = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> b = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pA);
-            pPool->addJob(pB);
+            pool->addJob(a);
+            pool->addJob(b);
 
-            REQUIRE(pPool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getIdleThreadCount() == 0);
             // only one should be busy, the other one should be queued
-            REQUIRE(pPool->getBusyThreadCount() == 1);
+            REQUIRE(pool->getBusyThreadCount() == 1);
 
             // wait until A has actually started
-            REQUIRE(pA->startedSignal.wait(5000));
+            REQUIRE(a->startedSignal.wait(5000));
 
             // B should not have been started
-            REQUIRE(!pB->startedSignal.isSet());
+            REQUIRE(!b->startedSignal.isSet());
 
-            pA->proceedSignal.set();
-            pA->stopSignal.set();
+            a->proceedSignal.set();
+            a->stopSignal.set();
 
             // A should now finish and B should start
-            REQUIRE(pB->startedSignal.wait(5000));
+            REQUIRE(b->startedSignal.wait(5000));
 
             // still: 1 busy, 0 idle
-            REQUIRE(pPool->getIdleThreadCount() == 0);
-            REQUIRE(pPool->getBusyThreadCount() == 1);
+            REQUIRE(pool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getBusyThreadCount() == 1);
 
             // let B finish
-            pB->proceedSignal.set();
-            pB->stopSignal.set();
+            b->proceedSignal.set();
+            b->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pool)
             {
                 // now the thread should be idle again
-                REQUIRE(pPool->getIdleThreadCount() == 1);
-                REQUIRE(pPool->getBusyThreadCount() == 0);
+                REQUIRE(pool->getIdleThreadCount() == 1);
+                REQUIRE(pool->getBusyThreadCount() == 0);
             };
         }
     }
 
     SECTION("multiple threads")
     {
-        P<ThreadPool> pPool = newObj<ThreadPool>(2, 3);
+        P<ThreadPool> pool = newObj<ThreadPool>(2, 3);
 
         // the min number of threads are not started right away.
         // They are added when needed (but are subsequently not destroyed).
-        REQUIRE(pPool->getIdleThreadCount() == 0);
-        REQUIRE(pPool->getBusyThreadCount() == 0);
+        REQUIRE(pool->getIdleThreadCount() == 0);
+        REQUIRE(pool->getBusyThreadCount() == 0);
 
         SECTION("no backlog")
         {
-            P<ThreadPoolTestRunnable> pA = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pB = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pC = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> a = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> b = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> c = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pA);
-            pPool->addJob(pB);
-            pPool->addJob(pC);
+            pool->addJob(a);
+            pool->addJob(b);
+            pool->addJob(c);
 
             // still none idle
-            REQUIRE(pPool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getIdleThreadCount() == 0);
             // and three busy
-            REQUIRE(pPool->getBusyThreadCount() == 3);
+            REQUIRE(pool->getBusyThreadCount() == 3);
 
             // wait until all have been started
-            REQUIRE(pA->startedSignal.wait(5000));
-            REQUIRE(pB->startedSignal.wait(5000));
-            REQUIRE(pC->startedSignal.wait(5000));
+            REQUIRE(a->startedSignal.wait(5000));
+            REQUIRE(b->startedSignal.wait(5000));
+            REQUIRE(c->startedSignal.wait(5000));
 
             // now let all of them finish
-            pA->proceedSignal.set();
-            pA->stopSignal.set();
-            pB->proceedSignal.set();
-            pB->stopSignal.set();
-            pC->proceedSignal.set();
-            pC->stopSignal.set();
+            a->proceedSignal.set();
+            a->stopSignal.set();
+            b->proceedSignal.set();
+            b->stopSignal.set();
+            c->proceedSignal.set();
+            c->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pool)
             {
                 // threads should have finished and not be busy anymore
-                REQUIRE(pPool->getBusyThreadCount() == 0);
+                REQUIRE(pool->getBusyThreadCount() == 0);
 
                 // two threads should now be idle, one should have been
                 // destroyed.
-                REQUIRE(pPool->getIdleThreadCount() == 2);
+                REQUIRE(pool->getIdleThreadCount() == 2);
             };
         }
 
         SECTION("with backlog")
         {
-            P<ThreadPoolTestRunnable> pA = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pB = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pC = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pD = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> a = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> b = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> c = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> d = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pA);
-            pPool->addJob(pB);
-            pPool->addJob(pC);
-            pPool->addJob(pD);
+            pool->addJob(a);
+            pool->addJob(b);
+            pool->addJob(c);
+            pool->addJob(d);
 
             // still none idle
-            REQUIRE(pPool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getIdleThreadCount() == 0);
             // and three busy. One should be queued
-            REQUIRE(pPool->getBusyThreadCount() == 3);
+            REQUIRE(pool->getBusyThreadCount() == 3);
 
             // wait until the first three have been started
-            REQUIRE(pA->startedSignal.wait(5000));
-            REQUIRE(pB->startedSignal.wait(5000));
-            REQUIRE(pC->startedSignal.wait(5000));
+            REQUIRE(a->startedSignal.wait(5000));
+            REQUIRE(b->startedSignal.wait(5000));
+            REQUIRE(c->startedSignal.wait(5000));
 
             // D should not have been started yet
-            REQUIRE(!pD->startedSignal.isSet());
+            REQUIRE(!d->startedSignal.isSet());
 
             // now let one finish. We use B so that we have some out-of-order
             // finishing in this test.
-            pB->proceedSignal.set();
-            pB->stopSignal.set();
+            b->proceedSignal.set();
+            b->stopSignal.set();
 
             // now D should start
-            REQUIRE(pD->startedSignal.wait(5000));
+            REQUIRE(d->startedSignal.wait(5000));
 
             // still: 0 idle, 3 busy
-            REQUIRE(pPool->getIdleThreadCount() == 0);
-            REQUIRE(pPool->getBusyThreadCount() == 3);
+            REQUIRE(pool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getBusyThreadCount() == 3);
 
             // let all finish
-            pA->proceedSignal.set();
-            pA->stopSignal.set();
-            pC->proceedSignal.set();
-            pC->stopSignal.set();
-            pD->proceedSignal.set();
-            pD->stopSignal.set();
+            a->proceedSignal.set();
+            a->stopSignal.set();
+            c->proceedSignal.set();
+            c->stopSignal.set();
+            d->proceedSignal.set();
+            d->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool, pA, pB, pC, pD)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pool, a, b, c, d)
             {
                 // now we should have 2 idle again. One thread should have been
                 // destroyed.
-                REQUIRE(pPool->getIdleThreadCount() == 2);
-                REQUIRE(pPool->getBusyThreadCount() == 0);
+                REQUIRE(pool->getIdleThreadCount() == 2);
+                REQUIRE(pool->getBusyThreadCount() == 0);
             };
         }
     }
 
     SECTION("pool destroyed")
     {
-        P<ThreadPool> pPool = newObj<ThreadPool>(1, 1);
+        P<ThreadPool> pool = newObj<ThreadPool>(1, 1);
 
         SECTION("no backlog")
         {
-            P<ThreadPoolTestRunnable> pA = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> a = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pA);
+            pool->addJob(a);
 
-            pA->startedSignal.wait(5000);
+            a->startedSignal.wait(5000);
 
             // let A proceed to the stop signal wait
-            pA->proceedSignal.set();
+            a->proceedSignal.set();
 
             // sanity check: stop signal should NOT be set right now
-            REQUIRE(!pA->stopSignal.isSet());
+            REQUIRE(!a->stopSignal.isSet());
 
             // now destroy the pool
-            pPool = nullptr;
+            pool = nullptr;
 
             // this should have caused the stop signal of A to be set
-            REQUIRE(pA->stopSignal.isSet());
+            REQUIRE(a->stopSignal.isSet());
         }
 
         SECTION("with backlog")
         {
-            P<ThreadPoolTestRunnable> pA = newObj<ThreadPoolTestRunnable>();
-            P<ThreadPoolTestRunnable> pB = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> a = newObj<ThreadPoolTestRunnable>();
+            P<ThreadPoolTestRunnable> b = newObj<ThreadPoolTestRunnable>();
 
-            pPool->addJob(pA);
-            pPool->addJob(pB);
+            pool->addJob(a);
+            pool->addJob(b);
 
             // pool should hold a reference to the jobs
-            REQUIRE(pA->getRefCount() == 2);
-            REQUIRE(pB->getRefCount() == 2);
+            REQUIRE(a->getRefCount() == 2);
+            REQUIRE(b->getRefCount() == 2);
 
-            pA->startedSignal.wait(5000);
+            a->startedSignal.wait(5000);
 
             // B should not have been started
-            REQUIRE(!pB->startedSignal.wait(1000));
+            REQUIRE(!b->startedSignal.wait(1000));
 
-            REQUIRE(pPool->getIdleThreadCount() == 0);
-            REQUIRE(pPool->getBusyThreadCount() == 1);
+            REQUIRE(pool->getIdleThreadCount() == 0);
+            REQUIRE(pool->getBusyThreadCount() == 1);
 
             // let A proceed to the stop signal wait
-            pA->proceedSignal.set();
+            a->proceedSignal.set();
 
             // now destroy the pool
-            pPool = nullptr;
+            pool = nullptr;
 
             // this should have caused the stop signal of A to be set
-            REQUIRE(pA->stopSignal.isSet());
+            REQUIRE(a->stopSignal.isSet());
 
             // B should NOT start. In fact, it should never start.
-            REQUIRE(!pB->startedSignal.wait(1000));
+            REQUIRE(!b->startedSignal.wait(1000));
 
             // A and B should have been released by the pool
-            REQUIRE(pA->getRefCount() == 1);
-            REQUIRE(pB->getRefCount() == 1);
+            REQUIRE(a->getRefCount() == 1);
+            REQUIRE(b->getRefCount() == 1);
         }
     }
 }

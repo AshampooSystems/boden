@@ -8,28 +8,28 @@
 namespace bdn
 {
 
-    Window::Window(IUiProvider *pUiProvider)
+    Window::Window(IUiProvider *uiProvider)
     {
         // windows are invisible by default
         setVisible(false);
 
-        _pUiProvider = (pUiProvider != nullptr) ? pUiProvider : UiAppControllerBase::get()->getUiProvider().getPtr();
+        _uiProvider = (uiProvider != nullptr) ? uiProvider : UiAppControllerBase::get()->getUiProvider().getPtr();
 
         reinitCore();
     }
 
-    void Window::setContentView(View *pContentView)
+    void Window::setContentView(View *contentView)
     {
         Thread::assertInMainThread();
 
-        if (pContentView != _pContentView) {
-            if (_pContentView != nullptr)
-                _pContentView->_setParentView(nullptr);
+        if (contentView != _contentView) {
+            if (_contentView != nullptr)
+                _contentView->_setParentView(nullptr);
 
-            _pContentView = pContentView;
+            _contentView = contentView;
 
-            if (_pContentView != nullptr)
-                _pContentView->_setParentView(this);
+            if (_contentView != nullptr)
+                _contentView->_setParentView(this);
 
             invalidateSizingInfo(InvalidateReason::childAddedOrRemoved);
         }
@@ -37,13 +37,13 @@ namespace bdn
 
     void Window::requestAutoSize()
     {
-        P<IWindowCore> pCore = cast<IWindowCore>(getViewCore());
+        P<IWindowCore> core = cast<IWindowCore>(getViewCore());
 
         // forward the request to the core. Depending on the platform
         // it may be that the UI uses a layout coordinator provided by the
         // system, rather than our own.
-        if (pCore != nullptr)
-            pCore->requestAutoSize();
+        if (core != nullptr)
+            core->requestAutoSize();
     }
 
     void Window::requestCenter()
@@ -53,9 +53,9 @@ namespace bdn
         // old size and would then autoSize afterwards. So, also forward this to
         // the core.
 
-        P<IWindowCore> pCore = cast<IWindowCore>(getViewCore());
+        P<IWindowCore> core = cast<IWindowCore>(getViewCore());
 
-        if (pCore != nullptr)
-            pCore->requestCenter();
+        if (core != nullptr)
+            core->requestCenter();
     }
 }

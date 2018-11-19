@@ -46,7 +46,7 @@ namespace bdn
             return subscribe(ParamlessFunctionAdapter(func));
         }
 
-        void unsubscribe(INotifierSubscription *pSub) override { unsubscribeById(cast<Subscription_>(pSub)->subId()); }
+        void unsubscribe(INotifierSubscription *sub) override { unsubscribeById(cast<Subscription_>(sub)->subId()); }
 
         void unsubscribeAll() override
         {
@@ -54,10 +54,10 @@ namespace bdn
 
             _subMap.clear();
 
-            NotificationState *pCurr = _pFirstNotificationState;
-            while (pCurr != nullptr) {
-                pCurr->nextItemIt = _subMap.end();
-                pCurr = pCurr->pNext;
+            NotificationState *curr = _firstNotificationState;
+            while (curr != nullptr) {
+                curr->nextItemIt = _subMap.end();
+                curr = curr->next;
             }
         }
 
@@ -216,7 +216,7 @@ namespace bdn
 
         struct NotificationState
         {
-            NotificationState *pNext = nullptr;
+            NotificationState *next = nullptr;
 
             typename Map<int64_t, Sub_>::Iterator nextItemIt;
         };
@@ -231,40 +231,40 @@ namespace bdn
                 // But there can still be multiple notifications running, if the
                 // event loop is worked from an inner function (like a modal
                 // dialog that was created by another framwork).
-                NotificationState *pState = _pFirstNotificationState;
-                while (pState != nullptr) {
-                    if (pState->nextItemIt == it)
-                        pState->nextItemIt++;
+                NotificationState *state = _firstNotificationState;
+                while (state != nullptr) {
+                    if (state->nextItemIt == it)
+                        state->nextItemIt++;
 
-                    pState = pState->pNext;
+                    state = state->next;
                 }
 
                 _subMap.erase(it);
             }
         }
 
-        void activateNotificationState(NotificationState *pState)
+        void activateNotificationState(NotificationState *state)
         {
-            pState->pNext = _pFirstNotificationState;
-            _pFirstNotificationState = pState;
+            state->next = _firstNotificationState;
+            _firstNotificationState = state;
         }
 
-        void deactivateNotificationState(NotificationState *pState)
+        void deactivateNotificationState(NotificationState *state)
         {
             // we usually have only one notification state active
-            if (pState == _pFirstNotificationState)
-                _pFirstNotificationState = pState->pNext;
+            if (state == _firstNotificationState)
+                _firstNotificationState = state->next;
             else {
-                NotificationState *pPrev = _pFirstNotificationState;
-                NotificationState *pCurr = _pFirstNotificationState->pNext;
+                NotificationState *prev = _firstNotificationState;
+                NotificationState *curr = _firstNotificationState->next;
 
-                while (pCurr != nullptr) {
-                    if (pCurr == pState) {
-                        pPrev->pNext = pState->pNext;
+                while (curr != nullptr) {
+                    if (curr == state) {
+                        prev->next = state->next;
                         break;
                     }
 
-                    pState = pState->pNext;
+                    state = state->next;
                 }
             }
         }
@@ -294,7 +294,7 @@ namespace bdn
         MUTEX_TYPE _mutex;
         int64_t _nextSubId = 1;
         Map<int64_t, Sub_> _subMap;
-        NotificationState *_pFirstNotificationState = nullptr;
+        NotificationState *_firstNotificationState = nullptr;
     };
 }
 

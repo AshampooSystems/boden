@@ -106,14 +106,14 @@ TEST_CASE("LocaleDecoder")
     int dataCount = std::extent<decltype(allData)>().value;
 
     for (int t = 0; t < dataCount; t++) {
-        LocaleDecoderSubTestData *pCurrData = &allData[t];
+        LocaleDecoderSubTestData *currData = &allData[t];
 
-        SECTION(pCurrData->desc) { verifyLocaleDecoder(pCurrData->wide); }
+        SECTION(currData->desc) { verifyLocaleDecoder(currData->wide); }
 
-        SECTION(std::string(pCurrData->desc) + " mixed")
+        SECTION(std::string(currData->desc) + " mixed")
         {
-            verifyLocaleDecoder(L"hello" + std::wstring(pCurrData->wide) + L"wo" + std::wstring(pCurrData->wide) +
-                                std::wstring(pCurrData->wide) + L"rld");
+            verifyLocaleDecoder(L"hello" + std::wstring(currData->wide) + L"wo" + std::wstring(currData->wide) +
+                                std::wstring(currData->wide) + L"rld");
         }
     }
 }

@@ -15,11 +15,11 @@ namespace bdn
 
             bdn::platformEntryWrapper(
                 [&]() {
-                    bdn::P<bdn::mac::UiAppRunner> pAppRunner =
+                    bdn::P<bdn::mac::UiAppRunner> appRunner =
                         bdn::newObj<bdn::mac::UiAppRunner>(appControllerCreator, argc, argv);
-                    _setAppRunner(pAppRunner);
+                    _setAppRunner(appRunner);
 
-                    returnValue = pAppRunner->entry();
+                    returnValue = appRunner->entry();
                 },
                 false);
 

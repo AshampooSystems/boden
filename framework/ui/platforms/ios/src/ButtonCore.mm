@@ -3,15 +3,15 @@
 
 @interface BdnIosButtonClickManager : NSObject
 
-@property bdn::ios::ButtonCore *pCore;
+@property bdn::ios::ButtonCore *core;
 
 @end
 
 @implementation BdnIosButtonClickManager
 
-- (void)setButtonCore:(bdn::ios::ButtonCore *)pCore { _pCore = pCore; }
+- (void)setButtonCore:(bdn::ios::ButtonCore *)core { _core = core; }
 
-- (void)clicked { _pCore->_clicked(); }
+- (void)clicked { _core->_clicked(); }
 
 @end
 
@@ -20,14 +20,14 @@ namespace bdn
     namespace ios
     {
 
-        UIButton *ButtonCore::_createUIButton(Button *pOuterButton)
+        UIButton *ButtonCore::_createUIButton(Button *outerButton)
         {
             UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
 
             return button;
         }
 
-        ButtonCore::ButtonCore(Button *pOuterButton) : ViewCore(pOuterButton, _createUIButton(pOuterButton))
+        ButtonCore::ButtonCore(Button *outerButton) : ViewCore(outerButton, _createUIButton(outerButton))
         {
             _button = (UIButton *)getUIView();
 
@@ -38,7 +38,7 @@ namespace bdn
 
             [_button addTarget:clickMan action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
-            setLabel(pOuterButton->label());
+            setLabel(outerButton->label());
         }
 
         ButtonCore::~ButtonCore()
@@ -50,11 +50,11 @@ namespace bdn
 
         void ButtonCore::_clicked()
         {
-            P<View> pView = getOuterViewIfStillAttached();
-            if (pView != nullptr) {
-                ClickEvent evt(pView);
+            P<View> view = getOuterViewIfStillAttached();
+            if (view != nullptr) {
+                ClickEvent evt(view);
 
-                cast<Button>(pView)->onClick().notify(evt);
+                cast<Button>(view)->onClick().notify(evt);
             }
         }
     }

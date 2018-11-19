@@ -13,14 +13,14 @@ template <typename CHAR_TYPE> class RedirectStdStream
   public:
     RedirectStdStream(std::basic_ostream<CHAR_TYPE> &stream, std::basic_streambuf<CHAR_TYPE> &buffer) : _stream(stream)
     {
-        _pOldBuffer = _stream.rdbuf(&buffer);
+        _oldBuffer = _stream.rdbuf(&buffer);
     }
 
-    ~RedirectStdStream() { _stream.rdbuf(_pOldBuffer); }
+    ~RedirectStdStream() { _stream.rdbuf(_oldBuffer); }
 
   private:
     std::basic_ostream<CHAR_TYPE> &_stream;
-    std::basic_streambuf<CHAR_TYPE> *_pOldBuffer;
+    std::basic_streambuf<CHAR_TYPE> *_oldBuffer;
 };
 
 template <typename CHAR_TYPE>
@@ -28,7 +28,7 @@ void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream, std::bas
 {
     SECTION("textUi")
     {
-        P<ITextUi> pUi = getDefaultUiProvider()->getTextUi();
+        P<ITextUi> ui = getDefaultUiProvider()->getTextUi();
 
         SECTION("stdio connection")
         {
@@ -47,8 +47,8 @@ void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream, std::bas
                 // are redirected. Otherwise output from the test framework
                 // could end up in our test buffer instead of the intended
                 // stream.
-                pUi->output()->writeLine("for out");
-                pUi->statusOrProblem()->writeLine("for err");
+                ui->output()->writeLine("for out");
+                ui->statusOrProblem()->writeLine("for err");
 
                 stdOutStream.flush();
                 stdErrStream.flush();

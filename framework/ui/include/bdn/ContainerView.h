@@ -29,25 +29,25 @@ namespace bdn
             If the child view is already a child of this container then it
             is moved to the end.
         */
-        void addChildView(View *pChildView) { insertChildView(nullptr, pChildView); }
+        void addChildView(View *childView) { insertChildView(nullptr, childView); }
 
         /** Inserts a child before another child.
 
-            If pInsertBeforeChildView is nullptr then the new view is added to
+            If insertBeforeChildView is nullptr then the new view is added to
            the end of the container.
 
-            If pInsertBeforeChildView is not a child of this container then the
+            If insertBeforeChildView is not a child of this container then the
            new child view is added to the end of the container.
 
             If the child view is already a child of this container then it
             is moved to the desired target position.
             */
-        void insertChildView(View *pInsertBeforeChildView, View *pChildView)
+        void insertChildView(View *insertBeforeChildView, View *childView)
         {
             Thread::assertInMainThread();
 
-            P<View> pOldParentView = pChildView->getParentView();
-            if (pOldParentView != nullptr) {
+            P<View> oldParentView = childView->getParentView();
+            if (oldParentView != nullptr) {
                 // do not use removeChildView on the old parent. Instead we use
                 // childViewStolen. The difference is that with childViewStolen
                 // the old parent will NOT call setParentView on its old child.
@@ -55,18 +55,18 @@ namespace bdn
                 // setParentView at the end of the whole operation, so that the
                 // core can potentially be moved directly to its new parent,
                 // without being destroyed and recreated.
-                pOldParentView->_childViewStolen(pChildView);
+                oldParentView->_childViewStolen(childView);
             }
 
             List<P<View>>::Iterator it;
-            if (pInsertBeforeChildView == nullptr)
+            if (insertBeforeChildView == nullptr)
                 it = _childViews.end();
             else
-                it = _childViews.find(pInsertBeforeChildView);
+                it = _childViews.find(insertBeforeChildView);
 
-            _childViews.insertAt(it, pChildView);
+            _childViews.insertAt(it, childView);
 
-            pChildView->_setParentView(this);
+            childView->_setParentView(this);
 
             // the child will schedule a sizing info update for us when it gets
             // its core.
@@ -77,14 +77,14 @@ namespace bdn
             Has no effect if the specified view is not currently a child of this
            container.
         */
-        void removeChildView(View *pChildView)
+        void removeChildView(View *childView)
         {
             Thread::assertInMainThread();
 
-            auto it = std::find(_childViews.begin(), _childViews.end(), pChildView);
+            auto it = std::find(_childViews.begin(), _childViews.end(), childView);
             if (it != _childViews.end()) {
                 _childViews.erase(it);
-                pChildView->_setParentView(nullptr);
+                childView->_setParentView(nullptr);
             }
         }
 
@@ -92,8 +92,8 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            for (auto &pChildView : _childViews)
-                pChildView->_setParentView(nullptr);
+            for (auto &childView : _childViews)
+                childView->_setParentView(nullptr);
 
             _childViews.clear();
         }
@@ -105,26 +105,26 @@ namespace bdn
             childViews = _childViews;
         }
 
-        P<View> findPreviousChildView(View *pChildView) override
+        P<View> findPreviousChildView(View *childView) override
         {
             Thread::assertInMainThread();
 
-            View *pPrevChildView = nullptr;
-            for (const P<View> &pCurrView : _childViews) {
-                if (pCurrView.getPtr() == pChildView)
-                    return pPrevChildView;
+            View *prevChildView = nullptr;
+            for (const P<View> &currView : _childViews) {
+                if (currView.getPtr() == childView)
+                    return prevChildView;
 
-                pPrevChildView = pCurrView;
+                prevChildView = currView;
             }
 
             return nullptr;
         }
 
-        void _childViewStolen(View *pChildView) override
+        void _childViewStolen(View *childView) override
         {
             Thread::assertInMainThread();
 
-            auto it = std::find(_childViews.begin(), _childViews.end(), pChildView);
+            auto it = std::find(_childViews.begin(), _childViews.end(), childView);
             if (it != _childViews.end())
                 _childViews.erase(it);
         }

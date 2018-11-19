@@ -22,20 +22,20 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _pMacChildViewCore = cast<bdn::mac::ChildViewCore>(BaseClass::_pView->getViewCore());
-                REQUIRE(_pMacChildViewCore != nullptr);
+                _macChildViewCore = cast<bdn::mac::ChildViewCore>(BaseClass::_view->getViewCore());
+                REQUIRE(_macChildViewCore != nullptr);
 
-                _pNSView = _pMacChildViewCore->getNSView();
-                REQUIRE(_pNSView != nullptr);
+                _nSView = _macChildViewCore->getNSView();
+                REQUIRE(_nSView != nullptr);
             }
 
             IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_pView->visible();
+                bool expectedVisible = BaseClass::_view->visible();
 
-                REQUIRE(_pNSView.hidden == !expectedVisible);
+                REQUIRE(_nSView.hidden == !expectedVisible);
             }
 
             Rect getFrameRect() const
@@ -44,7 +44,7 @@ namespace bdn
                 // already configured so that the origin is top-left. And top
                 // level Windows have an intermediate contentWindow parent that
                 // is configured the same way.
-                return bdn::mac::macRectToRect(_pNSView.frame, -1);
+                return bdn::mac::macRectToRect(_nSView.frame, -1);
             }
 
             void verifyInitialDummyCoreSize() override
@@ -60,7 +60,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getFrameRect().getPosition();
-                Point expectedPosition = BaseClass::_pView->position();
+                Point expectedPosition = BaseClass::_view->position();
 
                 REQUIRE(position == expectedPosition);
             }
@@ -68,7 +68,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getFrameRect().getSize();
-                Size expectedSize = BaseClass::_pView->size();
+                Size expectedSize = BaseClass::_view->size();
 
                 REQUIRE(size == expectedSize);
             }
@@ -79,8 +79,8 @@ namespace bdn
                 // So nothing to test here.
             }
 
-            P<bdn::mac::ChildViewCore> _pMacChildViewCore;
-            NSView *_pNSView;
+            P<bdn::mac::ChildViewCore> _macChildViewCore;
+            NSView *_nSView;
         };
     }
 }

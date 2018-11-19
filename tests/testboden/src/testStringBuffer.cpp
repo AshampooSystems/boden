@@ -142,7 +142,7 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
 
     SECTION("after move construct")
     {
-        auto pInnerBufferBefore = buf.rdbuf();
+        auto innerBufferBefore = buf.rdbuf();
 
         StringBuffer other(std::move(buf));
 
@@ -152,7 +152,7 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
         // the target's buffer should be valid,
         // but NOT the one from the source object.
         REQUIRE(other.rdbuf() != nullptr);
-        REQUIRE(other.rdbuf() != pInnerBufferBefore);
+        REQUIRE(other.rdbuf() != innerBufferBefore);
 
         // now other should have the data.
 
@@ -171,7 +171,7 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
 
     SECTION("after move assign")
     {
-        auto pInnerBufferBefore = buf.rdbuf();
+        auto innerBufferBefore = buf.rdbuf();
 
         StringBuffer other;
 
@@ -180,13 +180,13 @@ static void _verifyResult(StringBuffer &buf, const String &expected)
         _verifyResultImpl(buf, expected, "pretest source: ");
         _verifyResultImpl(other, "", "pretest target: ");
 
-        auto pOtherInnerBufferBefore = other.rdbuf();
+        auto otherInnerBufferBefore = other.rdbuf();
 
         other = std::move(buf);
 
         // buffer object should NOT have been moved
-        REQUIRE(buf.rdbuf() == pInnerBufferBefore);
-        REQUIRE(other.rdbuf() == pOtherInnerBufferBefore);
+        REQUIRE(buf.rdbuf() == innerBufferBefore);
+        REQUIRE(other.rdbuf() == otherInnerBufferBefore);
 
         // now other should have the data
         _verifyResultImpl(other, expected, "target: ");
@@ -219,14 +219,14 @@ static void _verifyResult(TextOutStream &stream, const String &expected)
 
 std::u32string _readStreamBufferContents(StringBuffer &buf)
 {
-    std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer = buf.rdbuf();
+    std::basic_streambuf<char32_t, UnicodeCharTraits> *buffer = buf.rdbuf();
 
     char32_t tempBuffer[100];
 
     std::u32string result;
     std::streamsize charsRead;
     do {
-        charsRead = pBuffer->sgetn(tempBuffer, 100);
+        charsRead = buffer->sgetn(tempBuffer, 100);
         result += std::u32string(tempBuffer, (int)charsRead);
     } while (charsRead == 100);
 
@@ -234,7 +234,7 @@ std::u32string _readStreamBufferContents(StringBuffer &buf)
 }
 
 static void _verifySeekResult(bool readSeek, StringBuffer &buf,
-                              std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer, const String &contents,
+                              std::basic_streambuf<char32_t, UnicodeCharTraits> *buffer, const String &contents,
                               std::streamoff toIndex, std::streamoff result)
 {
     if (toIndex < 0 || (size_t)toIndex > contents.length()) {
@@ -251,7 +251,7 @@ static void _verifySeekResult(bool readSeek, StringBuffer &buf,
                 else
                     expected = UnicodeCharTraits::to_int_type(contents[(size_t)toIndex]);
 
-                REQUIRE(pBuffer->sbumpc() == expected);
+                REQUIRE(buffer->sbumpc() == expected);
 
                 toIndex++;
             }
@@ -265,7 +265,7 @@ static void _verifySeekResult(bool readSeek, StringBuffer &buf,
                 if (endIt != expected.end())
                     ++endIt;
 
-                pBuffer->sputc('x' + i);
+                buffer->sputc('x' + i);
             }
 
             expected.replace(beginIt, endIt, "xyz");
@@ -279,7 +279,7 @@ static void _verifySeekResult(bool readSeek, StringBuffer &buf,
 
 static void _verifyGenericSeek(StringBuffer &buf, const String &contents, std::ios_base::openmode which, bool readSeek)
 {
-    std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer = buf.rdbuf();
+    std::basic_streambuf<char32_t, UnicodeCharTraits> *buffer = buf.rdbuf();
 
     size_t length = contents.length();
 
@@ -305,7 +305,7 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents, std::i
 
         SECTION("from " + fromPosData.desc)
         {
-            std::streampos fromPos = pBuffer->pubseekpos(fromPosData.index, which);
+            std::streampos fromPos = buffer->pubseekpos(fromPosData.index, which);
             REQUIRE(fromPos == fromPosData.index);
 
             for (SeekPositionData_ &toPosData : posDataList) {
@@ -315,14 +315,14 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents, std::i
                     {
                         SECTION("seekoff")
                         {
-                            _verifySeekResult(readSeek, buf, pBuffer, contents, toPosData.index,
-                                              pBuffer->pubseekoff(toPosData.index, std::ios_base::beg, which));
+                            _verifySeekResult(readSeek, buf, buffer, contents, toPosData.index,
+                                              buffer->pubseekoff(toPosData.index, std::ios_base::beg, which));
                         }
 
                         SECTION("seekpos")
                         {
-                            _verifySeekResult(readSeek, buf, pBuffer, contents, toPosData.index,
-                                              pBuffer->pubseekpos(toPosData.index, which));
+                            _verifySeekResult(readSeek, buf, buffer, contents, toPosData.index,
+                                              buffer->pubseekpos(toPosData.index, which));
                         }
                     }
 
@@ -332,16 +332,16 @@ static void _verifyGenericSeek(StringBuffer &buf, const String &contents, std::i
                         SECTION("anchor=cur")
                         {
                             _verifySeekResult(
-                                readSeek, buf, pBuffer, contents, toPosData.index,
-                                pBuffer->pubseekoff(toPosData.index - fromPosData.index, std::ios_base::cur, which));
+                                readSeek, buf, buffer, contents, toPosData.index,
+                                buffer->pubseekoff(toPosData.index - fromPosData.index, std::ios_base::cur, which));
                         }
                     }
 
                     SECTION("anchor=end")
                     {
                         _verifySeekResult(
-                            readSeek, buf, pBuffer, contents, toPosData.index,
-                            pBuffer->pubseekoff(toPosData.index - contents.length(), std::ios_base::end, which));
+                            readSeek, buf, buffer, contents, toPosData.index,
+                            buffer->pubseekoff(toPosData.index - contents.length(), std::ios_base::end, which));
                     }
                 }
             }
@@ -354,52 +354,52 @@ static void _verifyReadSeek(StringBuffer &buf, const String &contents, std::ios_
     _verifyGenericSeek(buf, contents, which, true);
 
     if (which == std::ios_base::in) {
-        std::basic_streambuf<char32_t, UnicodeCharTraits> *pBuffer = buf.rdbuf();
+        std::basic_streambuf<char32_t, UnicodeCharTraits> *buffer = buf.rdbuf();
         size_t length = contents.length();
 
         SECTION("sequenced seek")
         {
-            std::streamoff pos = pBuffer->pubseekoff(0, std::ios_base::end, which);
+            std::streamoff pos = buffer->pubseekoff(0, std::ios_base::end, which);
             REQUIRE(pos == length);
 
-            REQUIRE(pBuffer->sgetc() == UnicodeCharTraits::eof());
-            REQUIRE(pBuffer->sbumpc() == UnicodeCharTraits::eof());
+            REQUIRE(buffer->sgetc() == UnicodeCharTraits::eof());
+            REQUIRE(buffer->sbumpc() == UnicodeCharTraits::eof());
 
-            pos = pBuffer->pubseekoff(-2, std::ios_base::end, which);
+            pos = buffer->pubseekoff(-2, std::ios_base::end, which);
             REQUIRE(pos == length - 2);
 
-            REQUIRE(pBuffer->sbumpc() == contents[length - 2]);
-            REQUIRE(pBuffer->sbumpc() == contents[length - 1]);
+            REQUIRE(buffer->sbumpc() == contents[length - 2]);
+            REQUIRE(buffer->sbumpc() == contents[length - 1]);
 
             // anchor=cur is not supported if in and out positions are
             // changed at the same time
             if (which != (std::ios_base::in | std::ios_base::out))
-                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::cur, which);
+                pos = buffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::cur, which);
             else
-                pos = pBuffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::end, which);
+                pos = buffer->pubseekoff(-(long)(length / 2) - 1, std::ios_base::end, which);
             REQUIRE(pos == length - length / 2 - 1);
 
-            REQUIRE(pBuffer->sbumpc() == contents[length - length / 2 - 1]);
-            REQUIRE(pBuffer->sbumpc() == contents[length - length / 2]);
-            REQUIRE(pBuffer->sbumpc() == contents[length - length / 2 + 1]);
+            REQUIRE(buffer->sbumpc() == contents[length - length / 2 - 1]);
+            REQUIRE(buffer->sbumpc() == contents[length - length / 2]);
+            REQUIRE(buffer->sbumpc() == contents[length - length / 2 + 1]);
 
-            pos = pBuffer->pubseekoff(-(long)(length / 2), std::ios_base::end, which);
+            pos = buffer->pubseekoff(-(long)(length / 2), std::ios_base::end, which);
             REQUIRE(pos == length - length / 2);
 
-            REQUIRE(pBuffer->sbumpc() == contents[length - length / 2]);
-            REQUIRE(pBuffer->sbumpc() == contents[length - length / 2 + 1]);
+            REQUIRE(buffer->sbumpc() == contents[length - length / 2]);
+            REQUIRE(buffer->sbumpc() == contents[length - length / 2 + 1]);
 
-            pos = pBuffer->pubseekoff(0, std::ios_base::beg, which);
+            pos = buffer->pubseekoff(0, std::ios_base::beg, which);
             REQUIRE(pos == 0);
 
-            REQUIRE(pBuffer->sbumpc() == contents[0]);
-            REQUIRE(pBuffer->sbumpc() == contents[1]);
+            REQUIRE(buffer->sbumpc() == contents[0]);
+            REQUIRE(buffer->sbumpc() == contents[1]);
 
-            pos = pBuffer->pubseekoff(length / 2, std::ios_base::beg, which);
+            pos = buffer->pubseekoff(length / 2, std::ios_base::beg, which);
             REQUIRE(pos == length / 2);
 
-            REQUIRE(pBuffer->sbumpc() == contents[length / 2]);
-            REQUIRE(pBuffer->sbumpc() == contents[length / 2 + 1]);
+            REQUIRE(buffer->sbumpc() == contents[length / 2]);
+            REQUIRE(buffer->sbumpc() == contents[length / 2 + 1]);
         }
     }
 }

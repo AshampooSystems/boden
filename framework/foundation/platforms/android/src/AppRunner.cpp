@@ -42,7 +42,7 @@ namespace bdn
         AppRunner::AppRunner(std::function<P<AppControllerBase>()> appControllerCreator, JIntent intent)
             : AppRunnerBase(appControllerCreator, AppRunner::_makeLaunchInfo(intent))
         {
-            _pMainDispatcher = newObj<Dispatcher>(JLooper::getMainLooper());
+            _mainDispatcher = newObj<Dispatcher>(JLooper::getMainLooper());
         }
 
         bool AppRunner::isCommandLineApp() const
@@ -58,9 +58,9 @@ namespace bdn
             launch();
         }
 
-        P<IDispatcher> AppRunner::getMainDispatcher() { return _pMainDispatcher; }
+        P<IDispatcher> AppRunner::getMainDispatcher() { return _mainDispatcher; }
 
-        void AppRunner::disposeMainDispatcher() { _pMainDispatcher->dispose(); }
+        void AppRunner::disposeMainDispatcher() { _mainDispatcher->dispose(); }
 
         void AppRunner::initiateExitIfPossible(int exitCode)
         {

@@ -47,17 +47,17 @@ TEST_CASE("SafeInit")
     SECTION("fromFunc")
     {
         // should be initialized
-        SafeInitTestData *pData = getTestData1();
-        REQUIRE(pData->val == 17);
+        SafeInitTestData *data = getTestData1();
+        REQUIRE(data->val == 17);
 
         // accessing again should give the same object
-        REQUIRE(getTestData1() == pData);
+        REQUIRE(getTestData1() == data);
 
-        pData->val = 4;
+        data->val = 4;
 
         // should not be constructed again when accessing
-        REQUIRE(getTestData1() == pData);
-        REQUIRE(pData->val == 4);
+        REQUIRE(getTestData1() == data);
+        REQUIRE(data->val == 4);
     }
 
 #if BDN_HAVE_THREADS

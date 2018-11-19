@@ -20,17 +20,17 @@ namespace bdn
                 return false;
             }
 
-            P<View> createView() override { return _pWindow; }
+            P<View> createView() override { return _window; }
 
-            void setView(View *pView) override { TestViewCore::setView(pView); }
+            void setView(View *view) override { TestViewCore::setView(view); }
 
             void initCore() override
             {
                 TestViewCore::initCore();
 
-                _pWindow->setVisible(true);
+                _window->setVisible(true);
 
-                _pWindowCore = cast<IWindowCore>(_pCore);
+                _windowCore = cast<IWindowCore>(_core);
             }
 
             void runInitTests() override
@@ -39,7 +39,7 @@ namespace bdn
 
                 SECTION("title")
                 {
-                    _pWindow->setTitle("hello world");
+                    _window->setTitle("hello world");
 
                     initCore();
                     verifyCoreTitle();
@@ -48,7 +48,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestWindowCore> pThis(this);
+                P<TestWindowCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -56,23 +56,23 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pWindow->setTitle("hello world");
+                        _window->setTitle("hello world");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreTitle(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreTitle(); };
                     }
 
                     SECTION("does not affect preferred size")
                     {
                         // the title should not affect the window's preferred
                         // size.
-                        Size prefSizeBefore = _pWindow->calcPreferredSize();
+                        Size prefSizeBefore = _window->calcPreferredSize();
 
-                        _pWindow->setTitle("this is a long long long long long long long long "
-                                           "long long long long title");
+                        _window->setTitle("this is a long long long long long long long long "
+                                          "long long long long title");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore)
                         {
-                            Size prefSize = pThis->_pWindow->calcPreferredSize();
+                            Size prefSize = self->_window->calcPreferredSize();
 
                             REQUIRE(prefSize == prefSizeBefore);
                         };
@@ -81,34 +81,34 @@ namespace bdn
 
                 SECTION("layout arranges content view")
                 {
-                    P<Button> pChild = newObj<Button>();
+                    P<Button> child = newObj<Button>();
 
-                    _pWindow->setContentView(pChild);
+                    _window->setContentView(child);
 
                     // set a left/top margin for the child so that it is moved
                     // to the bottom right
                     Margin margin(11, 0, 0, 22);
-                    pChild->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
+                    child->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                     // then autosize the window
-                    _pWindow->requestAutoSize();
+                    _window->requestAutoSize();
 
-                    P<TestWindowCore> pThis = this;
+                    P<TestWindowCore> self = this;
 
-                    BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, pChild, margin)
+                    BDN_CONTINUE_SECTION_WHEN_IDLE(self, child, margin)
                     {
-                        Point oldPos = pChild->position();
-                        Size oldSize = pChild->size();
+                        Point oldPos = child->position();
+                        Size oldSize = child->size();
 
                         // then invert the margin and make the top margin a
                         // bottom margin and the left margin a right margin
-                        pChild->setMargin(UiMargin(0, margin.left, margin.top, 0));
+                        child->setMargin(UiMargin(0, margin.left, margin.top, 0));
 
                         // this should cause a layout. We know the layout
                         // happens (we test that in another case). Here we only
                         // verify that the layout actually updates the content
                         // view.
-                        BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, pChild, oldPos, oldSize, margin)
+                        BDN_CONTINUE_SECTION_WHEN_IDLE(self, child, oldPos, oldSize, margin)
                         {
                             // if a layout was done then the child position
                             // should now be moved to the left and up by the
@@ -116,12 +116,12 @@ namespace bdn
                             // not match exactly, since it is rounded to full
                             // pixels
                             Point expectedPos(oldPos.x - margin.left, oldPos.y - margin.top);
-                            Point pos = pChild->position();
+                            Point pos = child->position();
                             REQUIRE_ALMOST_EQUAL(pos.x, expectedPos.x, 2);
                             REQUIRE_ALMOST_EQUAL(pos.y, expectedPos.y, 2);
 
                             // size should not have changed
-                            REQUIRE(pChild->size() == oldSize);
+                            REQUIRE(child->size() == oldSize);
                         };
                     };
                 }
@@ -131,7 +131,7 @@ namespace bdn
                     // there may be pending sizing info updates for the window,
                     // which keep it alive. Ensure that those are done first.
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->testCoreUiElementDestroyedWhenObjectDestroyed(); };
+                    CONTINUE_SECTION_WHEN_IDLE(self) { self->testCoreUiElementDestroyedWhenObjectDestroyed(); };
                 }
             }
 
@@ -151,55 +151,52 @@ namespace bdn
                 The outer Window object and possible also the core object have
                already been destroyed at this point.
 
-                pVerificationInfo is the object with the verification
+                verificationInfo is the object with the verification
                information that was returned by an earlier call to
                createInfoToVerifyCoreUiElementDestruction().
                 */
-            virtual void verifyCoreUiElementDestruction(IBase *pVerificationInfo) = 0;
+            virtual void verifyCoreUiElementDestruction(IBase *verificationInfo) = 0;
 
             /** Removes all references to the outer window object, causing it to
              * be destroyed.*/
             virtual void clearAllReferencesToOuterWindow()
             {
-                _pView = nullptr;
-                _pWindow = nullptr;
+                _view = nullptr;
+                _window = nullptr;
             }
 
             /** Removes all references to the core object.*/
             virtual void clearAllReferencesToCore()
             {
-                _pCore = nullptr;
-                _pWindowCore = nullptr;
+                _core = nullptr;
+                _windowCore = nullptr;
             }
 
             void testCoreUiElementDestroyedWhenObjectDestroyed()
             {
-                P<IBase> pVerifyInfo = createInfoToVerifyCoreUiElementDestruction();
+                P<IBase> verifyInfo = createInfoToVerifyCoreUiElementDestruction();
 
                 clearAllReferencesToOuterWindow();
 
-                P<IViewCore> pCoreKeepAlive;
+                P<IViewCore> coreKeepAlive;
 
                 SECTION("core not kept alive")
                 {
                     // do nothing
                 }
 
-                SECTION("core kept alive") { pCoreKeepAlive = _pCore; }
+                SECTION("core kept alive") { coreKeepAlive = _core; }
 
                 clearAllReferencesToCore();
 
-                P<TestWindowCore> pThis = this;
+                P<TestWindowCore> self = this;
 
                 // it may be that deleted windows are garbage collected.
                 // So we wait a few seconds before we check if the window is
                 // gone
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(1, pThis, this, pVerifyInfo)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(1, self, this, verifyInfo)
                 {
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, this, pVerifyInfo)
-                    {
-                        verifyCoreUiElementDestruction(pVerifyInfo);
-                    };
+                    CONTINUE_SECTION_WHEN_IDLE(self, this, verifyInfo) { verifyCoreUiElementDestruction(verifyInfo); };
                 };
             }
 
@@ -208,7 +205,7 @@ namespace bdn
                property.*/
             virtual void verifyCoreTitle() = 0;
 
-            P<IWindowCore> _pWindowCore;
+            P<IWindowCore> _windowCore;
         };
     }
 }

@@ -16,7 +16,7 @@ class TestMockContainerViewCore : public bdn::test::TestMockViewCoreMixin<bdn::t
 
 TEST_CASE("mock.ContainerViewCore")
 {
-    P<TestMockContainerViewCore> pTest = newObj<TestMockContainerViewCore>();
+    P<TestMockContainerViewCore> test = newObj<TestMockContainerViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

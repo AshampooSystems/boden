@@ -21,14 +21,14 @@ class TestAndroidToggleCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pToggle->label();
+        String expectedLabel = _toggle->label();
         String label = _jSwitch.getText();
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _pToggle->on();
+        bool expectedOn = _toggle->on();
         bool on = _jSwitch.isChecked();
         REQUIRE(on == expectedOn);
     }
@@ -39,7 +39,7 @@ class TestAndroidToggleCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.ToggleCore")
 {
-    P<TestAndroidToggleCore> pTest = newObj<TestAndroidToggleCore>();
+    P<TestAndroidToggleCore> test = newObj<TestAndroidToggleCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

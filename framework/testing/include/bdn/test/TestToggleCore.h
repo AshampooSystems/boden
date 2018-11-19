@@ -16,17 +16,17 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<Toggle> pToggle = newObj<Toggle>();
-                pToggle->setLabel("hello");
+                P<Toggle> toggle = newObj<Toggle>();
+                toggle->setLabel("hello");
 
-                return pToggle;
+                return toggle;
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pToggle = cast<Toggle>(pView);
+                _toggle = cast<Toggle>(view);
             }
 
             void runInitTests() override
@@ -39,7 +39,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _pToggle->setLabel("helloworld");
+                        _toggle->setLabel("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +47,7 @@ namespace bdn
                     // on set before init
                     SECTION("on")
                     {
-                        _pToggle->setOn(true);
+                        _toggle->setOn(true);
                         initCore();
                         verifyCoreOn();
                     }
@@ -56,7 +56,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestToggleCore> pThis(this);
+                P<TestToggleCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -65,25 +65,25 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pToggle->setLabel("helloworld");
+                        _toggle->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _pToggle->label();
+                        String labelBefore = _toggle->label();
 
                         // the label should not be empty here
                         REQUIRE(labelBefore.getLength() > 3);
 
-                        Size prefSizeBefore = _pToggle->calcPreferredSize();
+                        Size prefSizeBefore = _toggle->calcPreferredSize();
 
-                        _pToggle->setLabel(labelBefore + labelBefore + labelBefore);
+                        _toggle->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
-                            Size prefSize = pThis->_pToggle->calcPreferredSize();
+                            Size prefSize = self->_toggle->calcPreferredSize();
 
                             // width must increase with a bigger label
                             REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -94,11 +94,11 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            pThis->_pToggle->setLabel(labelBefore);
+                            self->_toggle->setLabel(labelBefore);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
-                                REQUIRE(pThis->_pToggle->calcPreferredSize() == prefSizeBefore);
+                                REQUIRE(self->_toggle->calcPreferredSize() == prefSizeBefore);
                             };
                         };
                     }
@@ -109,16 +109,16 @@ namespace bdn
                 {
                     SECTION("valueTrue")
                     {
-                        _pToggle->setOn(true);
+                        _toggle->setOn(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
 
                     SECTION("valueFalse")
                     {
-                        _pToggle->setOn(false);
+                        _toggle->setOn(self);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
                 }
             }
@@ -142,7 +142,7 @@ namespace bdn
                 when the toggle state has been changed by a platform event. */
             /*virtual void setCoreOnPlatform(bool on)=0;*/
 
-            P<Toggle> _pToggle;
+            P<Toggle> _toggle;
         };
     }
 }

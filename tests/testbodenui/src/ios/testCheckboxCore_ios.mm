@@ -17,20 +17,20 @@ class TestIosCheckboxCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
-        _composite = (BdnIosCheckboxComposite *)_pUIView;
+        _composite = (BdnIosCheckboxComposite *)_uIView;
         REQUIRE(_composite != nullptr);
     }
 
     void verifyCoreState() override
     {
-        bool expectedState = _pCheckbox->state();
+        bool expectedState = _checkbox->state();
         bool state = _composite.checkbox.checkboxState;
         REQUIRE(state == expectedState);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pCheckbox->label();
+        String expectedLabel = _checkbox->label();
         String label = bdn::ios::iosStringToString(_composite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
@@ -41,7 +41,7 @@ class TestIosCheckboxCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
 
 TEST_CASE("ios.CheckboxCore")
 {
-    P<TestIosCheckboxCore> pTest = newObj<TestIosCheckboxCore>();
+    P<TestIosCheckboxCore> test = newObj<TestIosCheckboxCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

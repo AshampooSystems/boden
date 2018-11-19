@@ -201,14 +201,14 @@ namespace bdn
 
             This is used internally by the framework. You should not call it.
          */
-        static void _set(AppControllerBase *pAppController) { _getGlobalRef() = pAppController; }
+        static void _set(AppControllerBase *appController) { _getGlobalRef() = appController; }
 
       private:
         static P<AppControllerBase> &_getGlobalRef()
         {
-            static P<AppControllerBase> pController;
+            static P<AppControllerBase> controller;
 
-            return pController;
+            return controller;
         }
     };
 }

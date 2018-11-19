@@ -18,11 +18,11 @@ namespace bdn
 
             bdn::platformEntryWrapper(
                 [&]() {
-                    bdn::P<bdn::ios::AppRunner> pAppRunner =
+                    bdn::P<bdn::ios::AppRunner> appRunner =
                         bdn::newObj<bdn::ios::AppRunner>(appControllerCreator, argc, argv);
-                    _setAppRunner(pAppRunner);
+                    _setAppRunner(appRunner);
 
-                    returnValue = pAppRunner->entry(argc, argv);
+                    returnValue = appRunner->entry(argc, argv);
                 },
                 false);
 

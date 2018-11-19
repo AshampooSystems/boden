@@ -13,7 +13,7 @@ namespace bdn
     class TextField : public View
     {
       public:
-        TextField() { _pOnSubmit = newObj<SimpleNotifier<const SubmitEvent &>>(); }
+        TextField() { _onSubmit = newObj<SimpleNotifier<const SubmitEvent &>>(); }
 
         /** Static function that returns the type name for #TextField objects.
          */
@@ -37,10 +37,10 @@ namespace bdn
            events are posted when the user presses the Enter key or when
            submit() is called programmatically.
         */
-        ISyncNotifier<const SubmitEvent &> &onSubmit() { return *_pOnSubmit; }
+        ISyncNotifier<const SubmitEvent &> &onSubmit() { return *_onSubmit; }
 
       private:
-        P<SimpleNotifier<const SubmitEvent &>> _pOnSubmit;
+        P<SimpleNotifier<const SubmitEvent &>> _onSubmit;
     };
 }
 

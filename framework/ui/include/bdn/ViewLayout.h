@@ -26,15 +26,15 @@ namespace bdn
             If the layout does not contain data for a child view then the view
            is simply left unmodified.
         */
-        virtual void applyTo(View *pParentView) const
+        virtual void applyTo(View *parentView) const
         {
             List<P<View>> childList;
-            pParentView->getChildViews(childList);
+            parentView->getChildViews(childList);
 
-            for (auto &pChildView : childList) {
-                P<const ViewLayoutData> pData = getViewLayoutData(pChildView);
-                if (pData != nullptr)
-                    pData->applyTo(pChildView);
+            for (auto &childView : childList) {
+                P<const ViewLayoutData> data = getViewLayoutData(childView);
+                if (data != nullptr)
+                    data->applyTo(childView);
             }
         }
 
@@ -47,10 +47,10 @@ namespace bdn
                 Subclasses that store modification information for custom
                 properties should override this and apply the custom
                modifications.*/
-            virtual void applyTo(View *pView) const
+            virtual void applyTo(View *view) const
             {
                 if (_boundsInitialized)
-                    pView->adjustAndSetBounds(_bounds);
+                    view->adjustAndSetBounds(_bounds);
             }
 
             /** Sets the view's bounds.*/
@@ -81,22 +81,22 @@ namespace bdn
 
         /** Sets the layout data for the view. If the layout already has data
            for the specified view then it is replaced.*/
-        void setViewLayoutData(View *pView, ViewLayoutData *pData) { _dataMap[pView] = pData; }
+        void setViewLayoutData(View *view, ViewLayoutData *data) { _dataMap[view] = data; }
 
         /** Returns the layout data for the specified view, or null if no data
            has been set for the view.*/
-        P<ViewLayoutData> getViewLayoutData(View *pView)
+        P<ViewLayoutData> getViewLayoutData(View *view)
         {
-            auto it = _dataMap.find(pView);
+            auto it = _dataMap.find(view);
             if (it != _dataMap.end())
                 return it->second;
             else
                 return nullptr;
         }
 
-        P<const ViewLayoutData> getViewLayoutData(View *pView) const
+        P<const ViewLayoutData> getViewLayoutData(View *view) const
         {
-            auto it = _dataMap.find(pView);
+            auto it = _dataMap.find(view);
             if (it != _dataMap.end())
                 return it->second;
             else

@@ -35,15 +35,15 @@ namespace bdn
              *  This is called automatically by the BDN_ENTRY_BEGIN macro. It is
              * usually not necessary to call this directly.
              *
-             *  pEnv must be a pointer to the JNI environment object that was
+             *  env must be a pointer to the JNI environment object that was
              * received by the JNI function.*/
-            void jniBlockBegun(JNIEnv *pEnv)
+            void jniBlockBegun(JNIEnv *env)
             {
                 // note that it is safe to cache the pointer since the Env
                 // objects are all thread local (and the JNIEnv stays the same
                 // for the same thread).
-                if (_pEnvIfKnown == nullptr)
-                    setEnv(pEnv, false);
+                if (_envIfKnown == nullptr)
+                    setEnv(env, false);
             }
 
             /** Returns the Jni environment object.
@@ -52,9 +52,9 @@ namespace bdn
              **/
             JNIEnv *getJniEnv()
             {
-                if (_pEnvIfKnown == nullptr)
+                if (_envIfKnown == nullptr)
                     createEnv();
-                return _pEnvIfKnown;
+                return _envIfKnown;
             }
 
             /** If the last JAVA call produced an exception then this is thrown
@@ -80,19 +80,19 @@ namespace bdn
             void setJavaSideException(const std::exception_ptr &exceptionPtr);
 
             /** Used internally. Do not call.*/
-            static void _onLoad(JavaVM *pVm);
+            static void _onLoad(JavaVM *vm);
 
           private:
             Env();
             friend class RawNewAllocator_Base_<Env>;
 
             void createEnv();
-            void setEnv(JNIEnv *pEnv, bool mustDetachThread);
+            void setEnv(JNIEnv *env, bool mustDetachThread);
 
-            JNIEnv *_pEnvIfKnown;
+            JNIEnv *_envIfKnown;
             bool _mustDetachThread;
 
-            static JavaVM *_pGlobalVm;
+            static JavaVM *_globalVm;
         };
     }
 }

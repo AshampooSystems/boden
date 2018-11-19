@@ -7,21 +7,21 @@
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/JContext.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv *pEnv, jobject rawSelf)
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv *env, jobject rawSelf)
 {
     bdn::platformEntryWrapper(
         [&]() { bdn::android::WindowCore::_rootViewCreated(bdn::java::Reference::convertExternalLocal(rawSelf)); },
-        true, pEnv);
+        true, env);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_disposed(JNIEnv *pEnv, jobject rawSelf)
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_disposed(JNIEnv *env, jobject rawSelf)
 {
     bdn::platformEntryWrapper(
         [&]() { bdn::android::WindowCore::_rootViewDisposed(bdn::java::Reference::convertExternalLocal(rawSelf)); },
-        true, pEnv);
+        true, env);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChanged(JNIEnv *pEnv, jobject rawSelf,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChanged(JNIEnv *env, jobject rawSelf,
                                                                                    int newWidth, int newHeight)
 {
     bdn::platformEntryWrapper(
@@ -29,10 +29,10 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChang
             bdn::android::WindowCore::_rootViewSizeChanged(bdn::java::Reference::convertExternalLocal(rawSelf),
                                                            newWidth, newHeight);
         },
-        true, pEnv);
+        true, env);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configurationChanged(JNIEnv *pEnv,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configurationChanged(JNIEnv *env,
                                                                                             jobject rawSelf,
                                                                                             jobject rawNewConfig)
 {
@@ -43,5 +43,5 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configura
             bdn::android::WindowCore::_rootViewConfigurationChanged(bdn::java::Reference::convertExternalLocal(rawSelf),
                                                                     newConfig);
         },
-        true, pEnv);
+        true, env);
 }

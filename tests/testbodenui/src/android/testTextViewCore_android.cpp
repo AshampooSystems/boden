@@ -34,7 +34,7 @@ class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
     void verifyCoreText() override
     {
-        String expectedText = _pTextView->text();
+        String expectedText = _textView->text();
 
         String text = _jTextView.getText();
 
@@ -47,7 +47,7 @@ class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
 TEST_CASE("android.TextViewCore")
 {
-    P<TestAndroidTextViewCore> pTest = newObj<TestAndroidTextViewCore>();
+    P<TestAndroidTextViewCore> test = newObj<TestAndroidTextViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

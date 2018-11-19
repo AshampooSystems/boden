@@ -50,11 +50,11 @@
 @end
 
 @interface BdnFkTimerFuncWrapper_ : NSObject {
-    bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> pTimerFuncList;
+    bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
     std::list<std::function<bool()>>::iterator timerFuncIt;
 }
 
-@property bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> pTimerFuncList;
+@property bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
 @property std::list<std::function<bool()>>::iterator timerFuncIt;
 
 - (void)targetMethod:(NSTimer *)theTimer;
@@ -63,14 +63,14 @@
 
 @implementation BdnFkTimerFuncWrapper_
 
-@synthesize pTimerFuncList;
+@synthesize timerFuncList;
 @synthesize timerFuncIt;
 
 - (void)targetMethod:(NSTimer *)theTimer
 {
     bdn::platformEntryWrapper(
         [&]() {
-            if (pTimerFuncList != nullptr) {
+            if (timerFuncList != nullptr) {
                 std::function<bool()> &timerFunc = *timerFuncIt;
 
                 bool result;
@@ -87,8 +87,8 @@
                 if (!result) {
                     [theTimer invalidate];
 
-                    pTimerFuncList->funcList.erase(timerFuncIt);
-                    pTimerFuncList = nullptr;
+                    timerFuncList->funcList.erase(timerFuncIt);
+                    timerFuncList = nullptr;
                 }
             }
         },
@@ -104,8 +104,8 @@ namespace bdn
 
         MainDispatcher::MainDispatcher()
         {
-            _pIdleQueue = newObj<IdleQueue>();
-            _pTimerFuncList = newObj<TimerFuncList_>();
+            _idleQueue = newObj<IdleQueue>();
+            _timerFuncList = newObj<TimerFuncList_>();
         }
 
         MainDispatcher::~MainDispatcher()
@@ -131,7 +131,7 @@ namespace bdn
             Mutex::Lock lock(_queueMutex);
 
             // empty our idle queue.
-            _pIdleQueue->dispose();
+            _idleQueue->dispose();
 
             while (!_normalQueue.empty()) {
                 BDN_LOG_AND_IGNORE_EXCEPTION(
@@ -162,7 +162,7 @@ namespace bdn
 
             // for timers we also cannot remove the items. So do the same thing
             // that we did for the normal timed items
-            for (std::function<bool()> &item : _pTimerFuncList->funcList) {
+            for (std::function<bool()> &item : _timerFuncList->funcList) {
                 BDN_LOG_AND_IGNORE_EXCEPTION(
                     {
                         // make a copy so that pop_front is not aborted if the
@@ -199,7 +199,7 @@ namespace bdn
         void MainDispatcher::enqueueInSeconds(double seconds, std::function<void()> func, Priority priority)
         {
             if (priority == Priority::normal) {
-                P<MainDispatcher> pThis = this;
+                P<MainDispatcher> self = this;
 
                 // we do not schedule the func call directly. Instead we add
                 // func to our own queue and schedule a call to our
@@ -212,7 +212,7 @@ namespace bdn
                         _normalQueue.push_back(func);
                     }
 
-                    _scheduleMainThreadCall([pThis] { pThis->callNextNormalItem(); });
+                    _scheduleMainThreadCall([self] { self->callNextNormalItem(); });
                 } else {
                     std::list<std::function<void()>>::iterator it;
                     {
@@ -222,7 +222,7 @@ namespace bdn
                         --it;
                     }
 
-                    _scheduleMainThreadCall([pThis, it] { pThis->callTimedItem(it); }, seconds);
+                    _scheduleMainThreadCall([self, it] { self->callTimedItem(it); }, seconds);
                 }
             } else if (priority == Priority::idle) {
                 // we must only access the run loop from the main thread.
@@ -233,13 +233,13 @@ namespace bdn
                 // Both of these can be solved by enqueuing the setup code with
                 // normal priority
 
-                P<MainDispatcher> pThis = this;
+                P<MainDispatcher> self = this;
 
                 _scheduleMainThreadCall(
-                    [pThis, func] {
-                        pThis->_pIdleQueue->add(func);
+                    [self, func] {
+                        self->_idleQueue->add(func);
 
-                        pThis->ensureIdleObserverInstalled();
+                        self->ensureIdleObserverInstalled();
                     },
 
                     seconds);
@@ -299,13 +299,13 @@ namespace bdn
             std::list<std::function<bool()>>::iterator it;
             {
                 Mutex::Lock lock(_queueMutex);
-                _pTimerFuncList->funcList.push_back(func);
-                it = _pTimerFuncList->funcList.end();
+                _timerFuncList->funcList.push_back(func);
+                it = _timerFuncList->funcList.end();
                 --it;
             }
 
             BdnFkTimerFuncWrapper_ *wrapper = [[BdnFkTimerFuncWrapper_ alloc] init];
-            wrapper.pTimerFuncList = _pTimerFuncList;
+            wrapper.timerFuncList = _timerFuncList;
             wrapper.timerFuncIt = it;
 
             [NSTimer scheduledTimerWithTimeInterval:intervalSeconds
@@ -318,11 +318,11 @@ namespace bdn
         void MainDispatcher::ensureIdleObserverInstalled()
         {
             if (!_idleObserverInstalled) {
-                P<IdleQueue> pQueue = _pIdleQueue;
+                P<IdleQueue> queue = _idleQueue;
 
                 id handler = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
                   if (activity == kCFRunLoopBeforeWaiting)
-                      pQueue->activateNext();
+                      queue->activateNext();
                 };
 
                 _idleObserver = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, kCFRunLoopAllActivities, true,

@@ -21,24 +21,24 @@ namespace bdn
         class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
-            explicit MockViewCore(View *pView)
+            explicit MockViewCore(View *view)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _outerViewWeak = pView;
+                _outerViewWeak = view;
 
-                _visible = pView->visible();
-                _padding = pView->padding();
-                _margin = pView->margin();
-                _horizontalAlignment = pView->horizontalAlignment();
-                _verticalAlignment = pView->verticalAlignment();
-                _preferredSizeHint = pView->preferredSizeHint();
-                _preferredSizeMinimum = pView->preferredSizeMinimum();
-                _preferredSizeMaximum = pView->preferredSizeMaximum();
+                _visible = view->visible();
+                _padding = view->padding();
+                _margin = view->margin();
+                _horizontalAlignment = view->horizontalAlignment();
+                _verticalAlignment = view->verticalAlignment();
+                _preferredSizeHint = view->preferredSizeHint();
+                _preferredSizeMinimum = view->preferredSizeMinimum();
+                _preferredSizeMaximum = view->preferredSizeMaximum();
                 // the bounds should not be copied from the outer object - a
                 // layout cycle must happen to initialize it. _bounds = Rect(
-                // pView->position(), pView->size() );
-                _pParentViewWeak = pView->getParentView();
+                // view->position(), view->size() );
+                _parentViewWeak = view->getParentView();
             }
 
             ~MockViewCore()
@@ -80,7 +80,7 @@ namespace bdn
                 Note that the MockViewCore does not hold a reference to it, so
                it will not keep the parent view alive. You have to ensure that
                the parent still exists when you access the returned pointer.*/
-            View *getParentViewWeak() const { return _pParentViewWeak; }
+            View *getParentViewWeak() const { return _parentViewWeak; }
 
             /** Returns the number of times the view's parent have changed.*/
             int getParentViewChangeCount() const { return _parentViewChangeCount; }
@@ -295,7 +295,7 @@ namespace bdn
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _pParentViewWeak = &newParentView;
+                _parentViewWeak = &newParentView;
                 _parentViewChangeCount++;
             }
 
@@ -358,23 +358,23 @@ namespace bdn
 
                 _needLayoutCount++;
 
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr)
-                    cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr)
+                    cast<MockUiProvider>(view->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(view);
             }
 
             int getChildSizingInfoInvalidatedCount() const { return _childSizingInfoInvalidatedCount; }
 
-            void childSizingInfoInvalidated(View *pChild) override
+            void childSizingInfoInvalidated(View *child) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 _childSizingInfoInvalidatedCount++;
 
-                P<View> pOuter = getOuterViewIfStillAttached();
-                if (pOuter != nullptr) {
-                    pOuter->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuter->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+                P<View> outer = getOuterViewIfStillAttached();
+                if (outer != nullptr) {
+                    outer->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    outer->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
@@ -406,7 +406,7 @@ namespace bdn
             Rect _bounds;
             int _boundsChangeCount = 0;
 
-            View *_pParentViewWeak = nullptr;
+            View *_parentViewWeak = nullptr;
             int _parentViewChangeCount = 0;
 
             int _layoutCount = 0;

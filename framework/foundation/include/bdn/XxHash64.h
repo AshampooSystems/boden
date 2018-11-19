@@ -24,9 +24,9 @@ namespace bdn
             case to predictably alter the result. If you hash the same data with
            a different seed then you will get a different hash.
         */
-        static uint64_t calcHash(const void *pData, size_t bytes, uint64_t seed = 0)
+        static uint64_t calcHash(const void *data, size_t bytes, uint64_t seed = 0)
         {
-            SimpleDataProvider dataProvider((const uint8_t *)pData, bytes);
+            SimpleDataProvider dataProvider((const uint8_t *)data, bytes);
 
             return calcHashWithDataProvider(dataProvider, seed);
         }
@@ -57,7 +57,7 @@ namespace bdn
                used). The array must have (\c tailSizeBytes % 4) entries - so it
                is between 0 and 3 bytes.
                 */
-            const uint8_t *pBytes;
+            const uint8_t *bytes;
         };
 
         /** Calculates the hash, using data provided by the specified
@@ -159,8 +159,8 @@ namespace bdn
 
             hash += totalByteCount;
 
-            const uint64_t *pTail64BitValuesEnd = tailData.p64BitValues + (tailData.tailSizeBytes >> 3);
-            while (tailData.p64BitValues != pTail64BitValuesEnd) {
+            const uint64_t *tail64BitValuesEnd = tailData.p64BitValues + (tailData.tailSizeBytes >> 3);
+            while (tailData.p64BitValues != tail64BitValuesEnd) {
                 uint64_t temp = 0;
 
                 doRound(temp, *tailData.p64BitValues);
@@ -176,12 +176,12 @@ namespace bdn
                 hash = rotateBitsLeft(hash, 23) * prime2 + prime3;
             }
 
-            const uint8_t *pTailBytesEnd = tailData.pBytes + (tailData.tailSizeBytes & 3);
-            while (tailData.pBytes != pTailBytesEnd) {
-                hash ^= (*tailData.pBytes) * prime5;
+            const uint8_t *tailBytesEnd = tailData.bytes + (tailData.tailSizeBytes & 3);
+            while (tailData.bytes != tailBytesEnd) {
+                hash ^= (*tailData.bytes) * prime5;
                 hash = rotateBitsLeft(hash, 11) * prime1;
 
-                tailData.pBytes++;
+                tailData.bytes++;
             }
 
             hash ^= hash >> 33;
@@ -222,14 +222,14 @@ namespace bdn
         class SimpleDataProvider
         {
           public:
-            SimpleDataProvider(const uint8_t *pData, size_t bytes) : _pNextData(pData), _bytesLeft(bytes) {}
+            SimpleDataProvider(const uint8_t *data, size_t bytes) : _nextData(data), _bytesLeft(bytes) {}
 
             const uint64_t *next4x8ByteBlock()
             {
                 if (_bytesLeft < 32)
                     return nullptr;
 
-                memcpy(_8ByteValues, _pNextData, 32);
+                memcpy(_8ByteValues, _nextData, 32);
 
 #if BDN_IS_BIG_ENDIAN
                 // in order for the hash to be the same on every system
@@ -245,7 +245,7 @@ namespace bdn
                 swapByteOrder(_8ByteValues[3]);
 #endif
 
-                _pNextData += 32;
+                _nextData += 32;
                 _bytesLeft -= 32;
 
                 return _8ByteValues;
@@ -253,7 +253,7 @@ namespace bdn
 
             TailData getTailData()
             {
-                memcpy(_8ByteValues, _pNextData, _bytesLeft);
+                memcpy(_8ByteValues, _nextData, _bytesLeft);
 
                 // note: casting the uint64_t pointer to uint32_t is fine, even
                 // if memory access must be aligned. Because if alignment is
@@ -276,12 +276,12 @@ namespace bdn
                 swapByteOrder(*p4ByteValue);
 #endif
 
-                return TailData{_bytesLeft, _8ByteValues, p4ByteValue, _pNextData + _bytesLeft - (_bytesLeft & 3)};
+                return TailData{_bytesLeft, _8ByteValues, p4ByteValue, _nextData + _bytesLeft - (_bytesLeft & 3)};
             }
 
           private:
             uint64_t _8ByteValues[4];
-            const uint8_t *_pNextData;
+            const uint8_t *_nextData;
             size_t _bytesLeft;
         };
     };

@@ -25,7 +25,7 @@ namespace bdn
 
 @interface BdnSwitchClickManager : NSObject
 
-@property bdn::mac::IClickManagerTarget *pTarget;
+@property bdn::mac::IClickManagerTarget *target;
 
 @end
 
@@ -64,17 +64,17 @@ namespace bdn
             }
 
           public:
-            SwitchCore(T *pOuter) : ChildViewCore(pOuter, _createSwitchComposite())
+            SwitchCore(T *outer) : ChildViewCore(outer, _createSwitchComposite())
             {
                 _clickManager = [[BdnSwitchClickManager alloc] init];
-                _clickManager.pTarget = this;
+                _clickManager.target = this;
 
                 BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
                 [composite.bdnSwitch setTarget:_clickManager];
                 [composite.bdnSwitch setAction:@selector(clicked)];
 
-                setLabel(pOuter->label());
-                setOn(pOuter->on());
+                setLabel(outer->label());
+                setOn(outer->on());
             }
 
             virtual ~SwitchCore()
@@ -101,13 +101,13 @@ namespace bdn
 
             void clicked() override
             {
-                P<T> pOuter = cast<T>(getOuterViewIfStillAttached());
-                if (pOuter != nullptr) {
-                    bdn::ClickEvent evt(pOuter);
+                P<T> outer = cast<T>(getOuterViewIfStillAttached());
+                if (outer != nullptr) {
+                    bdn::ClickEvent evt(outer);
 
                     BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
-                    pOuter->setOn(composite.bdnSwitch.on);
-                    pOuter->onClick().notify(evt);
+                    outer->setOn(composite.bdnSwitch.on);
+                    outer->onClick().notify(evt);
                 }
             }
 

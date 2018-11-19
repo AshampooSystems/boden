@@ -87,16 +87,16 @@ namespace bdn
         class WaitingMarker
         {
           public:
-            WaitingMarker(Signal *pSignal)
+            WaitingMarker(Signal *signal)
             {
-                _pSignalWeak = pSignal;
-                _pSignalWeak->_waitingCount++;
+                _signalWeak = signal;
+                _signalWeak->_waitingCount++;
             }
 
-            ~WaitingMarker() { _pSignalWeak->_waitingCount--; }
+            ~WaitingMarker() { _signalWeak->_waitingCount--; }
 
           protected:
-            Signal *_pSignalWeak;
+            Signal *_signalWeak;
         };
         friend class WaitingMarker;
 

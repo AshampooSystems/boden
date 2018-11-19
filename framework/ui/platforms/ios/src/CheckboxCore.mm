@@ -5,15 +5,15 @@
 
 @interface BdnIosCheckboxClickManager : NSObject
 
-@property bdn::ios::CheckboxCore *pCore;
+@property bdn::ios::CheckboxCore *core;
 
 @end
 
 @implementation BdnIosCheckboxClickManager
 
-- (void)setCheckboxCore:(bdn::ios::CheckboxCore *)pCore { _pCore = pCore; }
+- (void)setCheckboxCore:(bdn::ios::CheckboxCore *)core { _core = core; }
 
-- (void)clicked { _pCore->_clicked(); }
+- (void)clicked { _core->_clicked(); }
 
 @end
 
@@ -77,8 +77,7 @@ namespace bdn
             return switchComposite;
         }
 
-        CheckboxCore::CheckboxCore(Checkbox *pOuterCheckbox)
-            : ToggleCoreBase(pOuterCheckbox, _createCheckboxComposite())
+        CheckboxCore::CheckboxCore(Checkbox *outerCheckbox) : ToggleCoreBase(outerCheckbox, _createCheckboxComposite())
         {
             _composite = (BdnIosCheckboxComposite *)getUIView();
 
@@ -91,8 +90,8 @@ namespace bdn
                         forControlEvents:UIControlEventTouchUpInside];
 
             // Set initial state
-            setLabel(pOuterCheckbox->label());
-            setState(pOuterCheckbox->state());
+            setLabel(outerCheckbox->label());
+            setState(outerCheckbox->state());
         }
 
         CheckboxCore::~CheckboxCore()
@@ -125,9 +124,9 @@ namespace bdn
 
         void CheckboxCore::_clicked()
         {
-            P<View> pView = getOuterViewIfStillAttached();
-            if (pView != nullptr) {
-                ClickEvent evt(pView);
+            P<View> view = getOuterViewIfStillAttached();
+            if (view != nullptr) {
+                ClickEvent evt(view);
 
                 // Observing the UISwitch state via KVO does not work when
                 // the switch state is changed via user interaction. KVO
@@ -138,8 +137,8 @@ namespace bdn
                 //
                 // We guarantee that the on property will be set before
                 // a notification is posted to onClick.
-                cast<Checkbox>(pView)->setState(((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState);
-                cast<Checkbox>(pView)->onClick().notify(evt);
+                cast<Checkbox>(view)->setState(((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState);
+                cast<Checkbox>(view)->onClick().notify(evt);
             }
         }
     }

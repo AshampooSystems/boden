@@ -16,10 +16,10 @@ namespace bdn
         class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore
         {
           private:
-            static UIScrollView *_createScrollView(ScrollView *pOuter);
+            static UIScrollView *_createScrollView(ScrollView *outer);
 
           public:
-            ScrollViewCore(ScrollView *pOuter);
+            ScrollViewCore(ScrollView *outer);
 
             void setPadding(const Nullable<UiMargin> &padding) override;
 

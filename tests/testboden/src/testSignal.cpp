@@ -7,17 +7,17 @@
 
 using namespace bdn;
 
-void verifySignalState(Signal *pSignal, bool expectedSet)
+void verifySignalState(Signal *signal, bool expectedSet)
 {
-    REQUIRE(pSignal->isSet() == expectedSet);
+    REQUIRE(signal->isSet() == expectedSet);
 
     StopWatch stopWatch;
-    REQUIRE(pSignal->wait(0) == expectedSet);
+    REQUIRE(signal->wait(0) == expectedSet);
     // should not have waited
     REQUIRE(stopWatch.getMillis() < 500);
 
     stopWatch.start();
-    REQUIRE(pSignal->wait(1000) == expectedSet);
+    REQUIRE(signal->wait(1000) == expectedSet);
 
     if (expectedSet) {
         // should not have waited
@@ -28,55 +28,55 @@ void verifySignalState(Signal *pSignal, bool expectedSet)
     }
 
     // the wait functions must not have modified the state.
-    REQUIRE(pSignal->isSet() == expectedSet);
+    REQUIRE(signal->isSet() == expectedSet);
 }
 
 TEST_CASE("Signal")
 {
-    P<Signal> pSignal = newObj<Signal>();
+    P<Signal> signal = newObj<Signal>();
 
     SECTION("initialState")
-    verifySignalState(pSignal, false);
+    verifySignalState(signal, false);
 
     SECTION("sameThread")
     {
         SECTION("setWaitClear")
         {
-            pSignal->set();
-            verifySignalState(pSignal, true);
+            signal->set();
+            verifySignalState(signal, true);
 
-            pSignal->clear();
-            verifySignalState(pSignal, false);
+            signal->clear();
+            verifySignalState(signal, false);
         }
 
         SECTION("pulseOne")
         {
-            pSignal->pulseOne();
+            signal->pulseOne();
             // should have no effect if no one is currently waiting
-            verifySignalState(pSignal, false);
+            verifySignalState(signal, false);
         }
 
         SECTION("pulseAll")
         {
-            pSignal->pulseAll();
+            signal->pulseAll();
             // should have no effect if no one is currently waiting
-            verifySignalState(pSignal, false);
+            verifySignalState(signal, false);
         }
 
         SECTION("pulseOneWhileSet")
         {
-            pSignal->set();
-            pSignal->pulseOne();
+            signal->set();
+            signal->pulseOne();
             // should have reset the signal
-            verifySignalState(pSignal, false);
+            verifySignalState(signal, false);
         }
 
         SECTION("pulseAllWhileSet")
         {
-            pSignal->set();
-            pSignal->pulseAll();
+            signal->set();
+            signal->pulseAll();
             // should have reset the signal
-            verifySignalState(pSignal, false);
+            verifySignalState(signal, false);
         }
     }
 
@@ -85,18 +85,18 @@ TEST_CASE("Signal")
     {
         SECTION("setWait")
         {
-            Thread::exec([pSignal]() {
+            Thread::exec([signal]() {
                 Thread::sleepMillis(3000);
 
-                pSignal->set();
+                signal->set();
             });
 
             StopWatch stopWatch;
 
             // should not yet be set
-            verifySignalState(pSignal, false);
+            verifySignalState(signal, false);
 
-            REQUIRE(pSignal->wait(5000));
+            REQUIRE(signal->wait(5000));
             // should have waited about 3000ms in total
             REQUIRE(stopWatch.getMillis() > 2500);
             REQUIRE(stopWatch.getMillis() < 4500);
@@ -108,17 +108,17 @@ TEST_CASE("Signal")
 
             std::list<std::future<void>> futureList;
             for (int i = 0; i < 10; i++) {
-                futureList.push_back(Thread::exec([pSignal, &signalledCount]() {
+                futureList.push_back(Thread::exec([signal, &signalledCount]() {
                     Thread::sleepMillis(1000);
 
-                    if (pSignal->wait(10000))
+                    if (signal->wait(10000))
                         signalledCount++;
                 }));
             }
 
             Thread::sleepMillis(4000);
 
-            pSignal->pulseOne();
+            signal->pulseOne();
 
             Thread::sleepMillis(1000);
 
@@ -139,17 +139,17 @@ TEST_CASE("Signal")
 
             std::list<std::future<void>> futureList;
             for (int i = 0; i < 10; i++) {
-                futureList.push_back(Thread::exec([pSignal, &signalledCount]() {
+                futureList.push_back(Thread::exec([signal, &signalledCount]() {
                     Thread::sleepMillis(1000);
 
-                    if (pSignal->wait(10000))
+                    if (signal->wait(10000))
                         signalledCount++;
                 }));
             }
 
             Thread::sleepMillis(4000);
 
-            pSignal->pulseAll();
+            signal->pulseAll();
 
             // wait for all threads to finish.
             StopWatch stopWatch;

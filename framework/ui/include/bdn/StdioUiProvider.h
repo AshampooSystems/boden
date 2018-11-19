@@ -17,23 +17,23 @@ namespace bdn
     template <typename CharType> class StdioUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
     {
       public:
-        StdioUiProvider(std::basic_istream<CharType> *pInStream, std::basic_ostream<CharType> *pOutStream,
-                        std::basic_ostream<CharType> *pErrStream)
+        StdioUiProvider(std::basic_istream<CharType> *inStream, std::basic_ostream<CharType> *outStream,
+                        std::basic_ostream<CharType> *errStream)
         {
-            _pTextUi = newObj<StdioTextUi<CharType>>(pInStream, pOutStream, pErrStream);
+            _textUi = newObj<StdioTextUi<CharType>>(inStream, outStream, errStream);
         }
 
         String getName() const { return "stdio"; }
 
-        P<IViewCore> createViewCore(const String &coreTypeName, View *pView)
+        P<IViewCore> createViewCore(const String &coreTypeName, View *view)
         {
             throw ViewCoreTypeNotSupportedError(coreTypeName);
         }
 
-        P<ITextUi> getTextUi() { return _pTextUi; }
+        P<ITextUi> getTextUi() { return _textUi; }
 
       private:
-        P<StdioTextUi<CharType>> _pTextUi;
+        P<StdioTextUi<CharType>> _textUi;
     };
 }
 

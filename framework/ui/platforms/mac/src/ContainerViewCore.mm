@@ -22,7 +22,7 @@ namespace bdn
     namespace mac
     {
 
-        NSView *ContainerViewCore::_createContainer(ContainerView *pOuter)
+        NSView *ContainerViewCore::_createContainer(ContainerView *outer)
         {
             return [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
         }

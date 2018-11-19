@@ -20,7 +20,7 @@ namespace bdn
         class MockTextFieldCore : public MockViewCore, BDN_IMPLEMENTS ITextFieldCore
         {
           public:
-            MockTextFieldCore(TextField *pTextField) : MockViewCore(pTextField) { _text = pTextField->text(); }
+            MockTextFieldCore(TextField *textField) : MockViewCore(textField) { _text = textField->text(); }
 
             String getText() const { return _text; }
 
@@ -40,20 +40,20 @@ namespace bdn
 
                 Margin padding;
 
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    if (!pView->padding().isNull())
-                        padding = uiMarginToDipMargin(pView->padding().get());
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    if (!view->padding().isNull())
+                        padding = uiMarginToDipMargin(view->padding().get());
                 }
 
                 // Calculate size from line height + padding
                 Size textSize = _getTextSize(_text);
                 Size size = Size(0, textSize.height) + padding;
 
-                if (pView != nullptr) {
+                if (view != nullptr) {
                     // Clip to min and max size
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;

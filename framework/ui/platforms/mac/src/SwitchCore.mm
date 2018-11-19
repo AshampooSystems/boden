@@ -3,7 +3,7 @@
 
 @implementation BdnSwitchClickManager
 
-- (void)clicked { self.pTarget->clicked(); }
+- (void)clicked { self.target->clicked(); }
 
 @end
 

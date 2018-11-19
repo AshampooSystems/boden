@@ -26,12 +26,12 @@ namespace bdn
         class Caller
         {
           public:
-            Caller(CallFromMainThreadBase_ *pCallable) { _pCallable = pCallable; }
+            Caller(CallFromMainThreadBase_ *callable) { _callable = callable; }
 
-            void operator()() { _pCallable->call(); }
+            void operator()() { _callable->call(); }
 
           private:
-            P<CallFromMainThreadBase_> _pCallable;
+            P<CallFromMainThreadBase_> _callable;
         };
     };
 
@@ -81,7 +81,7 @@ namespace bdn
     template <class FuncType, class... Args>
     std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> pCall =
+        P<CallFromMainThread_<FuncType, Args...>> call =
             newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
         // we return a future object that will block until the function
@@ -90,11 +90,11 @@ namespace bdn
         // while we wait blocking. So if we are on the main thread then we must
         // execute the function immediately.
         if (Thread::isCurrentMain())
-            pCall->call();
+            call->call();
         else
-            pCall->dispatchCall();
+            call->dispatchCall();
 
-        return pCall->getFuture();
+        return call->getFuture();
     }
 
     /** Schedules the specified function to be called from the main thread
@@ -114,10 +114,10 @@ namespace bdn
     {
         // always dispatch to the event loop.
 
-        P<CallFromMainThread_<FuncType, Args...>> pCall =
+        P<CallFromMainThread_<FuncType, Args...>> call =
             newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
-        pCall->dispatchCall();
+        call->dispatchCall();
     }
 
     /** Schedules the specified function to be called from the main thread
@@ -144,10 +144,10 @@ namespace bdn
     */
     template <class FuncType, class... Args> void asyncCallFromMainThreadWhenIdle(FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> pCall =
+        P<CallFromMainThread_<FuncType, Args...>> call =
             newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
-        pCall->dispatchCallWhenIdle();
+        call->dispatchCallWhenIdle();
     }
 
     /** Schedules the specified function to be called from the main thread
@@ -162,10 +162,10 @@ namespace bdn
     template <class FuncType, class... Args>
     void asyncCallFromMainThreadAfterSeconds(double seconds, FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> pCall =
+        P<CallFromMainThread_<FuncType, Args...>> call =
             newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
 
-        pCall->dispatchCallWithDelaySeconds(seconds);
+        call->dispatchCallWithDelaySeconds(seconds);
     }
 
     /** Wraps a function (called the "inner function") into a wrapper function.

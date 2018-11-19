@@ -14,9 +14,9 @@ class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
   protected:
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pButton->label();
+        String expectedLabel = _button->label();
 
-        String label = cast<bdn::test::MockButtonCore>(_pMockCore)->getLabel();
+        String label = cast<bdn::test::MockButtonCore>(_mockCore)->getLabel();
 
         REQUIRE(label == expectedLabel);
     }
@@ -24,7 +24,7 @@ class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
 
 TEST_CASE("mock.ButtonCore")
 {
-    P<TestMockButtonCore> pTest = newObj<TestMockButtonCore>();
+    P<TestMockButtonCore> test = newObj<TestMockButtonCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

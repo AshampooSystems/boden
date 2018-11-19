@@ -15,21 +15,21 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
   public:
     ScrollViewLayoutHelperTester() : _helper(13, 7)
     {
-        _pUiProvider = newObj<bdn::test::MockUiProvider>();
-        _pWindow = newObj<Window>(_pUiProvider);
+        _uiProvider = newObj<bdn::test::MockUiProvider>();
+        _window = newObj<Window>(_uiProvider);
 
-        _pScrollView = newObj<ScrollView>();
+        _scrollView = newObj<ScrollView>();
 
-        _pWindow->setContentView(_pScrollView);
+        _window->setContentView(_scrollView);
     }
 
-    P<bdn::test::MockUiProvider> _pUiProvider;
-    P<Window> _pWindow;
-    P<ScrollView> _pScrollView;
+    P<bdn::test::MockUiProvider> _uiProvider;
+    P<Window> _window;
+    P<ScrollView> _scrollView;
 
     ScrollViewLayoutHelper _helper;
 
-    P<ScrollView> getScrollView() override { return _pScrollView; }
+    P<ScrollView> getScrollView() override { return _scrollView; }
 
     double getVertBarWidth() override { return 13; }
 
@@ -37,14 +37,14 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
 
     Size callCalcPreferredSize(const Size &availableSpace = Size::none()) override
     {
-        return _helper.calcPreferredSize(_pScrollView, availableSpace);
+        return _helper.calcPreferredSize(_scrollView, availableSpace);
     }
 
     Size prepareCalcLayout(const Size &viewPortSize) override
     {
         _prepareCalcLayoutViewPortSize =
-            _pScrollView
-                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView
+                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // the adjusted size should be roughly the same
@@ -54,7 +54,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
         return _prepareCalcLayoutViewPortSize;
     }
 
-    void calcLayoutAfterPreparation() override { _helper.calcLayout(_pScrollView, _prepareCalcLayoutViewPortSize); }
+    void calcLayoutAfterPreparation() override { _helper.calcLayout(_scrollView, _prepareCalcLayoutViewPortSize); }
 
     void verifyScrollsHorizontally(bool expectedScrolls) override
     {
@@ -127,7 +127,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
 
 TEST_CASE("ScrollViewLayoutHelper")
 {
-    P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>();
+    P<ScrollViewLayoutHelperTester> tester = newObj<ScrollViewLayoutHelperTester>();
 
-    pTester->doPreferredSizeAndLayoutTests();
+    tester->doPreferredSizeAndLayoutTests();
 }

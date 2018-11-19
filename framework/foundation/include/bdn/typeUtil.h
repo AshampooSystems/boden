@@ -29,8 +29,8 @@ namespace bdn
         // *((TYPE*)nullptr) instead, which is an lvalue reference.
 
         template <typename TEST_ARG_TYPE>
-        static uint8_t _test(int dummy,
-                             decltype(&((*(LEFT_TYPE *)nullptr) << std::declval<TEST_ARG_TYPE>())) pDummy = nullptr);
+        static uint8_t _test(int dummyInt, decltype(&((*(LEFT_TYPE *)nullptr)
+                                                      << std::declval<TEST_ARG_TYPE>())) dummyPointer = nullptr);
 
         template <typename TEST_ARG_TYPE> static uint16_t _test(...);
 
@@ -89,7 +89,7 @@ namespace bdn
         // detect non-const operator-> overloads
 
         template <typename TEST_TYPE>
-        static uint8_t _test(int dummy, decltype(((TEST_TYPE *)nullptr)->operator->()) *pDummy = nullptr);
+        static uint8_t _test(int dummyInt, decltype(((TEST_TYPE *)nullptr)->operator->()) *dummyPointer = nullptr);
 
         template <typename TEST_TYPE> static uint16_t _test(...);
 

@@ -22,22 +22,22 @@ namespace bdn
                            BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           private:
-            UIWindow *_createUIWindow(Window *pOuterWindow);
+            UIWindow *_createUIWindow(Window *outerWindow);
 
           public:
-            WindowCore(Window *pOuterWindow) : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow))
+            WindowCore(Window *outerWindow) : ViewCore(outerWindow, _createUIWindow(outerWindow))
             {
                 _window = (UIWindow *)getUIView();
 
                 // schedule the outer object's bounds to the bounds of the ios
                 // window. Keep ourselves alive during this.
-                P<WindowCore> pThis = this;
-                asyncCallFromMainThread([pThis]() {
-                    if (pThis->_window != nil) {
-                        P<View> pView = pThis->getOuterViewIfStillAttached();
-                        if (pView != nullptr) {
-                            Rect bounds = iosRectToRect(pThis->_window.frame);
-                            pView->adjustAndSetBounds(bounds);
+                P<WindowCore> self = this;
+                asyncCallFromMainThread([self]() {
+                    if (self->_window != nil) {
+                        P<View> view = self->getOuterViewIfStillAttached();
+                        if (view != nullptr) {
+                            Rect bounds = iosRectToRect(self->_window.frame);
+                            view->adjustAndSetBounds(bounds);
                         }
                     }
                 });
@@ -76,57 +76,57 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *pChild) override
+            void childSizingInfoInvalidated(View *child) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, Margin(), Size());
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    return defaultWindowCalcPreferredSizeImpl(window, availableSpace, Margin(), Size());
                 else
                     return Size(0, 0);
             }
 
             void layout() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    defaultWindowLayoutImpl(pWindow, getContentArea());
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    defaultWindowLayoutImpl(window, getContentArea());
             }
 
             void requestAutoSize() override
             {
                 // TODO: Why request auto size if we are not able to resize ?
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
                 }
             }
 
             void requestCenter() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->windowNeedsCentering(pWindow);
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->windowNeedsCentering(window);
                 }
             }
 
@@ -155,8 +155,8 @@ namespace bdn
             Rect getContentArea()
             {
                 // Same size as bounds. There is no border or title bar on ios.
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
                     // the status bar (with network indicator, battery
                     // indicator, etc) is in the same coordinate space as our
                     // window. We do need the window itself to extend that far,
@@ -165,7 +165,7 @@ namespace bdn
                     // content view to overlap with the bar. So we adjust the
                     // content area accordingly.
 
-                    Rect area(Point(0, 0), pView->size());
+                    Rect area(Point(0, 0), view->size());
 
                     double topBarHeight = 0;
                     double bottomBarHeight = 0;

@@ -34,7 +34,7 @@ namespace bdn
             void createTimer(double intervalSeconds, std::function<bool()> func) override;
 
             /** Used internally. Do not call.*/
-            static bool _onTimerEvent(void *pTimer);
+            static bool _onTimerEvent(void *timer);
 
             class Timer_ : public Base
             {

@@ -25,15 +25,15 @@ namespace bdn
                            BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           public:
-            WindowCore(View *pOuter);
+            WindowCore(View *outer);
 
             ~WindowCore();
 
             NSWindow *getNSWindow() { return _nsWindow; }
 
-            P<Window> getOuterWindowIfStillAttached() { return _pOuterWindowWeak.toStrong(); }
+            P<Window> getOuterWindowIfStillAttached() { return _outerWindowWeak.toStrong(); }
 
-            P<const Window> getOuterWindowIfStillAttached() const { return _pOuterWindowWeak.toStrong(); }
+            P<const Window> getOuterWindowIfStillAttached() const { return _outerWindowWeak.toStrong(); }
 
             void setTitle(const String &title) override { [_nsWindow setTitle:stringToMacString(title)]; }
 
@@ -63,20 +63,20 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> pOuterView = getOuterWindowIfStillAttached();
-                if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
+                P<View> outerView = getOuterWindowIfStillAttached();
+                if (outerView != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *pChild) override
+            void childSizingInfoInvalidated(View *child) override
             {
-                P<View> pOuterView = getOuterWindowIfStillAttached();
-                if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+                P<View> outerView = getOuterWindowIfStillAttached();
+                if (outerView != nullptr) {
+                    outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
@@ -170,9 +170,9 @@ namespace bdn
             {
                 _currActualWindowBounds = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
 
-                P<Window> pOuter = getOuterWindowIfStillAttached();
-                if (pOuter != nullptr)
-                    pOuter->adjustAndSetBounds(_currActualWindowBounds);
+                P<Window> outer = getOuterWindowIfStillAttached();
+                if (outer != nullptr)
+                    outer->adjustAndSetBounds(_currActualWindowBounds);
             }
 
           private:
@@ -265,7 +265,7 @@ namespace bdn
                 return screen;
             }
 
-            WeakP<Window> _pOuterWindowWeak;
+            WeakP<Window> _outerWindowWeak;
             NSWindow *_nsWindow;
             NSView *_nsContentParent;
 

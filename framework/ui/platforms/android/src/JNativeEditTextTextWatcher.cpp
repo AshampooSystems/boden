@@ -7,7 +7,7 @@
 #include <bdn/android/TextFieldCore.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatcher_nativeBeforeTextChanged(
-    JNIEnv *pEnv, jobject rawSelf, jobject rawView, jstring string, jint start, jint count, jint after)
+    JNIEnv *env, jobject rawSelf, jobject rawView, jstring string, jint start, jint count, jint after)
 {
     bdn::platformEntryWrapper(
         [&]() {
@@ -20,15 +20,15 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
                 // and do nothing.
             } else {
                 jboolean isCopy;
-                bdn::String bdnString = pEnv->GetStringUTFChars(string, &isCopy);
+                bdn::String bdnString = env->GetStringUTFChars(string, &isCopy);
                 core->beforeTextChanged(bdnString, start, count, after);
             }
         },
-        true, pEnv);
+        true, env);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatcher_nativeOnTextChanged(
-    JNIEnv *pEnv, jobject rawSelf, jobject rawView, jstring string, jint start, jint before, jint count)
+    JNIEnv *env, jobject rawSelf, jobject rawView, jstring string, jint start, jint before, jint count)
 {
     bdn::platformEntryWrapper(
         [&]() {
@@ -41,15 +41,15 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
                 // and do nothing.
             } else {
                 jboolean isCopy;
-                bdn::String bdnString = pEnv->GetStringUTFChars(string, &isCopy);
+                bdn::String bdnString = env->GetStringUTFChars(string, &isCopy);
                 core->onTextChanged(bdnString, start, before, count);
             }
         },
-        true, pEnv);
+        true, env);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_io_boden_android_NativeEditTextTextWatcher_nativeAfterTextChanged(JNIEnv *pEnv, jobject rawSelf, jobject rawView)
+Java_io_boden_android_NativeEditTextTextWatcher_nativeAfterTextChanged(JNIEnv *env, jobject rawSelf, jobject rawView)
 {
     bdn::platformEntryWrapper(
         [&]() {
@@ -64,5 +64,5 @@ Java_io_boden_android_NativeEditTextTextWatcher_nativeAfterTextChanged(JNIEnv *p
                 core->afterTextChanged();
             }
         },
-        true, pEnv);
+        true, env);
 }

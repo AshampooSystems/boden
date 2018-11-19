@@ -22,11 +22,11 @@ namespace bdn
                                BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
         {
           public:
-            MockWindowCore(Window *pWindow) : MockViewCore(pWindow)
+            MockWindowCore(Window *window) : MockViewCore(window)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _title = pWindow->title();
+                _title = window->title();
             }
 
             /** Returns the window title that is currently configured.*/
@@ -61,29 +61,27 @@ namespace bdn
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, getBorder(), getMinimumSize());
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    return defaultWindowCalcPreferredSizeImpl(window, availableSpace, getBorder(), getMinimumSize());
                 else
                     return getMinimumSize();
             }
 
             void requestAutoSize() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    cast<MockUiProvider>(pWindow->getUiProvider())
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    cast<MockUiProvider>(window->getUiProvider())
                         ->getLayoutCoordinator()
-                        ->windowNeedsAutoSizing(pWindow);
+                        ->windowNeedsAutoSizing(window);
             }
 
             void requestCenter() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    cast<MockUiProvider>(pWindow->getUiProvider())
-                        ->getLayoutCoordinator()
-                        ->windowNeedsCentering(pWindow);
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    cast<MockUiProvider>(window->getUiProvider())->getLayoutCoordinator()->windowNeedsCentering(window);
             }
 
             void layout() override
@@ -93,9 +91,9 @@ namespace bdn
                 _layoutCount++;
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                    if (pWindow != nullptr)
-                        defaultWindowLayoutImpl(pWindow, getContentArea());
+                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    if (window != nullptr)
+                        defaultWindowLayoutImpl(window, getContentArea());
                 }
             }
 
@@ -106,9 +104,9 @@ namespace bdn
                 _autoSizeCount++;
 
                 if (!_overrideAutoSizeFunc || !_overrideAutoSizeFunc()) {
-                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                    if (pWindow != nullptr)
-                        defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize());
+                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    if (window != nullptr)
+                        defaultWindowAutoSizeImpl(window, getScreenWorkArea().getSize());
                 }
             }
 
@@ -132,9 +130,9 @@ namespace bdn
                 _centerCount++;
 
                 if (!_overrideCenterFunc || !_overrideCenterFunc()) {
-                    P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                    if (pWindow != nullptr)
-                        defaultWindowCenterImpl(pWindow, getScreenWorkArea());
+                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    if (window != nullptr)
+                        defaultWindowCenterImpl(window, getScreenWorkArea());
                 }
             }
 

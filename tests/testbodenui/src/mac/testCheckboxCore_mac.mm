@@ -18,33 +18,33 @@ class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
-        _pNSButton = (NSButton *)_pNSView;
-        REQUIRE(_pNSButton != nullptr);
+        _nSButton = (NSButton *)_nSView;
+        REQUIRE(_nSButton != nullptr);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pCheckbox->label();
+        String expectedLabel = _checkbox->label();
 
-        String label = bdn::mac::macStringToString(_pNSButton.title);
+        String label = bdn::mac::macStringToString(_nSButton.title);
 
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
-        TriState expectedState = _pCheckbox->state();
-        TriState state = bdn::mac::nsControlStateValueToTriState(_pNSButton.state);
+        TriState expectedState = _checkbox->state();
+        TriState state = bdn::mac::nsControlStateValueToTriState(_nSButton.state);
         REQUIRE(state == expectedState);
     }
 
   protected:
-    NSButton *_pNSButton;
+    NSButton *_nSButton;
 };
 
 TEST_CASE("mac.CheckboxCore")
 {
-    P<TestMacCheckboxCore> pTest = newObj<TestMacCheckboxCore>();
+    P<TestMacCheckboxCore> test = newObj<TestMacCheckboxCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

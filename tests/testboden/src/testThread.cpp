@@ -34,28 +34,28 @@ class TestStopRunnable : public ThreadRunnableBase
 
 void testSignalStop()
 {
-    P<TestStopRunnable> pRunnable = newObj<TestStopRunnable>();
+    P<TestStopRunnable> runnable = newObj<TestStopRunnable>();
 
-    Thread thread(pRunnable);
+    Thread thread(runnable);
 
     Thread::sleepSeconds(2);
 
-    REQUIRE(pRunnable->waiting);
-    REQUIRE(!pRunnable->done);
+    REQUIRE(runnable->waiting);
+    REQUIRE(!runnable->done);
 
     thread.signalStop();
 
     Thread::sleepSeconds(2);
 
-    REQUIRE(pRunnable->waiting);
-    REQUIRE(pRunnable->done);
+    REQUIRE(runnable->waiting);
+    REQUIRE(runnable->done);
 }
 
 void testStop(bool throwException)
 {
-    P<TestStopRunnable> pRunnable = newObj<TestStopRunnable>(throwException);
+    P<TestStopRunnable> runnable = newObj<TestStopRunnable>(throwException);
 
-    Thread thread(pRunnable);
+    Thread thread(runnable);
 
     StopWatch watch;
 
@@ -66,7 +66,7 @@ void testStop(bool throwException)
         else
             thread.stop(Thread::ExceptionThrow);
 
-        REQUIRE(pRunnable->done);
+        REQUIRE(runnable->done);
 
         REQUIRE(watch.getMillis() < 2000);
     }
@@ -75,7 +75,7 @@ void testStop(bool throwException)
     {
         thread.stop(Thread::ExceptionIgnore);
 
-        REQUIRE(pRunnable->done);
+        REQUIRE(runnable->done);
 
         REQUIRE(watch.getMillis() < 2000);
     }
@@ -135,9 +135,9 @@ void testJoin()
 {
     SECTION("noException")
     {
-        P<TestJoinRunnable> pRunnable = newObj<TestJoinRunnable>(false);
+        P<TestJoinRunnable> runnable = newObj<TestJoinRunnable>(false);
 
-        Thread thread(pRunnable);
+        Thread thread(runnable);
 
         StopWatch watch;
 
@@ -156,9 +156,9 @@ void testJoin()
 
     SECTION("exception")
     {
-        P<TestJoinRunnable> pRunnable = newObj<TestJoinRunnable>(true);
+        P<TestJoinRunnable> runnable = newObj<TestJoinRunnable>(true);
 
-        Thread thread(pRunnable);
+        Thread thread(runnable);
 
         SECTION("throw")
         REQUIRE_THROWS(thread.join(Thread::ExceptionThrow));
@@ -181,16 +181,16 @@ void verifyDestructWithoutStopSupport(bool throwException)
 {
     // should behave the same, no matter whether an exception is thrown or not.
 
-    P<TestJoinRunnable> pRunnable = newObj<TestJoinRunnable>(throwException);
+    P<TestJoinRunnable> runnable = newObj<TestJoinRunnable>(throwException);
 
     StopWatch watch;
 
     {
-        Thread thread(pRunnable);
+        Thread thread(runnable);
     }
 
     // should have "stopped" the thread.
-    REQUIRE(pRunnable->done);
+    REQUIRE(runnable->done);
     REQUIRE(watch.getMillis() >= 5000);
     REQUIRE(watch.getMillis() < 7000);
 }
@@ -199,16 +199,16 @@ void verifyDestructWithStopSupport(bool throwException)
 {
     // should behave the same, no matter whether an exception is thrown or not.
 
-    P<TestStopRunnable> pRunnable = newObj<TestStopRunnable>(throwException);
+    P<TestStopRunnable> runnable = newObj<TestStopRunnable>(throwException);
 
     StopWatch watch;
 
     {
-        Thread thread(pRunnable);
+        Thread thread(runnable);
     }
 
     // should have "stopped" the thread.
-    REQUIRE(pRunnable->done);
+    REQUIRE(runnable->done);
     REQUIRE(watch.getMillis() < 1000);
 }
 
@@ -247,50 +247,50 @@ class TestIdRunnable : public ThreadRunnableBase
 
 void testId()
 {
-    P<TestIdRunnable> pRunnable1 = newObj<TestIdRunnable>();
-    P<TestIdRunnable> pRunnable2 = newObj<TestIdRunnable>();
+    P<TestIdRunnable> runnable1 = newObj<TestIdRunnable>();
+    P<TestIdRunnable> runnable2 = newObj<TestIdRunnable>();
 
-    Thread thread1(pRunnable1);
-    Thread thread2(pRunnable2);
+    Thread thread1(runnable1);
+    Thread thread2(runnable2);
 
     Thread::sleepSeconds(2);
 
-    REQUIRE(pRunnable1->idFromThread == thread1.getId());
-    REQUIRE(pRunnable2->idFromThread == thread2.getId());
+    REQUIRE(runnable1->idFromThread == thread1.getId());
+    REQUIRE(runnable2->idFromThread == thread2.getId());
 
-    REQUIRE(pRunnable1->idFromThread != pRunnable2->idFromThread);
-    REQUIRE(pRunnable1->idFromThread != Thread::getMainId());
-    REQUIRE(pRunnable2->idFromThread != Thread::getMainId());
+    REQUIRE(runnable1->idFromThread != runnable2->idFromThread);
+    REQUIRE(runnable1->idFromThread != Thread::getMainId());
+    REQUIRE(runnable2->idFromThread != Thread::getMainId());
 
-    REQUIRE(pRunnable1->idFromThread != Thread::getCurrentId());
-    REQUIRE(pRunnable2->idFromThread != Thread::getCurrentId());
+    REQUIRE(runnable1->idFromThread != Thread::getCurrentId());
+    REQUIRE(runnable2->idFromThread != Thread::getCurrentId());
 
     thread1.join(Thread::ExceptionThrow);
     thread2.join(Thread::ExceptionThrow);
 
     // id should still be set
-    REQUIRE(thread1.getId() == pRunnable1->idFromThread);
-    REQUIRE(thread2.getId() == pRunnable2->idFromThread);
+    REQUIRE(thread1.getId() == runnable1->idFromThread);
+    REQUIRE(thread2.getId() == runnable2->idFromThread);
 }
 
 void testRunnableReferences()
 {
-    P<TestJoinRunnable> pRunnable = newObj<TestJoinRunnable>(false);
+    P<TestJoinRunnable> runnable = newObj<TestJoinRunnable>(false);
 
-    Thread thread(pRunnable);
+    Thread thread(runnable);
 
-    REQUIRE(pRunnable->getRefCount() == 2);
+    REQUIRE(runnable->getRefCount() == 2);
 
     thread.join(Thread::ExceptionThrow);
 
-    REQUIRE(pRunnable->getRefCount() == 1);
+    REQUIRE(runnable->getRefCount() == 1);
 }
 
 void testDetach()
 {
-    P<TestJoinRunnable> pRunnable = newObj<TestJoinRunnable>(false);
+    P<TestJoinRunnable> runnable = newObj<TestJoinRunnable>(false);
 
-    Thread thread(pRunnable);
+    Thread thread(runnable);
 
     Thread::Id id = thread.getId();
 
@@ -751,13 +751,13 @@ TEST_CASE("ThreadLocalStorage")
 
     SECTION("setGet")
     {
-        P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(42);
+        P<ThreadLocalTestData> data = newObj<ThreadLocalTestData>(42);
 
-        getThreadLocal2() = pData;
+        getThreadLocal2() = data;
 
         REQUIRE(getThreadLocal2() != nullptr);
 
-        REQUIRE(getThreadLocal2() == pData);
+        REQUIRE(getThreadLocal2() == data);
     }
 
     SECTION("directToRef")
@@ -771,33 +771,33 @@ TEST_CASE("ThreadLocalStorage")
 
     SECTION("objectIdentityInSameAndOtherThreads")
     {
-        P<ThreadLocalTestData> &pA = getThreadLocal3();
-        P<ThreadLocalTestData> &pB = getThreadLocal3();
+        P<ThreadLocalTestData> &a = getThreadLocal3();
+        P<ThreadLocalTestData> &b = getThreadLocal3();
 
         // should get the same object each time
-        REQUIRE(&pA == &pB);
+        REQUIRE(&a == &b);
 
         // should be null initially
-        REQUIRE(pA == nullptr);
-        REQUIRE(pB == nullptr);
+        REQUIRE(a == nullptr);
+        REQUIRE(b == nullptr);
 
-        pA = newObj<ThreadLocalTestData>();
+        a = newObj<ThreadLocalTestData>();
 
-        REQUIRE(pA == pB);
+        REQUIRE(a == b);
 
 #if BDN_HAVE_THREADS
 
         P<ThreadLocalTestData> *ppFromThread = Thread::exec([]() {
-                                                   P<ThreadLocalTestData> &pC = getThreadLocal3();
+                                                   P<ThreadLocalTestData> &c = getThreadLocal3();
 
-                                                   REQUIRE(pC == nullptr);
-                                                   return &pC;
+                                                   REQUIRE(c == nullptr);
+                                                   return &c;
                                                })
                                                    .get();
 
-        REQUIRE(ppFromThread != &pA);
+        REQUIRE(ppFromThread != &a);
 
-        REQUIRE(pA != nullptr);
+        REQUIRE(a != nullptr);
 #endif
     }
 
@@ -811,13 +811,13 @@ TEST_CASE("ThreadLocalStorage")
         int destructedBefore = ThreadLocalTestData::destructedCount;
 
         auto threadResult = Thread::exec([]() {
-            P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(143);
-            getThreadLocal1() = pData;
+            P<ThreadLocalTestData> data = newObj<ThreadLocalTestData>(143);
+            getThreadLocal1() = data;
 
             Thread::sleepMillis(3000);
 
             // should still have the same pointer
-            REQUIRE(getThreadLocal1() == pData);
+            REQUIRE(getThreadLocal1() == data);
         });
 
         Thread::sleepMillis(1000);
@@ -829,8 +829,8 @@ TEST_CASE("ThreadLocalStorage")
         // in this thread the pointer should still be null
         REQUIRE(getThreadLocal1() == nullptr);
 
-        P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(42);
-        getThreadLocal1() = pData;
+        P<ThreadLocalTestData> data = newObj<ThreadLocalTestData>(42);
+        getThreadLocal1() = data;
 
         REQUIRE(getThreadLocal1() != nullptr);
 
@@ -850,7 +850,7 @@ TEST_CASE("ThreadLocalStorage")
         REQUIRE(ThreadLocalTestData::destructedCount == destructedBefore + 1);
 
         // and ours should still be there
-        REQUIRE(getThreadLocal1() == pData);
+        REQUIRE(getThreadLocal1() == data);
     }
 
 #endif

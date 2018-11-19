@@ -150,13 +150,13 @@ TEST_CASE("localeUtil")
             char utf8Out[8 + 1];
             char expectedUtf8Out[] = u8"\u0345";
 
-            const wchar_t *pWideInNext = wideIn;
-            char *pUtf8OutNext = utf8Out;
+            const wchar_t *wideInNext = wideIn;
+            char *utf8OutNext = utf8Out;
 
-            auto res = locWideCodec.out(state, wideIn, wideIn + 1, pWideInNext, utf8Out, utf8Out + 8, pUtf8OutNext);
+            auto res = locWideCodec.out(state, wideIn, wideIn + 1, wideInNext, utf8Out, utf8Out + 8, utf8OutNext);
             REQUIRE(res == 0);
 
-            REQUIRE(pUtf8OutNext - utf8Out == sizeof(expectedUtf8Out) - 1);
+            REQUIRE(utf8OutNext - utf8Out == sizeof(expectedUtf8Out) - 1);
             REQUIRE(std::memcmp(utf8Out, expectedUtf8Out, sizeof(expectedUtf8Out) - 1) == 0);
         }
 

@@ -15,7 +15,7 @@ namespace bdn
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete it. So it is ok to use
            std::cin here.*/
-        AsyncStdioWriter(std::basic_ostream<CharType> *pStream) : _pStream(pStream) {}
+        AsyncStdioWriter(std::basic_ostream<CharType> *stream) : _stream(stream) {}
 
         /** Asynchronously writes text to the stream. No newline is added.
 
@@ -27,7 +27,7 @@ namespace bdn
             */
         P<IAsyncOp<void>> write(const String &s)
         {
-            P<WriteOp> pOp = newObj<WriteOp>(_pStream, s, false);
+            P<WriteOp> op = newObj<WriteOp>(_stream, s, false);
 
 #if BDN_HAVE_THREADS
             {
@@ -36,19 +36,19 @@ namespace bdn
                 // we need a thread with a queue that we can have execute our
                 // jobs one by one. We can use a thread pool with a single
                 // thread for that.
-                if (_pOpExecutor == nullptr)
-                    _pOpExecutor = newObj<ThreadPool>(1, 1);
+                if (_opExecutor == nullptr)
+                    _opExecutor = newObj<ThreadPool>(1, 1);
 
-                _pOpExecutor->addJob(pOp);
+                _opExecutor->addJob(op);
             }
 #else
             // we have to run the operation synchronously. We have to trust that
             // this will not take too long (since we are on the only thread).
 
-            pOp->run();
+            op->run();
 #endif
 
-            return pOp;
+            return op;
         }
 
         /** Asynchronously writes a line of text to the stream. Note that it is
@@ -75,7 +75,7 @@ namespace bdn
             // we add a linebreak at the end and set flush to true for this.
             // That makes our code work the same as pushing std::endl into the
             // stream.
-            P<WriteOp> pOp = newObj<WriteOp>(_pStream, s + "\n", true);
+            P<WriteOp> op = newObj<WriteOp>(_stream, s + "\n", true);
 
 #if BDN_HAVE_THREADS
             {
@@ -84,46 +84,46 @@ namespace bdn
                 // we need a thread with a queue that we can have execute our
                 // jobs one by one. We can use a thread pool with a single
                 // thread for that.
-                if (_pOpExecutor == nullptr)
-                    _pOpExecutor = newObj<ThreadPool>(1, 1);
+                if (_opExecutor == nullptr)
+                    _opExecutor = newObj<ThreadPool>(1, 1);
 
-                _pOpExecutor->addJob(pOp);
+                _opExecutor->addJob(op);
             }
 #else
             // see write() for information on why this is ok.
-            pOp->run();
+            op->run();
 #endif
 
-            return pOp;
+            return op;
         }
 
       private:
         class WriteOp : public AsyncOpRunnable<void>
         {
           public:
-            WriteOp(std::basic_ostream<CharType> *pStream, const String &textToWrite, bool flush)
-                : _pStream(pStream), _textToWrite(textToWrite), _flush(flush)
+            WriteOp(std::basic_ostream<CharType> *stream, const String &textToWrite, bool flush)
+                : _stream(stream), _textToWrite(textToWrite), _flush(flush)
             {}
 
           protected:
             void doOp() override
             {
-                (*_pStream) << _textToWrite.toLocaleEncoding<CharType>(_pStream->getloc());
+                (*_stream) << _textToWrite.toLocaleEncoding<CharType>(_stream->getloc());
                 if (_flush)
-                    _pStream->flush();
+                    _stream->flush();
             }
 
           private:
-            std::basic_ostream<CharType> *_pStream;
+            std::basic_ostream<CharType> *_stream;
             String _textToWrite;
             bool _flush;
         };
 
         Mutex _mutex;
-        std::basic_ostream<CharType> *_pStream;
+        std::basic_ostream<CharType> *_stream;
 
 #if BDN_HAVE_THREADS
-        P<ThreadPool> _pOpExecutor;
+        P<ThreadPool> _opExecutor;
 #endif
     };
 }

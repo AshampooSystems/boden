@@ -9,7 +9,7 @@ namespace bdn
     /** A default implementation for the IViewCore::calcPreferredSize method for
        a window.
 
-        \param pWindow the window for which the preferred size is to be
+        \param window the window for which the preferred size is to be
        calculated \param availableSpace the available space for the whole window
        (including its border) \param border the size of the Window's non-client
        border (including the title bar). There are platforms where windows to
@@ -19,7 +19,7 @@ namespace bdn
        (including the border and title bar). This can be Size(0,0) if the
        platform does not impose a minimum size limit.
         */
-    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow, const Size &availableSpace, const Margin &border,
+    Size defaultWindowCalcPreferredSizeImpl(Window *window, const Size &availableSpace, const Margin &border,
                                             const Size &minWindowSize);
 
     /** A default implementation for implementing the layout of a Window object
@@ -33,7 +33,7 @@ namespace bdn
         The default implementation will arrange the content view inside this
        area, according to the applicable margins and padding.
         */
-    void defaultWindowLayoutImpl(Window *pWindow, const Rect &contentArea);
+    void defaultWindowLayoutImpl(Window *window, const Rect &contentArea);
 
     /** Default implementation for auto-sizing the window (see
        requestAutoSize()), intended for use by the window's core object. This
@@ -45,7 +45,7 @@ namespace bdn
        the screen that can be used to display windows). This excludes taskbars,
        docks, etc.
         */
-    void defaultWindowAutoSizeImpl(Window *pWindow, const Size &screenWorkAreaSize);
+    void defaultWindowAutoSizeImpl(Window *window, const Size &screenWorkAreaSize);
 
     /** Default implementation for centering the window (see requestCenter()),
        intended for use by the window's core object. This function can be called
@@ -55,7 +55,7 @@ namespace bdn
         \param screenWorkArea the screen work area (the part of the screen that
        can be used to display windows). This excludes taskbars, docks, etc.
         */
-    void defaultWindowCenterImpl(Window *pWindow, const Rect &screenWorkArea);
+    void defaultWindowCenterImpl(Window *window, const Rect &screenWorkArea);
 }
 
 #endif

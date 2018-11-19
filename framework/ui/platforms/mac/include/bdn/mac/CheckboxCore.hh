@@ -18,13 +18,13 @@ namespace bdn
         class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
         {
           public:
-            CheckboxCore(T *pOuter) : ToggleCoreBase(pOuter)
+            CheckboxCore(T *outer) : ToggleCoreBase(outer)
             {
-                if (tryCast<Checkbox>(pOuter))
+                if (tryCast<Checkbox>(outer))
                     _nsButton.allowsMixedState = true;
 
-                setLabel(pOuter->label());
-                setState(pOuter->state());
+                setLabel(outer->label());
+                setState(outer->state());
             }
 
             // Called when attached to a Checkbox or Toggle with checkbox
@@ -45,12 +45,12 @@ namespace bdn
 
             void generateClick() override
             {
-                P<T> pOuter = cast<T>(getOuterViewIfStillAttached());
-                if (pOuter != nullptr) {
-                    P<Checkbox> pCheckbox = tryCast<Checkbox>(pOuter);
-                    P<Toggle> pToggle = tryCast<Toggle>(pOuter);
+                P<T> outer = cast<T>(getOuterViewIfStillAttached());
+                if (outer != nullptr) {
+                    P<Checkbox> checkbox = tryCast<Checkbox>(outer);
+                    P<Toggle> toggle = tryCast<Toggle>(outer);
 
-                    bdn::ClickEvent evt(pOuter);
+                    bdn::ClickEvent evt(outer);
 
                     // Observing NSButton's state via KVO does not work when
                     // the button's state is changed via user interaction. KVO
@@ -62,7 +62,7 @@ namespace bdn
                     // notification is posted.
 
                     // Mixed state is supported if T == Checkbox
-                    if (pCheckbox) {
+                    if (checkbox) {
                         // Prohibit setting mixed state via user interaction.
                         // When NSButton allows for mixed state, it also allows
                         // users to toggle the checkbox to mixed state by
@@ -79,12 +79,12 @@ namespace bdn
 
                     TriState newState = nsControlStateValueToTriState(_nsButton.state);
 
-                    if (pCheckbox) {
-                        pCheckbox->setState(newState);
+                    if (checkbox) {
+                        checkbox->setState(newState);
                     } else {
-                        pToggle->setOn(newState == TriState::on);
+                        toggle->setOn(newState == TriState::on);
                     }
-                    pOuter->onClick().notify(evt);
+                    outer->onClick().notify(evt);
                 }
             }
         };

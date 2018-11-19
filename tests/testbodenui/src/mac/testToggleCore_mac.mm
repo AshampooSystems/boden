@@ -16,33 +16,33 @@ class TestMacToggleCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestToggleCore>::initCore();
 
-        _pNSButton = (NSButton *)_pNSView;
-        REQUIRE(_pNSButton != nullptr);
+        _nSButton = (NSButton *)_nSView;
+        REQUIRE(_nSButton != nullptr);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pToggle->label();
+        String expectedLabel = _toggle->label();
 
-        String label = bdn::mac::macStringToString(_pNSButton.title);
+        String label = bdn::mac::macStringToString(_nSButton.title);
 
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _pToggle->on();
-        bool on = _pNSButton.state == NSControlStateValueOn;
+        bool expectedOn = _toggle->on();
+        bool on = _nSButton.state == NSControlStateValueOn;
         REQUIRE(on == expectedOn);
     }
 
   protected:
-    NSButton *_pNSButton;
+    NSButton *_nSButton;
 };
 
 TEST_CASE("mac.ToggleCore")
 {
-    P<TestMacToggleCore> pTest = newObj<TestMacToggleCore>();
+    P<TestMacToggleCore> test = newObj<TestMacToggleCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

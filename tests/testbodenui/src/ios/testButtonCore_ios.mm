@@ -16,26 +16,26 @@ class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
-        _pUIButton = (UIButton *)_pUIView;
-        REQUIRE(_pUIButton != nullptr);
+        _uIButton = (UIButton *)_uIView;
+        REQUIRE(_uIButton != nullptr);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _pButton->label();
+        String expectedLabel = _button->label();
 
-        String label = bdn::ios::iosStringToString(_pUIButton.currentTitle);
+        String label = bdn::ios::iosStringToString(_uIButton.currentTitle);
 
         REQUIRE(label == expectedLabel);
     }
 
   protected:
-    UIButton *_pUIButton;
+    UIButton *_uIButton;
 };
 
 TEST_CASE("ios.ButtonCore")
 {
-    P<TestIosButtonCore> pTest = newObj<TestIosButtonCore>();
+    P<TestIosButtonCore> test = newObj<TestIosButtonCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

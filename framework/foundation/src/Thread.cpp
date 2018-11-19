@@ -11,16 +11,16 @@ namespace bdn
 
 #if BDN_HAVE_THREADS
 
-    Thread::Thread(IThreadRunnable *pRunnable)
+    Thread::Thread(IThreadRunnable *runnable)
     {
         // ensure that our SafeInit global mutex stuff is initialized
         SafeInitBase::_ensureReady();
 
-        _pThreadData = newObj<ThreadData>();
+        _threadData = newObj<ThreadData>();
 
-        _pThreadData->pRunnable = pRunnable;
+        _threadData->runnable = runnable;
 
-        _thread = std::thread(&Thread::run, _pThreadData);
+        _thread = std::thread(&Thread::run, _threadData);
 
         _threadId = _thread.get_id();
     }
@@ -31,38 +31,38 @@ namespace bdn
             stop(ExceptionIgnore);
     }
 
-    // note that since _pThreadData is a P<> object that automatically means
+    // note that since _threadData is a P<> object that automatically means
     // that the thread function will get a copy of the pointer and thus keep the
     // thread data object alive as long as the thread is alive
 
-    void Thread::run(P<ThreadData> pThreadData)
+    void Thread::run(P<ThreadData> threadData)
     {
         platform::Hooks::get()->initializeThread();
 
         try {
-            pThreadData->pRunnable->run();
+            threadData->runnable->run();
         }
         catch (...) {
-            pThreadData->threadException = std::current_exception();
+            threadData->threadException = std::current_exception();
         }
 
         {
-            Mutex::Lock lock(pThreadData->runnableMutex);
+            Mutex::Lock lock(threadData->runnableMutex);
 
             try {
-                pThreadData->pRunnable = nullptr;
+                threadData->runnable = nullptr;
             }
             catch (...) {
                 // the runnable destructor has thrown an exception.
                 // If we do not have one yet then we store it.
-                if (!pThreadData->threadException)
-                    pThreadData->threadException = std::current_exception();
+                if (!threadData->threadException)
+                    threadData->threadException = std::current_exception();
 
                 // otherwise we ignore it. We must never let an exception
                 // through to std::thread. To be safe we also call detach on the
                 // pointer to ensure that we do not try to delete it again when
                 // the ThreadData object is destroyed.
-                pThreadData->pRunnable.detachPtr();
+                threadData->runnable.detachPtr();
             }
         }
     }
@@ -73,7 +73,7 @@ namespace bdn
             _thread.detach();
 
             _thread = std::thread();
-            _pThreadData = nullptr;
+            _threadData = nullptr;
 
             _detached = true;
         }
@@ -87,8 +87,8 @@ namespace bdn
         if (_thread.joinable())
             _thread.join();
 
-        if (exceptionForwarding == ExceptionThrow && _pThreadData != nullptr && _pThreadData->threadException)
-            std::rethrow_exception(_pThreadData->threadException);
+        if (exceptionForwarding == ExceptionThrow && _threadData != nullptr && _threadData->threadException)
+            std::rethrow_exception(_threadData->threadException);
     }
 
     void Thread::stop(Thread::ExceptionForwarding exceptionForwarding)
@@ -102,13 +102,13 @@ namespace bdn
         if (_detached)
             throw ThreadDetachedError();
 
-        if (_pThreadData != nullptr) {
+        if (_threadData != nullptr) {
             // lock a mutex here because the runnable object is automatically
             // released at the end of the thread.
-            Mutex::Lock lock(_pThreadData->runnableMutex);
+            Mutex::Lock lock(_threadData->runnableMutex);
 
-            if (_pThreadData->pRunnable != nullptr)
-                _pThreadData->pRunnable->signalStop();
+            if (_threadData->runnable != nullptr)
+                _threadData->runnable->signalStop();
         }
     }
 

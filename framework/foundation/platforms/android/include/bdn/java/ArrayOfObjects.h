@@ -16,11 +16,11 @@ namespace bdn
             Reference _makeArray(size_t length)
             {
                 bdn::java::Env &env = bdn::java::Env::get();
-                JNIEnv *pJniEnv = env.getJniEnv();
+                JNIEnv *jniEnv = env.getJniEnv();
 
                 JClass &elementClass = ELEMENT_TYPE::getStaticClass_();
 
-                jobjectArray result = pJniEnv->NewObjectArray(length, (jclass)elementClass.getJObject_(), (jobject)0);
+                jobjectArray result = jniEnv->NewObjectArray(length, (jclass)elementClass.getJObject_(), (jobject)0);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
@@ -41,10 +41,10 @@ namespace bdn
             size_t getLength()
             {
                 bdn::java::Env &env = bdn::java::Env::get();
-                JNIEnv *pJniEnv = env.getJniEnv();
+                JNIEnv *jniEnv = env.getJniEnv();
 
                 jarray javaRef = (jarray)getJObject_();
-                jsize result = pJniEnv->GetArrayLength(javaRef);
+                jsize result = jniEnv->GetArrayLength(javaRef);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
@@ -55,10 +55,10 @@ namespace bdn
             ELEMENT_TYPE getElement(size_t index)
             {
                 bdn::java::Env &env = bdn::java::Env::get();
-                JNIEnv *pJniEnv = env.getJniEnv();
+                JNIEnv *jniEnv = env.getJniEnv();
 
                 jobjectArray javaRef = (jobjectArray)getJObject_();
-                jobject result = pJniEnv->GetObjectArrayElement(javaRef, index);
+                jobject result = jniEnv->GetObjectArrayElement(javaRef, index);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
@@ -69,10 +69,10 @@ namespace bdn
             void setElement(size_t index, ELEMENT_TYPE element)
             {
                 bdn::java::Env &env = bdn::java::Env::get();
-                JNIEnv *pJniEnv = env.getJniEnv();
+                JNIEnv *jniEnv = env.getJniEnv();
 
                 jobjectArray javaRef = (jobjectArray)getJObject_();
-                pJniEnv->SetObjectArrayElement(javaRef, index, element.getJObject_());
+                jniEnv->SetObjectArrayElement(javaRef, index, element.getJObject_());
 
                 env.throwAndClearExceptionFromLastJavaCall();
             }

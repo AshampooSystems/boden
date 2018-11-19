@@ -15,26 +15,26 @@ TEST_CASE("Switch")
 
     SECTION("Switch-specific")
     {
-        P<bdn::test::ViewTestPreparer<Switch>> pPreparer = newObj<bdn::test::ViewTestPreparer<Switch>>();
-        P<bdn::test::ViewWithTestExtensions<Switch>> pSwitch = pPreparer->createView();
-        P<bdn::test::MockSwitchCore> pCore = cast<bdn::test::MockSwitchCore>(pSwitch->getViewCore());
+        P<bdn::test::ViewTestPreparer<Switch>> preparer = newObj<bdn::test::ViewTestPreparer<Switch>>();
+        P<bdn::test::ViewWithTestExtensions<Switch>> switchControl = preparer->createView();
+        P<bdn::test::MockSwitchCore> core = cast<bdn::test::MockSwitchCore>(switchControl->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
         SECTION("initialSwitchState")
         {
             SECTION("label")
             {
-                REQUIRE(pSwitch->label() == "");
-                REQUIRE(pCore->getLabel() == "");
-                REQUIRE(pCore->getLabelChangeCount() == 0);
+                REQUIRE(switchControl->label() == "");
+                REQUIRE(core->getLabel() == "");
+                REQUIRE(core->getLabelChangeCount() == 0);
             }
 
             SECTION("on")
             {
-                REQUIRE(pSwitch->on() == false);
-                REQUIRE(pCore->getOn() == false);
-                REQUIRE(pCore->getOnChangeCount() == 0);
+                REQUIRE(switchControl->on() == false);
+                REQUIRE(core->getOn() == false);
+                REQUIRE(core->getOnChangeCount() == 0);
             }
         }
 
@@ -43,10 +43,10 @@ TEST_CASE("Switch")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pSwitch, pPreparer, [pSwitch]() { pSwitch->setLabel("hello"); },
-                    [pCore, pSwitch] {
-                        REQUIRE(pCore->getLabel() == "hello");
-                        REQUIRE(pCore->getLabelChangeCount() == 1);
+                    switchControl, preparer, [switchControl]() { switchControl->setLabel("hello"); },
+                    [core, switchControl] {
+                        REQUIRE(core->getLabel() == "hello");
+                        REQUIRE(core->getLabelChangeCount() == 1);
                     },
                     (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
                                                                                       // info to be invalidated
@@ -58,10 +58,10 @@ TEST_CASE("Switch")
 
             SECTION("on")
             {
-                bdn::test::_testViewOp(pSwitch, pPreparer, [pSwitch]() { pSwitch->setOn(true); },
-                                       [pCore, pSwitch] {
-                                           REQUIRE(pCore->getOn() == true);
-                                           REQUIRE(pCore->getOnChangeCount() == 1);
+                bdn::test::_testViewOp(switchControl, preparer, [switchControl]() { switchControl->setOn(true); },
+                                       [core, switchControl] {
+                                           REQUIRE(core->getOn() == true);
+                                           REQUIRE(core->getOnChangeCount() == 1);
                                        },
                                        0);
             }

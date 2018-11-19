@@ -38,20 +38,20 @@ namespace bdn
     }
 
     template <class Codec, class InType, class OutType>
-    inline int callCodecOut(Codec &codec, mbstate_t &state, const InType *pInBegin, const InType *pInEnd,
-                            const InType *&pInNext, OutType *pOutBegin, OutType *pOutEnd, OutType *&pOutNext)
+    inline int callCodecOut(Codec &codec, mbstate_t &state, const InType *inBegin, const InType *inEnd,
+                            const InType *&inNext, OutType *outBegin, OutType *outEnd, OutType *&outNext)
     {
-        int result = codec.out(state, pInBegin, pInEnd, pInNext, pOutBegin, pOutEnd, pOutNext);
+        int result = codec.out(state, inBegin, inEnd, inNext, outBegin, outEnd, outNext);
         if (result != std::codecvt_base::error) {
             // some buggy codec implementations will return ok for zero
             // characters, but they will not write any data and also will not
             // advance the next pointers.
-            if (pInBegin != pInEnd && pOutBegin != pOutEnd && pInNext == pInBegin && pOutNext == pOutBegin) {
+            if (inBegin != inEnd && outBegin != outEnd && inNext == inBegin && outNext == outBegin) {
                 // just copy the input character over. It is most likely a zero
                 // character.
-                *pOutNext = (char)*pInNext;
-                pOutNext++;
-                pInNext++;
+                *outNext = (char)*inNext;
+                outNext++;
+                inNext++;
             }
         }
 
@@ -76,37 +76,37 @@ namespace bdn
         if (len == 0)
             return std::string();
         else {
-            const wchar_t *pCurrIn = wideString.c_str();
-            const wchar_t *pInEnd = pCurrIn + len;
+            const wchar_t *currIn = wideString.c_str();
+            const wchar_t *inEnd = currIn + len;
             std::mbstate_t state = std::mbstate_t();
 
             std::string resultString;
             const int outBufferSize = MB_LEN_MAX * 4;
             char outBuffer[outBufferSize];
 
-            while (pCurrIn != pInEnd) {
-                const wchar_t *pInNext = pCurrIn;
-                char *pOutNext = outBuffer;
+            while (currIn != inEnd) {
+                const wchar_t *inNext = currIn;
+                char *outNext = outBuffer;
 
-                int convResult = callCodecOut(codec, state, pCurrIn, pInEnd, pInNext, outBuffer,
-                                              outBuffer + outBufferSize, pOutNext);
+                int convResult =
+                    callCodecOut(codec, state, currIn, inEnd, inNext, outBuffer, outBuffer + outBufferSize, outNext);
                 if (convResult == std::codecvt_base::error) {
                     // a character cannot be converted. The standard defines
-                    // that pInNext SHOULD point to that character. And all
+                    // that inNext SHOULD point to that character. And all
                     // others up to that point should have been converted.
 
                     // But unfortunately with some standard libraries (e.g. on
-                    // Mac with libc++) pInNext and pOutNext always point to the
+                    // Mac with libc++) inNext and outNext always point to the
                     // first character, even if it is not the problem. So to
                     // work around that we try to convert character by character
                     // until we hit the problem.
-                    if (pOutNext == outBuffer && pInNext == pCurrIn) {
-                        while (pInNext != pInEnd) {
-                            convResult = callCodecOut(codec, state, pInNext, pInNext + 1, pInNext, pOutNext,
-                                                      outBuffer + outBufferSize, pOutNext);
+                    if (outNext == outBuffer && inNext == currIn) {
+                        while (inNext != inEnd) {
+                            convResult = callCodecOut(codec, state, inNext, inNext + 1, inNext, outNext,
+                                                      outBuffer + outBufferSize, outNext);
                             if (convResult != std::codecvt_base::ok) {
                                 // found the actual error. We now know that
-                                // pInNext and pOutNext really do point to the
+                                // inNext and outNext really do point to the
                                 // problem character.
                                 break;
                             }
@@ -116,10 +116,10 @@ namespace bdn
                     // add the successfully converted part to the result.
                     // That is important, because the replacement char might not
                     // fit otherwise.
-                    if (pOutNext != outBuffer)
-                        resultString.append(outBuffer, pOutNext - outBuffer);
+                    if (outNext != outBuffer)
+                        resultString.append(outBuffer, outNext - outBuffer);
 
-                    if (pInNext == pInEnd) {
+                    if (inNext == inEnd) {
                         // character by character conversion was successful. The
                         // codec is misbehaving, but we have to assume that
                         // everything is ok now.
@@ -128,49 +128,49 @@ namespace bdn
                     } else {
                         // Insert a replacement character.
 
-                        const wchar_t *pReplacement = L"\xfffd";
-                        const wchar_t *pReplacementNext = pReplacement;
+                        const wchar_t *replacement = L"\xfffd";
+                        const wchar_t *replacementNext = replacement;
 
-                        pOutNext = outBuffer;
-                        convResult = callCodecOut(codec, state, pReplacement, pReplacement + 1, pReplacementNext,
-                                                  outBuffer, outBuffer + outBufferSize, pOutNext);
+                        outNext = outBuffer;
+                        convResult = callCodecOut(codec, state, replacement, replacement + 1, replacementNext,
+                                                  outBuffer, outBuffer + outBufferSize, outNext);
                         if (convResult != std::codecvt_base::ok) {
                             // character cannot be represented. Use question
                             // mark instead.
-                            pReplacement = L"?";
-                            pReplacementNext = pReplacement;
-                            pOutNext = outBuffer;
-                            convResult = callCodecOut(codec, state, pReplacement, pReplacement + 1, pReplacementNext,
-                                                      outBuffer, outBuffer + outBufferSize, pOutNext);
+                            replacement = L"?";
+                            replacementNext = replacement;
+                            outNext = outBuffer;
+                            convResult = callCodecOut(codec, state, replacement, replacement + 1, replacementNext,
+                                                      outBuffer, outBuffer + outBufferSize, outNext);
                         }
 
-                        if (pOutNext != outBuffer)
-                            resultString.append(outBuffer, pOutNext - outBuffer);
+                        if (outNext != outBuffer)
+                            resultString.append(outBuffer, outNext - outBuffer);
 
                         // ignore the final replacement conversion result. If
                         // the ? character can also not be represented then we
                         // just insert nothing.
 
                         // skip over the problematic input character.
-                        pInNext++;
+                        inNext++;
                     }
                 } else {
-                    if (pOutNext != outBuffer)
-                        resultString.append(outBuffer, pOutNext - outBuffer);
+                    if (outNext != outBuffer)
+                        resultString.append(outBuffer, outNext - outBuffer);
                 }
 
-                pCurrIn = pInNext;
+                currIn = inNext;
             }
 
             // "unshift", i.e. flush remaining state cleanup data.
 
-            char *pOutNext = outBuffer;
+            char *outNext = outBuffer;
 
-            int convResult = codec.unshift(state, outBuffer, outBuffer + outBufferSize, pOutNext);
+            int convResult = codec.unshift(state, outBuffer, outBuffer + outBufferSize, outNext);
             // if we cannot unshift then we simply ignore that fact. It should
             // never happen.
-            if (convResult != std::codecvt_base::error && pOutNext != outBuffer)
-                resultString.append(outBuffer, pOutNext - outBuffer);
+            if (convResult != std::codecvt_base::error && outNext != outBuffer)
+                resultString.append(outBuffer, outNext - outBuffer);
 
             return resultString;
         }
@@ -193,24 +193,23 @@ namespace bdn
         if (len == 0)
             return std::wstring();
         else {
-            const char *pCurrIn = multiByte.c_str();
-            const char *pInEnd = pCurrIn + len;
-            const char *pInNext = pCurrIn;
+            const char *currIn = multiByte.c_str();
+            const char *inEnd = currIn + len;
+            const char *inNext = currIn;
             std::mbstate_t state = std::mbstate_t();
 
             std::wstring resultString;
             const int outBufferSize = 16;
             wchar_t outBuffer[outBufferSize];
 
-            while (pCurrIn != pInEnd) {
-                wchar_t *pOutNext = outBuffer;
+            while (currIn != inEnd) {
+                wchar_t *outNext = outBuffer;
 
-                int convResult =
-                    codec.in(state, pCurrIn, pInEnd, pInNext, outBuffer, outBuffer + outBufferSize, pOutNext);
+                int convResult = codec.in(state, currIn, inEnd, inNext, outBuffer, outBuffer + outBufferSize, outNext);
 
-                if (pOutNext != outBuffer) {
+                if (outNext != outBuffer) {
                     // some data has been written.
-                    resultString.append(outBuffer, pOutNext - outBuffer);
+                    resultString.append(outBuffer, outNext - outBuffer);
                 }
 
                 if (convResult == std::codecvt_base::error) {
@@ -226,7 +225,7 @@ namespace bdn
                     // However, on Macs this error happens when the input is a
                     // zero character (zero byte). In that case we simply want
                     // to copy the zero character through.
-                    if (pInNext != pInEnd && *pInNext == 0)
+                    if (inNext != inEnd && *inNext == 0)
                         resultString += L'\0';
                     else
                         resultString += L'\xfffd';
@@ -234,11 +233,11 @@ namespace bdn
                     // now we want to skip over the problematic character.
                     // Unfortunately we do not know how big it is. So we skip 1
                     // byte and hope that the codec is able to resynchronize.
-                    if (pInNext != pInEnd)
-                        pInNext++;
+                    if (inNext != inEnd)
+                        inNext++;
                 }
 
-                pCurrIn = pInNext;
+                currIn = inNext;
             }
 
             // no need to unshift. wchar does not use shifting.

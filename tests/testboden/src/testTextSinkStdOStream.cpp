@@ -19,11 +19,11 @@ class TestTextSinkForTextSinkStdOStream : public Base, BDN_IMPLEMENTS ITextSink
 
 template <class CharType> static void testTextSinkStdOStream()
 {
-    P<TestTextSinkForTextSinkStdOStream> pSink = newObj<TestTextSinkForTextSinkStdOStream>();
+    P<TestTextSinkForTextSinkStdOStream> sink = newObj<TestTextSinkForTextSinkStdOStream>();
 
-    const Array<String> &writtenChunks = pSink->writtenChunks;
+    const Array<String> &writtenChunks = sink->writtenChunks;
 
-    TextSinkStdOStream<CharType> streamObj(pSink);
+    TextSinkStdOStream<CharType> streamObj(sink);
 
     // use the classic locale so that we get predictable formatting
     streamObj.imbue(std::locale::classic());

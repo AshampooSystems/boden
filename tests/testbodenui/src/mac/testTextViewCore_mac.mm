@@ -15,8 +15,8 @@ class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
     {
         TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
 
-        _pNSTextView = (NSTextView *)_pNSView;
-        REQUIRE(_pNSTextView != nullptr);
+        _nSTextView = (NSTextView *)_nSView;
+        REQUIRE(_nSTextView != nullptr);
     }
 
     bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
@@ -31,29 +31,29 @@ class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
     {
         TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>::runPostInitTests();
 
-        SECTION("not editable") { REQUIRE(_pNSTextView.editable == false); }
+        SECTION("not editable") { REQUIRE(_nSTextView.editable == false); }
 
-        SECTION("not selectable") { REQUIRE(_pNSTextView.selectable == false); }
+        SECTION("not selectable") { REQUIRE(_nSTextView.selectable == false); }
 
-        SECTION("not rich text") { REQUIRE(_pNSTextView.richText == false); }
+        SECTION("not rich text") { REQUIRE(_nSTextView.richText == false); }
     }
 
     void verifyCoreText() override
     {
-        String expectedText = _pTextView->text();
+        String expectedText = _textView->text();
 
-        String text = bdn::mac::macStringToString(_pNSTextView.string);
+        String text = bdn::mac::macStringToString(_nSTextView.string);
 
         REQUIRE(text == expectedText);
     }
 
   protected:
-    NSTextView *_pNSTextView;
+    NSTextView *_nSTextView;
 };
 
 TEST_CASE("mac.TextViewCore")
 {
-    P<TestMacTextViewCore> pTest = newObj<TestMacTextViewCore>();
+    P<TestMacTextViewCore> test = newObj<TestMacTextViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

@@ -14,47 +14,47 @@ class TestViewTextUiFixture : public Base
   public:
     TestViewTextUiFixture()
     {
-        _pUiProvider = newObj<bdn::test::MockUiProvider>();
+        _uiProvider = newObj<bdn::test::MockUiProvider>();
 
-        _pUi = newObj<ViewTextUi>(_pUiProvider);
+        _ui = newObj<ViewTextUi>(_uiProvider);
     }
 
     void doTest()
     {
         SECTION("output.writeLine")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::writeLine), "\n");
+        testWrite(strongMethod((ITextSink *)_ui->output().getPtr(), &ITextSink::writeLine), "\n");
 
         SECTION("output.write")
-        testWrite(strongMethod((ITextSink *)_pUi->output().getPtr(), &ITextSink::write), "");
+        testWrite(strongMethod((ITextSink *)_ui->output().getPtr(), &ITextSink::write), "");
 
         SECTION("statusOrProblem.writeLine")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n");
+        testWrite(strongMethod((ITextSink *)_ui->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n");
 
         SECTION("statusOrProblem.writeError")
-        testWrite(strongMethod((ITextSink *)_pUi->statusOrProblem().getPtr(), &ITextSink::write), "");
+        testWrite(strongMethod((ITextSink *)_ui->statusOrProblem().getPtr(), &ITextSink::write), "");
     }
 
     String getWrittenText()
     {
-        P<Window> pWindow = _pUi->getWindow();
+        P<Window> window = _ui->getWindow();
 
         List<P<View>> childList;
-        pWindow->getChildViews(childList);
+        window->getChildViews(childList);
 
         REQUIRE(childList.size() == 1);
 
-        P<ScrollView> pScrollView = cast<ScrollView>(childList.front());
-        P<View> pContainer = pScrollView->getContentView();
+        P<ScrollView> scrollView = cast<ScrollView>(childList.front());
+        P<View> container = scrollView->getContentView();
 
         String text;
         bool firstPara = true;
 
         childList.clear();
-        pContainer->getChildViews(childList);
-        for (auto &pParaView : childList) {
-            P<TextView> pParaTextView = cast<TextView>(pParaView);
+        container->getChildViews(childList);
+        for (auto &paraView : childList) {
+            P<TextView> paraTextView = cast<TextView>(paraView);
 
-            String para = pParaTextView->text();
+            String para = paraTextView->text();
 
             // the paragraph should NOT contain any line breaks
             REQUIRE(!para.contains("\n"));
@@ -78,7 +78,7 @@ class TestViewTextUiFixture : public Base
 
     void testWrite(std::function<void(String)> writeFunc, String expectedWriteSuffix)
     {
-        P<TestViewTextUiFixture> pThis = this;
+        P<TestViewTextUiFixture> self = this;
 
         SECTION("sequential")
         {
@@ -86,7 +86,7 @@ class TestViewTextUiFixture : public Base
 
             // ViewTextUI updates the written text only 10 times per second.
             // So we need to wait until we can check it.
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, writeFunc, expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, writeFunc, expectedWriteSuffix)
             {
                 // note that the expectedWriteSuffix (either linebreak or empty)
                 // only takes effect when the next line is begun.
@@ -97,7 +97,7 @@ class TestViewTextUiFixture : public Base
 
                 writeFunc("second");
 
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText, writeFunc, expectedWriteSuffix)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, expectedText, writeFunc, expectedWriteSuffix)
                 {
                     String expectedText2 = expectedText + "second";
                     verifyWrittenText(expectedText2);
@@ -108,7 +108,7 @@ class TestViewTextUiFixture : public Base
 
                     expectedText2 += "third";
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText2, writeFunc)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, expectedText2, writeFunc)
                     {
                         verifyWrittenText(expectedText2);
                     };
@@ -122,9 +122,9 @@ class TestViewTextUiFixture : public Base
 
             // the last linebreak at the end is not printed until the next text
             // is written. So we write another dummy string to force the write.
-            _pUi->output()->write("X");
+            _ui->output()->write("X");
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix, writeFunc)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, expectedWriteSuffix, writeFunc)
             {
                 verifyWrittenText("hello\n\n\nworld\n" + expectedWriteSuffix + "X");
             };
@@ -133,20 +133,20 @@ class TestViewTextUiFixture : public Base
 #if BDN_HAVE_THREADS
         SECTION("multithreaded")
         {
-            P<Signal> pSignal = newObj<Signal>();
+            P<Signal> signal = newObj<Signal>();
 
-            std::future<void> thread1Result = Thread::exec([writeFunc, pSignal]() {
-                pSignal->wait();
+            std::future<void> thread1Result = Thread::exec([writeFunc, signal]() {
+                signal->wait();
                 writeFunc(",first");
             });
 
-            std::future<void> thread2Result = Thread::exec([writeFunc, pSignal]() {
-                pSignal->wait();
+            std::future<void> thread2Result = Thread::exec([writeFunc, signal]() {
+                signal->wait();
                 writeFunc(",second");
             });
 
-            std::future<void> thread3Result = Thread::exec([writeFunc, pSignal]() {
-                pSignal->wait();
+            std::future<void> thread3Result = Thread::exec([writeFunc, signal]() {
+                signal->wait();
                 writeFunc(",third");
             });
 
@@ -155,14 +155,14 @@ class TestViewTextUiFixture : public Base
             Thread::sleepMillis(1000);
 
             // set the signal to start all three operations at the same time
-            pSignal->set();
+            signal->set();
 
             // wait for all threads to finish
             thread1Result.get();
             thread2Result.get();
             thread3Result.get();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, expectedWriteSuffix)
             {
                 String result = getWrittenText();
 
@@ -214,13 +214,13 @@ class TestViewTextUiFixture : public Base
     }
 
   private:
-    P<bdn::test::MockUiProvider> _pUiProvider;
-    P<ViewTextUi> _pUi;
+    P<bdn::test::MockUiProvider> _uiProvider;
+    P<ViewTextUi> _ui;
 };
 
 TEST_CASE("ViewTextUi")
 {
-    P<TestViewTextUiFixture> pFixture = newObj<TestViewTextUiFixture>();
+    P<TestViewTextUiFixture> fixture = newObj<TestViewTextUiFixture>();
 
-    pFixture->doTest();
+    fixture->doTest();
 }

@@ -4,7 +4,7 @@
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv *pEnv, jobject rawSelf,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv *env, jobject rawSelf,
                                                                               jobject rawNativeObject)
 {
     bdn::platformEntryWrapper(
@@ -12,11 +12,11 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JN
             bdn::java::JNativeStrongPointer nativePointer(
                 (bdn::java::Reference::convertExternalLocal(rawNativeObject)));
 
-            bdn::IBase *pBase = nativePointer.getPointer_();
+            bdn::IBase *base = nativePointer.getPointer_();
 
-            bdn::ISimpleCallable *pCallable = dynamic_cast<bdn::ISimpleCallable *>(pBase);
+            bdn::ISimpleCallable *callable = dynamic_cast<bdn::ISimpleCallable *>(base);
 
-            pCallable->call();
+            callable->call();
         },
-        true, pEnv);
+        true, env);
 }

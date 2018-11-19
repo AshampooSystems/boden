@@ -16,23 +16,23 @@ class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::T
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>::initCore();
 
-        _pUITextField = (UITextField *)_pUIView;
-        REQUIRE(_pUITextField != nullptr);
+        _uITextField = (UITextField *)_uIView;
+        REQUIRE(_uITextField != nullptr);
     }
 
     void verifyCoreText() override
     {
-        String expectedText = _pTextField->text();
-        String text = bdn::ios::iosStringToString(_pUITextField.text);
+        String expectedText = _textField->text();
+        String text = bdn::ios::iosStringToString(_uITextField.text);
         REQUIRE(text == expectedText);
     }
 
   protected:
-    UITextField *_pUITextField;
+    UITextField *_uITextField;
 };
 
 TEST_CASE("ios.TextFieldCore")
 {
-    P<TestIosTextFieldCore> pTest = newObj<TestIosTextFieldCore>();
-    pTest->runTests();
+    P<TestIosTextFieldCore> test = newObj<TestIosTextFieldCore>();
+    test->runTests();
 }

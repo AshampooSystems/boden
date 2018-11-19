@@ -154,12 +154,12 @@ namespace bdn
         int dataCount = std::extent<decltype(allData)>().value;
 
         for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-            SubTestData *pCurrData = &allData[dataIndex];
+            SubTestData *currData = &allData[dataIndex];
 
-            SECTION(pCurrData->desc)
+            SECTION(currData->desc)
             {
-                std::wstring encoded(pCurrData->wdata);
-                std::u32string expectedDecoded(pCurrData->expectedDecoded);
+                std::wstring encoded(currData->wdata);
+                std::u32string expectedDecoded(currData->expectedDecoded);
 
                 SECTION("decoding")
                 testCodecDecodingIterator<WideCodec>(encoded, expectedDecoded);

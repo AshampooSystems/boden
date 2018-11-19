@@ -15,8 +15,8 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     {
         TestIosViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
 
-        _pUILabel = (UILabel *)_pUIView;
-        REQUIRE(_pUILabel != nullptr);
+        _uILabel = (UILabel *)_uIView;
+        REQUIRE(_uILabel != nullptr);
     }
 
     bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
@@ -29,20 +29,20 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
 
     void verifyCoreText() override
     {
-        String expectedText = _pTextView->text();
+        String expectedText = _textView->text();
 
-        String text = bdn::ios::iosStringToString(_pUILabel.text);
+        String text = bdn::ios::iosStringToString(_uILabel.text);
 
         REQUIRE(text == expectedText);
     }
 
   protected:
-    UILabel *_pUILabel;
+    UILabel *_uILabel;
 };
 
 TEST_CASE("ios.TextViewCore")
 {
-    P<TestIosTextViewCore> pTest = newObj<TestIosTextViewCore>();
+    P<TestIosTextViewCore> test = newObj<TestIosTextViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

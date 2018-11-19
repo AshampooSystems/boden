@@ -21,12 +21,12 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
             // the window's content parent must have the flipped
             // flag set, so that the origin of the coordinate
             // system is the top-left.
-            P<Button> pButton = newObj<Button>();
-            _pWindow->setContentView(pButton);
+            P<Button> button = newObj<Button>();
+            _window->setContentView(button);
 
-            NSView *pChild = cast<bdn::mac::ChildViewCore>(pButton->getViewCore())->getNSView();
+            NSView *child = cast<bdn::mac::ChildViewCore>(button->getViewCore())->getNSView();
 
-            REQUIRE(pChild.superview.flipped);
+            REQUIRE(child.superview.flipped);
         }
     }
 
@@ -34,29 +34,29 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         TestWindowCore::initCore();
 
-        _pMacWindowCore = cast<bdn::mac::WindowCore>(_pView->getViewCore());
-        REQUIRE(_pMacWindowCore != nullptr);
+        _macWindowCore = cast<bdn::mac::WindowCore>(_view->getViewCore());
+        REQUIRE(_macWindowCore != nullptr);
 
-        _pNSWindow = _pMacWindowCore->getNSWindow();
-        REQUIRE(_pNSWindow != nullptr);
+        _nSWindow = _macWindowCore->getNSWindow();
+        REQUIRE(_nSWindow != nullptr);
     }
 
     IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
     void verifyCoreVisibility() override
     {
-        bool expectedVisible = _pView->visible();
+        bool expectedVisible = _view->visible();
 
-        REQUIRE(_pNSWindow.visible == expectedVisible);
+        REQUIRE(_nSWindow.visible == expectedVisible);
     }
 
     bdn::Rect getFrameRect() const
     {
-        NSScreen *screen = _pNSWindow.screen;
+        NSScreen *screen = _nSWindow.screen;
         if (screen == nil) // happens when window is not visible
             screen = [NSScreen mainScreen];
 
-        bdn::Rect resultRect = bdn::mac::macRectToRect(_pNSWindow.frame, screen.frame.size.height);
+        bdn::Rect resultRect = bdn::mac::macRectToRect(_nSWindow.frame, screen.frame.size.height);
 
         return resultRect;
     }
@@ -71,7 +71,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     void verifyCorePosition() override
     {
         bdn::Rect rect = getFrameRect();
-        bdn::Point expectedPosition = _pView->position();
+        bdn::Point expectedPosition = _view->position();
 
         REQUIRE(rect.getPosition() == expectedPosition);
     }
@@ -79,7 +79,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     void verifyCoreSize() override
     {
         bdn::Rect rect = getFrameRect();
-        bdn::Size expectedSize = _pView->size();
+        bdn::Size expectedSize = _view->size();
 
         REQUIRE(rect.getSize() == expectedSize);
     }
@@ -92,9 +92,9 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
 
     void verifyCoreTitle() override
     {
-        String expectedTitle = _pWindow->title();
+        String expectedTitle = _window->title();
 
-        String title = bdn::mac::macStringToString(_pNSWindow.title);
+        String title = bdn::mac::macStringToString(_nSWindow.title);
 
         REQUIRE(title == expectedTitle);
     }
@@ -103,41 +103,41 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         TestWindowCore::clearAllReferencesToCore();
 
-        _pMacWindowCore = nullptr;
-        _pNSWindow = nullptr;
+        _macWindowCore = nullptr;
+        _nSWindow = nullptr;
     }
 
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(NSWindow *pNSWindow) { this->_pNSWindow = pNSWindow; }
+        DestructVerificationInfo(NSWindow *nSWindow) { this->_nSWindow = nSWindow; }
 
         // store a weak reference so that we do not keep the window alive
-        NSWindow __weak *_pNSWindow;
+        NSWindow __weak *_nSWindow;
     };
 
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override
     {
         // sanity check
-        REQUIRE(_pNSWindow != nullptr);
+        REQUIRE(_nSWindow != nullptr);
 
-        return newObj<DestructVerificationInfo>(_pNSWindow);
+        return newObj<DestructVerificationInfo>(_nSWindow);
     }
 
-    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
+    void verifyCoreUiElementDestruction(IBase *verificationInfo) override
     {
-        NSWindow __weak *pNSWindow = cast<DestructVerificationInfo>(pVerificationInfo)->_pNSWindow;
+        NSWindow __weak *nSWindow = cast<DestructVerificationInfo>(verificationInfo)->_nSWindow;
 
         // window should have been destroyed.
-        REQUIRE(pNSWindow == nullptr);
+        REQUIRE(nSWindow == nullptr);
     }
 
-    P<bdn::mac::WindowCore> _pMacWindowCore;
-    NSWindow *_pNSWindow;
+    P<bdn::mac::WindowCore> _macWindowCore;
+    NSWindow *_nSWindow;
 };
 
 TEST_CASE("mac.WindowCore")
 {
-    P<TestMacWindowCore> pTest = newObj<TestMacWindowCore>();
+    P<TestMacWindowCore> test = newObj<TestMacWindowCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

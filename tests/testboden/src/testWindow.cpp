@@ -10,12 +10,12 @@
 
 using namespace bdn;
 
-void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> pWindow,
-                               P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> window,
+                               P<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
-    P<Button> pButton = newObj<Button>();
-    pButton->setLabel("HelloWorld");
+    P<Button> button = newObj<Button>();
+    button->setLabel("HelloWorld");
 
     Margin buttonMargin;
 
@@ -26,7 +26,7 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> pWin
 
     SECTION("semMargin")
     {
-        pButton->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
+        button->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -34,19 +34,19 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> pWin
 
     SECTION("dipMargin")
     {
-        pButton->setMargin(UiMargin(1, 2, 3, 4));
+        button->setMargin(UiMargin(1, 2, 3, 4));
 
         buttonMargin = Margin(1, 2, 3, 4);
     }
 
-    pWindow->setContentView(pButton);
+    window->setContentView(button);
 
-    P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>(pButton->getViewCore());
+    P<bdn::test::MockButtonCore> buttonCore = cast<bdn::test::MockButtonCore>(button->getViewCore());
 
     // Sanity check. Verify the fake button size. 9.75 , 19.60 per character,
     // rounded to full 1/3 DIP pixels, plus 10x8 for border
     Size buttonSize(std::ceil(10 * 9.75 * 3) / 3 + 10, 19 + 2.0 / 3 + 8);
-    REQUIRE_ALMOST_EQUAL(pButtonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001));
+    REQUIRE_ALMOST_EQUAL(buttonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001));
 
     // window border size is 20, 11, 12, 13 in our fake UI
     Margin windowBorder(20, 11, 12, 13);
@@ -70,30 +70,30 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("Window-specific")
     {
-        P<bdn::test::ViewTestPreparer<Window>> pPreparer = newObj<bdn::test::ViewTestPreparer<Window>>();
+        P<bdn::test::ViewTestPreparer<Window>> preparer = newObj<bdn::test::ViewTestPreparer<Window>>();
 
-        P<bdn::test::ViewWithTestExtensions<Window>> pWindow = pPreparer->createView();
+        P<bdn::test::ViewWithTestExtensions<Window>> window = preparer->createView();
 
-        P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>(pWindow->getViewCore());
-        REQUIRE(pCore != nullptr);
+        P<bdn::test::MockWindowCore> core = cast<bdn::test::MockWindowCore>(window->getViewCore());
+        REQUIRE(core != nullptr);
 
         // continue testing after the async init has finished
-        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow,
-                                   pCore){// testView already tests the initialization of properties defined
-                                          // in View. So we only have to test the Window-specific things here.
-                                          SECTION("constructWindowSpecific"){REQUIRE(pCore->getTitleChangeCount() == 0);
+        CONTINUE_SECTION_WHEN_IDLE(preparer, window,
+                                   core){// testView already tests the initialization of properties defined
+                                         // in View. So we only have to test the Window-specific things here.
+                                         SECTION("constructWindowSpecific"){REQUIRE(core->getTitleChangeCount() == 0);
 
-        REQUIRE(pWindow->title() == "");
+        REQUIRE(window->title() == "");
     }
 
     SECTION("changeWindowProperty")
     {
         SECTION("title")
         {
-            bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setTitle("hello"); },
-                                   [pCore, pWindow] {
-                                       REQUIRE(pCore->getTitleChangeCount() == 1);
-                                       REQUIRE(pCore->getTitle() == "hello");
+            bdn::test::_testViewOp(window, preparer, [window]() { window->setTitle("hello"); },
+                                   [core, window] {
+                                       REQUIRE(core->getTitleChangeCount() == 1);
+                                       REQUIRE(core->getTitle() == "hello");
                                    },
                                    0 // should NOT cause a sizing info update, since the
                                      // title is not part of the "preferred size" calculation
@@ -105,15 +105,14 @@ TEST_CASE("Window", "[ui]")
         {
             SECTION("set to !=null")
             {
-                P<Button> pButton = newObj<Button>();
-                bdn::test::_testViewOp(
-                    pWindow, pPreparer, [pWindow, pButton]() { pWindow->setContentView(pButton); },
-                    [pWindow, pButton] { REQUIRE(pWindow->getContentView() == cast<View>(pButton)); },
-                    bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
-                        bdn::test::ExpectedSideEffect_::invalidateLayout
-                    // should have caused a sizing info update and a layout
-                    // update should not cause a parent layout update, since
-                    // there is no parent
+                P<Button> button = newObj<Button>();
+                bdn::test::_testViewOp(window, preparer, [window, button]() { window->setContentView(button); },
+                                       [window, button] { REQUIRE(window->getContentView() == cast<View>(button)); },
+                                       bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
+                                           bdn::test::ExpectedSideEffect_::invalidateLayout
+                                       // should have caused a sizing info update and a layout
+                                       // update should not cause a parent layout update, since
+                                       // there is no parent
                 );
             }
 
@@ -122,10 +121,10 @@ TEST_CASE("Window", "[ui]")
                 SECTION("was null")
                 {
                     // sanity check
-                    REQUIRE(pWindow->getContentView() == nullptr);
+                    REQUIRE(window->getContentView() == nullptr);
 
-                    bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setContentView(nullptr); },
-                                           [pWindow] { REQUIRE(pWindow->getContentView() == nullptr); },
+                    bdn::test::_testViewOp(window, preparer, [window]() { window->setContentView(nullptr); },
+                                           [window] { REQUIRE(window->getContentView() == nullptr); },
                                            0 // this should not invalidate anything since the
                                              // property does not actually change
                     );
@@ -134,17 +133,17 @@ TEST_CASE("Window", "[ui]")
                 {
                     // first make sure that there is a content view attached
                     // before the test runs
-                    P<Button> pButton = newObj<Button>();
+                    P<Button> button = newObj<Button>();
 
-                    pWindow->setContentView(pButton);
+                    window->setContentView(button);
 
-                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow, pCore)
+                    CONTINUE_SECTION_WHEN_IDLE(preparer, window, core)
                     {
                         // basically we only test here that there is no crash
                         // when the content view is set to null and that it does
                         // result in a sizing info update.
-                        bdn::test::_testViewOp(pWindow, pPreparer, [pWindow]() { pWindow->setContentView(nullptr); },
-                                               [pWindow] { REQUIRE(pWindow->getContentView() == nullptr); },
+                        bdn::test::_testViewOp(window, preparer, [window]() { window->setContentView(nullptr); },
+                                               [window] { REQUIRE(window->getContentView() == nullptr); },
                                                bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
                                                    bdn::test::ExpectedSideEffect_::invalidateLayout);
                     };
@@ -155,13 +154,13 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("childParent")
     {
-        P<Button> pChild = newObj<Button>();
+        P<Button> child = newObj<Button>();
 
         SECTION("setWhenAdded")
         {
-            pWindow->setContentView(pChild);
+            window->setContentView(child);
 
-            BDN_REQUIRE(pChild->getParentView() == cast<View>(pWindow));
+            BDN_REQUIRE(child->getParentView() == cast<View>(window));
         }
 
         SECTION("nullAfterDestroy")
@@ -169,9 +168,9 @@ TEST_CASE("Window", "[ui]")
             {
                 bdn::test::ViewTestPreparer<Window> preparer2;
 
-                P<bdn::test::ViewWithTestExtensions<Window>> pWindow2 = preparer2.createView();
+                P<bdn::test::ViewWithTestExtensions<Window>> window2 = preparer2.createView();
 
-                pWindow2->setContentView(pChild);
+                window2->setContentView(child);
             }
 
             // preparer2 is now gone, so the window is not referenced there
@@ -180,7 +179,7 @@ TEST_CASE("Window", "[ui]")
             // window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            CONTINUE_SECTION_WHEN_IDLE_WITH([pChild]() { BDN_REQUIRE(pChild->getParentView() == nullptr); });
+            CONTINUE_SECTION_WHEN_IDLE_WITH([child]() { BDN_REQUIRE(child->getParentView() == nullptr); });
         }
     }
 
@@ -189,21 +188,21 @@ TEST_CASE("Window", "[ui]")
         SECTION("empty")
         {
             List<P<View>> childList;
-            pWindow->getChildViews(childList);
+            window->getChildViews(childList);
 
             REQUIRE(childList.empty());
         }
 
         SECTION("non-empty")
         {
-            P<Button> pChild = newObj<Button>();
-            pWindow->setContentView(pChild);
+            P<Button> child = newObj<Button>();
+            window->setContentView(child);
 
             List<P<View>> childList;
-            pWindow->getChildViews(childList);
+            window->getChildViews(childList);
 
             REQUIRE(childList.size() == 1);
-            REQUIRE(childList.front() == cast<View>(pChild));
+            REQUIRE(childList.front() == cast<View>(child));
         }
     }
 
@@ -211,26 +210,26 @@ TEST_CASE("Window", "[ui]")
     {
         SECTION("no content view")
         {
-            pWindow->removeAllChildViews();
+            window->removeAllChildViews();
 
             List<P<View>> childList;
-            pWindow->getChildViews(childList);
+            window->getChildViews(childList);
 
             REQUIRE(childList.empty());
         }
 
         SECTION("with content view")
         {
-            P<Button> pChild = newObj<Button>();
-            pWindow->setContentView(pChild);
+            P<Button> child = newObj<Button>();
+            window->setContentView(child);
 
-            pWindow->removeAllChildViews();
+            window->removeAllChildViews();
 
-            REQUIRE(pWindow->getContentView() == nullptr);
-            REQUIRE(pChild->getParentView() == nullptr);
+            REQUIRE(window->getContentView() == nullptr);
+            REQUIRE(child->getParentView() == nullptr);
 
             List<P<View>> childList;
-            pWindow->getChildViews(childList);
+            window->getChildViews(childList);
 
             REQUIRE(childList.empty());
         }
@@ -247,81 +246,81 @@ TEST_CASE("Window", "[ui]")
             Size expectedSize(100, 32);
 
             SECTION("calcPreferredSize")
-            REQUIRE(pWindow->calcPreferredSize() == expectedSize);
+            REQUIRE(window->calcPreferredSize() == expectedSize);
         }
 
         SECTION("withContentView")
         {
             SECTION("calcPreferredSize")
-            testSizingWithContentView(pWindow, pPreparer->getUiProvider(),
-                                      [pWindow]() { return pWindow->calcPreferredSize(); });
+            testSizingWithContentView(window, preparer->getUiProvider(),
+                                      [window]() { return window->calcPreferredSize(); });
         }
     }
 
     SECTION("autoSize")
     {
-        Point positionBefore = pWindow->position();
-        Size sizeBefore = pWindow->size();
+        Point positionBefore = window->position();
+        Size sizeBefore = window->size();
 
-        pWindow->requestAutoSize();
+        window->requestAutoSize();
 
         // auto-sizing is ALWAYS done asynchronously.
         // So nothing should have happened yet.
 
-        REQUIRE(pWindow->position() == positionBefore);
-        REQUIRE(pWindow->size() == sizeBefore);
+        REQUIRE(window->position() == positionBefore);
+        REQUIRE(window->size() == sizeBefore);
 
-        CONTINUE_SECTION_WHEN_IDLE_WITH([pWindow]() {
-            REQUIRE(pWindow->position() == Point(0, 0));
-            REQUIRE(pWindow->size() == Size(100, 32));
+        CONTINUE_SECTION_WHEN_IDLE_WITH([window]() {
+            REQUIRE(window->position() == Point(0, 0));
+            REQUIRE(window->size() == Size(100, 32));
         });
     }
 
     SECTION("center")
     {
-        pWindow->adjustAndSetBounds(Rect(0, 0, 200, 200));
+        window->adjustAndSetBounds(Rect(0, 0, 200, 200));
 
-        pWindow->requestCenter();
+        window->requestCenter();
 
         // centering is ALWAYS done asynchronously.
         // So nothing should have happened yet.
 
-        REQUIRE(pWindow->position() == Point(0, 0));
-        REQUIRE(pWindow->size() == Size(200, 200));
+        REQUIRE(window->position() == Point(0, 0));
+        REQUIRE(window->size() == Size(200, 200));
 
-        CONTINUE_SECTION_WHEN_IDLE(pWindow)
+        CONTINUE_SECTION_WHEN_IDLE(window)
         {
             // the work area of our mock window is 100,100 800x800
-            REQUIRE(pWindow->position() == Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
+            REQUIRE(window->position() == Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
 
-            REQUIRE(pWindow->size() == Size(200, 200));
+            REQUIRE(window->size() == Size(200, 200));
         };
     }
 
     SECTION("contentView aligned on full pixels")
     {
-        P<Button> pChild = newObj<Button>();
-        pChild->setLabel("hello");
+        P<Button> child = newObj<Button>();
+        child->setLabel("hello");
 
         SECTION("weird child margin")
-        pChild->setMargin(UiMargin(0.12345678));
+        child->setMargin(UiMargin(0.12345678));
 
         SECTION("weird window padding")
-        pWindow->setPadding(UiMargin(0.12345678));
+        window->setPadding(UiMargin(0.12345678));
 
-        pWindow->setContentView(pChild);
+        window->setContentView(child);
 
-        CONTINUE_SECTION_WHEN_IDLE(pChild, pWindow)
+        CONTINUE_SECTION_WHEN_IDLE(child, window)
         {
             // the mock views we use have 3 pixels per dip
             double pixelsPerDip = 3;
 
-            Point pos = pChild->position();
+            Point pos = child->position();
 
             REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip, std::round(pos.x * pixelsPerDip), 0.000001);
             REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip, std::round(pos.y * pixelsPerDip), 0.000001);
 
-            Size size = pChild->size();
+            Size size = child->size();
             REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip, std::round(size.width * pixelsPerDip), 0.000001);
             REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip, std::round(size.height * pixelsPerDip), 0.000001);
         };
@@ -329,8 +328,8 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("content view detached before destruction begins")
     {
-        P<Button> pChild = newObj<Button>();
-        pWindow->setContentView(pChild);
+        P<Button> child = newObj<Button>();
+        window->setContentView(child);
 
         struct LocalTestData_ : public Base
         {
@@ -339,28 +338,28 @@ TEST_CASE("Window", "[ui]")
             int childStillChild = -1;
         };
 
-        P<LocalTestData_> pData = newObj<LocalTestData_>();
+        P<LocalTestData_> data = newObj<LocalTestData_>();
 
-        pWindow->setDestructFunc([pData, pChild](bdn::test::ViewWithTestExtensions<Window> *pWin) {
-            pData->destructorRun = true;
-            pData->childParentStillSet = (pChild->getParentView() != nullptr) ? 1 : 0;
-            pData->childStillChild = (pWin->getContentView() != nullptr) ? 1 : 0;
+        window->setDestructFunc([data, child](bdn::test::ViewWithTestExtensions<Window> *win) {
+            data->destructorRun = true;
+            data->childParentStillSet = (child->getParentView() != nullptr) ? 1 : 0;
+            data->childStillChild = (win->getContentView() != nullptr) ? 1 : 0;
         });
 
-        BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pChild)
+        BDN_CONTINUE_SECTION_WHEN_IDLE(data, child)
         {
             // All test objects should have been destroyed by now.
             // First verify that the destructor was even called.
-            REQUIRE(pData->destructorRun);
+            REQUIRE(data->destructorRun);
 
             // now verify what we actually want to test: that the
             // content view's parent was set to null before the destructor
             // of the parent was called.
-            REQUIRE(pData->childParentStillSet == 0);
+            REQUIRE(data->childParentStillSet == 0);
 
             // the child should also not be a child of the parent
             // from the parent's perspective anymore.
-            REQUIRE(pData->childStillChild == 0);
+            REQUIRE(data->childStillChild == 0);
         };
     }
 };

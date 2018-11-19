@@ -26,15 +26,15 @@ namespace bdn
     template <typename CHAR_TYPE> class TextSinkStdOStream : public std::basic_ostream<CHAR_TYPE>
     {
       public:
-        TextSinkStdOStream(ITextSink *pSink) : std::basic_ostream<CHAR_TYPE>(new TextSinkStdStreamBuf<CHAR_TYPE>(pSink))
+        TextSinkStdOStream(ITextSink *sink) : std::basic_ostream<CHAR_TYPE>(new TextSinkStdStreamBuf<CHAR_TYPE>(sink))
         {
-            _pStreamBuf = dynamic_cast<TextSinkStdStreamBuf<CHAR_TYPE> *>(this->rdbuf());
+            _streamBuf = dynamic_cast<TextSinkStdStreamBuf<CHAR_TYPE> *>(this->rdbuf());
         }
 
-        ~TextSinkStdOStream() { delete _pStreamBuf; }
+        ~TextSinkStdOStream() { delete _streamBuf; }
 
       private:
-        TextSinkStdStreamBuf<CHAR_TYPE> *_pStreamBuf;
+        TextSinkStdStreamBuf<CHAR_TYPE> *_streamBuf;
     };
 }
 

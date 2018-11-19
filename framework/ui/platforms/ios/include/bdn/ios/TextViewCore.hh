@@ -15,7 +15,7 @@ namespace bdn
         class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
         {
           private:
-            static UILabel *_createUILabel(TextView *pOuterTextView)
+            static UILabel *_createUILabel(TextView *outerTextView)
             {
                 UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
@@ -25,11 +25,11 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *pOuterTextView) : ViewCore(pOuterTextView, _createUILabel(pOuterTextView))
+            TextViewCore(TextView *outerTextView) : ViewCore(outerTextView, _createUILabel(outerTextView))
             {
                 _uiLabel = (UILabel *)getUIView();
 
-                setText(pOuterTextView->text());
+                setText(outerTextView->text());
             }
 
             UILabel *getUILabel() { return _uiLabel; }
@@ -42,9 +42,9 @@ namespace bdn
                 // where the view wraps its text. To achieve that we incorporate
                 // it into the available width value.
                 Size availableSpaceToUse(availableSpace);
-                P<const View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    Size hint = pView->preferredSizeHint();
+                P<const View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    Size hint = view->preferredSizeHint();
 
                     // ignore the height hint - the view cannot change its width
                     // to match a certain height, only the other way round.

@@ -36,7 +36,7 @@ namespace bdn
             }
 
           public:
-            SwitchCore(T *pOuter) : ToggleCoreBase(pOuter, _createSwitchComposite())
+            SwitchCore(T *outer) : ToggleCoreBase(outer, _createSwitchComposite())
             {
                 BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
                 [switchComposite.uiSwitch addTarget:_clickManager
@@ -44,8 +44,8 @@ namespace bdn
                                    forControlEvents:UIControlEventTouchUpInside];
 
                 // Set initial state
-                setLabel(pOuter->label());
-                setOn(pOuter->on());
+                setLabel(outer->label());
+                setOn(outer->on());
             }
 
             virtual ~SwitchCore()
@@ -60,9 +60,9 @@ namespace bdn
 
             void _clicked() override
             {
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
                     // Observing the UISwitch state via KVO does not work when
                     // the switch state is changed via user interaction. KVO
@@ -74,8 +74,8 @@ namespace bdn
                     //
                     // We guarantee that the on property will be set before
                     // a notification is posted to onClick.
-                    cast<T>(pView)->setOn(((BdnIosSwitchComposite *)_composite).uiSwitch.on);
-                    cast<T>(pView)->onClick().notify(evt);
+                    cast<T>(view)->setOn(((BdnIosSwitchComposite *)_composite).uiSwitch.on);
+                    cast<T>(view)->onClick().notify(evt);
                 }
             }
 

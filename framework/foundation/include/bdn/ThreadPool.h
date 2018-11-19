@@ -40,7 +40,7 @@ namespace bdn
         /** Adds a job for the thread pool to execute. Note that if the pool
            currently has no free capacity then the job will not start right
            away. Instead it will be added to a waiting queue and start later.*/
-        void addJob(IThreadRunnable *pRunnable);
+        void addJob(IThreadRunnable *runnable);
 
         /** Returns the number of threads that are currently busy. Note that
            this is number can change at any time when jobs finish or get
@@ -58,25 +58,25 @@ namespace bdn
         class PoolRunner : public Base, BDN_IMPLEMENTS IThreadRunnable
         {
           public:
-            PoolRunner(ThreadPool *pPool) { _pPoolWeak = pPool; }
+            PoolRunner(ThreadPool *pool) { _poolWeak = pool; }
 
             void signalStop() override;
-            void startJob(IThreadRunnable *pJob);
+            void startJob(IThreadRunnable *job);
 
             void run() override;
 
           protected:
-            WeakP<ThreadPool> _pPoolWeak;
+            WeakP<ThreadPool> _poolWeak;
 
             Mutex _mutex;
             Signal _wakeSignal;
             volatile bool _shouldStop = false;
 
-            P<IThreadRunnable> _pJob;
+            P<IThreadRunnable> _job;
         };
         friend class PoolRunner;
 
-        bool runnerFinishedJob(PoolRunner *pRunner);
+        bool runnerFinishedJob(PoolRunner *runner);
 
         mutable Mutex _mutex;
 

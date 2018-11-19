@@ -74,13 +74,13 @@ namespace bdn
         // can optionally be stored for explicitly unsubscribing later.
         // However, it is often simpler to use weak methods, since those
         // do not need to be unsubscribed (see below)
-        P<INotifierSubscription> pSub = someObj.onSomeEvent().subscribe( myFunc
+        P<INotifierSubscription> sub = someObj.onSomeEvent().subscribe( myFunc
        );
 
         ...
 
         // When you do not want to receive notifications anymore then you can
-       unsubscribe. someObj.onSomeEvent().unsubscribe(pSub);
+       unsubscribe. someObj.onSomeEvent().unsubscribe(sub);
 
         // This will NOT call myFunc anymore, since unsubscribe was called and
        the
@@ -104,18 +104,18 @@ namespace bdn
             }
         };
 
-        P<MyClass> pObject = newObj<MyClass>();
+        P<MyClass> object = newObj<MyClass>();
 
         // subscribe myCallbackMethod to the event
         // as a weak method.
-        someObj.onSomeEvent() += weakMethod(pObject,
+        someObj.onSomeEvent() += weakMethod(object,
        &MyClass::myCallbackMethod);
 
         // weak methods do not keep the method's object alive. So the object
         // can be destroyed at any time.
 
-        // This will destroy the object that pObject points to.
-        pObject = nullptr;
+        // This will destroy the object that object points to.
+        object = nullptr;
 
         // What happens now when notify is called? Some might expect a crash
        here,

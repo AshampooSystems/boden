@@ -26,7 +26,7 @@ namespace bdn
             static BdnIosCheckboxComposite *_createCheckboxComposite();
 
           public:
-            CheckboxCore(Checkbox *pOuterCheckbox);
+            CheckboxCore(Checkbox *outerCheckbox);
             virtual ~CheckboxCore();
 
             void setState(const TriState &state) override

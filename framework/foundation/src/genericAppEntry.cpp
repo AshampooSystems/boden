@@ -11,10 +11,10 @@ namespace bdn
                                    char *argv[])
     {
         try {
-            bdn::P<GenericAppRunner> pAppRunner = bdn::newObj<GenericAppRunner>(appControllerCreator, argc, argv, true);
-            _setAppRunner(pAppRunner);
+            bdn::P<GenericAppRunner> appRunner = bdn::newObj<GenericAppRunner>(appControllerCreator, argc, argv, true);
+            _setAppRunner(appRunner);
 
-            return pAppRunner->entry();
+            return appRunner->entry();
         }
         catch (...) {
             bdn::unhandledException(false);

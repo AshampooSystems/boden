@@ -24,7 +24,7 @@ namespace bdn
             }
 
           public:
-            ToggleCoreBase(View *pOuterToggle);
+            ToggleCoreBase(View *outerToggle);
 
             virtual void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 

@@ -143,18 +143,15 @@ TEST_CASE("LocaleEncoder")
     int dataCount = std::extent<decltype(allData)>().value;
 
     for (int t = 0; t < dataCount; t++) {
-        LocaleEncoderSubTestData *pCurrData = &allData[t];
+        LocaleEncoderSubTestData *currData = &allData[t];
 
-        SECTION(pCurrData->desc)
-        {
-            verifyLocaleEncoder(pCurrData->inString, pCurrData->containsSurrogatePairCharacters);
-        }
+        SECTION(currData->desc) { verifyLocaleEncoder(currData->inString, currData->containsSurrogatePairCharacters); }
 
-        SECTION(std::string(pCurrData->desc) + " mixed")
+        SECTION(std::string(currData->desc) + " mixed")
         {
-            verifyLocaleEncoder(L"hello" + pCurrData->inString + L"wo" + pCurrData->inString + pCurrData->inString +
+            verifyLocaleEncoder(L"hello" + currData->inString + L"wo" + currData->inString + currData->inString +
                                     L"rld",
-                                pCurrData->containsSurrogatePairCharacters);
+                                currData->containsSurrogatePairCharacters);
         }
     }
 }

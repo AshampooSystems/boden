@@ -33,7 +33,7 @@ namespace bdn
     class Switch : public View
     {
       public:
-        Switch() { _pOnClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Switch() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
         /** The switch's label */
         BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
@@ -51,7 +51,7 @@ namespace bdn
          user clicks on the switch. No click event is posted when the user
          clicks on the switch's label.
          */
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_pOnClick; }
+        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
         static String getSwitchCoreTypeName()
         {
@@ -63,7 +63,7 @@ namespace bdn
         String getCoreTypeName() const override { return getSwitchCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _pOnClick;
+        P<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
 

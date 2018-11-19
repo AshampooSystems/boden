@@ -15,26 +15,26 @@ TEST_CASE("Toggle")
 
     SECTION("Toggle-specific")
     {
-        P<bdn::test::ViewTestPreparer<Toggle>> pPreparer = newObj<bdn::test::ViewTestPreparer<Toggle>>();
-        P<bdn::test::ViewWithTestExtensions<Toggle>> pToggle = pPreparer->createView();
-        P<bdn::test::MockToggleCore> pCore = cast<bdn::test::MockToggleCore>(pToggle->getViewCore());
+        P<bdn::test::ViewTestPreparer<Toggle>> preparer = newObj<bdn::test::ViewTestPreparer<Toggle>>();
+        P<bdn::test::ViewWithTestExtensions<Toggle>> toggle = preparer->createView();
+        P<bdn::test::MockToggleCore> core = cast<bdn::test::MockToggleCore>(toggle->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
         SECTION("initialToggleState")
         {
             SECTION("label")
             {
-                REQUIRE(pToggle->label() == "");
-                REQUIRE(pCore->getLabel() == "");
-                REQUIRE(pCore->getLabelChangeCount() == 0);
+                REQUIRE(toggle->label() == "");
+                REQUIRE(core->getLabel() == "");
+                REQUIRE(core->getLabelChangeCount() == 0);
             }
 
             SECTION("on")
             {
-                REQUIRE(pToggle->on() == false);
-                REQUIRE(pCore->getOn() == false);
-                REQUIRE(pCore->getOnChangeCount() == 0);
+                REQUIRE(toggle->on() == false);
+                REQUIRE(core->getOn() == false);
+                REQUIRE(core->getOnChangeCount() == 0);
             }
         }
 
@@ -43,10 +43,10 @@ TEST_CASE("Toggle")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    pToggle, pPreparer, [pToggle]() { pToggle->setLabel("hello"); },
-                    [pCore, pToggle] {
-                        REQUIRE(pCore->getLabel() == "hello");
-                        REQUIRE(pCore->getLabelChangeCount() == 1);
+                    toggle, preparer, [toggle]() { toggle->setLabel("hello"); },
+                    [core, toggle] {
+                        REQUIRE(core->getLabel() == "hello");
+                        REQUIRE(core->getLabelChangeCount() == 1);
                     },
                     (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing
                                                                                       // info to be invalidated
@@ -58,10 +58,10 @@ TEST_CASE("Toggle")
 
             SECTION("on")
             {
-                bdn::test::_testViewOp(pToggle, pPreparer, [pToggle]() { pToggle->setOn(true); },
-                                       [pCore, pToggle] {
-                                           REQUIRE(pCore->getOn() == true);
-                                           REQUIRE(pCore->getOnChangeCount() == 1);
+                bdn::test::_testViewOp(toggle, preparer, [toggle]() { toggle->setOn(true); },
+                                       [core, toggle] {
+                                           REQUIRE(core->getOn() == true);
+                                           REQUIRE(core->getOnChangeCount() == 1);
                                        },
                                        0);
             }

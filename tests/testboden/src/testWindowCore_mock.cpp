@@ -16,33 +16,33 @@ class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
     {
         bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>::initCore();
 
-        _pMockWindowCore = cast<bdn::test::MockWindowCore>(_pMockCore);
+        _mockWindowCore = cast<bdn::test::MockWindowCore>(_mockCore);
     }
 
     void verifyCoreTitle() override
     {
-        String expectedTitle = _pWindow->title();
+        String expectedTitle = _window->title();
 
-        REQUIRE(_pMockWindowCore->getTitle() == expectedTitle);
+        REQUIRE(_mockWindowCore->getTitle() == expectedTitle);
     }
 
     void clearAllReferencesToCore() override
     {
         TestMockViewCoreMixin<TestWindowCore>::clearAllReferencesToCore();
 
-        _pMockWindowCore = nullptr;
+        _mockWindowCore = nullptr;
     }
 
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override { return nullptr; }
 
-    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override {}
+    void verifyCoreUiElementDestruction(IBase *verificationInfo) override {}
 
-    P<bdn::test::MockWindowCore> _pMockWindowCore;
+    P<bdn::test::MockWindowCore> _mockWindowCore;
 };
 
 TEST_CASE("mock.WindowCore")
 {
-    P<TestMockWindowCore> pTest = newObj<TestMockWindowCore>();
+    P<TestMockWindowCore> test = newObj<TestMockWindowCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

@@ -113,14 +113,14 @@ TEST_CASE("wideStringConversion")
     int dataCount = std::extent<decltype(allData)>().value;
 
     for (int t = 0; t < dataCount; t++) {
-        SubTestData *pCurrData = &allData[t];
+        SubTestData *currData = &allData[t];
 
-        SECTION(pCurrData->desc) { verifyWideConversion(pCurrData->wide); }
+        SECTION(currData->desc) { verifyWideConversion(currData->wide); }
 
-        SECTION(std::string(pCurrData->desc) + " mixed")
+        SECTION(std::string(currData->desc) + " mixed")
         {
-            verifyWideConversion(L"hello" + std::wstring(pCurrData->wide) + L"wo" + std::wstring(pCurrData->wide) +
-                                 std::wstring(pCurrData->wide) + L"rld");
+            verifyWideConversion(L"hello" + std::wstring(currData->wide) + L"wo" + std::wstring(currData->wide) +
+                                 std::wstring(currData->wide) + L"rld");
         }
     }
 }

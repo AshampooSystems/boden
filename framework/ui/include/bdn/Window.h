@@ -23,11 +23,11 @@ namespace bdn
 
         \code
 
-        P<Window> pWindow = newObj<Window>();
+        P<Window> window = newObj<Window>();
 
-        pWindow->setTitle( "My Window Title" );
+        window->setTitle( "My Window Title" );
 
-        pWindow->setVisible( true );
+        window->setVisible( true );
 
         // the window is now visible on the screen.
 
@@ -36,18 +36,18 @@ namespace bdn
     class Window : public View
     {
       public:
-        /** @param pUiProvider the UI provider that the window should use.
+        /** @param uiProvider the UI provider that the window should use.
                 See the IUiProvider documentation for more information.
                 If this is nullptr then the UI provider provided by the
                 app controller is used (see AppControllerBase::getUiProvider() )
            .*/
-        Window(IUiProvider *pUiProvider = nullptr);
+        Window(IUiProvider *uiProvider = nullptr);
 
         /** Sets the specified view as the content view of the window.
             Note that windows can only have a single child content view. If one
            is already set then it will be replaced. See #Window class
            documentation for more information.*/
-        void setContentView(View *pContentView);
+        void setContentView(View *contentView);
 
         /** Returns the window's content view (see #getContentView()).
             This can be nullptr if no content view has been set yet.*/
@@ -55,7 +55,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            return _pContentView;
+            return _contentView;
         }
 
         /** Returns the window's content view (see #getContentView()).
@@ -64,7 +64,7 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            return _pContentView;
+            return _contentView;
         }
 
         /** Tells the window to auto-size itself. The window size will be
@@ -109,36 +109,36 @@ namespace bdn
         {
             Thread::assertInMainThread();
 
-            if (_pContentView != nullptr)
-                childViews.push_back(_pContentView);
+            if (_contentView != nullptr)
+                childViews.push_back(_contentView);
         }
 
         void removeAllChildViews() override { setContentView(nullptr); }
 
-        P<View> findPreviousChildView(View *pChildView) override
+        P<View> findPreviousChildView(View *childView) override
         {
             // we do not have multiple child views with an order - just a single
             // content view
             return nullptr;
         }
 
-        void _childViewStolen(View *pChildView) override
+        void _childViewStolen(View *childView) override
         {
             Thread::assertInMainThread();
 
-            if (pChildView == _pContentView)
-                _pContentView = nullptr;
+            if (childView == _contentView)
+                _contentView = nullptr;
         }
 
       protected:
-        P<IUiProvider> determineUiProvider(P<View> pParentView = nullptr) override
+        P<IUiProvider> determineUiProvider(P<View> parentView = nullptr) override
         {
             // our Ui provider never changes. Just return the current one.
-            return cast<IUiProvider>(_pUiProvider);
+            return cast<IUiProvider>(_uiProvider);
         }
 
       private:
-        P<View> _pContentView;
+        P<View> _contentView;
     };
 }
 

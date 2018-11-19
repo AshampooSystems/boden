@@ -15,11 +15,11 @@ TEST_CASE("TextView")
 
     SECTION("TextView-specific")
     {
-        P<bdn::test::ViewTestPreparer<TextView>> pPreparer = newObj<bdn::test::ViewTestPreparer<TextView>>();
-        P<bdn::test::ViewWithTestExtensions<TextView>> pTextView = pPreparer->createView();
-        P<bdn::test::MockTextViewCore> pCore = cast<bdn::test::MockTextViewCore>(pTextView->getViewCore());
+        P<bdn::test::ViewTestPreparer<TextView>> preparer = newObj<bdn::test::ViewTestPreparer<TextView>>();
+        P<bdn::test::ViewWithTestExtensions<TextView>> textView = preparer->createView();
+        P<bdn::test::MockTextViewCore> core = cast<bdn::test::MockTextViewCore>(textView->getViewCore());
 
-        REQUIRE(pCore != nullptr);
+        REQUIRE(core != nullptr);
 
         SECTION("initialState")
         {
@@ -27,16 +27,16 @@ TEST_CASE("TextView")
             // the preferredsizehint will have an effect). So it is not in the
             // initial state. So we create a new one here to test the initial
             // state.
-            P<TextView> pNewView = newObj<TextView>();
-            pPreparer->getWindow()->setContentView(pNewView);
+            P<TextView> newView = newObj<TextView>();
+            preparer->getWindow()->setContentView(newView);
 
-            P<bdn::test::MockTextViewCore> pNewCore = cast<bdn::test::MockTextViewCore>(pNewView->getViewCore());
+            P<bdn::test::MockTextViewCore> newCore = cast<bdn::test::MockTextViewCore>(newView->getViewCore());
 
             SECTION("text")
             {
-                REQUIRE(pNewView->text() == "");
-                REQUIRE(pNewCore->getText() == "");
-                REQUIRE(pNewCore->getTextChangeCount() == 0);
+                REQUIRE(newView->text() == "");
+                REQUIRE(newCore->getText() == "");
+                REQUIRE(newCore->getTextChangeCount() == 0);
             }
         }
 
@@ -44,15 +44,15 @@ TEST_CASE("TextView")
         {
             SECTION("text")
             {
-                CONTINUE_SECTION_WHEN_IDLE(pTextView, pPreparer, pCore)
+                CONTINUE_SECTION_WHEN_IDLE(textView, preparer, core)
                 {
-                    int initialChangeCount = pCore->getTextChangeCount();
+                    int initialChangeCount = core->getTextChangeCount();
 
                     bdn::test::_testViewOp(
-                        pTextView, pPreparer, [pTextView, pPreparer]() { pTextView->setText("hello"); },
-                        [pCore, pTextView, pPreparer, initialChangeCount] {
-                            REQUIRE(pCore->getText() == "hello");
-                            REQUIRE(pCore->getTextChangeCount() == initialChangeCount + 1);
+                        textView, preparer, [textView, preparer]() { textView->setText("hello"); },
+                        [core, textView, preparer, initialChangeCount] {
+                            REQUIRE(core->getText() == "hello");
+                            REQUIRE(core->getTextChangeCount() == initialChangeCount + 1);
                         },
                         bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused
                                                                                      // sizing info to be

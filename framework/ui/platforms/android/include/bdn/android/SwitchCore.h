@@ -15,58 +15,58 @@ namespace bdn
         template <class T> class SwitchCore : public ViewCore, BDN_IMPLEMENTS ISwitchCore
         {
           private:
-            static P<JSwitch> _createJSwitch(T *pOuter)
+            static P<JSwitch> _createJSwitch(T *outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> pParent = pOuter->getParentView();
-                if (pParent == nullptr)
+                P<View> parent = outer->getParentView();
+                if (parent == nullptr)
                     throw ProgrammingError("SwitchCore instance requested for a Switch that does "
                                            "not have a parent.");
 
-                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
-                if (pParentCore == nullptr)
+                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                if (parentCore == nullptr)
                     throw ProgrammingError("SwitchCore instance requested for "
                                            "a Switch with core-less parent.");
 
-                JContext context = pParentCore->getJView().getContext();
+                JContext context = parentCore->getJView().getContext();
 
                 return newObj<JSwitch>(context);
             }
 
           public:
-            SwitchCore(T *pOuter) : ViewCore(pOuter, _createJSwitch(pOuter))
+            SwitchCore(T *outer) : ViewCore(outer, _createJSwitch(outer))
             {
-                _pJSwitch = cast<JSwitch>(&getJView());
+                _jSwitch = cast<JSwitch>(&getJView());
 
-                _pJSwitch->setSingleLine(true);
+                _jSwitch->setSingleLine(true);
 
-                setLabel(pOuter->label());
-                setOn(pOuter->on());
+                setLabel(outer->label());
+                setOn(outer->on());
             }
 
-            JSwitch &getJSwitch() { return *_pJSwitch; }
+            JSwitch &getJSwitch() { return *_jSwitch; }
 
             void setLabel(const String &label) override
             {
-                _pJSwitch->setText(label);
+                _jSwitch->setText(label);
 
                 // we must re-layout the button - otherwise its preferred size
                 // is not updated.
-                _pJSwitch->requestLayout();
+                _jSwitch->requestLayout();
             }
 
-            void setOn(const bool &on) override { _pJSwitch->setChecked(on); }
+            void setOn(const bool &on) override { _jSwitch->setChecked(on); }
 
             void clicked() override
             {
-                P<T> pView = cast<T>(getOuterViewIfStillAttached());
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<T> view = cast<T>(getOuterViewIfStillAttached());
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
-                    pView->setOn(_pJSwitch->isChecked());
-                    pView->onClick().notify(evt);
+                    view->setOn(_jSwitch->isChecked());
+                    view->onClick().notify(evt);
                 }
             }
 
@@ -74,11 +74,11 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _pJSwitch->getTextSize() / getUiScaleFactor();
+                return _jSwitch->getTextSize() / getUiScaleFactor();
             }
 
           private:
-            P<JSwitch> _pJSwitch;
+            P<JSwitch> _jSwitch;
         };
     }
 }

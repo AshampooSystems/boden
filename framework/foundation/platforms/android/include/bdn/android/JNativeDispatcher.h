@@ -51,13 +51,13 @@ namespace bdn
                                      (bdn::java::JNativeRunnable &)runnable, idlePriority);
             }
 
-            void createTimer(double intervalSeconds, IBase *pTimerData)
+            void createTimer(double intervalSeconds, IBase *timerData)
             {
-                bdn::java::JNativeStrongPointer timerData(pTimerData);
+                bdn::java::JNativeStrongPointer nativeTimerData(timerData);
 
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalSeconds, timerData);
+                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalSeconds, nativeTimerData);
             }
 
             void dispose()

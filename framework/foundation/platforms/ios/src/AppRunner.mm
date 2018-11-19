@@ -14,57 +14,57 @@
 @property(strong, nonatomic) UIWindow *window;
 
 // static method
-+ (void)setStaticAppRunner:(bdn::ios::AppRunner *)pRunner;
++ (void)setStaticAppRunner:(bdn::ios::AppRunner *)runner;
 
 @end
 
 @implementation BdnIosAppDelegate_
 
-static bdn::ios::AppRunner *_pStaticAppRunner;
-bdn::ios::AppRunner *_pAppRunner;
+static bdn::ios::AppRunner *_staticAppRunner;
+bdn::ios::AppRunner *_appRunner;
 
 - (id)init
 {
     self = [super init];
     if (self) {
-        _pAppRunner = _pStaticAppRunner;
+        _appRunner = _staticAppRunner;
     }
     return self;
 }
 
-+ (void)setStaticAppRunner:(bdn::ios::AppRunner *)pRunner { _pStaticAppRunner = pRunner; }
++ (void)setStaticAppRunner:(bdn::ios::AppRunner *)runner { _staticAppRunner = runner; }
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    return _pAppRunner->_applicationWillFinishLaunching(launchOptions) ? YES : NO;
+    return _appRunner->_applicationWillFinishLaunching(launchOptions) ? YES : NO;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    return _pAppRunner->_applicationDidFinishLaunching(launchOptions) ? YES : NO;
+    return _appRunner->_applicationDidFinishLaunching(launchOptions) ? YES : NO;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    _pAppRunner->_applicationDidBecomeActive(application);
+    _appRunner->_applicationDidBecomeActive(application);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    _pAppRunner->_applicationWillResignActive(application);
+    _appRunner->_applicationWillResignActive(application);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    _pAppRunner->_applicationDidEnterBackground(application);
+    _appRunner->_applicationDidEnterBackground(application);
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-    _pAppRunner->_applicationWillEnterForeground(application);
+    _appRunner->_applicationWillEnterForeground(application);
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application { _pAppRunner->_applicationWillTerminate(application); }
+- (void)applicationWillTerminate:(UIApplication *)application { _appRunner->_applicationWillTerminate(application); }
 
 @end
 
@@ -92,7 +92,7 @@ namespace bdn
                              char *args[])
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
-            _pMainDispatcher = newObj<bdn::fk::MainDispatcher>();
+            _mainDispatcher = newObj<bdn::fk::MainDispatcher>();
         }
 
         static void _globalUnhandledNSException(NSException *exception)
@@ -102,15 +102,15 @@ namespace bdn
             if (exception.userInfo != nil)
                 cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
-            P<ExceptionReference> pCppExceptionRef;
+            P<ExceptionReference> cppExceptionRef;
             if (cppExceptionWrapper != nil)
-                pCppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
+                cppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
             try {
                 // if the exception is a wrapped C++ exception then we rethrow
                 // the original
-                if (pCppExceptionRef != nullptr)
-                    pCppExceptionRef->rethrow();
+                if (cppExceptionRef != nullptr)
+                    cppExceptionRef->rethrow();
                 else {
                     // otherwise we throw the NSException pointer.
                     throw exception;
@@ -184,6 +184,6 @@ namespace bdn
             x++;
         }
 
-        void AppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_pMainDispatcher)->dispose(); }
+        void AppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose(); }
     }
 }

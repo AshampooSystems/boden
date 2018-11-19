@@ -16,7 +16,7 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
     {
         bdn::test::TestMockViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _pMockScrollViewCore = cast<bdn::test::MockScrollViewCore>(_pMockCore);
+        _mockScrollViewCore = cast<bdn::test::MockScrollViewCore>(_mockCore);
     }
 
     double getVertBarWidth() override { return 10; }
@@ -26,36 +26,36 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
     Size initiateScrollViewResizeToHaveViewPortSize(const Size &viewPortSize) override
     {
         Size adjustedSize =
-            _pScrollView
-                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView
+                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
-        _pScrollView->setPreferredSizeMinimum(adjustedSize);
-        _pScrollView->setPreferredSizeMaximum(adjustedSize);
+        _scrollView->setPreferredSizeMinimum(adjustedSize);
+        _scrollView->setPreferredSizeMaximum(adjustedSize);
 
-        _pWindow->requestAutoSize();
+        _window->requestAutoSize();
 
         return adjustedSize;
     }
 
     void verifyScrollsHorizontally(bool expectedVisible) override
     {
-        REQUIRE(_pMockScrollViewCore->getHorizontalScrollBarVisible() == expectedVisible);
+        REQUIRE(_mockScrollViewCore->getHorizontalScrollBarVisible() == expectedVisible);
     }
 
     void verifyScrollsVertically(bool expectedVisible) override
     {
-        REQUIRE(_pMockScrollViewCore->getVerticalScrollBarVisible() == expectedVisible);
+        REQUIRE(_mockScrollViewCore->getVerticalScrollBarVisible() == expectedVisible);
     }
 
     void verifyContentViewBounds(const Rect &expectedBounds, double maxDeviation = 0) override
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> pContentView = _pScrollView->getContentView();
+        P<View> contentView = _scrollView->getContentView();
 
-        if (pContentView != nullptr) {
-            Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
+        if (contentView != nullptr) {
+            Rect bounds(_scrollView->getContentView()->position(), contentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -70,24 +70,24 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
 
     void verifyScrolledAreaSize(const Size &expectedSize) override
     {
-        Size scrolledAreaSize = _pMockScrollViewCore->getClientSize();
+        Size scrolledAreaSize = _mockScrollViewCore->getClientSize();
 
         REQUIRE(Dip::equal(scrolledAreaSize, expectedSize));
     }
 
     void verifyViewPortSize(const Size &expectedSize) override
     {
-        Size viewPortSize = _pMockScrollViewCore->getViewPortSize();
+        Size viewPortSize = _mockScrollViewCore->getViewPortSize();
 
         REQUIRE(Dip::equal(viewPortSize, expectedSize));
     }
 
-    P<bdn::test::MockScrollViewCore> _pMockScrollViewCore;
+    P<bdn::test::MockScrollViewCore> _mockScrollViewCore;
 };
 
 TEST_CASE("mock.ScrollViewCore")
 {
-    P<TestMockScrollViewCore> pTest = newObj<TestMockScrollViewCore>();
+    P<TestMockScrollViewCore> test = newObj<TestMockScrollViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

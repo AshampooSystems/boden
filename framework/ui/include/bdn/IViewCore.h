@@ -149,7 +149,7 @@ namespace bdn
            view's own sizing info and layout. But the core has full control over
            this and can use an optimized implementation if it wants to.
             */
-        virtual void childSizingInfoInvalidated(View *pChild) = 0;
+        virtual void childSizingInfoInvalidated(View *child) = 0;
 
         /** Sets the view core's horizontal alignment. See
          * View::horizontalAlignment() */

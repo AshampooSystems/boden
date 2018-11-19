@@ -28,7 +28,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>::clearAllReferencesToCore();
 
-        _pAndroidViewCore = nullptr;
+        _androidViewCore = nullptr;
         _jView = bdn::android::JView();
     }
 
@@ -48,9 +48,9 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
         return newObj<DestructVerificationInfo>(_jView);
     }
 
-    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
+    void verifyCoreUiElementDestruction(IBase *verificationInfo) override
     {
-        bdn::android::JView jv = cast<DestructVerificationInfo>(pVerificationInfo)->jView;
+        bdn::android::JView jv = cast<DestructVerificationInfo>(verificationInfo)->jView;
 
         // the view object should have been removed from its parent
         REQUIRE(jv.getParent().isNull_());
@@ -59,7 +59,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.WindowCore")
 {
-    P<TestAndroidWindowCore> pTest = newObj<TestAndroidWindowCore>();
+    P<TestAndroidWindowCore> test = newObj<TestAndroidWindowCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

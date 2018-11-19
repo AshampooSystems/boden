@@ -12,9 +12,9 @@ namespace bdn
     template <typename CharType> class TextSinkStdStreamBufBase_ : public std::basic_streambuf<CharType>
     {
       public:
-        TextSinkStdStreamBufBase_(ITextSink *pSink) : _localeDecodingState(std::mbstate_t())
+        TextSinkStdStreamBufBase_(ITextSink *sink) : _localeDecodingState(std::mbstate_t())
         {
-            _pSink = pSink;
+            _sink = sink;
 
             this->setp(_inBuffer, _inBuffer + (sizeof(_inBuffer) / sizeof(CharType)));
         }
@@ -53,56 +53,56 @@ namespace bdn
             const std::codecvt<wchar_t, CharType, mbstate_t> &codec =
                 std::use_facet<std::codecvt<wchar_t, CharType, mbstate_t>>(loc);
 
-            const CharType *pInStart = this->pbase();
-            const CharType *pInEnd = this->pptr();
+            const CharType *inStart = this->pbase();
+            const CharType *inEnd = this->pptr();
 
-            wchar_t *pOutStart = _localeDecodingOutBuffer;
-            wchar_t *pOutEnd = _localeDecodingOutBuffer + (sizeof(_localeDecodingOutBuffer) / sizeof(wchar_t));
+            wchar_t *outStart = _localeDecodingOutBuffer;
+            wchar_t *outEnd = _localeDecodingOutBuffer + (sizeof(_localeDecodingOutBuffer) / sizeof(wchar_t));
 
-            while (pInStart != pInEnd) {
-                const CharType *pInNext = pInStart;
-                wchar_t *pOutNext = pOutStart;
+            while (inStart != inEnd) {
+                const CharType *inNext = inStart;
+                wchar_t *outNext = outStart;
 
                 // in converts from CharType to wchar_t
                 std::codecvt_base::result result =
-                    codec.in(_localeDecodingState, pInStart, pInEnd, pInNext, pOutStart, pOutEnd, pOutNext);
+                    codec.in(_localeDecodingState, inStart, inEnd, inNext, outStart, outEnd, outNext);
 
                 if (result == std::codecvt_base::noconv) {
                     // input data is already char32_t. For consistency, copy it
                     // into the out buffer
-                    pInNext = pInStart;
-                    pOutNext = pOutStart;
-                    while (pInNext != pInEnd && pOutNext != pOutEnd) {
-                        *pOutNext = *pInNext;
-                        ++pOutNext;
-                        ++pInNext;
+                    inNext = inStart;
+                    outNext = outStart;
+                    while (inNext != inEnd && outNext != outEnd) {
+                        *outNext = *inNext;
+                        ++outNext;
+                        ++inNext;
                     }
 
-                    if (pInNext == pInEnd)
+                    if (inNext == inEnd)
                         result = std::codecvt_base::ok;
                     else
                         result = std::codecvt_base::partial;
                 }
 
-                if (result == std::codecvt_base::error && pOutNext < pOutEnd) {
+                if (result == std::codecvt_base::error && outNext < outEnd) {
                     // we have a broken character in the data.
-                    // pInNext SHOULD point to it.
+                    // inNext SHOULD point to it.
                     // We do not know how big the broken character is.
-                    // All we can do here is advance pInNext by one
+                    // All we can do here is advance inNext by one
                     // and then try again.
                     // We also write 0xfffd character to the output string.
-                    *pOutNext = 0xfffd;
-                    ++pOutNext;
+                    *outNext = 0xfffd;
+                    ++outNext;
 
-                    pInStart = pInNext + 1;
+                    inStart = inNext + 1;
                 } else {
                     // do another decoding iteration.
-                    pInStart = pInNext;
+                    inStart = inNext;
                 }
 
-                if (pOutNext > pOutStart) {
-                    String s(pOutStart, pOutNext - pOutStart);
-                    _pSink->write(s);
+                if (outNext > outStart) {
+                    String s(outStart, outNext - outStart);
+                    _sink->write(s);
                 } else {
                     // if no output was produced then we abort the loop.
                     // Note that we always produce at least one character of
@@ -122,9 +122,9 @@ namespace bdn
             this->setp(this->pbase(), this->epptr());
 
             // copy the unconsumed data to the beginning of the buffer
-            while (pInStart < pInEnd) {
-                this->sputc(*pInStart);
-                pInStart++;
+            while (inStart < inEnd) {
+                this->sputc(*inStart);
+                inStart++;
             }
 
             return 0;
@@ -132,15 +132,15 @@ namespace bdn
 
         int _utfSync()
         {
-            CharType *pInStart = this->pbase();
-            CharType *pInEnd = this->pptr();
+            CharType *inStart = this->pbase();
+            CharType *inEnd = this->pptr();
 
             // we need to decode the written data. So we can only flush full
             // encoded character sequences and need to ignore unfinished
             // sequences at the end. So first we find the end of fully encoded
             // data.
-            typename UtfCodec<CharType>::template DecodingIterator<CharType *> startIt(pInStart, pInStart, pInEnd);
-            typename UtfCodec<CharType>::template DecodingIterator<CharType *> endIt(pInEnd, pInStart, pInEnd);
+            typename UtfCodec<CharType>::template DecodingIterator<CharType *> startIt(inStart, inStart, inEnd);
+            typename UtfCodec<CharType>::template DecodingIterator<CharType *> endIt(inEnd, inStart, inEnd);
 
             // Note that the DecodingIterator class of the UTF codecs can
             // iterate backwards. So we use that to find the end of the valid
@@ -157,7 +157,7 @@ namespace bdn
                     break;
                 }
 
-                size_t unconsumedElements = pInEnd - it.getInner();
+                size_t unconsumedElements = inEnd - it.getInner();
                 if (unconsumedElements >= (size_t)UtfCodec<CharType>::getMaxEncodedElementsPerCharacter()) {
                     // the "invalid" data at the end is definitely long enough
                     // for an encoded character. That means that the reason the
@@ -174,24 +174,24 @@ namespace bdn
                 // we have some valid data to decode. Write that.
                 String text(startIt, endIt);
 
-                _pSink->write(text);
+                _sink->write(text);
             }
 
-            CharType *pRemaining = endIt.getInner();
+            CharType *remaining = endIt.getInner();
 
             // reset the "current" pointer of the buffer to the start
             this->setp(this->pbase(), this->epptr());
 
             // copy the unconsumed data to the beginning of the buffer
-            while (pRemaining < pInEnd) {
-                this->sputc(*pRemaining);
-                pRemaining++;
+            while (remaining < inEnd) {
+                this->sputc(*remaining);
+                remaining++;
             }
 
             return 0;
         }
 
-        P<ITextSink> _pSink;
+        P<ITextSink> _sink;
 
         CharType _inBuffer[64];
         wchar_t _localeDecodingOutBuffer[128];
@@ -228,7 +228,7 @@ namespace bdn
     template <typename CHAR_TYPE> class TextSinkStdStreamBuf : public TextSinkStdStreamBufBase_<CHAR_TYPE>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<CHAR_TYPE>(pSink) {}
+        TextSinkStdStreamBuf(ITextSink *sink) : TextSinkStdStreamBufBase_<CHAR_TYPE>(sink) {}
 
         int sync() override
         {
@@ -241,7 +241,7 @@ namespace bdn
     template <> class TextSinkStdStreamBuf<char> : public TextSinkStdStreamBufBase_<char>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char>(pSink) {}
+        TextSinkStdStreamBuf(ITextSink *sink) : TextSinkStdStreamBufBase_<char>(sink) {}
 
         int sync() override
         {
@@ -263,7 +263,7 @@ namespace bdn
     template <> class TextSinkStdStreamBuf<wchar_t> : public TextSinkStdStreamBufBase_<wchar_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<wchar_t>(pSink) {}
+        TextSinkStdStreamBuf(ITextSink *sink) : TextSinkStdStreamBufBase_<wchar_t>(sink) {}
 
         int sync() override { return this->_utfSync(); }
     };
@@ -271,7 +271,7 @@ namespace bdn
     template <> class TextSinkStdStreamBuf<char16_t> : public TextSinkStdStreamBufBase_<char16_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char16_t>(pSink) {}
+        TextSinkStdStreamBuf(ITextSink *sink) : TextSinkStdStreamBufBase_<char16_t>(sink) {}
 
         int sync() override { return this->_utfSync(); }
     };
@@ -279,7 +279,7 @@ namespace bdn
     template <> class TextSinkStdStreamBuf<char32_t> : public TextSinkStdStreamBufBase_<char32_t>
     {
       public:
-        TextSinkStdStreamBuf(ITextSink *pSink) : TextSinkStdStreamBufBase_<char32_t>(pSink) {}
+        TextSinkStdStreamBuf(ITextSink *sink) : TextSinkStdStreamBufBase_<char32_t>(sink) {}
 
         int sync() override { return this->_utfSync(); }
     };

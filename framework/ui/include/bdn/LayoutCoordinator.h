@@ -41,13 +41,13 @@ namespace bdn
            the child views have changed their size or any of the parameters that
            affect their layout (like margins, alignment, etc.)
             */
-        void viewNeedsLayout(View *pView);
+        void viewNeedsLayout(View *view);
 
         /** Registers a top level window for auto-sizing.*/
-        void windowNeedsAutoSizing(Window *pWindow);
+        void windowNeedsAutoSizing(Window *window);
 
         /** Registers a top-level window for centering on the screen.*/
-        void windowNeedsCentering(Window *pWindow);
+        void windowNeedsCentering(Window *window);
 
         /** Interface that IViewCore objects which use the LayoutCoordinator
          * should implement.*/
@@ -80,14 +80,14 @@ namespace bdn
             view is being updated. The default implementation logs the exception
             and does nothing otherwise.
 
-            \param pExceptionIfAvailable is non-null if the exception is a
+            \param exceptionIfAvailable is non-null if the exception is a
            std::exception object. It is null if it is another kind of exception.
 
             \param functionName is the name of the function that produced the
            exception.
 
             */
-        virtual void handleException(const std::exception *pExceptionIfAvailable, const String &functionName);
+        virtual void handleException(const std::exception *exceptionIfAvailable, const String &functionName);
 
         Set<P<View>> _layoutSet;
 

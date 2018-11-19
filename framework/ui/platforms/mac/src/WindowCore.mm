@@ -3,24 +3,24 @@
 
 @interface BdnWindowDelegate : NSObject <NSWindowDelegate>
 
-@property bdn::mac::WindowCore *pWindowCore;
+@property bdn::mac::WindowCore *windowCore;
 
 @end
 
 @implementation BdnWindowDelegate
 
-- (void)setWindowCore:(bdn::mac::WindowCore *)pCore { _pWindowCore = pCore; }
+- (void)setWindowCore:(bdn::mac::WindowCore *)core { _windowCore = core; }
 
 - (void)windowDidResize:(NSNotification *)notification
 {
-    if (_pWindowCore != nullptr)
-        _pWindowCore->_movedOrResized();
+    if (_windowCore != nullptr)
+        _windowCore->_movedOrResized();
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
-    if (_pWindowCore != nullptr)
-        _pWindowCore->_movedOrResized();
+    if (_windowCore != nullptr)
+        _windowCore->_movedOrResized();
 }
 
 @end
@@ -46,17 +46,17 @@ namespace bdn
     namespace mac
     {
 
-        WindowCore::WindowCore(View *pOuter)
+        WindowCore::WindowCore(View *outer)
         {
-            P<Window> pOuterWindow = cast<Window>(pOuter);
-            _pOuterWindowWeak = pOuterWindow;
+            P<Window> outerWindow = cast<Window>(outer);
+            _outerWindowWeak = outerWindow;
 
             NSScreen *screen = [NSScreen mainScreen];
 
             // the screen's coordinate system is inverted (origin is bottom
             // left). So we need to pass the screen height so that it will be
             // converted properly.
-            NSRect rect = rectToMacRect(Rect(pOuter->position(), pOuter->size()), screen.frame.size.height);
+            NSRect rect = rectToMacRect(Rect(outer->position(), outer->size()), screen.frame.size.height);
 
             _nsWindow = [[NSWindow alloc]
                 initWithContentRect:rect
@@ -82,8 +82,8 @@ namespace bdn
             _ourDelegate = delegate;
             _nsWindow.delegate = delegate;
 
-            setTitle(pOuterWindow->title());
-            setVisible(pOuterWindow->visible());
+            setTitle(outerWindow->title());
+            setVisible(outerWindow->visible());
         }
 
         WindowCore::~WindowCore()
@@ -185,16 +185,16 @@ namespace bdn
 
         void WindowCore::layout()
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr)
-                defaultWindowLayoutImpl(pWindow, getContentArea());
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr)
+                defaultWindowLayoutImpl(window, getContentArea());
         }
 
         Size WindowCore::calcPreferredSize(const Size &availableSpace) const
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr) {
-                return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, getNonClientMargin(),
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr) {
+                return defaultWindowCalcPreferredSizeImpl(window, availableSpace, getNonClientMargin(),
                                                           getMinimumSize());
             } else
                 return getMinimumSize();
@@ -202,36 +202,36 @@ namespace bdn
 
         void WindowCore::requestAutoSize()
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr) {
-                P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr) {
+                P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                if (provider != nullptr)
+                    provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
             }
         }
 
         void WindowCore::requestCenter()
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr) {
-                P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->windowNeedsCentering(pWindow);
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr) {
+                P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                if (provider != nullptr)
+                    provider->getLayoutCoordinator()->windowNeedsCentering(window);
             }
         }
 
         void WindowCore::autoSize()
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr)
-                defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize());
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr)
+                defaultWindowAutoSizeImpl(window, getScreenWorkArea().getSize());
         }
 
         void WindowCore::center()
         {
-            P<Window> pWindow = _pOuterWindowWeak.toStrong();
-            if (pWindow != nullptr)
-                defaultWindowCenterImpl(pWindow, getScreenWorkArea());
+            P<Window> window = _outerWindowWeak.toStrong();
+            if (window != nullptr)
+                defaultWindowCenterImpl(window, getScreenWorkArea());
         }
     }
 }

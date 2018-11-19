@@ -17,7 +17,7 @@ namespace bdn
         class TextFieldCore : public ChildViewCore, BDN_IMPLEMENTS ITextFieldCore
         {
           private:
-            static NSTextField *_createNsTextView(TextField *pOuterTextField)
+            static NSTextField *_createNsTextView(TextField *outerTextField)
             {
                 NSTextField *textField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 textField.allowsEditingTextAttributes = NO; // plain textfield, no attribution/formatting
@@ -27,7 +27,7 @@ namespace bdn
             }
 
           public:
-            TextFieldCore(TextField *pOuterTextField);
+            TextFieldCore(TextField *outerTextField);
             ~TextFieldCore();
 
             void setText(const String &text) override

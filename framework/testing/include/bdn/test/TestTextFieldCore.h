@@ -16,16 +16,16 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<TextField> pTextField = newObj<TextField>();
-                pTextField->setText("hello");
+                P<TextField> textField = newObj<TextField>();
+                textField->setText("hello");
 
-                return pTextField;
+                return textField;
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
-                _pTextField = cast<TextField>(pView);
+                TestViewCore::setView(view);
+                _textField = cast<TextField>(view);
             }
 
             void runInitTests() override
@@ -34,7 +34,7 @@ namespace bdn
 
                 SECTION("text")
                 {
-                    _pTextField->setText("helloworld");
+                    _textField->setText("helloworld");
                     initCore();
                     verifyCoreText();
                 }
@@ -42,7 +42,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestTextFieldCore> pThis(this);
+                P<TestTextFieldCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -50,24 +50,24 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pTextField->setText("helloworld");
+                        _textField->setText("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreText(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreText(); };
                     }
 
                     // Text should not affect preferred size
                     SECTION("effectsOnPreferredSize")
                     {
-                        String textBefore = _pTextField->text();
+                        String textBefore = _textField->text();
 
                         // the text should not be empty here
                         REQUIRE(textBefore.getLength() > 3);
 
-                        Size prefSizeBefore = _pTextField->calcPreferredSize();
+                        Size prefSizeBefore = _textField->calcPreferredSize();
 
-                        _pTextField->setText(textBefore + textBefore + textBefore);
+                        _textField->setText(textBefore + textBefore + textBefore);
 
-                        Size prefSizeAfter = _pTextField->calcPreferredSize();
+                        Size prefSizeAfter = _textField->calcPreferredSize();
 
                         REQUIRE(prefSizeAfter == prefSizeBefore);
                     }
@@ -76,7 +76,7 @@ namespace bdn
 
             virtual void verifyCoreText() = 0;
 
-            P<TextField> _pTextField;
+            P<TextField> _textField;
         };
     }
 }

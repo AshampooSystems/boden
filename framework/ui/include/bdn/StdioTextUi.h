@@ -16,13 +16,13 @@ namespace bdn
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete them. So it is ok to use
            std::cin, std::cout and/or std::cerr.*/
-        StdioTextUi(std::basic_istream<CharType> *pInStream, std::basic_ostream<CharType> *pOutStream,
-                    std::basic_ostream<CharType> *pErrStream)
+        StdioTextUi(std::basic_istream<CharType> *inStream, std::basic_ostream<CharType> *outStream,
+                    std::basic_ostream<CharType> *errStream)
         {
-            _pInReader = newObj<AsyncStdioReader<CharType>>(pInStream);
+            _inReader = newObj<AsyncStdioReader<CharType>>(inStream);
 
-            _pOutputSink = newObj<Sink>(pOutStream);
-            _pStatusOrProblemSink = newObj<Sink>(pErrStream);
+            _outputSink = newObj<Sink>(outStream);
+            _statusOrProblemSink = newObj<Sink>(errStream);
         }
 
         /** Lets the user enter a line of text. This is done as an asynchronous
@@ -31,41 +31,41 @@ namespace bdn
             You can use AsyncOp.onDone() to register a handler that is notified
            when the user has entered the text.
             */
-        P<IAsyncOp<String>> readLine() override { return _pInReader->readLine(); }
+        P<IAsyncOp<String>> readLine() override { return _inReader->readLine(); }
 
-        P<ITextSink> statusOrProblem() override { return _pStatusOrProblemSink; }
+        P<ITextSink> statusOrProblem() override { return _statusOrProblemSink; }
 
-        P<ITextSink> output() override { return _pOutputSink; }
+        P<ITextSink> output() override { return _outputSink; }
 
       private:
-        P<AsyncStdioReader<CharType>> _pInReader;
+        P<AsyncStdioReader<CharType>> _inReader;
 
         class Sink : public Base, BDN_IMPLEMENTS ITextSink
         {
           public:
-            Sink(std::basic_ostream<CharType> *pStream) : _pStream(pStream) {}
+            Sink(std::basic_ostream<CharType> *stream) : _stream(stream) {}
 
             void write(const String &s) override
             {
                 Mutex::Lock lock(_mutex);
 
-                (*_pStream) << s.toLocaleEncoding<CharType>(_pStream->getloc());
+                (*_stream) << s.toLocaleEncoding<CharType>(_stream->getloc());
             }
 
             void writeLine(const String &s) override
             {
                 Mutex::Lock lock(_mutex);
 
-                (*_pStream) << s.toLocaleEncoding<CharType>(_pStream->getloc()) << std::endl;
+                (*_stream) << s.toLocaleEncoding<CharType>(_stream->getloc()) << std::endl;
             }
 
           private:
             Mutex _mutex;
-            std::basic_ostream<CharType> *_pStream;
+            std::basic_ostream<CharType> *_stream;
         };
 
-        P<Sink> _pStatusOrProblemSink;
-        P<Sink> _pOutputSink;
+        P<Sink> _statusOrProblemSink;
+        P<Sink> _outputSink;
     };
 }
 

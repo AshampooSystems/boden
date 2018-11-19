@@ -36,17 +36,17 @@ namespace bdn
 
             String getValue_()
             {
-                JNIEnv *pEnv = Env::get().getJniEnv();
+                JNIEnv *env = Env::get().getJniEnv();
                 jstring javaRef = (jstring)getJObject_();
 
-                const char *data = pEnv->GetStringUTFChars(javaRef, nullptr);
+                const char *data = env->GetStringUTFChars(javaRef, nullptr);
 
                 // note that GetStringUTFChars does not throw any java-side
                 // exceptions.
 
                 String val(data);
 
-                pEnv->ReleaseStringUTFChars(javaRef, data);
+                env->ReleaseStringUTFChars(javaRef, data);
 
                 return val;
             }

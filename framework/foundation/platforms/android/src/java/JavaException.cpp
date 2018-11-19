@@ -14,9 +14,9 @@ namespace bdn
                 // this is a C++ exception that was wrapped. Throw that.
                 JNativeException nativeException(throwable.getRef_());
 
-                P<ExceptionReference> pRef = nativeException.getExceptionReference_();
+                P<ExceptionReference> ref = nativeException.getExceptionReference_();
 
-                pRef->rethrow();
+                ref->rethrow();
             } else {
                 // a "real" java side exception. Wrap it in JavaException and
                 // throw it.

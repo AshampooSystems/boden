@@ -158,8 +158,8 @@ TEST_CASE("P")
 
             helper.verifyCounters(0, 0);
 
-            TestPHelper *pRet = p.detachPtr();
-            REQUIRE(pRet == &helper);
+            TestPHelper *ret = p.detachPtr();
+            REQUIRE(ret == &helper);
 
             REQUIRE(p == nullptr);
         }
@@ -172,8 +172,8 @@ TEST_CASE("P")
         {
             P<TestPHelper> p;
 
-            TestPHelper *pRet = p.detachPtr();
-            REQUIRE(pRet == nullptr);
+            TestPHelper *ret = p.detachPtr();
+            REQUIRE(ret == nullptr);
         }
 
         helper.verifyCounters(0, 0);
@@ -284,9 +284,9 @@ TEST_CASE("P")
     {
         P<TestPHelper> p(&helper);
 
-        TestPHelper *pH = p.getPtr();
+        TestPHelper *h = p.getPtr();
 
-        REQUIRE(pH == &helper);
+        REQUIRE(h == &helper);
     }
 
     SECTION("moveConstructor")

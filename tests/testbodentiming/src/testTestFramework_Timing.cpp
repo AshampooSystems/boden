@@ -16,13 +16,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0, pWatch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0, watch)
             {
                 zeroContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() < 900);
+                REQUIRE(watch->getMillis() < 900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -37,13 +37,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0.00000000001, pWatch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0.00000000001, watch)
             {
                 almostZeroContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() < 500);
+                REQUIRE(watch->getMillis() < 500);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -61,14 +61,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(1.1, pWatch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(1.1, watch)
             {
                 millisContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() >= 1050);
-                REQUIRE(pWatch->getMillis() < 1900);
+                REQUIRE(watch->getMillis() >= 1050);
+                REQUIRE(watch->getMillis() < 1900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -83,14 +83,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pWatch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, watch)
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() >= 1900);
-                REQUIRE(pWatch->getMillis() < 2500);
+                REQUIRE(watch->getMillis() >= 1900);
+                REQUIRE(watch->getMillis() < 2500);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -105,12 +105,12 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
         // CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS should NOT be influences by
         // this (in contrast to CONTINUE_SECTION_AFTER_RUN_SECONDS)
 
-        P<StopWatch> pWatch = newObj<StopWatch>();
+        P<StopWatch> watch = newObj<StopWatch>();
 
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pWatch)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, watch)
         {
-            REQUIRE(pWatch->getMillis() >= 1900);
-            REQUIRE(pWatch->getMillis() < 2500);
+            REQUIRE(watch->getMillis() >= 1900);
+            REQUIRE(watch->getMillis() < 2500);
         };
 
         // note that the following code is executed before the "continue" code
@@ -153,13 +153,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0, pWatch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0, watch)
             {
                 zeroContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() < 900);
+                REQUIRE(watch->getMillis() < 900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -174,13 +174,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.00000000001, pWatch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.00000000001, watch)
             {
                 almostZeroContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() < 500);
+                REQUIRE(watch->getMillis() < 500);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -198,14 +198,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(1.1, pWatch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(1.1, watch)
             {
                 millisContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() >= 1050);
-                REQUIRE(pWatch->getMillis() < 1900);
+                REQUIRE(watch->getMillis() >= 1050);
+                REQUIRE(watch->getMillis() < 1900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -220,14 +220,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> pWatch = newObj<StopWatch>();
+            P<StopWatch> watch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(2, pWatch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(2, watch)
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE(pWatch->getMillis() >= 1900);
-                REQUIRE(pWatch->getMillis() < 2500);
+                REQUIRE(watch->getMillis() >= 1900);
+                REQUIRE(watch->getMillis() < 2500);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -242,13 +242,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
         // CONTINUE_SECTION_AFTER_RUN_SECONDS should increase the wait time
         // accordingly.
 
-        P<StopWatch> pWatch = newObj<StopWatch>();
+        P<StopWatch> watch = newObj<StopWatch>();
 
-        CONTINUE_SECTION_AFTER_RUN_SECONDS(2, pWatch)
+        CONTINUE_SECTION_AFTER_RUN_SECONDS(2, watch)
         {
             // the wait time should have increased by VERY ROUGHLY one second.
-            REQUIRE(pWatch->getMillis() >= 2800);
-            REQUIRE(pWatch->getMillis() < 3500);
+            REQUIRE(watch->getMillis() >= 2800);
+            REQUIRE(watch->getMillis() < 3500);
         };
 
         // note that the following code is executed before the "continue" code

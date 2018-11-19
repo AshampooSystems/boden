@@ -18,23 +18,23 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<ScrollView> pScrollView = newObj<ScrollView>();
+                P<ScrollView> scrollView = newObj<ScrollView>();
 
-                return pScrollView;
+                return scrollView;
             }
 
             void initCore() override
             {
                 TestViewCore::initCore();
 
-                _pScrollViewCore = cast<IScrollViewCore>(_pCore);
+                _scrollViewCore = cast<IScrollViewCore>(_core);
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pScrollView = cast<ScrollView>(pView);
+                _scrollView = cast<ScrollView>(view);
             }
 
             void runInitTests() override { TestViewCore::runInitTests(); }
@@ -48,11 +48,11 @@ namespace bdn
                 SECTION("scrollClientRectToVisible and visibleClientRect") { this->testScrollClientRectToVisible(); }
             }
 
-            P<ScrollView> getScrollView() override { return _pScrollView; }
+            P<ScrollView> getScrollView() override { return _scrollView; }
 
             Size callCalcPreferredSize(const Size &availableSpace = Size::none()) override
             {
-                return _pScrollViewCore->calcPreferredSize(availableSpace);
+                return _scrollViewCore->calcPreferredSize(availableSpace);
             }
 
             Size prepareCalcLayout(const Size &viewPortSize) override
@@ -71,10 +71,10 @@ namespace bdn
             void calcLayoutAfterPreparation() override
             {
                 // verify that the scroll view has a plausible size.
-                Size scrollViewSize = _pScrollView->size();
+                Size scrollViewSize = _scrollView->size();
 
-                Rect expectedBounds(_pScrollView->position(), _viewPortSizeRequestedInPrepare);
-                expectedBounds = _pScrollView->adjustBounds(expectedBounds, RoundType::nearest, RoundType::nearest);
+                Rect expectedBounds(_scrollView->position(), _viewPortSizeRequestedInPrepare);
+                expectedBounds = _scrollView->adjustBounds(expectedBounds, RoundType::nearest, RoundType::nearest);
 
                 Size expectedSize = expectedBounds.getSize();
 
@@ -88,7 +88,7 @@ namespace bdn
 
                 // request layout explicitly again. Usually the resizing will
                 // have caused one, but we want to make sure.
-                return _pScrollView->needLayout(View::InvalidateReason::customDataChanged);
+                return _scrollView->needLayout(View::InvalidateReason::customDataChanged);
             }
 
             /** Causes the scroll view to have the specified viewport size when
@@ -104,26 +104,26 @@ namespace bdn
 
             virtual void testScrollClientRectToVisible()
             {
-                P<ScrollView> pScrollView = getScrollView();
-                P<Button> pButton = newObj<Button>();
+                P<ScrollView> scrollView = getScrollView();
+                P<Button> button = newObj<Button>();
 
                 // make the button bigger than the scroll view so that
                 // it will scroll
-                pButton->setPreferredSizeMinimum(Size(1000, 1000));
-                pButton->setPreferredSizeMaximum(Size(1000, 1000));
+                button->setPreferredSizeMinimum(Size(1000, 1000));
+                button->setPreferredSizeMaximum(Size(1000, 1000));
 
-                pScrollView->setHorizontalScrollingEnabled(true);
-                pScrollView->setContentView(pButton);
+                scrollView->setHorizontalScrollingEnabled(true);
+                scrollView->setContentView(button);
 
                 initiateScrollViewResizeToHaveViewPortSize(Size(300, 300));
 
-                P<TestScrollViewCore> pThis = this;
+                P<TestScrollViewCore> self = this;
 
-                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pScrollView)
+                CONTINUE_SECTION_WHEN_IDLE(self, button, scrollView)
                 {
-                    Size scrollViewSize = pScrollView->size();
-                    Size viewPortSize = pScrollView->visibleClientRect().getSize();
-                    Size clientSize = pButton->size();
+                    Size scrollViewSize = scrollView->size();
+                    Size viewPortSize = scrollView->visibleClientRect().getSize();
+                    Size clientSize = button->size();
 
                     // verify that the scroll view initialization was
                     // successful. If this fails then it can be that either the
@@ -140,14 +140,14 @@ namespace bdn
                     {
                         SECTION("zero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, Size(), 0, clientSize, 0, Size(), 0,
+                            subTestScrollClientRectToVisible(self, scrollView, 0, Size(), 0, clientSize, 0, Size(), 0,
                                                              clientSize - viewPortSize);
                         }
 
                         SECTION("nonzero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, Size(), -5, clientSize, 5, Size(),
-                                                             0, clientSize - viewPortSize);
+                            subTestScrollClientRectToVisible(self, scrollView, 0, Size(), -5, clientSize, 5, Size(), 0,
+                                                             clientSize - viewPortSize);
                         }
                     }
 
@@ -155,14 +155,14 @@ namespace bdn
                     {
                         SECTION("zero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, clientSize - viewPortSize, 0,
-                                                             Size(), 0, Size(), 0, Size());
+                            subTestScrollClientRectToVisible(self, scrollView, 0, clientSize - viewPortSize, 0, Size(),
+                                                             0, Size(), 0, Size());
                         }
 
                         SECTION("nonzero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, clientSize - viewPortSize, 0,
-                                                             Size(), 5, Size(), 0, Size());
+                            subTestScrollClientRectToVisible(self, scrollView, 0, clientSize - viewPortSize, 0, Size(),
+                                                             5, Size(), 0, Size());
                         }
                     }
 
@@ -170,13 +170,13 @@ namespace bdn
                     {
                         SECTION("zero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, Size(), -5, clientSize, 0, Size(),
-                                                             -5, clientSize - viewPortSize);
+                            subTestScrollClientRectToVisible(self, scrollView, 0, Size(), -5, clientSize, 0, Size(), -5,
+                                                             clientSize - viewPortSize);
                         }
 
                         SECTION("nonzero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, Size(), -10, clientSize, 5, Size(),
+                            subTestScrollClientRectToVisible(self, scrollView, 0, Size(), -10, clientSize, 5, Size(),
                                                              -5, clientSize - viewPortSize);
                         }
                     }
@@ -185,14 +185,14 @@ namespace bdn
                     {
                         SECTION("zero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, clientSize - viewPortSize, 5,
-                                                             Size(), 0, Size(), 5, Size());
+                            subTestScrollClientRectToVisible(self, scrollView, 0, clientSize - viewPortSize, 5, Size(),
+                                                             0, Size(), 5, Size());
                         }
 
                         SECTION("nonzero target area size")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 0, clientSize - viewPortSize, 5,
-                                                             Size(), 5, Size(), 5, Size());
+                            subTestScrollClientRectToVisible(self, scrollView, 0, clientSize - viewPortSize, 5, Size(),
+                                                             5, Size(), 5, Size());
                         }
                     }
 
@@ -202,13 +202,13 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10, Size(), 0, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10, Size(), 0, Size(),
                                                                  10, Size());
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10, Size(), 5, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10, Size(), 5, Size(),
                                                                  10, Size());
                             }
                         }
@@ -217,13 +217,13 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10, viewPortSize, 0,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10, viewPortSize, 0,
                                                                  Size(), 10, Size());
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 5, viewPortSize, 5,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 5, viewPortSize, 5,
                                                                  Size(), 10, Size());
                             }
                         }
@@ -235,13 +235,13 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10 - 1, Size(), 0,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10 - 1, Size(), 0,
                                                                  Size(), 10 - 1, Size());
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10 - 1, Size(), 5,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10 - 1, Size(), 5,
                                                                  Size(), 10 - 1, Size());
                             }
                         }
@@ -250,14 +250,14 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10 + 1, viewPortSize,
-                                                                 0, Size(), 10 + 1, Size());
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10 + 1, viewPortSize, 0,
+                                                                 Size(), 10 + 1, Size());
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 10 + 1 - 5,
-                                                                 viewPortSize, 5, Size(), 10 + 1, Size());
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 10 + 1 - 5, viewPortSize,
+                                                                 5, Size(), 10 + 1, Size());
                             }
                         }
                     }
@@ -270,13 +270,13 @@ namespace bdn
                             {
                                 SECTION("zero target area size")
                                 {
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -100, Size(), 0,
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -100, Size(), 0,
                                                                      Size(), 0, Size());
                                 }
 
                                 SECTION("nonzero target area size")
                                 {
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -100, Size(), 5,
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -100, Size(), 5,
                                                                      Size(), 0, Size());
                                 }
                             }
@@ -285,7 +285,7 @@ namespace bdn
                             {
                                 SECTION("zero target area size")
                                 {
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                      -std::numeric_limits<double>::infinity(), Size(),
                                                                      0, Size(), 0, Size());
                                 }
@@ -296,7 +296,7 @@ namespace bdn
                                     // matter if the position is negative
                                     // infinity.
 
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                      -std::numeric_limits<double>::infinity(), Size(),
                                                                      300, Size(), 0, Size());
                                 }
@@ -304,13 +304,13 @@ namespace bdn
 
                             SECTION("target area crosses 0")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -100, Size(), 150,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -100, Size(), 150,
                                                                  Size(), 0, Size());
                             }
 
                             SECTION("target area crosses and exceeds viewport")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -100, Size(), 150,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -100, Size(), 150,
                                                                  viewPortSize,
 
                                                                  // the target rect is bigger than the
@@ -329,8 +329,7 @@ namespace bdn
                         SECTION("target area bigger than viewport and already "
                                 "visible")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 5, Size(), 10,
-                                                             viewPortSize,
+                            subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 5, Size(), 10, viewPortSize,
 
                                                              // should not move, since all the area of the
                                                              // target rect that can fit into the viewport is
@@ -341,8 +340,7 @@ namespace bdn
                         SECTION("target area bigger than viewport and begins "
                                 "slightly after current scroll position")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 11, Size(), 2,
-                                                             viewPortSize,
+                            subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 11, Size(), 2, viewPortSize,
 
                                                              // should move one pixel to right, since the
                                                              // left edge of the target area is 1 pixel to
@@ -353,7 +351,7 @@ namespace bdn
                         SECTION("target area bigger than viewport and ends "
                                 "slightly before end of current visible rect")
                         {
-                            subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 5, Size(), 4, viewPortSize,
+                            subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 5, Size(), 4, viewPortSize,
 
                                                              // should move one pixel to left since the right
                                                              // edge of the target area is 1 pixel to left of
@@ -367,26 +365,26 @@ namespace bdn
                             {
                                 SECTION("zero target area size")
                                 {
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 1, clientSize, 0,
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 1, clientSize, 0,
                                                                      Size(), 0, clientSize - viewPortSize);
                                 }
 
                                 SECTION("nonzero target area size")
                                 {
-                                    subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), 1, clientSize, 5,
+                                    subTestScrollClientRectToVisible(self, scrollView, 10, Size(), 1, clientSize, 5,
                                                                      Size(), 0, clientSize - viewPortSize);
                                 }
                             }
 
                             SECTION("target area crosses end")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -10, clientSize, 20,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -10, clientSize, 20,
                                                                  Size(), 0, clientSize - viewPortSize);
                             }
 
                             SECTION("target area crosses end and exceeds viewport")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(), -10, clientSize, 20,
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(), -10, clientSize, 20,
                                                                  viewPortSize, 0, clientSize - viewPortSize);
                             }
                         }
@@ -395,14 +393,14 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                  std::numeric_limits<double>::infinity(), Size(), 0,
                                                                  Size(), 0, clientSize - viewPortSize);
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                  std::numeric_limits<double>::infinity(), Size(), 5,
                                                                  Size(), 0, clientSize - viewPortSize);
                             }
@@ -412,14 +410,14 @@ namespace bdn
                         {
                             SECTION("zero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                  -std::numeric_limits<double>::infinity(), Size(), 0,
                                                                  Size(), 0, Size());
                             }
 
                             SECTION("nonzero target area size")
                             {
-                                subTestScrollClientRectToVisible(pThis, pScrollView, 10, Size(),
+                                subTestScrollClientRectToVisible(self, scrollView, 10, Size(),
                                                                  -std::numeric_limits<double>::infinity(), Size(), 5,
                                                                  Size(), 0, Size());
                             }
@@ -428,8 +426,8 @@ namespace bdn
                 };
             }
 
-            P<ScrollView> _pScrollView;
-            P<IScrollViewCore> _pScrollViewCore;
+            P<ScrollView> _scrollView;
+            P<IScrollViewCore> _scrollViewCore;
 
           private:
             enum class TestDir_
@@ -497,36 +495,36 @@ namespace bdn
                 }
             }
 
-            static void subTestScrollClientRectToVisible_Dir(TestDir_ dir, P<IBase> pKeepAliveDuringTest,
-                                                             P<ScrollView> pScrollView, double initialPos,
+            static void subTestScrollClientRectToVisible_Dir(TestDir_ dir, P<IBase> keepAliveDuringTest,
+                                                             P<ScrollView> scrollView, double initialPos,
                                                              Size initialPosAdd, double targetPos, Size targetPosAdd,
                                                              double targetSize, Size targetSizeAdd, double expectedPos,
                                                              Size expectedPosAdd)
             {
-                Size scrolledAreaSize = pScrollView->getContentView()->size();
+                Size scrolledAreaSize = scrollView->getContentView()->size();
 
                 initialPos += comp(initialPosAdd, dir);
                 targetPos += comp(targetPosAdd, dir);
                 targetSize += comp(targetSizeAdd, dir);
                 expectedPos += comp(expectedPosAdd, dir);
 
-                Rect visibleRectBefore = pScrollView->visibleClientRect();
+                Rect visibleRectBefore = scrollView->visibleClientRect();
 
-                pScrollView->scrollClientRectToVisible(
-                    Rect(compToPoint(initialPos, dir), pScrollView->visibleClientRect().getSize()));
+                scrollView->scrollClientRectToVisible(
+                    Rect(compToPoint(initialPos, dir), scrollView->visibleClientRect().getSize()));
 
                 // it may take a while until the scroll operation is done (for
                 // example, if it is animated). So we wait and check a few times
                 // until the expected condition is present.
                 waitForCondition(
                     10 * 1000,
-                    [pKeepAliveDuringTest, pScrollView, initialPos, dir, visibleRectBefore](bool lastTry) {
-                        Rect visibleRect = pScrollView->visibleClientRect();
+                    [keepAliveDuringTest, scrollView, initialPos, dir, visibleRectBefore](bool lastTry) {
+                        Rect visibleRect = scrollView->visibleClientRect();
 
                         Rect expectedInitialRect(compToPoint(initialPos, dir), visibleRectBefore.getSize());
-                        Rect adjustedExpectedInitialRect_down = pScrollView->getContentView()->adjustBounds(
+                        Rect adjustedExpectedInitialRect_down = scrollView->getContentView()->adjustBounds(
                             expectedInitialRect, RoundType::down, RoundType::nearest);
-                        Rect adjustedExpectedInitialRect_up = pScrollView->getContentView()->adjustBounds(
+                        Rect adjustedExpectedInitialRect_up = scrollView->getContentView()->adjustBounds(
                             expectedInitialRect, RoundType::up, RoundType::nearest);
 
                         if (lastTry) {
@@ -546,22 +544,22 @@ namespace bdn
                                     std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y));
                         }
                     },
-                    [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore,
+                    [keepAliveDuringTest, scrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore,
                      initialPos, initialPosAdd, targetPosAdd, targetSizeAdd, expectedPosAdd]() {
-                        pScrollView->scrollClientRectToVisible(
+                        scrollView->scrollClientRectToVisible(
                             Rect(compToPoint(targetPos, dir), compToSize(targetSize, dir)));
 
                         waitForCondition(
                             10 * 1000,
-                            [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir,
+                            [keepAliveDuringTest, scrollView, targetPos, targetSize, expectedPos, dir,
                              visibleRectBefore, initialPos, initialPosAdd, targetPosAdd, targetSizeAdd,
                              expectedPosAdd](bool lastTry) {
-                                Rect visibleRect = pScrollView->visibleClientRect();
+                                Rect visibleRect = scrollView->visibleClientRect();
 
                                 Rect expectedRect(compToPoint(expectedPos, dir), visibleRectBefore.getSize());
-                                Rect adjustedExpectedRect_down = pScrollView->getContentView()->adjustBounds(
+                                Rect adjustedExpectedRect_down = scrollView->getContentView()->adjustBounds(
                                     expectedRect, RoundType::down, RoundType::nearest);
-                                Rect adjustedExpectedRect_up = pScrollView->getContentView()->adjustBounds(
+                                Rect adjustedExpectedRect_up = scrollView->getContentView()->adjustBounds(
                                     expectedRect, RoundType::up, RoundType::nearest);
 
                                 // copy captured variables to locals for better
@@ -594,8 +592,8 @@ namespace bdn
                                                 std::fabs(adjustedExpectedRect_up.y - adjustedExpectedRect_down.y));
                                 }
                             },
-                            [pKeepAliveDuringTest, pScrollView, visibleRectBefore]() {
-                                Rect visibleRect = pScrollView->visibleClientRect();
+                            [keepAliveDuringTest, scrollView, visibleRectBefore]() {
+                                Rect visibleRect = scrollView->visibleClientRect();
 
                                 // Size should not have changed
                                 REQUIRE(visibleRect.getSize() == visibleRectBefore.getSize());
@@ -603,21 +601,21 @@ namespace bdn
                     });
             }
 
-            static void subTestScrollClientRectToVisible(P<IBase> pKeepAliveDuringTest, P<ScrollView> pScrollView,
+            static void subTestScrollClientRectToVisible(P<IBase> keepAliveDuringTest, P<ScrollView> scrollView,
                                                          double initialPos, Size initialPosAdd, double targetPos,
                                                          Size targetPosAdd, double targetSize, Size targetSizeAdd,
                                                          double expectedPos, Size expectedPosAdd)
             {
                 SECTION("vertical")
                 {
-                    subTestScrollClientRectToVisible_Dir(TestDir_::vert, pKeepAliveDuringTest, pScrollView, initialPos,
+                    subTestScrollClientRectToVisible_Dir(TestDir_::vert, keepAliveDuringTest, scrollView, initialPos,
                                                          initialPosAdd, targetPos, targetPosAdd, targetSize,
                                                          targetSizeAdd, expectedPos, expectedPosAdd);
                 }
 
                 SECTION("horizontal")
                 {
-                    subTestScrollClientRectToVisible_Dir(TestDir_::horz, pKeepAliveDuringTest, pScrollView, initialPos,
+                    subTestScrollClientRectToVisible_Dir(TestDir_::horz, keepAliveDuringTest, scrollView, initialPos,
                                                          initialPosAdd, targetPos, targetPosAdd, targetSize,
                                                          targetSizeAdd, expectedPos, expectedPosAdd);
                 }

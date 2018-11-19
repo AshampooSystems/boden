@@ -91,20 +91,20 @@ void testErrorCodeMapping()
     }
 }
 
-void verifyToFromPlatformException(::Platform::Exception ^ pPlatformException, int expectedCode)
+void verifyToFromPlatformException(::Platform::Exception ^ platformException, int expectedCode)
 {
-    std::system_error e = platformExceptionToSystemError(pPlatformException);
+    std::system_error e = platformExceptionToSystemError(platformException);
 
     REQUIRE(e.code().category() == std::system_category());
 
     REQUIRE(e.code().value() == expectedCode);
 
-    ::Platform::Exception ^ pOutException = exceptionToPlatformException(e);
+    ::Platform::Exception ^ outException = exceptionToPlatformException(e);
 
-    REQUIRE(String(pPlatformException->GetType()->FullName->Data()) ==
-            String(pOutException->GetType()->FullName->Data()));
+    REQUIRE(String(platformException->GetType()->FullName->Data()) ==
+            String(outException->GetType()->FullName->Data()));
 
-    REQUIRE(String(pOutException->Message->Data()) == String(e.what()));
+    REQUIRE(String(outException->Message->Data()) == String(e.what()));
 }
 
 TEST_CASE("platformError")
@@ -132,9 +132,9 @@ TEST_CASE("platformError")
 
     SECTION("nonSystemError")
     {
-        ::Platform::Exception ^ pOutException = exceptionToPlatformException(std::exception("hello"));
+        ::Platform::Exception ^ outException = exceptionToPlatformException(std::exception("hello"));
 
-        REQUIRE(String(pOutException->Message->Data()) == "hello");
+        REQUIRE(String(outException->Message->Data()) == "hello");
     }
 
     // we only do the following tests in release mode because
@@ -192,7 +192,7 @@ TEST_CASE("platformError")
 
                 REQUIRE(false);
             }
-            catch (::Platform::DisconnectedException ^ pEx) {
+            catch (::Platform::DisconnectedException ^ ex) {
                 // ok.
                 int x = 0;
                 x++;
@@ -210,7 +210,7 @@ TEST_CASE("platformError")
 
                 REQUIRE(false);
             }
-            catch (::Platform::AccessDeniedException ^ pEx) {
+            catch (::Platform::AccessDeniedException ^ ex) {
                 // ok.
                 int x = 0;
                 x++;

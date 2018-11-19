@@ -10,7 +10,7 @@ template <typename CharType> class AsyncStdioWriter_OneAtTheTimeTestContext : pu
   public:
     AsyncStdioWriter_OneAtTheTimeTestContext(bool writeLine)
     {
-        _pWriter = newObj<AsyncStdioWriter<CharType>>(&_stream);
+        _writer = newObj<AsyncStdioWriter<CharType>>(&_stream);
         _writeLine = writeLine;
     }
 
@@ -29,21 +29,21 @@ template <typename CharType> class AsyncStdioWriter_OneAtTheTimeTestContext : pu
 
             _nextStep++;
 
-            P<IAsyncOp<void>> pOp;
+            P<IAsyncOp<void>> op;
             if (_writeLine)
-                pOp = _pWriter->writeLine(textToWrite);
+                op = _writer->writeLine(textToWrite);
             else
-                pOp = _pWriter->write(textToWrite);
-            pOp->onDone() += weakMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext<CharType>::writeDone);
+                op = _writer->write(textToWrite);
+            op->onDone() += weakMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext<CharType>::writeDone);
         }
     }
 
-    void writeDone(IAsyncOp<void> *pOp)
+    void writeDone(IAsyncOp<void> *op)
     {
         Mutex::Lock lock(_mutex);
 
         // check for errors
-        pOp->getResult();
+        op->getResult();
 
         nextStep();
     }
@@ -76,7 +76,7 @@ template <typename CharType> class AsyncStdioWriter_OneAtTheTimeTestContext : pu
     }
 
     std::basic_stringstream<CharType> _stream;
-    P<AsyncStdioWriter<CharType>> _pWriter;
+    P<AsyncStdioWriter<CharType>> _writer;
 
     int _nextStep = 0;
 
@@ -91,7 +91,7 @@ template <typename CharType> class AsyncStdioWriter_AllAtOnceTestContext : publi
   public:
     AsyncStdioWriter_AllAtOnceTestContext(bool writeLine)
     {
-        _pWriter = newObj<AsyncStdioWriter<CharType>>(&_stream);
+        _writer = newObj<AsyncStdioWriter<CharType>>(&_stream);
 
         _writeLine = writeLine;
     }
@@ -101,20 +101,20 @@ template <typename CharType> class AsyncStdioWriter_AllAtOnceTestContext : publi
         for (int i = 0; i < 100; i++) {
             String textToWrite = "line " + std::to_string(i);
 
-            P<IAsyncOp<void>> pOp;
+            P<IAsyncOp<void>> op;
             if (_writeLine)
-                pOp = _pWriter->writeLine(textToWrite);
+                op = _writer->writeLine(textToWrite);
             else
-                pOp = _pWriter->write(textToWrite);
+                op = _writer->write(textToWrite);
 
-            pOp->onDone() += weakMethod(this, &AsyncStdioWriter_AllAtOnceTestContext<CharType>::writeDone);
+            op->onDone() += weakMethod(this, &AsyncStdioWriter_AllAtOnceTestContext<CharType>::writeDone);
         }
 
         CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(
             0.5, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
     }
 
-    void writeDone(IAsyncOp<void> *pOp)
+    void writeDone(IAsyncOp<void> *op)
     {
         Mutex::Lock lock(_mutex);
 
@@ -151,7 +151,7 @@ template <typename CharType> class AsyncStdioWriter_AllAtOnceTestContext : publi
     }
 
     std::basic_stringstream<CharType> _stream;
-    P<AsyncStdioWriter<CharType>> _pWriter;
+    P<AsyncStdioWriter<CharType>> _writer;
 
     int _doneCount = 0;
 
@@ -165,18 +165,18 @@ template <typename CharType> void verifyAsyncStdioWriter(bool writeLine)
 {
     SECTION("one at a time")
     {
-        P<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>> pContext =
+        P<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>> context =
             newObj<AsyncStdioWriter_OneAtTheTimeTestContext<CharType>>(writeLine);
 
-        pContext->startTest();
+        context->startTest();
     }
 
     SECTION("all at once")
     {
-        P<AsyncStdioWriter_AllAtOnceTestContext<CharType>> pContext =
+        P<AsyncStdioWriter_AllAtOnceTestContext<CharType>> context =
             newObj<AsyncStdioWriter_AllAtOnceTestContext<CharType>>(writeLine);
 
-        pContext->startTest();
+        context->startTest();
     }
 }
 

@@ -125,24 +125,24 @@ TEST_CASE("Margin")
             REQUIRE((a <= b));
             REQUIRE((a >= b));
 
-            double *pComp;
+            double *comp;
             if (component == 0)
-                pComp = &b.top;
+                comp = &b.top;
             else if (component == 1)
-                pComp = &b.right;
+                comp = &b.right;
             else if (component == 2)
-                pComp = &b.bottom;
+                comp = &b.bottom;
             else
-                pComp = &b.left;
+                comp = &b.left;
 
-            (*pComp)++;
+            (*comp)++;
 
             REQUIRE(!(a < b));
             REQUIRE(!(a > b));
             REQUIRE((a <= b));
             REQUIRE(!(a >= b));
 
-            (*pComp) -= 2;
+            (*comp) -= 2;
 
             REQUIRE(!(a < b));
             REQUIRE(!(a > b));

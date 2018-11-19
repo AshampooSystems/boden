@@ -16,17 +16,17 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<Switch> pSwitch = newObj<Switch>();
-                pSwitch->setLabel("hello");
+                P<Switch> switchControl = newObj<Switch>();
+                switchControl->setLabel("hello");
 
-                return pSwitch;
+                return switchControl;
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pSwitch = cast<Switch>(pView);
+                _switch = cast<Switch>(view);
             }
 
             void runInitTests() override
@@ -39,7 +39,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _pSwitch->setLabel("helloworld");
+                        _switch->setLabel("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +47,7 @@ namespace bdn
                     // on set before init
                     SECTION("on")
                     {
-                        _pSwitch->setOn(true);
+                        _switch->setOn(true);
                         initCore();
                         verifyCoreOn();
                     }
@@ -56,7 +56,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestSwitchCore> pThis(this);
+                P<TestSwitchCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -65,25 +65,25 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pSwitch->setLabel("helloworld");
+                        _switch->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _pSwitch->label();
+                        String labelBefore = _switch->label();
 
                         // the label should not be empty here
                         REQUIRE(labelBefore.getLength() > 3);
 
-                        Size prefSizeBefore = _pSwitch->calcPreferredSize();
+                        Size prefSizeBefore = _switch->calcPreferredSize();
 
-                        _pSwitch->setLabel(labelBefore + labelBefore + labelBefore);
+                        _switch->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
+                        CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
-                            Size prefSize = pThis->_pSwitch->calcPreferredSize();
+                            Size prefSize = self->_switch->calcPreferredSize();
 
                             // width must increase with a bigger label
                             REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -94,11 +94,11 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            pThis->_pSwitch->setLabel(labelBefore);
+                            self->_switch->setLabel(labelBefore);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
+                            CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
-                                REQUIRE(pThis->_pSwitch->calcPreferredSize() == prefSizeBefore);
+                                REQUIRE(self->_switch->calcPreferredSize() == prefSizeBefore);
                             };
                         };
                     }
@@ -109,16 +109,16 @@ namespace bdn
                 {
                     SECTION("valueTrue")
                     {
-                        _pSwitch->setOn(true);
+                        _switch->setOn(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
 
                     SECTION("valueFalse")
                     {
-                        _pSwitch->setOn(false);
+                        _switch->setOn(false);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreOn(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
 
                     // We decided to NOT test the case where the platform state
@@ -126,13 +126,13 @@ namespace bdn
                     /*SECTION("platform")
                     {
                         // If core is implemented correctly, this will notify
-                    the outer control (_pSwitch)
+                    the outer control (_switch)
                         // that on has been changed externally using mechanisms
                     provided by the platform core. setCoreOnPlatform(true);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis)
+                        CONTINUE_SECTION_WHEN_IDLE(this)
                         {
-                            pThis->verifyCoreOn();
+                            this->verifyCoreOn();
                         };
                     }*/
                 }
@@ -157,7 +157,7 @@ namespace bdn
                 when the Switch state has been changed by a platform event. */
             /*virtual void setCoreOnPlatform(bool on)=0;*/
 
-            P<Switch> _pSwitch;
+            P<Switch> _switch;
         };
     }
 }

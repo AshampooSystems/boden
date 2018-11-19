@@ -150,12 +150,12 @@ namespace bdn
             // statics properly. So we have to protect against that.
             if (isUninitialized()) {
                 try {
-                    _pInstance = rawNew<T>(args...);
+                    _instance = rawNew<T>(args...);
 
                     _state = State::ok;
                 }
                 catch (std::exception &e) {
-                    _pInstance = nullptr;
+                    _instance = nullptr;
 
                     gotInitError(e);
                 }
@@ -168,12 +168,12 @@ namespace bdn
                 _state = State::destructed;
 
                 try {
-                    deleteOrReleaseRef(_pInstance);
+                    deleteOrReleaseRef(_instance);
                 }
                 catch (std::exception &) {
                     // ignore.
                 }
-                _pInstance = nullptr;
+                _instance = nullptr;
             }
         }
 
@@ -197,7 +197,7 @@ namespace bdn
             if (_state != State::ok)
                 throwError();
 
-            return _pInstance;
+            return _instance;
         }
 
       protected:
@@ -208,7 +208,7 @@ namespace bdn
         // concurrent constructor calls might overwrite each other's work. Also,
         // by using normal pointers it allows T to also be a simple type or a
         // class not derived from Base.
-        T *_pInstance;
+        T *_instance;
     };
 }
 

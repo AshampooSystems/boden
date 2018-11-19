@@ -40,21 +40,20 @@ namespace bdn
     class PlainPropertyReadAccessor : public Base, BDN_IMPLEMENTS IPropertyReadAccessor<VALUE_TYPE>
     {
       public:
-        PlainPropertyReadAccessor(OWNER_TYPE *pOwner, GETTER_METHOD_TYPE getterMethod,
-                                  CHANGED_METHOD_TYPE changedMethod)
-            : _pOwner(pOwner), _getterMethod(getterMethod), _changedMethod(changedMethod)
+        PlainPropertyReadAccessor(OWNER_TYPE *owner, GETTER_METHOD_TYPE getterMethod, CHANGED_METHOD_TYPE changedMethod)
+            : _owner(owner), _getterMethod(getterMethod), _changedMethod(changedMethod)
         {}
 
-        VALUE_TYPE get() const override { return (_pOwner->*_getterMethod)(); }
+        VALUE_TYPE get() const override { return (_owner->*_getterMethod)(); }
 
-        IPropertyNotifier<VALUE_TYPE> &changed() const override { return (_pOwner->*_changedMethod)(); }
+        IPropertyNotifier<VALUE_TYPE> &changed() const override { return (_owner->*_changedMethod)(); }
 
       protected:
         /** Returns the property owner.*/
-        OWNER_TYPE *getOwner() const { return _pOwner; }
+        OWNER_TYPE *getOwner() const { return _owner; }
 
       private:
-        OWNER_TYPE *_pOwner;
+        OWNER_TYPE *_owner;
         GETTER_METHOD_TYPE _getterMethod;
         CHANGED_METHOD_TYPE _changedMethod;
     };
@@ -83,11 +82,10 @@ namespace bdn
      */
     template <class VALUE_TYPE, class OWNER_TYPE, typename GETTER_METHOD_TYPE, typename CHANGED_METHOD_TYPE>
     PlainPropertyReadAccessor<VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE, CHANGED_METHOD_TYPE>
-    makePlainPropertyReadAccessor(OWNER_TYPE *pOwner, GETTER_METHOD_TYPE getterMethod,
-                                  CHANGED_METHOD_TYPE changedMethod)
+    makePlainPropertyReadAccessor(OWNER_TYPE *owner, GETTER_METHOD_TYPE getterMethod, CHANGED_METHOD_TYPE changedMethod)
     {
         return PlainPropertyReadAccessor<VALUE_TYPE, OWNER_TYPE, GETTER_METHOD_TYPE, CHANGED_METHOD_TYPE>(
-            pOwner, getterMethod, changedMethod);
+            owner, getterMethod, changedMethod);
     }
 
 /** Returns a temporary bdn::PlainPropertyReadAccessor object for the

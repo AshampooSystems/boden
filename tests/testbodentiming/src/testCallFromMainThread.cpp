@@ -106,15 +106,15 @@ void testCallFromMainThread(bool throwException)
                     volatile int callCount = 0;
                 };
 
-                P<Data> pData = newObj<Data>();
+                P<Data> data = newObj<Data>();
 
                 StopWatch threadWatch;
 
                 callFromMainThread(
-                    [pData, throwException](int x) {
+                    [data, throwException](int x) {
                         Thread::sleepMillis(1000);
 
-                        pData->callCount++;
+                        data->callCount++;
                         if (throwException)
                             throw InvalidArgumentError("hello");
                         return x * 2;
@@ -124,7 +124,7 @@ void testCallFromMainThread(bool throwException)
                 // should NOT have been called immediately, since we are in a
                 // different thread. Instead the call should have been deferred
                 // to the main thread.
-                REQUIRE(pData->callCount == 0);
+                REQUIRE(data->callCount == 0);
 
                 // should NOT have waited in this thread.
                 REQUIRE(threadWatch.getMillis() < 1000);
@@ -132,7 +132,7 @@ void testCallFromMainThread(bool throwException)
                 // wait until the call happened before we exit
                 while (true) {
                     Thread::sleepMillis(100);
-                    if (pData->callCount != 0)
+                    if (data->callCount != 0)
                         break;
                 }
             });
@@ -157,26 +157,26 @@ class TestCallFromMainThreadOrderingBase : public Base
     {
         std::list<std::future<void>> futures;
 
-        P<TestCallFromMainThreadOrderingBase> pThis = this;
+        P<TestCallFromMainThreadOrderingBase> self = this;
 
         // add a call from the main thread first
         {
             Mutex::Lock lock(_mutex);
             _expectedOrder.push_back(-1);
 
-            scheduleCall([pThis]() { pThis->_actualOrder.push_back(-1); });
+            scheduleCall([self]() { self->_actualOrder.push_back(-1); });
         }
 
         // start 100 threads. Each schedules a call in the main thread.
         _scheduledPending = 101;
         for (int i = 0; i < _scheduledPending - 1; i++) {
-            futures.push_back(Thread::exec([i, pThis]() {
-                Mutex::Lock lock(pThis->_mutex);
-                pThis->_expectedOrder.push_back(i);
+            futures.push_back(Thread::exec([i, self]() {
+                Mutex::Lock lock(self->_mutex);
+                self->_expectedOrder.push_back(i);
 
-                pThis->scheduleCall([i, pThis]() {
-                    pThis->_actualOrder.push_back(i);
-                    pThis->onScheduledDone();
+                self->scheduleCall([i, self]() {
+                    self->_actualOrder.push_back(i);
+                    self->onScheduledDone();
                 });
             }));
         }
@@ -185,9 +185,9 @@ class TestCallFromMainThreadOrderingBase : public Base
         {
             Mutex::Lock lock(_mutex);
 
-            scheduleCall([pThis]() {
-                pThis->_actualOrder.push_back(9999);
-                pThis->onScheduledDone();
+            scheduleCall([self]() {
+                self->_actualOrder.push_back(9999);
+                self->onScheduledDone();
             });
 
             if (mainThreadCallsShouldExecuteImmediately()) {
@@ -230,9 +230,9 @@ class TestCallFromMainThreadOrderingBase : public Base
     void scheduleTestContinuationIfNecessary()
     {
         if (!_done) {
-            P<TestCallFromMainThreadOrderingBase> pThis = this;
+            P<TestCallFromMainThreadOrderingBase> self = this;
 
-            CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->scheduleTestContinuationIfNecessary(); };
+            CONTINUE_SECTION_WHEN_IDLE(self) { self->scheduleTestContinuationIfNecessary(); };
         }
     }
 
@@ -255,9 +255,9 @@ class TestCallFromMainThreadOrdering_Sync : public TestCallFromMainThreadOrderin
 
 void testCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Sync> pTest = newObj<TestCallFromMainThreadOrdering_Sync>();
+    P<TestCallFromMainThreadOrdering_Sync> test = newObj<TestCallFromMainThreadOrdering_Sync>();
 
-    pTest->start();
+    test->start();
 }
 
 #endif
@@ -287,18 +287,18 @@ void testAsyncCallFromMainThread(bool throwException)
 
     SECTION("mainThread")
     {
-        P<Data> pData = newObj<Data>();
+        P<Data> data = newObj<Data>();
 
         StopWatch watch;
 
         asyncCallFromMainThread(
-            [pData, throwException](int x) {
-                pData->callCount++;
+            [data, throwException](int x) {
+                data->callCount++;
 
                 // schedule another call. We verify that
                 // additional calls are still processed even if
                 // an exception occurred in a previous call
-                asyncCallFromMainThread([pData]() { pData->callCount++; });
+                asyncCallFromMainThread([data]() { data->callCount++; });
 
                 if (throwException)
                     throw InvalidArgumentError("hello");
@@ -309,17 +309,17 @@ void testAsyncCallFromMainThread(bool throwException)
 
         // should NOT have been called immediately, even though we are on the
         // main thread
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
 
         // should not have waited
         REQUIRE(watch.getMillis() < 1000);
 
-        CONTINUE_SECTION_WHEN_IDLE(pData)
+        CONTINUE_SECTION_WHEN_IDLE(data)
         {
             // the test continuation will be executed after the async call we
             // scheduled. another async call was scheduled by the previous one.
             // That should also have been executed before the test continues.
-            REQUIRE(pData->callCount == 2);
+            REQUIRE(data->callCount == 2);
         };
     }
 
@@ -328,32 +328,32 @@ void testAsyncCallFromMainThread(bool throwException)
     SECTION("otherThread")
     {
         CONTINUE_SECTION_IN_THREAD_WITH([throwException]() {
-            P<Data> pData = newObj<Data>();
+            P<Data> data = newObj<Data>();
 
             StopWatch threadWatch;
 
-            // sanity check: there should be only one reference on pData at this
+            // sanity check: there should be only one reference on data at this
             // point in time
-            REQUIRE(pData->getRefCount() == 1);
+            REQUIRE(data->getRefCount() == 1);
 
             asyncCallFromMainThread(
-                [pData, throwException](int x) {
+                [data, throwException](int x) {
                     Thread::sleepMillis(2000);
-                    pData->callCount++;
+                    data->callCount++;
                     if (throwException)
                         throw InvalidArgumentError("hello");
                     return x * 2;
                 },
                 42);
 
-            // pData was captured by the function that was scheduled. So there
+            // data was captured by the function that was scheduled. So there
             // should be an additional reference there.
-            REQUIRE(pData->getRefCount() > 1);
+            REQUIRE(data->getRefCount() > 1);
 
             // should NOT have been called immediately, since we are in a
             // different thread. Instead the call should have been deferred to
             // the main thread.
-            REQUIRE(pData->callCount == 0);
+            REQUIRE(data->callCount == 0);
 
             // should NOT have waited.
             REQUIRE(threadWatch.getMillis() < 1000);
@@ -361,10 +361,10 @@ void testAsyncCallFromMainThread(bool throwException)
             Thread::sleepMillis(3000);
 
             // NOW the function should have been called
-            REQUIRE(pData->callCount == 1);
+            REQUIRE(data->callCount == 1);
 
             // and the refcount should be 1 again
-            REQUIRE(pData->getRefCount() == 1);
+            REQUIRE(data->getRefCount() == 1);
         });
     }
 
@@ -383,9 +383,9 @@ class TestCallFromMainThreadOrdering_Async : public TestCallFromMainThreadOrderi
 
 void testAsyncCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Async> pTest = newObj<TestCallFromMainThreadOrdering_Async>();
+    P<TestCallFromMainThreadOrdering_Async> test = newObj<TestCallFromMainThreadOrdering_Async>();
 
-    pTest->start();
+    test->start();
 }
 
 #endif
@@ -515,21 +515,21 @@ void testWrapCallFromMainThread(bool throwException)
                     volatile int callCount = 0;
                 };
 
-                P<Data> pData = newObj<Data>();
+                P<Data> data = newObj<Data>();
 
                 StopWatch threadWatch;
 
                 {
-                    auto wrapped = wrapCallFromMainThread<int>([pData, throwException](int x) {
+                    auto wrapped = wrapCallFromMainThread<int>([data, throwException](int x) {
                         Thread::sleepMillis(2000);
-                        pData->callCount++;
+                        data->callCount++;
                         if (throwException)
                             throw InvalidArgumentError("hello");
                         return x * 2;
                     });
 
                     // should NOT have been called yet.
-                    REQUIRE(pData->callCount == 0);
+                    REQUIRE(data->callCount == 0);
 
                     // should not have waited
                     REQUIRE(threadWatch.getMillis() < 500);
@@ -538,7 +538,7 @@ void testWrapCallFromMainThread(bool throwException)
 
                     // should STILL not have been called, since the wrapper was
                     // not executed yet
-                    REQUIRE(pData->callCount == 0);
+                    REQUIRE(data->callCount == 0);
 
                     threadWatch.start();
 
@@ -547,7 +547,7 @@ void testWrapCallFromMainThread(bool throwException)
                     // should NOT have been called immediately, since we are in
                     // a different thread. Instead the call should have been
                     // deferred to the main thread.
-                    REQUIRE(pData->callCount == 0);
+                    REQUIRE(data->callCount == 0);
 
                     // should not have waited
                     REQUIRE(threadWatch.getMillis() < 500);
@@ -556,11 +556,11 @@ void testWrapCallFromMainThread(bool throwException)
                     Thread::sleepMillis(3000);
 
                     // NOW the function should have been called
-                    REQUIRE(pData->callCount == 1);
+                    REQUIRE(data->callCount == 1);
                 }
 
-                // the other thread's pData reference should have been released
-                REQUIRE(pData->getRefCount() == 1);
+                // the other thread's data reference should have been released
+                REQUIRE(data->getRefCount() == 1);
             });
         }
     }
@@ -587,13 +587,13 @@ void testWrapAsyncCallFromMainThread(bool throwException)
             Thread::Id threadId;
             int callCount = 0;
         };
-        P<Data> pData = newObj<Data>();
+        P<Data> data = newObj<Data>();
 
         StopWatch watch;
 
-        auto wrapped = wrapAsyncCallFromMainThread<int>([pData, throwException](int val) {
-            pData->callCount++;
-            pData->threadId = Thread::getCurrentId();
+        auto wrapped = wrapAsyncCallFromMainThread<int>([data, throwException](int val) {
+            data->callCount++;
+            data->threadId = Thread::getCurrentId();
 
             if (throwException)
                 throw InvalidArgumentError("hello");
@@ -602,26 +602,26 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         });
 
         // should not have been called
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
 
         wrapped(42);
 
         // should still not have been called (even though we are on the main
         // thread).
-        REQUIRE(pData->callCount == 0);
+        REQUIRE(data->callCount == 0);
 
         // shoudl not have waited.
         REQUIRE(watch.getMillis() < 500);
 
-        CONTINUE_SECTION_WHEN_IDLE(pData)
+        CONTINUE_SECTION_WHEN_IDLE(data)
         {
             Thread::sleepMillis(2000);
 
             // now the call should have happened.
-            REQUIRE(pData->callCount == 1);
+            REQUIRE(data->callCount == 1);
 
             // and it should have happened from the main thread.
-            REQUIRE(pData->threadId == Thread::getMainId());
+            REQUIRE(data->threadId == Thread::getMainId());
         };
     }
 
@@ -699,16 +699,16 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
 
     void runTest()
     {
-        _pStopWatch = newObj<StopWatch>();
+        _stopWatch = newObj<StopWatch>();
 
-        P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+        P<TestAsyncCallFromMainThreadAfterSeconds> self = this;
 
-        asyncCallFromMainThreadAfterSeconds(_seconds, [pThis] { pThis->onCalled(); });
+        asyncCallFromMainThreadAfterSeconds(_seconds, [self] { self->onCalled(); });
 
         // should not have been called yet
         REQUIRE(!_called);
 
-        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->continueTest(); };
+        CONTINUE_SECTION_WHEN_IDLE(self) { self->continueTest(); };
     }
 
     void onCalled()
@@ -730,7 +730,7 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
         int64_t expectedMillis = (int64_t)(_seconds * 1000);
         int64_t maxMillis = expectedMillis + 2000;
 
-        int64_t elapsedMillis = _pStopWatch->getMillis();
+        int64_t elapsedMillis = _stopWatch->getMillis();
 
         if (_called) {
             REQUIRE(elapsedMillis >= expectedMillis - 1);
@@ -746,9 +746,9 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
 
             Thread::sleepMillis(20);
 
-            P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+            P<TestAsyncCallFromMainThreadAfterSeconds> self = this;
 
-            CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->continueTest(); };
+            CONTINUE_SECTION_WHEN_IDLE(self) { self->continueTest(); };
         }
     }
 
@@ -756,7 +756,7 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
 
     bool _exception;
     double _seconds;
-    P<StopWatch> _pStopWatch;
+    P<StopWatch> _stopWatch;
 };
 
 void testAsyncCallFromMainThreadAfterSeconds(bool exception)
@@ -775,10 +775,10 @@ void testAsyncCallFromMainThreadAfterSeconds(bool exception)
     SECTION("seconds")
     seconds = 2.5;
 
-    P<TestAsyncCallFromMainThreadAfterSeconds> pTest =
+    P<TestAsyncCallFromMainThreadAfterSeconds> test =
         newObj<TestAsyncCallFromMainThreadAfterSeconds>(exception, seconds);
 
-    pTest->runTest();
+    test->runTest();
 }
 
 TEST_CASE("asyncCallFromMainThreadAfterSeconds")
@@ -803,12 +803,12 @@ struct TestDataCallWhenIdle : public Base
     int64_t eventsCreated = 0;
 };
 
-static void callWhenIdleBusyKeeper(P<TestDataCallWhenIdle> pTestData)
+static void callWhenIdleBusyKeeper(P<TestDataCallWhenIdle> testData)
 {
-    if (pTestData->keepCreatingEvents) {
-        asyncCallFromMainThread([pTestData]() { callWhenIdleBusyKeeper(pTestData); });
+    if (testData->keepCreatingEvents) {
+        asyncCallFromMainThread([testData]() { callWhenIdleBusyKeeper(testData); });
 
-        pTestData->eventsCreated++;
+        testData->eventsCreated++;
     }
 }
 
@@ -816,11 +816,11 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 {
     SECTION("not called when events pending")
     {
-        P<TestDataCallWhenIdle> pTestData = newObj<TestDataCallWhenIdle>();
+        P<TestDataCallWhenIdle> testData = newObj<TestDataCallWhenIdle>();
 
-        std::function<void()> scheduleIdleCall = [pTestData, exception]() {
-            asyncCallFromMainThreadWhenIdle([pTestData, exception]() {
-                pTestData->idleCalled = true;
+        std::function<void()> scheduleIdleCall = [testData, exception]() {
+            asyncCallFromMainThreadWhenIdle([testData, exception]() {
+                testData->idleCalled = true;
                 if (exception)
                     throw InvalidArgumentError("bla");
             });
@@ -840,8 +840,8 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 
         // now we start posting perpetual async events to keep the app busy.
         // This should prevent the idle handler from being called.
-        asyncCallFromMainThread([pTestData]() { callWhenIdleBusyKeeper(pTestData); });
-        pTestData->eventsCreated++;
+        asyncCallFromMainThread([testData]() { callWhenIdleBusyKeeper(testData); });
+        testData->eventsCreated++;
 
         // now schedule a test continuation in 2 seconds.
 
@@ -850,36 +850,36 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         // the queue, since it waits in small increments. That could potentially
         // prevent the idle event from being called.
 
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
         {
             // during this time a chain of several dummy events should have been
             // created
-            REQUIRE(pTestData->eventsCreated >= 3);
+            REQUIRE(testData->eventsCreated >= 3);
 
             // and the idle handler should NOT have been called, since the
             // events were chained (one event posting the next one).
-            REQUIRE(!pTestData->idleCalled);
+            REQUIRE(!testData->idleCalled);
 
             // now we stop creating these events and wait another 2 seconds
-            pTestData->keepCreatingEvents = false;
+            testData->keepCreatingEvents = false;
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
             {
                 // NOW the idle handler should have been called
-                REQUIRE(pTestData->idleCalled);
+                REQUIRE(testData->idleCalled);
             };
         };
     }
 
     SECTION("idle handler ordering")
     {
-        P<TestCallWhenIdleOrder> pTestData = newObj<TestCallWhenIdleOrder>();
+        P<TestCallWhenIdleOrder> testData = newObj<TestCallWhenIdleOrder>();
 
         // multiple scheduled idle handlers should be executed in order
         for (int i = 0; i < 10; i++) {
-            std::function<void()> scheduleIdleCall = [pTestData, exception, i]() {
-                asyncCallFromMainThreadWhenIdle([pTestData, exception, i]() {
-                    pTestData->callOrder.push_back(i);
+            std::function<void()> scheduleIdleCall = [testData, exception, i]() {
+                asyncCallFromMainThreadWhenIdle([testData, exception, i]() {
+                    testData->callOrder.push_back(i);
                     if (exception)
                         throw InvalidArgumentError("bla");
                 });
@@ -899,36 +899,36 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         }
 
         // wait a little for the idle handlers to be executed
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
         {
             // then verify their order
-            REQUIRE(pTestData->callOrder.size() == 10);
+            REQUIRE(testData->callOrder.size() == 10);
 
             for (int i = 0; i < 10; i++) {
-                REQUIRE(pTestData->callOrder[i] == i);
+                REQUIRE(testData->callOrder[i] == i);
             }
         };
     }
 
     SECTION("newly added idle handlers executed after newly added other events")
     {
-        P<TestCallWhenIdleOrder> pTestData = newObj<TestCallWhenIdleOrder>();
+        P<TestCallWhenIdleOrder> testData = newObj<TestCallWhenIdleOrder>();
 
-        asyncCallFromMainThreadWhenIdle([pTestData]() {
+        asyncCallFromMainThreadWhenIdle([testData]() {
             // schedule another idle call, then schedule a "normal" async call.
             // the "normal" call should take precedence
-            asyncCallFromMainThreadWhenIdle([pTestData]() { pTestData->callOrder.push_back(1); });
+            asyncCallFromMainThreadWhenIdle([testData]() { testData->callOrder.push_back(1); });
 
-            asyncCallFromMainThread([pTestData]() { pTestData->callOrder.push_back(0); });
+            asyncCallFromMainThread([testData]() { testData->callOrder.push_back(0); });
         });
 
         // wait two seconds for the events to be executed
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
         {
             // then verify their order
-            REQUIRE(pTestData->callOrder.size() == 2);
-            REQUIRE(pTestData->callOrder[0] == 0); // normal handler first
-            REQUIRE(pTestData->callOrder[1] == 1); // then idle handler
+            REQUIRE(testData->callOrder.size() == 2);
+            REQUIRE(testData->callOrder[0] == 0); // normal handler first
+            REQUIRE(testData->callOrder[1] == 1); // then idle handler
         };
     }
 }

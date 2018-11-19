@@ -25,28 +25,28 @@ void verifyConst(void *p, bool constExpected) { REQUIRE(!constExpected); }
 
 void verifyConst(const void *p, bool constExpected) { REQUIRE(constExpected); }
 
-template <class InPtr> void testTryCast(InPtr pSubA, bool constExpected)
+template <class InPtr> void testTryCast(InPtr subA, bool constExpected)
 {
-    REQUIRE(tryCast<SubA>(pSubA) == pSubA);
-    REQUIRE(tryCast<A>(pSubA) == pSubA);
-    REQUIRE(tryCast<B>(pSubA) == nullptr);
-    REQUIRE(tryCast<SubSubA>(pSubA) == nullptr);
+    REQUIRE(tryCast<SubA>(subA) == subA);
+    REQUIRE(tryCast<A>(subA) == subA);
+    REQUIRE(tryCast<B>(subA) == nullptr);
+    REQUIRE(tryCast<SubSubA>(subA) == nullptr);
 
-    verifyConst(tryCast<SubA>(pSubA), constExpected);
-    verifyConst(tryCast<A>(pSubA), constExpected);
-    verifyConst(tryCast<B>(pSubA), constExpected);
-    verifyConst(tryCast<SubSubA>(pSubA), constExpected);
+    verifyConst(tryCast<SubA>(subA), constExpected);
+    verifyConst(tryCast<A>(subA), constExpected);
+    verifyConst(tryCast<B>(subA), constExpected);
+    verifyConst(tryCast<SubSubA>(subA), constExpected);
 }
 
 TEST_CASE("tryCast")
 {
     SECTION("null")
     {
-        A *pA = nullptr;
+        A *a = nullptr;
 
-        REQUIRE(tryCast<A>(pA) == nullptr);
-        REQUIRE(tryCast<B>(pA) == nullptr);
-        REQUIRE(tryCast<SubA>(pA) == nullptr);
+        REQUIRE(tryCast<A>(a) == nullptr);
+        REQUIRE(tryCast<B>(a) == nullptr);
+        REQUIRE(tryCast<SubA>(a) == nullptr);
     }
 
     SECTION("non-null")
@@ -61,41 +61,41 @@ TEST_CASE("tryCast")
 
         SECTION("P")
         {
-            P<SubA> pSubA = &subA;
+            P<SubA> subAPointer = &subA;
 
-            testTryCast<P<SubA>>(pSubA, false);
+            testTryCast<P<SubA>>(subAPointer, false);
         }
 
         SECTION("PC")
         {
-            P<const SubA> pSubA = &subA;
+            P<const SubA> subAPointer = &subA;
 
-            testTryCast<P<const SubA>>(pSubA, true);
+            testTryCast<P<const SubA>>(subAPointer, true);
         }
     }
 }
 
-template <class InPtr> void testCast(InPtr pSubA, bool constExpected)
+template <class InPtr> void testCast(InPtr subA, bool constExpected)
 {
 
-    REQUIRE(cast<SubA>(pSubA) == pSubA);
-    REQUIRE(cast<A>(pSubA) == pSubA);
-    REQUIRE_THROWS_AS(cast<B>(pSubA), CastError);
-    REQUIRE_THROWS_AS(cast<SubSubA>(pSubA), CastError);
+    REQUIRE(cast<SubA>(subA) == subA);
+    REQUIRE(cast<A>(subA) == subA);
+    REQUIRE_THROWS_AS(cast<B>(subA), CastError);
+    REQUIRE_THROWS_AS(cast<SubSubA>(subA), CastError);
 
-    verifyConst(cast<SubA>(pSubA), constExpected);
-    verifyConst(cast<A>(pSubA), constExpected);
+    verifyConst(cast<SubA>(subA), constExpected);
+    verifyConst(cast<A>(subA), constExpected);
 }
 
 TEST_CASE("cast")
 {
     SECTION("null")
     {
-        A *pA = nullptr;
+        A *a = nullptr;
 
-        REQUIRE(cast<A>(pA) == nullptr);
-        REQUIRE(cast<B>(pA) == nullptr);
-        REQUIRE(cast<SubA>(pA) == nullptr);
+        REQUIRE(cast<A>(a) == nullptr);
+        REQUIRE(cast<B>(a) == nullptr);
+        REQUIRE(cast<SubA>(a) == nullptr);
     }
 
     SECTION("non-null")
@@ -110,16 +110,16 @@ TEST_CASE("cast")
 
         SECTION("P")
         {
-            P<SubA> pSubA = &subA;
+            P<SubA> subAPointer = &subA;
 
-            testCast<P<SubA>>(pSubA, false);
+            testCast<P<SubA>>(subAPointer, false);
         }
 
         SECTION("PC")
         {
-            P<const SubA> pSubA = &subA;
+            P<const SubA> subAPointer = &subA;
 
-            testCast<P<const SubA>>(pSubA, true);
+            testCast<P<const SubA>>(subAPointer, true);
         }
     }
 }

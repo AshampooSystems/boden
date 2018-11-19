@@ -30,12 +30,12 @@ namespace bdn
             UiProvider()
             {
                 _semDips = -1;
-                _pLayoutCoordinator = newObj<LayoutCoordinator>();
+                _layoutCoordinator = newObj<LayoutCoordinator>();
             }
 
             String getName() const override;
 
-            P<IViewCore> createViewCore(const String &coreTypeName, View *pView) override;
+            P<IViewCore> createViewCore(const String &coreTypeName, View *view) override;
 
             P<ITextUi> getTextUi() override;
 
@@ -43,16 +43,16 @@ namespace bdn
 
             /** Returns the layout coordinator that is used by view cores
              * created by this UI provider.*/
-            P<LayoutCoordinator> getLayoutCoordinator() { return _pLayoutCoordinator; }
+            P<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
             static UiProvider &get();
 
           private:
             double _semDips;
-            P<LayoutCoordinator> _pLayoutCoordinator;
+            P<LayoutCoordinator> _layoutCoordinator;
 
             Mutex _textUiInitMutex;
-            P<ITextUi> _pTextUi;
+            P<ITextUi> _textUi;
         };
     }
 }

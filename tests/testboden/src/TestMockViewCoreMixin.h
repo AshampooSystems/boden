@@ -16,61 +16,61 @@ namespace bdn
         template <class BaseClass> class TestMockViewCoreMixin : public BaseClass
         {
           public:
-            TestMockViewCoreMixin() { _pMockProvider = newObj<bdn::test::MockUiProvider>(); }
+            TestMockViewCoreMixin() { _mockProvider = newObj<bdn::test::MockUiProvider>(); }
 
           protected:
             void initCore() override
             {
                 BaseClass::initCore();
 
-                _pMockCore = cast<bdn::test::MockViewCore>(this->_pView->getViewCore());
-                REQUIRE(_pMockCore != nullptr);
+                _mockCore = cast<bdn::test::MockViewCore>(this->_view->getViewCore());
+                REQUIRE(_mockCore != nullptr);
             }
 
-            IUiProvider &getUiProvider() override { return *_pMockProvider; }
+            IUiProvider &getUiProvider() override { return *_mockProvider; }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = this->_pView->visible();
+                bool expectedVisible = this->_view->visible();
 
-                REQUIRE(_pMockCore->getVisible() == expectedVisible);
+                REQUIRE(_mockCore->getVisible() == expectedVisible);
             }
 
             void verifyInitialDummyCoreSize() override
             {
-                Size size = _pMockCore->getBounds().getSize();
+                Size size = _mockCore->getBounds().getSize();
                 REQUIRE(size == Size());
             }
 
             void verifyCorePosition() override
             {
-                Point expectedPosition = this->_pView->position();
+                Point expectedPosition = this->_view->position();
 
-                REQUIRE(_pMockCore->getBounds().getPosition() == expectedPosition);
+                REQUIRE(_mockCore->getBounds().getPosition() == expectedPosition);
             }
 
             void verifyCoreSize() override
             {
-                Size expectedSize = this->_pView->size();
+                Size expectedSize = this->_view->size();
 
-                REQUIRE(_pMockCore->getBounds().getSize() == expectedSize);
+                REQUIRE(_mockCore->getBounds().getSize() == expectedSize);
             }
 
             void verifyCorePadding() override
             {
-                Nullable<UiMargin> expectedPadding = this->_pView->padding();
+                Nullable<UiMargin> expectedPadding = this->_view->padding();
 
                 if (expectedPadding.isNull())
-                    REQUIRE(_pMockCore->getPadding().isNull());
+                    REQUIRE(_mockCore->getPadding().isNull());
                 else {
-                    REQUIRE(!_pMockCore->getPadding().isNull());
+                    REQUIRE(!_mockCore->getPadding().isNull());
 
-                    REQUIRE(_pMockCore->getPadding().get() == expectedPadding.get());
+                    REQUIRE(_mockCore->getPadding().get() == expectedPadding.get());
                 }
             }
 
-            P<bdn::test::MockViewCore> _pMockCore;
-            P<bdn::test::MockUiProvider> _pMockProvider;
+            P<bdn::test::MockViewCore> _mockCore;
+            P<bdn::test::MockUiProvider> _mockProvider;
         };
     }
 }

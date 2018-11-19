@@ -7,8 +7,8 @@ namespace bdn
 {
     void platformEntryWrapper(std::function<void()> function, bool, void *platformSpecific)
     {
-        auto pEnv = static_cast<JNIEnv *>(platformSpecific);
-        bdn::java::Env::get().jniBlockBegun(pEnv);
+        auto env = static_cast<JNIEnv *>(platformSpecific);
+        bdn::java::Env::get().jniBlockBegun(env);
 
         try {
             function();

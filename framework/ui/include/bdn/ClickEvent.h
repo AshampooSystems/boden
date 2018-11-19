@@ -9,7 +9,7 @@ namespace bdn
     class ClickEvent : public ViewEvent
     {
       public:
-        ClickEvent(View *pView) : ViewEvent(pView) {}
+        ClickEvent(View *view) : ViewEvent(view) {}
     };
 }
 

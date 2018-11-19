@@ -187,13 +187,13 @@ namespace bdn
 #define BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION(valueType, propertyName, ...)                                      \
     virtual bdn::IPropertyNotifier<valueType> &propertyName##Changed() const __VA_ARGS__                               \
     {                                                                                                                  \
-        if (_pPropertyChanged_##propertyName == nullptr)                                                               \
-            _pPropertyChanged_##propertyName = bdn::newObj<bdn::PropertyNotifier<valueType>>();                        \
-        return *_pPropertyChanged_##propertyName;                                                                      \
+        if (_propertyChanged_##propertyName == nullptr)                                                                \
+            _propertyChanged_##propertyName = bdn::newObj<bdn::PropertyNotifier<valueType>>();                         \
+        return *_propertyChanged_##propertyName;                                                                       \
     }                                                                                                                  \
                                                                                                                        \
   private:                                                                                                             \
-    mutable bdn::P<bdn::PropertyNotifier<valueType>> _pPropertyChanged_##propertyName;                                 \
+    mutable bdn::P<bdn::PropertyNotifier<valueType>> _propertyChanged_##propertyName;                                  \
                                                                                                                        \
   public:
 
@@ -330,10 +330,10 @@ namespace bdn
         BDN_PROPERTY( String, street, setStreet, override );
     };
 
-    IAddress* pAddress = ...
+    IAddress* address = ...
 
     // we can now use the street property via an IAddress pointer.
-    pAddress->setStreet("My Street 42");
+    address->setStreet("My Street 42");
 
     \endcode
 
@@ -387,10 +387,10 @@ namespace bdn
     using PropertyValueType_##name = valueType;
 
     template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE>
-    std::function<void(const VALUE_TYPE &)> _makePropertySubscriber(OWNER_TYPE *pOwner,
+    std::function<void(const VALUE_TYPE &)> _makePropertySubscriber(OWNER_TYPE *owner,
                                                                     SETTER_METHOD_TYPE &&setterMethod)
     {
-        WeakP<OWNER_TYPE> weakOwner(pOwner);
+        WeakP<OWNER_TYPE> weakOwner(owner);
 
         return [weakOwner, setterMethod](const VALUE_TYPE &value) {
             P<OWNER_TYPE> strongOwner = weakOwner.toStrong();
@@ -402,11 +402,11 @@ namespace bdn
     }
 
     template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
-    std::function<void(const VALUE_TYPE &)> _makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
+    std::function<void(const VALUE_TYPE &)> _makePropertySubscriberWithFilter(OWNER_TYPE *owner,
                                                                               SETTER_METHOD_TYPE &&setterMethod,
                                                                               FILTER_FUNC_TYPE &&filterFunc)
     {
-        WeakP<OWNER_TYPE> weakOwner(pOwner);
+        WeakP<OWNER_TYPE> weakOwner(owner);
 
         return [weakOwner, setterMethod, filterFunc](const VALUE_TYPE &value) {
             P<OWNER_TYPE> strongOwner = weakOwner.toStrong();
@@ -458,12 +458,12 @@ namespace bdn
     (receiverOwner).receiverSetterName((senderOwner).senderPropName());
 
     template <typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
-    std::function<void(const VALUE_TYPE &)> makePropertySubscriberWithFilter(OWNER_TYPE *pOwner,
+    std::function<void(const VALUE_TYPE &)> makePropertySubscriberWithFilter(OWNER_TYPE *owner,
                                                                              SETTER_METHOD_TYPE &&setterMethod,
                                                                              FILTER_FUNC_TYPE &&filterFunc)
     {
         return
-            [pOwner, setterMethod, filterFunc](const VALUE_TYPE &value) { (pOwner->*setterMethod)(filterFunc(value)); };
+            [owner, setterMethod, filterFunc](const VALUE_TYPE &value) { (owner->*setterMethod)(filterFunc(value)); };
     }
 
 /** \def BDN_BIND_TO_PROPERTY_WITH_FILTER( receiverOwner, receiverSetterName,

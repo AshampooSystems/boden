@@ -179,9 +179,9 @@ TEST_CASE("strongMethod")
     SECTION("struct(struct, struct) from P")
     {
         {
-            P<MethodPTestHelper> pHelper = &helper;
+            P<MethodPTestHelper> helperPointer = &helper;
 
-            auto m = strongMethod(pHelper, &MethodPTestHelper::sss);
+            auto m = strongMethod(helperPointer, &MethodPTestHelper::sss);
 
             REQUIRE(helper.getRefCount() == 3);
             verifyMethodValid(m, true);
@@ -433,11 +433,11 @@ TEST_CASE("weakMethod")
     SECTION("struct(struct, struct) from P")
     {
         {
-            P<MethodPTestHelper> pHelper = &helper;
+            P<MethodPTestHelper> helperPointer = &helper;
 
             REQUIRE(helper.getRefCount() == 2);
 
-            auto m = weakMethod(pHelper, &MethodPTestHelper::sss);
+            auto m = weakMethod(helperPointer, &MethodPTestHelper::sss);
 
             REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -592,20 +592,20 @@ TEST_CASE("weakMethod")
         std::function<int()> m;
 
         {
-            P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
+            P<MethodPTestHelper> helper = newObj<MethodPTestHelper>();
 
-            REQUIRE(pHelper->getRefCount() == 1);
+            REQUIRE(helper->getRefCount() == 1);
 
-            m = weakMethod(pHelper, &MethodPTestHelper::i);
+            m = weakMethod(helper, &MethodPTestHelper::i);
 
             // refcount should not have increased
-            REQUIRE(pHelper->getRefCount() == 1);
+            REQUIRE(helper->getRefCount() == 1);
             verifyMethodValid(m, true);
 
             int val = m();
             REQUIRE(val == 42);
 
-            REQUIRE(pHelper->_lastCalled == "int()");
+            REQUIRE(helper->_lastCalled == "int()");
         }
 
         // should still be valid, since the function object does still have
@@ -665,23 +665,23 @@ TEST_CASE("plainMethod")
 
     SECTION("int(int) from P")
     {
-        P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
+        P<MethodPTestHelper> helper = newObj<MethodPTestHelper>();
 
         {
-            auto m = plainMethod(pHelper, &MethodPTestHelper::ii);
+            auto m = plainMethod(helper, &MethodPTestHelper::ii);
 
             verifyMethodValid(m, true);
             // should not have increased the refcount
-            REQUIRE(pHelper->getRefCount() == 1);
+            REQUIRE(helper->getRefCount() == 1);
 
             int val = m(17);
             REQUIRE(val == 17 * 17);
 
-            REQUIRE(pHelper->_lastCalled == "int(int)");
+            REQUIRE(helper->_lastCalled == "int(int)");
         }
 
         // refcount should still be the same
-        REQUIRE(pHelper->getRefCount() == 1);
+        REQUIRE(helper->getRefCount() == 1);
     }
 
     SECTION("defaultInit")

@@ -7,7 +7,7 @@
 #include <bdn/ExceptionReference.h>
 
 extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeUncaughtExceptionHandler_nativeUncaughtException(
-    JNIEnv *pEnv, jclass rawCls, jobject rawThrowable, jboolean canKeepRunning)
+    JNIEnv *env, jclass rawCls, jobject rawThrowable, jboolean canKeepRunning)
 {
     jboolean returnValue = JNI_FALSE;
 
@@ -23,7 +23,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeUncaughtExcept
                 returnValue = bdn::unhandledException(canKeepRunning != JNI_FALSE) ? JNI_TRUE : JNI_FALSE;
             }
         },
-        true, pEnv);
+        true, env);
 
     // should never reach here.
     return returnValue;

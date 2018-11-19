@@ -25,7 +25,7 @@ namespace bdn
                            BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            P<JNativeViewGroup> createJNativeViewGroup(Window *pOuterWindow)
+            P<JNativeViewGroup> createJNativeViewGroup(Window *outerWindow)
             {
                 // we need a context to create our view object.
                 // To know the context we first have to determine the root view
@@ -40,20 +40,20 @@ namespace bdn
                                            "views available. You must create a NativeRootActivity "
                                            "or NativeRootView instance!");
 
-                P<JNativeViewGroup> pViewGroup = newObj<JNativeViewGroup>(rootView.getContext());
+                P<JNativeViewGroup> viewGroup = newObj<JNativeViewGroup>(rootView.getContext());
 
                 // add the view group to the root view. That is important so
                 // that the root view we have chosen is fixed to the view group
                 // instance.
-                rootView.addView(*pViewGroup);
+                rootView.addView(*viewGroup);
 
-                return pViewGroup;
+                return viewGroup;
             }
 
           public:
-            WindowCore(Window *pOuterWindow) : ViewCore(pOuterWindow, createJNativeViewGroup(pOuterWindow))
+            WindowCore(Window *outerWindow) : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
             {
-                setTitle(pOuterWindow->title());
+                setTitle(outerWindow->title());
 
                 JNativeRootView rootView(getJView().getParent().getRef_());
 
@@ -64,20 +64,20 @@ namespace bdn
                 // update our size to fully fill the root view.
                 // Do this async, so that the property change cannot have bad
                 // effects on the in-progress operation.
-                P<WindowCore> pThis = this;
-                asyncCallFromMainThread([pThis, rootView]() mutable {
-                    pThis->rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
+                P<WindowCore> self = this;
+                asyncCallFromMainThread([self, rootView]() mutable {
+                    self->rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
                 });
             }
 
             ~WindowCore()
             {
-                JView *pView = &getJView();
-                if (pView != nullptr) {
+                JView *view = &getJView();
+                if (view != nullptr) {
                     // remove the view from its parent.
-                    JViewGroup parent(pView->getParent().getRef_());
+                    JViewGroup parent(view->getParent().getRef_());
                     if (!parent.isNull_())
-                        parent.removeView(*pView);
+                        parent.removeView(*view);
                 }
             }
 
@@ -110,56 +110,56 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *pChild) override
+            void childSizingInfoInvalidated(View *child) override
             {
-                P<View> pOuterView = getOuterViewIfStillAttached();
-                if (pOuterView != nullptr) {
-                    pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+                P<View> outerView = getOuterViewIfStillAttached();
+                if (outerView != nullptr) {
+                    outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                    outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
                 }
             }
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    return defaultWindowCalcPreferredSizeImpl(pWindow, availableSpace, Margin(), Size());
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    return defaultWindowCalcPreferredSizeImpl(window, availableSpace, Margin(), Size());
                 else
                     return Size(0, 0);
             }
 
             void layout() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr)
-                    defaultWindowLayoutImpl(pWindow, getContentArea());
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr)
+                    defaultWindowLayoutImpl(window, getContentArea());
             }
 
             void requestAutoSize() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
                 }
             }
 
             void requestCenter() override
             {
-                P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
-                if (pWindow != nullptr) {
-                    P<UiProvider> pProvider = tryCast<UiProvider>(pWindow->getUiProvider());
-                    if (pProvider != nullptr)
-                        pProvider->getLayoutCoordinator()->windowNeedsCentering(pWindow);
+                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                if (window != nullptr) {
+                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    if (provider != nullptr)
+                        provider->getLayoutCoordinator()->windowNeedsCentering(window);
                 }
             }
 
@@ -194,8 +194,8 @@ namespace bdn
                 std::list<P<WindowCore>> windowCoreList;
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &pWindowCore : windowCoreList)
-                    pWindowCore->rootViewDisposed();
+                for (P<WindowCore> &windowCore : windowCoreList)
+                    windowCore->rootViewDisposed();
             }
 
             static void _rootViewSizeChanged(const bdn::java::Reference &javaRef, int width, int height)
@@ -204,8 +204,8 @@ namespace bdn
 
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &pWindowCore : windowCoreList)
-                    pWindowCore->rootViewSizeChanged(width, height);
+                for (P<WindowCore> &windowCore : windowCoreList)
+                    windowCore->rootViewSizeChanged(width, height);
             }
 
             static void _rootViewConfigurationChanged(const bdn::java::Reference &javaRef, JConfiguration config)
@@ -214,8 +214,8 @@ namespace bdn
 
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &pWindowCore : windowCoreList)
-                    pWindowCore->rootViewConfigurationChanged(config);
+                for (P<WindowCore> &windowCore : windowCoreList)
+                    windowCore->rootViewConfigurationChanged(config);
             }
 
             double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
@@ -274,9 +274,9 @@ namespace bdn
 
                 _currentBounds = Rect(0, 0, width / scaleFactor, height / scaleFactor);
 
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr)
-                    pView->adjustAndSetBounds(_currentBounds);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr)
+                    view->adjustAndSetBounds(_currentBounds);
             }
 
             /** Called when the configuration changed for this window core.
@@ -341,9 +341,9 @@ namespace bdn
                 for (int i = 0; i < childCount; i++) {
                     JView child = rootView.getChildAt(i);
 
-                    P<WindowCore> pWindowCore = cast<WindowCore>(ViewCore::getViewCoreFromJavaViewRef(child.getRef_()));
-                    if (pWindowCore != nullptr)
-                        windowCoreList.push_back(pWindowCore);
+                    P<WindowCore> windowCore = cast<WindowCore>(ViewCore::getViewCoreFromJavaViewRef(child.getRef_()));
+                    if (windowCore != nullptr)
+                        windowCoreList.push_back(windowCore);
                 }
             }
 

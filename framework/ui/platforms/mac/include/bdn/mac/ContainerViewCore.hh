@@ -13,18 +13,18 @@ namespace bdn
         class ContainerViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore
         {
           private:
-            static NSView *_createContainer(ContainerView *pOuter);
+            static NSView *_createContainer(ContainerView *outer);
 
           public:
-            ContainerViewCore(ContainerView *pOuter) : ChildViewCore(pOuter, _createContainer(pOuter)) {}
+            ContainerViewCore(ContainerView *outer) : ChildViewCore(outer, _createContainer(outer)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(availableSpace);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr)
+                    return outerView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -33,10 +33,10 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr) {
-                    P<ViewLayout> pLayout = pOuterView->calcContainerLayout(pOuterView->size());
-                    pLayout->applyTo(pOuterView);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr) {
+                    P<ViewLayout> layout = outerView->calcContainerLayout(outerView->size());
+                    layout->applyTo(outerView);
                 }
             }
         };

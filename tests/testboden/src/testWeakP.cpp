@@ -8,12 +8,12 @@ using namespace bdn;
 class WeakPHelper : public Base
 {
   public:
-    WeakPHelper(volatile bool *pDeleted = nullptr) : _addCounter(0), _releaseCounter(0) { _pDeleted = pDeleted; }
+    WeakPHelper(volatile bool *deleted = nullptr) : _addCounter(0), _releaseCounter(0) { _deleted = deleted; }
 
     ~WeakPHelper()
     {
-        if (_pDeleted != nullptr)
-            *_pDeleted = true;
+        if (_deleted != nullptr)
+            *_deleted = true;
     }
 
     void addRef() const override
@@ -39,13 +39,13 @@ class WeakPHelper : public Base
     mutable std::atomic<int> _addCounter;
     mutable std::atomic<int> _releaseCounter;
 
-    volatile bool *_pDeleted = nullptr;
+    volatile bool *_deleted = nullptr;
 };
 
 class SubWeakPHelper : public WeakPHelper
 {
   public:
-    SubWeakPHelper(volatile bool *pDeleted = nullptr) : WeakPHelper(pDeleted) {}
+    SubWeakPHelper(volatile bool *deleted = nullptr) : WeakPHelper(deleted) {}
 };
 
 template <class ArgType> void testConstructToStrongDestruct(WeakPHelper &helper, ArgType helperArg)
@@ -289,7 +289,7 @@ TEST_CASE("WeakP")
 
         // use a c pointer to pass to the lambda, so that no addrefs and
         // releases are caused by the ,an
-        WeakPHelper *pCPointer = p;
+        WeakPHelper *cPointer = p;
 
         std::list<std::future<void>> futureList;
 
@@ -297,8 +297,8 @@ TEST_CASE("WeakP")
         p->_releaseCounter = 0;
 
         for (int i = 0; i < 100; i++) {
-            futureList.push_back(Thread::exec([pCPointer] {
-                WeakP<WeakPHelper> w(pCPointer);
+            futureList.push_back(Thread::exec([cPointer] {
+                WeakP<WeakPHelper> w(cPointer);
 
                 w.toStrong();
             }));
@@ -329,17 +329,17 @@ TEST_CASE("WeakP")
 
         WeakP<WeakPHelper> w(p);
 
-        P<Signal> pLastThreadSignal = newObj<Signal>();
+        P<Signal> lastThreadSignal = newObj<Signal>();
 
         for (int i = 0; i < 100; i++) {
-            futureList.push_back(Thread::exec([w, &successCounter, i, pLastThreadSignal] {
+            futureList.push_back(Thread::exec([w, &successCounter, i, lastThreadSignal] {
                 WeakP<WeakPHelper> w2(w);
 
                 if (i == 99) {
                     // we let the last thread wait for a signal until he
                     // continues, to ensure that for at least one thread the
                     // toStrong call below will yield null.
-                    pLastThreadSignal->wait();
+                    lastThreadSignal->wait();
                 }
 
                 if (w2.toStrong() != nullptr)
@@ -366,7 +366,7 @@ TEST_CASE("WeakP")
 
         // the last thread has been waiting for our signal. Let it run now -
         // this ensures that at least one thread will get a null result.
-        pLastThreadSignal->set();
+        lastThreadSignal->set();
 
         // then wait for the threads to finish
         for (auto &f : futureList)

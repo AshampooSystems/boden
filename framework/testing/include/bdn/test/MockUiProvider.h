@@ -32,10 +32,10 @@ namespace bdn
 
             \code
 
-            P<bdn::test::MockUiProvider> pUiProvider =
+            P<bdn::test::MockUiProvider> uiProvider =
            newObj<bdn::test::MockUiProvider>();
 
-            P<Window> pMyWindow = newObj<Window>( pUiProvider );
+            P<Window> myWindow = newObj<Window>( uiProvider );
 
             // set up your UI as normal here.
             ...
@@ -45,19 +45,19 @@ namespace bdn
             // to the appropriate Mock class.
             // For example:
 
-            P<Button> pButton = newObj<Button>();
-            pButton->label == "MyLabel";
-            pMyWindow->setContentView(pButton);     // this will cause the
+            P<Button> button = newObj<Button>();
+            button->label == "MyLabel";
+            myWindow->setContentView(button);     // this will cause the
            button core to be created
 
-            P<MockButtonCore> pButtonCore = cast<MockButtonCore>(
-           pButton->getViewCore() );
+            P<MockButtonCore> buttonCore = cast<MockButtonCore>(
+           button->getViewCore() );
 
             // you can then verify the properties of the core like this:
-            REQUIRE( pButtonCore->getLabel() == "MyLabel" );
+            REQUIRE( buttonCore->getLabel() == "MyLabel" );
 
             // various statistics are also available
-            REQUIRE( pButtonCore->getLabelChangeCount() == 1);
+            REQUIRE( buttonCore->getLabelChangeCount() == 1);
 
             \endcore
             */
@@ -66,8 +66,8 @@ namespace bdn
           public:
             MockUiProvider()
             {
-                _pLayoutCoordinator = newObj<LayoutCoordinator>();
-                _pTextUi = newObj<MockTextUi>();
+                _layoutCoordinator = newObj<LayoutCoordinator>();
+                _textUi = newObj<MockTextUi>();
             }
 
             String getName() const override { return "mock"; }
@@ -77,17 +77,17 @@ namespace bdn
 
             /** Returns the layout coordinator object that all UI objects
                created by this provider share.*/
-            P<LayoutCoordinator> getLayoutCoordinator() { return _pLayoutCoordinator; }
+            P<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
-            P<ITextUi> getTextUi() override { return _pTextUi; }
+            P<ITextUi> getTextUi() override { return _textUi; }
 
-            P<IViewCore> createViewCore(const String &coreTypeName, View *pView) override;
+            P<IViewCore> createViewCore(const String &coreTypeName, View *view) override;
 
           protected:
             int _coresCreated = 0;
 
-            P<LayoutCoordinator> _pLayoutCoordinator;
-            P<MockTextUi> _pTextUi;
+            P<LayoutCoordinator> _layoutCoordinator;
+            P<MockTextUi> _textUi;
         };
     }
 }

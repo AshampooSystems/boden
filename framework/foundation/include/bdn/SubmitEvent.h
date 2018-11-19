@@ -9,7 +9,7 @@ namespace bdn
     class SubmitEvent : public ViewEvent
     {
       public:
-        SubmitEvent(View *pView) : ViewEvent(pView) {}
+        SubmitEvent(View *view) : ViewEvent(view) {}
     };
 }
 

@@ -20,22 +20,22 @@ namespace bdn
         class NativeWeakPointer : public JObject
         {
           private:
-            static Reference newInstance(void *pPointer)
+            static Reference newInstance(void *pointer)
             {
-                if (pPointer == nullptr) {
+                if (pointer == nullptr) {
                     // When the C++ pointer is null then we just return a null
                     // java reference
                     return Reference();
                 } else {
                     // wrap the pointer into a java byte buffer
-                    JByteBuffer byteBuffer(pPointer, 1);
+                    JByteBuffer byteBuffer(pointer, 1);
 
                     return byteBuffer.getRef_();
                 }
             }
 
           public:
-            explicit NativeWeakPointer(void *pPointer) : JObject(newInstance(pPointer)) {}
+            explicit NativeWeakPointer(void *pointer) : JObject(newInstance(pointer)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -52,11 +52,11 @@ namespace bdn
             {
                 Env &env = Env::get();
 
-                void *pBuffer = env.getJniEnv()->GetDirectBufferAddress(obj);
+                void *buffer = env.getJniEnv()->GetDirectBufferAddress(obj);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return pBuffer;
+                return buffer;
             }
 
             void *getPointer()

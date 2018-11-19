@@ -23,7 +23,7 @@ class TestUiCombinerFixture : public Base
         }
     };
 
-    P<TextUiCombiner> _pCombiner;
+    P<TextUiCombiner> _combiner;
 
     int _doneOkCount;
     int _doneIncorrectCount;
@@ -38,73 +38,73 @@ class TestUiCombinerFixture : public Base
 
     void doTests()
     {
-        P<TestUiCombinerFixture> pThis(this);
+        P<TestUiCombinerFixture> self(this);
 
         SECTION("0 sub UIs")
         {
-            _pCombiner = newObj<TextUiCombiner>();
+            _combiner = newObj<TextUiCombiner>();
 
             SECTION("read")
             {
-                P<IAsyncOp<String>> pOp = _pCombiner->readLine();
+                P<IAsyncOp<String>> op = _combiner->readLine();
 
-                REQUIRE(!pOp->isDone());
-                REQUIRE_THROWS_AS(pOp->getResult(), UnfinishedError);
+                REQUIRE(!op->isDone());
+                REQUIRE_THROWS_AS(op->getResult(), UnfinishedError);
 
                 // should never finish
 
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, this, pThis, pOp)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, this, op)
                 {
-                    pOp->onDone().subscribe([pOp, this, pThis](P<IAsyncOp<String>> pOpParam) {
-                        if (pOpParam == pOp)
+                    op->onDone().subscribe([op, self, this](P<IAsyncOp<String>> opParam) {
+                        if (opParam == op)
                             _doneOkCount++;
                         else
                             _doneIncorrectCount++;
                     });
 
-                    REQUIRE(!pOp->isDone());
-                    REQUIRE_THROWS_AS(pOp->getResult(), UnfinishedError);
+                    REQUIRE(!op->isDone());
+                    REQUIRE_THROWS_AS(op->getResult(), UnfinishedError);
 
                     REQUIRE(_doneOkCount == 0);
                     REQUIRE(_doneIncorrectCount == 0);
 
-                    CONTINUE_SECTION_WHEN_IDLE(this, pThis, pOp)
+                    CONTINUE_SECTION_WHEN_IDLE(self, this, op)
                     {
                         // notifier should still not have been called
 
-                        REQUIRE(!pOp->isDone());
-                        REQUIRE_THROWS_AS(pOp->getResult(), UnfinishedError);
+                        REQUIRE(!op->isDone());
+                        REQUIRE_THROWS_AS(op->getResult(), UnfinishedError);
 
                         REQUIRE(_doneOkCount == 0);
                         REQUIRE(_doneIncorrectCount == 0);
 
                         // when we signal it to stop then it SHOULD finish
-                        pOp->signalStop();
+                        op->signalStop();
 
-                        REQUIRE(pOp->isDone());
+                        REQUIRE(op->isDone());
 
                         // now we should get AbortedError
-                        REQUIRE_THROWS_AS(pOp->getResult(), AbortedError);
+                        REQUIRE_THROWS_AS(op->getResult(), AbortedError);
 
                         // but the notifier is async
                         REQUIRE(_doneOkCount == 0);
                         REQUIRE(_doneIncorrectCount == 0);
 
-                        CONTINUE_SECTION_WHEN_IDLE(this, pThis, pOp)
+                        CONTINUE_SECTION_WHEN_IDLE(self, this, op)
                         {
                             // now the notifier should have been called
                             REQUIRE(_doneOkCount == 1);
                             REQUIRE(_doneIncorrectCount == 0);
 
-                            REQUIRE(pOp->isDone());
+                            REQUIRE(op->isDone());
 
                             // now we should get AbortedError
-                            REQUIRE_THROWS_AS(pOp->getResult(), AbortedError);
+                            REQUIRE_THROWS_AS(op->getResult(), AbortedError);
 
                             // when we subscribe another function then it should
                             // also be called (async)
-                            pOp->onDone().subscribe([pOp, this, pThis](P<IAsyncOp<String>> pOpParam) {
-                                if (pOpParam == pOp)
+                            op->onDone().subscribe([op, self, this](P<IAsyncOp<String>> opParam) {
+                                if (opParam == op)
                                     _doneOkCount++;
                                 else
                                     _doneIncorrectCount++;
@@ -114,7 +114,7 @@ class TestUiCombinerFixture : public Base
                             REQUIRE(_doneOkCount == 1);
                             REQUIRE(_doneIncorrectCount == 0);
 
-                            CONTINUE_SECTION_WHEN_IDLE(this, pThis, pOp)
+                            CONTINUE_SECTION_WHEN_IDLE(self, this, op)
                             {
                                 REQUIRE(_doneOkCount == 2);
                                 REQUIRE(_doneIncorrectCount == 0);
@@ -127,15 +127,15 @@ class TestUiCombinerFixture : public Base
             SECTION("write")
             {
                 // should not crash - otherwise have no effect
-                _pCombiner->output()->write("bla");
-                _pCombiner->statusOrProblem()->write("bla");
+                _combiner->output()->write("bla");
+                _combiner->statusOrProblem()->write("bla");
             }
 
             SECTION("writeLine")
             {
                 // should not crash - otherwise have no effect
-                _pCombiner->output()->writeLine("bla");
-                _pCombiner->statusOrProblem()->writeLine("bla");
+                _combiner->output()->writeLine("bla");
+                _combiner->statusOrProblem()->writeLine("bla");
             }
         }
 
@@ -150,40 +150,40 @@ class TestUiCombinerFixture : public Base
 
         SECTION("init from two pointers")
         {
-            P<DummyUi> pSubUiA = newObj<DummyUi>();
-            P<DummyUi> pSubUiB = newObj<DummyUi>();
+            P<DummyUi> subUiA = newObj<DummyUi>();
+            P<DummyUi> subUiB = newObj<DummyUi>();
 
-            _pCombiner = newObj<TextUiCombiner>(pSubUiA, pSubUiB);
+            _combiner = newObj<TextUiCombiner>(subUiA, subUiB);
 
-            _pCombiner->output()->write("bla");
-            REQUIRE(pSubUiA->getWrittenOutputChunks()[0] == "bla");
-            REQUIRE(pSubUiB->getWrittenOutputChunks()[0] == "bla");
+            _combiner->output()->write("bla");
+            REQUIRE(subUiA->getWrittenOutputChunks()[0] == "bla");
+            REQUIRE(subUiB->getWrittenOutputChunks()[0] == "bla");
         }
 
         SECTION("init from list of P")
         {
             List<P<ITextUi>> inList;
 
-            P<DummyUi> pSubUi = newObj<DummyUi>();
-            inList.add(pSubUi);
+            P<DummyUi> subUi = newObj<DummyUi>();
+            inList.add(subUi);
 
-            _pCombiner = newObj<TextUiCombiner>(inList);
+            _combiner = newObj<TextUiCombiner>(inList);
 
-            _pCombiner->output()->write("bla");
-            REQUIRE(pSubUi->getWrittenOutputChunks()[0] == "bla");
+            _combiner->output()->write("bla");
+            REQUIRE(subUi->getWrittenOutputChunks()[0] == "bla");
         }
 
         SECTION("init from array of *")
         {
             Array<ITextUi *> inArray;
 
-            P<DummyUi> pSubUi = newObj<DummyUi>();
-            inArray.add(pSubUi);
+            P<DummyUi> subUi = newObj<DummyUi>();
+            inArray.add(subUi);
 
-            _pCombiner = newObj<TextUiCombiner>(inArray);
+            _combiner = newObj<TextUiCombiner>(inArray);
 
-            _pCombiner->output()->write("bla");
-            REQUIRE(pSubUi->getWrittenOutputChunks()[0] == "bla");
+            _combiner->output()->write("bla");
+            REQUIRE(subUi->getWrittenOutputChunks()[0] == "bla");
         }
     }
 
@@ -191,11 +191,11 @@ class TestUiCombinerFixture : public Base
     {
         createSubUis(subUiCount);
 
-        _pCombiner = newObj<TextUiCombiner>(_subUis);
+        _combiner = newObj<TextUiCombiner>(_subUis);
 
         SECTION("read")
         {
-            P<IAsyncOp<String>> pOp = _pCombiner->readLine();
+            P<IAsyncOp<String>> op = _combiner->readLine();
 
             REQUIRE(_subUis[0]->readCallCount == 1);
 
@@ -204,7 +204,7 @@ class TestUiCombinerFixture : public Base
                 REQUIRE(_subUis[i]->readCallCount == 0);
 
             // our dummy ui returns a nullptr here
-            REQUIRE(pOp == nullptr);
+            REQUIRE(op == nullptr);
         }
 
         SECTION("output")
@@ -213,19 +213,19 @@ class TestUiCombinerFixture : public Base
 
             SECTION("write")
             {
-                _pCombiner->output()->write("bla");
+                _combiner->output()->write("bla");
                 expectedChunk = "bla";
             }
 
             SECTION("writeLine")
             {
-                _pCombiner->output()->writeLine("bla");
+                _combiner->output()->writeLine("bla");
                 expectedChunk = "bla\n";
             }
 
-            for (P<DummyUi> &pSubUi : _subUis) {
-                const Array<String> &outputChunks = pSubUi->getWrittenOutputChunks();
-                const Array<String> &statusChunks = pSubUi->getWrittenStatusOrProblemChunks();
+            for (P<DummyUi> &subUi : _subUis) {
+                const Array<String> &outputChunks = subUi->getWrittenOutputChunks();
+                const Array<String> &statusChunks = subUi->getWrittenStatusOrProblemChunks();
 
                 REQUIRE(outputChunks.size() == 1);
                 REQUIRE(outputChunks[0] == expectedChunk);
@@ -240,19 +240,19 @@ class TestUiCombinerFixture : public Base
 
             SECTION("write")
             {
-                _pCombiner->statusOrProblem()->write("bla");
+                _combiner->statusOrProblem()->write("bla");
                 expectedChunk = "bla";
             }
 
             SECTION("writeLine")
             {
-                _pCombiner->statusOrProblem()->writeLine("bla");
+                _combiner->statusOrProblem()->writeLine("bla");
                 expectedChunk = "bla\n";
             }
 
-            for (P<DummyUi> &pSubUi : _subUis) {
-                const Array<String> &outputChunks = pSubUi->getWrittenOutputChunks();
-                const Array<String> &statusChunks = pSubUi->getWrittenStatusOrProblemChunks();
+            for (P<DummyUi> &subUi : _subUis) {
+                const Array<String> &outputChunks = subUi->getWrittenOutputChunks();
+                const Array<String> &statusChunks = subUi->getWrittenStatusOrProblemChunks();
 
                 REQUIRE(outputChunks.size() == 0);
 
@@ -265,7 +265,7 @@ class TestUiCombinerFixture : public Base
 
 TEST_CASE("TextUiCombiner")
 {
-    P<TestUiCombinerFixture> pFixture = newObj<TestUiCombinerFixture>();
+    P<TestUiCombinerFixture> fixture = newObj<TestUiCombinerFixture>();
 
-    pFixture->doTests();
+    fixture->doTests();
 }

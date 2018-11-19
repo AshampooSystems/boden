@@ -50,27 +50,27 @@ namespace bdn
             static Reference wrapStrongGlobal(jobject strongGlobalRef);
 
             /** Copy constructor.*/
-            Reference(const Reference &o) : _pShared(o._pShared) {}
+            Reference(const Reference &o) : _shared(o._shared) {}
 
             /** Move constructor.*/
-            Reference(Reference &&o) : _pShared(std::move(o._pShared)) {}
+            Reference(Reference &&o) : _shared(std::move(o._shared)) {}
 
             /** Constructs a null-reference*/
             Reference() {}
 
             Reference &operator=(const Reference &o)
             {
-                _pShared = o._pShared;
+                _shared = o._shared;
 
                 return *this;
             }
 
             jobject getJObject() const
             {
-                if (_pShared == nullptr)
+                if (_shared == nullptr)
                     return NULL;
                 else
-                    return _pShared->getJObject();
+                    return _shared->getJObject();
             }
 
             /** Returns true if the reference is null.
@@ -101,7 +101,7 @@ namespace bdn
             bool operator!=(const Reference &o) const { return !operator==(o); }
 
           private:
-            Reference(jobject strongRef) : _pShared(newObj<Shared>(strongRef)) {}
+            Reference(jobject strongRef) : _shared(newObj<Shared>(strongRef)) {}
 
             class Shared : public Base
             {
@@ -116,7 +116,7 @@ namespace bdn
                 jobject _ref;
             };
 
-            P<Shared> _pShared;
+            P<Shared> _shared;
         };
     }
 }

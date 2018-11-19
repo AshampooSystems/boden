@@ -16,7 +16,7 @@ class TestIosContainerViewCore : public bdn::test::TestIosViewCoreMixin<bdn::tes
 
 TEST_CASE("ios.ContainerViewCore")
 {
-    P<TestIosContainerViewCore> pTest = newObj<TestIosContainerViewCore>();
+    P<TestIosContainerViewCore> test = newObj<TestIosContainerViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

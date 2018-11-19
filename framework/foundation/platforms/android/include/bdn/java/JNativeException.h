@@ -28,9 +28,9 @@ namespace bdn
             {
                 static MethodId constructorId;
 
-                P<ExceptionReference> pExceptionRef = newObj<ExceptionReference>(exceptionPtr);
+                P<ExceptionReference> exceptionRef = newObj<ExceptionReference>(exceptionPtr);
 
-                JNativeStrongPointer wrappedExceptionRef(pExceptionRef);
+                JNativeStrongPointer wrappedExceptionRef(exceptionRef);
 
                 ErrorInfo info(exceptionPtr);
                 String message = info.getMessage();

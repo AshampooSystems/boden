@@ -220,10 +220,10 @@ template <class CODEC> inline void testStringData()
 
     SECTION("globalEmpty")
     {
-        P<StringData<CODEC>> pData = &StringData<CODEC>::getEmptyData();
-        P<StringData<CODEC>> pData2 = &StringData<CODEC>::getEmptyData();
+        P<StringData<CODEC>> data = &StringData<CODEC>::getEmptyData();
+        P<StringData<CODEC>> data2 = &StringData<CODEC>::getEmptyData();
 
-        REQUIRE(pData == pData2);
+        REQUIRE(data == data2);
     }
 
     SECTION("iterator")

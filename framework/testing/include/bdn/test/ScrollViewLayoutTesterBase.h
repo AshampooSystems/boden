@@ -136,16 +136,16 @@ namespace bdn
                View::adjustBounds.*/
             virtual Size getPixelSize()
             {
-                P<View> pView = getScrollView();
+                P<View> view = getScrollView();
 
                 Rect baseBounds(0, 0, 100, 100);
 
                 // adjust the base bounds up to the nearest pixel
-                baseBounds = pView->adjustBounds(baseBounds, RoundType::up, RoundType::up);
+                baseBounds = view->adjustBounds(baseBounds, RoundType::up, RoundType::up);
 
                 // then add a tiny bit of size and round up again
                 Rect tinyBitBiggerBounds = Rect(baseBounds.getPosition(), baseBounds.getSize() + Size(0.01, 0.01));
-                tinyBitBiggerBounds = pView->adjustBounds(tinyBitBiggerBounds, RoundType::up, RoundType::up);
+                tinyBitBiggerBounds = view->adjustBounds(tinyBitBiggerBounds, RoundType::up, RoundType::up);
 
                 // the difference in size should be the size of 1 pixel.
                 Size pixelSize = tinyBitBiggerBounds.getSize() - baseBounds.getSize();
@@ -178,21 +178,21 @@ namespace bdn
                 getScrollView()->setHorizontalScrollingEnabled(horzScrollingEnabled);
                 getScrollView()->setVerticalScrollingEnabled(vertScrollingEnabled);
 
-                P<ScrollViewLayoutTesterBase> pThis = this;
+                P<ScrollViewLayoutTesterBase> self = this;
 
-                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                CONTINUE_SECTION_WHEN_IDLE(self)
                 {
                     SECTION("preferredSize")
-                    pThis->testPreferredSize();
+                    self->testPreferredSize();
 
                     SECTION("layout")
-                    pThis->testLayout();
+                    self->testLayout();
                 };
             }
 
             virtual void testPreferredSize()
             {
-                P<ScrollViewLayoutTesterBase> pThis = this;
+                P<ScrollViewLayoutTesterBase> self = this;
 
                 Size pixelSize = getPixelSize();
 
@@ -226,18 +226,18 @@ namespace bdn
 
                 SECTION("contentview not null")
                 {
-                    P<Button> pButton = newObj<Button>();
-                    getScrollView()->setContentView(pButton);
+                    P<Button> button = newObj<Button>();
+                    getScrollView()->setContentView(button);
 
-                    pButton->setMargin(UiMargin(1, 2, 3, 4));
+                    button->setMargin(UiMargin(1, 2, 3, 4));
                     getScrollView()->setPadding(UiMargin(5, 6, 7, 8));
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize)
+                    CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize)
                     {
-                        double horzBarHeight = pThis->getHorzBarHeight();
-                        double vertBarWidth = pThis->getVertBarWidth();
+                        double horzBarHeight = self->getHorzBarHeight();
+                        double vertBarWidth = self->getVertBarWidth();
 
-                        Size optimalButtonSize = pButton->calcPreferredSize();
+                        Size optimalButtonSize = button->calcPreferredSize();
 
                         Size optimalSize = Size(2 + 4 + 6 + 8, 1 + 3 + 5 + 7) + optimalButtonSize;
 
@@ -246,28 +246,28 @@ namespace bdn
                             // should request as much space as the content needs
                             // by default
 
-                            Size prefSize = pThis->callCalcPreferredSize(Size::none());
+                            Size prefSize = self->callCalcPreferredSize(Size::none());
                             REQUIRE(prefSize == optimalSize);
                         }
 
                         SECTION("more than enough space")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(100, 100));
+                            Size prefSize = self->callCalcPreferredSize(optimalSize + Size(100, 100));
                             REQUIRE(prefSize == optimalSize);
                         }
 
                         SECTION("exactly enough space")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize);
+                            Size prefSize = self->callCalcPreferredSize(optimalSize);
                             REQUIRE(prefSize == optimalSize);
                         }
 
                         SECTION("less width than needed, more than enough "
                                 "height for scrollbar")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, 100));
+                            Size prefSize = self->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, 100));
 
-                            if (pThis->_horzScrollingEnabled) {
+                            if (self->_horzScrollingEnabled) {
                                 // preferred width should be the available
                                 // width. preferred height should include the
                                 // scrollbar
@@ -286,9 +286,9 @@ namespace bdn
                                 "scrollbar")
                         {
                             Size prefSize =
-                                pThis->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, horzBarHeight));
+                                self->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, horzBarHeight));
 
-                            if (pThis->_horzScrollingEnabled) {
+                            if (self->_horzScrollingEnabled) {
                                 // preferred width should be the available
                                 // width. preferred height should include the
                                 // scrollbar
@@ -307,16 +307,16 @@ namespace bdn
                             SECTION("less width than needed, not enough height "
                                     "for scrollbar")
                             {
-                                Size prefSize = pThis->callCalcPreferredSize(
+                                Size prefSize = self->callCalcPreferredSize(
                                     optimalSize + Size(-pixelSize.width, horzBarHeight - pixelSize.height));
 
-                                if (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) {
-                                    // this should cause both scrollbars to be
+                                if (self->_horzScrollingEnabled && self->_vertScrollingEnabled) {
+                                    // self should cause both scrollbars to be
                                     // shown. We should use all the available
                                     // space
                                     REQUIRE(prefSize ==
                                             optimalSize + Size(-pixelSize.width, horzBarHeight - pixelSize.height));
-                                } else if (pThis->_horzScrollingEnabled) {
+                                } else if (self->_horzScrollingEnabled) {
                                     // no vertical scrolling. We will get a
                                     // horizontal scrollbar, but no vertical
                                     // scrollbar. Note that the height will
@@ -338,9 +338,9 @@ namespace bdn
                         SECTION("less height than needed, more than enough "
                                 "width for scrollbar")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(100, -pixelSize.height));
+                            Size prefSize = self->callCalcPreferredSize(optimalSize + Size(100, -pixelSize.height));
 
-                            if (pThis->_vertScrollingEnabled) {
+                            if (self->_vertScrollingEnabled) {
                                 REQUIRE(prefSize == optimalSize + Size(vertBarWidth, -pixelSize.height));
                             } else {
                                 // no vert scrolling => no scrollbar added. Note
@@ -355,9 +355,9 @@ namespace bdn
                                 "scrollbar")
                         {
                             Size prefSize =
-                                pThis->callCalcPreferredSize(optimalSize + Size(vertBarWidth, -pixelSize.height));
+                                self->callCalcPreferredSize(optimalSize + Size(vertBarWidth, -pixelSize.height));
 
-                            if (pThis->_vertScrollingEnabled) {
+                            if (self->_vertScrollingEnabled) {
                                 REQUIRE(prefSize == optimalSize + Size(vertBarWidth, -pixelSize.height));
                             } else {
                                 // no vert scrolling => no scrollbar added. Note
@@ -372,14 +372,14 @@ namespace bdn
                             SECTION("less height than needed, not enough width "
                                     "for scrollbar")
                             {
-                                Size prefSize = pThis->callCalcPreferredSize(
+                                Size prefSize = self->callCalcPreferredSize(
                                     optimalSize + Size(vertBarWidth - pixelSize.width, -pixelSize.height));
 
-                                if (pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled) {
+                                if (self->_vertScrollingEnabled && self->_horzScrollingEnabled) {
                                     // we should fill the available space
                                     REQUIRE(prefSize ==
                                             optimalSize + Size(vertBarWidth - pixelSize.width, -pixelSize.height));
-                                } else if (pThis->_vertScrollingEnabled) {
+                                } else if (self->_vertScrollingEnabled) {
                                     // the width should exceed the available
                                     // space, since the content cannot be shrunk
                                     // down further. The available height should
@@ -398,19 +398,19 @@ namespace bdn
                         SECTION("less width and less height than needed")
                         {
                             Size prefSize =
-                                pThis->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, -pixelSize.height));
+                                self->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, -pixelSize.height));
 
-                            if (pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled) {
+                            if (self->_vertScrollingEnabled && self->_horzScrollingEnabled) {
                                 // scroll view should simply use the available
                                 // space
                                 REQUIRE(prefSize == optimalSize + Size(-pixelSize.width, -pixelSize.height));
-                            } else if (pThis->_vertScrollingEnabled) {
+                            } else if (self->_vertScrollingEnabled) {
                                 // preferred size should be full width plus the
                                 // size of the scrollbar (since the content view
                                 // cannot shrink below that). Height should be
                                 // but available height
                                 REQUIRE(prefSize == optimalSize + Size(vertBarWidth, -pixelSize.height));
-                            } else if (pThis->_horzScrollingEnabled) {
+                            } else if (self->_horzScrollingEnabled) {
                                 // preferred size should be full height plus the
                                 // size of the scrollbar (since the content view
                                 // cannot shrink below that). Width should be
@@ -428,63 +428,63 @@ namespace bdn
 
                 SECTION("contentview calcPreferredSize usage")
                 {
-                    P<ScrollViewLayoutHelperTestContentView<TextView>> pContentView =
+                    P<ScrollViewLayoutHelperTestContentView<TextView>> contentView =
                         newObj<ScrollViewLayoutHelperTestContentView<TextView>>();
-                    getScrollView()->setContentView(pContentView);
+                    getScrollView()->setContentView(contentView);
 
                     // we want a content view whose width and height depend on
                     // each other. So we use a text view with multiline text.
-                    pContentView->setText("Lorem ipsum dolor sit amet, consectetur adipiscing "
-                                          "elit.\nPraesent ultrices, nisi quis posuere viverra, "
-                                          "arcu erat auctor tellus, sit amet tincidunt magna leo "
-                                          "id velit.");
+                    contentView->setText("Lorem ipsum dolor sit amet, consectetur adipiscing "
+                                         "elit.\nPraesent ultrices, nisi quis posuere viverra, "
+                                         "arcu erat auctor tellus, sit amet tincidunt magna leo "
+                                         "id velit.");
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, pContentView, pixelSize)
+                    CONTINUE_SECTION_WHEN_IDLE(self, contentView, pixelSize)
                     {
-                        Size optimalSize = pThis->callCalcPreferredSize();
+                        Size optimalSize = self->callCalcPreferredSize();
 
-                        int initialCalcCount = pContentView->getCalcPreferredSizeCallCount();
+                        int initialCalcCount = contentView->getCalcPreferredSizeCallCount();
 
-                        double horzBarHeight = pThis->getHorzBarHeight();
+                        double horzBarHeight = self->getHorzBarHeight();
 
                         SECTION("available space unlimited")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize();
+                            Size prefSize = self->callCalcPreferredSize();
                             REQUIRE(prefSize == optimalSize);
-                            REQUIRE(pContentView->getCalcPreferredSizeCallCount() == initialCalcCount + 1);
+                            REQUIRE(contentView->getCalcPreferredSizeCallCount() == initialCalcCount + 1);
                         }
 
                         SECTION("space bigger or equal to needed size")
                         {
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize);
+                            Size prefSize = self->callCalcPreferredSize(optimalSize);
                             REQUIRE(prefSize == optimalSize);
 
-                            int calcPrefSizeCount = pContentView->getCalcPreferredSizeCallCount();
+                            int calcPrefSizeCount = contentView->getCalcPreferredSizeCallCount();
                             REQUIRE(calcPrefSizeCount > initialCalcCount);
                         }
 
                         SECTION("width less than needed")
                         {
-                            Size optimalContentSize = pContentView->calcPreferredSize();
+                            Size optimalContentSize = contentView->calcPreferredSize();
 
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, 100));
+                            Size prefSize = self->callCalcPreferredSize(optimalSize + Size(-pixelSize.width, 100));
 
                             // content view should have been asked for its
                             // preferred sizeat least once
-                            REQUIRE(pContentView->getCalcPreferredSizeCallCount() > initialCalcCount);
+                            REQUIRE(contentView->getCalcPreferredSizeCallCount() > initialCalcCount);
 
-                            if (pThis->_horzScrollingEnabled) {
+                            if (self->_horzScrollingEnabled) {
                                 // space for the scrollbar should have been
                                 // added at bottom. Width is the available
                                 // space.
                                 REQUIRE(prefSize == optimalSize + Size(-pixelSize.width, horzBarHeight));
                             } else {
-                                Size contentAvailSpace = pContentView->getLastCalcPreferredSizeAvailableSpace();
+                                Size contentAvailSpace = contentView->getLastCalcPreferredSizeAvailableSpace();
 
                                 // available space should have been communicated
                                 // to the content view
                                 REQUIRE(contentAvailSpace.width < optimalContentSize.width);
-                                if (pThis->_vertScrollingEnabled)
+                                if (self->_vertScrollingEnabled)
                                     REQUIRE(!std::isfinite(contentAvailSpace.height));
                                 else
                                     REQUIRE(contentAvailSpace.height == optimalContentSize.height + 100);
@@ -499,27 +499,27 @@ namespace bdn
 
                         SECTION("height less than needed")
                         {
-                            Size optimalContentSize = pContentView->calcPreferredSize();
+                            Size optimalContentSize = contentView->calcPreferredSize();
 
-                            Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(100, -pixelSize.height));
+                            Size prefSize = self->callCalcPreferredSize(optimalSize + Size(100, -pixelSize.height));
 
                             // content view should have been asked for its
                             // preferred sizeat least once
-                            REQUIRE(pContentView->getCalcPreferredSizeCallCount() > initialCalcCount);
+                            REQUIRE(contentView->getCalcPreferredSizeCallCount() > initialCalcCount);
 
-                            if (pThis->_vertScrollingEnabled) {
+                            if (self->_vertScrollingEnabled) {
                                 // space for the scrollbar should have been
                                 // added at the right side. Height is the
                                 // available space.
-                                REQUIRE(prefSize == optimalSize + Size(pThis->getVertBarWidth(), -pixelSize.height));
+                                REQUIRE(prefSize == optimalSize + Size(self->getVertBarWidth(), -pixelSize.height));
                             } else {
-                                Size contentAvailSpace = pContentView->getLastCalcPreferredSizeAvailableSpace();
+                                Size contentAvailSpace = contentView->getLastCalcPreferredSizeAvailableSpace();
 
                                 REQUIRE(contentAvailSpace.height < optimalContentSize.height);
 
                                 // available space should have been communicated
                                 // to the content view
-                                if (pThis->_horzScrollingEnabled)
+                                if (self->_horzScrollingEnabled)
                                     REQUIRE(!std::isfinite(contentAvailSpace.width));
                                 else
                                     REQUIRE(contentAvailSpace.width == optimalContentSize.width + 100);
@@ -535,7 +535,7 @@ namespace bdn
 
             void testLayout()
             {
-                P<ScrollViewLayoutTesterBase> pThis = this;
+                P<ScrollViewLayoutTesterBase> self = this;
 
                 Size pixelSize = getPixelSize();
 
@@ -549,17 +549,17 @@ namespace bdn
                         REQUIRE(viewPortSize >= Size(245, 245));
                         REQUIRE(viewPortSize <= Size(255, 255));
 
-                        BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize)
+                        BDN_CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize)
                         {
-                            pThis->calcLayoutAfterPreparation();
+                            self->calcLayoutAfterPreparation();
 
-                            BDN_CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize)
+                            BDN_CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize)
                             {
-                                pThis->verifyScrollsHorizontally(false);
-                                pThis->verifyScrollsVertically(false);
-                                pThis->verifyContentViewBounds(Rect(Point(), viewPortSize));
-                                pThis->verifyScrolledAreaSize(viewPortSize);
-                                pThis->verifyViewPortSize(viewPortSize);
+                                self->verifyScrollsHorizontally(false);
+                                self->verifyScrollsVertically(false);
+                                self->verifyContentViewBounds(Rect(Point(), viewPortSize));
+                                self->verifyScrolledAreaSize(viewPortSize);
+                                self->verifyViewPortSize(viewPortSize);
                             };
                         };
                     }
@@ -588,23 +588,23 @@ namespace bdn
                         // layout
                         getScrollView()->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, padding)
+                        CONTINUE_SECTION_WHEN_IDLE(self, padding)
                         {
-                            Size viewPortSize = pThis->prepareCalcLayout(Size(250, 250));
+                            Size viewPortSize = self->prepareCalcLayout(Size(250, 250));
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize, padding)
+                            CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize, padding)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize, padding)
+                                CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize, padding)
                                 {
-                                    pThis->verifyScrollsHorizontally(false);
-                                    pThis->verifyScrollsVertically(false);
-                                    pThis->verifyContentViewBounds(Rect(
+                                    self->verifyScrollsHorizontally(false);
+                                    self->verifyScrollsVertically(false);
+                                    self->verifyContentViewBounds(Rect(
                                         padding.left, padding.top, viewPortSize.width - padding.left - padding.right,
                                         viewPortSize.height - padding.top - padding.bottom));
-                                    pThis->verifyScrolledAreaSize(viewPortSize);
-                                    pThis->verifyViewPortSize(viewPortSize);
+                                    self->verifyScrolledAreaSize(viewPortSize);
+                                    self->verifyViewPortSize(viewPortSize);
                                 };
                             };
                         };
@@ -613,7 +613,7 @@ namespace bdn
 
                 SECTION("contentview not null")
                 {
-                    P<ScrollViewLayoutHelperTestContentView<Button>> pButton =
+                    P<ScrollViewLayoutHelperTestContentView<Button>> button =
                         newObj<ScrollViewLayoutHelperTestContentView<Button>>();
 
                     // make sure that the button is not too small. The size of
@@ -624,9 +624,9 @@ namespace bdn
                     // visible. So to achieve that we set a multiline button
                     // label, which should cause the button to be bigger than
                     // the scroll bars.
-                    pButton->setLabel("Lorem ipsum\ndolor sit amet");
+                    button->setLabel("Lorem ipsum\ndolor sit amet");
 
-                    getScrollView()->setContentView(pButton);
+                    getScrollView()->setContentView(button);
 
                     Margin buttonMargin(1, 2, 3, 4);
 
@@ -638,7 +638,7 @@ namespace bdn
                     buttonMargin.right =
                         stableScaledRound(RoundType::nearest, buttonMargin.right, 1.0 / pixelSize.width);
 
-                    pButton->setMargin(
+                    button->setMargin(
                         UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left));
 
                     Margin scrollViewPadding(35, 36, 37, 38);
@@ -655,14 +655,14 @@ namespace bdn
                     getScrollView()->setPadding(UiMargin(scrollViewPadding.top, scrollViewPadding.right,
                                                          scrollViewPadding.bottom, scrollViewPadding.left));
 
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize, buttonMargin, scrollViewPadding)
+                    CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize, buttonMargin, scrollViewPadding)
                     {
-                        P<ScrollView> pScrollView = pThis->getScrollView();
+                        P<ScrollView> scrollView = self->getScrollView();
 
-                        double horzBarHeight = pThis->getHorzBarHeight();
-                        double vertBarWidth = pThis->getVertBarWidth();
+                        double horzBarHeight = self->getHorzBarHeight();
+                        double vertBarWidth = self->getVertBarWidth();
 
-                        Size optimalButtonSize = pButton->calcPreferredSize();
+                        Size optimalButtonSize = button->calcPreferredSize();
 
                         Rect unadjustedOptimalButtonBounds(
                             Point(buttonMargin.left + scrollViewPadding.left, buttonMargin.top + scrollViewPadding.top),
@@ -673,7 +673,7 @@ namespace bdn
                         // here, so that the entire button will definitely fit
                         // inside.
                         Rect optimalButtonBounds =
-                            pButton->adjustBounds(unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::up);
+                            button->adjustBounds(unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::up);
                         optimalButtonSize = optimalButtonBounds.getSize();
 
                         Size optimalSize = optimalButtonSize + buttonMargin + scrollViewPadding;
@@ -683,37 +683,36 @@ namespace bdn
                         {
                             Rect optimalScrollViewBounds(optimalButtonBounds);
                             optimalScrollViewBounds += buttonMargin + scrollViewPadding;
-                            optimalScrollViewBounds = pThis->getScrollView()->adjustBounds(
+                            optimalScrollViewBounds = self->getScrollView()->adjustBounds(
                                 optimalScrollViewBounds, RoundType::nearest, RoundType::nearest);
 
                             optimalSize = Size(optimalScrollViewBounds.width, optimalScrollViewBounds.height);
                         }
 
-                        int initialCalcPreferredSizeCallCount = pButton->getCalcPreferredSizeCallCount();
+                        int initialCalcPreferredSizeCallCount = button->getCalcPreferredSizeCallCount();
 
                         SECTION("much bigger viewport")
                         {
                             Size viewPortSize =
-                                pScrollView
-                                    ->adjustBounds(Rect(pScrollView->position(), optimalSize + Size(100, 100)),
+                                scrollView
+                                    ->adjustBounds(Rect(scrollView->position(), optimalSize + Size(100, 100)),
                                                    RoundType::nearest, RoundType::nearest)
                                     .getSize();
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize, pButton, buttonMargin, scrollViewPadding)
+                            CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize, button, buttonMargin, scrollViewPadding)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, viewPortSize, pButton, buttonMargin,
-                                                           scrollViewPadding)
+                                CONTINUE_SECTION_WHEN_IDLE(self, viewPortSize, button, buttonMargin, scrollViewPadding)
                                 {
                                     // content view should be stretched to fill
                                     // whole viewport
-                                    pThis->verifyScrollsHorizontally(false);
-                                    pThis->verifyScrollsVertically(false);
+                                    self->verifyScrollsHorizontally(false);
+                                    self->verifyScrollsVertically(false);
 
-                                    Rect expectedBounds = pThis->getScrollView()->adjustBounds(
+                                    Rect expectedBounds = self->getScrollView()->adjustBounds(
                                         Rect(buttonMargin.left + scrollViewPadding.left,
                                              buttonMargin.top + scrollViewPadding.top,
                                              viewPortSize.width - buttonMargin.right - buttonMargin.left -
@@ -721,9 +720,9 @@ namespace bdn
                                              viewPortSize.height - buttonMargin.top - buttonMargin.bottom -
                                                  scrollViewPadding.top - scrollViewPadding.bottom),
                                         RoundType::nearest, RoundType::nearest);
-                                    pThis->verifyContentViewBounds(expectedBounds);
-                                    pThis->verifyScrolledAreaSize(viewPortSize);
-                                    pThis->verifyViewPortSize(viewPortSize);
+                                    self->verifyContentViewBounds(expectedBounds);
+                                    self->verifyScrolledAreaSize(viewPortSize);
+                                    self->verifyViewPortSize(viewPortSize);
 
                                     // calcPreferredSize might or might not have
                                     // been called, since the available space is
@@ -736,19 +735,19 @@ namespace bdn
 
                         SECTION("viewport matches needed content size")
                         {
-                            pThis->prepareCalcLayout(optimalSize);
+                            self->prepareCalcLayout(optimalSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds)
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds)
                                 {
-                                    pThis->verifyScrollsHorizontally(false);
-                                    pThis->verifyScrollsVertically(false);
-                                    pThis->verifyContentViewBounds(optimalButtonBounds);
-                                    pThis->verifyScrolledAreaSize(optimalSize);
-                                    pThis->verifyViewPortSize(optimalSize);
+                                    self->verifyScrollsHorizontally(false);
+                                    self->verifyScrollsVertically(false);
+                                    self->verifyContentViewBounds(optimalButtonBounds);
+                                    self->verifyScrolledAreaSize(optimalSize);
+                                    self->verifyViewPortSize(optimalSize);
 
                                     // calcPreferredSize might or might not have
                                     // been called, since the available space is
@@ -763,31 +762,31 @@ namespace bdn
                                 "height for scrollbar")
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, pixelSize.height * 100);
-                            viewPortSize = pScrollView
-                                               ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                            viewPortSize = scrollView
+                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
                             Size addedSize = viewPortSize - optimalSize;
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize,
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, initialCalcPreferredSizeCallCount, optimalSize,
                                                        optimalButtonBounds, pixelSize, horzBarHeight, viewPortSize,
                                                        optimalButtonSize, addedSize)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, initialCalcPreferredSizeCallCount,
-                                                           optimalSize, optimalButtonBounds, pixelSize, horzBarHeight,
-                                                           viewPortSize, optimalButtonSize, addedSize)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, initialCalcPreferredSizeCallCount, optimalSize,
+                                                           optimalButtonBounds, pixelSize, horzBarHeight, viewPortSize,
+                                                           optimalButtonSize, addedSize)
                                 {
-                                    pThis->verifyScrollsHorizontally(pThis->_horzScrollingEnabled);
-                                    pThis->verifyScrollsVertically(false);
+                                    self->verifyScrollsHorizontally(self->_horzScrollingEnabled);
+                                    self->verifyScrollsVertically(false);
 
                                     Rect expectedContentViewBounds;
 
-                                    if (pThis->_horzScrollingEnabled)
+                                    if (self->_horzScrollingEnabled)
                                         expectedContentViewBounds = Rect(optimalButtonBounds.getPosition(),
                                                                          optimalButtonBounds.getSize() +
                                                                              Size(0, addedSize.height - horzBarHeight));
@@ -801,38 +800,38 @@ namespace bdn
 
                                     // we allow slight deviation due to floating
                                     // point calculations
-                                    pThis->verifyContentViewBounds(expectedContentViewBounds, 0.0001);
+                                    self->verifyContentViewBounds(expectedContentViewBounds, 0.0001);
 
-                                    if (pThis->_horzScrollingEnabled) {
+                                    if (self->_horzScrollingEnabled) {
                                         // scrollable area is the optimal width.
                                         // The height is the viewport height
                                         // minus the height of the horizontal
                                         // scrollbar
-                                        pThis->verifyScrolledAreaSize(
+                                        self->verifyScrolledAreaSize(
                                             Size(optimalSize.width, viewPortSize.height - horzBarHeight));
                                         // horizontal scroll bar is visible, so
                                         // the final viewport size should be
                                         // smaller by that amount
-                                        pThis->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
+                                        self->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
                                     } else {
                                         // width is truncated.
-                                        pThis->verifyScrolledAreaSize(
+                                        self->verifyScrolledAreaSize(
                                             Size(optimalSize.width - pixelSize.width, viewPortSize.height));
-                                        pThis->verifyViewPortSize(viewPortSize);
+                                        self->verifyViewPortSize(viewPortSize);
                                     }
 
                                     // calcpreferredsize should have been called
                                     // at least once
-                                    REQUIRE(pButton->getCalcPreferredSizeCallCount() >
+                                    REQUIRE(button->getCalcPreferredSizeCallCount() >
                                             initialCalcPreferredSizeCallCount);
 
-                                    if (!pThis->_horzScrollingEnabled) {
-                                        if (pThis->_vertScrollingEnabled) {
+                                    if (!self->_horzScrollingEnabled) {
+                                        if (self->_vertScrollingEnabled) {
                                             // reported available space should
                                             // have been unlimited height (since
                                             // scrollable) and 1 DIP less width
                                             // than needed. The reported
-                                            Size lastAvailSpace = pButton->getLastCalcPreferredSizeAvailableSpace();
+                                            Size lastAvailSpace = button->getLastCalcPreferredSizeAvailableSpace();
                                             Size expectedLastAvailSpace(optimalButtonSize.width - pixelSize.width,
                                                                         Size::componentNone());
                                             REQUIRE(Dip::equal(lastAvailSpace, expectedLastAvailSpace));
@@ -841,7 +840,7 @@ namespace bdn
                                             // have been the available height
                                             // height (since not scrollable) and
                                             // 1 DIP less width than needed.
-                                            Size lastAvailSpace = pButton->getLastCalcPreferredSizeAvailableSpace();
+                                            Size lastAvailSpace = button->getLastCalcPreferredSizeAvailableSpace();
                                             Size expectedLastAvailSpace =
                                                 optimalButtonSize + Size(-pixelSize.width, addedSize.height);
                                             REQUIRE(Dip::equal(lastAvailSpace, expectedLastAvailSpace));
@@ -855,48 +854,48 @@ namespace bdn
                                 "scrollbar")
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, horzBarHeight);
-                            viewPortSize = pScrollView
-                                               ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                            viewPortSize = scrollView
+                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
                             Size addedSize = viewPortSize - optimalSize;
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize,
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
                                                        pixelSize, addedSize)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, pixelSize, addedSize)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           pixelSize, addedSize)
                                 {
-                                    pThis->verifyScrollsHorizontally(pThis->_horzScrollingEnabled);
-                                    pThis->verifyScrollsVertically(false);
+                                    self->verifyScrollsHorizontally(self->_horzScrollingEnabled);
+                                    self->verifyScrollsVertically(false);
 
-                                    if (pThis->_horzScrollingEnabled) {
-                                        pThis->verifyContentViewBounds(optimalButtonBounds);
+                                    if (self->_horzScrollingEnabled) {
+                                        self->verifyContentViewBounds(optimalButtonBounds);
 
                                         // scrollable area is the optimal size
-                                        pThis->verifyScrolledAreaSize(optimalSize);
+                                        self->verifyScrolledAreaSize(optimalSize);
 
                                         // horizontal scroll bar is visible, so
                                         // the final viewport size should be
                                         // smaller by that amount
-                                        pThis->verifyViewPortSize(viewPortSize - Size(0, addedSize.height));
+                                        self->verifyViewPortSize(viewPortSize - Size(0, addedSize.height));
                                     } else {
                                         // content view should be expanded to
                                         // fill the available height (since
                                         // there is no scrollbar). width is
                                         // truncated
-                                        pThis->verifyContentViewBounds(Rect(
+                                        self->verifyContentViewBounds(Rect(
                                             optimalButtonBounds.getPosition(),
                                             optimalButtonBounds.getSize() + Size(-pixelSize.width, addedSize.height)));
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(-pixelSize.width, addedSize.height));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(-pixelSize.width, addedSize.height));
 
-                                        pThis->verifyViewPortSize(viewPortSize);
+                                        self->verifyViewPortSize(viewPortSize);
                                     }
                                 };
                             };
@@ -908,40 +907,40 @@ namespace bdn
                             {
                                 Size viewPortSize =
                                     optimalSize + Size(-pixelSize.width, horzBarHeight - pixelSize.height);
-                                viewPortSize = pScrollView
-                                                   ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                                viewPortSize = scrollView
+                                                   ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                                   RoundType::nearest, RoundType::nearest)
                                                    .getSize();
 
-                                pThis->prepareCalcLayout(viewPortSize);
+                                self->prepareCalcLayout(viewPortSize);
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, vertBarWidth, horzBarHeight, pixelSize)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           vertBarWidth, horzBarHeight, pixelSize)
                                 {
-                                    pThis->calcLayoutAfterPreparation();
+                                    self->calcLayoutAfterPreparation();
 
-                                    CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
+                                    CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds,
                                                                viewPortSize, vertBarWidth, horzBarHeight, pixelSize)
                                     {
-                                        pThis->verifyScrollsHorizontally(pThis->_horzScrollingEnabled);
-                                        pThis->verifyScrollsVertically(
-                                            (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled));
+                                        self->verifyScrollsHorizontally(self->_horzScrollingEnabled);
+                                        self->verifyScrollsVertically(
+                                            (self->_horzScrollingEnabled && self->_vertScrollingEnabled));
 
-                                        if (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) {
+                                        if (self->_horzScrollingEnabled && self->_vertScrollingEnabled) {
                                             // the horizontal scroll bar does
                                             // not fit. So we should also get a
                                             // vertical scrollbar
-                                            pThis->verifyContentViewBounds(optimalButtonBounds);
+                                            self->verifyContentViewBounds(optimalButtonBounds);
 
                                             // scrollable area is the optimal
                                             // size
-                                            pThis->verifyScrolledAreaSize(optimalSize);
+                                            self->verifyScrolledAreaSize(optimalSize);
 
                                             // both scroll bars are visible, so
                                             // the final viewport size should be
                                             // smaller by that amount
-                                            pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
-                                        } else if (pThis->_horzScrollingEnabled) {
+                                            self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
+                                        } else if (self->_horzScrollingEnabled) {
                                             // the viewport height is reduced
                                             // due to the horizontal scroll bar.
                                             // But vert scrolling is not
@@ -949,7 +948,7 @@ namespace bdn
                                             // vertical scrollbar. So the
                                             // content height will be truncated
                                             // to one less than what is needed.
-                                            pThis->verifyContentViewBounds(
+                                            self->verifyContentViewBounds(
                                                 Rect(optimalButtonBounds.getPosition(),
                                                      optimalButtonBounds.getSize() + Size(0, -pixelSize.height)));
 
@@ -957,10 +956,10 @@ namespace bdn
                                             // width, since we can scroll. The
                                             // height is optimal-pixelsize,
                                             // since we need to truncate
-                                            pThis->verifyScrolledAreaSize(optimalSize + Size(0, -pixelSize.height));
+                                            self->verifyScrolledAreaSize(optimalSize + Size(0, -pixelSize.height));
 
                                             // only one scroll bar is visible
-                                            pThis->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
+                                            self->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
                                         } else {
                                             // horizontal scrolling is disabled.
                                             // vert scrolling is not needed,
@@ -971,7 +970,7 @@ namespace bdn
                                             // enabled or not.
 
                                             // content fills the available space
-                                            pThis->verifyContentViewBounds(
+                                            self->verifyContentViewBounds(
                                                 Rect(optimalButtonBounds.getPosition(),
                                                      optimalButtonBounds.getSize() +
                                                          Size(-pixelSize.width, horzBarHeight - pixelSize.height)));
@@ -979,12 +978,12 @@ namespace bdn
                                             // scrolled area is extended /
                                             // truncated to fit the available
                                             // space
-                                            pThis->verifyScrolledAreaSize(
+                                            self->verifyScrolledAreaSize(
                                                 optimalSize +
                                                 Size(-pixelSize.height, horzBarHeight - pixelSize.height));
 
                                             // viewport stays the same
-                                            pThis->verifyViewPortSize(viewPortSize);
+                                            self->verifyViewPortSize(viewPortSize);
                                         }
                                     };
                                 };
@@ -995,59 +994,59 @@ namespace bdn
                                 "width for scrollbar")
                         {
                             Size viewPortSize = optimalSize + Size(100, -pixelSize.height);
-                            viewPortSize = pScrollView
-                                               ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                            viewPortSize = scrollView
+                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
                             Size addedSize = viewPortSize - optimalSize;
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize,
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
                                                        vertBarWidth, pixelSize, addedSize)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, vertBarWidth, pixelSize, addedSize)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           vertBarWidth, pixelSize, addedSize)
                                 {
-                                    pThis->verifyScrollsHorizontally(false);
-                                    pThis->verifyScrollsVertically(pThis->_vertScrollingEnabled);
+                                    self->verifyScrollsHorizontally(false);
+                                    self->verifyScrollsVertically(self->_vertScrollingEnabled);
 
-                                    if (pThis->_vertScrollingEnabled) {
-                                        pThis->verifyContentViewBounds(Rect(
+                                    if (self->_vertScrollingEnabled) {
+                                        self->verifyContentViewBounds(Rect(
                                             optimalButtonBounds.getPosition(),
                                             optimalButtonBounds.getSize() + Size(addedSize.width - vertBarWidth, 0)));
 
                                         // scrollable area width is the viewport
                                         // width minus the scrollbar width.
                                         // Height is the optimal height
-                                        pThis->verifyScrolledAreaSize(
+                                        self->verifyScrolledAreaSize(
                                             Size(viewPortSize.width - vertBarWidth, optimalSize.height));
                                         // vertical scroll bar is visible, so
                                         // the final viewport size should be
                                         // smaller by that amount
-                                        pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
+                                        self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
                                     } else {
                                         // cannot scroll vertically => no
                                         // scrollbar shown. width fills the
                                         // viewport. height is truncated to
                                         // available space
 
-                                        pThis->verifyContentViewBounds(Rect(
+                                        self->verifyContentViewBounds(Rect(
                                             optimalButtonBounds.getPosition(),
                                             optimalButtonBounds.getSize() + Size(addedSize.width, -pixelSize.height)));
 
                                         // scrollable area width is the viewport
                                         // width. Height is the optimal height,
                                         // truncated to the available space
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(addedSize.width, -pixelSize.height));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(addedSize.width, -pixelSize.height));
 
                                         // no scrollbar visible => full viewport
                                         // size
-                                        pThis->verifyViewPortSize(viewPortSize);
+                                        self->verifyViewPortSize(viewPortSize);
                                     }
                                 };
                             };
@@ -1057,53 +1056,53 @@ namespace bdn
                                 "scrollbar")
                         {
                             Size viewPortSize = optimalSize + Size(vertBarWidth, -pixelSize.height);
-                            viewPortSize = pScrollView
-                                               ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                            viewPortSize = scrollView
+                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize,
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
                                                        pixelSize, vertBarWidth)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, pixelSize, vertBarWidth)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           pixelSize, vertBarWidth)
                                 {
-                                    pThis->verifyScrollsHorizontally(false);
-                                    pThis->verifyScrollsVertically(pThis->_vertScrollingEnabled);
+                                    self->verifyScrollsHorizontally(false);
+                                    self->verifyScrollsVertically(self->_vertScrollingEnabled);
 
-                                    if (pThis->_vertScrollingEnabled) {
-                                        pThis->verifyContentViewBounds(optimalButtonBounds);
+                                    if (self->_vertScrollingEnabled) {
+                                        self->verifyContentViewBounds(optimalButtonBounds);
 
                                         // scrollable area size is the optimal
                                         // size
-                                        pThis->verifyScrolledAreaSize(optimalSize);
+                                        self->verifyScrolledAreaSize(optimalSize);
                                         // vertical scroll bar is visible, so
                                         // the final viewport size should be
                                         // smaller by that amount
-                                        pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
+                                        self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
                                     } else {
                                         // cannot scroll vertically => no
                                         // scrollbar shown. width fills the
                                         // viewport. height is truncated to
                                         // available space
 
-                                        pThis->verifyContentViewBounds(Rect(optimalButtonBounds.getPosition(),
-                                                                            optimalButtonBounds.getSize() +
-                                                                                Size(vertBarWidth, -pixelSize.height)));
+                                        self->verifyContentViewBounds(Rect(optimalButtonBounds.getPosition(),
+                                                                           optimalButtonBounds.getSize() +
+                                                                               Size(vertBarWidth, -pixelSize.height)));
 
                                         // scrollable area width is the viewport
                                         // width. Height is the optimal height,
                                         // truncated to the available space
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(vertBarWidth, -pixelSize.height));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(vertBarWidth, -pixelSize.height));
 
                                         // no scrollbar visible => full viewport
                                         // size
-                                        pThis->verifyViewPortSize(viewPortSize);
+                                        self->verifyViewPortSize(viewPortSize);
                                     }
                                 };
                             };
@@ -1115,36 +1114,36 @@ namespace bdn
                             {
                                 Size viewPortSize =
                                     optimalSize + Size(vertBarWidth - pixelSize.width, -pixelSize.height);
-                                viewPortSize = pScrollView
-                                                   ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                                viewPortSize = scrollView
+                                                   ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                                   RoundType::nearest, RoundType::nearest)
                                                    .getSize();
 
-                                pThis->prepareCalcLayout(viewPortSize);
+                                self->prepareCalcLayout(viewPortSize);
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, pixelSize, vertBarWidth, horzBarHeight)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           pixelSize, vertBarWidth, horzBarHeight)
                                 {
-                                    pThis->calcLayoutAfterPreparation();
+                                    self->calcLayoutAfterPreparation();
 
-                                    CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
+                                    CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds,
                                                                viewPortSize, pixelSize, vertBarWidth, horzBarHeight)
                                     {
-                                        pThis->verifyScrollsHorizontally(
-                                            (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled));
-                                        pThis->verifyScrollsVertically(pThis->_vertScrollingEnabled);
+                                        self->verifyScrollsHorizontally(
+                                            (self->_horzScrollingEnabled && self->_vertScrollingEnabled));
+                                        self->verifyScrollsVertically(self->_vertScrollingEnabled);
 
-                                        if (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) {
-                                            pThis->verifyContentViewBounds(optimalButtonBounds);
+                                        if (self->_horzScrollingEnabled && self->_vertScrollingEnabled) {
+                                            self->verifyContentViewBounds(optimalButtonBounds);
 
                                             // scrollable area size is the
                                             // optimal size
-                                            pThis->verifyScrolledAreaSize(optimalSize);
+                                            self->verifyScrolledAreaSize(optimalSize);
                                             // both scroll bars are visible, so
                                             // the final viewport size should be
                                             // smaller by that amount
-                                            pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
-                                        } else if (pThis->_vertScrollingEnabled) {
+                                            self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
+                                        } else if (self->_vertScrollingEnabled) {
                                             // the viewport width is reduced due
                                             // to the vertical scroll bar. But
                                             // horz scrolling is not allowed, so
@@ -1152,7 +1151,7 @@ namespace bdn
                                             // scrollbar. So the content width
                                             // will be truncated to one less
                                             // than what is needed.
-                                            pThis->verifyContentViewBounds(
+                                            self->verifyContentViewBounds(
                                                 Rect(optimalButtonBounds.getPosition(),
                                                      optimalButtonBounds.getSize() + Size(-pixelSize.width, 0)));
 
@@ -1160,10 +1159,10 @@ namespace bdn
                                             // height, since we can scroll. The
                                             // width is optimal-pixelSize, since
                                             // we need to truncate
-                                            pThis->verifyScrolledAreaSize(optimalSize + Size(-pixelSize.width, 0));
+                                            self->verifyScrolledAreaSize(optimalSize + Size(-pixelSize.width, 0));
 
                                             // only one scroll bar is visible
-                                            pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
+                                            self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
                                         } else {
                                             // vertical scrolling is disabled.
                                             // horizontal scrolling is not
@@ -1175,7 +1174,7 @@ namespace bdn
                                             // not.
 
                                             // content fills the available space
-                                            pThis->verifyContentViewBounds(
+                                            self->verifyContentViewBounds(
                                                 Rect(optimalButtonBounds.getPosition(),
                                                      optimalButtonBounds.getSize() +
                                                          Size(vertBarWidth - pixelSize.width, -pixelSize.height)));
@@ -1183,11 +1182,11 @@ namespace bdn
                                             // scrolled area is extended /
                                             // truncated to fit the available
                                             // space
-                                            pThis->verifyScrolledAreaSize(
+                                            self->verifyScrolledAreaSize(
                                                 optimalSize + Size(vertBarWidth - pixelSize.width, -pixelSize.height));
 
                                             // viewport stays the same
-                                            pThis->verifyViewPortSize(viewPortSize);
+                                            self->verifyViewPortSize(viewPortSize);
                                         }
                                     };
                                 };
@@ -1197,66 +1196,66 @@ namespace bdn
                         SECTION("less width and less height than needed")
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, -pixelSize.height);
-                            viewPortSize = pScrollView
-                                               ->adjustBounds(Rect(pScrollView->position(), viewPortSize),
+                            viewPortSize = scrollView
+                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
-                            pThis->prepareCalcLayout(viewPortSize);
+                            self->prepareCalcLayout(viewPortSize);
 
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize,
+                            CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
                                                        pixelSize, vertBarWidth, horzBarHeight)
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                self->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, optimalSize, optimalButtonBounds,
-                                                           viewPortSize, pixelSize, vertBarWidth, horzBarHeight)
+                                CONTINUE_SECTION_WHEN_IDLE(self, button, optimalSize, optimalButtonBounds, viewPortSize,
+                                                           pixelSize, vertBarWidth, horzBarHeight)
                                 {
-                                    pThis->verifyScrollsHorizontally(pThis->_horzScrollingEnabled);
-                                    pThis->verifyScrollsVertically(pThis->_vertScrollingEnabled);
+                                    self->verifyScrollsHorizontally(self->_horzScrollingEnabled);
+                                    self->verifyScrollsVertically(self->_vertScrollingEnabled);
 
-                                    if (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) {
-                                        pThis->verifyContentViewBounds(optimalButtonBounds);
+                                    if (self->_horzScrollingEnabled && self->_vertScrollingEnabled) {
+                                        self->verifyContentViewBounds(optimalButtonBounds);
 
-                                        pThis->verifyScrolledAreaSize(optimalSize);
-                                        pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
-                                    } else if (pThis->_horzScrollingEnabled) {
+                                        self->verifyScrolledAreaSize(optimalSize);
+                                        self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, horzBarHeight));
+                                    } else if (self->_horzScrollingEnabled) {
                                         // we cannot scroll vertically. So
                                         // height is truncated, width is optimal
-                                        pThis->verifyContentViewBounds(
+                                        self->verifyContentViewBounds(
                                             Rect(optimalButtonBounds.getPosition(),
                                                  optimalButtonBounds.getSize() +
                                                      Size(0, -pixelSize.height - horzBarHeight)));
 
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(0, -pixelSize.height - horzBarHeight));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(0, -pixelSize.height - horzBarHeight));
 
                                         // only one scrollbar is visible
-                                        pThis->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
-                                    } else if (pThis->_vertScrollingEnabled) {
+                                        self->verifyViewPortSize(viewPortSize - Size(0, horzBarHeight));
+                                    } else if (self->_vertScrollingEnabled) {
                                         // we cannot scroll horizontally. So
                                         // width is truncated, height is optimal
-                                        pThis->verifyContentViewBounds(Rect(
+                                        self->verifyContentViewBounds(Rect(
                                             optimalButtonBounds.getPosition(),
                                             optimalButtonBounds.getSize() + Size(-pixelSize.width - vertBarWidth, 0)));
 
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(-pixelSize.width - vertBarWidth, 0));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(-pixelSize.width - vertBarWidth, 0));
 
                                         // only one scrollbar is visible
-                                        pThis->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
+                                        self->verifyViewPortSize(viewPortSize - Size(vertBarWidth, 0));
                                     } else {
                                         // no scrolling. Width and height are
                                         // truncated
-                                        pThis->verifyContentViewBounds(Rect(
+                                        self->verifyContentViewBounds(Rect(
                                             optimalButtonBounds.getPosition(),
                                             optimalButtonBounds.getSize() + Size(-pixelSize.width, -pixelSize.height)));
 
-                                        pThis->verifyScrolledAreaSize(optimalSize +
-                                                                      Size(-pixelSize.width, -pixelSize.height));
+                                        self->verifyScrolledAreaSize(optimalSize +
+                                                                     Size(-pixelSize.width, -pixelSize.height));
 
                                         // only one scrollbar is visible
-                                        pThis->verifyViewPortSize(viewPortSize);
+                                        self->verifyViewPortSize(viewPortSize);
                                     }
                                 };
                             };
@@ -1275,61 +1274,61 @@ namespace bdn
                     SECTION("huge contentview")
                     {
                         P< ScrollViewLayoutHelperTestContentView<Button> >
-                pButton = newObj< ScrollViewLayoutHelperTestContentView<Button>
+                button = newObj< ScrollViewLayoutHelperTestContentView<Button>
                 >();
 
-                        pButton->setPreferredSizeMinimum( Size(100000, 100000)
+                        button->setPreferredSizeMinimum( Size(100000, 100000)
                 );
 
-                        getScrollView()->setContentView(pButton);
+                        getScrollView()->setContentView(button);
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize )
+                        CONTINUE_SECTION_WHEN_IDLE(this, button, pixelSize )
                         {
-                            P<ScrollView> pScrollView = pThis->getScrollView();
+                            P<ScrollView> scrollView = this->getScrollView();
 
                             Size viewPortSize = Size(300, 300);
-                            viewPortSize = pScrollView->adjustBounds(
-                Rect(pScrollView->position(), viewPortSize), RoundType::nearest,
+                            viewPortSize = scrollView->adjustBounds(
+                Rect(scrollView->position(), viewPortSize), RoundType::nearest,
                 RoundType::nearest).getSize();
 
                             Size optimalButtonSize =
-                pButton->calcPreferredSize();
+                button->calcPreferredSize();
 
                             Rect unadjustedOptimalButtonBounds( Point(0,0),
                 optimalButtonSize);
 
                             // adjust the optimal size so that it is a multiple
                 of the physical pixels Rect optimalButtonBounds =
-                pButton->adjustBounds( unadjustedOptimalButtonBounds,
+                button->adjustBounds( unadjustedOptimalButtonBounds,
                 RoundType::nearest, RoundType::up ); optimalButtonSize =
                 optimalButtonBounds.getSize();
 
-                            pThis->prepareCalcLayout( viewPortSize );
+                            this->prepareCalcLayout( viewPortSize );
 
-                            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton,
+                            CONTINUE_SECTION_WHEN_IDLE( this, button,
                 viewPortSize, pixelSize, optimalButtonBounds )
                             {
-                                pThis->calcLayoutAfterPreparation();
+                                this->calcLayoutAfterPreparation();
 
-                                CONTINUE_SECTION_WHEN_IDLE( pThis, pButton,
+                                CONTINUE_SECTION_WHEN_IDLE( this, button,
                 viewPortSize, pixelSize, optimalButtonBounds )
                                 {
                                     double horzBarHeight =
-                pThis->getHorzBarHeight(); double vertBarWidth =
-                pThis->getVertBarWidth();
+                this->getHorzBarHeight(); double vertBarWidth =
+                this->getVertBarWidth();
 
                                     // note that this test is only executed when
                 vertical and horizontal scrolling
                                     // are enabled.
 
-                                    pThis->verifyScrollsHorizontally( true );
-                                    pThis->verifyScrollsVertically( true );
+                                    this->verifyScrollsHorizontally( true );
+                                    this->verifyScrollsVertically( true );
 
-                                    pThis->verifyContentViewBounds(
+                                    this->verifyContentViewBounds(
                 optimalButtonBounds );
 
-                                    pThis->verifyScrolledAreaSize(
-                optimalButtonBounds.getSize() ); pThis->verifyViewPortSize(
+                                    this->verifyScrolledAreaSize(
+                optimalButtonBounds.getSize() ); this->verifyViewPortSize(
                 viewPortSize-Size(vertBarWidth, horzBarHeight) );
 
                                 };

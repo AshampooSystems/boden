@@ -42,20 +42,20 @@ namespace bdn
 
         void ViewCore::needLayout(View::InvalidateReason reason)
         {
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if (pOuterView != nullptr) {
-                P<UiProvider> pProvider = tryCast<UiProvider>(pOuterView->getUiProvider());
-                if (pProvider != nullptr)
-                    pProvider->getLayoutCoordinator()->viewNeedsLayout(pOuterView);
+            P<View> outerView = getOuterViewIfStillAttached();
+            if (outerView != nullptr) {
+                P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                if (provider != nullptr)
+                    provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
             }
         }
 
-        void ViewCore::childSizingInfoInvalidated(View *pChild)
+        void ViewCore::childSizingInfoInvalidated(View *child)
         {
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if (pOuterView != nullptr) {
-                pOuterView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                pOuterView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+            P<View> outerView = getOuterViewIfStillAttached();
+            if (outerView != nullptr) {
+                outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
+                outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
             }
         }
     }

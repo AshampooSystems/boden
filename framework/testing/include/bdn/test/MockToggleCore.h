@@ -20,10 +20,10 @@ namespace bdn
         class MockToggleCore : public MockViewCore, BDN_IMPLEMENTS ISwitchCore
         {
           public:
-            MockToggleCore(Toggle *pToggle) : MockViewCore(pToggle)
+            MockToggleCore(Toggle *toggle) : MockViewCore(toggle)
             {
-                _label = pToggle->label();
-                _on = pToggle->on();
+                _label = toggle->label();
+                _on = toggle->on();
             }
 
             /** Returns the current label of the toggle.*/
@@ -57,10 +57,10 @@ namespace bdn
                 Size size = _getTextSize(_label);
 
                 // add our padding
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    if (!pView->padding().isNull())
-                        size += uiMarginToDipMargin(pView->padding());
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    if (!view->padding().isNull())
+                        size += uiMarginToDipMargin(view->padding());
                 }
 
                 // add some space for the fake toggle border
@@ -68,10 +68,10 @@ namespace bdn
 
                 // ignore available space. We have a fixed size.
 
-                if (pView != nullptr) {
+                if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;
@@ -79,11 +79,11 @@ namespace bdn
 
             void generateClick()
             {
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    ClickEvent evt(pView);
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    ClickEvent evt(view);
 
-                    cast<Toggle>(pView)->onClick().notify(evt);
+                    cast<Toggle>(view)->onClick().notify(evt);
                 }
             }
 

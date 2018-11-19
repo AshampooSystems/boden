@@ -58,7 +58,7 @@ namespace bdn
           public:
             Lock(Mutex &mutex) : _mutex(mutex) { _mutex.lock(); }
 
-            Lock(Mutex *pMutex) : Lock(*pMutex) {}
+            Lock(Mutex *mutex) : Lock(*mutex) {}
 
             // prevent copying of the lock object
             Lock(const Lock &) = delete;
@@ -109,7 +109,7 @@ namespace bdn
           public:
             Unlock(Mutex &mutex) : _mutex(mutex) { _mutex.unlock(); }
 
-            Unlock(Mutex *pMutex) : Unlock(*pMutex) {}
+            Unlock(Mutex *mutex) : Unlock(*mutex) {}
 
             // prevent copying of the unlock object
             Unlock(const Unlock &) = delete;

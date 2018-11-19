@@ -20,51 +20,51 @@ namespace bdn
         class TextFieldCore : public ViewCore, BDN_IMPLEMENTS ITextFieldCore
         {
           private:
-            static P<JEditText> _createJEditText(TextField *pOuter)
+            static P<JEditText> _createJEditText(TextField *outer)
             {
                 // We need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> pParent = pOuter->getParentView();
-                if (pParent == nullptr)
+                P<View> parent = outer->getParentView();
+                if (parent == nullptr)
                     throw ProgrammingError("TextFieldCore instance requested for a TextField that "
                                            "does not have a parent.");
 
-                P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
-                if (pParentCore == nullptr)
+                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                if (parentCore == nullptr)
                     throw ProgrammingError("TextFieldCore instance requested for a TextField with "
                                            "core-less parent.");
 
-                JContext context = pParentCore->getJView().getContext();
+                JContext context = parentCore->getJView().getContext();
 
                 return newObj<JEditText>(context);
             }
 
           public:
-            TextFieldCore(TextField *pOuterTextField) : ViewCore(pOuterTextField, _createJEditText(pOuterTextField))
+            TextFieldCore(TextField *outerTextField) : ViewCore(outerTextField, _createJEditText(outerTextField))
             {
-                _pJEditText = cast<JEditText>(&getJView());
-                _pJEditText->setSingleLine(true);
+                _jEditText = cast<JEditText>(&getJView());
+                _jEditText->setSingleLine(true);
 
-                _pWatcher = newObj<bdn::android::JNativeEditTextTextWatcher>(*_pJEditText);
-                _pJEditText->addTextChangedListener(*_pWatcher);
+                _watcher = newObj<bdn::android::JNativeEditTextTextWatcher>(*_jEditText);
+                _jEditText->addTextChangedListener(*_watcher);
 
-                _pOnEditorActionListener = newObj<bdn::android::JNativeTextViewOnEditorActionListener>();
-                _pJEditText->setOnEditorActionListener(*_pOnEditorActionListener);
+                _onEditorActionListener = newObj<bdn::android::JNativeTextViewOnEditorActionListener>();
+                _jEditText->setOnEditorActionListener(*_onEditorActionListener);
 
-                setText(pOuterTextField->text());
+                setText(outerTextField->text());
             }
 
-            JEditText &getJEditText() { return *_pJEditText; }
+            JEditText &getJEditText() { return *_jEditText; }
 
             void setText(const String &text) override
             {
-                _pJEditText->removeTextChangedListener(*_pWatcher);
-                String currentText = _pJEditText->getText();
+                _jEditText->removeTextChangedListener(*_watcher);
+                String currentText = _jEditText->getText();
                 if (text != currentText) {
-                    _pJEditText->setText(text);
+                    _jEditText->setText(text);
                 }
-                _pJEditText->addTextChangedListener(*_pWatcher);
+                _jEditText->addTextChangedListener(*_watcher);
             }
 
           public:
@@ -77,7 +77,7 @@ namespace bdn
             // Called by Java (via JNativeEditTextTextWatcher)
             void afterTextChanged()
             {
-                String newText = _pJEditText->getText();
+                String newText = _jEditText->getText();
                 P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
                     outerTextField->setText(newText);
@@ -88,8 +88,8 @@ namespace bdn
             {
                 // hide virtual keyboard
                 JInputMethodManager inputManager(
-                    _pJEditText->getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
-                inputManager.hideSoftInputFromWindow(_pJEditText->getWindowToken(), 0);
+                    _jEditText->getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
+                inputManager.hideSoftInputFromWindow(_jEditText->getWindowToken(), 0);
 
                 P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
@@ -102,13 +102,13 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _pJEditText->getTextSize() / getUiScaleFactor();
+                return _jEditText->getTextSize() / getUiScaleFactor();
             }
 
           private:
-            P<JEditText> _pJEditText;
-            P<JNativeEditTextTextWatcher> _pWatcher;
-            P<JNativeTextViewOnEditorActionListener> _pOnEditorActionListener;
+            P<JEditText> _jEditText;
+            P<JNativeEditTextTextWatcher> _watcher;
+            P<JNativeTextViewOnEditorActionListener> _onEditorActionListener;
         };
     }
 }

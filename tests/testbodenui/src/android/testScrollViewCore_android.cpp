@@ -35,18 +35,18 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
         // to resize it to the specified size.
 
         Size adjustedSize =
-            _pScrollView
-                ->adjustBounds(Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView
+                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
-        _pScrollView->setPreferredSizeMinimum(adjustedSize);
-        _pScrollView->setPreferredSizeMaximum(adjustedSize);
+        _scrollView->setPreferredSizeMinimum(adjustedSize);
+        _scrollView->setPreferredSizeMaximum(adjustedSize);
 
         // also request a re-layout here. With the normal propagation of the
         // property changes it would take two event cycles until the layout
         // happens. But we want it to happen immediately after the properties
         // have been changed.
-        _pScrollView->getParentView()->needLayout(View::InvalidateReason::customDataChanged);
+        _scrollView->getParentView()->needLayout(View::InvalidateReason::customDataChanged);
 
         return adjustedSize;
     }
@@ -103,10 +103,10 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> pContentView = _pScrollView->getContentView();
+        P<View> contentView = _scrollView->getContentView();
 
-        if (pContentView != nullptr) {
-            bdn::Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
+        if (contentView != nullptr) {
+            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -123,7 +123,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
     {
         Size scrollAreaSizePixels = getScrollAreaSizePixels();
 
-        double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+        double scaleFactor = _androidViewCore->getUiScaleFactor();
 
         Size scrollAreaSize(scrollAreaSizePixels.width / scaleFactor, scrollAreaSizePixels.height / scaleFactor);
 
@@ -137,7 +137,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
 
     void verifyViewPortSize(const Size &expectedSize) override
     {
-        double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+        double scaleFactor = _androidViewCore->getUiScaleFactor();
 
         Size viewPortSize(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
 
@@ -152,7 +152,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
 
 TEST_CASE("android.ScrollViewCore")
 {
-    P<TestAndroidScrollViewCore> pTest = newObj<TestAndroidScrollViewCore>();
+    P<TestAndroidScrollViewCore> test = newObj<TestAndroidScrollViewCore>();
 
-    pTest->runTests();
+    test->runTests();
 }

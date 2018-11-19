@@ -44,7 +44,7 @@ class TlsTestData2 : public Base
     int val;
 };
 
-static ThreadLocalStorage<P<TlsTestData2>> pGlobalThreadLocal;
+static ThreadLocalStorage<P<TlsTestData2>> globalThreadLocal;
 
 TEST_CASE("win32::ThreadLocalStorage")
 {
@@ -101,15 +101,15 @@ TEST_CASE("win32::ThreadLocalStorage")
         int destructedBefore = TlsTestData2::getDestructed();
 
         auto threadResult = Thread::exec([]() {
-            REQUIRE(pGlobalThreadLocal == nullptr);
+            REQUIRE(globalThreadLocal == nullptr);
 
-            P<TlsTestData2> pData = newObj<TlsTestData2>(143);
-            pGlobalThreadLocal = pData;
+            P<TlsTestData2> data = newObj<TlsTestData2>(143);
+            globalThreadLocal = data;
 
             Thread::sleepMillis(3000);
 
             // should still have the same pointer
-            REQUIRE(pGlobalThreadLocal == pData);
+            REQUIRE(globalThreadLocal == data);
         });
 
         Thread::sleepMillis(1000);
@@ -119,12 +119,12 @@ TEST_CASE("win32::ThreadLocalStorage")
         REQUIRE(TlsTestData2::getDestructed() == destructedBefore);
 
         // in this thread the pointer should still be null for this thread
-        REQUIRE(pGlobalThreadLocal == nullptr);
+        REQUIRE(globalThreadLocal == nullptr);
 
-        P<TlsTestData2> pData = newObj<TlsTestData2>(42);
-        pGlobalThreadLocal = pData;
+        P<TlsTestData2> data = newObj<TlsTestData2>(42);
+        globalThreadLocal = data;
 
-        REQUIRE(pGlobalThreadLocal != nullptr);
+        REQUIRE(globalThreadLocal != nullptr);
 
         // one more object should exist now
         REQUIRE(TlsTestData2::getConstructed() == constructedBefore + 2);
@@ -142,7 +142,7 @@ TEST_CASE("win32::ThreadLocalStorage")
         REQUIRE(TlsTestData2::getDestructed() == destructedBefore + 1);
 
         // and ours should still be there
-        REQUIRE(pGlobalThreadLocal == pData);
+        REQUIRE(globalThreadLocal == data);
     }
 
 #endif

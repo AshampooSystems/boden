@@ -15,10 +15,10 @@ namespace bdn
         class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
         {
           private:
-            static UIButton *_createUIButton(Button *pOuterButton);
+            static UIButton *_createUIButton(Button *outerButton);
 
           public:
-            ButtonCore(Button *pOuterButton);
+            ButtonCore(Button *outerButton);
 
             ~ButtonCore();
 

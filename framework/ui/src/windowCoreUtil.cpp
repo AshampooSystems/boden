@@ -6,22 +6,22 @@
 namespace bdn
 {
 
-    Size defaultWindowCalcPreferredSizeImpl(Window *pWindow, const Size &availableSpace, const Margin &border,
+    Size defaultWindowCalcPreferredSizeImpl(Window *window, const Size &availableSpace, const Margin &border,
                                             const Size &minWindowSize)
     {
         Margin contentMargin;
-        P<const View> pContentView = pWindow->getContentView();
-        if (pContentView != nullptr)
-            contentMargin = pContentView->uiMarginToDipMargin(pContentView->margin());
+        P<const View> contentView = window->getContentView();
+        if (contentView != nullptr)
+            contentMargin = contentView->uiMarginToDipMargin(contentView->margin());
 
         Margin padding;
         // default padding is zero
-        Nullable<UiMargin> pad = pWindow->padding();
+        Nullable<UiMargin> pad = window->padding();
         if (!pad.isNull())
-            padding = pWindow->uiMarginToDipMargin(pad);
+            padding = window->uiMarginToDipMargin(pad);
 
         // combine maxSize with availableSpace
-        Size maxSize = pWindow->preferredSizeMaximum();
+        Size maxSize = window->preferredSizeMaximum();
         maxSize.applyMaximum(availableSpace);
 
         Size availableContentSpace(maxSize);
@@ -41,14 +41,14 @@ namespace bdn
         }
 
         Size contentSize;
-        if (pContentView != nullptr)
-            contentSize = pContentView->calcPreferredSize(availableContentSpace);
+        if (contentView != nullptr)
+            contentSize = contentView->calcPreferredSize(availableContentSpace);
 
         Size preferredSize = contentSize + contentMargin + padding + border;
 
         // apply minimum size constraint (the maximum constraint has already
         // been applied above)
-        preferredSize.applyMinimum(pWindow->preferredSizeMinimum());
+        preferredSize.applyMinimum(window->preferredSizeMinimum());
 
         // also apply the platform's minimm window size
         preferredSize.applyMinimum(minWindowSize);
@@ -60,33 +60,33 @@ namespace bdn
         // because we never want it to be exceeded. Note that we do NOT clip
         // against availableSpace, because we WANT that to be exceeded if the
         // children do not fit.
-        preferredSize.applyMaximum(pWindow->preferredSizeMaximum());
+        preferredSize.applyMaximum(window->preferredSizeMaximum());
 
         return preferredSize;
     }
 
-    void defaultWindowLayoutImpl(Window *pWindow, const Rect &contentArea)
+    void defaultWindowLayoutImpl(Window *window, const Rect &contentArea)
     {
-        P<View> pContentView = pWindow->getContentView();
+        P<View> contentView = window->getContentView();
 
-        if (pContentView != nullptr) {
+        if (contentView != nullptr) {
             // just set our content window to content area (but taking margins
             // and padding into account).
             Rect contentBounds(contentArea);
 
             Margin padding;
             // default padding is zero
-            Nullable<UiMargin> pad = pWindow->padding();
+            Nullable<UiMargin> pad = window->padding();
             if (!pad.isNull())
-                padding = pWindow->uiMarginToDipMargin(pad);
+                padding = window->uiMarginToDipMargin(pad);
 
             // subtract our padding
             contentBounds -= padding;
 
             // subtract the content view's margins
-            contentBounds -= pContentView->uiMarginToDipMargin(pContentView->margin());
+            contentBounds -= contentView->uiMarginToDipMargin(contentView->margin());
 
-            pContentView->adjustAndSetBounds(contentBounds);
+            contentView->adjustAndSetBounds(contentBounds);
 
             // note that we do not need to call layout on the content view.
             // If it needs to update its layout then the bounds change should
@@ -94,11 +94,11 @@ namespace bdn
         }
     }
 
-    void defaultWindowAutoSizeImpl(Window *pWindow, const Size &screenWorkAreaSize)
+    void defaultWindowAutoSizeImpl(Window *window, const Size &screenWorkAreaSize)
     {
         Rect newBounds;
 
-        Size preferredSize = pWindow->calcPreferredSize();
+        Size preferredSize = window->calcPreferredSize();
 
         double width = preferredSize.width;
         double height = preferredSize.height;
@@ -110,7 +110,7 @@ namespace bdn
 
             // and then adapt the height accordingly (height might increase if
             // we reduce the width).
-            height = pWindow->calcPreferredSize(Size(width, Size::componentNone())).height;
+            height = window->calcPreferredSize(Size(width, Size::componentNone())).height;
 
             // if the height we calculated is bigger than the max height then we
             // simply cannot achieve our preferred size. We will have to make do
@@ -124,7 +124,7 @@ namespace bdn
             height = screenWorkAreaSize.height;
 
             // and then adapt the width accordingly.
-            width = pWindow->calcPreferredSize(Size(Size::componentNone(), height)).width;
+            width = window->calcPreferredSize(Size(Size::componentNone(), height)).width;
 
             // if the width we calculated is bigger than the max width then we
             // simply cannot achieve our preferred size. We will have to make do
@@ -143,20 +143,20 @@ namespace bdn
         // Position is always rounded to nearest.
 
         Rect adjustedBounds =
-            pWindow->adjustBounds(Rect(pWindow->position(), Size(width, height)), RoundType::nearest, RoundType::up);
+            window->adjustBounds(Rect(window->position(), Size(width, height)), RoundType::nearest, RoundType::up);
 
-        pWindow->adjustAndSetBounds(adjustedBounds);
+        window->adjustAndSetBounds(adjustedBounds);
     }
 
-    void defaultWindowCenterImpl(Window *pWindow, const Rect &screenWorkArea)
+    void defaultWindowCenterImpl(Window *window, const Rect &screenWorkArea)
     {
-        Size size = pWindow->size();
+        Size size = window->size();
 
         double x = screenWorkArea.x + (screenWorkArea.width - size.width) / 2;
         double y = screenWorkArea.y + (screenWorkArea.height - size.height) / 2;
 
         Rect newBounds(Point(x, y), size);
 
-        pWindow->adjustAndSetBounds(newBounds);
+        window->adjustAndSetBounds(newBounds);
     }
 }

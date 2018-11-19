@@ -25,7 +25,7 @@ namespace bdn
 
       protected:
         class Impl;
-        Impl *_pImpl;
+        Impl *_impl;
     };
 }
 

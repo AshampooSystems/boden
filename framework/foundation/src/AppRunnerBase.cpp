@@ -22,8 +22,8 @@ namespace bdn
         platformSpecificInit();
 
         // set the app controller as the global one
-        P<AppControllerBase> pAppController = _appControllerCreator();
-        AppControllerBase::_set(pAppController);
+        P<AppControllerBase> appController = _appControllerCreator();
+        AppControllerBase::_set(appController);
     }
 
     void AppRunnerBase::beginLaunch()
@@ -67,9 +67,9 @@ namespace bdn
 
         BDN_LOG_AND_IGNORE_EXCEPTION(
             {
-                P<AppControllerBase> pAppController = AppControllerBase::get();
-                if (pAppController != nullptr)
-                    pAppController->unhandledProblem(unhandled);
+                P<AppControllerBase> appController = AppControllerBase::get();
+                if (appController != nullptr)
+                    appController->unhandledProblem(unhandled);
             },
             "Exception while notifying app controller of unhandled exception. "
             "Ignoring the additional exception.");

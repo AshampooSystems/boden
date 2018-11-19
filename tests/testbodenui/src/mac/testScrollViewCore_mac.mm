@@ -21,7 +21,7 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _nsScrollView = (NSScrollView *)_pNSView;
+        _nsScrollView = (NSScrollView *)_nSView;
     }
 
     bdn::Size getScrollerSize()
@@ -64,8 +64,8 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
         bdn::Size viewSize = viewPortSize + getNonClientSize();
 
         viewSize =
-            _pScrollView
-                ->adjustBounds(bdn::Rect(_pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
+            _scrollView
+                ->adjustBounds(bdn::Rect(_scrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // we cannot resize the scroll view directly with adjustAndSetBounds.
@@ -73,10 +73,10 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _pScrollView->setPreferredSizeMinimum(viewSize);
-        _pScrollView->setPreferredSizeMaximum(viewSize);
+        _scrollView->setPreferredSizeMinimum(viewSize);
+        _scrollView->setPreferredSizeMaximum(viewSize);
 
-        _pWindow->requestAutoSize();
+        _window->requestAutoSize();
 
         return viewSize;
     }
@@ -117,10 +117,10 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> pContentView = _pScrollView->getContentView();
+        P<View> contentView = _scrollView->getContentView();
 
-        if (pContentView != nullptr) {
-            bdn::Rect bounds(_pScrollView->getContentView()->position(), pContentView->size());
+        if (contentView != nullptr) {
+            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -173,6 +173,6 @@ TEST_CASE("mac.ScrollViewCore")
 {
     printScrollerStyle();
 
-    P<TestMacScrollViewCore> pTest = newObj<TestMacScrollViewCore>();
-    pTest->runTests();
+    P<TestMacScrollViewCore> test = newObj<TestMacScrollViewCore>();
+    test->runTests();
 }

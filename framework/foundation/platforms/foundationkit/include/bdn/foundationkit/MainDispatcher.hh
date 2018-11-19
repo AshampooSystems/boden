@@ -65,11 +65,11 @@ namespace bdn
 
             Mutex _queueMutex;
 
-            P<IdleQueue> _pIdleQueue;
+            P<IdleQueue> _idleQueue;
             std::list<std::function<void()>> _normalQueue;
             std::list<std::function<void()>> _timedNormalQueue;
 
-            P<TimerFuncList_> _pTimerFuncList;
+            P<TimerFuncList_> _timerFuncList;
         };
     }
 }

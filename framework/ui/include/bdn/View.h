@@ -51,9 +51,9 @@ namespace bdn
     {                                                                                                                  \
         if (_propertyValue_##name != newValue) {                                                                       \
             _propertyValue_##name = newValue;                                                                          \
-            bdn::P<CoreInterfaceType> pCore = bdn::cast<CoreInterfaceType>(getViewCore());                             \
-            if (pCore != nullptr)                                                                                      \
-                pCore->setterName(newValue);                                                                           \
+            bdn::P<CoreInterfaceType> core = bdn::cast<CoreInterfaceType>(getViewCore());                              \
+            if (core != nullptr)                                                                                       \
+                core->setterName(newValue);                                                                            \
             Influences_(this).modificationInfluenceCalls;                                                              \
             BDN_NOTIFY_PROPERTY_CHANGED(*this, name);                                                                  \
         }                                                                                                              \
@@ -228,7 +228,7 @@ namespace bdn
            IUiProvider is inherited from the parent view and can be explicitly
            set when creating a top level window.
             */
-        P<IViewCore> getViewCore() const { return _pCore; }
+        P<IViewCore> getViewCore() const { return _core; }
 
         /** Controls wether the view is visible or not.
 
@@ -407,7 +407,7 @@ namespace bdn
            been added to a new parent until its UI provider becomes available in
            the child view.
             */
-        P<IUiProvider> getUiProvider() { return _pUiProvider; }
+        P<IUiProvider> getUiProvider() { return _uiProvider; }
 
         /** Returns the type name of the view core. This is a somewhat arbitrary
            name that is used in the internal implementation. It is NOT
@@ -444,7 +444,7 @@ namespace bdn
             - this view does not define an order among its children
 
             */
-        virtual P<View> findPreviousChildView(View *pChildView)
+        virtual P<View> findPreviousChildView(View *childView)
         {
             // no child views by default
             return nullptr;
@@ -454,11 +454,11 @@ namespace bdn
            or remove a child. Users of View objects should NOT call this.
 
             Tells the view object that it has a new parent.
-            pParentView can be nullptr if the view was removed from a parent
+            parentView can be nullptr if the view was removed from a parent
             and does not currently have one.
 
             */
-        void _setParentView(View *pParentView);
+        void _setParentView(View *parentView);
 
         /** Should only be called by view container implementations.
             Users of View objects should NOT call this.
@@ -466,7 +466,7 @@ namespace bdn
             This must be called when another view container "steals" a view that
             was formerly a child of this view.
             */
-        virtual void _childViewStolen(View *pChildView)
+        virtual void _childViewStolen(View *childView)
         {
             // do nothing by default
         }
@@ -676,7 +676,7 @@ namespace bdn
            changed. Usually this will prompt this view (the parent view) to also
            schedule an update to
             its own sizing information and an update to its layout.*/
-        virtual void childSizingInfoInvalidated(View *pChild);
+        virtual void childSizingInfoInvalidated(View *child);
 
         // allow the coordinator to call the sizing info and layout functions.
         friend class LayoutCoordinator;
@@ -684,7 +684,7 @@ namespace bdn
         class Influences_
         {
           public:
-            Influences_(View *pView) : _pView(pView) {}
+            Influences_(View *view) : _view(view) {}
 
             /** Dummy function that does nothing. A call to this can be made in
                the influence section of \ref BDN_VIEW_PROPERTY. */
@@ -697,7 +697,7 @@ namespace bdn
             {
                 // update the sizing information. If that changes then the
                 // parent layout will automatically be updated.
-                _pView->invalidateSizingInfo(InvalidateReason::standardPropertyChanged);
+                _view->invalidateSizingInfo(InvalidateReason::standardPropertyChanged);
 
                 return *this;
             }
@@ -707,7 +707,7 @@ namespace bdn
             const Influences_ &influencesContentLayout() const
             {
                 // the layout of our children is influenced by this
-                _pView->needLayout(InvalidateReason::standardPropertyChanged);
+                _view->needLayout(InvalidateReason::standardPropertyChanged);
 
                 return *this;
             }
@@ -719,9 +719,9 @@ namespace bdn
              margin.*/
             const Influences_ &influencesParentPreferredSize() const
             {
-                P<View> pParent = _pView->getParentView();
-                if (pParent != nullptr)
-                    pParent->invalidateSizingInfo(InvalidateReason::standardChildPropertyChanged);
+                P<View> parent = _view->getParentView();
+                if (parent != nullptr)
+                    parent->invalidateSizingInfo(InvalidateReason::standardChildPropertyChanged);
 
                 return *this;
             }
@@ -734,15 +734,15 @@ namespace bdn
              values.*/
             const Influences_ &influencesParentLayout() const
             {
-                P<View> pParent = _pView->getParentView();
-                if (pParent != nullptr)
-                    pParent->needLayout(InvalidateReason::standardChildPropertyChanged);
+                P<View> parent = _view->getParentView();
+                if (parent != nullptr)
+                    parent->needLayout(InvalidateReason::standardChildPropertyChanged);
 
                 return *this;
             }
 
           private:
-            View *_pView;
+            View *_view;
         };
 
         /** (Re-)initializes the core object of the view. If a core object
@@ -767,18 +767,18 @@ namespace bdn
             or null if the view does not have a parent or the parent does not
             have a ui provider.
             */
-        virtual P<IUiProvider> determineUiProvider(P<View> pParentView = nullptr)
+        virtual P<IUiProvider> determineUiProvider(P<View> parentView = nullptr)
         {
-            if (pParentView == nullptr)
-                pParentView = getParentView();
+            if (parentView == nullptr)
+                parentView = getParentView();
 
-            return (pParentView != nullptr) ? pParentView->getUiProvider() : nullptr;
+            return (parentView != nullptr) ? parentView->getUiProvider() : nullptr;
         }
 
       private:
         /** Should not be called directly. Use setParentView() instead.
          */
-        bool _canMoveToParentView(P<View> pParentView);
+        bool _canMoveToParentView(P<View> parentView);
 
         /** Should not be called directly. Use reinitCore() instead.
          */
@@ -788,13 +788,13 @@ namespace bdn
         void _initCore();
 
       protected:
-        P<IUiProvider> _pUiProvider;
+        P<IUiProvider> _uiProvider;
 
         void deleteThis() override;
 
       private:
         WeakP<View> _parentViewWeak = nullptr;
-        P<IViewCore> _pCore;
+        P<IViewCore> _core;
 
         mutable PreferredViewSizeManager _preferredSizeManager;
     };

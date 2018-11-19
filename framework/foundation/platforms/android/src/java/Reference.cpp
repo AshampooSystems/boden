@@ -21,11 +21,11 @@ namespace bdn
             if (localRef == NULL)
                 return Reference();
             else {
-                JNIEnv *pEnv = Env::get().getJniEnv();
+                JNIEnv *env = Env::get().getJniEnv();
 
-                jobject strongRef = pEnv->NewGlobalRef(localRef);
+                jobject strongRef = env->NewGlobalRef(localRef);
 
-                pEnv->DeleteLocalRef(localRef);
+                env->DeleteLocalRef(localRef);
 
                 return strongRef;
             }
@@ -41,7 +41,7 @@ namespace bdn
 
         bool Reference::isNull() const
         {
-            return (_pShared == nullptr || Env::get().getJniEnv()->IsSameObject(_pShared->getJObject(), NULL));
+            return (_shared == nullptr || Env::get().getJniEnv()->IsSameObject(_shared->getJObject(), NULL));
         }
 
         /** Returns true if this reference points to the same object as the
@@ -49,7 +49,7 @@ namespace bdn
         bool Reference::operator==(const Reference &o) const
         {
             // IsSameObject does not throw any java-side exceptions
-            return (_pShared == o._pShared || Env::get().getJniEnv()->IsSameObject(getJObject(), o.getJObject()));
+            return (_shared == o._shared || Env::get().getJniEnv()->IsSameObject(getJObject(), o.getJObject()));
         }
 
         Reference::Shared::~Shared() { Env::get().getJniEnv()->DeleteGlobalRef(_ref); }

@@ -20,7 +20,7 @@ namespace bdn
         class MockTextViewCore : public MockViewCore, BDN_IMPLEMENTS ITextViewCore
         {
           public:
-            MockTextViewCore(TextView *pView) : MockViewCore(pView) { _text = pView->text(); }
+            MockTextViewCore(TextView *view) : MockViewCore(view) { _text = view->text(); }
 
             /** Returns the current text content of the text view.*/
             String getText() const { return _text; }
@@ -43,12 +43,12 @@ namespace bdn
                 Size preferredSizeHint(Size::none());
                 Margin padding;
 
-                P<View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    if (!pView->padding().isNull())
-                        padding = uiMarginToDipMargin(pView->padding());
+                P<View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    if (!view->padding().isNull())
+                        padding = uiMarginToDipMargin(view->padding());
 
-                    preferredSizeHint = pView->preferredSizeHint();
+                    preferredSizeHint = view->preferredSizeHint();
                 }
 
                 double wrapWidth = preferredSizeHint.width;
@@ -66,10 +66,10 @@ namespace bdn
 
                 size += padding;
 
-                if (pView != nullptr) {
+                if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(pView->preferredSizeMinimum());
-                    size.applyMaximum(pView->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum());
+                    size.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return size;

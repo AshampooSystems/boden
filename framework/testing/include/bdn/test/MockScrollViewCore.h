@@ -21,12 +21,12 @@ namespace bdn
         class MockScrollViewCore : public MockViewCore, BDN_IMPLEMENTS IScrollViewCore
         {
           public:
-            MockScrollViewCore(ScrollView *pView) : MockViewCore(pView)
+            MockScrollViewCore(ScrollView *view) : MockViewCore(view)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _horizontalScrollingEnabled = pView->horizontalScrollingEnabled();
-                _verticalScrollingEnabled = pView->verticalScrollingEnabled();
+                _horizontalScrollingEnabled = view->horizontalScrollingEnabled();
+                _verticalScrollingEnabled = view->verticalScrollingEnabled();
             }
 
             void setHorizontalScrollingEnabled(const bool &enabled) override
@@ -52,10 +52,10 @@ namespace bdn
             void scrollClientRectToVisible(const Rect &targetRect) override
             {
                 // update the scroll position of the outer view
-                P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
 
-                if (pOuterView != nullptr) {
-                    Rect visibleRect = pOuterView->visibleClientRect();
+                if (outerView != nullptr) {
+                    Rect visibleRect = outerView->visibleClientRect();
 
                     double targetLeft = targetRect.x;
                     double targetRight = targetRect.x + targetRect.width;
@@ -197,7 +197,7 @@ namespace bdn
 
                     visibleRect = Rect(visibleLeft, visibleTop, visibleRight - visibleLeft, visibleBottom - visibleTop);
 
-                    pOuterView->_setVisibleClientRect(visibleRect);
+                    outerView->_setVisibleClientRect(visibleRect);
                 }
             }
 
@@ -206,17 +206,17 @@ namespace bdn
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
+                    P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
 
                     ScrollViewLayoutHelper helper(10, 10);
-                    helper.calcLayout(pOuterView, _bounds.getSize());
+                    helper.calcLayout(outerView, _bounds.getSize());
 
                     _clientSize = helper.getScrolledAreaSize();
 
-                    if (pOuterView != nullptr) {
-                        P<View> pContentView = pOuterView->getContentView();
-                        if (pContentView != nullptr)
-                            pContentView->adjustAndSetBounds(helper.getContentViewBounds());
+                    if (outerView != nullptr) {
+                        P<View> contentView = outerView->getContentView();
+                        if (contentView != nullptr)
+                            contentView->adjustAndSetBounds(helper.getContentViewBounds());
                     }
 
                     _horizontalScrollBarVisible = helper.getHorizontalScrollBarVisible();
@@ -225,7 +225,7 @@ namespace bdn
                     _viewPortSize = helper.getViewPortSize();
 
                     // update the size of the visible client rect
-                    Rect visibleClientRect = pOuterView->visibleClientRect();
+                    Rect visibleClientRect = outerView->visibleClientRect();
                     visibleClientRect.width = _viewPortSize.width;
                     visibleClientRect.height = _viewPortSize.height;
 
@@ -236,7 +236,7 @@ namespace bdn
                     if (visibleClientRect.y + visibleClientRect.height > _clientSize.height)
                         visibleClientRect.y = _clientSize.height - visibleClientRect.height;
 
-                    pOuterView->_setVisibleClientRect(visibleClientRect);
+                    outerView->_setVisibleClientRect(visibleClientRect);
                 }
             }
 
@@ -250,10 +250,10 @@ namespace bdn
 
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                P<ScrollView> pOuterView = cast<ScrollView>(getOuterViewIfStillAttached());
+                P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
 
                 ScrollViewLayoutHelper helper(10, 10);
-                Size prefSize = helper.calcPreferredSize(pOuterView, availableSpace);
+                Size prefSize = helper.calcPreferredSize(outerView, availableSpace);
 
                 return prefSize;
             }

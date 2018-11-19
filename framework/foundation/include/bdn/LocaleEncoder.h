@@ -38,7 +38,7 @@ namespace bdn
               ,
               _locale(loc)
         {
-            _pCodec = &std::use_facet<std::codecvt<wchar_t, char, mbstate_t>>(_locale);
+            _codec = &std::use_facet<std::codecvt<wchar_t, char, mbstate_t>>(_locale);
         }
 
 #ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
@@ -76,51 +76,51 @@ namespace bdn
             using pointer = char *;
             using reference = char;
 
-            Iterator() : _pCodec(nullptr), _pEncodeState(nullptr) {}
+            Iterator() : _codec(nullptr), _encodeState(nullptr) {}
 
           private:
             Iterator(const SOURCE_ITERATOR_TYPE &sourceBegin, const SOURCE_ITERATOR_TYPE &sourceEnd,
-                     const std::codecvt<wchar_t, char, mbstate_t> *pCodec)
-                : _wideNext(sourceBegin), _wideEnd(sourceEnd), _pCodec(pCodec), _pEncodeState(nullptr)
+                     const std::codecvt<wchar_t, char, mbstate_t> *codec)
+                : _wideNext(sourceBegin), _wideEnd(sourceEnd), _codec(codec), _encodeState(nullptr)
             {}
 
           public:
             Iterator(Iterator &&o)
-                : _wideNext(std::move(o._wideNext)), _wideEnd(std::move(o._wideEnd)), _pCodec(o._pCodec),
-                  _pEncodeState(o._pEncodeState)
+                : _wideNext(std::move(o._wideNext)), _wideEnd(std::move(o._wideEnd)), _codec(o._codec),
+                  _encodeState(o._encodeState)
             {
-                o._pEncodeState = nullptr;
+                o._encodeState = nullptr;
             }
 
-            Iterator(const Iterator &o) : _wideNext(o._wideNext), _wideEnd(o._wideEnd), _pCodec(o._pCodec)
+            Iterator(const Iterator &o) : _wideNext(o._wideNext), _wideEnd(o._wideEnd), _codec(o._codec)
             {
-                if (o._pEncodeState != nullptr)
-                    _pEncodeState = new EncodeState(*o._pEncodeState);
+                if (o._encodeState != nullptr)
+                    _encodeState = new EncodeState(*o._encodeState);
                 else
-                    _pEncodeState = nullptr;
+                    _encodeState = nullptr;
             }
 
             ~Iterator()
             {
-                if (_pEncodeState != nullptr)
-                    delete _pEncodeState;
+                if (_encodeState != nullptr)
+                    delete _encodeState;
             }
 
             Iterator &operator++()
             {
-                if (_pEncodeState == nullptr) {
+                if (_encodeState == nullptr) {
                     // this happens when we are at the start position and the
                     // first character has not been accessed. fill the output
                     // buffer first.
                     fillOutBuffer();
                 }
 
-                // _pEncodeState can still be null if the input data was empty.
+                // _encodeState can still be null if the input data was empty.
                 // In that case this call was invalid (++ past end of the data)
-                if (_pEncodeState != nullptr) {
-                    _pEncodeState->outPos++;
+                if (_encodeState != nullptr) {
+                    _encodeState->outPos++;
 
-                    if (_pEncodeState->outPos >= _pEncodeState->outAvailable) {
+                    if (_encodeState->outPos >= _encodeState->outAvailable) {
                         // end of output data reached. Fill the buffer again
                         fillOutBuffer();
 
@@ -143,20 +143,20 @@ namespace bdn
 
             char operator*() const
             {
-                if (_pEncodeState == nullptr)
+                if (_encodeState == nullptr)
                     fillOutBuffer();
 
-                return _pEncodeState->outBuffer[_pEncodeState->outPos];
+                return _encodeState->outBuffer[_encodeState->outPos];
             }
 
             bool operator==(const Iterator &o) const
             {
-                if (_pEncodeState == nullptr)
+                if (_encodeState == nullptr)
                     fillOutBuffer();
-                if (o._pEncodeState == nullptr)
+                if (o._encodeState == nullptr)
                     o.fillOutBuffer();
 
-                // _pEncodeState is null if this is an end iterator
+                // _encodeState is null if this is an end iterator
                 // and also if it is an iterator that has reached the end of
                 // the data.
 
@@ -167,9 +167,9 @@ namespace bdn
                     // wideNext points to the end of the sequence. The key is to
                     // compare the number of unreturned bytes in the output
                     // buffer.
-                    int left = (_pEncodeState == nullptr) ? 0 : (_pEncodeState->outAvailable - _pEncodeState->outPos);
+                    int left = (_encodeState == nullptr) ? 0 : (_encodeState->outAvailable - _encodeState->outPos);
                     int otherLeft =
-                        (o._pEncodeState == nullptr) ? 0 : (o._pEncodeState->outAvailable - o._pEncodeState->outPos);
+                        (o._encodeState == nullptr) ? 0 : (o._encodeState->outAvailable - o._encodeState->outPos);
 
                     return (left == otherLeft);
                 } else
@@ -180,33 +180,33 @@ namespace bdn
 
             Iterator &operator=(Iterator &&o)
             {
-                if (_pEncodeState != nullptr)
-                    delete _pEncodeState;
+                if (_encodeState != nullptr)
+                    delete _encodeState;
 
                 _wideNext = std::move(o._wideNext);
                 _wideEnd = std::move(o._wideEnd);
-                _pCodec = o._pCodec;
-                _pEncodeState = o._pEncodeState;
+                _codec = o._codec;
+                _encodeState = o._encodeState;
 
-                o._pCodec = nullptr;
-                o._pEncodeState = nullptr;
+                o._codec = nullptr;
+                o._encodeState = nullptr;
 
                 return *this;
             }
 
             Iterator &operator=(const Iterator &o)
             {
-                if (_pEncodeState != nullptr)
-                    delete _pEncodeState;
+                if (_encodeState != nullptr)
+                    delete _encodeState;
 
                 _wideNext = o._wideNext;
                 _wideEnd = o._wideEnd;
-                _pCodec = o._pCodec;
+                _codec = o._codec;
 
-                if (o._pEncodeState == nullptr)
-                    _pEncodeState = nullptr;
+                if (o._encodeState == nullptr)
+                    _encodeState = nullptr;
                 else
-                    _pEncodeState = new EncodeState(*o._pEncodeState);
+                    _encodeState = new EncodeState(*o._encodeState);
 
                 return *this;
             }
@@ -214,22 +214,22 @@ namespace bdn
           private:
             template <class Codec, class InType, class OutType>
             inline static int _callCodecOutAndCorrectBuggyImplementations(Codec &codec, mbstate_t &state,
-                                                                          const InType *pInBegin, const InType *pInEnd,
-                                                                          const InType *&pInNext, OutType *pOutBegin,
-                                                                          OutType *pOutEnd, OutType *&pOutNext)
+                                                                          const InType *inBegin, const InType *inEnd,
+                                                                          const InType *&inNext, OutType *outBegin,
+                                                                          OutType *outEnd, OutType *&outNext)
             {
-                int result = codec.out(state, pInBegin, pInEnd, pInNext, pOutBegin, pOutEnd, pOutNext);
+                int result = codec.out(state, inBegin, inEnd, inNext, outBegin, outEnd, outNext);
 
                 // some buggy codec implementations will return stop when they
                 // encounter a '\0' character and return ok. But they will not
                 // consume the zero character and will not write it to output.
                 if (result == std::codecvt_base::ok) {
-                    if (pInBegin != pInEnd && pOutBegin != pOutEnd && pInNext == pInBegin && pOutNext == pOutBegin) {
+                    if (inBegin != inEnd && outBegin != outEnd && inNext == inBegin && outNext == outBegin) {
                         // just copy the input character over. It is most likely
                         // a zero character.
-                        *pOutNext = (char)*pInNext;
-                        pOutNext++;
-                        pInNext++;
+                        *outNext = (char)*inNext;
+                        outNext++;
+                        inNext++;
                     }
                 } else if (result == std::codecvt_base::partial) {
                     // some codec implementations (incorrectly) return "partial"
@@ -243,15 +243,15 @@ namespace bdn
                     // and then, in the next iteration, we will get a partial
                     // result again, this time with zero input and output
                     // consumed. So we will diagnose the error then.
-                    if (pInNext == pInBegin && pOutNext == pOutBegin && pInBegin != pInEnd && pOutBegin != pOutEnd) {
+                    if (inNext == inBegin && outNext == outBegin && inBegin != inEnd && outBegin != outEnd) {
                         // this also sometimes happens when the character is a
                         // zero character '\0'
-                        if (pInNext != pInEnd && *pInNext == 0) {
+                        if (inNext != inEnd && *inNext == 0) {
                             // the error character is the zero char. Just output
                             // it and continue.
-                            *pOutNext = 0;
-                            pOutNext++;
-                            pInNext++;
+                            *outNext = 0;
+                            outNext++;
+                            inNext++;
                             result = std::codecvt_base::ok;
                         } else {
                             // this is an error case. Correct the result.
@@ -268,43 +268,43 @@ namespace bdn
             bool fillOutBuffer() const
             {
                 if (_wideNext != _wideEnd) {
-                    if (_pEncodeState == nullptr)
-                        _pEncodeState = new EncodeState();
+                    if (_encodeState == nullptr)
+                        _encodeState = new EncodeState();
 
-                    _pEncodeState->outAvailable = 0;
-                    _pEncodeState->outPos = 0;
+                    _encodeState->outAvailable = 0;
+                    _encodeState->outPos = 0;
 
                     wchar_t wideBuffer[WideCodec::getMaxEncodedElementsPerCharacter()];
 
                     do {
                         // Copy one character to the wide buffer
                         bool characterEnd = false;
-                        wchar_t *pInEnd = wideBuffer;
+                        wchar_t *inEnd = wideBuffer;
                         do {
-                            *pInEnd = *_wideNext;
+                            *inEnd = *_wideNext;
 
                             characterEnd = _wideNext.isEndOfCharacter();
 
-                            ++pInEnd;
+                            ++inEnd;
                             ++_wideNext;
                         } while (!characterEnd);
 
-                        const wchar_t *pInNext = wideBuffer;
-                        char *pOutNext = _pEncodeState->outBuffer;
-                        char *pOutEnd = _pEncodeState->outBuffer + outBufferSize;
+                        const wchar_t *inNext = wideBuffer;
+                        char *outNext = _encodeState->outBuffer;
+                        char *outEnd = _encodeState->outBuffer + outBufferSize;
 
                         int convResult = _callCodecOutAndCorrectBuggyImplementations(
-                            *_pCodec, _pEncodeState->state, wideBuffer, pInEnd, pInNext, _pEncodeState->outBuffer,
-                            pOutEnd, pOutNext);
+                            *_codec, _encodeState->state, wideBuffer, inEnd, inNext, _encodeState->outBuffer, outEnd,
+                            outNext);
 
                         if (convResult == std::codecvt_base::error) {
                             // a character cannot be converted. The standard
-                            // defines that pInNext SHOULD point to that
+                            // defines that inNext SHOULD point to that
                             // character. And all others up to that point should
                             // have been converted.
 
                             // But unfortunately with some standard libraries
-                            // (e.g. on Mac with libc++) pInNext and pOutNext
+                            // (e.g. on Mac with libc++) inNext and outNext
                             // always point to the first character, even if it
                             // is not the problem.
 
@@ -314,23 +314,23 @@ namespace bdn
                             // character is the problem.
 
                             // Insert a replacement character.
-                            const wchar_t *pReplacement = L"\xfffd";
-                            pInNext = pReplacement;
-                            pOutNext = _pEncodeState->outBuffer;
+                            const wchar_t *replacement = L"\xfffd";
+                            inNext = replacement;
+                            outNext = _encodeState->outBuffer;
 
                             convResult = _callCodecOutAndCorrectBuggyImplementations(
-                                *_pCodec, _pEncodeState->state, pReplacement, pReplacement + 1, pInNext,
-                                _pEncodeState->outBuffer, pOutEnd, pOutNext);
+                                *_codec, _encodeState->state, replacement, replacement + 1, inNext,
+                                _encodeState->outBuffer, outEnd, outNext);
                             if (convResult != std::codecvt_base::ok) {
                                 // character cannot be represented. Use question
                                 // mark instead.
-                                pReplacement = L"?";
-                                pInNext = pReplacement;
-                                pOutNext = _pEncodeState->outBuffer;
+                                replacement = L"?";
+                                inNext = replacement;
+                                outNext = _encodeState->outBuffer;
 
                                 convResult = _callCodecOutAndCorrectBuggyImplementations(
-                                    *_pCodec, _pEncodeState->state, pReplacement, pReplacement + 1, pInNext,
-                                    _pEncodeState->outBuffer, pOutEnd, pOutNext);
+                                    *_codec, _encodeState->state, replacement, replacement + 1, inNext,
+                                    _encodeState->outBuffer, outEnd, outNext);
 
                                 // ignore the final replacement conversion
                                 // result. If the ? character can also not be
@@ -342,17 +342,17 @@ namespace bdn
                         // an encoding error and none of the replacement
                         // characters could be encoded either. In that case we
                         // try again with the next character.
-                        _pEncodeState->outAvailable = (int)(pOutNext - _pEncodeState->outBuffer);
-                        if (_pEncodeState->outAvailable > 0)
+                        _encodeState->outAvailable = (int)(outNext - _encodeState->outBuffer);
+                        if (_encodeState->outAvailable > 0)
                             return true;
                     } while (_wideNext != _wideEnd);
 
                     // we reached the end. Delete the encode state
-                    // here - it makes the == operator simpler if _pEncodeState
+                    // here - it makes the == operator simpler if _encodeState
                     // is always null when we reached the end.
-                    if (_pEncodeState != nullptr) {
-                        delete _pEncodeState;
-                        _pEncodeState = nullptr;
+                    if (_encodeState != nullptr) {
+                        delete _encodeState;
+                        _encodeState = nullptr;
                     }
                 }
 
@@ -384,22 +384,22 @@ namespace bdn
 
             mutable WideCodec::EncodingIterator<SOURCE_ITERATOR_TYPE> _wideNext;
             WideCodec::EncodingIterator<SOURCE_ITERATOR_TYPE> _wideEnd;
-            const std::codecvt<wchar_t, char, mbstate_t> *_pCodec;
-            mutable EncodeState *_pEncodeState;
+            const std::codecvt<wchar_t, char, mbstate_t> *_codec;
+            mutable EncodeState *_encodeState;
 
             friend class LocaleEncoder;
         };
 
-        Iterator begin() const { return Iterator(_sourceBeginIt, _sourceEndIt, _pCodec); }
+        Iterator begin() const { return Iterator(_sourceBeginIt, _sourceEndIt, _codec); }
 
-        Iterator end() const { return Iterator(_sourceEndIt, _sourceEndIt, _pCodec); }
+        Iterator end() const { return Iterator(_sourceEndIt, _sourceEndIt, _codec); }
 
 #endif
 
       private:
         SOURCE_ITERATOR_TYPE _sourceBeginIt;
         SOURCE_ITERATOR_TYPE _sourceEndIt;
-        const std::codecvt<wchar_t, char, mbstate_t> *_pCodec;
+        const std::codecvt<wchar_t, char, mbstate_t> *_codec;
         std::locale _locale;
     };
 }

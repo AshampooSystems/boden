@@ -16,17 +16,17 @@ namespace bdn
           protected:
             P<View> createView() override
             {
-                P<Button> pButton = newObj<Button>();
-                pButton->setLabel("hello");
+                P<Button> button = newObj<Button>();
+                button->setLabel("hello");
 
-                return pButton;
+                return button;
             }
 
-            void setView(View *pView) override
+            void setView(View *view) override
             {
-                TestViewCore::setView(pView);
+                TestViewCore::setView(view);
 
-                _pButton = cast<Button>(pView);
+                _button = cast<Button>(view);
             }
 
             void runInitTests() override
@@ -35,7 +35,7 @@ namespace bdn
 
                 SECTION("label")
                 {
-                    _pButton->setLabel("helloworld");
+                    _button->setLabel("helloworld");
                     initCore();
                     verifyCoreLabel();
                 }
@@ -43,7 +43,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestButtonCore> pThis(this);
+                P<TestButtonCore> self(this);
 
                 TestViewCore::runPostInitTests();
 
@@ -51,23 +51,23 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _pButton->setLabel("helloworld");
+                        _button->setLabel("helloworld");
 
-                        CONTINUE_SECTION_WHEN_IDLE(pThis) { pThis->verifyCoreLabel(); };
+                        CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _pButton->label();
+                        String labelBefore = _button->label();
 
                         // the label should not be empty here
                         REQUIRE(labelBefore.getLength() > 3);
 
-                        Size prefSizeBefore = _pButton->calcPreferredSize();
+                        Size prefSizeBefore = _button->calcPreferredSize();
 
-                        _pButton->setLabel(labelBefore + labelBefore + labelBefore);
+                        _button->setLabel(labelBefore + labelBefore + labelBefore);
 
-                        Size prefSize = pThis->_pButton->calcPreferredSize();
+                        Size prefSize = self->_button->calcPreferredSize();
 
                         // width must increase with a bigger label
                         REQUIRE(prefSize.width > prefSizeBefore.width);
@@ -78,9 +78,9 @@ namespace bdn
 
                         // when we go back to the same label as before then the
                         // preferred size should also be the same again
-                        pThis->_pButton->setLabel(labelBefore);
+                        self->_button->setLabel(labelBefore);
 
-                        REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
+                        REQUIRE(self->_button->calcPreferredSize() == prefSizeBefore);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace bdn
                property.*/
             virtual void verifyCoreLabel() = 0;
 
-            P<Button> _pButton;
+            P<Button> _button;
         };
     }
 }

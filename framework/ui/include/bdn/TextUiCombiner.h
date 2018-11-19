@@ -17,8 +17,8 @@ namespace bdn
       public:
         TextUiCombiner()
         {
-            _pOutputSink = newObj<Sink>();
-            _pStatusOrProblemSink = newObj<Sink>();
+            _outputSink = newObj<Sink>();
+            _statusOrProblemSink = newObj<Sink>();
         }
 
         /** Initializes the test UI combiner with two text UI objects.
@@ -33,17 +33,17 @@ namespace bdn
            UIs. When zero sub UIs are specified then read operations are dummy
            operations that never provide any data.
          */
-        TextUiCombiner(ITextUi *pPrimary, ITextUi *pSecondary)
+        TextUiCombiner(ITextUi *primary, ITextUi *secondary)
         {
-            _uiList.add(pPrimary);
-            _uiList.add(pSecondary);
+            _uiList.add(primary);
+            _uiList.add(secondary);
 
-            _pOutputSink = newObj<Sink>();
-            _pStatusOrProblemSink = newObj<Sink>();
+            _outputSink = newObj<Sink>();
+            _statusOrProblemSink = newObj<Sink>();
 
-            for (auto &pUi : _uiList) {
-                _pOutputSink->addSubSink(pUi->output());
-                _pStatusOrProblemSink->addSubSink(pUi->statusOrProblem());
+            for (auto &ui : _uiList) {
+                _outputSink->addSubSink(ui->output());
+                _statusOrProblemSink->addSubSink(ui->statusOrProblem());
             }
         }
 
@@ -63,12 +63,12 @@ namespace bdn
          */
         template <class SEQUENCE_TYPE> TextUiCombiner(SEQUENCE_TYPE &&subUis) : _uiList(subUis.begin(), subUis.end())
         {
-            _pOutputSink = newObj<Sink>();
-            _pStatusOrProblemSink = newObj<Sink>();
+            _outputSink = newObj<Sink>();
+            _statusOrProblemSink = newObj<Sink>();
 
-            for (auto &pUi : subUis) {
-                _pOutputSink->addSubSink(pUi->output());
-                _pStatusOrProblemSink->addSubSink(pUi->statusOrProblem());
+            for (auto &ui : subUis) {
+                _outputSink->addSubSink(ui->output());
+                _statusOrProblemSink->addSubSink(ui->statusOrProblem());
             }
         }
 
@@ -80,15 +80,15 @@ namespace bdn
                 return _uiList.front()->readLine();
         }
 
-        P<ITextSink> statusOrProblem() override { return _pStatusOrProblemSink; }
+        P<ITextSink> statusOrProblem() override { return _statusOrProblemSink; }
 
-        P<ITextSink> output() override { return _pOutputSink; }
+        P<ITextSink> output() override { return _outputSink; }
 
       private:
         class DummyReadOp : public Base, BDN_IMPLEMENTS IAsyncOp<String>
         {
           public:
-            DummyReadOp() { _pDoneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp>>>(); }
+            DummyReadOp() { _doneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp>>>(); }
 
             String getResult() const
             {
@@ -103,16 +103,16 @@ namespace bdn
                 _aborted = true;
 
                 // XXX this creates a circular reference!!
-                _pDoneNotifier->postNotification(this);
+                _doneNotifier->postNotification(this);
             }
 
             bool isDone() const { return _aborted; }
 
-            IAsyncNotifier<P<IAsyncOp>> &onDone() const { return *_pDoneNotifier; }
+            IAsyncNotifier<P<IAsyncOp>> &onDone() const { return *_doneNotifier; }
 
           private:
             std::atomic<bool> _aborted{false};
-            P<OneShotStateNotifier<P<IAsyncOp>>> _pDoneNotifier;
+            P<OneShotStateNotifier<P<IAsyncOp>>> _doneNotifier;
         };
 
         class Sink : public Base, BDN_IMPLEMENTS ITextSink
@@ -120,18 +120,18 @@ namespace bdn
           public:
             Sink() {}
 
-            void addSubSink(ITextSink *pSink) { _sinkList.add(pSink); }
+            void addSubSink(ITextSink *sink) { _sinkList.add(sink); }
 
             void write(const String &s) override
             {
-                for (auto &pSink : _sinkList)
-                    pSink->write(s);
+                for (auto &sink : _sinkList)
+                    sink->write(s);
             }
 
             void writeLine(const String &s) override
             {
-                for (auto &pSink : _sinkList)
-                    pSink->writeLine(s);
+                for (auto &sink : _sinkList)
+                    sink->writeLine(s);
             }
 
           private:
@@ -139,8 +139,8 @@ namespace bdn
         };
 
         List<P<ITextUi>> _uiList;
-        P<Sink> _pOutputSink;
-        P<Sink> _pStatusOrProblemSink;
+        P<Sink> _outputSink;
+        P<Sink> _statusOrProblemSink;
     };
 }
 

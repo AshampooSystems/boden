@@ -109,7 +109,7 @@ namespace bdn
             scheduleNotifyCall();
         }
 
-        void unsubscribe(INotifierSubscription *pSub) override { unsubscribeById(cast<Subscription_>(pSub)->subId()); }
+        void unsubscribe(INotifierSubscription *sub) override { unsubscribeById(cast<Subscription_>(sub)->subId()); }
 
         void unsubscribeAll() override
         {
@@ -117,8 +117,8 @@ namespace bdn
 
             _subMap.clear();
 
-            if (_pNotificationState != nullptr)
-                _pNotificationState->nextItemIt = _subMap.end();
+            if (_notificationState != nullptr)
+                _notificationState->nextItemIt = _subMap.end();
         }
 
       private:
@@ -159,9 +159,9 @@ namespace bdn
 
                     // We handle this case here.
 
-                    if (_pNotificationState != nullptr && _pNotificationState->nextItemIt == _subMap.end()) {
+                    if (_notificationState != nullptr && _notificationState->nextItemIt == _subMap.end()) {
                         // set the next item to the newly added one.
-                        _pNotificationState->nextItemIt = _subMap.find(subId);
+                        _notificationState->nextItemIt = _subMap.find(subId);
                     }
                 } else {
                     // postNotification has been called once. So we are now in
@@ -208,8 +208,8 @@ namespace bdn
             if (it != _subMap.end()) {
                 // for us there can only be one notification running because we
                 // only do one notification at all.
-                if (_pNotificationState != nullptr && _pNotificationState->nextItemIt == it)
-                    _pNotificationState->nextItemIt++;
+                if (_notificationState != nullptr && _notificationState->nextItemIt == it)
+                    _notificationState->nextItemIt++;
 
                 _subMap.erase(it);
             }
@@ -235,7 +235,7 @@ namespace bdn
 
             state.nextItemIt = _subMap.begin();
 
-            _pNotificationState = &state;
+            _notificationState = &state;
 
             try {
                 while (state.nextItemIt != _subMap.end()) {
@@ -281,10 +281,10 @@ namespace bdn
                 // at this point items that are added to the map are not picked
                 // up anymore. So we set _notificationPending to false.
                 _notificationPending = false;
-                _pNotificationState = nullptr;
+                _notificationState = nullptr;
             }
             catch (...) {
-                _pNotificationState = nullptr;
+                _notificationState = nullptr;
 
                 _notificationPending = false;
 
@@ -319,7 +319,7 @@ namespace bdn
         std::map<int64_t, Sub_> _subMap;
         bool _postNotificationCalled = false;
         bool _notificationPending = false;
-        NotificationState *_pNotificationState = nullptr;
+        NotificationState *_notificationState = nullptr;
         std::function<void(const std::function<void(ArgTypes...)> &)> _subscribedFuncCaller;
     };
 }

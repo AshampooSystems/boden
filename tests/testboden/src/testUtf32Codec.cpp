@@ -126,11 +126,11 @@ namespace bdn
 
         int dataCount = std::extent<decltype(allData)>().value;
         for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
-            SubTestData *pCurrData = &allData[dataIndex];
+            SubTestData *currData = &allData[dataIndex];
 
-            SECTION(pCurrData->desc)
+            SECTION(currData->desc)
             {
-                std::u32string data(pCurrData->utf32);
+                std::u32string data(currData->utf32);
 
                 // Utf 32 decoding and encoding is very straight forward. Both
                 // decoder and encoder should simply pass each character through

@@ -17,46 +17,46 @@ namespace bdn
     namespace test
     {
 
-        P<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName, View *pView)
+        P<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName, View *view)
         {
             BDN_REQUIRE_IN_MAIN_THREAD();
 
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockContainerViewCore>(cast<ContainerView>(pView));
+                return newObj<MockContainerViewCore>(cast<ContainerView>(view));
             } else if (coreTypeName == Window::getWindowCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockWindowCore>(cast<Window>(pView));
+                return newObj<MockWindowCore>(cast<Window>(view));
             } else if (coreTypeName == Button::getButtonCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockButtonCore>(cast<Button>(pView));
+                return newObj<MockButtonCore>(cast<Button>(view));
             } else if (coreTypeName == Checkbox::getCheckboxCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockCheckboxCore>(cast<Checkbox>(pView));
+                return newObj<MockCheckboxCore>(cast<Checkbox>(view));
             } else if (coreTypeName == Toggle::getToggleCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockToggleCore>(cast<Toggle>(pView));
+                return newObj<MockToggleCore>(cast<Toggle>(view));
             } else if (coreTypeName == Switch::getSwitchCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockSwitchCore>(cast<Switch>(pView));
+                return newObj<MockSwitchCore>(cast<Switch>(view));
             } else if (coreTypeName == TextView::getTextViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockTextViewCore>(cast<TextView>(pView));
+                return newObj<MockTextViewCore>(cast<TextView>(view));
             } else if (coreTypeName == TextField::getTextFieldCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockTextFieldCore>(cast<TextField>(pView));
+                return newObj<MockTextFieldCore>(cast<TextField>(view));
             } else if (coreTypeName == ScrollView::getScrollViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockScrollViewCore>(cast<ScrollView>(pView));
+                return newObj<MockScrollViewCore>(cast<ScrollView>(view));
             } else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
         }

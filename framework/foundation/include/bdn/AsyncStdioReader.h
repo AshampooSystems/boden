@@ -15,7 +15,7 @@ namespace bdn
         /** Constructor. The implementation does NOT take ownership of the
            specified streams, i.e. it will not delete it. So it is ok to use
            std::cin here.*/
-        AsyncStdioReader(std::basic_istream<CharType> *pStream) : _pStream(pStream) {}
+        AsyncStdioReader(std::basic_istream<CharType> *stream) : _stream(stream) {}
 
         /** Asynchronously reads a line of text from the stream.
             The function does not wait until the line is read - it returns
@@ -26,7 +26,7 @@ namespace bdn
             */
         P<IAsyncOp<String>> readLine()
         {
-            P<ReadLineOp> pOp = newObj<ReadLineOp>(_pStream);
+            P<ReadLineOp> op = newObj<ReadLineOp>(_stream);
 
 #if BDN_HAVE_THREADS
 
@@ -36,10 +36,10 @@ namespace bdn
                 // we need a thread with a queue that we can have execute our
                 // read jobs one by one. We can use a thread pool with a single
                 // thread for that.
-                if (_pOpExecutor == nullptr)
-                    _pOpExecutor = newObj<ThreadPool>(1, 1);
+                if (_opExecutor == nullptr)
+                    _opExecutor = newObj<ThreadPool>(1, 1);
 
-                _pOpExecutor->addJob(pOp);
+                _opExecutor->addJob(op);
             }
 #else
 
@@ -53,37 +53,37 @@ namespace bdn
             // manually. So we have to trust here that we are only used with
             // streams that have a fixed data set available to them and that
             // will set the eof flag when that data is exceeded.
-            pOp->run();
+            op->run();
 #endif
 
-            return pOp;
+            return op;
         }
 
       private:
         class ReadLineOp : public AsyncOpRunnable<String>
         {
           public:
-            ReadLineOp(std::basic_istream<CharType> *pStream) : _pStream(pStream) {}
+            ReadLineOp(std::basic_istream<CharType> *stream) : _stream(stream) {}
 
           protected:
             String doOp() override
             {
                 std::basic_string<CharType> l;
 
-                std::getline(*_pStream, l);
+                std::getline(*_stream, l);
 
-                return String::fromLocaleEncoding(l, _pStream->getloc());
+                return String::fromLocaleEncoding(l, _stream->getloc());
             }
 
           private:
-            std::basic_istream<CharType> *_pStream;
+            std::basic_istream<CharType> *_stream;
         };
 
         Mutex _mutex;
-        std::basic_istream<CharType> *_pStream;
+        std::basic_istream<CharType> *_stream;
 
 #if BDN_HAVE_THREADS
-        P<ThreadPool> _pOpExecutor;
+        P<ThreadPool> _opExecutor;
 #endif
     };
 }

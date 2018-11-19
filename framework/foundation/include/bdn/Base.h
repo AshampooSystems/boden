@@ -161,9 +161,9 @@ namespace bdn
         {
             _refCount += _deleteThisRefCountDelta + 1;
 
-            P<IBase> pRef;
-            pRef.attachPtr(this);
-            return pRef;
+            P<IBase> ref;
+            ref.attachPtr(this);
+            return ref;
         }
 
       private:

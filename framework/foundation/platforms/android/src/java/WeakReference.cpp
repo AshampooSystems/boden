@@ -14,10 +14,10 @@ namespace bdn
 
         Reference WeakReference::toStrong() const
         {
-            if (_pShared == nullptr)
+            if (_shared == nullptr)
                 return Reference();
             else
-                return Reference::wrapStrongGlobal(Env::get().getJniEnv()->NewGlobalRef(_pShared->getJObject()));
+                return Reference::wrapStrongGlobal(Env::get().getJniEnv()->NewGlobalRef(_shared->getJObject()));
         }
 
         WeakReference::Shared::~Shared() { Env::get().getJniEnv()->DeleteWeakGlobalRef(_ref); }

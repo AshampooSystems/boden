@@ -22,8 +22,8 @@ namespace bdn
             return;
         }
 
-        P<IScrollViewCore> pCore = cast<IScrollViewCore>(getViewCore());
-        if (pCore != nullptr)
-            pCore->scrollClientRectToVisible(area);
+        P<IScrollViewCore> core = cast<IScrollViewCore>(getViewCore());
+        if (core != nullptr)
+            core->scrollClientRectToVisible(area);
     }
 }

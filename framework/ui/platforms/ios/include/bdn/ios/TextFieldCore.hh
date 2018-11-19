@@ -15,7 +15,7 @@ namespace bdn
         class TextFieldCore : public ViewCore, virtual public ITextFieldCore
         {
           private:
-            static UITextField *_createUITextField(TextField *pOuterTextField)
+            static UITextField *_createUITextField(TextField *outerTextField)
             {
                 UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
                 textField.backgroundColor = [UIColor clearColor];
@@ -34,7 +34,7 @@ namespace bdn
             }
 
           public:
-            TextFieldCore(TextField *pOuterTextField);
+            TextFieldCore(TextField *outerTextField);
             ~TextFieldCore();
 
             void setText(const String &text) override

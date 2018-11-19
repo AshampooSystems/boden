@@ -12,28 +12,28 @@ template <class CharType> static void testStdioUiProvider()
     std::basic_ostringstream<CharType> outStream;
     std::basic_ostringstream<CharType> errStream;
 
-    P<StdioUiProvider<CharType>> pProvider = newObj<StdioUiProvider<CharType>>(&inStream, &outStream, &errStream);
+    P<StdioUiProvider<CharType>> provider = newObj<StdioUiProvider<CharType>>(&inStream, &outStream, &errStream);
 
     SECTION("getName")
-    REQUIRE(pProvider->getName() == "stdio");
+    REQUIRE(provider->getName() == "stdio");
 
     SECTION("createViewCore")
     {
         // we expect an exception, since the implementation does not support any
         // View types.
-        P<Button> pButton = newObj<Button>();
+        P<Button> button = newObj<Button>();
 
-        REQUIRE_THROWS_AS(pProvider->createViewCore(Button::getButtonCoreTypeName(), pButton),
+        REQUIRE_THROWS_AS(provider->createViewCore(Button::getButtonCoreTypeName(), button),
                           ViewCoreTypeNotSupportedError);
     }
 
     SECTION("getTextUi")
     {
-        P<ITextUi> pUi = pProvider->getTextUi();
+        P<ITextUi> ui = provider->getTextUi();
 
         // the StdioTextUi is tested separately. So we only verify here that
         // we get a valid object
-        REQUIRE(pUi != nullptr);
+        REQUIRE(ui != nullptr);
     }
 }
 

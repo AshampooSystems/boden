@@ -66,7 +66,7 @@ namespace bdn
            should use a different unique prefix. Java style prefixes based on
            the project's domain name (e.g. "com.mydomain.MyType") are
            recommended in this case.
-            @param pView a pointer to the view object. The core object should
+            @param view a pointer to the view object. The core object should
            pull all needed data for initialization from this view object (e.g.
            properties like label, visible and the like).
 
@@ -81,7 +81,7 @@ namespace bdn
            necessary. So you should not store the view pointer in a smart
            pointer (like P<View>). Use weak pointers (like WeakP<View>) instead.
                 */
-        virtual P<IViewCore> createViewCore(const String &coreTypeName, View *pView) = 0;
+        virtual P<IViewCore> createViewCore(const String &coreTypeName, View *view) = 0;
 
         /** Returns an object that can be used to interact with the user via a
            text interface.

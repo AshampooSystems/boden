@@ -8,23 +8,23 @@ using namespace bdn;
 
 template <typename STREAM_TYPE> static String _getStreamContents(STREAM_TYPE &stream)
 {
-    std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *pBuffer =
+    std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *buffer =
         dynamic_cast<std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *>(stream.rdbuf());
 
-    return pBuffer->str().c_str();
+    return buffer->str().c_str();
 }
 
 template <typename STREAM_TYPE>
-static void _verifyContents(STREAM_TYPE &stream, const String &expected, const String *pAlternativeExpected = nullptr,
-                            const String *pAlternativeExpected2 = nullptr)
+static void _verifyContents(STREAM_TYPE &stream, const String &expected, const String *alternativeExpected = nullptr,
+                            const String *alternativeExpected2 = nullptr)
 {
     String actual = _getStreamContents(stream);
 
     std::list<String> expectedList{expected};
-    if (pAlternativeExpected != nullptr)
-        expectedList.push_back(*pAlternativeExpected);
-    if (pAlternativeExpected2 != nullptr)
-        expectedList.push_back(*pAlternativeExpected2);
+    if (alternativeExpected != nullptr)
+        expectedList.push_back(*alternativeExpected);
+    if (alternativeExpected2 != nullptr)
+        expectedList.push_back(*alternativeExpected2);
 
     REQUIRE_IN(actual, expectedList);
 }
@@ -392,10 +392,10 @@ template <typename STREAM_TYPE> static void _testTextOutStream()
     {
         stream << (void *)0x1234;
 
-        std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *pBuffer =
+        std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *buffer =
             dynamic_cast<std::basic_stringbuf<char32_t, typename STREAM_TYPE::traits_type> *>(stream.rdbuf());
 
-        String actual = pBuffer->str().c_str();
+        String actual = buffer->str().c_str();
 
         // the format in which pointers are printed depends on the
         // implementation. However, all known implementations print the address

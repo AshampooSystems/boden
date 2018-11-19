@@ -18,11 +18,11 @@ namespace bdn
 
         Example:
         \code
-        const char* pEnd = getStringEndPtr("hello");
-        // pEnd points to the element after the 'o'
+        const char* end = getStringEndPtr("hello");
+        // end points to the element after the 'o'
 
-        const char* pEnd = getStringEndPtr("hello", 4);
-        // pEnd points to the 'o'
+        const char* end = getStringEndPtr("hello", 4);
+        // end points to the 'o'
         \endcode
 
         @param p string pointer
@@ -280,9 +280,9 @@ namespace bdn
         /** Initializes the object with the data between two data pointers whose
            data is encoded with the same codec as the StringData object.
         */
-        StringData(const Codec &codec, typename Codec::EncodedElement *pBegin, typename Codec::EncodedElement *pEnd)
+        StringData(const Codec &codec, typename Codec::EncodedElement *begin, typename Codec::EncodedElement *end)
         {
-            _encodedString.assign(pBegin, (pEnd - pBegin));
+            _encodedString.assign(begin, (end - begin));
         }
 
         /** Initializes the object with the data between two iterators whose

@@ -13,21 +13,21 @@ namespace bdn
         class ContainerViewCore : public ViewCore
         {
           private:
-            static UIView *_createContainer(ContainerView *pOuter)
+            static UIView *_createContainer(ContainerView *outer)
             {
                 return [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
             }
 
           public:
-            ContainerViewCore(ContainerView *pOuter) : ViewCore(pOuter, _createContainer(pOuter)) {}
+            ContainerViewCore(ContainerView *outer) : ViewCore(outer, _createContainer(outer)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr)
-                    return pOuterView->calcContainerPreferredSize(availableSpace);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr)
+                    return outerView->calcContainerPreferredSize(availableSpace);
                 else
                     return Size(0, 0);
             }
@@ -36,10 +36,10 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> pOuterView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (pOuterView != nullptr) {
-                    P<ViewLayout> pLayout = pOuterView->calcContainerLayout(pOuterView->size());
-                    pLayout->applyTo(pOuterView);
+                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                if (outerView != nullptr) {
+                    P<ViewLayout> layout = outerView->calcContainerLayout(outerView->size());
+                    layout->applyTo(outerView);
                 }
             }
 

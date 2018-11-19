@@ -17,12 +17,12 @@ TEST_CASE("newObj")
         class InstantDeleteHelper : public Base
         {
           public:
-            InstantDeleteHelper(bool *pDeleted) { _pDeleted = pDeleted; }
+            InstantDeleteHelper(bool *deleted) { _deleted = deleted; }
 
-            ~InstantDeleteHelper() { *_pDeleted = true; }
+            ~InstantDeleteHelper() { *_deleted = true; }
 
           protected:
-            bool *_pDeleted;
+            bool *_deleted;
         };
 
         bool deleted = false;

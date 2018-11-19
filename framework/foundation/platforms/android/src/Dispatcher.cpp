@@ -7,19 +7,19 @@
 
 #include <jni.h>
 
-extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *pEnv,
+extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *env,
                                                                                               jclass rawClass,
                                                                                               jobject rawTimerObject)
 {
     jboolean returnValue = JNI_TRUE;
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::Dispatcher::Timer_ *pTimer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
+            bdn::android::Dispatcher::Timer_ *timer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
                 bdn::java::JNativeStrongPointer::unwrapJObject(rawTimerObject));
 
-            returnValue = pTimer->onEvent() ? JNI_TRUE : JNI_FALSE;
+            returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;
         },
-        true, pEnv);
+        true, env);
 
     return returnValue;
 }
@@ -53,9 +53,9 @@ namespace bdn
 
         void Dispatcher::createTimer(double intervalSeconds, std::function<bool()> func)
         {
-            P<Timer_> pTimer = newObj<Timer_>(func);
+            P<Timer_> timer = newObj<Timer_>(func);
 
-            _dispatcher.createTimer(intervalSeconds, pTimer);
+            _dispatcher.createTimer(intervalSeconds, timer);
         }
 
         bool Dispatcher::Timer_::onEvent()

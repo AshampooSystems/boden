@@ -14,11 +14,11 @@ namespace bdn
         Size childSize;
     };
 
-    AdjustedChildBoundsResult calculateAdjustedChildBounds(bool h, const P<View> pChildView,
-                                                           VirtualPoint &childPosition, VirtualMargin childMargin,
+    AdjustedChildBoundsResult calculateAdjustedChildBounds(bool h, const P<View> childView, VirtualPoint &childPosition,
+                                                           VirtualMargin childMargin,
                                                            const VirtualSize &clippedAvailableSpace,
                                                            LinearLayoutView::LayoutPhase layoutPhase,
-                                                           Rect *pUnadjustedBounds = nullptr)
+                                                           Rect *unadjustedBounds = nullptr)
     {
         AdjustedChildBoundsResult result;
 
@@ -29,14 +29,14 @@ namespace bdn
                 std::max(0., childAvailableSpace.secondary - (childMargin.secondaryNear + childMargin.secondaryFar));
         }
 
-        VirtualSize childSize(h, pChildView->calcPreferredSize(childAvailableSpace.toSize()));
+        VirtualSize childSize(h, childView->calcPreferredSize(childAvailableSpace.toSize()));
 
         // Child can be bigger than available space, alignment can be ignored
         // when in the measure phase
         if (layoutPhase == LinearLayoutView::LayoutPhase::Layout) {
             double alignFactor;
 
-            VirtualAlignment alignment = secondaryToVirtualAlignment(h, pChildView);
+            VirtualAlignment alignment = secondaryToVirtualAlignment(h, childView);
 
             switch (alignment) {
             case VirtualAlignment::far:
@@ -65,7 +65,7 @@ namespace bdn
         }
 
         result.unadjustedBounds = Rect{childPosition.toPoint(), childSize.toSize()};
-        result.bounds = pChildView->adjustBounds(result.unadjustedBounds, RoundType::up, RoundType::up);
+        result.bounds = childView->adjustBounds(result.unadjustedBounds, RoundType::up, RoundType::up);
 
         result.childSize = childSize.toSize();
 
@@ -96,14 +96,14 @@ namespace bdn
         List<P<View>> childViews;
         getChildViews(childViews);
 
-        for (const auto &pChildView : childViews) {
-            const VirtualMargin childMargin(_horizontal, pChildView->uiMarginToDipMargin(pChildView->margin()));
+        for (const auto &childView : childViews) {
+            const VirtualMargin childMargin(_horizontal, childView->uiMarginToDipMargin(childView->margin()));
 
             childPosition.primary += childMargin.primaryNear;
             childPosition.secondary = padding.secondaryNear + childMargin.secondaryNear;
 
             AdjustedChildBoundsResult adj = calculateAdjustedChildBounds(
-                _horizontal, pChildView, childPosition, childMargin, clippedAvailableSpace, LayoutPhase::Measure);
+                _horizontal, childView, childPosition, childMargin, clippedAvailableSpace, LayoutPhase::Measure);
 
             // Adjust bounds to clipped available space
             VirtualRect adjustedChildBounds(_horizontal, adj.bounds);
@@ -142,7 +142,7 @@ namespace bdn
             throw InvalidArgumentError("The containerSize argument must represent a finite size "
                                        "during the layout phase.");
 
-        auto pLayout = newObj<ViewLayout>();
+        auto layout = newObj<ViewLayout>();
 
         VirtualSize virtualContainerSize(_horizontal, containerSize);
 
@@ -178,9 +178,9 @@ namespace bdn
             VirtualRect unadjustedChildBounds(_horizontal, adj.unadjustedBounds);
             VirtualSize childSize(_horizontal, adj.childSize);
 
-            auto pChildLayoutData = newObj<ViewLayout::ViewLayoutData>();
-            pChildLayoutData->setBounds(adjustedChildBounds.toRect());
-            pLayout->setViewLayoutData(childView, pChildLayoutData);
+            auto childLayoutData = newObj<ViewLayout::ViewLayoutData>();
+            childLayoutData->setBounds(adjustedChildBounds.toRect());
+            layout->setViewLayoutData(childView, childLayoutData);
 
             // Round down LinearLayoutView's height if child bounds exceed
             // padded available space due to rounding up in prior call to
@@ -233,7 +233,7 @@ namespace bdn
                 double push = 0.0;
 
                 for (const auto &childView : childViews) {
-                    P<ViewLayout::ViewLayoutData> childLayout = pLayout->getViewLayoutData(childView);
+                    P<ViewLayout::ViewLayoutData> childLayout = layout->getViewLayoutData(childView);
                     Rect childBounds;
                     childLayout->getBounds(childBounds);
 
@@ -254,7 +254,7 @@ namespace bdn
             }
         }
 
-        return pLayout;
+        return layout;
     }
 
     Margin LinearLayoutView::calculatePadding() const

@@ -11,27 +11,27 @@ namespace bdn
     template <class ResultType> class AsyncOpResultHelper_ : public Base
     {
       public:
-        static void doOpAndInitResult(ResultType *&pResult, std::function<ResultType()> opFunc)
+        static void doOpAndInitResult(ResultType *&result, std::function<ResultType()> opFunc)
         {
-            pResult = new ResultType(opFunc());
+            result = new ResultType(opFunc());
         }
 
-        static ResultType getResultValue(ResultType *pResult) { return *pResult; }
+        static ResultType getResultValue(ResultType *result) { return *result; }
 
-        static void deleteResult(ResultType *pResult) { delete pResult; }
+        static void deleteResult(ResultType *result) { delete result; }
     };
 
     template <> class AsyncOpResultHelper_<void> : public Base
     {
       public:
-        static void doOpAndInitResult(void *&pResult, std::function<void()> opFunc) { opFunc(); }
+        static void doOpAndInitResult(void *&result, std::function<void()> opFunc) { opFunc(); }
 
-        static void getResultValue(void *pResult)
+        static void getResultValue(void *result)
         {
             // do nothing.
         }
 
-        static void deleteResult(void *pResult)
+        static void deleteResult(void *result)
         {
             // do nothing
         }
@@ -69,12 +69,12 @@ namespace bdn
                             BDN_IMPLEMENTS IThreadRunnable
     {
       public:
-        AsyncOpRunnable() { _pDoneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp<ResultType>>>>(); }
+        AsyncOpRunnable() { _doneNotifier = newObj<OneShotStateNotifier<P<IAsyncOp<ResultType>>>>(); }
 
         ~AsyncOpRunnable()
         {
-            if (_pResult != nullptr)
-                AsyncOpResultHelper_<ResultType>::deleteResult(_pResult);
+            if (_result != nullptr)
+                AsyncOpResultHelper_<ResultType>::deleteResult(_result);
         }
 
         ResultType getResult() const override
@@ -85,7 +85,7 @@ namespace bdn
             if (_error)
                 std::rethrow_exception(_error);
 
-            return AsyncOpResultHelper_<ResultType>::getResultValue(_pResult);
+            return AsyncOpResultHelper_<ResultType>::getResultValue(_result);
         }
 
         void signalStop() override
@@ -138,8 +138,7 @@ namespace bdn
             }
 
             try {
-                AsyncOpResultHelper_<ResultType>::doOpAndInitResult(_pResult,
-                                                                    plainMethod(this, &AsyncOpRunnable::doOp));
+                AsyncOpResultHelper_<ResultType>::doOpAndInitResult(_result, plainMethod(this, &AsyncOpRunnable::doOp));
             }
             catch (...) {
                 _error = std::current_exception();
@@ -148,7 +147,7 @@ namespace bdn
             setDone();
         }
 
-        IAsyncNotifier<P<IAsyncOp<ResultType>>> &onDone() const override { return *_pDoneNotifier; }
+        IAsyncNotifier<P<IAsyncOp<ResultType>>> &onDone() const override { return *_doneNotifier; }
 
       protected:
         /** Override this in derived classes. This should perform the actual
@@ -174,7 +173,7 @@ namespace bdn
                 _done = true;
             }
 
-            _pDoneNotifier->postNotification(this);
+            _doneNotifier->postNotification(this);
         }
 
         class DummySubscription : public Base, BDN_IMPLEMENTS INotifierSubscription
@@ -187,10 +186,10 @@ namespace bdn
         bool _abortedBeforeStart = false;
         bool _started = false;
         bool _done = false;
-        P<OneShotStateNotifier<P<IAsyncOp<ResultType>>>> _pDoneNotifier;
+        P<OneShotStateNotifier<P<IAsyncOp<ResultType>>>> _doneNotifier;
 
         std::exception_ptr _error;
-        ResultType *_pResult = nullptr;
+        ResultType *_result = nullptr;
     };
 }
 

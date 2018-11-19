@@ -32,42 +32,42 @@ namespace bdn
         class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
         {
           public:
-            ViewCore(View *pOuterView, JView *pJView)
+            ViewCore(View *outerView, JView *jView)
             {
-                _pJView = pJView;
-                _outerViewWeak = pOuterView;
+                _jView = jView;
+                _outerViewWeak = outerView;
 
                 _uiScaleFactor = 1; // will be updated in _addToParent
 
                 // set a weak pointer to ourselves as the tag object of the java
                 // view
-                _pJView->setTag(bdn::java::NativeWeakPointer(this));
+                _jView->setTag(bdn::java::NativeWeakPointer(this));
 
-                setVisible(pOuterView->visible());
+                setVisible(outerView->visible());
 
-                _addToParent(pOuterView->getParentView());
+                _addToParent(outerView->getParentView());
 
-                _defaultPixelPadding = Margin(_pJView->getPaddingTop(), _pJView->getPaddingRight(),
-                                              _pJView->getPaddingBottom(), _pJView->getPaddingLeft());
+                _defaultPixelPadding = Margin(_jView->getPaddingTop(), _jView->getPaddingRight(),
+                                              _jView->getPaddingBottom(), _jView->getPaddingLeft());
 
-                setPadding(pOuterView->padding());
+                setPadding(outerView->padding());
 
                 // initialize the onClick listener. It will call the view core's
                 // virtual clicked() method.
                 bdn::android::JNativeViewCoreClickListener listener;
-                _pJView->setOnClickListener(listener);
+                _jView->setOnClickListener(listener);
             }
 
             ~ViewCore()
             {
-                if (_pJView != nullptr) {
+                if (_jView != nullptr) {
                     // remove the the reference to ourselves from the java-side
                     // view object. Note that we hold a strong reference to the
                     // java-side object, So we know that the reference to the
                     // java-side object is still valid.
-                    _pJView->setTag(bdn::java::JObject(bdn::java::Reference()));
+                    _jView->setTag(bdn::java::JObject(bdn::java::Reference()));
 
-                    _pJView = nullptr;
+                    _jView = nullptr;
                 }
             }
 
@@ -90,11 +90,11 @@ namespace bdn
             /** Returns a pointer to the accessor object for the java-side view
              * object.
              */
-            JView &getJView() { return *_pJView; }
+            JView &getJView() { return *_jView; }
 
             void setVisible(const bool &visible) override
             {
-                _pJView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
+                _jView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
             }
 
             void setPadding(const Nullable<UiMargin> &padding) override
@@ -109,7 +109,7 @@ namespace bdn
                                           dipPadding.bottom * _uiScaleFactor, dipPadding.left * _uiScaleFactor);
                 }
 
-                _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
+                _jView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
             }
 
             void setMargin(const UiMargin &margin) override
@@ -124,7 +124,7 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override;
 
-            void childSizingInfoInvalidated(View *pChild) override;
+            void childSizingInfoInvalidated(View *child) override;
 
             void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
@@ -154,13 +154,13 @@ namespace bdn
             /** Returns the view core associated with this view's parent view.
              *  Returns null if there is no parent view or if the parent does
              * not have a view core associated with it.*/
-            ViewCore *getParentViewCore() { return getViewCoreFromJavaViewRef(_pJView->getParent().getRef_()); }
+            ViewCore *getParentViewCore() { return getViewCoreFromJavaViewRef(_jView->getParent().getRef_()); }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
                 Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
-                bdn::java::JObject parent(_pJView->getParent());
+                bdn::java::JObject parent(_jView->getParent());
 
                 if (parent.isNull_()) {
                     // we do not have a parent => we cannot set any position.
@@ -220,10 +220,10 @@ namespace bdn
                 } else
                     heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
 
-                _pJView->measure(widthSpec, heightSpec);
+                _jView->measure(widthSpec, heightSpec);
 
-                int width = _pJView->getMeasuredWidth();
-                int height = _pJView->getMeasuredHeight();
+                int width = _jView->getMeasuredWidth();
+                int height = _jView->getMeasuredHeight();
 
                 // logInfo("Preferred size of "+std::to_string((int64_t)this)+"
                 // "+String(typeid(*this).name())+" :
@@ -235,10 +235,10 @@ namespace bdn
                 // android uses physical pixels. So we must convert to DIPs.
                 Size prefSize(width / _uiScaleFactor, height / _uiScaleFactor);
 
-                P<const View> pView = getOuterViewIfStillAttached();
-                if (pView != nullptr) {
-                    prefSize.applyMinimum(pView->preferredSizeMinimum());
-                    prefSize.applyMaximum(pView->preferredSizeMaximum());
+                P<const View> view = getOuterViewIfStillAttached();
+                if (view != nullptr) {
+                    prefSize.applyMinimum(view->preferredSizeMinimum());
+                    prefSize.applyMaximum(view->preferredSizeMaximum());
                 }
 
                 return prefSize;
@@ -253,11 +253,11 @@ namespace bdn
 
             void moveToParentView(View &newParentView) override
             {
-                P<View> pOuter = getOuterViewIfStillAttached();
-                if (pOuter != nullptr) {
-                    P<View> pParent = pOuter->getParentView();
+                P<View> outer = getOuterViewIfStillAttached();
+                if (outer != nullptr) {
+                    P<View> parent = outer->getParentView();
 
-                    if (&newParentView != pParent.getPtr()) {
+                    if (&newParentView != parent.getPtr()) {
                         // Parent has changed. Remove the view from its current
                         // super view.
                         dispose();
@@ -297,16 +297,16 @@ namespace bdn
                 if (scaleFactor != _uiScaleFactor) {
                     _uiScaleFactor = scaleFactor;
 
-                    P<View> pView = getOuterViewIfStillAttached();
+                    P<View> view = getOuterViewIfStillAttached();
                     List<P<View>> childList;
-                    if (pView != nullptr)
-                        pView->getChildViews(childList);
+                    if (view != nullptr)
+                        view->getChildViews(childList);
 
-                    for (P<View> &pChild : childList) {
-                        P<ViewCore> pChildCore = cast<ViewCore>(pChild->getViewCore());
+                    for (P<View> &child : childList) {
+                        P<ViewCore> childCore = cast<ViewCore>(child->getViewCore());
 
-                        if (pChildCore != nullptr)
-                            pChildCore->setUiScaleFactor(scaleFactor);
+                        if (childCore != nullptr)
+                            childCore->setUiScaleFactor(scaleFactor);
                     }
                 }
             }
@@ -350,46 +350,46 @@ namespace bdn
             double getSemSizeDips() const;
 
           private:
-            void _addToParent(View *pParent)
+            void _addToParent(View *parent)
             {
-                if (pParent != nullptr) {
-                    P<IParentViewCore> pParentCore = cast<IParentViewCore>(pParent->getViewCore());
-                    if (pParentCore == nullptr)
+                if (parent != nullptr) {
+                    P<IParentViewCore> parentCore = cast<IParentViewCore>(parent->getViewCore());
+                    if (parentCore == nullptr)
                         throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
                                                "either does not have a core, or its core does not "
                                                "support child views.");
 
-                    pParentCore->addChildJView(*_pJView);
+                    parentCore->addChildJView(*_jView);
 
-                    setUiScaleFactor(pParentCore->getUiScaleFactor());
+                    setUiScaleFactor(parentCore->getUiScaleFactor());
                 }
             }
 
             void _removeFromParent()
             {
-                P<View> pView = getOuterViewIfStillAttached();
-                P<View> pParent;
-                if (pView != nullptr)
-                    pParent = pView->getParentView();
+                P<View> view = getOuterViewIfStillAttached();
+                P<View> parent;
+                if (view != nullptr)
+                    parent = view->getParentView();
 
-                if (pParent == nullptr)
+                if (parent == nullptr)
                     return; // no parent – nothing to do
 
-                P<IParentViewCore> pParentCore = cast<IParentViewCore>(pParent->getViewCore());
-                if (pParentCore != nullptr) {
+                P<IParentViewCore> parentCore = cast<IParentViewCore>(parent->getViewCore());
+                if (parentCore != nullptr) {
                     // XXX: Rather unfortunate – removeAllChildViews() is BFS
                     // and so parent core is no longer set when removing
                     // multiple levels of views. Either change
                     // removeAllChildViews()/_deinitCore() to DFS or change the
                     // removal mechanism to use the platform parent.
-                    pParentCore->removeChildJView(*_pJView);
+                    parentCore->removeChildJView(*_jView);
                 }
             }
 
             WeakP<View> _outerViewWeak;
 
           private:
-            P<JView> _pJView;
+            P<JView> _jView;
             double _uiScaleFactor;
 
             Margin _defaultPixelPadding;
