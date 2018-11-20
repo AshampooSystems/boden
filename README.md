@@ -298,5 +298,10 @@ Make sure that the `qemu-kvm` package is installed and your user is a member of 
 
 Double-check whether the right Java version is installed. Android Studio requires the `openjdk-8-jdk` package on Ubuntu Linux or [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) on Windows. Other Java versions are not supported.
 
-## Contact
+## Contact & Feedback
 
+We are happy about your feedback!
+
+If you find something that is missing or doesn't work, please consider opening a [GitHub issue](https://github.com/AshampooSystems/boden/issues).
+
+If you want to talk to us directly, please send us an email to boden-team@ashampoo-systems.com.
