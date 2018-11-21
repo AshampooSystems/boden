@@ -1,4 +1,4 @@
-# Boden Cross-Platform Framework
+# Boden Cross-platform Framework
 
 Rock solid and truly native C++ cross-platform framework for Android and iOS development
 
@@ -7,11 +7,10 @@ Rock solid and truly native C++ cross-platform framework for Android and iOS dev
 * **Native widgets**: Instead of drawing widgets that look nearly identical to the platform's design, Boden uses native OEM widgets ensuring that your app will always have a truly native look and feel.
 * **Fast**: Boden is written in modern C++11 to make development easy and apps fast and battery-friendly.
 * **Open**: Boden is an open framework and welcomes contributions and feedback from the community. We want you to shape its development so Boden can meet your requirements.
-* **Independent**: We are an independent development shop and we created Boden for independent developers. No big tech involved!
 
 ## Setup
 
-You can use macOS to build both iOS and Android apps. Windows and Linux can be used to build Android only. This guide will help you set up your system for developing Boden apps.
+You can use macOS to build both iOS and Android apps. Windows and Linux can be used to build Android apps only. This guide will help you set up your system for developing Boden apps.
 
 Which platform do you want to set up for development?
 

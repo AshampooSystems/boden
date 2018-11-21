@@ -107,7 +107,7 @@ class MainViewController : public Base
 
         auto listColumn = newObj<ColumnView>();
 
-        String demoEntries[] = {"List", "Demo"};
+        String demoEntries[] = {"List Item 1", "List Item 2"};
 
         for (auto entry : demoEntries) {
             auto newEntry = newObj<TextView>();
@@ -150,7 +150,7 @@ class MainViewController : public Base
         buttonRow->addChildView(removeButton);
         buttonRow->addChildView(clearButton);
 
-        addControlWithHeading("Mutable list", buttonRow, mainColumn, true);
+        addControlWithHeading("List", buttonRow, mainColumn, true);
         mainColumn->addChildView(listColumn);
 
         auto mainScrollView = newObj<ScrollView>();
