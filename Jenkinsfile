@@ -177,7 +177,7 @@ pipeline {
                         stage('Build') {
                             steps {
                                 unstash 'boden_documentation_builddir'
-                                sh 'python boden.py copy -f build/documentation/documentation'
+                                sh 'python boden.py copy -f build/documentation/doxygen'
                                 sh 'python boden.py build'
                             }
                         }

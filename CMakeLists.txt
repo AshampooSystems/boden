@@ -15,7 +15,7 @@ add_subdirectory(bauer)
 
 fix_ios_package()
 # Documentation
-add_subdirectory(documentation)
+add_subdirectory(doxygen)
 
 # Main Library
 add_subdirectory(framework)
