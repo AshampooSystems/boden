@@ -3,11 +3,11 @@
 using namespace bdn;
 
 #include <bdn/ui.h>
-#include <bdn/AppControllerBase.h>
+#include <bdn/UiAppControllerBase.h>
 
 #include "MainViewController.h"
 
-class AppController : public AppControllerBase
+class AppController : public UiAppControllerBase
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override;

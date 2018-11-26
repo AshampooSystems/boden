@@ -13,6 +13,9 @@ set(_sources
 	./source/main.cpp
 )
 
+set(MACOSX_BUNDLE_BUNDLE_NAME {project_name})
+set(MACOSX_BUNDLE_GUI_IDENTIFIER "io.mycompany.{project_name}")
+
 set(BDN_BUILD_TESTS OFF CACHE BOOL "Don't include boden tests")
 set(BDN_BUILD_EXAMPLES OFF CACHE BOOL "Don't include boden examples")
 

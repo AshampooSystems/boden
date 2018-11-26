@@ -161,7 +161,7 @@ class BauerArgParser():
 
         new = command_map["new"]
         new.add_argument('-f', '--project-folder', help="Where to create the project", default=".")
-        new.add_argument('-p', '--project-name', help="Name of the project", default="Untitled")
+        new.add_argument('-n', '--project-name', help="Name of the project", default="Untitled")
 
         if sys.platform == 'darwin':
           sign = command_map["codesign"]
