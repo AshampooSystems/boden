@@ -2,6 +2,8 @@ import error
 import logging
 import os, sys
 import shutil
+import subprocess
+from distutils.spawn import find_executable
 
 from generatorstate import GeneratorState
 from buildexecutor import BuildExecutor
@@ -159,16 +161,38 @@ class CommandProcessor:
         codeSigner.sign(self.args)
 
     def open(self, configuration, buildDirectory):
-        for cmakeConfig in self.buildExecutor.cmake.codeModel['configurations']:
-            for project in cmakeConfig['projects']:
-                if configuration.buildsystem == 'Xcode':
+        cmake = self.buildExecutor.cmake if not configuration.platform == "android" else self.androidExecutor.cmake
+
+        if configuration.buildsystem == 'Xcode':
+            for cmakeConfig in cmake.codeModel['configurations']:
+                for project in cmakeConfig['projects']:
                     project_file_name = os.path.join(buildDirectory, project['name'] + ".xcodeproj")
                     self.logger.debug("Starting: %s", project_file_name)
                     self.bauerGlobals.open_file(project_file_name)
                     return
 
+        elif configuration.buildsystem == 'AndroidStudio':
+            self.logger.debug("Looking for 'studio'")
 
+            if sys.platform == "win32":
+                defaultWindowsPath = "C:\\Program Files\\Android\\Android Studio\\bin\\studio64.exe"
+                if os.path.exists(defaultWindowsPath):
+                    subprocess.Popen([defaultWindowsPath, buildDirectory])
+                    return
+                else:
+                    self.logger.warning("Couldn't find Android Studio, opening project folder")
+            else:
+                studio_path = find_executable('studio')
+                self.logger.debug("Path: %s", studio_path)
+                
+                if studio_path == None:
+                    self.logger.warning("Couldn't find 'studio', please install via Android Studio => Tools => Create Command-line launcher")
+                else:
+                    subprocess.Popen([studio_path, buildDirectory])
+                    return
 
+        self.logger.debug("Trying to open %s", buildDirectory)
+        self.bauerGlobals.open_file(buildDirectory)
 
     def buildDeps(self):
         pass

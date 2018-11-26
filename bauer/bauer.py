@@ -68,14 +68,14 @@ def main(argv):
             print(" packet:", e.packet, file=sys.stderr)
             traceback.print_exc();
         else:
-            print(" ".join(e.args), file=sys.stderr)
+            print(" ".join(str(v) for v in e.arg), file=sys.stderr)
         exit(1)
 
     except error.ErrorWithExitCode as e:
         if '-d' in argv:
             traceback.print_exc();
         else:
-            print(" ".join(e.args), file=sys.stderr)
+            print(" ".join(str(v) for v in e.arg), file=sys.stderr)
 
         exit(e.exitCode);
 
@@ -83,5 +83,5 @@ def main(argv):
         if '-d' in argv:
             traceback.print_exc();
         else:
-            print(" ".join(e.args), file=sys.stderr)
+            print(" ".join(str(v) for v in e.args), file=sys.stderr)
         exit(50)
