@@ -8,7 +8,7 @@ namespace bdn
 {
 
     /** Displays text, but does not offer the option to edit it.
-        See TextEditView if you need text entering capability.
+        See the TextField class if you need text entering capability.
 
         The text view will automatically wrap text into multiple lines if it
        does not fit into the view otherwise. The wrapping occurs at word

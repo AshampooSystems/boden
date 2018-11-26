@@ -34,13 +34,9 @@ namespace bdn
         While you can set a Checkbox to mixed state programatically, user
        interaction is limited to setting the on or off state. When the user
        clicks a Checkbox which is currently set to mixed state, the state
-       transition behavior is defined by the platform: on Win32, Linux, macOS,
-       iOS, and on the web, clicking on a mixed state checkbox yields the `on`
-       state while on Windows UWP it yields the `off` state.
+       transition behavior is defined by the platform.
 
-        Note: Both Android and some mobile web browsers do not support mixed
-       state checkboxes. On these systems, Checkbox instances can still be set
-       to mixed state, but the UI will display them as off.
+        Note that Android does not support mixed state checkboxes.
      */
     class Checkbox : public View
     {

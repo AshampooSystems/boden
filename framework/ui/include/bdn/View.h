@@ -356,10 +356,6 @@ namespace bdn
            at all times, even though the window is not at the top left corner of
            the screen.
         */
-        // XXX: "adjustBounds" could be understood as modifying the bounds of
-        // the view that it's called on. Suggestion: rename to "adjustedBounds"
-        // – that's also what the variable is called in
-        // ColumnView::calcLayoutImpl().
         virtual Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                                   RoundType sizeRoundType) const;
 
@@ -383,20 +379,6 @@ namespace bdn
             */
         BDN_VIEW_PROPERTY(HorizontalAlignment, horizontalAlignment, setHorizontalAlignment, IViewCore,
                           influencesParentLayout());
-
-        /*
-
-        virtual Property<double>& extraSpaceWeight()
-        {
-            return _extraSpaceWeight;
-        }
-
-        virtual const ReadProperty<double>& extraSpaceWeight() const
-        {
-            return _extraSpaceWeight;
-        }
-
-        */
 
         /** Returns the UI provider used by this view. This can be nullptr if no
            UI provider is currently associated with the view object. This can

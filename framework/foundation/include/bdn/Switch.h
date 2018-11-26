@@ -44,8 +44,6 @@ namespace bdn
         /** The switch's state, see TriState */
         TriState state() const { return on() ? TriState::on : TriState::off; }
 
-        // XXX stateChanged??
-
         /** A notifier for click events. Subscribe to this notifier if you want
          to be notified about click events. Click events are posted when the
          user clicks on the switch. No click event is posted when the user

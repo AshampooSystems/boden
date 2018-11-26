@@ -14,10 +14,6 @@ namespace bdn
        change that behavior, you may set the child view's
        View::horizontalAlignment() property.
 
-        @note Currently, expanding a child view's height to the maximum
-       available vertical space using View::verticalAlignment() is not
-       supported.
-
         @sa If you want to arrange child views in a horizontal layout, see the
        RowView class.
      */

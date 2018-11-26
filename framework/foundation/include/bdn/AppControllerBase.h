@@ -15,7 +15,7 @@ namespace bdn
         During the lifetime of the app, the app controllers lifecycle
        notification functions will be called at various points.
        AppControllerBase provides a default implementation for these that does
-       noting.
+       nothing.
 
         You control which app controller class your app uses by passing it to
        the app initialization macros #BDN_INIT_UI_APP(),
@@ -75,10 +75,6 @@ namespace bdn
         /** The app has become active and ready for the user to interact with
            it.
 
-            For desktop apps this means that the app has come into the
-           foreground, usually one of the app's frame windows has been activated
-           or will be activated shortly.
-
             For mobile apps this means that the app is the active app (visible
            in the foreground) or one of the active apps (if the system supports
            multiple apps on the screen at the same time).
@@ -91,9 +87,6 @@ namespace bdn
         /** The app will be deactivated or was just deactivated. The user does
            not interact with this app anymore and it is going into the
            background.
-
-            For desktop app this means that the app is not the foreground
-           application anymore and its frame windows are not active.
 
             For mobile apps this means that the app was either interrupted (for
            example by a phone call), or the user has switched to another app (or
@@ -124,10 +117,6 @@ namespace bdn
            notification while being suspended. So onSuspend should store any
            relevant state information that might be needed for the next launch
            and perform the necessary cleanup.
-
-            On desktop systems onSuspend is typically called when the computer
-            enters sleep mode (although that is not always guaranteed on all
-           systems).
 
             On mobile systems onSuspend is typically called at some point after
            the app has been deactivated. The operating system suspends the app

@@ -15,8 +15,7 @@ namespace bdn
         The Toggle class implements a control providing the user with a binary
        on or off choice. On mobile platforms, it appears as a Switch whereas on
        desktop platforms it appears as a Checkbox. If the control's label is
-       set, it appears to the left of the switch control on mobile platforms and
-       to the right of the checkbox control on Desktop platforms.
+       set, it appears to the left of the switch control.
 
         Use toggles for presenting users with a binary on/off switch which
        automatically conforms to the user interface best practices on all
@@ -27,8 +26,6 @@ namespace bdn
       public:
         Toggle() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
 
-        // XXX should this be ISwitchCore???
-
         /** The toggle's label */
         BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
 
@@ -37,8 +34,6 @@ namespace bdn
 
         /** The switch's state, see TriState */
         TriState state() const { return on() ? TriState::on : TriState::off; }
-
-        // XXX stateChanged??
 
         /** A notifier for click events. Subscribe to this notifier if you want
            to be notified about click events. Click events are posted when the
