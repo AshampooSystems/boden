@@ -46,7 +46,7 @@ Follow these steps to set up Boden for iOS development:
 
 1. Open the Terminal app and clone the git repository: 
 
-		git clone git@github.com:AshampooSystems/boden.git
+		git clone https://github.com/AshampooSystems/boden.git
 
 3. Run the `boden` build tool to generate an Xcode project:
 
@@ -76,7 +76,7 @@ Follow these steps to set up Boden for Android development on the Mac:
 
 1. Open the terminal and clone the git repository:
 
-		git clone git@github.com:AshampooSystems/boden.git
+		git clone https://github.com/AshampooSystems/boden.git
 
 2. Run the `boden` build tool to prepare an Android Studio project:
 
@@ -105,7 +105,7 @@ Follow these steps to set up Boden for Android development on Windows 10:
 1. Open a Command Prompt: Hit <kbd>Win</kbd>+<kbd>R</kbd>, type `cmd` and then hit Enter.
 2. Clone the git repository:
 
-		git clone git@github.com:AshampooSystems/boden.git
+		git clone https://github.com/AshampooSystems/boden.git
 
 3. Run the `boden.py` build tool to generate an Android Studio project:
 
@@ -134,7 +134,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 1. Open up a terminal and clone the git repository:
 
-		git clone git@github.com:AshampooSystems/boden.git
+		git clone https://github.com/AshampooSystems/boden.git
 
 3. Run the `boden` build tool to generate an Xcode project:
 
