@@ -21,7 +21,7 @@ add_universal_executable(uidemo No ${UIDEMO_FILES} ${UIDEMO_ASSETS})
 set_xcode_property(uidemo CODE_SIGN_STYLE Automatic)
 set_xcode_property(uidemo ASSETCATALOG_COMPILER_APPICON_NAME AppIcon)
 set_xcode_property(uidemo CODE_SIGN_IDENTITY "iPhone Developer")
-set_xcode_property(uidemo DEVELOPMENT_TEAM 762GGV4R9W)
+#set_xcode_property(uidemo DEVELOPMENT_TEAM <TeamID>)
 
 use_boden_template_info_plist(uidemo)
 

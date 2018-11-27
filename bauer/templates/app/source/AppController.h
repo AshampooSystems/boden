@@ -2,7 +2,6 @@
 
 using namespace bdn;
 
-#include <bdn/ui.h>
 #include <bdn/UiAppControllerBase.h>
 
 #include "MainViewController.h"

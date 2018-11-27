@@ -125,8 +125,10 @@ class AndroidExecutor:
         pass
 
     def prepareAndroidStudio(self, platformState, configuration, androidAbi, androidHome, buildDir):
-
         gradlePath = self.gradle.getGradlePath()
+
+        self.gradle.stop()
+
         tmpCMakeFolder = os.path.join(buildDir, "tmp-cmake-gen")
 
         makefile_android_abi = self.getAndroidABIFromArch(configuration.arch)
@@ -186,9 +188,9 @@ class AndroidExecutor:
         # you want to know what it used to look like).
 
         generator = AndroidStudioProjectGenerator(self.gradle, buildDir, self.androidBuildApiVersion)
-
+       
         for project in projects:
-            self.logger.debug("Generating project with targets: %s", project["targetNames"])
+            self.logger.debug("Generating project %s with targets: %s", project["name"], project["targetNames"])
             generator.generateTopLevelProject(project["targetNames"])
 
             for target in project["targets"]:
@@ -205,6 +207,8 @@ class AndroidExecutor:
                     isLibrary = target["type"] == "SHARED_LIBRARY", 
                     android_abi = androidAbi,
                     rootCMakeFile = rootCMakeFile)
+
+            break
 
         # At the time of this writing, Android Studio will not detect when new source files
         # have been added (even if we do a gradle sync, syncs on the cmake file, etc.).

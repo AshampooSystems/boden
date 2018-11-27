@@ -13,6 +13,11 @@ class Gradle:
         self.gradlePath = None
         self.rootPath = rootPath
 
+    def stop(self):
+        self.logger.debug("Calling %s --stop" % (self.getGradlePath()))
+        subprocess.call('"%s" --stop' % (self.getGradlePath()), shell=True);
+
+
     def getGradlePath(self):
         if self.gradlePath is None:            
 
