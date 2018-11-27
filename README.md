@@ -68,7 +68,7 @@ To build Android apps on macOS, the following dependencies need to be installed:
 3. [OpenJDK 8](https://openjdk.java.net/)
 4. [Python 3.4+](https://www.python.org/downloads/)
 5. [CMake 3.10.2+](https://cmake.org/download/)
-6. [Android Studio](https://developer.android.com) (with Android NDK)
+6. [Android Studio](https://developer.android.com/studio) (with Android NDK)
 
 > If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on macOS](#setting-up-macos-for-android-builds) and follow the steps listed there to install them.
 
@@ -96,7 +96,7 @@ To build Android apps on Windows, the following dependencies need to be installe
 3. [CMake 3.10.2+](https://cmake.org/download/)
 4. [Git](https://git-scm.com/download/win)
 5. [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-6. [Android Studio](https://developer.android.com) (with Android NDK)
+6. [Android Studio](https://developer.android.com/studio) (with Android NDK)
 
 > If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Windows](#setting-up-windows-for-android-builds) and follow the steps listed there to install them.
 
@@ -114,7 +114,7 @@ Follow these steps to set up Boden for Android development on Windows 10:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
 ### Building Boden Apps on Linux
 
@@ -123,10 +123,10 @@ To build Android apps on Linux, the following dependencies need to be installed:
 1. Ubuntu 18.04
 2. Git
 3. [OpenJDK 8](https://openjdk.java.net/)
-4. [Python 3.4+](https://www.python.org/downloads/)
+4. [Python 3.4+](https://www.python.org/downloads/) (with `python3-distutils`)
 5. [CMake 3.10.2+](https://cmake.org/download/)
 6. qemu-kvm
-6. [Android Studio](https://developer.android.com) (with Android NDK)
+6. [Android Studio](https://developer.android.com/studio/) (with Android NDK)
 
 > If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Linux](#setting-up-linux-for-android-builds) and follow the steps listed there to install them.
 
@@ -143,7 +143,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
 > If Android Studio displays an error stating that permission to `/dev/kvm` is denied, make sure that you have added your user to the `kvm` group.
 
@@ -159,7 +159,7 @@ This will create a new folder named `AwesomeApp` and generate source and project
 
 In Xcode, select the `AwesomeApp` target and then press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the Hello World application.
 
-In Android Studio, select the `AwesomeApp` target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build an run the Hello World application.
+In Android Studio, select the `AwesomeApp` target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.
 
 > Note: On macOS and Linux you can also simply type `./boden` instead of calling `python boden.py` explicitly. If you want to build the Android version of the app on macOS, run `../boden open -p android`.
 
@@ -266,7 +266,7 @@ _window->setVisible(true);
 
 ##### 2.1 Download Android Studio
 
-1. Go to https://developer.android.com.
+1. Go to https://developer.android.com/studio.
 1. Click “Download Android Studio".
 1. Agree to the Terms and Conditions.
 
