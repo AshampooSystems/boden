@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.6)
 
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
@@ -21,6 +21,6 @@ set(BDN_BUILD_EXAMPLES OFF CACHE BOOL "Don't include boden examples")
 
 add_subdirectory({boden_relative_path} boden)
 
-add_executable({project_name} MACOSX_BUNDLE ${_sources})
+add_universal_executable({project_name} NO ${_sources})
 
 target_link_libraries({project_name} ui)
