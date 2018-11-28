@@ -65,13 +65,19 @@ class AndroidRunner:
         return 0
 
 
+    def getEmulatorAbi(self, projectAbi):
+        return "x86" if projectAbi is None else projectAbi
+
+
     def prepareAndroid(self, androidAbi):
         self.logger.info("Ensuring that all necessary android packages are installed (API Version: %s, ABI: %s)..." % (self.buildExecutor.androidEmulatorApiVersion, androidAbi) )
+
+        emulatorAbi = self.getEmulatorAbi(androidAbi)
 
         sdkManagerCommand = '"%s" "emulator" "system-images;android-%s;google_apis;%s"' % (
             self.sdkManagerPath,
             self.buildExecutor.androidEmulatorApiVersion,
-            androidAbi )
+            emulatorAbi )
 
         subprocess.check_call( sdkManagerCommand, shell=True, env=self.androidEnvironment )
 
@@ -83,12 +89,14 @@ class AndroidRunner:
         # --force causes an existing device to be overwritten.
         self.logger.info("Creating virtual device %s for emulator...", deviceName)
 
+        emulatorAbi = self.getEmulatorAbi(androidAbi)
+
         createDeviceCommand = '"%s" create avd --name "%s" --force --abi google_apis/%s --package "system-images;android-%s;google_apis;%s"' % \
             (   self.avdManagerPath,
                 deviceName,
-                androidAbi,
+                emulatorAbi,
                 self.buildExecutor.androidEmulatorApiVersion,
-                androidAbi )
+                emulatorAbi )
 
         # avdmanager will ask us wether we want to create a custom profile. We do not want that,
         # so we pipe a "no" into stdin
@@ -146,7 +154,7 @@ class AndroidRunner:
         self.logger.info("Waiting for android emulator to finish booting...");
         # ARM emulators are REALLY slow. So we need a bigger timeout for them 
         timeoutSeconds = 600
-        if androidAbi.startswith("x86"):
+        if androidAbi is None or androidAbi.startswith("x86"):
             timeoutSeconds = 120
 
         self.logger.debug("Emulator pid: %s", emulatorProcess.pid)
