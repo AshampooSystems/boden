@@ -122,7 +122,7 @@ class AndroidRunner:
         # "auto" will cause the emulator to exit with an error.
         if sys.platform.startswith("linux"):
             try:
-                output = subprocess.check_output("lspci | grep VGA", shell=True, env=self.androidEnvironment)
+                output = subprocess.check_output("lspci | grep VGA", shell=True, env=self.androidEnvironment, universal_newlines=True)
                 if output.find("Parallels")!=-1:
                     self.logger.warning("Disabling GPU acceleration because we are running in a Parallels Desktop Linux VM.");
                     gpuOption = "off"
@@ -168,13 +168,12 @@ class AndroidRunner:
             # Then, after the boot has completed, we will get "stopped"
 
             try:
-                output = subprocess.check_output(bootAnimStateCommand, stderr=subprocess.STDOUT, shell=True, env=self.androidEnvironment )                          
+                output = subprocess.check_output(bootAnimStateCommand, stderr=subprocess.STDOUT, shell=True, env=self.androidEnvironment, universal_newlines=True )                          
                 stateError = False
             except subprocess.CalledProcessError as e:                            
                 output = e.output
                 stateError = True
 
-            output = output.decode('utf-8')
             output = output.strip()
 
 
@@ -280,7 +279,7 @@ class AndroidRunner:
 
         while True:
             getProcessListCommand = '"%s" shell ps' % ( self.adbPath )
-            procListOutput = subprocess.check_output(getProcessListCommand, shell=True, env=self.androidEnvironment )
+            procListOutput = subprocess.check_output(getProcessListCommand, shell=True, env=self.androidEnvironment, universal_newlines=True )
 
             found_process = False
             for line in procListOutput.splitlines():
