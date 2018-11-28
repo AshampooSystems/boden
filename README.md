@@ -57,7 +57,9 @@ Follow these steps to set up Boden for iOS development:
 
 		open build/ios/std/Xcode/boden.xcodeproj
 
-5. Select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
+5. In Xcode select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
+
+Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
 ### Android Apps
 
@@ -85,7 +87,9 @@ Follow these steps to set up Boden for Android development on the Mac:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+5. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+
+Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
 ### Building Boden Apps on Windows
 
@@ -114,7 +118,9 @@ Follow these steps to set up Boden for Android development on Windows 10:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
+5. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
+
+Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
 ### Building Boden Apps on Linux
 
@@ -143,7 +149,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
+5. Wait for Android Studio to finish its gradle sync and configuration, select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
 > If Android Studio displays an error stating that permission to `/dev/kvm` is denied, make sure that you have added your user to the `kvm` group.
 
@@ -159,7 +165,7 @@ This will create a new folder named `AwesomeApp` and generate source and project
 
 In Xcode, select the `AwesomeApp` target and then press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the Hello World application.
 
-In Android Studio, select the `AwesomeApp` target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.
+In Android Studio, wait for Gradle to finish its sync and configuration processes and then select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application, then select the `AwesomeApp` target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.
 
 > Note: On macOS and Linux you can also simply type `./boden` instead of calling `python boden.py` explicitly. If you want to build the Android version of the app on macOS, run `../boden open -p android`.
 
