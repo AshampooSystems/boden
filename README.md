@@ -241,7 +241,7 @@ _window->setVisible(true);
 3. Locate Xcode and click Get.
 4. The store page for Xcode opens up. Click the Get button again.
 6. Once installed, open Xcode by clicking Open and agree to the terms of service. Xcode will install components afterwards.
-7. Finally, open up a terminal and run `sudo xcodeselect -s /Applications/Xcode.app/Contents/Developer`.
+7. Finally, open up a terminal and run `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
 
 #### 2. Install Homebrew, Python, and CMake
 
