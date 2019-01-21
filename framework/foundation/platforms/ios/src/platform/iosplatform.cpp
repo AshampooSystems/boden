@@ -1,14 +1,14 @@
-#include <bdn/init.h>
+
 #include <bdn/platform/iosplatform.h>
 #include <bdn/debug.h>
 
-#include <bdn/IAppRunner.h>
-#include <bdn/Thread.h>
+#include <bdn/AppRunnerBase.h>
 
 #include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/sysctl.h>
+#include <iostream>
 
 #include <csignal>
 
@@ -39,7 +39,7 @@ namespace bdn
         void IOSHooks::debuggerPrint(const bdn::String &text)
         {
             // stderr is connected to the debugger.
-            std::cerr << text.asUtf8() << std::endl;
+            std::cerr << text << std::endl;
         }
 
         bool IOSHooks::_isDebuggerActive() { return false; }

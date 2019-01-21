@@ -20,18 +20,18 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _androidViewCore = cast<bdn::android::ViewCore>(BaseClass::_view->getViewCore());
+                _androidViewCore = std::dynamic_pointer_cast<bdn::android::ViewCore>(BaseClass::_view->getViewCore());
                 REQUIRE(_androidViewCore != nullptr);
 
                 _jView = _androidViewCore->getJView();
                 REQUIRE(!_jView.isNull_());
             }
 
-            IUiProvider &getUiProvider() override { return bdn::android::UiProvider::get(); }
+            std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::android::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_view->visible();
+                bool expectedVisible = BaseClass::_view->visible;
 
                 if (expectedVisible)
                     REQUIRE(_jView.getVisibility() == bdn::android::JView::Visibility::visible);
@@ -63,7 +63,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getViewPosition();
-                Point expectedPosition = BaseClass::_view->position();
+                Point expectedPosition = BaseClass::_view->position;
 
                 REQUIRE_ALMOST_EQUAL(position.x, expectedPosition.x, 1);
                 REQUIRE_ALMOST_EQUAL(position.y, expectedPosition.y, 1);
@@ -72,7 +72,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getViewSize();
-                Size expectedSize = BaseClass::_view->size();
+                Size expectedSize = BaseClass::_view->size;
 
                 REQUIRE_ALMOST_EQUAL(size.width, expectedSize.width, 1);
                 REQUIRE_ALMOST_EQUAL(size.height, expectedSize.height, 1);
@@ -85,9 +85,9 @@ namespace bdn
                 int bottom = _jView.getPaddingBottom();
                 int left = _jView.getPaddingLeft();
 
-                Nullable<UiMargin> pad = BaseClass::_view->padding();
+                std::optional<UiMargin> pad = BaseClass::_view->padding;
 
-                if (pad.isNull()) {
+                if (!pad) {
                     // the default padding is used. This is simply the padding
                     // that is pre-configured in the android UI control. We have
                     // no way to test if what we get here is really correct. So
@@ -95,7 +95,7 @@ namespace bdn
                     return;
                 }
 
-                Margin expectedDipPadding = BaseClass::_view->uiMarginToDipMargin(pad.get());
+                Margin expectedDipPadding = BaseClass::_view->uiMarginToDipMargin(*pad);
 
                 double scaleFactor = _androidViewCore->getUiScaleFactor();
 
@@ -105,7 +105,7 @@ namespace bdn
                 REQUIRE_ALMOST_EQUAL(left / scaleFactor, expectedDipPadding.left, 1);
             }
 
-            P<bdn::android::ViewCore> _androidViewCore;
+            std::shared_ptr<bdn::android::ViewCore> _androidViewCore;
             bdn::android::JView _jView;
         };
     }

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/destruct.h>
 
 #include <bdn/log.h>

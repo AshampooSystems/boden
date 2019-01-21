@@ -1,5 +1,4 @@
-#ifndef BDN_typeUtil_H_
-#define BDN_typeUtil_H_
+#pragma once
 
 namespace bdn
 {
@@ -116,5 +115,3 @@ namespace bdn
         return TypeHasCustomArrowOperator_<TYPE>::value;
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_IAsyncNotifier_H_
-#define BDN_IAsyncNotifier_H_
+#pragma once
 
 #include <bdn/INotifierBase.h>
 
@@ -85,7 +84,7 @@ namespace bdn
         // can optionally be stored for explicitly unsubscribing later.
         // However, it is often simpler to use weak methods, since those
         // do not need to be unsubscribed (see below)
-        P<INotifierSubscription> sub = someObj.onSomeEvent().subscribe( myFunc
+        std::shared_ptr<INotifierSubscription> sub = someObj.onSomeEvent().subscribe( myFunc
        );
 
         ...
@@ -115,7 +114,7 @@ namespace bdn
             }
         };
 
-        P<MyClass> object = newObj<MyClass>();
+        std::shared_ptr<MyClass> object = std::make_shared<MyClass>();
 
         // subscribe myCallbackMethod to the event
         // as a weak method.
@@ -147,7 +146,7 @@ namespace bdn
         \endcode
 
     */
-    template <class... ArgTypes> class IAsyncNotifier : BDN_IMPLEMENTS INotifierBase<ArgTypes...>
+    template <class... ArgTypes> class IAsyncNotifier : virtual public INotifierBase<ArgTypes...>
     {
       public:
         /** Schedules a call to all subscribed functions with the specified
@@ -174,5 +173,3 @@ namespace bdn
         virtual void postNotification(ArgTypes... args) = 0;
     };
 }
-
-#endif

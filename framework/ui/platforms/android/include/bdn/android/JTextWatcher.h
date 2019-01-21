@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JTextWatcher_H_
-#define BDN_ANDROID_JTextWatcher_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 
@@ -32,5 +31,3 @@ class JTextWatcher : public bdn::java::JObject
 
     bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 };
-
-#endif

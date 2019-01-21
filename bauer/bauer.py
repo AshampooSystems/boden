@@ -75,13 +75,10 @@ def main(argv):
         if '-d' in argv:
             traceback.print_exc();
         else:
-            print(" ".join(str(v) for v in e.arg), file=sys.stderr)
+            print("Error: %s (%i)" % ( e.errorMessage, e.exitCode ))
 
         exit(e.exitCode);
 
     except Exception as e:        
-        if '-d' in argv:
-            traceback.print_exc();
-        else:
-            print(" ".join(str(v) for v in e.args), file=sys.stderr)
+        traceback.print_exc();
         exit(50)

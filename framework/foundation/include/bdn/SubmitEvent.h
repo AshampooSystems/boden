@@ -1,5 +1,4 @@
-#ifndef BDN_SubmitEvent_H_
-#define BDN_SubmitEvent_H_
+#pragma once
 
 #include <bdn/ViewEvent.h>
 
@@ -9,8 +8,6 @@ namespace bdn
     class SubmitEvent : public ViewEvent
     {
       public:
-        SubmitEvent(View *view) : ViewEvent(view) {}
+        using ViewEvent::ViewEvent;
     };
 }
-
-#endif

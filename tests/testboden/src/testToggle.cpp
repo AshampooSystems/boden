@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Toggle.h>
@@ -15,9 +15,11 @@ TEST_CASE("Toggle")
 
     SECTION("Toggle-specific")
     {
-        P<bdn::test::ViewTestPreparer<Toggle>> preparer = newObj<bdn::test::ViewTestPreparer<Toggle>>();
-        P<bdn::test::ViewWithTestExtensions<Toggle>> toggle = preparer->createView();
-        P<bdn::test::MockToggleCore> core = cast<bdn::test::MockToggleCore>(toggle->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<Toggle>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<Toggle>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<Toggle>> toggle = preparer->createView();
+        std::shared_ptr<bdn::test::MockToggleCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockToggleCore>(toggle->getViewCore());
 
         REQUIRE(core != nullptr);
 
@@ -25,14 +27,14 @@ TEST_CASE("Toggle")
         {
             SECTION("label")
             {
-                REQUIRE(toggle->label() == "");
+                REQUIRE(toggle->label == "");
                 REQUIRE(core->getLabel() == "");
                 REQUIRE(core->getLabelChangeCount() == 0);
             }
 
             SECTION("on")
             {
-                REQUIRE(toggle->on() == false);
+                REQUIRE(toggle->on == false);
                 REQUIRE(core->getOn() == false);
                 REQUIRE(core->getOnChangeCount() == 0);
             }
@@ -43,7 +45,7 @@ TEST_CASE("Toggle")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    toggle, preparer, [toggle]() { toggle->setLabel("hello"); },
+                    toggle, preparer, [toggle]() { toggle->label = ("hello"); },
                     [core, toggle] {
                         REQUIRE(core->getLabel() == "hello");
                         REQUIRE(core->getLabelChangeCount() == 1);
@@ -58,7 +60,7 @@ TEST_CASE("Toggle")
 
             SECTION("on")
             {
-                bdn::test::_testViewOp(toggle, preparer, [toggle]() { toggle->setOn(true); },
+                bdn::test::_testViewOp(toggle, preparer, [toggle]() { toggle->on = (true); },
                                        [core, toggle] {
                                            REQUIRE(core->getOn() == true);
                                            REQUIRE(core->getOnChangeCount() == 1);

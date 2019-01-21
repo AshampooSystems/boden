@@ -33,6 +33,16 @@ macro(enable_multicore_build TARGET SCOPE)
 	endif()
 endmacro()
 
+macro(enable_ffast_math TARGET SCOPE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        target_compile_options(${TARGET} ${SCOPE} "-ffast-math")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        target_compile_options(${TARGET} ${SCOPE} "/fp:fast")
+    else()
+        message(WARNING "I Don't know how to enable fast math on this platform! (${CMAKE_CXX_COMPILER_ID})")
+    endif()
+endmacro()
+
 macro(cmake_variable_to_define TARGET SCOPE CMAKE_VARIABLE)
     set(truelist "Yes" "On" "True")
 

@@ -26,7 +26,8 @@ RUN apt-get update \
     libstdc++6:i386 \
     lib32z1 \
     libbz2-1.0:i386 \
-    cmake
+    cmake \
+    ninja-build
 
 
 RUN curl --url "https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" --output /tmp/androidtools.zip
@@ -57,7 +58,7 @@ ENV HOME=/userhome
 RUN yes | /opt/android/tools/bin/sdkmanager --licenses
 
 # install the needed SDK tools and packages
-RUN /opt/android/tools/bin/sdkmanager \
+RUN yes | /opt/android/tools/bin/sdkmanager \
 	"platform-tools" \
 	"ndk-bundle" \
 	"extras;android;m2repository" \

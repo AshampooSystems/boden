@@ -1,7 +1,6 @@
-#ifndef BDN_INotifierBase_H_
-#define BDN_INotifierBase_H_
+#pragma once
 
-#include <bdn/init.h>
+#include <bdn/Base.h>
 
 #include <bdn/INotifierSubscription.h>
 
@@ -30,7 +29,7 @@ namespace bdn
 
 
     */
-    template <class... ArgTypes> class INotifierBase : BDN_IMPLEMENTS IBase
+    template <class... ArgTypes> class INotifierBase : public Base
     {
       public:
         /** Subscribes a function to the notifier. While subscribed, the
@@ -63,7 +62,7 @@ namespace bdn
            accesses become invalid.
 
             */
-        virtual P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) = 0;
+        virtual std::shared_ptr<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) = 0;
 
         /** Convenience function to subscribe functions that do not take any
            parameters to the notifier. Sometimes the notification parameters are
@@ -74,7 +73,7 @@ namespace bdn
             Apart from the function parameters, subscribeParamless works exactly
            the same as subscribe().
             */
-        virtual P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) = 0;
+        virtual std::shared_ptr<INotifierSubscription> subscribeParamless(const std::function<void()> &func) = 0;
 
         /** Same as subscribe(). Returns a reference to the notifier object.*/
         virtual INotifierBase &operator+=(const std::function<void(ArgTypes...)> &func) = 0;
@@ -90,7 +89,7 @@ namespace bdn
            after their object has been deleted.
 
          */
-        virtual void unsubscribe(INotifierSubscription *sub) = 0;
+        virtual void unsubscribe(std::shared_ptr<INotifierSubscription> sub) = 0;
 
         /** Unsubscribes all currently subscribed functions.
 
@@ -104,5 +103,3 @@ namespace bdn
         virtual void unsubscribeAll() = 0;
     };
 }
-
-#endif

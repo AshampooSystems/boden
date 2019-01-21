@@ -1,5 +1,4 @@
-#ifndef BDN_IErrorParams_H_
-#define BDN_IErrorParams_H_
+#pragma once
 
 #include <map>
 
@@ -27,7 +26,7 @@ namespace bdn
         }
         \endcode
         */
-    class IErrorParams : BDN_IMPLEMENTS IBase
+    class IErrorParams:
     {
       public:
         /** Returns the parameter with the specified name. Returns an empty
@@ -45,5 +44,3 @@ namespace bdn
         virtual std::map<String, String> &getParamMap() = 0;
     };
 }
-
-#endif

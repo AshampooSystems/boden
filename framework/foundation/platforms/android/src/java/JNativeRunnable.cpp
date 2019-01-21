@@ -1,10 +1,10 @@
-#include <bdn/init.h>
+
 #include <bdn/java/JNativeRunnable.h>
 
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv *env, jobject rawSelf,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv *pEnv, jobject rawSelf,
                                                                               jobject rawNativeObject)
 {
     bdn::platformEntryWrapper(
@@ -12,11 +12,11 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JN
             bdn::java::JNativeStrongPointer nativePointer(
                 (bdn::java::Reference::convertExternalLocal(rawNativeObject)));
 
-            bdn::IBase *base = nativePointer.getPointer_();
+            std::shared_ptr<bdn::Base> p = nativePointer.getPointer_();
 
-            bdn::ISimpleCallable *callable = dynamic_cast<bdn::ISimpleCallable *>(base);
+            std::shared_ptr<bdn::ISimpleCallable> pCallable = std::dynamic_pointer_cast<bdn::ISimpleCallable>(p);
 
-            callable->call();
+            pCallable->call();
         },
-        true, env);
+        true, pEnv);
 }

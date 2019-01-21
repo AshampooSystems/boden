@@ -1,8 +1,10 @@
-#include <bdn/init.h>
+
 
 #include <bdn/UiLength.h>
 
 #include <bdn/test.h>
+
+#include <sstream>
 
 using namespace bdn;
 
@@ -10,7 +12,10 @@ static void _verifyUiLengthToString(double value, UiLength::Unit unit, String ex
 {
     UiLength len(value, unit);
 
-    REQUIRE(toString(len) == expectedString);
+    std::ostringstream str;
+    str << len;
+
+    REQUIRE(str.str() == expectedString);
 }
 
 TEST_CASE("UiLength")

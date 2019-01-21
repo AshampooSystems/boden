@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockWindowCore_H_
-#define BDN_TEST_MockWindowCore_H_
+#pragma once
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
@@ -18,15 +17,15 @@ namespace bdn
             See MockUiProvider.
             */
         class MockWindowCore : public MockViewCore,
-                               BDN_IMPLEMENTS IWindowCore,
-                               BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+                               virtual public IWindowCore,
+                               virtual public LayoutCoordinator::IWindowCoreExtension
         {
           public:
-            MockWindowCore(Window *window) : MockViewCore(window)
+            MockWindowCore(std::shared_ptr<Window> window) : MockViewCore(window)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _title = window->title();
+                _title = window->title;
             }
 
             /** Returns the window title that is currently configured.*/
@@ -61,7 +60,7 @@ namespace bdn
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
                     return defaultWindowCalcPreferredSizeImpl(window, availableSpace, getBorder(), getMinimumSize());
                 else
@@ -70,18 +69,20 @@ namespace bdn
 
             void requestAutoSize() override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
-                    cast<MockUiProvider>(window->getUiProvider())
+                    std::dynamic_pointer_cast<MockUiProvider>(window->getUiProvider())
                         ->getLayoutCoordinator()
                         ->windowNeedsAutoSizing(window);
             }
 
             void requestCenter() override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
-                    cast<MockUiProvider>(window->getUiProvider())->getLayoutCoordinator()->windowNeedsCentering(window);
+                    std::dynamic_pointer_cast<MockUiProvider>(window->getUiProvider())
+                        ->getLayoutCoordinator()
+                        ->windowNeedsCentering(window);
             }
 
             void layout() override
@@ -91,7 +92,7 @@ namespace bdn
                 _layoutCount++;
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                     if (window != nullptr)
                         defaultWindowLayoutImpl(window, getContentArea());
                 }
@@ -104,7 +105,7 @@ namespace bdn
                 _autoSizeCount++;
 
                 if (!_overrideAutoSizeFunc || !_overrideAutoSizeFunc()) {
-                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                     if (window != nullptr)
                         defaultWindowAutoSizeImpl(window, getScreenWorkArea().getSize());
                 }
@@ -130,7 +131,7 @@ namespace bdn
                 _centerCount++;
 
                 if (!_overrideCenterFunc || !_overrideCenterFunc()) {
-                    P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                    std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                     if (window != nullptr)
                         defaultWindowCenterImpl(window, getScreenWorkArea());
                 }
@@ -170,5 +171,3 @@ namespace bdn
         };
     }
 }
-
-#endif

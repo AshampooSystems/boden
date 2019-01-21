@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JView_H_
-#define BDN_ANDROID_JView_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JContext.h>
@@ -399,5 +398,3 @@ namespace bdn
         };
     }
 }
-
-#endif

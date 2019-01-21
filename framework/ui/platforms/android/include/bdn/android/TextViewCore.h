@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_TextViewCore_H_
-#define BDN_ANDROID_TextViewCore_H_
+#pragma once
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
@@ -12,27 +11,27 @@ namespace bdn
     namespace android
     {
 
-        class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
+        class TextViewCore : public ViewCore, virtual public ITextViewCore
         {
           private:
-            static P<JTextView> _createJTextView(TextView *outer)
+            static std::shared_ptr<JTextView> _createJTextView(std::shared_ptr<TextView> outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> parent = outer->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr)
                     throw ProgrammingError("TextViewCore instance requested for a TextView that "
                                            "does not have a parent.");
 
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("TextViewCore instance requested for a TextView with "
                                            "core-less parent.");
 
                 JContext context = parentCore->getJView().getContext();
 
-                P<JTextView> textView = newObj<JTextView>(context);
+                std::shared_ptr<JTextView> textView = std::make_shared<JTextView>(context);
 
                 // the default text size on android is really tiny. Set it to a
                 // medium size so that we get something comparable to other
@@ -43,11 +42,12 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *outerTextView) : ViewCore(outerTextView, _createJTextView(outerTextView))
+            TextViewCore(std::shared_ptr<TextView> outerTextView)
+                : ViewCore(outerTextView, _createJTextView(outerTextView))
             {
-                _jTextView = cast<JTextView>(&getJView());
+                _jTextView = std::dynamic_pointer_cast<JTextView>(getJViewPtr());
 
-                setText(outerTextView->text());
+                setText(outerTextView->text);
             }
 
             JTextView &getJTextView() { return *_jTextView; }
@@ -57,7 +57,10 @@ namespace bdn
                 // Android treats carriage return like a space. So we filter
                 // those out.
                 String textToSet = text;
-                textToSet.findAndReplace("\r", "");
+                // textToSet.findAndReplace("\r", "");
+                textToSet.erase(
+                    std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
+                    textToSet.end());
 
                 _jTextView->setText(textToSet);
 
@@ -93,10 +96,10 @@ namespace bdn
                     // if we have a preferred width hint then we use that. The
                     // text view core uses the "max width" to do its wrapping.
                     // Same if we have a maximum width
-                    P<const View> view = getOuterViewIfStillAttached();
+                    std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                     if (view != nullptr) {
-                        Size limit = view->preferredSizeHint();
-                        limit.applyMaximum(view->preferredSizeMaximum());
+                        Size limit = view->preferredSizeHint;
+                        limit.applyMaximum(view->preferredSizeMaximum);
 
                         if (std::isfinite(limit.width))
                             maxWidthPixels = std::lround(limit.width * getUiScaleFactor());
@@ -138,11 +141,9 @@ namespace bdn
             }
 
           private:
-            P<JTextView> _jTextView;
+            std::shared_ptr<JTextView> _jTextView;
 
             int _currWidthPixels = 0x7fffffff;
         };
     }
 }
-
-#endif

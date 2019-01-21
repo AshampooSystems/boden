@@ -1,5 +1,4 @@
-#ifndef BDN_ISimpleCallable_H_
-#define BDN_ISimpleCallable_H_
+#pragma once
 
 namespace bdn
 {
@@ -10,11 +9,9 @@ namespace bdn
         See SimpleFunctionCallable for a convenience implementation that calls a
        std::function object.
      */
-    class ISimpleCallable : BDN_IMPLEMENTS IBase
+    class ISimpleCallable
     {
       public:
         virtual void call() = 0;
     };
 }
-
-#endif

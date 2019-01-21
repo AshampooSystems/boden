@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/UiProvider.h>
 
 #include <bdn/android/ContainerViewCore.h>
@@ -11,14 +11,13 @@
 #include <bdn/android/ScrollViewCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
-#include <bdn/StdioTextUi.h>
-#include <bdn/TextUiCombiner.h>
-#include <bdn/ViewTextUi.h>
+
+#include <iostream>
 
 namespace bdn
 {
 
-    P<IUiProvider> getDefaultUiProvider() { return &bdn::android::UiProvider::get(); }
+    std::shared_ptr<IUiProvider> getDefaultUiProvider() { return bdn::android::UiProvider::get(); }
 }
 
 namespace bdn
@@ -26,7 +25,11 @@ namespace bdn
     namespace android
     {
 
-        BDN_SAFE_STATIC_IMPL(UiProvider, UiProvider::get);
+        std::shared_ptr<UiProvider> UiProvider::get()
+        {
+            static std::shared_ptr<UiProvider> uiProvider = std::make_shared<UiProvider>();
+            return uiProvider;
+        }
 
         double UiProvider::getSemSizeDips(ViewCore &viewCore)
         {
@@ -47,53 +50,43 @@ namespace bdn
 
         String UiProvider::getName() const { return "android"; }
 
-        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName, View *view)
+        std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> pView)
         {
+            std::shared_ptr<ViewCore> viewCore;
+
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
-                return newObj<ContainerViewCore>(cast<ContainerView>(view));
+                viewCore = std::make_shared<ContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(pView));
 
             else if (coreTypeName == Button::getButtonCoreTypeName())
-                return newObj<ButtonCore>(cast<Button>(view));
+                viewCore = std::make_shared<ButtonCore>(std::dynamic_pointer_cast<Button>(pView));
 
             else if (coreTypeName == Switch::getSwitchCoreTypeName())
-                return newObj<SwitchCore<Switch>>(cast<Switch>(view));
+                viewCore = std::make_shared<SwitchCore<Switch>>(std::dynamic_pointer_cast<Switch>(pView));
 
             else if (coreTypeName == Toggle::getToggleCoreTypeName())
-                return newObj<SwitchCore<Toggle>>(cast<Toggle>(view));
+                viewCore = std::make_shared<SwitchCore<Toggle>>(std::dynamic_pointer_cast<Toggle>(pView));
 
             else if (coreTypeName == Checkbox::getCheckboxCoreTypeName())
-                return newObj<CheckboxCore<Checkbox>>(cast<Checkbox>(view));
+                viewCore = std::make_shared<CheckboxCore<Checkbox>>(std::dynamic_pointer_cast<Checkbox>(pView));
 
             else if (coreTypeName == TextView::getTextViewCoreTypeName())
-                return newObj<TextViewCore>(cast<TextView>(view));
+                viewCore = std::make_shared<TextViewCore>(std::dynamic_pointer_cast<TextView>(pView));
 
             else if (coreTypeName == TextField::getTextFieldCoreTypeName())
-                return newObj<TextFieldCore>(cast<TextField>(view));
+                viewCore = std::make_shared<TextFieldCore>(std::dynamic_pointer_cast<TextField>(pView));
 
             else if (coreTypeName == ScrollView::getScrollViewCoreTypeName())
-                return newObj<ScrollViewCore>(cast<ScrollView>(view));
+                viewCore = std::make_shared<ScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(pView));
 
             else if (coreTypeName == Window::getWindowCoreTypeName())
-                return newObj<WindowCore>(cast<Window>(view));
+                viewCore = std::make_shared<WindowCore>(std::dynamic_pointer_cast<Window>(pView));
 
             else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
-        }
 
-        P<ITextUi> UiProvider::getTextUi()
-        {
-            {
-                Mutex::Lock lock(_textUiInitMutex);
-                if (_textUi == nullptr) {
-                    // we want the output of the text UI to go to both the
-                    // View-based text UI, as well as the stdout/stderr streams.
+            viewCore->getJViewPtr()->setTag(bdn::java::NativeWeakPointer(viewCore));
 
-                    _textUi = newObj<TextUiCombiner>(newObj<ViewTextUi>(),
-                                                     newObj<StdioTextUi<char>>(&std::cin, &std::cout, &std::cerr));
-                }
-            }
-
-            return _textUi;
+            return std::static_pointer_cast<IViewCore>(viewCore);
         }
     }
 }

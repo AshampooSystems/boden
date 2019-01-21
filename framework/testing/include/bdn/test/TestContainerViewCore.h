@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestContainerViewCore_H_
-#define BDN_TEST_TestContainerViewCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/ContainerView.h>
@@ -15,13 +14,13 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override { return newObj<TestContainerView>(); }
+            std::shared_ptr<View> createView() override { return std::make_shared<TestContainerView>(); }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _containerView = cast<TestContainerView>(view);
+                _containerView = std::dynamic_pointer_cast<TestContainerView>(view);
             }
 
             void runInitTests() override
@@ -35,7 +34,9 @@ namespace bdn
             {
                 TestViewCore::runPostInitTests();
 
-                P<TestContainerViewCore> self = this;
+                std::shared_ptr<TestContainerViewCore> self =
+                    std::dynamic_pointer_cast<TestContainerViewCore>(shared_from_this());
+                ;
 
                 SECTION("calcPreferredSize forwarded to outer")
                 {
@@ -71,7 +72,7 @@ namespace bdn
                     {
                         int currLayoutCount = _containerView->getCalcContainerLayoutCount();
                         REQUIRE(currLayoutCount == initialCount + 1);
-                        REQUIRE(_containerView->getLastCalcContainerLayoutContainerSize() == _containerView->size());
+                        REQUIRE(_containerView->getLastCalcContainerLayoutContainerSize() == _containerView->size);
                     };
                 }
             }
@@ -103,7 +104,7 @@ namespace bdn
                     return _lastCalcContainerPreferredSizeAvailableSpace;
                 }
 
-                P<ViewLayout> calcContainerLayout(const Size &containerSize) const override
+                std::shared_ptr<ViewLayout> calcContainerLayout(const Size &containerSize) const override
                 {
                     _calcContainerLayoutCount++;
                     _lastCalcContainerLayoutContainerSize = containerSize;
@@ -123,9 +124,7 @@ namespace bdn
                 mutable Size _lastCalcContainerLayoutContainerSize;
             };
 
-            P<TestContainerView> _containerView;
+            std::shared_ptr<TestContainerView> _containerView;
         };
     }
 }
-
-#endif

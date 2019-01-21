@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JBundle_H_
-#define BDN_ANDROID_JBundle_H_
+#pragma once
 
 #include <bdn/android/JBaseBundle.h>
 #include <bdn/java/JCharSequence.h>
@@ -42,5 +41,3 @@ namespace bdn
         };
     }
 }
-
-#endif

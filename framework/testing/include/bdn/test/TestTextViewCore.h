@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestTextViewCore_H_
-#define BDN_TEST_TestTextViewCore_H_
+#pragma once
 
 #include <bdn/TextView.h>
 #include <bdn/test/TestViewCore.h>
@@ -15,20 +14,20 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<TextView> textView = newObj<TextView>();
+                std::shared_ptr<TextView> textView = std::make_shared<TextView>();
 
-                textView->setText("hello world");
+                textView->text = ("hello world");
 
                 return textView;
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _textView = cast<TextView>(view);
+                _textView = std::dynamic_pointer_cast<TextView>(view);
             }
 
             /** Returns true if the text view implementation will never return a
@@ -77,7 +76,7 @@ namespace bdn
 
                 SECTION("text")
                 {
-                    _textView->setText("helloworld");
+                    _textView->text = ("helloworld");
                     initCore();
                     verifyCoreText();
                 }
@@ -88,18 +87,19 @@ namespace bdn
                 // note that the available height should have NO influence on
                 // the result, since the text cannot be made smaller in height
                 // (only in width by line-breaking)
-                P<TestTextViewCore> self = this;
+                std::shared_ptr<TestTextViewCore> self =
+                    std::dynamic_pointer_cast<TestTextViewCore>(shared_from_this());
 
                 SECTION("wider text causes wider preferred size")
                 {
-                    _textView->setText("");
+                    _textView->text = ("");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
                         Size prefSizeBefore =
                             self->_textView->calcPreferredSize(Size(Size::componentNone(), availableHeight));
 
-                        self->_textView->setText("helloworld");
+                        self->_textView->text = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, availableHeight)
                         {
@@ -115,7 +115,7 @@ namespace bdn
 
                             // when we go back to the same text as before then
                             // the preferred size should also be the same again
-                            self->_textView->setText("");
+                            self->_textView->text = ("");
 
                             CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, availableHeight)
                             {
@@ -128,14 +128,14 @@ namespace bdn
 
                 SECTION("linebreaks cause multiline")
                 {
-                    _textView->setText("");
+                    _textView->text = ("");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
                         Size emptyTextPreferredSize =
                             self->_textView->calcPreferredSize(Size(Size::componentNone(), availableHeight));
 
-                        self->_textView->setText("hello");
+                        self->_textView->text = ("hello");
 
                         CONTINUE_SECTION_WHEN_IDLE(self, emptyTextPreferredSize, availableHeight)
                         {
@@ -151,7 +151,7 @@ namespace bdn
                             // width of the text view to be measured according
                             // to the second line (which should have exactly the
                             // same width as the single line above).
-                            self->_textView->setText("he\nhello");
+                            self->_textView->text = ("he\nhello");
 
                             CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, availableHeight, emptyTextPreferredSize)
                             {
@@ -171,7 +171,7 @@ namespace bdn
 
                                 // when we go back to empty text then we should
                                 // get the original size
-                                self->_textView->setText("");
+                                self->_textView->text = ("");
 
                                 CONTINUE_SECTION_WHEN_IDLE(self, availableHeight, emptyTextPreferredSize)
                                 {
@@ -185,13 +185,13 @@ namespace bdn
 
                 SECTION("CRLF same as LF")
                 {
-                    _textView->setText("hello world\nbla");
+                    _textView->text = ("hello world\nbla");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
                         Size sizeLF = self->_textView->calcPreferredSize(Size(Size::componentNone(), availableHeight));
 
-                        self->_textView->setText("hello world\r\nbla");
+                        self->_textView->text = ("hello world\r\nbla");
 
                         CONTINUE_SECTION_WHEN_IDLE(self, sizeLF, availableHeight)
                         {
@@ -206,7 +206,7 @@ namespace bdn
                 SECTION("availableWidth has no effect if bigger than "
                         "unconstrained width")
                 {
-                    _textView->setText("hello world");
+                    _textView->text = ("hello world");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
@@ -221,7 +221,7 @@ namespace bdn
                 SECTION("availableWidth has no effect if equal to "
                         "unconstrained width")
                 {
-                    _textView->setText("hello world");
+                    _textView->text = ("hello world");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
@@ -235,21 +235,21 @@ namespace bdn
 
                 SECTION("smaller availableWidth causes word wrap")
                 {
-                    _textView->setText("hellohello worldworld\nblabb");
+                    _textView->text = ("hellohello worldworld\nblabb");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
                         Size wrappedAtSecondPositionSize =
                             self->_textView->calcPreferredSize(Size(Size::componentNone(), availableHeight));
 
-                        self->_textView->setText("hellohello\nworldworld blabb");
+                        self->_textView->text = ("hellohello\nworldworld blabb");
 
                         CONTINUE_SECTION_WHEN_IDLE(self, wrappedAtSecondPositionSize, availableHeight)
                         {
                             Size wrappedAtFirstPositionSize =
                                 self->_textView->calcPreferredSize(Size(Size::componentNone(), availableHeight));
 
-                            self->_textView->setText("hellohello worldworld blabb");
+                            self->_textView->text = ("hellohello worldworld blabb");
 
                             CONTINUE_SECTION_WHEN_IDLE(self, wrappedAtSecondPositionSize, wrappedAtFirstPositionSize,
                                                        availableHeight)
@@ -299,7 +299,7 @@ namespace bdn
 
                 SECTION("availableWidth below single word width")
                 {
-                    _textView->setText("hello");
+                    _textView->text = ("hello");
 
                     CONTINUE_SECTION_WHEN_IDLE(self, availableHeight)
                     {
@@ -339,7 +339,8 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestTextViewCore> self = this;
+                std::shared_ptr<TestTextViewCore> self =
+                    std::dynamic_pointer_cast<TestTextViewCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -347,7 +348,7 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _textView->setText("helloworld");
+                        _textView->text = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreText(); };
                     }
@@ -371,9 +372,7 @@ namespace bdn
                property.*/
             virtual void verifyCoreText() = 0;
 
-            P<TextView> _textView;
+            std::shared_ptr<TextView> _textView;
         };
     }
 }
-
-#endif

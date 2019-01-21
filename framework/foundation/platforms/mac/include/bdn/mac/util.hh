@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_util_HH_
-#define BDN_MAC_util_HH_
+#pragma once
 
 #import <AppKit/AppKit.h>
 #import <bdn/foundationkit/stringUtil.hh>
@@ -164,5 +163,3 @@ namespace bdn
 #endif
     }
 }
-
-#endif

@@ -1,7 +1,5 @@
-#ifndef BDN_MAC_TextFieldCore_HH_
-#define BDN_MAC_TextFieldCore_HH_
+#pragma once
 
-#include <bdn/init.h>
 #include <bdn/TextField.h>
 #include <bdn/ITextFieldCore.h>
 #include <bdn/mac/ChildViewCore.hh>
@@ -14,10 +12,10 @@ namespace bdn
     namespace mac
     {
 
-        class TextFieldCore : public ChildViewCore, BDN_IMPLEMENTS ITextFieldCore
+        class TextFieldCore : public ChildViewCore, virtual public ITextFieldCore
         {
           private:
-            static NSTextField *_createNsTextView(TextField *outerTextField)
+            static NSTextField *_createNsTextView(std::shared_ptr<TextField> outerTextField)
             {
                 NSTextField *textField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 textField.allowsEditingTextAttributes = NO; // plain textfield, no attribution/formatting
@@ -27,8 +25,10 @@ namespace bdn
             }
 
           public:
-            TextFieldCore(TextField *outerTextField);
+            TextFieldCore(std::shared_ptr<TextField> outerTextField);
             ~TextFieldCore();
+
+            void init(std::shared_ptr<TextField> outerTextField);
 
             void setText(const String &text) override
             {
@@ -43,5 +43,3 @@ namespace bdn
         };
     }
 }
-
-#endif

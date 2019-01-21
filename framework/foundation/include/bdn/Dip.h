@@ -1,5 +1,4 @@
-#ifndef BDN_Dip_H_
-#define BDN_Dip_H_
+#pragma once
 
 #include <map>
 
@@ -331,5 +330,3 @@ inline bool operator>(double a, const bdn::Dip &b) { return b < a; }
 inline bool operator<=(double a, const bdn::Dip &b) { return b >= a; }
 
 inline bool operator>=(double a, const bdn::Dip &b) { return b <= a; }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JGravity_H_
-#define BDN_ANDROID_JGravity_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 
@@ -51,5 +50,3 @@ namespace bdn
         };
     }
 }
-
-#endif

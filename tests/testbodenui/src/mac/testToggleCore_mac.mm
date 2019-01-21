@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Toggle.h>
@@ -22,7 +22,7 @@ class TestMacToggleCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _toggle->label();
+        String expectedLabel = _toggle->label;
 
         String label = bdn::mac::macStringToString(_nSButton.title);
 
@@ -31,7 +31,7 @@ class TestMacToggleCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _toggle->on();
+        bool expectedOn = _toggle->on;
         bool on = _nSButton.state == NSControlStateValueOn;
         REQUIRE(on == expectedOn);
     }
@@ -42,7 +42,7 @@ class TestMacToggleCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
 TEST_CASE("mac.ToggleCore")
 {
-    P<TestMacToggleCore> test = newObj<TestMacToggleCore>();
+    std::shared_ptr<TestMacToggleCore> test = std::make_shared<TestMacToggleCore>();
 
     test->runTests();
 }

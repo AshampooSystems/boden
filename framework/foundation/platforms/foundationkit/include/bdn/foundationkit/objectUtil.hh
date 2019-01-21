@@ -1,7 +1,9 @@
-#ifndef BDN_FK_objectUtil_HH_
-#define BDN_FK_objectUtil_HH_
+#pragma once
 
 #import <CoreFoundation/CoreFoundation.h>
+#include <memory>
+
+#include <bdn/Base.h>
 
 namespace bdn
 {
@@ -15,14 +17,12 @@ namespace bdn
             The object can be unwrapped with unwrapFromNSObject()
 
             */
-        NSObject *wrapIntoNSObject(IBase *p);
+        NSObject *wrapIntoNSObject(std::shared_ptr<Base> p);
 
         /** Unwraps a previously wrapped Boden object from an NSObject.
             If the specified NSObject is nil or was not created by
            wrapIntoNSObject then this function returns null pointer.
             */
-        P<IBase> unwrapFromNSObject(NSObject *ns);
+        std::shared_ptr<Base> unwrapFromNSObject(NSObject *ns);
     }
 }
-
-#endif

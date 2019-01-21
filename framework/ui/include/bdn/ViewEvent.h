@@ -1,5 +1,4 @@
-#ifndef BDN_ViewEvent_H_
-#define BDN_ViewEvent_H_
+#pragma once
 
 #include <bdn/View.h>
 
@@ -9,13 +8,11 @@ namespace bdn
     class ViewEvent : public Base
     {
       public:
-        ViewEvent(View *view) { _view = view; }
+        ViewEvent(std::shared_ptr<View> view) { _view = view; }
 
-        P<View> getView() { return _view; }
+        std::shared_ptr<View> getView() { return _view; }
 
       protected:
-        P<View> _view;
+        std::shared_ptr<View> _view;
     };
 }
-
-#endif

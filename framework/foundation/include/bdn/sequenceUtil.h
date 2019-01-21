@@ -1,5 +1,4 @@
-#ifndef BDN_sequenceUtil_H_
-#define BDN_sequenceUtil_H_
+#pragma once
 
 #include <bdn/SequenceFilter.h>
 
@@ -24,7 +23,7 @@ namespace bdn
        parameters:
 
         - BaseSequenceType: the type of the base sequence. For example, if an
-       array of integers is filtered then this would be bdn::Array<int>.
+       array of integers is filtered then this would be bdn::std::vector<int>.
         - FilterFuncType: the type of the filter function (see below)
 
         The filter function gets two parameters: a reference to the base
@@ -43,14 +42,14 @@ namespace bdn
         \code
 
         // the base sequence consists of the numbers 1 to 5 in a random order
-        Array<int> baseSequence { 2, 5, 3, 4, 1 };
+        std::vector<int> baseSequence { 2, 5, 3, 4, 1 };
 
         // now we create a filtered sequence that filters out all elements that
        are bigger than 3
 
         auto filteredSequence = filterSequence( baseSequence,
-                                                []( Array<int>& baseSequence,
-       Array<int>::Iterator it )
+                                                []( std::vector<int>& baseSequence,
+       std::vector<int>::Iterator it )
                                                 {
                                                     while(
        it!=baseSequence.end() && *it > 3 )
@@ -80,5 +79,3 @@ namespace bdn
         return SequenceFilter<BaseSequence, FilterFuncType>(baseSequence, filterFunc);
     }
 }
-
-#endif

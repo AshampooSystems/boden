@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -65,7 +65,7 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
 
         viewSize =
             _scrollView
-                ->adjustBounds(bdn::Rect(_scrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
+                ->adjustBounds(bdn::Rect(_scrollView->position, viewSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // we cannot resize the scroll view directly with adjustAndSetBounds.
@@ -73,8 +73,8 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _scrollView->setPreferredSizeMinimum(viewSize);
-        _scrollView->setPreferredSizeMaximum(viewSize);
+        _scrollView->preferredSizeMinimum = (viewSize);
+        _scrollView->preferredSizeMaximum = (viewSize);
 
         _window->requestAutoSize();
 
@@ -117,10 +117,10 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> contentView = _scrollView->getContentView();
+        std::shared_ptr<View> contentView = _scrollView->getContentView();
 
         if (contentView != nullptr) {
-            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
+            bdn::Rect bounds(_scrollView->getContentView()->position, contentView->size);
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -173,6 +173,6 @@ TEST_CASE("mac.ScrollViewCore")
 {
     printScrollerStyle();
 
-    P<TestMacScrollViewCore> test = newObj<TestMacScrollViewCore>();
+    std::shared_ptr<TestMacScrollViewCore> test = std::make_shared<TestMacScrollViewCore>();
     test->runTests();
 }

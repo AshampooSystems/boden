@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_ButtonCore_HH_
-#define BDN_IOS_ButtonCore_HH_
+#pragma once
 
 #include <bdn/IButtonCore.h>
 #include <bdn/ClickEvent.h>
@@ -12,27 +11,21 @@ namespace bdn
     namespace ios
     {
 
-        class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
+        class ButtonCore : public ViewCore, virtual public IButtonCore
         {
           private:
-            static UIButton *_createUIButton(Button *outerButton);
+            static UIButton *_createUIButton(std::shared_ptr<Button> outerButton);
 
           public:
-            ButtonCore(Button *outerButton);
-
+            ButtonCore(std::shared_ptr<Button> outerButton);
             ~ButtonCore();
 
-            UIButton *getUIButton() { return _button; }
-
-            void setLabel(const String &label) override
-            {
-                [_button setTitle:stringToIosString(label) forState:UIControlStateNormal];
-            }
-
+            UIButton *getUIButton();
+            void setLabel(const String &label) override;
             void _clicked();
 
           protected:
-            double getFontSize() const override { return _button.titleLabel.font.pointSize; }
+            double getFontSize() const override;
 
           private:
             UIButton *_button;
@@ -41,5 +34,3 @@ namespace bdn
         };
     }
 }
-
-#endif

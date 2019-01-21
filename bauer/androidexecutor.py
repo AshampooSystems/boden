@@ -133,7 +133,7 @@ class AndroidExecutor:
 
         makefile_android_abi = self.getAndroidABIFromArch(configuration.arch)
         if not makefile_android_abi:
-            # If we target multiple architectures at the same time then we simply use x86 for the temporary
+            # If we target multiple architectures at the same time, we simply use x86 for the temporary
             # Makefile project we generate here (since makefiles support only one architecture).
             # Note that the makefile is only used temporarily to detect the available projects and is never
             # used to build anything.
@@ -178,16 +178,8 @@ class AndroidExecutor:
 
             projects += [{"name" : project["name"], "sourceDirectory" : project["sourceDirectory"],"targetNames" : targetNames, "targets" : targets}]
 
-        # The way Android Studio builds projects with native code has changed
-        # quite a bit over time. It used to be very messy, requiring experimental
-        # plugins to work properly.
-        # Since AndroidStudio 3.0 this has changed and there is a "standard" way
-        # to do this. AndroidStudio now includes a custom, forked CMake
-        # that actually works - and this builds the native code side.
-        # We only support the new style projects now (see git history if
-        # you want to know what it used to look like).
-
-        generator = AndroidStudioProjectGenerator(self.gradle, buildDir, self.androidBuildApiVersion)
+        # Use external CMake for building native code (supported as of AndroidStudio 3.2)
+        generator = AndroidStudioProjectGenerator(self.gradle, self.cmake, buildDir, self.androidBuildApiVersion)
        
         for project in projects:
             self.logger.debug("Generating project %s with targets: %s", project["name"], project["targetNames"])

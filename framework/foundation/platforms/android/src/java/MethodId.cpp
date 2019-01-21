@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/MethodId.h>
 
 #include <bdn/java/Env.h>
@@ -12,8 +12,8 @@ namespace bdn
         {
             Env &env = Env::get();
 
-            jmethodID methodId = env.getJniEnv()->GetMethodID((jclass)cls.getJObject_(), methodName.asUtf8Ptr(),
-                                                              methodSignature.asUtf8Ptr());
+            jmethodID methodId =
+                env.getJniEnv()->GetMethodID((jclass)cls.getJObject_(), methodName.c_str(), methodSignature.c_str());
             env.throwAndClearExceptionFromLastJavaCall();
 
             init(methodId);
@@ -23,8 +23,8 @@ namespace bdn
         {
             Env &env = Env::get();
 
-            jmethodID methodId = env.getJniEnv()->GetStaticMethodID((jclass)cls.getJObject_(), methodName.asUtf8Ptr(),
-                                                                    methodSignature.asUtf8Ptr());
+            jmethodID methodId = env.getJniEnv()->GetStaticMethodID((jclass)cls.getJObject_(), methodName.c_str(),
+                                                                    methodSignature.c_str());
             env.throwAndClearExceptionFromLastJavaCall();
 
             init(methodId);

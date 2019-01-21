@@ -1,5 +1,4 @@
-#ifndef BDN_PropertyNotifier_H_
-#define BDN_PropertyNotifier_H_
+#pragma once
 
 #include <bdn/DummyMutex.h>
 #include <bdn/IPropertyNotifier.h>
@@ -16,7 +15,7 @@ namespace bdn
         // note that we use DummyMutex (i.e. no actual mutex operations will
         // happen)
         ,
-                             BDN_IMPLEMENTS IPropertyNotifier<PROPERTY_VALUE_TYPE>
+                             virtual public IPropertyNotifier<PROPERTY_VALUE_TYPE>
     {
       private:
         using BASE = NotifierBase<DummyMutex, const PROPERTY_VALUE_TYPE &>;
@@ -45,5 +44,3 @@ namespace bdn
         }
     };
 }
-
-#endif

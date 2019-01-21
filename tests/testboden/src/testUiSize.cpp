@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 
 #include <bdn/UiSize.h>
 
@@ -73,6 +73,9 @@ TEST_CASE("UiSize")
     {
         UiSize m(1.125, -345.125);
 
-        REQUIRE(toString(m) == "(1.125 dip x -345.125 dip)");
+        std::ostringstream str;
+        str << m;
+
+        REQUIRE(str.str() == "(1.125 dip x -345.125 dip)");
     }
 }

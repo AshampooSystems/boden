@@ -1,5 +1,4 @@
-#ifndef BDN_ClickEvent_H_
-#define BDN_ClickEvent_H_
+#pragma once
 
 #include <bdn/ViewEvent.h>
 
@@ -9,8 +8,6 @@ namespace bdn
     class ClickEvent : public ViewEvent
     {
       public:
-        ClickEvent(View *view) : ViewEvent(view) {}
+        using ViewEvent::ViewEvent;
     };
 }
-
-#endif

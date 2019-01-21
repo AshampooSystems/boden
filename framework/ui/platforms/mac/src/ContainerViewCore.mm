@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/mac/ContainerViewCore.hh>
 
 /** NSView implementation that is used internally by
@@ -22,7 +22,7 @@ namespace bdn
     namespace mac
     {
 
-        NSView *ContainerViewCore::_createContainer(ContainerView *outer)
+        NSView *ContainerViewCore::_createContainer(std::shared_ptr<ContainerView> outer)
         {
             return [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
         }

@@ -8,7 +8,7 @@ class ErrorWithExitCode(Exception):
     def __init__(self, exitCode, errorMessage):
         Exception.__init__(self, errorMessage);
         self.exitCode = exitCode;
-
+        self.errorMessage = errorMessage;
 
 
 class PreparedStateError(ErrorWithExitCode):

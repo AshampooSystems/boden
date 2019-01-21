@@ -283,6 +283,8 @@ def validateGlobalSettings(cmakeCommand, cmakeCommandPath, data):
   if (versionString != cmakeVersion):
     sys.exit(9)
 
+  print("VERSION:", versionString)
+
   # validate generators:
   generatorObjects = capabilities['generators']
 

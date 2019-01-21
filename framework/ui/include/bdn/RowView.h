@@ -1,5 +1,4 @@
-#ifndef BDN_RowView_H_
-#define BDN_RowView_H_
+#pragma once
 
 #include <bdn/LinearLayoutView.h>
 
@@ -24,5 +23,3 @@ namespace bdn
         RowView();
     };
 }
-
-#endif

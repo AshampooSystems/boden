@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_ScrollViewCore_HH_
-#define BDN_IOS_ScrollViewCore_HH_
+#pragma once
 
 #include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
@@ -13,15 +12,15 @@ namespace bdn
     namespace ios
     {
 
-        class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore
+        class ScrollViewCore : public ViewCore, virtual public IScrollViewCore
         {
           private:
-            static UIScrollView *_createScrollView(ScrollView *outer);
+            static UIScrollView *_createScrollView(std::shared_ptr<ScrollView> outer);
 
           public:
-            ScrollViewCore(ScrollView *outer);
+            ScrollViewCore(std::shared_ptr<ScrollView> outer);
 
-            void setPadding(const Nullable<UiMargin> &padding) override;
+            void setPadding(const std::optional<UiMargin> &padding) override;
 
             void setHorizontalScrollingEnabled(const bool &enabled) override;
             void setVerticalScrollingEnabled(const bool &enabled) override;
@@ -55,5 +54,3 @@ namespace bdn
         };
     }
 }
-
-#endif

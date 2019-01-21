@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/String.h>
-#include <bdn/safeStatic.h>
 
 #include <bdn/log.h>
 
@@ -24,7 +23,8 @@ namespace bdn
 
             virtual void log(Severity severity, const String &message);
 
-            BDN_SAFE_STATIC(std::unique_ptr<Hooks>, get);
+          public:
+            static std::unique_ptr<Hooks> &get();
         };
     }
 }

@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_TextFieldCore_H_
-#define BDN_ANDROID_TextFieldCore_H_
+#pragma once
 
 #include <bdn/android/JEditText.h>
 #include <bdn/android/JKeyEvent.h>
@@ -17,42 +16,43 @@ namespace bdn
     namespace android
     {
 
-        class TextFieldCore : public ViewCore, BDN_IMPLEMENTS ITextFieldCore
+        class TextFieldCore : public ViewCore, virtual public ITextFieldCore
         {
           private:
-            static P<JEditText> _createJEditText(TextField *outer)
+            static std::shared_ptr<JEditText> _createJEditText(std::shared_ptr<TextField> outer)
             {
                 // We need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> parent = outer->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr)
                     throw ProgrammingError("TextFieldCore instance requested for a TextField that "
                                            "does not have a parent.");
 
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("TextFieldCore instance requested for a TextField with "
                                            "core-less parent.");
 
                 JContext context = parentCore->getJView().getContext();
 
-                return newObj<JEditText>(context);
+                return std::make_shared<JEditText>(context);
             }
 
           public:
-            TextFieldCore(TextField *outerTextField) : ViewCore(outerTextField, _createJEditText(outerTextField))
+            TextFieldCore(std::shared_ptr<TextField> outerTextField)
+                : ViewCore(outerTextField, _createJEditText(outerTextField))
             {
-                _jEditText = cast<JEditText>(&getJView());
+                _jEditText = std::dynamic_pointer_cast<JEditText>(getJViewPtr());
                 _jEditText->setSingleLine(true);
 
-                _watcher = newObj<bdn::android::JNativeEditTextTextWatcher>(*_jEditText);
+                _watcher = std::make_shared<bdn::android::JNativeEditTextTextWatcher>(*_jEditText);
                 _jEditText->addTextChangedListener(*_watcher);
 
-                _onEditorActionListener = newObj<bdn::android::JNativeTextViewOnEditorActionListener>();
+                _onEditorActionListener = std::make_shared<bdn::android::JNativeTextViewOnEditorActionListener>();
                 _jEditText->setOnEditorActionListener(*_onEditorActionListener);
 
-                setText(outerTextField->text());
+                setText(outerTextField->text);
             }
 
             JEditText &getJEditText() { return *_jEditText; }
@@ -78,9 +78,10 @@ namespace bdn
             void afterTextChanged()
             {
                 String newText = _jEditText->getText();
-                P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
+                std::shared_ptr<TextField> outerTextField =
+                    std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
-                    outerTextField->setText(newText);
+                    outerTextField->text = (newText);
                 }
             }
 
@@ -91,7 +92,8 @@ namespace bdn
                     _jEditText->getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
                 inputManager.hideSoftInputFromWindow(_jEditText->getWindowToken(), 0);
 
-                P<TextField> outerTextField = cast<TextField>(getOuterViewIfStillAttached());
+                std::shared_ptr<TextField> outerTextField =
+                    std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
                     outerTextField->submit();
                 }
@@ -106,11 +108,9 @@ namespace bdn
             }
 
           private:
-            P<JEditText> _jEditText;
-            P<JNativeEditTextTextWatcher> _watcher;
-            P<JNativeTextViewOnEditorActionListener> _onEditorActionListener;
+            std::shared_ptr<JEditText> _jEditText;
+            std::shared_ptr<JNativeEditTextTextWatcher> _watcher;
+            std::shared_ptr<JNativeTextViewOnEditorActionListener> _onEditorActionListener;
         };
     }
 }
-
-#endif // BDN_ANDROID_TextFieldCore_H_

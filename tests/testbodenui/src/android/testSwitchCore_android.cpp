@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Switch.h>
@@ -21,14 +21,14 @@ class TestAndroidSwitchCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _switch->label();
+        String expectedLabel = _switch->label;
         String label = _jSwitch.getText();
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _switch->on();
+        bool expectedOn = _switch->on;
         bool on = _jSwitch.isChecked();
         REQUIRE(on == expectedOn);
     }
@@ -39,7 +39,7 @@ class TestAndroidSwitchCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.SwitchCore")
 {
-    P<TestAndroidSwitchCore> test = newObj<TestAndroidSwitchCore>();
+    std::shared_ptr<TestAndroidSwitchCore> test = std::make_shared<TestAndroidSwitchCore>();
 
     test->runTests();
 }

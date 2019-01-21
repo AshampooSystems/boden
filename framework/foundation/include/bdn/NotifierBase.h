@@ -1,37 +1,49 @@
-#ifndef BDN_NotifierBase_H_
-#define BDN_NotifierBase_H_
+#pragma once
 
 #include <bdn/IAsyncNotifier.h>
 #include <bdn/ISyncNotifier.h>
 #include <bdn/DanglingFunctionError.h>
 
-#include <bdn/Map.h>
-
 #include <functional>
+#include <map>
 
 namespace bdn
 {
-
     /** Base class for notifier implementations.
 
         The MUTEX_TYPE template parameter indicates the type of the mutex object
-       that the Notifier uses. Pass bdn::Mutex to use a normal mutex. You can
+       that the Notifier uses. Pass bdn::std::recursive_mutex to use a normal mutex. You can
        also pass bdn::DummyMutex to use a fake mutex that does nothing (thus
        removing multithread support).
     */
-    template <class MUTEX_TYPE, class... ARG_TYPES>
-    class NotifierBase : public Base, BDN_IMPLEMENTS INotifierBase<ARG_TYPES...>
+    struct atomic
     {
+        std::mutex _mutex;
+        void lock() { _mutex.lock(); }
+        void unlock() { _mutex.unlock(); }
+    };
+
+    struct nonatomic
+    {
+        void lock() {}
+        void unlock() {}
+    };
+
+    template <typename atomicity, class... ARG_TYPES> class NotifierBase : virtual public INotifierBase<ARG_TYPES...>
+    {
+      private:
+        atomicity _atomicity;
+
       public:
         NotifierBase() {}
 
         ~NotifierBase() {}
 
-        P<INotifierSubscription> subscribe(const std::function<void(ARG_TYPES...)> &func) override
+        std::shared_ptr<INotifierSubscription> subscribe(const std::function<void(ARG_TYPES...)> &func) override
         {
             int64_t subId = doSubscribe(func);
 
-            return newObj<Subscription_>(subId);
+            return std::make_shared<Subscription_>(subId);
         }
 
         INotifierBase<ARG_TYPES...> &operator+=(const std::function<void(ARG_TYPES...)> &func) override
@@ -41,16 +53,19 @@ namespace bdn
             return *this;
         }
 
-        P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
+        std::shared_ptr<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
         {
             return subscribe(ParamlessFunctionAdapter(func));
         }
 
-        void unsubscribe(INotifierSubscription *sub) override { unsubscribeById(cast<Subscription_>(sub)->subId()); }
+        void unsubscribe(std::shared_ptr<INotifierSubscription> sub) override
+        {
+            unsubscribeById(std::dynamic_pointer_cast<Subscription_>(sub)->subId());
+        }
 
         void unsubscribeAll() override
         {
-            typename MUTEX_TYPE::Lock lock(_mutex);
+            std::unique_lock lock(_atomicity);
 
             _subMap.clear();
 
@@ -94,7 +109,7 @@ namespace bdn
             // point in time when we actually make the call.
 
             {
-                typename MUTEX_TYPE::Lock lock(_mutex);
+                std::unique_lock lock(_atomicity);
 
                 // We also need to ensure that subscribers that are removed
                 // while our notification call is running are not called after
@@ -142,7 +157,7 @@ namespace bdn
                         // more directly after unsubscribe finishes.
 
                         try {
-                            typename MUTEX_TYPE::Unlock unlock(_mutex);
+                            _atomicity.unlock();
 
                             // note: we MUST NOT use std::forward here, since we
                             // may have to call multiple subscribers.
@@ -151,6 +166,7 @@ namespace bdn
                             // additionalCallMakerArgs variable might otherwise
                             // be invalidated by the first subscriber call.
                             callMaker(item.second.func, additionalCallMakerArgs...);
+                            _atomicity.lock();
                         }
                         catch (DanglingFunctionError &) {
                             // this is a perfectly normal case. It means that
@@ -191,7 +207,7 @@ namespace bdn
         */
         virtual int64_t doSubscribe(const std::function<void(ARG_TYPES...)> &func)
         {
-            typename MUTEX_TYPE::Lock lock(_mutex);
+            std::unique_lock lock(_atomicity);
 
             int64_t subId = _nextSubId;
             _nextSubId++;
@@ -200,9 +216,6 @@ namespace bdn
 
             return subId;
         }
-
-        /** Returns a reference to the mutex that the notifier uses.*/
-        MUTEX_TYPE &getMutex() { return _mutex; }
 
       private:
         struct Sub_
@@ -218,12 +231,12 @@ namespace bdn
         {
             NotificationState *next = nullptr;
 
-            typename Map<int64_t, Sub_>::Iterator nextItemIt;
+            typename std::map<int64_t, Sub_>::iterator nextItemIt;
         };
 
         void unsubscribeById(int64_t subId)
         {
-            typename MUTEX_TYPE::Lock lock(_mutex);
+            std::unique_lock lock(_atomicity);
 
             auto it = _subMap.find(subId);
             if (it != _subMap.end()) {
@@ -280,7 +293,7 @@ namespace bdn
             std::function<void()> _func;
         };
 
-        class Subscription_ : public Base, BDN_IMPLEMENTS INotifierSubscription
+        class Subscription_ : public Base, virtual public INotifierSubscription
         {
           public:
             Subscription_(int64_t subId) : _subId(subId) {}
@@ -291,11 +304,8 @@ namespace bdn
             int64_t _subId;
         };
 
-        MUTEX_TYPE _mutex;
         int64_t _nextSubId = 1;
-        Map<int64_t, Sub_> _subMap;
+        std::map<int64_t, Sub_> _subMap;
         NotificationState *_firstNotificationState = nullptr;
     };
 }
-
-#endif

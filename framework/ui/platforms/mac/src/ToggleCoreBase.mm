@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/mac/ToggleCoreBase.hh>
 
 #import <Cocoa/Cocoa.h>
@@ -10,8 +10,6 @@
 
 @implementation BdnToggleClickManager
 
-- (void)setToggleCoreBase:(bdn::mac::ToggleCoreBase *)core { _toggleCoreBase = core; }
-
 - (void)clicked { _toggleCoreBase->generateClick(); }
 
 @end
@@ -21,7 +19,8 @@ namespace bdn
     namespace mac
     {
 
-        ToggleCoreBase::ToggleCoreBase(View *outerToggle) : ButtonCoreBase(outerToggle, _createNsButton())
+        ToggleCoreBase::ToggleCoreBase(std::shared_ptr<View> outerToggle)
+            : ButtonCoreBase(outerToggle, _createNsButton())
         {
             BdnToggleClickManager *clickMan = [[BdnToggleClickManager alloc] init];
             [clickMan setToggleCoreBase:this];

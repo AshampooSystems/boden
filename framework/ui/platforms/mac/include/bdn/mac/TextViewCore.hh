@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_TextViewCore_HH_
-#define BDN_MAC_TextViewCore_HH_
+#pragma once
 
 #include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
@@ -37,10 +36,10 @@ namespace bdn
     namespace mac
     {
 
-        class TextViewCore : public ChildViewCore, BDN_IMPLEMENTS ITextViewCore
+        class TextViewCore : public ChildViewCore, virtual public ITextViewCore
         {
           private:
-            static BdnMacTextView_ *_createNSTextView(TextView *outerTextView)
+            static BdnMacTextView_ *_createNSTextView(std::shared_ptr<TextView> outerTextView)
             {
                 BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -55,11 +54,12 @@ namespace bdn
             }
 
           public:
-            TextViewCore(TextView *outerTextView) : ChildViewCore(outerTextView, _createNSTextView(outerTextView))
+            TextViewCore(std::shared_ptr<TextView> outerTextView)
+                : ChildViewCore(outerTextView, _createNSTextView(outerTextView))
             {
                 _nsTextView = (BdnMacTextView_ *)getNSView();
 
-                setText(outerTextView->text());
+                setText(outerTextView->text);
             }
 
             void setText(const String &text) override
@@ -71,7 +71,7 @@ namespace bdn
                 [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
             }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 // we can set an "inset" for the text.
                 // However, that is CGSize value that is used as both the
@@ -83,8 +83,8 @@ namespace bdn
                 // other.
 
                 Margin dipPadding;
-                if (!padding.isNull())
-                    dipPadding = uiMarginToDipMargin(padding.get());
+                if (padding)
+                    dipPadding = uiMarginToDipMargin(*padding);
 
                 int paddingWidth = dipPadding.left + dipPadding.right;
                 int paddingHeight = dipPadding.top + dipPadding.bottom;
@@ -156,10 +156,10 @@ namespace bdn
                 // so that the wrapping will take that into account as well.
                 Size wrapSize = availableSpace;
 
-                P<const View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    wrapSize.applyMaximum(view->preferredSizeHint());
-                    wrapSize.applyMaximum(view->preferredSizeMaximum());
+                    wrapSize.applyMaximum(view->preferredSizeHint);
+                    wrapSize.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 if (std::isfinite(wrapSize.width))
@@ -180,8 +180,8 @@ namespace bdn
                 size += additionalSpace;
 
                 if (view != nullptr) {
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -195,5 +195,3 @@ namespace bdn
         };
     }
 }
-
-#endif

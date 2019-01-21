@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_WeakReference_H_
-#define BDN_JAVA_WeakReference_H_
+#pragma once
 
 #include <bdn/java/Reference.h>
 
@@ -57,7 +56,7 @@ namespace bdn
             bool operator!=(const Reference &strongRef) const { return !operator==(strongRef); }
 
           private:
-            WeakReference(jobject weakRef) : _shared(newObj<Shared>(weakRef)) {}
+            WeakReference(jobject weakRef) : _shared(std::make_shared<Shared>(weakRef)) {}
 
             class Shared : public Base
             {
@@ -72,9 +71,7 @@ namespace bdn
                 jobject _ref;
             };
 
-            P<Shared> _shared;
+            std::shared_ptr<Shared> _shared;
         };
     }
 }
-
-#endif

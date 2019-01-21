@@ -1,11 +1,11 @@
-#ifndef BDN_AppRunnerBase_H_
-#define BDN_AppRunnerBase_H_
+#pragma once
 
 #include <bdn/AppLaunchInfo.h>
-#include <bdn/IAppRunner.h>
 #include <bdn/AppControllerBase.h>
+#include <bdn/IDispatcher.h>
 
 #include <functional>
+#include <thread>
 
 namespace bdn
 {
@@ -17,10 +17,11 @@ namespace bdn
         to implement custom steps.
 
         */
-    class AppRunnerBase : public Base, BDN_IMPLEMENTS IAppRunner
+    class AppRunnerBase : public Base
     {
       public:
-        AppRunnerBase(std::function<P<AppControllerBase>()> appControllerCreator, const AppLaunchInfo &launchInfo)
+        AppRunnerBase(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+                      const AppLaunchInfo &launchInfo)
         {
             _appControllerCreator = appControllerCreator;
             _launchInfo = launchInfo;
@@ -46,7 +47,7 @@ namespace bdn
         virtual void finishLaunch();
 
         /** Returns the app's launch information.*/
-        const AppLaunchInfo &getLaunchInfo() const override { return _launchInfo; }
+        const AppLaunchInfo &getLaunchInfo() const { return _launchInfo; }
 
         /** Notifies the app runner that an unhandled exception was encountered.
 
@@ -64,7 +65,17 @@ namespace bdn
            continue (only allowed if canKeepRunning is true). False if the app
            should terminate.
             */
-        bool unhandledException(bool canKeepRunning) override;
+        bool unhandledException(bool canKeepRunning);
+
+        virtual bool isCommandLineApp() const = 0;
+
+        virtual std::shared_ptr<IDispatcher> getMainDispatcher() = 0;
+
+        virtual void initiateExitIfPossible(int exitCode) = 0;
+
+        static std::thread::id mainThreadId() { return _mainThreadId; }
+        static bool isMainThread() { return std::this_thread::get_id() == _mainThreadId; }
+        static void assertInMainThread() { assert(isMainThread()); }
 
       protected:
         void setLaunchInfo(const AppLaunchInfo &launchInfo) { _launchInfo = launchInfo; }
@@ -91,10 +102,12 @@ namespace bdn
 
       private:
         AppLaunchInfo _launchInfo;
-        std::function<P<AppControllerBase>()> _appControllerCreator;
+        std::function<std::shared_ptr<AppControllerBase>()> _appControllerCreator;
+        static std::thread::id _mainThreadId;
 
         bool _appControllerBeginLaunchCalled = false;
     };
-}
 
-#endif
+    std::shared_ptr<AppRunnerBase> getAppRunner();
+    void _setAppRunner(std::shared_ptr<AppRunnerBase> pAppRunner);
+}

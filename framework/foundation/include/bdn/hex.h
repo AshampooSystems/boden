@@ -1,5 +1,4 @@
-#ifndef BDN_hex_H_
-#define BDN_hex_H_
+#pragma once
 
 namespace bdn
 {
@@ -43,5 +42,3 @@ namespace bdn
             return 0;
     }
 }
-
-#endif

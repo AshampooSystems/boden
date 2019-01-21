@@ -1,5 +1,4 @@
-#ifndef BDN_Size_H_
-#define BDN_Size_H_
+#pragma once
 
 #include <bdn/Margin.h>
 
@@ -182,5 +181,3 @@ inline bool operator>(const bdn::Size &a, const bdn::Size &b) { return (a.width 
 
 /** Returns true if a's width and height are each bigger or equal to b's */
 inline bool operator>=(const bdn::Size &a, const bdn::Size &b) { return (a.width >= b.width && a.height >= b.height); }
-
-#endif

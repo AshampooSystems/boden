@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_WindowCore_HH_
-#define BDN_MAC_WindowCore_HH_
+#pragma once
 
 #include <Cocoa/Cocoa.h>
 
@@ -20,20 +19,20 @@ namespace bdn
     {
 
         class WindowCore : public Base,
-                           BDN_IMPLEMENTS IWindowCore,
-                           BDN_IMPLEMENTS IParentViewCore,
-                           BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+                           virtual public IWindowCore,
+                           virtual public IParentViewCore,
+                           virtual public LayoutCoordinator::IWindowCoreExtension
         {
           public:
-            WindowCore(View *outer);
+            WindowCore(std::shared_ptr<View> outer);
 
             ~WindowCore();
 
             NSWindow *getNSWindow() { return _nsWindow; }
 
-            P<Window> getOuterWindowIfStillAttached() { return _outerWindowWeak.toStrong(); }
+            std::shared_ptr<Window> getOuterWindowIfStillAttached() { return _outerWindowWeak.lock(); }
 
-            P<const Window> getOuterWindowIfStillAttached() const { return _outerWindowWeak.toStrong(); }
+            std::shared_ptr<const Window> getOuterWindowIfStillAttached() const { return _outerWindowWeak.lock(); }
 
             void setTitle(const String &title) override { [_nsWindow setTitle:stringToMacString(title)]; }
 
@@ -45,7 +44,7 @@ namespace bdn
                     [_nsWindow orderOut:NSApp];
             }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 // the outer window handles padding during layout. So nothing to
                 // do here.
@@ -63,17 +62,18 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> outerView = getOuterWindowIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterWindowIfStillAttached();
                 if (outerView != nullptr) {
-                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UiProvider> provider =
+                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *child) override
+            void childSizingInfoInvalidated(std::shared_ptr<View> child) override
             {
-                P<View> outerView = getOuterWindowIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterWindowIfStillAttached();
                 if (outerView != nullptr) {
                     outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
                     outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
@@ -147,13 +147,13 @@ namespace bdn
             void autoSize() override;
             void center() override;
 
-            bool canMoveToParentView(View &newParentView) const override
+            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override
             {
                 // we don't have a parent. Report that we cannot do this.
                 return false;
             }
 
-            void moveToParentView(View &newParentView) override
+            void moveToParentView(std::shared_ptr<View> newParentView) override
             {
                 // do nothing
             }
@@ -170,7 +170,7 @@ namespace bdn
             {
                 _currActualWindowBounds = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
 
-                P<Window> outer = getOuterWindowIfStillAttached();
+                std::shared_ptr<Window> outer = getOuterWindowIfStillAttached();
                 if (outer != nullptr)
                     outer->adjustAndSetBounds(_currActualWindowBounds);
             }
@@ -250,7 +250,7 @@ namespace bdn
             double getSemSizeDips() const
             {
                 if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+                    _semDipsIfInitialized = UiProvider::get()->getSemSizeDips();
 
                 return _semDipsIfInitialized;
             }
@@ -265,7 +265,7 @@ namespace bdn
                 return screen;
             }
 
-            WeakP<Window> _outerWindowWeak;
+            std::weak_ptr<Window> _outerWindowWeak;
             NSWindow *_nsWindow;
             NSView *_nsContentParent;
 
@@ -278,5 +278,3 @@ namespace bdn
         };
     }
 }
-
-#endif

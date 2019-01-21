@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Checkbox.h>
@@ -22,15 +22,15 @@ class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _checkbox->label();
+        String expectedLabel = _checkbox->label;
         String label = _jCheckBox.getText();
         REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
-        TriState expectedState = _checkbox->state();
-        TriState state = cast<bdn::android::CheckboxCore<Checkbox>>(_androidViewCore)->getState();
+        TriState expectedState = _checkbox->state;
+        TriState state = std::dynamic_pointer_cast<bdn::android::CheckboxCore<Checkbox>>(_androidViewCore)->getState();
         REQUIRE(state == expectedState);
     }
 
@@ -40,7 +40,7 @@ class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
 TEST_CASE("android.CheckboxCore")
 {
-    P<TestAndroidCheckboxCore> test = newObj<TestAndroidCheckboxCore>();
+    std::shared_ptr<TestAndroidCheckboxCore> test = std::make_shared<TestAndroidCheckboxCore>();
 
     test->runTests();
 }

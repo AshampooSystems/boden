@@ -1,5 +1,4 @@
-#ifndef BDN_ErrorInfo_H_
-#define BDN_ErrorInfo_H_
+#pragma once
 
 #include <bdn/ErrorFields.h>
 
@@ -100,5 +99,3 @@ namespace bdn
         ErrorFields _fields;
     };
 }
-
-#endif

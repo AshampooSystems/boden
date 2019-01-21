@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_Dispatcher_H_
-#define BDN_ANDROID_Dispatcher_H_
+#pragma once
 
 #include <bdn/IDispatcher.h>
 
@@ -16,7 +15,7 @@ namespace bdn
          *  Each Dispatcher instance is associated with an android looper
          * (passed in the constructor). *
          */
-        class Dispatcher : public Base, BDN_IMPLEMENTS IDispatcher
+        class Dispatcher : public Base, virtual public IDispatcher
         {
           public:
             Dispatcher(JLooper looper);
@@ -28,10 +27,10 @@ namespace bdn
 
             void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-            void enqueueInSeconds(double seconds, std::function<void()> func,
-                                  Priority priority = Priority::normal) override;
+            void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+                                Priority priority = Priority::normal) override;
 
-            void createTimer(double intervalSeconds, std::function<bool()> func) override;
+            void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override;
 
             /** Used internally. Do not call.*/
             static bool _onTimerEvent(void *timer);
@@ -52,5 +51,3 @@ namespace bdn
         };
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_localeUtil_H_
-#define BDN_localeUtil_H_
+#pragma once
 
 #include <bdn/config.h>
 
@@ -38,7 +37,7 @@ namespace bdn
    provide std::codecvt_utf8_utf16<unsigned short> - which is functionally
    equivalent but a different type.
     */
-#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
+#ifdef BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8_utf16<unsigned short> CodecVtUtf8Utf16;
 
 #else
@@ -58,7 +57,7 @@ namespace bdn
    provide std::codecvt_utf8<unsigned short> - which is functionally equivalent
    but a different type.
     */
-#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
+#ifdef BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8<unsigned short> CodecVtUtf8Ucs2;
 
 #else
@@ -78,7 +77,7 @@ namespace bdn
    provide std::codecvt_utf8<unsigned int> - which is functionally equivalent
    but a different type.
     */
-#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
+#ifdef BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8<unsigned int> CodecVtUtf8Utf32;
 
 #else
@@ -106,7 +105,7 @@ namespace bdn
    only provide std::codecvt<unsigned short, char, mbstate_t> - which is
    functionally equivalent but a different type.
     */
-#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
+#ifdef BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
     typedef std::codecvt<unsigned short, char, std::mbstate_t> CodecVtChar16Char;
 
 #else
@@ -125,12 +124,10 @@ namespace bdn
    only provide std::codecvt<unsigned short, char, mbstate_t> - which is
    functionally equivalent but a different type.
     */
-#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
+#ifdef BDN_STD_CODECVT_CHAR16_CHAR32_BUG // Visual Studio 2015 and 2017
     typedef std::codecvt<unsigned int, char, std::mbstate_t> CodecVtChar32Char;
 
 #else
     typedef std::codecvt<char32_t, char, std::mbstate_t> CodecVtChar32Char;
 #endif
 }
-
-#endif

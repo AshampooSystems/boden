@@ -1,29 +1,41 @@
-#include <bdn/init.h>
+
 #include <bdn/AppRunnerBase.h>
 #include <bdn/debug.h>
 
 #include <bdn/log.h>
-#include <bdn/Thread.h>
 #include <bdn/UnhandledException.h>
 
 namespace bdn
 {
+    std::thread::id AppRunnerBase::_mainThreadId;
+
+    std::shared_ptr<AppRunnerBase> &_getAppRunnerRef()
+    {
+        static std::shared_ptr<AppRunnerBase> appRunner;
+        return appRunner;
+    }
+
+    std::shared_ptr<AppRunnerBase> getAppRunner() { return _getAppRunnerRef(); }
+
+    void _setAppRunner(std::shared_ptr<AppRunnerBase> pAppRunner) { _getAppRunnerRef() = pAppRunner; }
 
     void AppRunnerBase::prepareLaunch()
     {
         // ensure that the global mutex for safeinit is allocated. It is
         // important that this happens before multiple threads are created.
-        SafeInitBase::_ensureReady();
+        //        SafeInitBase::_ensureReady();
 
         // mark the current thread as the main thread
-        Thread::_setMainId(Thread::getCurrentId());
+        // Thread::_setMainId(std::this_thread::get_id());
+
+        _mainThreadId = std::this_thread::get_id();
 
         // do additional platform-specific initialization (if needed)
         platformSpecificInit();
 
         // set the app controller as the global one
-        P<AppControllerBase> appController = _appControllerCreator();
-        AppControllerBase::_set(appController);
+        std::shared_ptr<AppControllerBase> pAppController = _appControllerCreator();
+        AppControllerBase::_set(pAppController);
     }
 
     void AppRunnerBase::beginLaunch()
@@ -67,7 +79,7 @@ namespace bdn
 
         BDN_LOG_AND_IGNORE_EXCEPTION(
             {
-                P<AppControllerBase> appController = AppControllerBase::get();
+                std::shared_ptr<AppControllerBase> appController = AppControllerBase::get();
                 if (appController != nullptr)
                     appController->unhandledProblem(unhandled);
             },

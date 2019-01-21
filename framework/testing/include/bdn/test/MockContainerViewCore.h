@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockContainerViewCore_H_
-#define BDN_TEST_MockContainerViewCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -21,14 +20,15 @@ namespace bdn
         class MockContainerViewCore : public MockViewCore
         {
           public:
-            MockContainerViewCore(ContainerView *view) : MockViewCore(view) {}
+            MockContainerViewCore(std::shared_ptr<ContainerView> view) : MockViewCore(view) {}
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
                 MockViewCore::calcPreferredSize(availableSpace);
 
                 // call the outer container's preferred size calculation
-                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ContainerView> outerView =
+                    std::dynamic_pointer_cast<ContainerView>(getOuterViewIfStillAttached());
                 if (outerView != nullptr)
                     return outerView->calcContainerPreferredSize(availableSpace);
                 else
@@ -42,14 +42,13 @@ namespace bdn
                 _layoutCount++;
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<ContainerView> view = cast<ContainerView>(getOuterViewIfStillAttached());
+                    std::shared_ptr<ContainerView> view =
+                        std::dynamic_pointer_cast<ContainerView>(getOuterViewIfStillAttached());
 
-                    P<ViewLayout> layout = view->calcContainerLayout(view->size());
+                    std::shared_ptr<ViewLayout> layout = view->calcContainerLayout(view->size);
                     layout->applyTo(view);
                 }
             }
         };
     }
 }
-
-#endif

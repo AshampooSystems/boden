@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestToggleCore_H_
-#define BDN_TEST_TestToggleCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/Toggle.h>
@@ -14,19 +13,19 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<Toggle> toggle = newObj<Toggle>();
-                toggle->setLabel("hello");
+                std::shared_ptr<Toggle> toggle = std::make_shared<Toggle>();
+                toggle->label = ("hello");
 
                 return toggle;
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _toggle = cast<Toggle>(view);
+                _toggle = std::dynamic_pointer_cast<Toggle>(view);
             }
 
             void runInitTests() override
@@ -39,7 +38,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _toggle->setLabel("helloworld");
+                        _toggle->label = ("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +46,7 @@ namespace bdn
                     // on set before init
                     SECTION("on")
                     {
-                        _toggle->setOn(true);
+                        _toggle->on = (true);
                         initCore();
                         verifyCoreOn();
                     }
@@ -56,7 +55,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestToggleCore> self(this);
+                std::shared_ptr<TestToggleCore> self = std::dynamic_pointer_cast<TestToggleCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -65,21 +64,21 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _toggle->setLabel("helloworld");
+                        _toggle->label = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _toggle->label();
+                        String labelBefore = _toggle->label;
 
                         // the label should not be empty here
-                        REQUIRE(labelBefore.getLength() > 3);
+                        REQUIRE(labelBefore.size() > 3);
 
                         Size prefSizeBefore = _toggle->calcPreferredSize();
 
-                        _toggle->setLabel(labelBefore + labelBefore + labelBefore);
+                        _toggle->label = (labelBefore + labelBefore + labelBefore);
 
                         CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
@@ -94,7 +93,7 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            self->_toggle->setLabel(labelBefore);
+                            self->_toggle->label = (labelBefore);
 
                             CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
@@ -109,14 +108,14 @@ namespace bdn
                 {
                     SECTION("valueTrue")
                     {
-                        _toggle->setOn(true);
+                        _toggle->on = (true);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
 
                     SECTION("valueFalse")
                     {
-                        _toggle->setOn(self);
+                        _toggle->on = (false);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
@@ -142,9 +141,7 @@ namespace bdn
                 when the toggle state has been changed by a platform event. */
             /*virtual void setCoreOnPlatform(bool on)=0;*/
 
-            P<Toggle> _toggle;
+            std::shared_ptr<Toggle> _toggle;
         };
     }
 }
-
-#endif

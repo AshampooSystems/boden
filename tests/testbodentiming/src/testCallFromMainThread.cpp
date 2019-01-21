@@ -1,12 +1,16 @@
-#include <bdn/init.h>
-#include <bdn/test.h>
 
+#include <bdn/test.h>
+#include <bdn/config.h>
 #include <bdn/mainThread.h>
-#include <bdn/Thread.h>
+
 #include <bdn/StopWatch.h>
-#include <bdn/Array.h>
+#include <bdn/InvalidArgumentError.h>
+
+#include <thread>
+#include <chrono>
 
 using namespace bdn;
+using namespace std::chrono_literals;
 
 void testCallFromMainThread(bool throwException)
 {
@@ -40,7 +44,7 @@ void testCallFromMainThread(bool throwException)
             REQUIRE(result.get() == 84);
 
         // should not have waited at any point.
-        REQUIRE(watch.getMillis() < 1000);
+        REQUIRE(watch.elapsed() < 1000ms);
     }
 
 #if BDN_HAVE_THREADS
@@ -51,14 +55,14 @@ void testCallFromMainThread(bool throwException)
         {
             CONTINUE_SECTION_IN_THREAD_WITH([throwException]() {
                 volatile int callCount = 0;
-                Thread::Id threadId;
+                std::thread::id threadId;
 
                 std::future<int> result = callFromMainThread(
                     [&callCount, throwException, &threadId](int x) {
                         // sleep a little to ensure that we have time to check
                         // callCount
-                        Thread::sleepSeconds(1);
-                        threadId = Thread::getCurrentId();
+                        std::this_thread::sleep_for(1s);
+                        threadId = std::this_thread::get_id();
                         callCount++;
                         if (throwException)
                             throw InvalidArgumentError("hello");
@@ -75,13 +79,13 @@ void testCallFromMainThread(bool throwException)
 
                 REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) == std::future_status::ready);
 
-                REQUIRE(threadWatch.getMillis() >= 500);
-                REQUIRE(threadWatch.getMillis() <= 5500);
+                REQUIRE(threadWatch.elapsed() >= 500ms);
+                REQUIRE(threadWatch.elapsed() <= 5500ms);
 
                 REQUIRE(callCount == 1);
 
-                REQUIRE(threadId == Thread::getMainId());
-                REQUIRE(threadId != Thread::getCurrentId());
+                REQUIRE(threadId == AppRunnerBase::mainThreadId());
+                REQUIRE(threadId != std::this_thread::get_id());
 
                 threadWatch.start();
 
@@ -91,11 +95,11 @@ void testCallFromMainThread(bool throwException)
                     REQUIRE(result.get() == 84);
 
                 // should not have waited
-                REQUIRE(threadWatch.getMillis() <= 500);
+                REQUIRE(threadWatch.elapsed() <= 500ms);
             });
 
             // time to start thread should have been less than 1000ms
-            REQUIRE(watch.getMillis() < 1000);
+            REQUIRE(watch.elapsed() < 1000ms);
         }
 
         SECTION("notStoringFuture")
@@ -106,13 +110,13 @@ void testCallFromMainThread(bool throwException)
                     volatile int callCount = 0;
                 };
 
-                P<Data> data = newObj<Data>();
+                std::shared_ptr<Data> data = std::make_shared<Data>();
 
                 StopWatch threadWatch;
 
                 callFromMainThread(
                     [data, throwException](int x) {
-                        Thread::sleepMillis(1000);
+                        std::this_thread::sleep_for(1000ms);
 
                         data->callCount++;
                         if (throwException)
@@ -127,18 +131,18 @@ void testCallFromMainThread(bool throwException)
                 REQUIRE(data->callCount == 0);
 
                 // should NOT have waited in this thread.
-                REQUIRE(threadWatch.getMillis() < 1000);
+                REQUIRE(threadWatch.elapsed() < 1000ms);
 
                 // wait until the call happened before we exit
                 while (true) {
-                    Thread::sleepMillis(100);
+                    std::this_thread::sleep_for(100ms);
                     if (data->callCount != 0)
                         break;
                 }
             });
 
             // time to start thread should have been less than 1000ms
-            REQUIRE(watch.getMillis() < 1000);
+            REQUIRE(watch.elapsed() < 1000ms);
         }
     }
 
@@ -157,11 +161,12 @@ class TestCallFromMainThreadOrderingBase : public Base
     {
         std::list<std::future<void>> futures;
 
-        P<TestCallFromMainThreadOrderingBase> self = this;
+        std::shared_ptr<TestCallFromMainThreadOrderingBase> self =
+            std::dynamic_pointer_cast<TestCallFromMainThreadOrderingBase>(shared_from_this());
 
         // add a call from the main thread first
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
             _expectedOrder.push_back(-1);
 
             scheduleCall([self]() { self->_actualOrder.push_back(-1); });
@@ -170,8 +175,8 @@ class TestCallFromMainThreadOrderingBase : public Base
         // start 100 threads. Each schedules a call in the main thread.
         _scheduledPending = 101;
         for (int i = 0; i < _scheduledPending - 1; i++) {
-            futures.push_back(Thread::exec([i, self]() {
-                Mutex::Lock lock(self->_mutex);
+            futures.push_back(std::async(std::launch::async, [i, self]() {
+                std::unique_lock lock(self->_mutex);
                 self->_expectedOrder.push_back(i);
 
                 self->scheduleCall([i, self]() {
@@ -183,7 +188,7 @@ class TestCallFromMainThreadOrderingBase : public Base
 
         // also add a call from the main thread
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             scheduleCall([self]() {
                 self->_actualOrder.push_back(9999);
@@ -230,15 +235,16 @@ class TestCallFromMainThreadOrderingBase : public Base
     void scheduleTestContinuationIfNecessary()
     {
         if (!_done) {
-            P<TestCallFromMainThreadOrderingBase> self = this;
+            std::shared_ptr<TestCallFromMainThreadOrderingBase> self =
+                std::dynamic_pointer_cast<TestCallFromMainThreadOrderingBase>(shared_from_this());
 
             CONTINUE_SECTION_WHEN_IDLE(self) { self->scheduleTestContinuationIfNecessary(); };
         }
     }
 
-    Mutex _mutex;
-    Array<int> _expectedOrder;
-    Array<int> _actualOrder;
+    std::recursive_mutex _mutex;
+    std::vector<int> _expectedOrder;
+    std::vector<int> _actualOrder;
 
     int _scheduledPending;
 
@@ -255,7 +261,7 @@ class TestCallFromMainThreadOrdering_Sync : public TestCallFromMainThreadOrderin
 
 void testCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Sync> test = newObj<TestCallFromMainThreadOrdering_Sync>();
+    std::shared_ptr<TestCallFromMainThreadOrdering_Sync> test = std::make_shared<TestCallFromMainThreadOrdering_Sync>();
 
     test->start();
 }
@@ -287,7 +293,7 @@ void testAsyncCallFromMainThread(bool throwException)
 
     SECTION("mainThread")
     {
-        P<Data> data = newObj<Data>();
+        std::shared_ptr<Data> data = std::make_shared<Data>();
 
         StopWatch watch;
 
@@ -312,7 +318,7 @@ void testAsyncCallFromMainThread(bool throwException)
         REQUIRE(data->callCount == 0);
 
         // should not have waited
-        REQUIRE(watch.getMillis() < 1000);
+        REQUIRE(watch.elapsed() < 1000ms);
 
         CONTINUE_SECTION_WHEN_IDLE(data)
         {
@@ -328,17 +334,17 @@ void testAsyncCallFromMainThread(bool throwException)
     SECTION("otherThread")
     {
         CONTINUE_SECTION_IN_THREAD_WITH([throwException]() {
-            P<Data> data = newObj<Data>();
+            std::shared_ptr<Data> data = std::make_shared<Data>();
 
             StopWatch threadWatch;
 
             // sanity check: there should be only one reference on data at this
             // point in time
-            REQUIRE(data->getRefCount() == 1);
+            REQUIRE(data.use_count() == 1);
 
             asyncCallFromMainThread(
                 [data, throwException](int x) {
-                    Thread::sleepMillis(2000);
+                    std::this_thread::sleep_for(2s);
                     data->callCount++;
                     if (throwException)
                         throw InvalidArgumentError("hello");
@@ -348,7 +354,7 @@ void testAsyncCallFromMainThread(bool throwException)
 
             // data was captured by the function that was scheduled. So there
             // should be an additional reference there.
-            REQUIRE(data->getRefCount() > 1);
+            REQUIRE(data.use_count() > 1);
 
             // should NOT have been called immediately, since we are in a
             // different thread. Instead the call should have been deferred to
@@ -356,15 +362,15 @@ void testAsyncCallFromMainThread(bool throwException)
             REQUIRE(data->callCount == 0);
 
             // should NOT have waited.
-            REQUIRE(threadWatch.getMillis() < 1000);
+            REQUIRE(threadWatch.elapsed() < 1s);
 
-            Thread::sleepMillis(3000);
+            std::this_thread::sleep_for(3s);
 
             // NOW the function should have been called
             REQUIRE(data->callCount == 1);
 
             // and the refcount should be 1 again
-            REQUIRE(data->getRefCount() == 1);
+            REQUIRE(data.use_count() == 1);
         });
     }
 
@@ -383,7 +389,8 @@ class TestCallFromMainThreadOrdering_Async : public TestCallFromMainThreadOrderi
 
 void testAsyncCallFromMainThreadOrdering()
 {
-    P<TestCallFromMainThreadOrdering_Async> test = newObj<TestCallFromMainThreadOrdering_Async>();
+    std::shared_ptr<TestCallFromMainThreadOrdering_Async> test =
+        std::make_shared<TestCallFromMainThreadOrdering_Async>();
 
     test->start();
 }
@@ -438,7 +445,7 @@ void testWrapCallFromMainThread(bool throwException)
             REQUIRE(result.get() == 84);
 
         // should not have waited at any point.
-        REQUIRE(watch.getMillis() < 1000);
+        REQUIRE(watch.elapsed() < 1000ms);
     }
 
 #if BDN_HAVE_THREADS
@@ -450,13 +457,13 @@ void testWrapCallFromMainThread(bool throwException)
             CONTINUE_SECTION_IN_THREAD(throwException)
             {
                 volatile int callCount = 0;
-                Thread::Id threadId;
+                std::thread::id threadId;
 
                 auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x) {
                     // sleep a little to ensure that we have time to check
                     // callCount
-                    Thread::sleepSeconds(1);
-                    threadId = Thread::getCurrentId();
+                    std::this_thread::sleep_for(1s);
+                    threadId = std::this_thread::get_id();
                     callCount++;
                     if (throwException)
                         throw InvalidArgumentError("hello");
@@ -466,7 +473,7 @@ void testWrapCallFromMainThread(bool throwException)
                 // should NOT have been called.
                 REQUIRE(callCount == 0);
 
-                Thread::sleepSeconds(2);
+                std::this_thread::sleep_for(2s);
 
                 // should STILL not have been called, since the wrapper was not
                 // executed yet
@@ -482,18 +489,18 @@ void testWrapCallFromMainThread(bool throwException)
                 REQUIRE(callCount == 0);
 
                 // should not have waited
-                REQUIRE(threadWatch.getMillis() < 500);
+                REQUIRE(threadWatch.elapsed() < 500ms);
 
-                REQUIRE(result.wait_for(std::chrono::milliseconds(5000)) == std::future_status::ready);
+                REQUIRE(result.wait_for(5s) == std::future_status::ready);
 
                 // the inner function sleeps for 1 second.
-                REQUIRE(threadWatch.getMillis() >= 1000 - 10);
-                REQUIRE(threadWatch.getMillis() < 2500);
+                REQUIRE(threadWatch.elapsed() >= 900ms);
+                REQUIRE(threadWatch.elapsed() < 2500ms);
 
                 REQUIRE(callCount == 1);
 
-                REQUIRE(threadId == Thread::getMainId());
-                REQUIRE(threadId != Thread::getCurrentId());
+                REQUIRE(threadId == AppRunnerBase::mainThreadId());
+                REQUIRE(threadId != std::this_thread::get_id());
 
                 threadWatch.start();
 
@@ -503,7 +510,7 @@ void testWrapCallFromMainThread(bool throwException)
                     REQUIRE(result.get() == 84);
 
                 // should not have waited
-                REQUIRE(threadWatch.getMillis() <= 500);
+                REQUIRE(threadWatch.elapsed() <= 500ms);
             };
         }
 
@@ -515,13 +522,13 @@ void testWrapCallFromMainThread(bool throwException)
                     volatile int callCount = 0;
                 };
 
-                P<Data> data = newObj<Data>();
+                std::shared_ptr<Data> data = std::make_shared<Data>();
 
                 StopWatch threadWatch;
 
                 {
                     auto wrapped = wrapCallFromMainThread<int>([data, throwException](int x) {
-                        Thread::sleepMillis(2000);
+                        std::this_thread::sleep_for(2s);
                         data->callCount++;
                         if (throwException)
                             throw InvalidArgumentError("hello");
@@ -532,9 +539,9 @@ void testWrapCallFromMainThread(bool throwException)
                     REQUIRE(data->callCount == 0);
 
                     // should not have waited
-                    REQUIRE(threadWatch.getMillis() < 500);
+                    REQUIRE(threadWatch.elapsed() < 500ms);
 
-                    Thread::sleepSeconds(2);
+                    std::this_thread::sleep_for(2s);
 
                     // should STILL not have been called, since the wrapper was
                     // not executed yet
@@ -550,17 +557,17 @@ void testWrapCallFromMainThread(bool throwException)
                     REQUIRE(data->callCount == 0);
 
                     // should not have waited
-                    REQUIRE(threadWatch.getMillis() < 500);
+                    REQUIRE(threadWatch.elapsed() < 500ms);
 
                     // wait a little
-                    Thread::sleepMillis(3000);
+                    std::this_thread::sleep_for(3s);
 
                     // NOW the function should have been called
                     REQUIRE(data->callCount == 1);
                 }
 
                 // the other thread's data reference should have been released
-                REQUIRE(data->getRefCount() == 1);
+                REQUIRE(data.use_count() == 1);
             });
         }
     }
@@ -584,16 +591,16 @@ void testWrapAsyncCallFromMainThread(bool throwException)
     {
         struct Data : public Base
         {
-            Thread::Id threadId;
+            std::thread::id threadId;
             int callCount = 0;
         };
-        P<Data> data = newObj<Data>();
+        std::shared_ptr<Data> data = std::make_shared<Data>();
 
         StopWatch watch;
 
         auto wrapped = wrapAsyncCallFromMainThread<int>([data, throwException](int val) {
             data->callCount++;
-            data->threadId = Thread::getCurrentId();
+            data->threadId = std::this_thread::get_id();
 
             if (throwException)
                 throw InvalidArgumentError("hello");
@@ -611,17 +618,17 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         REQUIRE(data->callCount == 0);
 
         // shoudl not have waited.
-        REQUIRE(watch.getMillis() < 500);
+        REQUIRE(watch.elapsed() < 500ms);
 
         CONTINUE_SECTION_WHEN_IDLE(data)
         {
-            Thread::sleepMillis(2000);
+            std::this_thread::sleep_for(2s);
 
             // now the call should have happened.
             REQUIRE(data->callCount == 1);
 
             // and it should have happened from the main thread.
-            REQUIRE(data->threadId == Thread::getMainId());
+            REQUIRE(data->threadId == AppRunnerBase::mainThreadId());
         };
     }
 
@@ -631,13 +638,13 @@ void testWrapAsyncCallFromMainThread(bool throwException)
     {
         CONTINUE_SECTION_IN_THREAD_WITH([throwException]() {
             volatile int callCount = 0;
-            Thread::Id threadId;
+            std::thread::id threadId;
 
             auto wrapped = wrapAsyncCallFromMainThread<int>([&callCount, throwException, &threadId](int x) {
                 // sleep a little to ensure that we have time to check
                 // callCount
-                Thread::sleepSeconds(1);
-                threadId = Thread::getCurrentId();
+                std::this_thread::sleep_for(1s);
+                threadId = std::this_thread::get_id();
                 callCount++;
                 if (throwException)
                     throw InvalidArgumentError("hello");
@@ -647,7 +654,7 @@ void testWrapAsyncCallFromMainThread(bool throwException)
             // should NOT have been called.
             REQUIRE(callCount == 0);
 
-            Thread::sleepSeconds(2);
+            std::this_thread::sleep_for(2s);
 
             // should STILL not have been called, since the wrapper was not
             // executed yet
@@ -663,16 +670,16 @@ void testWrapAsyncCallFromMainThread(bool throwException)
             REQUIRE(callCount == 0);
 
             // should not have waited
-            REQUIRE(threadWatch.getMillis() < 500);
+            REQUIRE(threadWatch.elapsed() < 500ms);
 
             // sleep a while
-            Thread::sleepSeconds(3);
+            std::this_thread::sleep_for(3s);
 
             // now the call should have happened.
             REQUIRE(callCount == 1);
 
-            REQUIRE(threadId == Thread::getMainId());
-            REQUIRE(threadId != Thread::getCurrentId());
+            REQUIRE(threadId == AppRunnerBase::mainThreadId());
+            REQUIRE(threadId != std::this_thread::get_id());
         });
     }
 
@@ -691,19 +698,20 @@ TEST_CASE("wrapAsyncCallFromMainThread")
 class TestAsyncCallFromMainThreadAfterSeconds : public Base
 {
   public:
-    TestAsyncCallFromMainThreadAfterSeconds(bool exception, double seconds)
+    TestAsyncCallFromMainThreadAfterSeconds(bool exception, IDispatcher::Duration delay)
     {
         _exception = exception;
-        _seconds = seconds;
+        _delay = delay;
     }
 
     void runTest()
     {
-        _stopWatch = newObj<StopWatch>();
+        _stopWatch = std::make_shared<StopWatch>();
 
-        P<TestAsyncCallFromMainThreadAfterSeconds> self = this;
+        std::shared_ptr<TestAsyncCallFromMainThreadAfterSeconds> self =
+            std::dynamic_pointer_cast<TestAsyncCallFromMainThreadAfterSeconds>(shared_from_this());
 
-        asyncCallFromMainThreadAfterSeconds(_seconds, [self] { self->onCalled(); });
+        asyncCallFromMainThreadWithDelay(_delay, [self] { self->onCalled(); });
 
         // should not have been called yet
         REQUIRE(!_called);
@@ -727,26 +735,24 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
   protected:
     void continueTest()
     {
-        int64_t expectedMillis = (int64_t)(_seconds * 1000);
-        int64_t maxMillis = expectedMillis + 2000;
-
-        int64_t elapsedMillis = _stopWatch->getMillis();
+        IDispatcher::Duration elapsedTime = _stopWatch->elapsed();
 
         if (_called) {
-            REQUIRE(elapsedMillis >= expectedMillis - 1);
-            REQUIRE(elapsedMillis <= maxMillis);
+            REQUIRE(elapsedTime >= _delay - 1ms);
+            REQUIRE(elapsedTime <= _delay + 2s);
 
             // test successfully done.
         } else {
             // not yet called. Has the time expired yet?
 
-            REQUIRE(elapsedMillis <= maxMillis);
+            REQUIRE(elapsedTime <= _delay + 2s);
 
             // sleep a short time and then run another continuation
 
-            Thread::sleepMillis(20);
+            std::this_thread::sleep_for(20ms);
 
-            P<TestAsyncCallFromMainThreadAfterSeconds> self = this;
+            std::shared_ptr<TestAsyncCallFromMainThreadAfterSeconds> self =
+                std::dynamic_pointer_cast<TestAsyncCallFromMainThreadAfterSeconds>(shared_from_this());
 
             CONTINUE_SECTION_WHEN_IDLE(self) { self->continueTest(); };
         }
@@ -755,28 +761,28 @@ class TestAsyncCallFromMainThreadAfterSeconds : public Base
     bool _called = false;
 
     bool _exception;
-    double _seconds;
-    P<StopWatch> _stopWatch;
+    IDispatcher::Duration _delay;
+    std::shared_ptr<StopWatch> _stopWatch;
 };
 
 void testAsyncCallFromMainThreadAfterSeconds(bool exception)
 {
-    double seconds;
+    IDispatcher::Duration delay;
 
     SECTION("zero")
-    seconds = 0;
+    delay = 0s;
 
     SECTION("almostZero")
-    seconds = 0.0000000001;
+    delay = 1ns;
 
     SECTION("millis")
-    seconds = 0.2;
+    delay = 200ms;
 
     SECTION("seconds")
-    seconds = 2.5;
+    delay = 2500ms;
 
-    P<TestAsyncCallFromMainThreadAfterSeconds> test =
-        newObj<TestAsyncCallFromMainThreadAfterSeconds>(exception, seconds);
+    std::shared_ptr<TestAsyncCallFromMainThreadAfterSeconds> test =
+        std::make_shared<TestAsyncCallFromMainThreadAfterSeconds>(exception, delay);
 
     test->runTest();
 }
@@ -792,7 +798,7 @@ TEST_CASE("asyncCallFromMainThreadAfterSeconds")
 
 struct TestCallWhenIdleOrder : public Base
 {
-    Array<int> callOrder;
+    std::vector<int> callOrder;
 };
 
 struct TestDataCallWhenIdle : public Base
@@ -803,7 +809,7 @@ struct TestDataCallWhenIdle : public Base
     int64_t eventsCreated = 0;
 };
 
-static void callWhenIdleBusyKeeper(P<TestDataCallWhenIdle> testData)
+static void callWhenIdleBusyKeeper(std::shared_ptr<TestDataCallWhenIdle> testData)
 {
     if (testData->keepCreatingEvents) {
         asyncCallFromMainThread([testData]() { callWhenIdleBusyKeeper(testData); });
@@ -816,7 +822,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 {
     SECTION("not called when events pending")
     {
-        P<TestDataCallWhenIdle> testData = newObj<TestDataCallWhenIdle>();
+        std::shared_ptr<TestDataCallWhenIdle> testData = std::make_shared<TestDataCallWhenIdle>();
 
         std::function<void()> scheduleIdleCall = [testData, exception]() {
             asyncCallFromMainThreadWhenIdle([testData, exception]() {
@@ -831,7 +837,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         } else {
 #if BDN_HAVE_THREADS
             // post the idle handler from a thread.
-            Thread::exec(scheduleIdleCall).get();
+            std::async(std::launch::async, scheduleIdleCall).get();
 #else
             // cannot test from another thread. Just exit the test.
             return;
@@ -850,7 +856,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         // the queue, since it waits in small increments. That could potentially
         // prevent the idle event from being called.
 
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, testData)
         {
             // during this time a chain of several dummy events should have been
             // created
@@ -863,7 +869,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
             // now we stop creating these events and wait another 2 seconds
             testData->keepCreatingEvents = false;
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, testData)
             {
                 // NOW the idle handler should have been called
                 REQUIRE(testData->idleCalled);
@@ -873,7 +879,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 
     SECTION("idle handler ordering")
     {
-        P<TestCallWhenIdleOrder> testData = newObj<TestCallWhenIdleOrder>();
+        std::shared_ptr<TestCallWhenIdleOrder> testData = std::make_shared<TestCallWhenIdleOrder>();
 
         // multiple scheduled idle handlers should be executed in order
         for (int i = 0; i < 10; i++) {
@@ -890,7 +896,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
             else {
 #if BDN_HAVE_THREADS
                 // post the idle handler from a thread.
-                Thread::exec(scheduleIdleCall).get();
+                std::async(std::launch::async, scheduleIdleCall).get();
 #else
                 // cannot test from another thread. Just exit the test.
                 return;
@@ -899,7 +905,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         }
 
         // wait a little for the idle handlers to be executed
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, testData)
         {
             // then verify their order
             REQUIRE(testData->callOrder.size() == 10);
@@ -912,7 +918,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 
     SECTION("newly added idle handlers executed after newly added other events")
     {
-        P<TestCallWhenIdleOrder> testData = newObj<TestCallWhenIdleOrder>();
+        std::shared_ptr<TestCallWhenIdleOrder> testData = std::make_shared<TestCallWhenIdleOrder>();
 
         asyncCallFromMainThreadWhenIdle([testData]() {
             // schedule another idle call, then schedule a "normal" async call.
@@ -923,7 +929,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
         });
 
         // wait two seconds for the events to be executed
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, testData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, testData)
         {
             // then verify their order
             REQUIRE(testData->callOrder.size() == 2);

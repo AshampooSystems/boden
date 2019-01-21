@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -35,12 +35,11 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
         // to resize it to the specified size.
 
         Size adjustedSize =
-            _scrollView
-                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView->adjustBounds(Rect(_scrollView->position, viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
-        _scrollView->setPreferredSizeMinimum(adjustedSize);
-        _scrollView->setPreferredSizeMaximum(adjustedSize);
+        _scrollView->preferredSizeMinimum = (adjustedSize);
+        _scrollView->preferredSizeMaximum = (adjustedSize);
 
         // also request a re-layout here. With the normal propagation of the
         // property changes it would take two event cycles until the layout
@@ -103,10 +102,10 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> contentView = _scrollView->getContentView();
+        std::shared_ptr<View> contentView = _scrollView->getContentView();
 
         if (contentView != nullptr) {
-            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
+            bdn::Rect bounds(_scrollView->getContentView()->position, contentView->size);
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -152,7 +151,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
 
 TEST_CASE("android.ScrollViewCore")
 {
-    P<TestAndroidScrollViewCore> test = newObj<TestAndroidScrollViewCore>();
+    std::shared_ptr<TestAndroidScrollViewCore> test = std::make_shared<TestAndroidScrollViewCore>();
 
     test->runTests();
 }

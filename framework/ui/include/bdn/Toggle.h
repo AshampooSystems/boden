@@ -1,5 +1,4 @@
-#ifndef BDN_Toggle_H_
-#define BDN_Toggle_H_
+#pragma once
 
 #include <bdn/constants.h>
 #include <bdn/View.h>
@@ -24,16 +23,13 @@ namespace bdn
     class Toggle : public View
     {
       public:
-        Toggle() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Property<String> label;
+        Property<bool> on;
 
-        /** The toggle's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
+        Property<TriState> state;
 
-        /** Whether the toggle is on (true) or off (false) */
-        BDN_VIEW_PROPERTY(bool, on, setOn, ISwitchCore, influencesNothing());
-
-        /** The switch's state, see TriState */
-        TriState state() const { return on() ? TriState::on : TriState::off; }
+      public:
+        Toggle();
 
         /** A notifier for click events. Subscribe to this notifier if you want
            to be notified about click events. Click events are posted when the
@@ -41,7 +37,7 @@ namespace bdn
            the label is not clickable. If the toggle is displayed as a checkbox,
             the label is clickable.
          */
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
+        ISyncNotifier<const ClickEvent &> &onClick();
 
         static String getToggleCoreTypeName()
         {
@@ -53,8 +49,6 @@ namespace bdn
         String getCoreTypeName() const override { return getToggleCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _onClick;
+        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
-
-#endif // BDN_Toggle_H_

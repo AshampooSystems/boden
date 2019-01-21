@@ -1,8 +1,8 @@
-#ifndef BDN_errno_H_
-#define BDN_errno_H_
+#pragma once
 
 #include <bdn/SystemError.h>
 #include <bdn/ErrorFields.h>
+#include <bdn/config.h>
 
 #include <cerrno>
 
@@ -42,14 +42,11 @@ namespace bdn
         */
     inline SystemError errnoCodeToSystemError(int errnoCode, const ErrorFields &fields = ErrorFields())
     {
-#if BDN_PLATFORM_FAMILY_POSIX
-        return SystemError(errnoCode, std::system_category(), fields.toString());
+        if (config::is_family_posix) {
+            return SystemError(errnoCode, std::system_category(), fields.toString());
 
-#else
-        return SystemError(errnoCode, std::generic_category(), fields.toString());
-
-#endif
+        } else {
+            return SystemError(errnoCode, std::generic_category(), fields.toString());
+        }
     }
 }
-
-#endif

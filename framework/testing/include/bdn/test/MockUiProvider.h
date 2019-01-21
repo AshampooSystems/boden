@@ -1,10 +1,7 @@
-#ifndef BDN_TEST_MockUiProvider_H_
-#define BDN_TEST_MockUiProvider_H_
+#pragma once
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
-
-#include <bdn/test/MockTextUi.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -32,10 +29,10 @@ namespace bdn
 
             \code
 
-            P<bdn::test::MockUiProvider> uiProvider =
-           newObj<bdn::test::MockUiProvider>();
+            std::shared_ptr<bdn::test::MockUiProvider> uiProvider =
+           std::make_shared<bdn::test::MockUiProvider>();
 
-            P<Window> myWindow = newObj<Window>( uiProvider );
+            std::shared_ptr<Window> myWindow = std::make_shared<Window>( uiProvider );
 
             // set up your UI as normal here.
             ...
@@ -45,12 +42,12 @@ namespace bdn
             // to the appropriate Mock class.
             // For example:
 
-            P<Button> button = newObj<Button>();
+            std::shared_ptr<Button> button = std::make_shared<Button>();
             button->label == "MyLabel";
             myWindow->setContentView(button);     // this will cause the
            button core to be created
 
-            P<MockButtonCore> buttonCore = cast<MockButtonCore>(
+            std::shared_ptr<MockButtonCore> buttonCore = std::dynamic_pointer_cast<MockButtonCore>(
            button->getViewCore() );
 
             // you can then verify the properties of the core like this:
@@ -61,14 +58,10 @@ namespace bdn
 
             \endcore
             */
-        class MockUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+        class MockUiProvider : public Base, virtual public IUiProvider
         {
           public:
-            MockUiProvider()
-            {
-                _layoutCoordinator = newObj<LayoutCoordinator>();
-                _textUi = newObj<MockTextUi>();
-            }
+            MockUiProvider() { _layoutCoordinator = std::make_shared<LayoutCoordinator>(); }
 
             String getName() const override { return "mock"; }
 
@@ -77,19 +70,14 @@ namespace bdn
 
             /** Returns the layout coordinator object that all UI objects
                created by this provider share.*/
-            P<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
+            std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
-            P<ITextUi> getTextUi() override { return _textUi; }
-
-            P<IViewCore> createViewCore(const String &coreTypeName, View *view) override;
+            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
 
           protected:
             int _coresCreated = 0;
 
-            P<LayoutCoordinator> _layoutCoordinator;
-            P<MockTextUi> _textUi;
+            std::shared_ptr<LayoutCoordinator> _layoutCoordinator;
         };
     }
 }
-
-#endif

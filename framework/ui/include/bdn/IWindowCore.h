@@ -1,5 +1,4 @@
-#ifndef BDN_IWindowCore_H_
-#define BDN_IWindowCore_H_
+#pragma once
 
 #include <bdn/IViewCore.h>
 
@@ -7,7 +6,7 @@ namespace bdn
 {
 
     /** The core for a top level window.*/
-    class IWindowCore : BDN_IMPLEMENTS IViewCore
+    class IWindowCore : virtual public IViewCore
     {
       public:
         /** Tells the window to auto-size itself. The window size will be
@@ -53,5 +52,3 @@ namespace bdn
         virtual void setTitle(const String &title) = 0;
     };
 }
-
-#endif

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -21,7 +21,7 @@ class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _button->label();
+        String expectedLabel = _button->label;
 
         String label = _jButton.getText();
 
@@ -34,7 +34,7 @@ class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.ButtonCore")
 {
-    P<TestAndroidButtonCore> test = newObj<TestAndroidButtonCore>();
+    std::shared_ptr<TestAndroidButtonCore> test = std::make_shared<TestAndroidButtonCore>();
 
     test->runTests();
 }

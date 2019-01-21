@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestWindowCore_H_
-#define BDN_TEST_TestWindowCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/Window.h>
@@ -20,17 +19,17 @@ namespace bdn
                 return false;
             }
 
-            P<View> createView() override { return _window; }
+            std::shared_ptr<View> createView() override { return _window; }
 
-            void setView(View *view) override { TestViewCore::setView(view); }
+            void setView(std::shared_ptr<View> view) override { TestViewCore::setView(view); }
 
             void initCore() override
             {
                 TestViewCore::initCore();
 
-                _window->setVisible(true);
+                _window->visible = (true);
 
-                _windowCore = cast<IWindowCore>(_core);
+                _windowCore = std::dynamic_pointer_cast<IWindowCore>(_core);
             }
 
             void runInitTests() override
@@ -39,7 +38,7 @@ namespace bdn
 
                 SECTION("title")
                 {
-                    _window->setTitle("hello world");
+                    _window->title = ("hello world");
 
                     initCore();
                     verifyCoreTitle();
@@ -48,7 +47,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestWindowCore> self(this);
+                std::shared_ptr<TestWindowCore> self = std::dynamic_pointer_cast<TestWindowCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -56,7 +55,7 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _window->setTitle("hello world");
+                        _window->title = ("hello world");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreTitle(); };
                     }
@@ -67,7 +66,7 @@ namespace bdn
                         // size.
                         Size prefSizeBefore = _window->calcPreferredSize();
 
-                        _window->setTitle("this is a long long long long long long long long "
+                        _window->title = ("this is a long long long long long long long long "
                                           "long long long long title");
 
                         CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore)
@@ -81,28 +80,29 @@ namespace bdn
 
                 SECTION("layout arranges content view")
                 {
-                    P<Button> child = newObj<Button>();
+                    std::shared_ptr<Button> child = std::make_shared<Button>();
 
                     _window->setContentView(child);
 
                     // set a left/top margin for the child so that it is moved
                     // to the bottom right
                     Margin margin(11, 0, 0, 22);
-                    child->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
+                    child->margin = (UiMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                     // then autosize the window
                     _window->requestAutoSize();
 
-                    P<TestWindowCore> self = this;
+                    std::shared_ptr<TestWindowCore> self =
+                        std::dynamic_pointer_cast<TestWindowCore>(shared_from_this());
 
                     BDN_CONTINUE_SECTION_WHEN_IDLE(self, child, margin)
                     {
-                        Point oldPos = child->position();
-                        Size oldSize = child->size();
+                        Point oldPos = child->position;
+                        Size oldSize = child->size;
 
                         // then invert the margin and make the top margin a
                         // bottom margin and the left margin a right margin
-                        child->setMargin(UiMargin(0, margin.left, margin.top, 0));
+                        child->margin = (UiMargin(0, margin.left, margin.top, 0));
 
                         // this should cause a layout. We know the layout
                         // happens (we test that in another case). Here we only
@@ -116,12 +116,12 @@ namespace bdn
                             // not match exactly, since it is rounded to full
                             // pixels
                             Point expectedPos(oldPos.x - margin.left, oldPos.y - margin.top);
-                            Point pos = child->position();
+                            Point pos = child->position;
                             REQUIRE_ALMOST_EQUAL(pos.x, expectedPos.x, 2);
                             REQUIRE_ALMOST_EQUAL(pos.y, expectedPos.y, 2);
 
                             // size should not have changed
-                            REQUIRE(child->size() == oldSize);
+                            REQUIRE(child->size == oldSize);
                         };
                     };
                 }
@@ -144,7 +144,7 @@ namespace bdn
                object or the core object.
 
                 */
-            virtual P<IBase> createInfoToVerifyCoreUiElementDestruction() = 0;
+            virtual std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() = 0;
 
             /** Verify that the core UI element of the window was destroyed.
 
@@ -155,7 +155,7 @@ namespace bdn
                information that was returned by an earlier call to
                createInfoToVerifyCoreUiElementDestruction().
                 */
-            virtual void verifyCoreUiElementDestruction(IBase *verificationInfo) = 0;
+            virtual void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) = 0;
 
             /** Removes all references to the outer window object, causing it to
              * be destroyed.*/
@@ -174,11 +174,11 @@ namespace bdn
 
             void testCoreUiElementDestroyedWhenObjectDestroyed()
             {
-                P<IBase> verifyInfo = createInfoToVerifyCoreUiElementDestruction();
+                std::shared_ptr<Base> verifyInfo = createInfoToVerifyCoreUiElementDestruction();
 
                 clearAllReferencesToOuterWindow();
 
-                P<IViewCore> coreKeepAlive;
+                std::shared_ptr<IViewCore> coreKeepAlive;
 
                 SECTION("core not kept alive")
                 {
@@ -189,12 +189,12 @@ namespace bdn
 
                 clearAllReferencesToCore();
 
-                P<TestWindowCore> self = this;
+                std::shared_ptr<TestWindowCore> self = std::dynamic_pointer_cast<TestWindowCore>(shared_from_this());
 
                 // it may be that deleted windows are garbage collected.
                 // So we wait a few seconds before we check if the window is
                 // gone
-                CONTINUE_SECTION_AFTER_RUN_SECONDS(1, self, this, verifyInfo)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, self, this, verifyInfo)
                 {
                     CONTINUE_SECTION_WHEN_IDLE(self, this, verifyInfo) { verifyCoreUiElementDestruction(verifyInfo); };
                 };
@@ -205,9 +205,7 @@ namespace bdn
                property.*/
             virtual void verifyCoreTitle() = 0;
 
-            P<IWindowCore> _windowCore;
+            std::shared_ptr<IWindowCore> _windowCore;
         };
     }
 }
-
-#endif

@@ -1,9 +1,9 @@
-#ifndef BDN_OneShotStateNotifier_H_
-#define BDN_OneShotStateNotifier_H_
+#pragma once
 
 #include <bdn/IAsyncNotifier.h>
-#include <bdn/RequireNewAlloc.h>
 #include <bdn/mainThread.h>
+
+#include <memory>
 
 namespace bdn
 {
@@ -60,21 +60,16 @@ namespace bdn
        the subscribed functions will get such a pointer as their parameter).
 
     */
-    template <class... ArgTypes>
-    class OneShotStateNotifier :
-        // note that we do not derive from NotifierBase because we need very
-        // fine control over each individual subscriber call.
-        public RequireNewAlloc<Base, OneShotStateNotifier<ArgTypes...>>,
-        BDN_IMPLEMENTS IAsyncNotifier<ArgTypes...>
+    template <class... ArgTypes> class OneShotStateNotifier : virtual public IAsyncNotifier<ArgTypes...>
     {
       public:
         OneShotStateNotifier() {}
 
-        P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) override
+        std::shared_ptr<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) override
         {
             int64_t subId = subscribeInternal(func);
 
-            return newObj<Subscription_>(subId);
+            return std::make_shared<Subscription_>(subId);
         }
 
         INotifierBase<ArgTypes...> &operator+=(const std::function<void(ArgTypes...)> &func) override
@@ -84,14 +79,14 @@ namespace bdn
             return *this;
         }
 
-        P<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
+        std::shared_ptr<INotifierSubscription> subscribeParamless(const std::function<void()> &func) override
         {
             return subscribe(ParamlessFunctionAdapter(func));
         }
 
         void postNotification(ArgTypes... args) override
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             if (_postNotificationCalled) {
                 // should not happen
@@ -109,11 +104,14 @@ namespace bdn
             scheduleNotifyCall();
         }
 
-        void unsubscribe(INotifierSubscription *sub) override { unsubscribeById(cast<Subscription_>(sub)->subId()); }
+        void unsubscribe(std::shared_ptr<INotifierSubscription> sub) override
+        {
+            unsubscribeById(std::dynamic_pointer_cast<Subscription_>(sub)->subId());
+        }
 
         void unsubscribeAll() override
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             _subMap.clear();
 
@@ -129,7 +127,7 @@ namespace bdn
 
         int64_t subscribeInternal(const std::function<void(ArgTypes...)> &func)
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             // always add the subscriber to the map. If postNotification has
             // already been called then it is still correct (see below)
@@ -183,7 +181,9 @@ namespace bdn
         void scheduleNotifyCall()
         {
             _notificationPending = true;
-            asyncCallFromMainThread(strongMethod(this, &OneShotStateNotifier::doNotify));
+            asyncCallFromMainThread(
+                strongMethod(std::dynamic_pointer_cast<OneShotStateNotifier>(Base::shared_from_this()),
+                             &OneShotStateNotifier::doNotify));
         }
 
         struct Sub_
@@ -202,7 +202,7 @@ namespace bdn
 
         void unsubscribeById(int64_t subId)
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             auto it = _subMap.find(subId);
             if (it != _subMap.end()) {
@@ -217,7 +217,7 @@ namespace bdn
 
         void doNotify()
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             // We also need to ensure that subscribers that are removed while
             // our notification call is running are not called after they are
@@ -258,12 +258,12 @@ namespace bdn
                     // finishes.
 
                     try {
-                        Mutex::Unlock unlock(_mutex);
-
+                        lock.unlock();
                         // note that _subscribedFuncCaller has the notification
                         // parameters bound to it. So we do not need to pass
                         // them here.
                         _subscribedFuncCaller(item.second.func);
+                        lock.lock();
                     }
                     catch (DanglingFunctionError &) {
                         // this is a perfectly normal case. It means that the
@@ -303,7 +303,7 @@ namespace bdn
             std::function<void()> _func;
         };
 
-        class Subscription_ : public Base, BDN_IMPLEMENTS INotifierSubscription
+        class Subscription_ : public Base, virtual public INotifierSubscription
         {
           public:
             Subscription_(int64_t subId) : _subId(subId) {}
@@ -314,7 +314,7 @@ namespace bdn
             int64_t _subId;
         };
 
-        Mutex _mutex;
+        std::recursive_mutex _mutex;
         int64_t _nextSubId = 1;
         std::map<int64_t, Sub_> _subMap;
         bool _postNotificationCalled = false;
@@ -323,5 +323,3 @@ namespace bdn
         std::function<void(const std::function<void(ArgTypes...)> &)> _subscribedFuncCaller;
     };
 }
-
-#endif

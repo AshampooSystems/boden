@@ -1,5 +1,4 @@
-#ifndef BDN_INotifierSubscription_H_
-#define BDN_INotifierSubscription_H_
+#pragma once
 
 namespace bdn
 {
@@ -11,10 +10,9 @@ namespace bdn
        currently possible on the subscription objects (beyond what bdn::IBase
        defines) other than passing them to INotifierBase::unsubscribe().
      */
-    class INotifierSubscription : BDN_IMPLEMENTS IBase
+    class INotifierSubscription
     {
       public:
+        virtual ~INotifierSubscription() = default;
     };
 }
-
-#endif

@@ -10,5 +10,5 @@ class MainViewController : public bdn::Base
     virtual ~MainViewController() = default;
 
   private:
-    bdn::P<bdn::Window> _window;
+    std::shared_ptr<bdn::Window> _window;
 };

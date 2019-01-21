@@ -1,5 +1,4 @@
-#ifndef BDN_IAsyncOp_H_
-#define BDN_IAsyncOp_H_
+#pragma once
 
 #include <bdn/UnfinishedError.h>
 #include <bdn/AbortedError.h>
@@ -9,9 +8,14 @@
 namespace bdn
 {
 
-    template <class ResultType> class IAsyncOp : BDN_IMPLEMENTS IBase
+    template <class ResultType> class IAsyncOp : virtual public Base
     {
       public:
+        std::shared_ptr<IAsyncOp<ResultType>> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<IAsyncOp<ResultType>>(Base::shared_from_this());
+        }
+
         /** Returns the result of the operation, if it is done.
             Throws a UnfinishedError exception if the operation has not finished
            yet.
@@ -50,8 +54,6 @@ namespace bdn
            added then the notification call is scheduled immediately.
 
             */
-        virtual IAsyncNotifier<P<IAsyncOp>> &onDone() const = 0;
+        virtual IAsyncNotifier<std::shared_ptr<IAsyncOp>> &onDone() const = 0;
     };
 }
-
-#endif

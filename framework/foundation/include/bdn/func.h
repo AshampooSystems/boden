@@ -1,5 +1,4 @@
-#ifndef BDN_method_H_
-#define BDN_method_H_
+#pragma once
 
 #include <utility>
 #include <functional>
@@ -16,7 +15,7 @@ namespace bdn
       public:
         StrongMethod_() : _method(nullptr) {}
 
-        StrongMethod_(ObjectType *object, MethodType method) : _object(object), _method(method) {}
+        StrongMethod_(std::shared_ptr<ObjectType> object, MethodType method) : _object(object), _method(method) {}
 
         template <class... ArgTypes>
         typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
@@ -24,7 +23,7 @@ namespace bdn
             if (!isValid())
                 throw std::bad_function_call();
 
-            return (*(_object.getPtr()).*_method)(std::forward<ArgTypes>(args)...);
+            return (*(_object.get()).*_method)(std::forward<ArgTypes>(args)...);
         }
 
         /** Returns true if the method pointer is valid.
@@ -41,7 +40,7 @@ namespace bdn
         explicit operator bool() const { return isValid(); }
 
       private:
-        P<ObjectType> _object;
+        std::shared_ptr<ObjectType> _object;
         MethodType _method;
     };
 
@@ -52,8 +51,8 @@ namespace bdn
       public:
         WeakMethod_() : _method(nullptr), _valid(false) {}
 
-        WeakMethod_(ObjectType *object, MethodType method)
-            : _objectWeak(object), _method(method), _valid((object != nullptr) && method != nullptr)
+        WeakMethod_(std::weak_ptr<ObjectType> object, MethodType method)
+            : _objectWeak(object), _method(method), _valid((object.lock() != nullptr) && method != nullptr)
         {}
 
         template <class... ArgTypes>
@@ -62,7 +61,7 @@ namespace bdn
             if (!isValid())
                 throw std::bad_function_call();
 
-            P<ObjectType> object = _objectWeak.toStrong();
+            std::shared_ptr<ObjectType> object = _objectWeak.lock();
 
             if (object == nullptr)
                 throw DanglingFunctionError();
@@ -84,45 +83,9 @@ namespace bdn
         explicit operator bool() const { return isValid(); }
 
       private:
-        WeakP<ObjectType> _objectWeak;
+        std::weak_ptr<ObjectType> _objectWeak;
         MethodType _method;
         bool _valid;
-    };
-
-    /** Internal class. Do not use directly.
-     */
-    template <class ObjectType, class MethodType> class PlainMethod_
-    {
-      public:
-        PlainMethod_() : _object(nullptr), _method(nullptr) {}
-
-        PlainMethod_(ObjectType *object, MethodType method) : _object(object), _method(method) {}
-
-        template <class... ArgTypes>
-        typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
-        {
-            if (!isValid())
-                throw std::bad_function_call();
-
-            return ((*_object).*_method)(std::forward<ArgTypes>(args)...);
-        }
-
-        /** Returns true if the method pointer is valid.
-         Invalid methods will throw an exception when they are called.*/
-        bool isValid() const { return (_object != nullptr && _method != nullptr); }
-
-        /** Returns true if the method is invalid (see isValid()).*/
-        bool operator==(std::nullptr_t) const { return !isValid(); }
-
-        /** Returns true if the method is valid (see isValid()).*/
-        bool operator!=(std::nullptr_t) const { return isValid(); }
-
-        /** Returns true if the method is valid.*/
-        explicit operator bool() const { return isValid(); }
-
-      private:
-        ObjectType *_object;
-        MethodType _method;
     };
 
     /**  Packages a method together with its object pointer and allows it to be
@@ -152,7 +115,7 @@ namespace bdn
             int hello(String s);
          };
 
-         P<MyClass> object = newObj<MyClass>();
+         std::shared_ptr<MyClass> object = std::make_shared<MyClass>();
 
          std::function<int(String)> methodObj = strongMethod(object,
        &MyClass::hello);
@@ -167,22 +130,14 @@ namespace bdn
          \endcode
 
          */
+
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> strongMethod(ObjectType *object, FuncType ObjectType::*method)
+    std::function<FuncType> strongMethod(const std::shared_ptr<ObjectType> &object, FuncType ObjectType::*method)
     {
         if (object == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
             return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
-    }
-
-    template <class ObjectType, typename FuncType>
-    std::function<FuncType> strongMethod(const P<ObjectType> &object, FuncType ObjectType::*method)
-    {
-        if (object == nullptr || method == nullptr)
-            return std::function<FuncType>();
-        else
-            return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(object.getPtr(), method);
     }
 
     /** This is similar to strongMethod(), except that the returned callable
@@ -201,7 +156,7 @@ namespace bdn
 
         */
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> weakMethod(ObjectType *object, FuncType ObjectType::*method)
+    std::function<FuncType> weakMethod(std::weak_ptr<ObjectType> object, FuncType ObjectType::*method)
     {
         if (object == nullptr || method == nullptr)
             return std::function<FuncType>();
@@ -210,56 +165,11 @@ namespace bdn
     }
 
     template <class ObjectType, typename FuncType>
-    std::function<FuncType> weakMethod(const P<ObjectType> &object, FuncType ObjectType::*method)
+    std::function<FuncType> weakMethod(const std::shared_ptr<ObjectType> &object, FuncType ObjectType::*method)
     {
         if (object == nullptr || method == nullptr)
             return std::function<FuncType>();
         else
-            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(object.getPtr(), method);
-    }
-
-    /** Packages a method together with its object pointer and allows it to be
-       called like a global function (without providing the object pointer at
-       the point of the call).
-
-        The caller is responsible for ensuring that the method's object
-       (object) is still valid at the time the function object is called. The
-       returned function object does nothing to keep the method's object alive
-       and it also does nothing to check the validity of the object. If the
-       method's object is deleted then calling the returned function object will
-        likely cause a crash, so use this carefully.
-
-        plainMethod can be used with any object of any class. The object does
-       not need to implement bdn::IBase.
-
-        When to use
-        -----------
-
-        plainMethod is a bit more lightweight than weakMethod() and
-       strongMethod() (although the performance benefit matters only very
-       rarely).
-
-        It is mainly intended for cases when you are certain that the object
-       will be valid, or when the object does not implement bdn::IBase.
-
-        */
-    template <class ObjectType, typename FuncType>
-    std::function<FuncType> plainMethod(ObjectType *object, FuncType ObjectType::*method)
-    {
-        if (object == nullptr || method == nullptr)
-            return std::function<FuncType>();
-        else
-            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
-    }
-
-    template <class ObjectType, typename FuncType>
-    std::function<FuncType> plainMethod(const P<ObjectType> &object, FuncType ObjectType::*method)
-    {
-        if (object == nullptr || method == nullptr)
-            return std::function<FuncType>();
-        else
-            return PlainMethod_<ObjectType, FuncType(ObjectType::*)>(object.getPtr(), method);
+            return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
     }
 }
-
-#endif

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 
 #import <UIKit/UIKit.h>
 #import <bdn/ios/UiProvider.hh>
@@ -12,14 +12,14 @@
 #import <bdn/ios/ScrollViewCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
-#include <bdn/TextUiCombiner.h>
-#include <bdn/StdioTextUi.h>
-#include <bdn/ViewTextUi.h>
+
+// TODO: Well, this obviously doesn't belong here. Get rid of it ASAP.
+#include <iostream>
 
 namespace bdn
 {
 
-    P<IUiProvider> getDefaultUiProvider() { return &bdn::ios::UiProvider::get(); }
+    std::shared_ptr<IUiProvider> getDefaultUiProvider() { return bdn::ios::UiProvider::get(); }
 }
 
 namespace bdn
@@ -27,7 +27,11 @@ namespace bdn
     namespace ios
     {
 
-        BDN_SAFE_STATIC_IMPL(UiProvider, UiProvider::get);
+        std::shared_ptr<UiProvider> UiProvider::get()
+        {
+            static std::shared_ptr<UiProvider> globalUIProvider = std::make_shared<UiProvider>();
+            return globalUIProvider;
+        };
 
         UiProvider::UiProvider()
         {
@@ -36,58 +40,42 @@ namespace bdn
 
             _semDips = UIFont.systemFontSize;
 
-            _layoutCoordinator = newObj<LayoutCoordinator>();
+            _layoutCoordinator = std::make_shared<LayoutCoordinator>();
         }
 
         String UiProvider::getName() const { return "ios"; }
 
-        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName, View *view)
+        std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
         {
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
-                return newObj<ContainerViewCore>(cast<ContainerView>(view));
+                return std::make_shared<ContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(view));
 
             else if (coreTypeName == Button::getButtonCoreTypeName())
-                return newObj<ButtonCore>(cast<Button>(view));
+                return std::make_shared<ButtonCore>(std::dynamic_pointer_cast<Button>(view));
 
             else if (coreTypeName == Checkbox::getCheckboxCoreTypeName())
-                return newObj<CheckboxCore>(cast<Checkbox>(view));
+                return std::make_shared<CheckboxCore>(std::dynamic_pointer_cast<Checkbox>(view));
 
             else if (coreTypeName == Toggle::getToggleCoreTypeName())
-                return newObj<SwitchCore<Toggle>>(cast<Toggle>(view));
+                return std::make_shared<SwitchCore<Toggle>>(std::dynamic_pointer_cast<Toggle>(view));
 
             else if (coreTypeName == Switch::getSwitchCoreTypeName())
-                return newObj<SwitchCore<Switch>>(cast<Switch>(view));
+                return std::make_shared<SwitchCore<Switch>>(std::dynamic_pointer_cast<Switch>(view));
 
             else if (coreTypeName == TextView::getTextViewCoreTypeName())
-                return newObj<TextViewCore>(cast<TextView>(view));
+                return std::make_shared<TextViewCore>(std::dynamic_pointer_cast<TextView>(view));
 
             else if (coreTypeName == TextField::getTextFieldCoreTypeName())
-                return newObj<TextFieldCore>(cast<TextField>(view));
+                return std::make_shared<TextFieldCore>(std::dynamic_pointer_cast<TextField>(view));
 
             else if (coreTypeName == ScrollView::getScrollViewCoreTypeName())
-                return newObj<ScrollViewCore>(cast<ScrollView>(view));
+                return std::make_shared<ScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(view));
 
             else if (coreTypeName == Window::getWindowCoreTypeName())
-                return newObj<WindowCore>(cast<Window>(view));
+                return std::make_shared<WindowCore>(std::dynamic_pointer_cast<Window>(view));
 
             else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
-        }
-
-        P<ITextUi> UiProvider::getTextUi()
-        {
-            {
-                Mutex::Lock lock(_textUiInitMutex);
-                if (_textUi == nullptr) {
-                    // we want the output of the text UI to go to both the
-                    // View-based text UI, as well as the stdout/stderr streams.
-
-                    _textUi = newObj<TextUiCombiner>(newObj<ViewTextUi>(),
-                                                     newObj<StdioTextUi<char>>(&std::cin, &std::cout, &std::cerr));
-                }
-            }
-
-            return _textUi;
         }
     }
 }

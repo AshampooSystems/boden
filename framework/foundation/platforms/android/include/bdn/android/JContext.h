@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JContext_H_
-#define BDN_ANDROID_JContext_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JResources.h>
@@ -62,5 +61,3 @@ namespace bdn
         };
     }
 }
-
-#endif

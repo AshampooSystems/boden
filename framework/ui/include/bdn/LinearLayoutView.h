@@ -11,7 +11,7 @@ namespace bdn
         LinearLayoutView(bool horizontal);
 
         Size calcContainerPreferredSize(const Size &availableSpace = Size::none()) const override;
-        P<ViewLayout> calcContainerLayout(const Size &containerSize) const override;
+        std::shared_ptr<ViewLayout> calcContainerLayout(const Size &containerSize) const override;
 
       public:
         enum class LayoutPhase

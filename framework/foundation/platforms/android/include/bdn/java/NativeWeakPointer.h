@@ -1,8 +1,9 @@
-#ifndef BDN_ANDROID_JavaNativeWeakPointer_H_
-#define BDN_ANDROID_JavaNativeWeakPointer_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/JByteBuffer.h>
+
+#include <memory>
 
 namespace bdn
 {
@@ -20,22 +21,24 @@ namespace bdn
         class NativeWeakPointer : public JObject
         {
           private:
-            static Reference newInstance(void *pointer)
+            static Reference newInstance(std::weak_ptr<void> weakPtr)
             {
-                if (pointer == nullptr) {
+                if (weakPtr.expired()) {
                     // When the C++ pointer is null then we just return a null
                     // java reference
                     return Reference();
                 } else {
+                    std::weak_ptr<void> *pPtr = new std::weak_ptr<void>(weakPtr);
+
                     // wrap the pointer into a java byte buffer
-                    JByteBuffer byteBuffer(pointer, 1);
+                    JByteBuffer byteBuffer(pPtr, 1);
 
                     return byteBuffer.getRef_();
                 }
             }
 
           public:
-            explicit NativeWeakPointer(void *pointer) : JObject(newInstance(pointer)) {}
+            explicit NativeWeakPointer(std::weak_ptr<void> pPointer) : JObject(newInstance(pPointer)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -48,28 +51,28 @@ namespace bdn
             /** An optimized function to retrieve the stored pointer directly
              * from the specified jobject. The java-side object must have been
              * created with NativeWeakPointer.*/
-            static void *unwrapJObject(jobject obj)
+            static std::weak_ptr<void> unwrapJObject(jobject obj)
             {
                 Env &env = Env::get();
 
-                void *buffer = env.getJniEnv()->GetDirectBufferAddress(obj);
+                std::weak_ptr<void> *pPtr = (std::weak_ptr<void> *)env.getJniEnv()->GetDirectBufferAddress(obj);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return buffer;
+                return *pPtr;
             }
 
-            void *getPointer()
+            std::weak_ptr<void> getPointer()
             {
                 Reference bufferRef = getRef_();
 
                 if (bufferRef.isNull()) {
                     // that means that the C++ pointer is null.
-                    return nullptr;
+                    return std::weak_ptr<void>();
                 } else {
                     JByteBuffer buffer(bufferRef);
 
-                    return buffer.getBuffer_();
+                    return *((std::weak_ptr<void> *)buffer.getBuffer_());
                 }
             }
 
@@ -84,5 +87,3 @@ namespace bdn
         };
     }
 }
-
-#endif

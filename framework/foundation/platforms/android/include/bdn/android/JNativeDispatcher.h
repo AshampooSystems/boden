@@ -1,5 +1,6 @@
-#ifndef BDN_ANDROID_JNativeDispatcher_H_
-#define BDN_ANDROID_JNativeDispatcher_H_
+#pragma once
+
+#include <bdn/DanglingFunctionError.h>
 
 #include <bdn/android/JLooper.h>
 #include <bdn/java/JNativeOnceRunnable.h>
@@ -33,7 +34,7 @@ namespace bdn
 
             explicit JNativeDispatcher(JLooper looper) : JObject(newInstance_(looper)) {}
 
-            void enqueue(double delaySeconds, std::function<void()> func, bool idlePriority)
+            void enqueue(IDispatcher::Duration delay, std::function<void()> func, bool idlePriority)
             {
                 bdn::java::JNativeOnceRunnable runnable([func]() {
                     try {
@@ -45,19 +46,22 @@ namespace bdn
                     }
                 });
 
+                double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
+
                 static bdn::java::MethodId methodId;
 
-                return invoke_<void>(getStaticClass_(), methodId, "enqueue", delaySeconds,
+                return invoke_<void>(getStaticClass_(), methodId, "enqueue", delayInSeconds,
                                      (bdn::java::JNativeRunnable &)runnable, idlePriority);
             }
 
-            void createTimer(double intervalSeconds, IBase *timerData)
+            void createTimer(IDispatcher::Duration interval, std::shared_ptr<Base> timerData)
             {
                 bdn::java::JNativeStrongPointer nativeTimerData(timerData);
 
-                static bdn::java::MethodId methodId;
+                double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
 
-                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalSeconds, nativeTimerData);
+                static bdn::java::MethodId methodId;
+                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalInSeconds, nativeTimerData);
             }
 
             void dispose()
@@ -87,5 +91,3 @@ namespace bdn
         };
     }
 }
-
-#endif

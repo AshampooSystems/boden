@@ -4,9 +4,10 @@ import shutil
 import subprocess
 
 class AndroidStudioProjectGenerator(object):
-    def __init__(self, gradle, platformBuildDir, androidBuildApiVersion):
+    def __init__(self, gradle, cmake, platformBuildDir, androidBuildApiVersion):
         self._projectDir = platformBuildDir;
         self.gradle = gradle
+        self.cmake = cmake
         self.androidBuildApiVersion = androidBuildApiVersion
         
     def getGradleDependency(self):
@@ -211,6 +212,8 @@ task clean(type: Delete) {
             abiFilterStatement = "abiFilters '%s'" % android_abi
         else:
             abiFilterStatement = ""
+
+        cmakeVersion = self.cmake.globalSettings["capabilities"]["version"]["string"]
         
         return """
 apply plugin: '$$PluginName$$'
@@ -228,7 +231,7 @@ android {
                 targets $$CmakeTargets$$
                 arguments "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"
                 $$AbiFilter$$
-                cppFlags "-std=c++11 -frtti -fexceptions"                     
+                cppFlags "-std=c++17 -frtti -fexceptions"                     
             }
         }
     }
@@ -241,6 +244,7 @@ android {
     externalNativeBuild {
         cmake {            
             path "$$RootCMakeFile$$"
+            version "$$CmakeVersion$$"
         }
     }
 
@@ -274,7 +278,8 @@ $$ModuleDependencyCode$$
     .replace("$$CmakeTargets$$", cmakeTargets) \
     .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
     .replace("$$TargetSourceDirectory$$", targetSourceDirectory) \
-    .replace("$$RootCMakeFile$$", rootCMakeFile)
+    .replace("$$RootCMakeFile$$", rootCMakeFile) \
+    .replace("$$CmakeVersion$$", cmakeVersion)
 
 
     def makeCMakePath(self, path):

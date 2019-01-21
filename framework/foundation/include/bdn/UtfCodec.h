@@ -1,5 +1,4 @@
-#ifndef BDN_UtfCodec_H_
-#define BDN_UtfCodec_H_
+#pragma once
 
 #include <bdn/Utf8Codec.h>
 #include <bdn/Utf16Codec.h>
@@ -38,5 +37,3 @@ namespace bdn
     {
     };
 }
-
-#endif

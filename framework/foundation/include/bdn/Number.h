@@ -1,5 +1,4 @@
-#ifndef BDN_Number_H_
-#define BDN_Number_H_
+#pragma once
 
 #include <bdn/config.h>
 
@@ -421,7 +420,7 @@ namespace bdn
         return static_cast<ArgIntType>(_IntOpImpl<sizeof(ArgIntType)>::_rotateBitsRightImpl(value, bits));
     }
 
-#if BDN_STD_ISNAN_INT_MISSING
+#ifdef BDN_STD_ISNAN_INT_MISSING
 
     template <bool IsFloatingPoint> struct MscNumberUtilHelper_
     {
@@ -449,7 +448,7 @@ namespace bdn
         */
     template <typename ValueType> static inline bool isNan(ValueType value)
     {
-#if BDN_STD_ISNAN_INT_MISSING
+#ifdef BDN_STD_ISNAN_INT_MISSING
         // Visual Studio 2017 and below did not provide an implementation of
         // std::isnan for integers (even though C++17 mandates it). So we have
         // to use a workaround here.
@@ -473,7 +472,7 @@ namespace bdn
         */
     template <typename ValueType> static inline bool isFinite(ValueType value)
     {
-#if BDN_STD_ISFINITE_INT_MISSING
+#ifdef BDN_STD_ISFINITE_INT_MISSING
         // Visual Studio 2017 and below did not provide an implementation of
         // std::isfinite for integers (even though C++17 mandates it). So we
         // have to use a workaround here.
@@ -593,5 +592,3 @@ namespace std
         }
     };
 }
-
-#endif

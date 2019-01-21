@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/LinearLayoutView.h>
 
 #include <bdn/LinearLayoutViewTypes.h>
@@ -14,8 +14,8 @@ namespace bdn
         Size childSize;
     };
 
-    AdjustedChildBoundsResult calculateAdjustedChildBounds(bool h, const P<View> childView, VirtualPoint &childPosition,
-                                                           VirtualMargin childMargin,
+    AdjustedChildBoundsResult calculateAdjustedChildBounds(bool h, const std::shared_ptr<View> childView,
+                                                           VirtualPoint &childPosition, VirtualMargin childMargin,
                                                            const VirtualSize &clippedAvailableSpace,
                                                            LinearLayoutView::LayoutPhase layoutPhase,
                                                            Rect *unadjustedBounds = nullptr)
@@ -80,7 +80,7 @@ namespace bdn
         // measurement
         VirtualSize clippedAvailableSpace(_horizontal, availableSpace);
 
-        clippedAvailableSpace.applyMaximum(preferredSizeMaximum());
+        clippedAvailableSpace.applyMaximum(preferredSizeMaximum);
 
         // Subtract row view padding, ensure non-negative size
         VirtualSize paddedAvailableSpace(
@@ -93,11 +93,10 @@ namespace bdn
         // row view's preferred height.
         double maxChildSecondarySizeWithMargin = 0.;
 
-        List<P<View>> childViews;
-        getChildViews(childViews);
+        std::list<std::shared_ptr<View>> childViews = getChildViews();
 
         for (const auto &childView : childViews) {
-            const VirtualMargin childMargin(_horizontal, childView->uiMarginToDipMargin(childView->margin()));
+            const VirtualMargin childMargin(_horizontal, childView->uiMarginToDipMargin(childView->margin));
 
             childPosition.primary += childMargin.primaryNear;
             childPosition.secondary = padding.secondaryNear + childMargin.secondaryNear;
@@ -130,19 +129,19 @@ namespace bdn
         VirtualSize preferredSize(_horizontal, childPosition.primary + padding.primaryFar,
                                   maxChildSecondarySizeWithMargin + padding.secondaryNear + padding.secondaryFar);
 
-        preferredSize.applyMinimum(preferredSizeMinimum());
-        preferredSize.applyMaximum(preferredSizeMaximum());
+        preferredSize.applyMinimum(preferredSizeMinimum);
+        preferredSize.applyMaximum(preferredSizeMaximum);
 
         return preferredSize.toSize();
     }
 
-    P<ViewLayout> LinearLayoutView::calcContainerLayout(const Size &containerSize) const
+    std::shared_ptr<ViewLayout> LinearLayoutView::calcContainerLayout(const Size &containerSize) const
     {
         if (!std::isfinite(containerSize.width) || !std::isfinite(containerSize.height))
             throw InvalidArgumentError("The containerSize argument must represent a finite size "
                                        "during the layout phase.");
 
-        auto layout = newObj<ViewLayout>();
+        auto layout = std::make_shared<ViewLayout>();
 
         VirtualSize virtualContainerSize(_horizontal, containerSize);
 
@@ -153,15 +152,14 @@ namespace bdn
 
         VirtualPoint childPosition(_horizontal, padding.primaryNear, .0);
 
-        List<P<View>> childViews;
-        getChildViews(childViews);
+        std::list<std::shared_ptr<View>> childViews = getChildViews();
 
         bool hasExpandingChildren = false;
         double fullExpansion = 0.0;
         double fixedSpaceUsed = 0.0;
 
         for (const auto &childView : childViews) {
-            const VirtualMargin childMargin(_horizontal, childView->uiMarginToDipMargin(childView->margin()));
+            const VirtualMargin childMargin(_horizontal, childView->uiMarginToDipMargin(childView->margin));
 
             childPosition.primary += childMargin.primaryNear;
             childPosition.secondary = padding.secondaryNear + childMargin.secondaryNear;
@@ -178,8 +176,8 @@ namespace bdn
             VirtualRect unadjustedChildBounds(_horizontal, adj.unadjustedBounds);
             VirtualSize childSize(_horizontal, adj.childSize);
 
-            auto childLayoutData = newObj<ViewLayout::ViewLayoutData>();
-            childLayoutData->setBounds(adjustedChildBounds.toRect());
+            ViewLayout::ViewLayoutData childLayoutData;
+            childLayoutData.setBounds(adjustedChildBounds.toRect());
             layout->setViewLayoutData(childView, childLayoutData);
 
             // Round down LinearLayoutView's height if child bounds exceed
@@ -233,23 +231,26 @@ namespace bdn
                 double push = 0.0;
 
                 for (const auto &childView : childViews) {
-                    P<ViewLayout::ViewLayoutData> childLayout = layout->getViewLayoutData(childView);
-                    Rect childBounds;
-                    childLayout->getBounds(childBounds);
+                    std::optional<ViewLayout::ViewLayoutData> childLayout = layout->getViewLayoutData(childView);
+                    if (childLayout) {
+                        Rect childBounds;
+                        childLayout->getBounds(childBounds);
 
-                    VirtualRect bounds(_horizontal, childBounds);
+                        VirtualRect bounds(_horizontal, childBounds);
 
-                    bounds.primary += push;
+                        bounds.primary += push;
 
-                    if (primaryToVirtualAlignment(_horizontal, childView) == VirtualAlignment::expand) {
-                        double oldSize = bounds.primarySize;
-                        bounds.primarySize = factor; // * growFactor
-                        push += (bounds.primarySize - oldSize);
+                        if (primaryToVirtualAlignment(_horizontal, childView) == VirtualAlignment::expand) {
+                            double oldSize = bounds.primarySize;
+                            bounds.primarySize = factor; // * growFactor
+                            push += (bounds.primarySize - oldSize);
 
-                    } else {
+                        } else {
+                        }
+
+                        childLayout->setBounds(bounds.toRect());
+                        layout->setViewLayoutData(childView, *childLayout);
                     }
-
-                    childLayout->setBounds(bounds.toRect());
                 }
             }
         }
@@ -261,9 +262,9 @@ namespace bdn
     {
         // Use zero padding when padding() is "null"
         Margin padding;
-        Nullable<UiMargin> uiPadding = this->padding();
-        if (uiPadding.isNull() == false)
-            padding = uiMarginToDipMargin(uiPadding);
+        auto uiPadding = *this->padding;
+        if (uiPadding)
+            padding = uiMarginToDipMargin(*uiPadding);
 
         return padding;
     }

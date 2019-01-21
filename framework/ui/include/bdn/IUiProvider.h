@@ -1,5 +1,4 @@
-#ifndef BDN_IUiProvider_H_
-#define BDN_IUiProvider_H_
+#pragma once
 
 namespace bdn
 {
@@ -8,7 +7,6 @@ namespace bdn
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
-#include <bdn/ITextUi.h>
 
 namespace bdn
 {
@@ -30,7 +28,7 @@ namespace bdn
        the testing of a user interface and make it easier to automate such
        tests.
     */
-    class IUiProvider : BDN_IMPLEMENTS IBase
+    class IUiProvider
     {
       public:
         /** Returns the name of the UI provider. This is intended for logging
@@ -79,31 +77,9 @@ namespace bdn
            occur. Note that it is guaranteed that the view object will exist at
            least as long as the core object, so a strong reference is not
            necessary. So you should not store the view pointer in a smart
-           pointer (like P<View>). Use weak pointers (like WeakP<View>) instead.
+           pointer (like std::shared_ptr<View>). Use weak pointers (like WeakP<View>) instead.
                 */
-        virtual P<IViewCore> createViewCore(const String &coreTypeName, View *view) = 0;
-
-        /** Returns an object that can be used to interact with the user via a
-           text interface.
-
-            For Console/Terminal applications this is usually a ITextUi
-           implementation that uses the stdio streams (STDOUT / std::cout,
-           etc.). One such implementation is bdn::StdioTextUi.
-
-            For other types of applications the text UI implementation will
-           often open a graphical window and use normal view components to
-           interact with the user (for example with bdn::ViewTextUi ).
-
-            Note that while console / terminal apps are not supported on all
-           platforms, a functioning text UI implementation will still provided
-           in all cases.
-
-            Also note that the default text UI for each platform will ALWAYS
-            also write forward the written text to STDOUT and STDERR, even if a
-           graphical window is the primary means of display.
-
-            */
-        virtual P<ITextUi> getTextUi() = 0;
+        virtual std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) = 0;
     };
 
     /** Returns the default UI provider for the current platform. Note that this
@@ -118,7 +94,5 @@ namespace bdn
 
         This function is thread-safe.
     */
-    P<IUiProvider> getDefaultUiProvider();
+    std::shared_ptr<IUiProvider> getDefaultUiProvider();
 }
-
-#endif

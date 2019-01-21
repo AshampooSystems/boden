@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_util_HH_
-#define BDN_IOS_util_HH_
+#pragma once
 
 namespace bdn
 {
@@ -55,7 +54,7 @@ namespace bdn
 
         inline NSString *stringToIosString(const String &val)
         {
-            return [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding];
+            return [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
         }
 
         inline String iosStringToString(NSString *nsString)
@@ -64,5 +63,3 @@ namespace bdn
         }
     }
 }
-
-#endif

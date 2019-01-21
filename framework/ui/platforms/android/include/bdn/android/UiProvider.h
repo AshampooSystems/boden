@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_UiProvider_H_
-#define BDN_ANDROID_UiProvider_H_
+#pragma once
 
 namespace bdn
 {
@@ -12,7 +11,6 @@ namespace bdn
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
-#include <bdn/ITextUi.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
@@ -24,37 +22,30 @@ namespace bdn
     namespace android
     {
 
-        class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+        class UiProvider : public Base, virtual public IUiProvider
         {
           public:
             UiProvider()
             {
                 _semDips = -1;
-                _layoutCoordinator = newObj<LayoutCoordinator>();
+                _layoutCoordinator = std::make_shared<LayoutCoordinator>();
             }
 
             String getName() const override;
 
-            P<IViewCore> createViewCore(const String &coreTypeName, View *view) override;
-
-            P<ITextUi> getTextUi() override;
+            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
 
             double getSemSizeDips(ViewCore &viewCore);
 
             /** Returns the layout coordinator that is used by view cores
              * created by this UI provider.*/
-            P<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
+            std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
-            static UiProvider &get();
+            static std::shared_ptr<UiProvider> get();
 
           private:
             double _semDips;
-            P<LayoutCoordinator> _layoutCoordinator;
-
-            Mutex _textUiInitMutex;
-            P<ITextUi> _textUi;
+            std::shared_ptr<LayoutCoordinator> _layoutCoordinator;
         };
     }
 }
-
-#endif

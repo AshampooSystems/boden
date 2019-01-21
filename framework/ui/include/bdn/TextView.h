@@ -1,5 +1,4 @@
-#ifndef BDN_TextView_H_
-#define BDN_TextView_H_
+#pragma once
 
 #include <bdn/View.h>
 #include <bdn/ITextViewCore.h>
@@ -28,11 +27,10 @@ namespace bdn
     class TextView : public View
     {
       public:
-        TextView() {}
+        TextView();
 
-        /** Returns the TextView's text content.
-         */
-        BDN_VIEW_PROPERTY(String, text, setText, ITextViewCore, influencesPreferredSize());
+      public:
+        Property<String> text;
 
         /* * Can be used to give the text view a hint as to what the preferred
         width or height should be.
@@ -65,5 +63,3 @@ namespace bdn
       protected:
     };
 }
-
-#endif

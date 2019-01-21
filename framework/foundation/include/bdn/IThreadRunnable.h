@@ -1,5 +1,4 @@
-#ifndef BDN_IThreadRunnable_H_
-#define BDN_IThreadRunnable_H_
+#pragma once
 
 namespace bdn
 {
@@ -10,7 +9,7 @@ namespace bdn
         See ThreadRunnableBase for a helper base class that provides a partial
        default implementation.
      */
-    class IThreadRunnable : BDN_IMPLEMENTS IBase
+    class IThreadRunnable
     {
       public:
         /** This function is called in the new thread. It should perform
@@ -40,5 +39,3 @@ namespace bdn
         virtual void signalStop() = 0;
     };
 }
-
-#endif

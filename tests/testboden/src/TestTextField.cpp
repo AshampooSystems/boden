@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/TextField.h>
@@ -15,9 +15,11 @@ TEST_CASE("TextField")
 
     SECTION("TextField-specific")
     {
-        P<bdn::test::ViewTestPreparer<TextField>> preparer = newObj<bdn::test::ViewTestPreparer<TextField>>();
-        P<bdn::test::ViewWithTestExtensions<TextField>> textField = preparer->createView();
-        P<bdn::test::MockTextFieldCore> core = cast<bdn::test::MockTextFieldCore>(textField->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<TextField>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<TextField>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<TextField>> textField = preparer->createView();
+        std::shared_ptr<bdn::test::MockTextFieldCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockTextFieldCore>(textField->getViewCore());
 
         REQUIRE(core != nullptr);
 
@@ -25,7 +27,7 @@ TEST_CASE("TextField")
         {
             SECTION("text")
             {
-                REQUIRE(textField->text() == "");
+                REQUIRE(textField->text == "");
                 REQUIRE(core->getText() == "");
                 REQUIRE(core->getTextChangeCount() == 0);
             }
@@ -35,7 +37,7 @@ TEST_CASE("TextField")
         {
             SECTION("text")
             {
-                bdn::test::_testViewOp(textField, preparer, [textField]() { textField->setText("hello"); },
+                bdn::test::_testViewOp(textField, preparer, [textField]() { textField->text = ("hello"); },
                                        [core, textField] {
                                            REQUIRE(core->getText() == "hello");
                                            REQUIRE(core->getTextChangeCount() == 1);

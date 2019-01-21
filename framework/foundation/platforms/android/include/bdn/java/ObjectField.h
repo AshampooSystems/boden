@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_ObjectField_H_
-#define BDN_JAVA_ObjectField_H_
+#pragma once
 
 #include <bdn/java/Field.h>
 #include <bdn/java/ObjectFieldKind.h>
@@ -38,5 +37,3 @@ namespace bdn
         };
     }
 }
-
-#endif

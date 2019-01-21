@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JavaException_H_
-#define BDN_JAVA_JavaException_H_
+#pragma once
 
 #include <exception>
 #include <string>
@@ -19,7 +18,7 @@ namespace bdn
           public:
             JavaException(JThrowable throwable) : _throwable(throwable.getRef_())
             {
-                _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage()).asUtf8();
+                _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage());
             }
 
             /** Rethrows the specified java throwable as a C++ exception.
@@ -40,5 +39,3 @@ namespace bdn
         };
     }
 }
-
-#endif

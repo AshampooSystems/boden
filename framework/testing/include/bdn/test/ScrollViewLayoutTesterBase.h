@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_ScrollViewLayoutTesterBase_H_
-#define BDN_TEST_ScrollViewLayoutTesterBase_H_
+#pragma once
 
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
@@ -34,7 +33,7 @@ namespace bdn
             bool _vertScrollingEnabled = true;
 
             /** Returns the scroll view to use for the tests.*/
-            virtual P<ScrollView> getScrollView() = 0;
+            virtual std::shared_ptr<ScrollView> getScrollView() = 0;
 
             /** Returns the width of the vertical scroll bar in DIPs.
 
@@ -136,7 +135,7 @@ namespace bdn
                View::adjustBounds.*/
             virtual Size getPixelSize()
             {
-                P<View> view = getScrollView();
+                std::shared_ptr<View> view = getScrollView();
 
                 Rect baseBounds(0, 0, 100, 100);
 
@@ -175,10 +174,11 @@ namespace bdn
                 _horzScrollingEnabled = horzScrollingEnabled;
                 _vertScrollingEnabled = vertScrollingEnabled;
 
-                getScrollView()->setHorizontalScrollingEnabled(horzScrollingEnabled);
-                getScrollView()->setVerticalScrollingEnabled(vertScrollingEnabled);
+                getScrollView()->horizontalScrollingEnabled = (horzScrollingEnabled);
+                getScrollView()->verticalScrollingEnabled = (vertScrollingEnabled);
 
-                P<ScrollViewLayoutTesterBase> self = this;
+                std::shared_ptr<ScrollViewLayoutTesterBase> self =
+                    std::dynamic_pointer_cast<ScrollViewLayoutTesterBase<BaseClass>>(BaseClass::shared_from_this());
 
                 CONTINUE_SECTION_WHEN_IDLE(self)
                 {
@@ -192,7 +192,8 @@ namespace bdn
 
             virtual void testPreferredSize()
             {
-                P<ScrollViewLayoutTesterBase> self = this;
+                std::shared_ptr<ScrollViewLayoutTesterBase> self =
+                    std::dynamic_pointer_cast<ScrollViewLayoutTesterBase<BaseClass>>(BaseClass::shared_from_this());
 
                 Size pixelSize = getPixelSize();
 
@@ -206,7 +207,7 @@ namespace bdn
 
                     SECTION("with padding")
                     {
-                        getScrollView()->setPadding(UiMargin(5, 6, 7, 8));
+                        getScrollView()->padding = (UiMargin(5, 6, 7, 8));
 
                         Size prefSize = callCalcPreferredSize(Size::none());
                         REQUIRE(prefSize == Size(6 + 8, 5 + 7));
@@ -216,8 +217,8 @@ namespace bdn
                     {
                         // the scrollview's own margin should not matter - only
                         // the margin of the content view
-                        getScrollView()->setMargin(UiMargin(1, 2, 3, 4));
-                        getScrollView()->setPadding(UiMargin(5, 6, 7, 8));
+                        getScrollView()->margin = (UiMargin(1, 2, 3, 4));
+                        getScrollView()->padding = (UiMargin(5, 6, 7, 8));
 
                         Size prefSize = callCalcPreferredSize(Size::none());
                         REQUIRE(prefSize == Size(6 + 8, 5 + 7));
@@ -226,11 +227,11 @@ namespace bdn
 
                 SECTION("contentview not null")
                 {
-                    P<Button> button = newObj<Button>();
+                    std::shared_ptr<Button> button = std::make_shared<Button>();
                     getScrollView()->setContentView(button);
 
-                    button->setMargin(UiMargin(1, 2, 3, 4));
-                    getScrollView()->setPadding(UiMargin(5, 6, 7, 8));
+                    button->margin = (UiMargin(1, 2, 3, 4));
+                    getScrollView()->padding = (UiMargin(5, 6, 7, 8));
 
                     CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize)
                     {
@@ -428,13 +429,13 @@ namespace bdn
 
                 SECTION("contentview calcPreferredSize usage")
                 {
-                    P<ScrollViewLayoutHelperTestContentView<TextView>> contentView =
-                        newObj<ScrollViewLayoutHelperTestContentView<TextView>>();
+                    std::shared_ptr<ScrollViewLayoutHelperTestContentView<TextView>> contentView =
+                        std::make_shared<ScrollViewLayoutHelperTestContentView<TextView>>();
                     getScrollView()->setContentView(contentView);
 
                     // we want a content view whose width and height depend on
                     // each other. So we use a text view with multiline text.
-                    contentView->setText("Lorem ipsum dolor sit amet, consectetur adipiscing "
+                    contentView->text = ("Lorem ipsum dolor sit amet, consectetur adipiscing "
                                          "elit.\nPraesent ultrices, nisi quis posuere viverra, "
                                          "arcu erat auctor tellus, sit amet tincidunt magna leo "
                                          "id velit.");
@@ -535,7 +536,8 @@ namespace bdn
 
             void testLayout()
             {
-                P<ScrollViewLayoutTesterBase> self = this;
+                std::shared_ptr<ScrollViewLayoutTesterBase> self =
+                    std::dynamic_pointer_cast<ScrollViewLayoutTesterBase<BaseClass>>(BaseClass::shared_from_this());
 
                 Size pixelSize = getPixelSize();
 
@@ -582,11 +584,11 @@ namespace bdn
                         margin.left = stableScaledRound(RoundType::nearest, margin.left, 1.0 / pixelSize.width);
                         margin.right = stableScaledRound(RoundType::nearest, margin.right, 1.0 / pixelSize.width);
 
-                        getScrollView()->setPadding(UiMargin(padding.top, padding.right, padding.bottom, padding.left));
+                        getScrollView()->padding = (UiMargin(padding.top, padding.right, padding.bottom, padding.left));
 
                         // the scrollview's margin should not influence the
                         // layout
-                        getScrollView()->setMargin(UiMargin(margin.top, margin.right, margin.bottom, margin.left));
+                        getScrollView()->margin = (UiMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                         CONTINUE_SECTION_WHEN_IDLE(self, padding)
                         {
@@ -613,8 +615,8 @@ namespace bdn
 
                 SECTION("contentview not null")
                 {
-                    P<ScrollViewLayoutHelperTestContentView<Button>> button =
-                        newObj<ScrollViewLayoutHelperTestContentView<Button>>();
+                    std::shared_ptr<ScrollViewLayoutHelperTestContentView<Button>> button =
+                        std::make_shared<ScrollViewLayoutHelperTestContentView<Button>>();
 
                     // make sure that the button is not too small. The size of
                     // the content view determines the initial size of the
@@ -624,7 +626,7 @@ namespace bdn
                     // visible. So to achieve that we set a multiline button
                     // label, which should cause the button to be bigger than
                     // the scroll bars.
-                    button->setLabel("Lorem ipsum\ndolor sit amet");
+                    button->label = ("Lorem ipsum\ndolor sit amet");
 
                     getScrollView()->setContentView(button);
 
@@ -638,8 +640,8 @@ namespace bdn
                     buttonMargin.right =
                         stableScaledRound(RoundType::nearest, buttonMargin.right, 1.0 / pixelSize.width);
 
-                    button->setMargin(
-                        UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left));
+                    button->margin =
+                        (UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left));
 
                     Margin scrollViewPadding(35, 36, 37, 38);
 
@@ -652,12 +654,12 @@ namespace bdn
                     scrollViewPadding.right =
                         stableScaledRound(RoundType::nearest, scrollViewPadding.right, 1.0 / pixelSize.width);
 
-                    getScrollView()->setPadding(UiMargin(scrollViewPadding.top, scrollViewPadding.right,
+                    getScrollView()->padding = (UiMargin(scrollViewPadding.top, scrollViewPadding.right,
                                                          scrollViewPadding.bottom, scrollViewPadding.left));
 
                     CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize, buttonMargin, scrollViewPadding)
                     {
-                        P<ScrollView> scrollView = self->getScrollView();
+                        std::shared_ptr<ScrollView> scrollView = self->getScrollView();
 
                         double horzBarHeight = self->getHorzBarHeight();
                         double vertBarWidth = self->getVertBarWidth();
@@ -695,7 +697,7 @@ namespace bdn
                         {
                             Size viewPortSize =
                                 scrollView
-                                    ->adjustBounds(Rect(scrollView->position(), optimalSize + Size(100, 100)),
+                                    ->adjustBounds(Rect(scrollView->position, optimalSize + Size(100, 100)),
                                                    RoundType::nearest, RoundType::nearest)
                                     .getSize();
 
@@ -763,7 +765,7 @@ namespace bdn
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, pixelSize.height * 100);
                             viewPortSize = scrollView
-                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                               ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
@@ -855,7 +857,7 @@ namespace bdn
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, horzBarHeight);
                             viewPortSize = scrollView
-                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                               ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
@@ -908,7 +910,7 @@ namespace bdn
                                 Size viewPortSize =
                                     optimalSize + Size(-pixelSize.width, horzBarHeight - pixelSize.height);
                                 viewPortSize = scrollView
-                                                   ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                                   ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                                   RoundType::nearest, RoundType::nearest)
                                                    .getSize();
 
@@ -995,7 +997,7 @@ namespace bdn
                         {
                             Size viewPortSize = optimalSize + Size(100, -pixelSize.height);
                             viewPortSize = scrollView
-                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                               ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
@@ -1057,7 +1059,7 @@ namespace bdn
                         {
                             Size viewPortSize = optimalSize + Size(vertBarWidth, -pixelSize.height);
                             viewPortSize = scrollView
-                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                               ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
@@ -1115,7 +1117,7 @@ namespace bdn
                                 Size viewPortSize =
                                     optimalSize + Size(vertBarWidth - pixelSize.width, -pixelSize.height);
                                 viewPortSize = scrollView
-                                                   ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                                   ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                                   RoundType::nearest, RoundType::nearest)
                                                    .getSize();
 
@@ -1197,7 +1199,7 @@ namespace bdn
                         {
                             Size viewPortSize = optimalSize + Size(-pixelSize.width, -pixelSize.height);
                             viewPortSize = scrollView
-                                               ->adjustBounds(Rect(scrollView->position(), viewPortSize),
+                                               ->adjustBounds(Rect(scrollView->position, viewPortSize),
                                                               RoundType::nearest, RoundType::nearest)
                                                .getSize();
 
@@ -1273,22 +1275,22 @@ namespace bdn
                 {
                     SECTION("huge contentview")
                     {
-                        P< ScrollViewLayoutHelperTestContentView<Button> >
-                button = newObj< ScrollViewLayoutHelperTestContentView<Button>
+                        std::shared_ptr< ScrollViewLayoutHelperTestContentView<Button> >
+                button = std::make_shared< ScrollViewLayoutHelperTestContentView<Button>
                 >();
 
-                        button->setPreferredSizeMinimum( Size(100000, 100000)
+                        button->preferredSizeMinimum = ( Size(100000, 100000)
                 );
 
                         getScrollView()->setContentView(button);
 
                         CONTINUE_SECTION_WHEN_IDLE(this, button, pixelSize )
                         {
-                            P<ScrollView> scrollView = this->getScrollView();
+                            std::shared_ptr<ScrollView> scrollView = this->getScrollView();
 
                             Size viewPortSize = Size(300, 300);
                             viewPortSize = scrollView->adjustBounds(
-                Rect(scrollView->position(), viewPortSize), RoundType::nearest,
+                Rect(scrollView->position, viewPortSize), RoundType::nearest,
                 RoundType::nearest).getSize();
 
                             Size optimalButtonSize =
@@ -1361,5 +1363,3 @@ namespace bdn
         };
     }
 }
-
-#endif

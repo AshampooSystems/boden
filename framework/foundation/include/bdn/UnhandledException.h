@@ -1,13 +1,13 @@
-#ifndef BDN_UnhandledException_H_
-#define BDN_UnhandledException_H_
+#pragma once
 
+#include <bdn/Base.h>
 #include <bdn/IUnhandledProblem.h>
 
 namespace bdn
 {
 
     /** IUnhandledProblem implementation for unhandled C++ exceptions.*/
-    class UnhandledException : public Base, BDN_IMPLEMENTS IUnhandledProblem
+    class UnhandledException : public Base, virtual public IUnhandledProblem
     {
       public:
         UnhandledException(const std::exception_ptr &p, bool ignorable);
@@ -50,5 +50,3 @@ namespace bdn
         bool _keepRunning = false;
     };
 }
-
-#endif

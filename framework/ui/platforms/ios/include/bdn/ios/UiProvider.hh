@@ -1,44 +1,37 @@
-#ifndef BDN_IOS_UiProvider_HH_
-#define BDN_IOS_UiProvider_HH_
+#pragma once
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
-#include <bdn/ITextUi.h>
 
 namespace bdn
 {
     namespace ios
     {
 
-        class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+        class UiProvider : public Base, virtual public IUiProvider
         {
           public:
             UiProvider();
+            UiProvider(UiProvider const &) = delete;
+            void operator=(UiProvider const &) = delete;
 
             String getName() const override;
 
-            P<IViewCore> createViewCore(const String &coreTypeName, View *view) override;
+            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
 
-            P<ITextUi> getTextUi() override;
-
-            static UiProvider &get();
+            static std::shared_ptr<UiProvider> get();
 
             /** Returns the size of 1 sem in DIPs.*/
             double getSemSizeDips() const { return _semDips; }
 
             /** Returns the layout coordinator that is used by view cores
              * created by this UI provider.*/
-            P<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
+            std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
           private:
             double _semDips;
 
-            P<LayoutCoordinator> _layoutCoordinator;
-
-            Mutex _textUiInitMutex;
-            P<ITextUi> _textUi;
+            std::shared_ptr<LayoutCoordinator> _layoutCoordinator;
         };
     }
 }
-
-#endif

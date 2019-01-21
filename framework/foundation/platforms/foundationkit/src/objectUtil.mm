@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/foundationkit/objectUtil.hh>
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -6,19 +6,19 @@
 /** Wraps an IBase pointer into an NSObject.*/
 @interface BdnFkNSObjectWrapper_ : NSObject
 
-- (void)setObject:(bdn::IBase *)object;
+- (void)setObject:(std::shared_ptr<bdn::Base>)object;
 
-- (bdn::IBase *)getObject;
+- (std::shared_ptr<bdn::Base>)getObject;
 
 @end
 
 @implementation BdnFkNSObjectWrapper_
 
-bdn::P<bdn::IBase> _object;
+std::shared_ptr<bdn::Base> _object;
 
-- (void)setObject:(bdn::IBase *)object { _object = object; }
+- (void)setObject:(std::shared_ptr<bdn::Base>)object { _object = object; }
 
-- (bdn::IBase *)getObject { return _object; }
+- (std::shared_ptr<bdn::Base>)getObject { return _object; }
 
 @end
 
@@ -27,7 +27,7 @@ namespace bdn
     namespace fk
     {
 
-        NSObject *wrapIntoNSObject(IBase *p)
+        NSObject *wrapIntoNSObject(std::shared_ptr<Base> p)
         {
             BdnFkNSObjectWrapper_ *wrapper = [BdnFkNSObjectWrapper_ alloc];
             [wrapper setObject:p];
@@ -35,10 +35,10 @@ namespace bdn
             return wrapper;
         }
 
-        P<IBase> unwrapFromNSObject(NSObject *ns)
+        std::shared_ptr<bdn::Base> unwrapFromNSObject(NSObject *ns)
         {
             if (ns != nil && [ns isKindOfClass:[BdnFkNSObjectWrapper_ class]]) {
-                P<IBase> p([(BdnFkNSObjectWrapper_ *)ns getObject]);
+                std::shared_ptr<bdn::Base> p([(BdnFkNSObjectWrapper_ *)ns getObject]);
                 return p;
             }
 

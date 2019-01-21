@@ -1,5 +1,4 @@
-#ifndef BDN_AbortedError_H_
-#define BDN_AbortedError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -16,5 +15,3 @@ namespace bdn
         AbortedError() : std::runtime_error("Operation was aborted") {}
     };
 }
-
-#endif

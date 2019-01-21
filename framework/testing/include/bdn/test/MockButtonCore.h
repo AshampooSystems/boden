@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockButtonCore_H_
-#define BDN_TEST_MockButtonCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -16,10 +15,10 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockButtonCore : public MockViewCore, BDN_IMPLEMENTS IButtonCore
+        class MockButtonCore : public MockViewCore, virtual public IButtonCore
         {
           public:
-            MockButtonCore(Button *button) : MockViewCore(button) { _label = button->label(); }
+            MockButtonCore(std::shared_ptr<Button> button) : MockViewCore(button) { _label = button->label; }
 
             /** Returns the current label of the button.*/
             String getLabel() const { return _label; }
@@ -42,10 +41,10 @@ namespace bdn
                 Size size = _getTextSize(_label);
 
                 // add our padding
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    if (!view->padding().isNull())
-                        size += uiMarginToDipMargin(view->padding());
+                    if (view->padding.get())
+                        size += uiMarginToDipMargin(*view->padding.get());
                 }
 
                 // add some space for the fake button border
@@ -55,8 +54,8 @@ namespace bdn
 
                 if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -64,11 +63,11 @@ namespace bdn
 
             void generateClick()
             {
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
-                    cast<Button>(view)->onClick().notify(evt);
+                    std::dynamic_pointer_cast<Button>(view)->onClick().notify(evt);
                 }
             }
 
@@ -78,5 +77,3 @@ namespace bdn
         };
     }
 }
-
-#endif

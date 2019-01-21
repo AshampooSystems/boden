@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockSwitchCore_H_
-#define BDN_TEST_MockSwitchCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -16,13 +15,13 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockSwitchCore : public MockViewCore, BDN_IMPLEMENTS ISwitchCore
+        class MockSwitchCore : public MockViewCore, virtual public ISwitchCore
         {
           public:
-            MockSwitchCore(Switch *outerSwitch) : MockViewCore(outerSwitch)
+            MockSwitchCore(std::shared_ptr<Switch> outerSwitch) : MockViewCore(outerSwitch)
             {
-                _label = outerSwitch->label();
-                _on = outerSwitch->on();
+                _label = outerSwitch->label;
+                _on = outerSwitch->on;
             }
 
             /** Returns the current label of the Switch.*/
@@ -56,10 +55,10 @@ namespace bdn
                 Size size = _getTextSize(_label);
 
                 // add our padding
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    if (!view->padding().isNull())
-                        size += uiMarginToDipMargin(view->padding());
+                    if (view->padding.get())
+                        size += uiMarginToDipMargin(*view->padding.get());
                 }
 
                 // add some space for the fake Switch border
@@ -69,8 +68,8 @@ namespace bdn
 
                 if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -78,11 +77,11 @@ namespace bdn
 
             void generateClick()
             {
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
-                    cast<Switch>(view)->onClick().notify(evt);
+                    std::dynamic_pointer_cast<Switch>(view)->onClick().notify(evt);
                 }
             }
 
@@ -94,5 +93,3 @@ namespace bdn
         };
     }
 }
-
-#endif // BDN_TEST_MockSwitchCore_H_

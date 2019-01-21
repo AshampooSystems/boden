@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_MacSwitch_HH_
-#define BDN_MAC_MacSwitch_HH_
+#pragma once
 
 #import <Cocoa/Cocoa.h>
 
@@ -27,5 +26,3 @@
 - (void)animate;
 
 @end
-
-#endif // BDN_MAC_MacSwitch_HH_

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/OneShotStateNotifier.h>
@@ -27,16 +27,17 @@ template <class T1, class T2> static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 class OneShotStateNotifierDestructTest : public Base
 {
   public:
-    OneShotStateNotifierDestructTest(Signal *signal) { _signal = signal; }
+    OneShotStateNotifierDestructTest(std::shared_ptr<Signal> signal) { _signal = signal; }
 
     ~OneShotStateNotifierDestructTest() { _signal->set(); }
 
-    P<Signal> _signal;
+    std::shared_ptr<Signal> _signal;
 };
 
-template <class... ArgTypes> void testOneShotStateNotifier(P<OneShotNotifierTestData> testData, ArgTypes... args)
+template <class... ArgTypes>
+void testOneShotStateNotifier(std::shared_ptr<OneShotNotifierTestData> testData, ArgTypes... args)
 {
-    P<OneShotStateNotifier<ArgTypes...>> notifier = newObj<OneShotStateNotifier<ArgTypes...>>();
+    std::shared_ptr<OneShotStateNotifier<ArgTypes...>> notifier = std::make_shared<OneShotStateNotifier<ArgTypes...>>();
 
     SECTION("one call")
     {
@@ -98,11 +99,11 @@ template <class... ArgTypes> void testOneShotStateNotifier(P<OneShotNotifierTest
 
     SECTION("subscriptions are released after notify")
     {
-        P<Signal> destructedSignal = newObj<Signal>();
+        std::shared_ptr<Signal> destructedSignal = std::make_shared<Signal>();
 
         {
-            P<OneShotStateNotifierDestructTest> destructTest =
-                newObj<OneShotStateNotifierDestructTest>(destructedSignal);
+            std::shared_ptr<OneShotStateNotifierDestructTest> destructTest =
+                std::make_shared<OneShotStateNotifierDestructTest>(destructedSignal);
 
             *notifier += [destructTest, testData, args...](ArgTypes... callArgs) {
                 verifySame(callArgs..., args...);
@@ -128,7 +129,7 @@ template <class... ArgTypes> void testOneShotStateNotifier(P<OneShotNotifierTest
 
 TEST_CASE("OneShotStateNotifier")
 {
-    P<OneShotNotifierTestData> testData = newObj<OneShotNotifierTestData>();
+    std::shared_ptr<OneShotNotifierTestData> testData = std::make_shared<OneShotNotifierTestData>();
 
     SECTION("oneArg-String") { testOneShotStateNotifier<String>(testData, String("hello")); }
 
@@ -146,7 +147,8 @@ TEST_CASE("OneShotStateNotifier")
 
         SECTION("param changed between postNotification and late subscribe")
         {
-            P<OneShotStateNotifier<String &>> notifier = newObj<OneShotStateNotifier<String &>>();
+            std::shared_ptr<OneShotStateNotifier<String &>> notifier =
+                std::make_shared<OneShotStateNotifier<String &>>();
 
             String inputString = "hello";
 
@@ -178,7 +180,8 @@ TEST_CASE("OneShotStateNotifier")
 
         SECTION("param changed between postNotification and late subscribe")
         {
-            P<OneShotStateNotifier<String *>> notifier = newObj<OneShotStateNotifier<String *>>();
+            std::shared_ptr<OneShotStateNotifier<String *>> notifier =
+                std::make_shared<OneShotStateNotifier<String *>>();
 
             notifier->postNotification(&testData->stringParam);
 

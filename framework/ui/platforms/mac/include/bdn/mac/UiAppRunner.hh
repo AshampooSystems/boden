@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_UiAppRunner_H_
-#define BDN_MAC_UiAppRunner_H_
+#pragma once
 
 #include <bdn/AppRunnerBase.h>
 
@@ -16,7 +15,8 @@ namespace bdn
             AppLaunchInfo _makeLaunchInfo(int argCount, char *args[]);
 
           public:
-            UiAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[]);
+            UiAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+                        char *args[]);
 
             bool isCommandLineApp() const override;
 
@@ -24,7 +24,7 @@ namespace bdn
 
             void initiateExitIfPossible(int exitCode) override;
 
-            P<IDispatcher> getMainDispatcher() override { return _mainDispatcher; }
+            std::shared_ptr<IDispatcher> getMainDispatcher() override { return _mainDispatcher; }
 
             void disposeMainDispatcher() override;
 
@@ -44,9 +44,7 @@ namespace bdn
             void _applicationWillTerminate(NSNotification *notification);
 
           private:
-            P<IDispatcher> _mainDispatcher;
+            std::shared_ptr<IDispatcher> _mainDispatcher;
         };
     }
 }
-
-#endif

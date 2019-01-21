@@ -1,5 +1,4 @@
-#ifndef BDN_Utf32CodecImpl_H_
-#define BDN_Utf32CodecImpl_H_
+#pragma once
 
 #include <string>
 
@@ -203,5 +202,3 @@ namespace bdn
         };
     };
 }
-
-#endif

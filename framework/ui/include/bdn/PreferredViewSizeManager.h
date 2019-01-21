@@ -1,7 +1,4 @@
-#ifndef BDN_PreferredViewSizeManager_H_
-#define BDN_PreferredViewSizeManager_H_
-
-#include <bdn/Map.h>
+#pragma once
 
 namespace bdn
 {
@@ -97,10 +94,8 @@ namespace bdn
             }
         };
 
-        Map<Key, Size> _entryMap;
+        std::map<Key, Size> _entryMap;
         bool _haveInfiniteSpacePreferredSize = false;
         Size _infiniteSpacePreferredSize;
     };
 }
-
-#endif

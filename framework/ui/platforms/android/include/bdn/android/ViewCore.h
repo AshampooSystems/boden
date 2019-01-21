@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_ViewCore_H_
-#define BDN_ANDROID_ViewCore_H_
+#pragma once
 
 namespace bdn
 {
@@ -29,28 +28,24 @@ namespace bdn
     namespace android
     {
 
-        class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class ViewCore : public Base, virtual public IViewCore, virtual public LayoutCoordinator::IViewCoreExtension
         {
           public:
-            ViewCore(View *outerView, JView *jView)
+            ViewCore(std::shared_ptr<View> outerView, std::shared_ptr<JView> jView)
             {
                 _jView = jView;
                 _outerViewWeak = outerView;
 
                 _uiScaleFactor = 1; // will be updated in _addToParent
 
-                // set a weak pointer to ourselves as the tag object of the java
-                // view
-                _jView->setTag(bdn::java::NativeWeakPointer(this));
-
-                setVisible(outerView->visible());
+                setVisible(outerView->visible);
 
                 _addToParent(outerView->getParentView());
 
                 _defaultPixelPadding = Margin(_jView->getPaddingTop(), _jView->getPaddingRight(),
                                               _jView->getPaddingBottom(), _jView->getPaddingLeft());
 
-                setPadding(outerView->padding());
+                setPadding(outerView->padding);
 
                 // initialize the onClick listener. It will call the view core's
                 // virtual clicked() method.
@@ -71,7 +66,7 @@ namespace bdn
                 }
             }
 
-            static ViewCore *getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef)
+            static std::shared_ptr<ViewCore> getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef)
             {
                 if (javaViewRef.isNull())
                     return nullptr;
@@ -79,31 +74,32 @@ namespace bdn
                     JView view(javaViewRef);
                     bdn::java::NativeWeakPointer viewTag(view.getTag().getRef_());
 
-                    return static_cast<ViewCore *>(viewTag.getPointer());
+                    return std::static_pointer_cast<ViewCore>(viewTag.getPointer().lock());
                 }
             }
 
             /** Returns a pointer to the outer View object, if this core is
                still attached to it or null otherwise.*/
-            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
+            std::shared_ptr<View> getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
 
             /** Returns a pointer to the accessor object for the java-side view
              * object.
              */
             JView &getJView() { return *_jView; }
+            std::shared_ptr<JView> getJViewPtr() { return _jView; }
 
             void setVisible(const bool &visible) override
             {
                 _jView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
             }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 Margin pixelPadding;
-                if (padding.isNull())
+                if (!padding)
                     pixelPadding = _defaultPixelPadding;
                 else {
-                    Margin dipPadding = uiMarginToDipMargin(padding);
+                    Margin dipPadding = uiMarginToDipMargin(*padding);
 
                     pixelPadding = Margin(dipPadding.top * _uiScaleFactor, dipPadding.right * _uiScaleFactor,
                                           dipPadding.bottom * _uiScaleFactor, dipPadding.left * _uiScaleFactor);
@@ -124,7 +120,7 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override;
 
-            void childSizingInfoInvalidated(View *child) override;
+            void childSizingInfoInvalidated(std::shared_ptr<View> child) override;
 
             void setHorizontalAlignment(const View::HorizontalAlignment &align) override
             {
@@ -154,7 +150,10 @@ namespace bdn
             /** Returns the view core associated with this view's parent view.
              *  Returns null if there is no parent view or if the parent does
              * not have a view core associated with it.*/
-            ViewCore *getParentViewCore() { return getViewCoreFromJavaViewRef(_jView->getParent().getRef_()); }
+            std::shared_ptr<ViewCore> getParentViewCore()
+            {
+                return getViewCoreFromJavaViewRef(_jView->getParent().getRef_());
+            }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
@@ -235,10 +234,10 @@ namespace bdn
                 // android uses physical pixels. So we must convert to DIPs.
                 Size prefSize(width / _uiScaleFactor, height / _uiScaleFactor);
 
-                P<const View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    prefSize.applyMinimum(view->preferredSizeMinimum());
-                    prefSize.applyMaximum(view->preferredSizeMaximum());
+                    prefSize.applyMinimum(view->preferredSizeMinimum);
+                    prefSize.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return prefSize;
@@ -249,19 +248,19 @@ namespace bdn
                 // do nothing by default. Most views do not have subviews.
             }
 
-            bool canMoveToParentView(View &newParentView) const override { return true; }
+            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
-            void moveToParentView(View &newParentView) override
+            void moveToParentView(std::shared_ptr<View> newParentView) override
             {
-                P<View> outer = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outer = getOuterViewIfStillAttached();
                 if (outer != nullptr) {
-                    P<View> parent = outer->getParentView();
+                    std::shared_ptr<View> parent = outer->getParentView();
 
-                    if (&newParentView != parent.getPtr()) {
+                    if (newParentView != parent) {
                         // Parent has changed. Remove the view from its current
                         // super view.
                         dispose();
-                        _addToParent(&newParentView);
+                        _addToParent(newParentView);
                     }
                 }
             }
@@ -297,13 +296,11 @@ namespace bdn
                 if (scaleFactor != _uiScaleFactor) {
                     _uiScaleFactor = scaleFactor;
 
-                    P<View> view = getOuterViewIfStillAttached();
-                    List<P<View>> childList;
-                    if (view != nullptr)
-                        view->getChildViews(childList);
+                    std::shared_ptr<View> view = getOuterViewIfStillAttached();
+                    std::list<std::shared_ptr<View>> childList = view->getChildViews();
 
-                    for (P<View> &child : childList) {
-                        P<ViewCore> childCore = cast<ViewCore>(child->getViewCore());
+                    for (std::shared_ptr<View> &child : childList) {
+                        std::shared_ptr<ViewCore> childCore = std::dynamic_pointer_cast<ViewCore>(child->getViewCore());
 
                         if (childCore != nullptr)
                             childCore->setUiScaleFactor(scaleFactor);
@@ -350,10 +347,11 @@ namespace bdn
             double getSemSizeDips() const;
 
           private:
-            void _addToParent(View *parent)
+            void _addToParent(std::shared_ptr<View> parent)
             {
                 if (parent != nullptr) {
-                    P<IParentViewCore> parentCore = cast<IParentViewCore>(parent->getViewCore());
+                    std::shared_ptr<IParentViewCore> parentCore =
+                        std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
                     if (parentCore == nullptr)
                         throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
                                                "either does not have a core, or its core does not "
@@ -367,15 +365,16 @@ namespace bdn
 
             void _removeFromParent()
             {
-                P<View> view = getOuterViewIfStillAttached();
-                P<View> parent;
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> parent;
                 if (view != nullptr)
                     parent = view->getParentView();
 
                 if (parent == nullptr)
                     return; // no parent – nothing to do
 
-                P<IParentViewCore> parentCore = cast<IParentViewCore>(parent->getViewCore());
+                std::shared_ptr<IParentViewCore> parentCore =
+                    std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
                 if (parentCore != nullptr) {
                     // XXX: Rather unfortunate – removeAllChildViews() is BFS
                     // and so parent core is no longer set when removing
@@ -386,10 +385,10 @@ namespace bdn
                 }
             }
 
-            WeakP<View> _outerViewWeak;
+            std::weak_ptr<View> _outerViewWeak;
 
           private:
-            P<JView> _jView;
+            std::shared_ptr<JView> _jView;
             double _uiScaleFactor;
 
             Margin _defaultPixelPadding;
@@ -399,5 +398,3 @@ namespace bdn
         };
     }
 }
-
-#endif

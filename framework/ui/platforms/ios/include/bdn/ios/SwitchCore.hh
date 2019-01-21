@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_SwitchCore_HH_
-#define BDN_IOS_SwitchCore_HH_
+#pragma once
 
 #include <bdn/ISwitchCore.h>
 #include <bdn/ClickEvent.h>
@@ -18,7 +17,7 @@ namespace bdn
 {
     namespace ios
     {
-        template <class T> class SwitchCore : public ToggleCoreBase, BDN_IMPLEMENTS ISwitchCore
+        template <class T> class SwitchCore : public ToggleCoreBase, virtual public ISwitchCore
         {
           private:
             static BdnIosSwitchComposite *_createSwitchComposite()
@@ -36,7 +35,9 @@ namespace bdn
             }
 
           public:
-            SwitchCore(T *outer) : ToggleCoreBase(outer, _createSwitchComposite())
+            static std::shared_ptr<SwitchCore<T>> create(std::shared_ptr<T> outer);
+
+            SwitchCore(std::shared_ptr<T> outer) : ToggleCoreBase(outer, _createSwitchComposite())
             {
                 BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
                 [switchComposite.uiSwitch addTarget:_clickManager
@@ -44,8 +45,8 @@ namespace bdn
                                    forControlEvents:UIControlEventTouchUpInside];
 
                 // Set initial state
-                setLabel(outer->label());
-                setOn(outer->on());
+                setLabel(outer->label);
+                setOn(outer->on);
             }
 
             virtual ~SwitchCore()
@@ -60,7 +61,7 @@ namespace bdn
 
             void _clicked() override
             {
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
@@ -74,8 +75,8 @@ namespace bdn
                     //
                     // We guarantee that the on property will be set before
                     // a notification is posted to onClick.
-                    cast<T>(view)->setOn(((BdnIosSwitchComposite *)_composite).uiSwitch.on);
-                    cast<T>(view)->onClick().notify(evt);
+                    std::dynamic_pointer_cast<T>(view)->on = (((BdnIosSwitchComposite *)_composite).uiSwitch.on);
+                    std::dynamic_pointer_cast<T>(view)->onClick().notify(evt);
                 }
             }
 
@@ -101,5 +102,3 @@ namespace bdn
         };
     }
 }
-
-#endif

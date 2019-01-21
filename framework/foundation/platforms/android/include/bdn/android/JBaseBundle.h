@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JBaseBundle_H_
-#define BDN_ANDROID_JBaseBundle_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/JString.h>
@@ -65,5 +64,3 @@ namespace bdn
         };
     }
 }
-
-#endif

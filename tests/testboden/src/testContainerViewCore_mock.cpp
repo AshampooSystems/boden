@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/test/TestContainerViewCore.h>
@@ -16,7 +16,7 @@ class TestMockContainerViewCore : public bdn::test::TestMockViewCoreMixin<bdn::t
 
 TEST_CASE("mock.ContainerViewCore")
 {
-    P<TestMockContainerViewCore> test = newObj<TestMockContainerViewCore>();
+    std::shared_ptr<TestMockContainerViewCore> test = std::make_shared<TestMockContainerViewCore>();
 
     test->runTests();
 }

@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_Field_H_
-#define BDN_JAVA_Field_H_
+#pragma once
 
 #include <bdn/java/FieldAccessor.h>
 #include <bdn/java/Reference.h>
@@ -76,5 +75,3 @@ namespace bdn
         };
     }
 }
-
-#endif

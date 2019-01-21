@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_TextFieldCore_HH_
-#define BDN_IOS_TextFieldCore_HH_
+#pragma once
 
 #include <bdn/TextField.h>
 #include <bdn/ios/ViewCore.hh>
@@ -15,40 +14,16 @@ namespace bdn
         class TextFieldCore : public ViewCore, virtual public ITextFieldCore
         {
           private:
-            static UITextField *_createUITextField(TextField *outerTextField)
-            {
-                UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-                textField.backgroundColor = [UIColor clearColor];
-                textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
-                textField.layer.borderWidth = 1;
-                textField.layer.cornerRadius = 5;
-                textField.font = [UIFont systemFontOfSize:15];
-                textField.borderStyle = UITextBorderStyleRoundedRect;
-                textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-                textField.keyboardType = UIKeyboardTypeDefault;
-                textField.autocorrectionType = UITextAutocorrectionTypeNo;
-                textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-                textField.returnKeyType = UIReturnKeyDone;
-
-                return textField;
-            }
+            static UITextField *_createUITextField(std::shared_ptr<TextField> outerTextField);
 
           public:
-            TextFieldCore(TextField *outerTextField);
+            TextFieldCore(std::shared_ptr<TextField> outerTextField);
             ~TextFieldCore();
 
-            void setText(const String &text) override
-            {
-                UITextField *textField = (UITextField *)getUIView();
-                if (iosStringToString(textField.text) != text) {
-                    textField.text = stringToIosString(text);
-                }
-            }
+            void setText(const String &text) override;
 
           private:
             BdnTextFieldDelegate *_delegate;
         };
     }
 }
-
-#endif

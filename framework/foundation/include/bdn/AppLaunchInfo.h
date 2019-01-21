@@ -1,7 +1,9 @@
 #pragma once
 
-#include <bdn/Array.h>
+#include <vector>
+
 #include <bdn/String.h>
+#include <bdn/Base.h>
 
 namespace bdn
 {
@@ -24,12 +26,12 @@ namespace bdn
 
             The remaining items are the parameters passed to the app by the
            caller.*/
-        const Array<String> &getArguments() const { return _arguments; }
+        const std::vector<String> &getArguments() const { return _arguments; }
 
         /** Sets the commandline arguments - see getArguments().*/
-        void setArguments(const Array<String> &args) { _arguments = args; }
+        void setArguments(const std::vector<String> &args) { _arguments = args; }
 
       protected:
-        Array<String> _arguments;
+        std::vector<String> _arguments;
     };
 }

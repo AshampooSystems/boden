@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/ViewCore.h>
 
 #include <bdn/android/UiProvider.h>
@@ -23,7 +23,7 @@ namespace bdn
                 return uiLength.value * getEmSizeDips();
 
             case UiLength::Unit::sem:
-                return uiLength.value * UiProvider::get().getSemSizeDips(*const_cast<ViewCore *>(this));
+                return uiLength.value * UiProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
 
             default:
                 throw InvalidArgumentError("Invalid UiLength unit passed to "
@@ -35,24 +35,25 @@ namespace bdn
         double ViewCore::getSemSizeDips() const
         {
             if (_semDipsIfInitialized == -1)
-                _semDipsIfInitialized = UiProvider::get().getSemSizeDips(*const_cast<ViewCore *>(this));
+                _semDipsIfInitialized = UiProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
 
             return _semDipsIfInitialized;
         }
 
         void ViewCore::needLayout(View::InvalidateReason reason)
         {
-            P<View> outerView = getOuterViewIfStillAttached();
+            std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
             if (outerView != nullptr) {
-                P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                std::shared_ptr<UiProvider> provider =
+                    std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
             }
         }
 
-        void ViewCore::childSizingInfoInvalidated(View *child)
+        void ViewCore::childSizingInfoInvalidated(std::shared_ptr<View> child)
         {
-            P<View> outerView = getOuterViewIfStillAttached();
+            std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
             if (outerView != nullptr) {
                 outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
                 outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);

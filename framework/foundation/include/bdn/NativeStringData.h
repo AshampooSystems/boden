@@ -1,5 +1,4 @@
-#ifndef BDN_NativeStringData_H_
-#define BDN_NativeStringData_H_
+#pragma once
 
 #include <bdn/Utf8StringData.h>
 #include <bdn/WideStringData.h>
@@ -40,5 +39,3 @@ namespace bdn
 
 #endif
 }
-
-#endif

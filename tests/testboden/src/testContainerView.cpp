@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/ContainerView.h>
@@ -12,10 +12,10 @@ using namespace bdn;
 class DummyContainerViewForTests : public ContainerView
 {
   public:
-    P<ViewLayout> calcContainerLayout(const Size &containerSize) const override
+    std::shared_ptr<ViewLayout> calcContainerLayout(const Size &containerSize) const override
     {
         // we do not care about this for these tests
-        return newObj<ViewLayout>();
+        return std::make_shared<ViewLayout>();
     }
 
     Size calcContainerPreferredSize(const Size &availableSpace = Size::none()) const override
@@ -24,14 +24,14 @@ class DummyContainerViewForTests : public ContainerView
         // bit so that the standard view tests succeed.
 
         Size size;
-        auto pad = padding();
-        if (!pad.isNull()) {
-            Margin p = uiMarginToDipMargin(pad.get());
+        auto pad = padding.get();
+        if (pad) {
+            Margin p = uiMarginToDipMargin(*pad);
             size += Size(p.left + p.right, p.top + p.bottom);
         }
 
-        size.applyMinimum(preferredSizeMinimum());
-        size.applyMaximum(preferredSizeMaximum());
+        size.applyMinimum(preferredSizeMinimum);
+        size.applyMaximum(preferredSizeMaximum);
 
         return size;
     }
@@ -45,28 +45,29 @@ TEST_CASE("ContainerView")
 
     SECTION("ContainerView-specific")
     {
-        P<bdn::test::ViewTestPreparer<DummyContainerViewForTests>> preparer =
-            newObj<bdn::test::ViewTestPreparer<DummyContainerViewForTests>>();
-        P<bdn::test::ViewWithTestExtensions<DummyContainerViewForTests>> containerView = preparer->createView();
-        P<bdn::test::MockContainerViewCore> core = cast<bdn::test::MockContainerViewCore>(containerView->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<DummyContainerViewForTests>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<DummyContainerViewForTests>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<DummyContainerViewForTests>> containerView =
+            preparer->createView();
+        std::shared_ptr<bdn::test::MockContainerViewCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockContainerViewCore>(containerView->getViewCore());
 
         REQUIRE(core != nullptr);
 
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         button->adjustAndSetBounds(Rect(10, 10, 10, 10));
 
-        auto otherButton = newObj<Button>();
-        auto otherButton2 = newObj<Button>();
+        auto otherButton = std::make_shared<Button>();
+        auto otherButton2 = std::make_shared<Button>();
 
-        auto nonChild = newObj<Button>();
+        auto nonChild = std::make_shared<Button>();
 
         SECTION("no child view")
         {
             SECTION("getChildList")
             {
-                List<P<View>> childList;
-                containerView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
                 REQUIRE(childList.empty());
             }
@@ -75,8 +76,7 @@ TEST_CASE("ContainerView")
             {
                 containerView->removeAllChildViews();
 
-                List<P<View>> childList;
-                containerView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
                 REQUIRE(childList.empty());
             }
@@ -86,7 +86,8 @@ TEST_CASE("ContainerView")
                 CONTINUE_SECTION_WHEN_IDLE(preparer, containerView, button, core)
                 {
                     int layoutCountBefore =
-                        cast<bdn::test::MockViewCore>(containerView->getViewCore())->getLayoutCount();
+                        std::dynamic_pointer_cast<bdn::test::MockViewCore>(containerView->getViewCore())
+                            ->getLayoutCount();
 
                     containerView->addChildView(button);
 
@@ -94,8 +95,8 @@ TEST_CASE("ContainerView")
                     CONTINUE_SECTION_WHEN_IDLE(preparer, containerView, button, core, layoutCountBefore)
                     {
                         // should cause a layout update.
-                        REQUIRE(cast<bdn::test::MockViewCore>(containerView->getViewCore())->getLayoutCount() ==
-                                layoutCountBefore + 1);
+                        REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(containerView->getViewCore())
+                                    ->getLayoutCount() == layoutCountBefore + 1);
                     };
                 };
             }
@@ -107,12 +108,11 @@ TEST_CASE("ContainerView")
             {
                 containerView->addChildView(button);
 
-                REQUIRE(button->getParentView() == cast<View>(containerView));
+                REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                List<P<View>> childList;
-                containerView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                REQUIRE(childList == List<P<View>>{button});
+                REQUIRE(childList == std::list<std::shared_ptr<View>>{button});
             }
 
             SECTION("not empty")
@@ -121,12 +121,11 @@ TEST_CASE("ContainerView")
 
                 containerView->addChildView(button);
 
-                REQUIRE(button->getParentView() == cast<View>(containerView));
+                REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                List<P<View>> childList;
-                containerView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                REQUIRE(childList == (List<P<View>>{otherButton, button}));
+                REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button}));
             }
 
             SECTION("already in view")
@@ -137,12 +136,11 @@ TEST_CASE("ContainerView")
 
                     containerView->addChildView(button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == List<P<View>>{button});
+                    REQUIRE(childList == std::list<std::shared_ptr<View>>{button});
                 }
 
                 SECTION("first")
@@ -152,13 +150,12 @@ TEST_CASE("ContainerView")
 
                     containerView->addChildView(button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
                     // should have moved to the end
-                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button}));
                 }
 
                 SECTION("last")
@@ -168,13 +165,12 @@ TEST_CASE("ContainerView")
 
                     containerView->addChildView(button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
                     // should still be at the end
-                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button}));
                 }
             }
         }
@@ -187,30 +183,28 @@ TEST_CASE("ContainerView")
                 {
                     containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == List<P<View>>{button});
+                    REQUIRE(childList == std::list<std::shared_ptr<View>>{button});
                 }
 
                 SECTION("insert before non-child")
                 {
                     containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == List<P<View>>{button});
+                    REQUIRE(childList == std::list<std::shared_ptr<View>>{button});
                 }
             }
 
             SECTION("one other")
             {
-                auto otherButton = newObj<Button>();
+                auto otherButton = std::make_shared<Button>();
 
                 containerView->addChildView(otherButton);
 
@@ -218,42 +212,39 @@ TEST_CASE("ContainerView")
                 {
                     containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button}));
                 }
 
                 SECTION("insert at start")
                 {
                     containerView->insertChildView(otherButton, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton}));
                 }
 
                 SECTION("insert before non-child")
                 {
                     containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button}));
                 }
             }
 
             SECTION("two others")
             {
-                auto otherButton = newObj<Button>();
+                auto otherButton = std::make_shared<Button>();
 
                 containerView->addChildView(otherButton);
                 containerView->addChildView(otherButton2);
@@ -262,48 +253,44 @@ TEST_CASE("ContainerView")
                 {
                     containerView->insertChildView(nullptr, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, otherButton2, button}));
                 }
 
                 SECTION("insert at start")
                 {
                     containerView->insertChildView(otherButton, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton, otherButton2}));
                 }
 
                 SECTION("insert in middle start")
                 {
                     containerView->insertChildView(otherButton2, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, button, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, button, otherButton2}));
                 }
 
                 SECTION("insert before non-child")
                 {
                     containerView->insertChildView(nonChild, button);
 
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2, button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, otherButton2, button}));
                 }
             }
         }
@@ -316,10 +303,9 @@ TEST_CASE("ContainerView")
                 {
                     containerView->removeChildView(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{}));
                 }
             }
 
@@ -333,20 +319,18 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(button->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->removeChildView(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button}));
                 }
             }
 
@@ -361,10 +345,9 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(button->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton}));
                 }
 
                 SECTION("remove second")
@@ -373,20 +356,18 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(otherButton->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->removeChildView(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton}));
                 }
             }
 
@@ -402,10 +383,9 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(button->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, otherButton2}));
                 }
 
                 SECTION("remove second")
@@ -414,10 +394,9 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(otherButton->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton2}));
                 }
 
                 SECTION("remove third")
@@ -426,20 +405,18 @@ TEST_CASE("ContainerView")
 
                     REQUIRE(otherButton2->getParentView() == nullptr);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->removeChildView(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton, otherButton2}));
                 }
             }
         }
@@ -452,10 +429,9 @@ TEST_CASE("ContainerView")
                 {
                     containerView->_childViewStolen(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{}));
                 }
             }
 
@@ -469,22 +445,20 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->_childViewStolen(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button}));
                 }
             }
 
@@ -499,12 +473,11 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton}));
                 }
 
                 SECTION("stole second")
@@ -513,22 +486,20 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(otherButton->getParentView() == cast<View>(containerView));
+                    REQUIRE(otherButton->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->_childViewStolen(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton}));
                 }
             }
 
@@ -544,12 +515,11 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(button->getParentView() == cast<View>(containerView));
+                    REQUIRE(button->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{otherButton, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{otherButton, otherButton2}));
                 }
 
                 SECTION("stole second")
@@ -558,12 +528,11 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(otherButton->getParentView() == cast<View>(containerView));
+                    REQUIRE(otherButton->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton2}));
                 }
 
                 SECTION("stole third")
@@ -572,22 +541,20 @@ TEST_CASE("ContainerView")
 
                     // stolen view should not be accessed, so parent should
                     // still be set there
-                    REQUIRE(otherButton2->getParentView() == cast<View>(containerView));
+                    REQUIRE(otherButton2->getParentView() == std::dynamic_pointer_cast<View>(containerView));
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton}));
                 }
 
                 SECTION("not a child")
                 {
                     containerView->removeChildView(nonChild);
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-                    REQUIRE(childList == (List<P<View>>{button, otherButton, otherButton2}));
+                    REQUIRE(childList == (std::list<std::shared_ptr<View>>{button, otherButton, otherButton2}));
                 }
             }
         }
@@ -606,10 +573,9 @@ TEST_CASE("ContainerView")
 
             containerView->removeAllChildViews();
 
-            List<P<View>> childList;
-            containerView->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
 
-            REQUIRE(childList == (List<P<View>>{}));
+            REQUIRE(childList == (std::list<std::shared_ptr<View>>{}));
 
             REQUIRE(button->getParentView() == nullptr);
             REQUIRE(otherButton->getParentView() == nullptr);
@@ -638,7 +604,11 @@ TEST_CASE("ContainerView")
 
                 SECTION("first") { REQUIRE(containerView->findPreviousChildView(button) == nullptr); }
 
-                SECTION("second") { REQUIRE(containerView->findPreviousChildView(otherButton) == cast<View>(button)); }
+                SECTION("second")
+                {
+                    REQUIRE(containerView->findPreviousChildView(otherButton) ==
+                            std::dynamic_pointer_cast<View>(button));
+                }
 
                 SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
             }
@@ -651,11 +621,16 @@ TEST_CASE("ContainerView")
 
                 SECTION("first") { REQUIRE(containerView->findPreviousChildView(button) == nullptr); }
 
-                SECTION("second") { REQUIRE(containerView->findPreviousChildView(otherButton) == cast<View>(button)); }
+                SECTION("second")
+                {
+                    REQUIRE(containerView->findPreviousChildView(otherButton) ==
+                            std::dynamic_pointer_cast<View>(button));
+                }
 
                 SECTION("third")
                 {
-                    REQUIRE(containerView->findPreviousChildView(otherButton2) == cast<View>(otherButton));
+                    REQUIRE(containerView->findPreviousChildView(otherButton2) ==
+                            std::dynamic_pointer_cast<View>(otherButton));
                 }
 
                 SECTION("not a child") { REQUIRE(containerView->findPreviousChildView(nonChild) == nullptr); }
@@ -671,15 +646,14 @@ TEST_CASE("ContainerView")
                 int childListEmpty = -1;
             };
 
-            P<LocalTestData_> data = newObj<LocalTestData_>();
+            std::shared_ptr<LocalTestData_> data = std::make_shared<LocalTestData_>();
 
             containerView->setDestructFunc(
                 [data, button](bdn::test::ViewWithTestExtensions<DummyContainerViewForTests> *containerView) {
                     data->destructorRun = true;
                     data->childParentStillSet = (button->getParentView() != nullptr) ? 1 : 0;
 
-                    List<P<View>> childList;
-                    containerView->getChildViews(childList);
+                    std::list<std::shared_ptr<View>> childList = containerView->getChildViews();
                     data->childListEmpty = (childList.empty() ? 1 : 0);
                 });
 

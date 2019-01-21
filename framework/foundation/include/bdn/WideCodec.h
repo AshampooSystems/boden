@@ -1,5 +1,6 @@
-#ifndef BDN_WideCodec_H_
-#define BDN_WideCodec_H_
+#pragma once
+
+#include <bdn/config.h>
 
 #include <bdn/Utf16CodecImpl.h>
 #include <bdn/Utf32CodecImpl.h>
@@ -103,5 +104,3 @@ namespace bdn
 
 #endif
 }
-
-#endif

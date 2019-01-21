@@ -1,7 +1,6 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
-#include <bdn/Array.h>
 #include <bdn/XxHash64.h>
 
 using namespace bdn;
@@ -17,7 +16,7 @@ TEST_CASE("XxHash64")
 
     uint64_t seed = 0x1234567890abcdef;
 
-    Array<XxHash64TestData> allTestData{
+    std::vector<XxHash64TestData> allTestData{
         {"", 0xef46db3751d8e999ULL, 0xa2f5c44d0f46c872ULL},
         {"0", 0x633457081244afecULL, 0xf47ebf7f5cb6795bULL},
         {"01", 0x6ed10a79b52ef0f5ULL, 0xe7a16c981f4be423ULL},

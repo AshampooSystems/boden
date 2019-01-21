@@ -1,5 +1,4 @@
-#ifndef BDN_Switch_H_
-#define BDN_Switch_H_
+#pragma once
 
 #include <bdn/constants.h>
 #include <bdn/ISwitchCore.h>
@@ -33,16 +32,21 @@ namespace bdn
     class Switch : public View
     {
       public:
-        Switch() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Property<String> label;
+        Property<bool> on;
 
-        /** The switch's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ISwitchCore, influencesPreferredSize());
+      public:
+        Switch()
+        {
+            _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
+            label.onChange() += View::CorePropertyUpdater<String, IToggleCoreBase>{
+                this, &IToggleCoreBase::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
 
-        /** Whether the switch is on (true) or off (false) */
-        BDN_VIEW_PROPERTY(bool, on, setOn, ISwitchCore, influencesNothing());
+            on.onChange() += View::CorePropertyUpdater<bool, ISwitchCore>{this, &ISwitchCore::setOn};
+        }
 
         /** The switch's state, see TriState */
-        TriState state() const { return on() ? TriState::on : TriState::off; }
+        TriState state() const { return on ? TriState::on : TriState::off; }
 
         /** A notifier for click events. Subscribe to this notifier if you want
          to be notified about click events. Click events are posted when the
@@ -61,8 +65,6 @@ namespace bdn
         String getCoreTypeName() const override { return getSwitchCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _onClick;
+        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
-
-#endif // BDN_Switch_H_

@@ -1,5 +1,4 @@
-#ifndef BDN_InvalidArgumentError_H_
-#define BDN_InvalidArgumentError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -41,5 +40,3 @@ namespace bdn
 
 #endif
 }
-
-#endif

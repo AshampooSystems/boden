@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -16,7 +16,7 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
     {
         bdn::test::TestMockViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _mockScrollViewCore = cast<bdn::test::MockScrollViewCore>(_mockCore);
+        _mockScrollViewCore = std::dynamic_pointer_cast<bdn::test::MockScrollViewCore>(_mockCore);
     }
 
     double getVertBarWidth() override { return 10; }
@@ -26,12 +26,11 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
     Size initiateScrollViewResizeToHaveViewPortSize(const Size &viewPortSize) override
     {
         Size adjustedSize =
-            _scrollView
-                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView->adjustBounds(Rect(_scrollView->position, viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
-        _scrollView->setPreferredSizeMinimum(adjustedSize);
-        _scrollView->setPreferredSizeMaximum(adjustedSize);
+        _scrollView->preferredSizeMinimum = (adjustedSize);
+        _scrollView->preferredSizeMaximum = (adjustedSize);
 
         _window->requestAutoSize();
 
@@ -52,10 +51,10 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> contentView = _scrollView->getContentView();
+        std::shared_ptr<View> contentView = _scrollView->getContentView();
 
         if (contentView != nullptr) {
-            Rect bounds(_scrollView->getContentView()->position(), contentView->size());
+            Rect bounds(_scrollView->getContentView()->position, contentView->size);
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -82,12 +81,12 @@ class TestMockScrollViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test
         REQUIRE(Dip::equal(viewPortSize, expectedSize));
     }
 
-    P<bdn::test::MockScrollViewCore> _mockScrollViewCore;
+    std::shared_ptr<bdn::test::MockScrollViewCore> _mockScrollViewCore;
 };
 
 TEST_CASE("mock.ScrollViewCore")
 {
-    P<TestMockScrollViewCore> test = newObj<TestMockScrollViewCore>();
+    std::shared_ptr<TestMockScrollViewCore> test = std::make_shared<TestMockScrollViewCore>();
 
     test->runTests();
 }

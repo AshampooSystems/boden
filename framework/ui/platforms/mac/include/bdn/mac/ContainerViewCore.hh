@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_ContainerViewCore_HH_
-#define BDN_MAC_ContainerViewCore_HH_
+#pragma once
 
 #include <bdn/ContainerView.h>
 #import <bdn/mac/ChildViewCore.hh>
@@ -10,19 +9,20 @@ namespace bdn
     namespace mac
     {
 
-        class ContainerViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore
+        class ContainerViewCore : public ChildViewCore, virtual public IParentViewCore
         {
           private:
-            static NSView *_createContainer(ContainerView *outer);
+            static NSView *_createContainer(std::shared_ptr<ContainerView> outer);
 
           public:
-            ContainerViewCore(ContainerView *outer) : ChildViewCore(outer, _createContainer(outer)) {}
+            ContainerViewCore(std::shared_ptr<ContainerView> outer) : ChildViewCore(outer, _createContainer(outer)) {}
 
             Size calcPreferredSize(const Size &availableSpace) const override
             {
                 // call the outer container's preferred size calculation
 
-                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ContainerView> outerView =
+                    std::dynamic_pointer_cast<ContainerView>(getOuterViewIfStillAttached());
                 if (outerView != nullptr)
                     return outerView->calcContainerPreferredSize(availableSpace);
                 else
@@ -33,14 +33,13 @@ namespace bdn
             {
                 // call the outer container's layout function
 
-                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ContainerView> outerView =
+                    std::dynamic_pointer_cast<ContainerView>(getOuterViewIfStillAttached());
                 if (outerView != nullptr) {
-                    P<ViewLayout> layout = outerView->calcContainerLayout(outerView->size());
+                    std::shared_ptr<ViewLayout> layout = outerView->calcContainerLayout(outerView->size);
                     layout->applyTo(outerView);
                 }
             }
         };
     }
 }
-
-#endif

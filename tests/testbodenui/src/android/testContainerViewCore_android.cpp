@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/test/TestContainerViewCore.h>
@@ -16,7 +16,7 @@ class TestAndroidContainerViewCore : public bdn::test::TestAndroidViewCoreMixin<
 
 TEST_CASE("android.ContainerViewCore")
 {
-    P<TestAndroidContainerViewCore> test = newObj<TestAndroidContainerViewCore>();
+    std::shared_ptr<TestAndroidContainerViewCore> test = std::make_shared<TestAndroidContainerViewCore>();
 
     test->runTests();
 }

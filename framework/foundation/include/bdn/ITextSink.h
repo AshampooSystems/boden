@@ -1,12 +1,11 @@
-#ifndef BDN_ITextSink_H_
-#define BDN_ITextSink_H_
+#pragma once
 
 namespace bdn
 {
 
     /** An interface for objects that receive text.
      */
-    class ITextSink : BDN_IMPLEMENTS IBase
+    class ITextSink
     {
       public:
         /** Writes the text, without adding a linebreak.
@@ -20,5 +19,3 @@ namespace bdn
         virtual void writeLine(const String &s) = 0;
     };
 }
-
-#endif

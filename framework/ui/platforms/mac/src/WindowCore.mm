@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/mac/WindowCore.hh>
 
 @interface BdnWindowDelegate : NSObject <NSWindowDelegate>
@@ -8,8 +8,6 @@
 @end
 
 @implementation BdnWindowDelegate
-
-- (void)setWindowCore:(bdn::mac::WindowCore *)core { _windowCore = core; }
 
 - (void)windowDidResize:(NSNotification *)notification
 {
@@ -46,9 +44,9 @@ namespace bdn
     namespace mac
     {
 
-        WindowCore::WindowCore(View *outer)
+        WindowCore::WindowCore(std::shared_ptr<View> outer)
         {
-            P<Window> outerWindow = cast<Window>(outer);
+            std::shared_ptr<Window> outerWindow = std::dynamic_pointer_cast<Window>(outer);
             _outerWindowWeak = outerWindow;
 
             NSScreen *screen = [NSScreen mainScreen];
@@ -56,7 +54,7 @@ namespace bdn
             // the screen's coordinate system is inverted (origin is bottom
             // left). So we need to pass the screen height so that it will be
             // converted properly.
-            NSRect rect = rectToMacRect(Rect(outer->position(), outer->size()), screen.frame.size.height);
+            NSRect rect = rectToMacRect(Rect(outer->position, outer->size), screen.frame.size.height);
 
             _nsWindow = [[NSWindow alloc]
                 initWithContentRect:rect
@@ -82,8 +80,8 @@ namespace bdn
             _ourDelegate = delegate;
             _nsWindow.delegate = delegate;
 
-            setTitle(outerWindow->title());
-            setVisible(outerWindow->visible());
+            setTitle(outerWindow->title);
+            setVisible(outerWindow->visible);
         }
 
         WindowCore::~WindowCore()
@@ -185,14 +183,14 @@ namespace bdn
 
         void WindowCore::layout()
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr)
                 defaultWindowLayoutImpl(window, getContentArea());
         }
 
         Size WindowCore::calcPreferredSize(const Size &availableSpace) const
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr) {
                 return defaultWindowCalcPreferredSizeImpl(window, availableSpace, getNonClientMargin(),
                                                           getMinimumSize());
@@ -202,9 +200,9 @@ namespace bdn
 
         void WindowCore::requestAutoSize()
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr) {
-                P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
             }
@@ -212,9 +210,9 @@ namespace bdn
 
         void WindowCore::requestCenter()
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr) {
-                P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsCentering(window);
             }
@@ -222,14 +220,14 @@ namespace bdn
 
         void WindowCore::autoSize()
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr)
                 defaultWindowAutoSizeImpl(window, getScreenWorkArea().getSize());
         }
 
         void WindowCore::center()
         {
-            P<Window> window = _outerWindowWeak.toStrong();
+            std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr)
                 defaultWindowCenterImpl(window, getScreenWorkArea());
         }

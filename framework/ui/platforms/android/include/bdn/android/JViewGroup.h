@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JViewGroup_H_
-#define BDN_ANDROID_JViewGroup_H_
+#pragma once
 
 #include <bdn/android/JView.h>
 #include <bdn/android/JViewGroup__JLayoutParams.h>
@@ -75,5 +74,3 @@ namespace bdn
         };
     }
 }
-
-#endif

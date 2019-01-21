@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/ios/ToggleCoreBase.hh>
 
 @interface BdnIosToggleClickManager : NSObject
@@ -24,7 +24,7 @@ namespace bdn
     namespace ios
     {
 
-        ToggleCoreBase::ToggleCoreBase(View *outer, BdnIosToggleCompositeBase *toggleComposite)
+        ToggleCoreBase::ToggleCoreBase(std::shared_ptr<View> outer, BdnIosToggleCompositeBase *toggleComposite)
             : ViewCore(outer, toggleComposite)
         {
             _composite = (BdnIosToggleCompositeBase *)getUIView();

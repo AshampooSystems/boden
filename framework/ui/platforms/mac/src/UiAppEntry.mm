@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/mac/appEntry.h>
 
 #import <bdn/mac/UiAppRunner.hh>
@@ -9,14 +9,15 @@ namespace bdn
     namespace mac
     {
 
-        int uiAppEntry(const std::function<P<AppControllerBase>()> &appControllerCreator, int argc, char *argv[])
+        int uiAppEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argc,
+                       char *argv[])
         {
             int returnValue = 0;
 
             bdn::platformEntryWrapper(
                 [&]() {
-                    bdn::P<bdn::mac::UiAppRunner> appRunner =
-                        bdn::newObj<bdn::mac::UiAppRunner>(appControllerCreator, argc, argv);
+                    std::shared_ptr<bdn::mac::UiAppRunner> appRunner =
+                        std::make_shared<bdn::mac::UiAppRunner>(appControllerCreator, argc, argv);
                     _setAppRunner(appRunner);
 
                     returnValue = appRunner->entry();

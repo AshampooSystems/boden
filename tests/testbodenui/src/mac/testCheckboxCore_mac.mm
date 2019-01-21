@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -24,7 +24,7 @@ class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _checkbox->label();
+        String expectedLabel = _checkbox->label;
 
         String label = bdn::mac::macStringToString(_nSButton.title);
 
@@ -33,7 +33,7 @@ class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
 
     void verifyCoreState() override
     {
-        TriState expectedState = _checkbox->state();
+        TriState expectedState = _checkbox->state;
         TriState state = bdn::mac::nsControlStateValueToTriState(_nSButton.state);
         REQUIRE(state == expectedState);
     }
@@ -44,7 +44,7 @@ class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
 
 TEST_CASE("mac.CheckboxCore")
 {
-    P<TestMacCheckboxCore> test = newObj<TestMacCheckboxCore>();
+    std::shared_ptr<TestMacCheckboxCore> test = std::make_shared<TestMacCheckboxCore>();
 
     test->runTests();
 }

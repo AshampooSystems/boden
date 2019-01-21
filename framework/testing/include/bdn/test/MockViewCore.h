@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockViewCore_H_
-#define BDN_TEST_MockViewCore_H_
+#pragma once
 
 #include <bdn/IViewCore.h>
 #include <bdn/Dip.h>
@@ -7,6 +6,8 @@
 #include <bdn/round.h>
 
 #include <bdn/test.h>
+
+#include <regex>
 
 namespace bdn
 {
@@ -18,26 +19,26 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+        class MockViewCore : public Base, virtual public IViewCore, virtual public LayoutCoordinator::IViewCoreExtension
         {
           public:
-            explicit MockViewCore(View *view)
+            explicit MockViewCore(std::shared_ptr<View> view)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 _outerViewWeak = view;
 
-                _visible = view->visible();
-                _padding = view->padding();
-                _margin = view->margin();
-                _horizontalAlignment = view->horizontalAlignment();
-                _verticalAlignment = view->verticalAlignment();
-                _preferredSizeHint = view->preferredSizeHint();
-                _preferredSizeMinimum = view->preferredSizeMinimum();
-                _preferredSizeMaximum = view->preferredSizeMaximum();
+                _visible = view->visible;
+                _padding = view->padding;
+                _margin = view->margin;
+                _horizontalAlignment = view->horizontalAlignment;
+                _verticalAlignment = view->verticalAlignment;
+                _preferredSizeHint = view->preferredSizeHint;
+                _preferredSizeMinimum = view->preferredSizeMinimum;
+                _preferredSizeMaximum = view->preferredSizeMaximum;
                 // the bounds should not be copied from the outer object - a
                 // layout cycle must happen to initialize it. _bounds = Rect(
-                // view->position(), view->size() );
+                // view->position, view->size );
                 _parentViewWeak = view->getParentView();
             }
 
@@ -48,7 +49,7 @@ namespace bdn
             }
 
             /** Returns the outer view object that this core is embedded in.*/
-            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
+            std::shared_ptr<View> getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
 
             /** Returns true if the fake view is currently marked as
              * "visible".*/
@@ -59,7 +60,7 @@ namespace bdn
             int getVisibleChangeCount() const { return _visibleChangeCount; }
 
             /** Returns the padding that is currently configured.*/
-            Nullable<UiMargin> getPadding() const { return _padding; }
+            std::optional<UiMargin> getPadding() const { return _padding; }
 
             /** Returns the number of times the view's padding has changed.*/
             int getPaddingChangeCount() const { return _paddingChangeCount; }
@@ -80,17 +81,14 @@ namespace bdn
                 Note that the MockViewCore does not hold a reference to it, so
                it will not keep the parent view alive. You have to ensure that
                the parent still exists when you access the returned pointer.*/
-            View *getParentViewWeak() const { return _parentViewWeak; }
+            std::weak_ptr<View> getParentViewWeak() const { return _parentViewWeak; }
 
             /** Returns the number of times the view's parent have changed.*/
             int getParentViewChangeCount() const { return _parentViewChangeCount; }
 
             Size _getTextSize(const String &s, double wrapWidth = std::numeric_limits<double>::infinity()) const
             {
-                String remaining(s);
-
-                // normalize line breaks
-                remaining.findAndReplace("\r\n", "\n");
+                String remaining = std::regex_replace(s, std::regex("\r\n"), "\n");
 
                 // our fake font has a size of 9.75 x 19 2/3 DIPs for each
                 // character.
@@ -111,12 +109,14 @@ namespace bdn
                 int lineCount = 0;
                 double width = 0;
                 do {
-                    String line = remaining.splitOffToken("\n", true, nullptr);
+                    auto [line, remainder] = split(remaining, '\n');
+
+                    remaining = remainder;
 
                     do {
                         lineCount++;
 
-                        size_t lineChars = line.getLength();
+                        size_t lineChars = line.size();
 
                         if (maxLineChars != -1 && lineChars > (size_t)maxLineChars) {
                             // find the break point.
@@ -124,7 +124,7 @@ namespace bdn
                             // the maximum number of chars then we want to break
                             // there. So we start searching from that point
                             // backwards.
-                            size_t lastWhitespaceIndex = line.reverseFindOneOf(" \t", maxLineChars);
+                            size_t lastWhitespaceIndex = line.find_last_of(" \t", maxLineChars);
                             if (lastWhitespaceIndex == String::npos) {
                                 // no white space found.
                                 lineChars = maxLineChars;
@@ -137,18 +137,18 @@ namespace bdn
                         double lineWidth = Dip::pixelAlign(lineChars * charWidth, 3, RoundType::up);
                         width = std::max(width, lineWidth);
 
-                        line = line.subString(lineChars);
+                        line = line.substr(lineChars);
 
-                        if (!line.isEmpty()) {
+                        if (!line.empty()) {
                             char32_t firstChar = line[0];
 
                             // if we auto-wrap to a new line and that line
                             // begins with a whitespace then we do not print it.
                             if (firstChar == ' ' || firstChar == '\t')
-                                line = line.subString(1);
+                                line = line.substr(1);
                         }
-                    } while (!line.isEmpty());
-                } while (!remaining.isEmpty());
+                    } while (!line.empty());
+                } while (!remaining.empty());
 
                 double height = lineCount * charHeight;
 
@@ -163,7 +163,7 @@ namespace bdn
                 _visibleChangeCount++;
             }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -289,13 +289,13 @@ namespace bdn
                               uiLengthToDips(margin.left));
             }
 
-            bool canMoveToParentView(View &newParentView) const override { return true; }
+            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
-            void moveToParentView(View &newParentView) override
+            void moveToParentView(std::shared_ptr<View> newParentView) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _parentViewWeak = &newParentView;
+                _parentViewWeak = newParentView;
                 _parentViewChangeCount++;
             }
 
@@ -358,20 +358,22 @@ namespace bdn
 
                 _needLayoutCount++;
 
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr)
-                    cast<MockUiProvider>(view->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(view);
+                    std::dynamic_pointer_cast<MockUiProvider>(view->getUiProvider())
+                        ->getLayoutCoordinator()
+                        ->viewNeedsLayout(view);
             }
 
             int getChildSizingInfoInvalidatedCount() const { return _childSizingInfoInvalidatedCount; }
 
-            void childSizingInfoInvalidated(View *child) override
+            void childSizingInfoInvalidated(std::shared_ptr<View> child) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 _childSizingInfoInvalidatedCount++;
 
-                P<View> outer = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outer = getOuterViewIfStillAttached();
                 if (outer != nullptr) {
                     outer->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
                     outer->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
@@ -382,7 +384,7 @@ namespace bdn
             bool _visible = false;
             int _visibleChangeCount = 0;
 
-            Nullable<UiMargin> _padding;
+            std::optional<UiMargin> _padding;
             int _paddingChangeCount = 0;
 
             UiMargin _margin;
@@ -406,7 +408,7 @@ namespace bdn
             Rect _bounds;
             int _boundsChangeCount = 0;
 
-            View *_parentViewWeak = nullptr;
+            std::weak_ptr<View> _parentViewWeak;
             int _parentViewChangeCount = 0;
 
             int _layoutCount = 0;
@@ -417,11 +419,9 @@ namespace bdn
             int _needLayoutCount = 0;
             mutable int _calcPreferredSizeCount = 0;
 
-            WeakP<View> _outerViewWeak = nullptr;
+            std::weak_ptr<View> _outerViewWeak;
 
             const double _pixelsPerDip = 3; // 3 physical pixels per DIP
         };
     }
 }
-
-#endif

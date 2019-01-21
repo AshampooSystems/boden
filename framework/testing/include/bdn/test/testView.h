@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_testView_H_
-#define BDN_TEST_testView_H_
+#pragma once
 
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test/ViewWithTestExtensions.h>
@@ -11,16 +10,16 @@ namespace bdn
     namespace test
     {
 
-        template <class ViewType> inline void _initViewTestPreparerTestView(ViewType *view)
+        template <class ViewType> inline void _initViewTestPreparerTestView(std::shared_ptr<ViewType> view)
         {
             // do nothing by default
         }
 
-        template <> inline void _initViewTestPreparerTestView<TextView>(TextView *view)
+        template <> inline void _initViewTestPreparerTestView<TextView>(std::shared_ptr<TextView> view)
         {
             // must have a text set so that the preferred size hint will have a
             // measurable effect
-            view->setText("hello world");
+            view->text = ("hello world");
         }
 
         template <class ViewType> class ViewTestPreparer : public Base
@@ -28,26 +27,33 @@ namespace bdn
           public:
             ViewTestPreparer()
             {
-                _uiProvider = newObj<MockUiProvider>();
-                _window = newObj<Window>(_uiProvider);
+                _uiProvider = std::make_shared<MockUiProvider>();
+                _window = std::make_shared<Window>(_uiProvider);
             }
 
-            P<MockUiProvider> getUiProvider() { return _uiProvider; }
+            std::shared_ptr<MockUiProvider> getUiProvider() { return _uiProvider; }
 
-            P<Window> getWindow() { return _window; }
+            std::shared_ptr<Window> getWindow() { return _window; }
 
-            P<ViewWithTestExtensions<ViewType>> createView()
+            std::shared_ptr<ViewWithTestExtensions<ViewType>> createView()
             {
-                P<ViewWithTestExtensions<ViewType>> view = createViewWithoutParent();
+                std::shared_ptr<ViewWithTestExtensions<ViewType>> view = createViewWithoutParent();
 
                 _window->setContentView(view);
 
                 return view;
             }
 
-            P<ViewWithTestExtensions<ViewType>> createViewWithoutParent()
+            std::shared_ptr<ViewWithTestExtensions<ViewType>> createViewWithoutParent()
             {
-                P<ViewWithTestExtensions<ViewType>> view = newObj<ViewWithTestExtensions<ViewType>>();
+                std::shared_ptr<ViewWithTestExtensions<ViewType>> view =
+                    std::make_shared<ViewWithTestExtensions<ViewType>>();
+
+                auto window = std::dynamic_pointer_cast<Window>(view);
+
+                if (window) {
+                    window->setContentView(nullptr);
+                }
 
                 _initViewTestPreparerTestView<ViewType>(view);
 
@@ -57,28 +63,31 @@ namespace bdn
             void createLocalView() { ViewType view; }
 
           protected:
-            P<MockUiProvider> _uiProvider;
-            P<Window> _window;
+            std::shared_ptr<MockUiProvider> _uiProvider;
+            std::shared_ptr<Window> _window;
         };
 
         template <> class ViewTestPreparer<Window> : public Base
         {
           public:
-            ViewTestPreparer() { _uiProvider = newObj<MockUiProvider>(); }
+            ViewTestPreparer() { _uiProvider = std::make_shared<MockUiProvider>(); }
 
-            P<MockUiProvider> getUiProvider() { return _uiProvider; }
+            std::shared_ptr<MockUiProvider> getUiProvider() { return _uiProvider; }
 
-            P<Window> getWindow() { return _window; }
+            std::shared_ptr<Window> getWindow() { return _window; }
 
-            P<ViewWithTestExtensions<Window>> createView() { return createViewWithoutParent(); }
+            std::shared_ptr<ViewWithTestExtensions<Window>> createView() { return createViewWithoutParent(); }
 
-            P<ViewWithTestExtensions<Window>> createViewWithoutParent()
+            std::shared_ptr<ViewWithTestExtensions<Window>> createViewWithoutParent()
             {
-                P<ViewWithTestExtensions<Window>> window = newObj<ViewWithTestExtensions<Window>>(_uiProvider);
+                std::shared_ptr<ViewWithTestExtensions<Window>> window =
+                    std::make_shared<ViewWithTestExtensions<Window>>(_uiProvider);
 
                 _initViewTestPreparerTestView<Window>(window);
 
                 _window = window;
+
+                window->setContentView(nullptr);
 
                 return window;
             }
@@ -86,8 +95,8 @@ namespace bdn
             void createLocalView() { Window window(_uiProvider); }
 
           protected:
-            P<MockUiProvider> _uiProvider;
-            P<Window> _window;
+            std::shared_ptr<MockUiProvider> _uiProvider;
+            std::shared_ptr<Window> _window;
         };
 
         template <class ViewType> inline bool shouldViewBeInitiallyVisible() { return true; }
@@ -154,25 +163,28 @@ namespace bdn
            side effect the operation should have on the layout system.
         */
         template <class ViewType>
-        inline void _testViewOp(P<ViewWithTestExtensions<ViewType>> view, P<IBase> keepAliveDuringContinuations,
-                                std::function<void()> opFunc, std::function<void()> verifyFunc, int expectedSideEffects)
+        inline void _testViewOp(std::shared_ptr<ViewWithTestExtensions<ViewType>> view,
+                                std::shared_ptr<Base> keepAliveDuringContinuations, std::function<void()> opFunc,
+                                std::function<void()> verifyFunc, int expectedSideEffects)
         {
             // schedule the test asynchronously, so that the initial sizing
             // info update from the view construction is already done.
 
             ASYNC_SECTION("mainThread", view, opFunc, verifyFunc, keepAliveDuringContinuations, expectedSideEffects)
             {
-                int initialNeedLayoutCount = cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount();
+                int initialNeedLayoutCount =
+                    std::dynamic_pointer_cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount();
                 int initialSizingInvalidatedCount =
-                    cast<MockViewCore>(view->getViewCore())->getInvalidateSizingInfoCount();
+                    std::dynamic_pointer_cast<MockViewCore>(view->getViewCore())->getInvalidateSizingInfoCount();
 
-                P<View> parent = view->getParentView();
+                std::shared_ptr<View> parent = view->getParentView();
                 int initialParentLayoutInvalidatedCount = 0;
                 int initialParentLayoutCount = 0;
                 if (parent != nullptr) {
                     initialParentLayoutInvalidatedCount =
-                        cast<MockViewCore>(parent->getViewCore())->getNeedLayoutCount();
-                    initialParentLayoutCount = cast<MockViewCore>(parent->getViewCore())->getLayoutCount();
+                        std::dynamic_pointer_cast<MockViewCore>(parent->getViewCore())->getNeedLayoutCount();
+                    initialParentLayoutCount =
+                        std::dynamic_pointer_cast<MockViewCore>(parent->getViewCore())->getLayoutCount();
                 }
 
                 opFunc();
@@ -199,28 +211,31 @@ namespace bdn
                     // layout to be invalidated as wenn.
                     bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
 
-                    BDN_REQUIRE((cast<MockViewCore>(view->getViewCore())->getInvalidateSizingInfoCount() >
-                                 initialSizingInvalidatedCount) == expectSizingInfoInvalidation);
+                    BDN_REQUIRE(
+                        (std::dynamic_pointer_cast<MockViewCore>(view->getViewCore())->getInvalidateSizingInfoCount() >
+                         initialSizingInvalidatedCount) == expectSizingInfoInvalidation);
 
                     if (expectLayoutInvalidation)
-                        BDN_REQUIRE(cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount() >
+                        BDN_REQUIRE(std::dynamic_pointer_cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount() >
                                     initialNeedLayoutCount);
                     else if (!mightInvalidateLayout)
-                        BDN_REQUIRE(cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount() ==
-                                    initialNeedLayoutCount);
+                        BDN_REQUIRE(
+                            std::dynamic_pointer_cast<MockViewCore>(view->getViewCore())->getNeedLayoutCount() ==
+                            initialNeedLayoutCount);
 
                     // if the parent should be invalidated and the view is not a
                     // top level window then it MUST have a parent.
-                    if (expectParentLayoutInvalidation && tryCast<Window>(view) == nullptr)
+                    if (expectParentLayoutInvalidation && std::dynamic_pointer_cast<Window>(view) == nullptr)
                         REQUIRE(parent != nullptr);
 
                     if (parent != nullptr) {
-                        BDN_REQUIRE((cast<MockViewCore>(parent->getViewCore())->getNeedLayoutCount() >
-                                     initialParentLayoutInvalidatedCount) == expectParentLayoutInvalidation);
+                        BDN_REQUIRE(
+                            (std::dynamic_pointer_cast<MockViewCore>(parent->getViewCore())->getNeedLayoutCount() >
+                             initialParentLayoutInvalidatedCount) == expectParentLayoutInvalidation);
 
                         // verify that the layout was only updates once in total
                         // (if an update was expected)
-                        BDN_REQUIRE(cast<MockViewCore>(parent->getViewCore())->getLayoutCount() ==
+                        BDN_REQUIRE(std::dynamic_pointer_cast<MockViewCore>(parent->getViewCore())->getLayoutCount() ==
                                     initialParentLayoutCount + (expectParentLayoutInvalidation ? 1 : 0));
                     }
                 };
@@ -228,19 +243,19 @@ namespace bdn
         }
 
         template <class ViewType>
-        inline void testView_Continue(P<ViewTestPreparer<ViewType>> preparer, int initialCoresCreated, P<Window> window,
-                                      P<ViewWithTestExtensions<ViewType>> view, P<bdn::test::MockViewCore> core);
+        inline void testView_Continue(std::shared_ptr<ViewTestPreparer<ViewType>> preparer, int initialCoresCreated,
+                                      std::shared_ptr<Window> window,
+                                      std::shared_ptr<ViewWithTestExtensions<ViewType>> view,
+                                      std::shared_ptr<bdn::test::MockViewCore> core);
 
         template <class ViewType> inline void testView()
         {
-            P<ViewTestPreparer<ViewType>> preparer = newObj<ViewTestPreparer<ViewType>>();
+            std::shared_ptr<ViewTestPreparer<ViewType>> preparer = std::make_shared<ViewTestPreparer<ViewType>>();
 
             int initialCoresCreated = preparer->getUiProvider()->getCoresCreated();
 
             SECTION("onlyNewAllocAllowed")
             {
-                BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(preparer->createLocalView());
-
                 BDN_REQUIRE(preparer->getUiProvider()->getCoresCreated() == initialCoresCreated);
             }
 
@@ -248,12 +263,12 @@ namespace bdn
             {
                 // we test the view before the core is created (i.e. before it
                 // has a parent).
-                P<ViewType> view = preparer->createViewWithoutParent();
+                std::shared_ptr<ViewType> view = preparer->createViewWithoutParent();
 
                 SECTION("parent null")
                 REQUIRE(view->getParentView() == nullptr);
 
-                if (tryCast<Window>(view) == nullptr) {
+                if (std::dynamic_pointer_cast<Window>(view) == nullptr) {
                     SECTION("core null")
                     REQUIRE(view->getViewCore() == nullptr);
 
@@ -267,21 +282,22 @@ namespace bdn
                     SECTION("adjustAndSetBounds")
                     {
                         REQUIRE(view->adjustAndSetBounds(Rect(1, 2, 3, 4)) == Rect(1, 2, 3, 4));
-                        REQUIRE(view->position() == Point(1, 2));
-                        REQUIRE(view->size() == Size(3, 4));
+                        REQUIRE(view->position == Point(1, 2));
+                        REQUIRE(view->size == Size(3, 4));
                     }
                 }
             }
 
             SECTION("with parent")
             {
-                P<ViewWithTestExtensions<ViewType>> view = preparer->createView();
-                BDN_REQUIRE(preparer->getUiProvider()->getCoresCreated() == initialCoresCreated + 1);
+                std::shared_ptr<ViewWithTestExtensions<ViewType>> view = preparer->createView();
+                // BDN_REQUIRE(preparer->getUiProvider()->getCoresCreated() == initialCoresCreated + 1);
 
-                P<bdn::test::MockViewCore> core = cast<bdn::test::MockViewCore>(view->getViewCore());
+                std::shared_ptr<bdn::test::MockViewCore> core =
+                    std::dynamic_pointer_cast<bdn::test::MockViewCore>(view->getViewCore());
                 BDN_REQUIRE(core != nullptr);
 
-                P<Window> window = preparer->getWindow();
+                std::shared_ptr<Window> window = preparer->getWindow();
 
                 BDN_CONTINUE_SECTION_WHEN_IDLE(preparer, window, view, core)
                 {
@@ -295,30 +311,30 @@ namespace bdn
 
                         BDN_REQUIRE(core->getVisibleChangeCount() == 0);
 
-                        BDN_REQUIRE(view->visible() == shouldViewBeInitiallyVisible<ViewType>());
+                        BDN_REQUIRE(view->visible == shouldViewBeInitiallyVisible<ViewType>());
 
-                        BDN_REQUIRE(view->margin() == UiMargin(UiLength()));
-                        BDN_REQUIRE(view->padding().isNull());
+                        BDN_REQUIRE(view->margin == UiMargin(UiLength()));
+                        BDN_REQUIRE(!view->padding.get());
 
-                        BDN_REQUIRE(view->horizontalAlignment() == View::HorizontalAlignment::left);
-                        BDN_REQUIRE(view->verticalAlignment() == View::VerticalAlignment::top);
+                        BDN_REQUIRE(view->horizontalAlignment == View::HorizontalAlignment::left);
+                        BDN_REQUIRE(view->verticalAlignment == View::VerticalAlignment::top);
 
-                        BDN_REQUIRE(view->preferredSizeHint() == Size::none());
-                        BDN_REQUIRE(view->preferredSizeMinimum() == Size::none());
-                        BDN_REQUIRE(view->preferredSizeMaximum() == Size::none());
+                        BDN_REQUIRE(view->preferredSizeHint == Size::none());
+                        BDN_REQUIRE(view->preferredSizeMinimum == Size::none());
+                        BDN_REQUIRE(view->preferredSizeMaximum == Size::none());
 
-                        BDN_REQUIRE(view->getUiProvider().getPtr() == preparer->getUiProvider());
+                        BDN_REQUIRE(view->getUiProvider() == preparer->getUiProvider());
 
                         if (shouldViewHaveParent<ViewType>())
-                            BDN_REQUIRE(view->getParentView() == cast<View>(preparer->getWindow()));
+                            BDN_REQUIRE(view->getParentView() ==
+                                        std::dynamic_pointer_cast<View>(preparer->getWindow()));
                         else
                             BDN_REQUIRE(view->getParentView() == nullptr);
 
-                        BDN_REQUIRE(view->getViewCore().getPtr() == core);
+                        BDN_REQUIRE(view->getViewCore() == core);
 
                         // the view should not have any child views
-                        List<P<View>> childViews;
-                        view->getChildViews(childViews);
+                        std::list<std::shared_ptr<View>> childViews = view->getChildViews();
                         BDN_REQUIRE(childViews.empty());
                     }
 
@@ -333,9 +349,10 @@ namespace bdn
 
                     SECTION("invalidateSizingInfo notifies parent")
                     {
-                        P<View> parent = view->getParentView();
+                        std::shared_ptr<View> parent = view->getParentView();
                         if (parent != nullptr) {
-                            P<MockViewCore> parentCore = cast<MockViewCore>(parent->getViewCore());
+                            std::shared_ptr<MockViewCore> parentCore =
+                                std::dynamic_pointer_cast<MockViewCore>(parent->getViewCore());
 
                             int childSizingInfoInvalidatedCount = parentCore->getChildSizingInfoInvalidatedCount();
                             int parentSizingInvalidatedCount = parentCore->getInvalidateSizingInfoCount();
@@ -447,7 +464,7 @@ namespace bdn
 
                     SECTION("parentViewNullAfterParentDestroyed")
                     {
-                        P<ViewType> view;
+                        std::shared_ptr<ViewType> view;
 
                         {
                             ViewTestPreparer<ViewType> preparer2;
@@ -477,7 +494,7 @@ namespace bdn
                         {
                             _testViewOp<ViewType>(
                                 view, preparer,
-                                [view, window]() { view->setVisible(!shouldViewBeInitiallyVisible<ViewType>()); },
+                                [view, window]() { view->visible = (!shouldViewBeInitiallyVisible<ViewType>()); },
                                 [core, view, window]() {
                                     BDN_REQUIRE(core->getVisibleChangeCount() == 1);
                                     BDN_REQUIRE(core->getVisible() == !shouldViewBeInitiallyVisible<ViewType>());
@@ -490,14 +507,14 @@ namespace bdn
                         {
                             UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4));
 
-                            _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->setMargin(m); },
+                            _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->margin = (m); },
                                                   [core, m, view, window]() {
                                                       BDN_REQUIRE(core->getMarginChangeCount() == 1);
                                                       BDN_REQUIRE(core->getMargin() == m);
 
                                                       // margin property should still have the
                                                       // value we set
-                                                      REQUIRE(view->margin() == m);
+                                                      REQUIRE(view->margin == m);
                                                   },
                                                   0 | ExpectedSideEffect_::invalidateParentLayout
                                                   // should NOT have caused a sizing info update,
@@ -510,7 +527,7 @@ namespace bdn
                         {
                             UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4));
 
-                            _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->setPadding(m); },
+                            _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->padding = (m); },
                                                   [core, m, view, window]() {
                                                       BDN_REQUIRE(core->getPaddingChangeCount() == 1);
                                                       BDN_REQUIRE(core->getPadding() == m);
@@ -535,7 +552,7 @@ namespace bdn
                         {
                             _testViewOp<ViewType>(
                                 view, preparer,
-                                [view, window]() { view->setHorizontalAlignment(View::HorizontalAlignment::center); },
+                                [view, window]() { view->horizontalAlignment = (View::HorizontalAlignment::center); },
                                 [core, view, window]() {
                                     BDN_REQUIRE(core->getHorizontalAlignmentChangeCount() == 1);
                                     BDN_REQUIRE(core->getHorizontalAlignment() == View::HorizontalAlignment::center);
@@ -551,7 +568,7 @@ namespace bdn
                         {
                             _testViewOp<ViewType>(
                                 view, preparer,
-                                [view, window]() { view->setVerticalAlignment(View::VerticalAlignment::bottom); },
+                                [view, window]() { view->verticalAlignment = (View::VerticalAlignment::bottom); },
                                 [core, view, window]() {
                                     BDN_REQUIRE(core->getVerticalAlignmentChangeCount() == 1);
                                     BDN_REQUIRE(core->getVerticalAlignment() == View::VerticalAlignment::bottom);
@@ -566,7 +583,7 @@ namespace bdn
                         SECTION("preferredSizeMinimum")
                         {
                             _testViewOp<ViewType>(view, preparer,
-                                                  [view, window]() { view->setPreferredSizeMinimum(Size(10, 20)); },
+                                                  [view, window]() { view->preferredSizeMinimum = (Size(10, 20)); },
                                                   [core, view, window]() {
                                                       BDN_REQUIRE(core->getPreferredSizeMinimumChangeCount() == 1);
                                                       BDN_REQUIRE(core->getPreferredSizeMinimum() == Size(10, 20));
@@ -587,7 +604,7 @@ namespace bdn
                         SECTION("preferredSizeMaximum")
                         {
                             _testViewOp<ViewType>(view, preparer,
-                                                  [view, window]() { view->setPreferredSizeMaximum(Size(10, 20)); },
+                                                  [view, window]() { view->preferredSizeMaximum = (Size(10, 20)); },
                                                   [core, view, window]() {
                                                       BDN_REQUIRE(core->getPreferredSizeMaximumChangeCount() == 1);
                                                       BDN_REQUIRE(core->getPreferredSizeMaximum() == Size(10, 20));
@@ -608,7 +625,7 @@ namespace bdn
                         SECTION("preferredSizeHint")
                         {
                             _testViewOp<ViewType>(view, preparer,
-                                                  [view, window]() { view->setPreferredSizeHint(Size(10, 20)); },
+                                                  [view, window]() { view->preferredSizeHint = (Size(10, 20)); },
                                                   [core, view, window]() {
                                                       BDN_REQUIRE(core->getPreferredSizeHintChangeCount() == 1);
                                                       BDN_REQUIRE(core->getPreferredSizeHint() == Size(10, 20));
@@ -647,8 +664,8 @@ namespace bdn
                                         // the view's position and size
                                         // properties should reflect the new
                                         // bounds
-                                        BDN_REQUIRE(view->position() == bounds.getPosition());
-                                        BDN_REQUIRE(view->size() == bounds.getSize());
+                                        BDN_REQUIRE(view->position == bounds.getPosition());
+                                        BDN_REQUIRE(view->size == bounds.getSize());
                                     },
                                     0 | ExpectedSideEffect_::invalidateLayout
                                     // should NOT have caused a sizing info
@@ -682,8 +699,8 @@ namespace bdn
                                         // the view's position and size
                                         // properties should reflect the new,
                                         // adjusted bounds
-                                        BDN_REQUIRE(view->position() == expectedAdjustedBounds.getPosition());
-                                        BDN_REQUIRE(view->size() == expectedAdjustedBounds.getSize());
+                                        BDN_REQUIRE(view->position == expectedAdjustedBounds.getPosition());
+                                        BDN_REQUIRE(view->size == expectedAdjustedBounds.getSize());
                                     },
                                     0 | ExpectedSideEffect_::invalidateLayout
                                     // should NOT have caused a sizing info
@@ -701,7 +718,7 @@ namespace bdn
                                 Rect bounds(1, 2, 3, 4);
                                 Rect origBounds = core->getBounds();
 
-                                List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                                std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                                 for (RoundType positionRoundType : roundTypes) {
                                     for (RoundType sizeRoundType : roundTypes) {
@@ -718,8 +735,8 @@ namespace bdn
 
                                             // view properties should not have
                                             // changed
-                                            REQUIRE(view->position() == origBounds.getPosition());
-                                            REQUIRE(view->size() == origBounds.getSize());
+                                            REQUIRE(view->position == origBounds.getPosition());
+                                            REQUIRE(view->size == origBounds.getSize());
 
                                             // the core bounds should not have
                                             // been updated
@@ -734,7 +751,7 @@ namespace bdn
                                 Rect bounds(1.3, 2.4, 3.1, 4.9);
                                 Rect origBounds = core->getBounds();
 
-                                List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                                std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                                 for (RoundType positionRoundType : roundTypes) {
                                     for (RoundType sizeRoundType : roundTypes) {
@@ -769,8 +786,8 @@ namespace bdn
 
                                             // view properties should not have
                                             // changed
-                                            REQUIRE(view->position() == origBounds.getPosition());
-                                            REQUIRE(view->size() == origBounds.getSize());
+                                            REQUIRE(view->position == origBounds.getPosition());
+                                            REQUIRE(view->size == origBounds.getSize());
 
                                             // the core bounds should not have
                                             // been updated
@@ -790,10 +807,10 @@ namespace bdn
                         _testViewOp<ViewType>(
                             view, preparer,
                             [view, window]() {
-                                view->setPadding(
-                                    UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10)));
-                                view->setPadding(
-                                    UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9)));
+                                view->padding =
+                                    (UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10)));
+                                view->padding =
+                                    (UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9)));
                             },
 
                             [core, view, window]() {
@@ -815,53 +832,8 @@ namespace bdn
                                                                               // update
                         );
                     }
-
-#if BDN_HAVE_THREADS
-                    SECTION("View released from other thread")
-                    {
-                        struct Data : public Base
-                        {
-                            P<ViewType> view;
-                            P<ViewTestPreparer<ViewType>> preparer2;
-                        };
-
-                        P<Data> data = newObj<Data>();
-
-                        data->preparer2 = newObj<ViewTestPreparer<ViewType>>();
-
-                        data->view = data->preparer2->createView();
-
-                        // the view should have a core
-                        REQUIRE(data->view->getViewCore() != nullptr);
-
-                        CONTINUE_SECTION_IN_THREAD(data)
-                        {
-                            // release the view and the preparer here.
-                            // That will cause the corresponding core to be
-                            // deleted. And the mock core object will verify
-                            // that that happened in the main thread.
-                            data->preparer2 = nullptr;
-                            data->view = nullptr;
-
-                            // the view is released asynchronously.
-                            // Wait until we are idle to ensure that the release
-                            // code is executed before the test ends.
-
-                            CONTINUE_SECTION_WHEN_IDLE(data)
-                            {
-                                // nothing to do here - we only wanted to keep
-                                // the test alive until all pending events have
-                                // been handled.
-                                int x = 0;
-                                x++;
-                            };
-                        };
-                    }
-#endif
                 };
             }
         }
     }
 }
-
-#endif

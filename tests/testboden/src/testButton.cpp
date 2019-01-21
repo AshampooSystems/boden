@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -15,9 +15,11 @@ TEST_CASE("Button")
 
     SECTION("Button-specific")
     {
-        P<bdn::test::ViewTestPreparer<Button>> preparer = newObj<bdn::test::ViewTestPreparer<Button>>();
-        P<bdn::test::ViewWithTestExtensions<Button>> button = preparer->createView();
-        P<bdn::test::MockButtonCore> core = cast<bdn::test::MockButtonCore>(button->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<Button>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<Button>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<Button>> button = preparer->createView();
+        std::shared_ptr<bdn::test::MockButtonCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockButtonCore>(button->getViewCore());
 
         REQUIRE(core != nullptr);
 
@@ -25,7 +27,7 @@ TEST_CASE("Button")
         {
             SECTION("label")
             {
-                REQUIRE(button->label() == "");
+                REQUIRE(button->label == "");
                 REQUIRE(core->getLabel() == "");
                 REQUIRE(core->getLabelChangeCount() == 0);
             }
@@ -36,7 +38,7 @@ TEST_CASE("Button")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    button, preparer, [button]() { button->setLabel("hello"); },
+                    button, preparer, [button]() { button->label = ("hello"); },
                     [core, button] {
                         REQUIRE(core->getLabel() == "hello");
                         REQUIRE(core->getLabelChangeCount() == 1);

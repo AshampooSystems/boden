@@ -88,7 +88,13 @@ namespace bdn
             {
                 if (!_nameInSlashNotationInitialized) {
                     _nameInSlashNotation = getCanonicalName();
-                    _nameInSlashNotation.findAndReplace('.', '/');
+                    std::transform(_nameInSlashNotation.begin(), _nameInSlashNotation.end(),
+                                   _nameInSlashNotation.begin(), [](char ch) {
+                                       if (ch == '.')
+                                           return '/';
+                                       return ch;
+                                   });
+                    //_nameInSlashNotation.findAndReplace('.', '/');
                     _nameInSlashNotationInitialized = true;
                 }
 

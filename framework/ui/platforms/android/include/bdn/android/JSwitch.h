@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JSwitch_H_
-#define BDN_ANDROID_JSwitch_H_
+#pragma once
 
 #include <bdn/android/JCompoundButton.h>
 #include <bdn/java/JString.h>
@@ -58,5 +57,3 @@ namespace bdn
         };
     }
 }
-
-#endif

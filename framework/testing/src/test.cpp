@@ -35,12 +35,11 @@ DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <bdn/init.h>
 #include <bdn/test.h>
 
 #include <bdn/ErrorInfo.h>
 
-#include <bdn/IAppRunner.h>
+#include <bdn/AppRunnerBase.h>
 #include <bdn/AppControllerBase.h>
 #include <bdn/TestAppController.h>
 #include <bdn/Window.h>
@@ -49,9 +48,13 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/mainThread.h>
 #include <bdn/debug.h>
 #include <bdn/NotImplementedError.h>
-#include <bdn/TextSinkStdOStream.h>
+#include <bdn/platform/Hooks.h>
+#include <bdn/config.h>
+#include <bdn/IDispatcher.h>
 
 #include <cstring>
+
+using namespace std::chrono_literals;
 
 #ifndef CLARA_CONFIG_MAIN
 #define CLARA_CONFIG_MAIN_NOT_DEFINED
@@ -503,59 +506,34 @@ namespace bdn
         virtual std::ostream &stream() const BDN_OVERRIDE;
     };
 
-    class TextSinkWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextSink
+    class LogStream : public IStream
     {
-      public:
-        TextSinkWrapperWithDebugPrint(ITextSink *innerSink) : _innerSink(innerSink) {}
-
-        void write(const String &s)
+        class LogBuffer : public std::stringbuf
         {
-            doDebugPrint(s);
-            _innerSink->write(s);
-        }
-
-        void writeLine(const String &s)
-        {
-            doDebugPrint(s + "\n");
-            _innerSink->writeLine(s);
-        }
-
-      private:
-        void doDebugPrint(const String &s)
-        {
-            String rem = s;
-
-            while (!rem.isEmpty()) {
-                char32_t sep = 0;
-
-                _currDebugPrintLine += rem.splitOffToken("\n", true, &sep);
-
-                if (sep != 0) {
-                    // we had a line break
-                    BDN_DEBUGGER_PRINT(_currDebugPrintLine);
-                    _currDebugPrintLine = "";
+          public:
+            LogBuffer(bool clean) : _clean(clean) {}
+            virtual int sync()
+            {
+                if (_clean) {
+                    bdn::platform::Hooks::get()->log(bdn::Severity::None, bdn::rtrim_copy(str()));
+                    str("");
+                } else {
+                    bdn::platform::Hooks::get()->log(bdn::Severity::Info, bdn::rtrim_copy(str()));
+                    str("");
                 }
+                return 0;
             }
-        }
+            bool _clean;
+        };
 
-        P<ITextSink> _innerSink;
-        String _currDebugPrintLine;
-    };
+        mutable LogBuffer _buffer;
+        mutable std::ostream _os;
 
-    class TextSinkStream : public IStream
-    {
       public:
-        TextSinkStream(ITextSink *sink) : _stdStream(sink) {}
+        LogStream(bool clean);
+        virtual ~LogStream() BDN_NOEXCEPT;
 
-        virtual ~TextSinkStream() noexcept
-        {
-            // nothing to do.
-        }
-
-        virtual std::ostream &stream() const override { return _stdStream; }
-
-      private:
-        mutable TextSinkStdOStream<char> _stdStream;
+        virtual std::ostream &stream() const BDN_OVERRIDE;
     };
 }
 
@@ -675,22 +653,7 @@ namespace bdn
         virtual bool forceColour() const { return m_data.forceColour; }
 
       private:
-        IStream const *openStatusStream()
-        {
-            P<ITextUi> ui = TestAppController::get()->getUiProvider()->getTextUi();
-            P<ITextSink> sink = ui->statusOrProblem();
-
-            // we also want all output to be printed to the debugger,
-            // IF debugger print does not go to stderr.
-            // We do not want to use debugger print if it goes to stderr
-            // because we already output the text to the text UI, which also
-            // prints to stderr. Even for graphical apps it prints to stderr
-            // in addition to the view based output.
-            if (!debuggerPrintGoesToStdErr())
-                sink = newObj<TextSinkWrapperWithDebugPrint>(sink);
-
-            return new TextSinkStream(sink);
-        }
+        IStream const *openStatusStream() { return new LogStream(false); }
 
         IStream const *openOutputStream()
         {
@@ -698,7 +661,7 @@ namespace bdn
                 // the output stream is used for machine parsable output data
                 // from our reporters. We write that directly to stdio.
 
-                return new CoutStream();
+                return new LogStream(true);
             }
 
             else if (m_data.outputFilename[0] == '%')
@@ -1708,7 +1671,7 @@ namespace bdn
 
         std::string line;
         while (std::getline(f, line)) {
-            line = trim(line);
+            trim(line);
             if (!line.empty() && !startsWith(line, "#"))
                 addTestOrTags(config, "\"" + line + "\",");
         }
@@ -2989,12 +2952,12 @@ namespace bdn
 
             std::stringstream resultStringStream;
             ResultStringFormatter::printTotals(resultStringStream, m_totals);
-            setStatusText(String(resultStringStream.str()));
+            statusText = (String(resultStringStream.str()));
         }
 
         void beginRunTestCase(TestCase const &testCase, std::function<void(const Totals &)> doneCallback)
         {
-            Mutex::Lock lock(_runTestMutex);
+            std::unique_lock lock(_runTestMutex);
 
             _testPrevTotals = m_totals;
 
@@ -3011,7 +2974,7 @@ namespace bdn
 
             std::string currentTestName = getCurrentTestName();
 
-            setStatusText("Test case: " + currentTestName);
+            statusText = ("Test case: " + currentTestName);
 
             _testDoneCallback = doneCallback;
 
@@ -3020,14 +2983,14 @@ namespace bdn
             runTestCase_Continue();
         }
 
-        BDN_PROPERTY_WITH_CUSTOM_ACCESS(String, public, statusText, protected, setStatusText);
+        Property<String> statusText;
 
         Ptr<IConfig const> config() const { return m_config; }
 
       private: // IResultCapture
         virtual void assertionEnded(AssertionResult const &result) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             const AssertionResult *resultToReport = &result;
             AssertionResult changedResult;
@@ -3063,7 +3026,7 @@ namespace bdn
 
         bool testForMissingAssertions(Counts &assertions)
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             if (assertions.total() != 0)
                 return false;
@@ -3086,7 +3049,7 @@ namespace bdn
 
         virtual bool sectionStarted(SectionInfo const &sectionInfo, Counts &assertions) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             if (_currentTestWillContinueLater) {
                 // a previous section will continue asynchronously. We only
@@ -3155,7 +3118,7 @@ namespace bdn
 
         virtual void sectionEnded(SectionEndInfo const &endInfo) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             if (_currentTestWillContinueLater) {
                 // the current section or a previous section will continue
@@ -3190,7 +3153,7 @@ namespace bdn
 
         virtual void sectionEndedEarly(SectionEndInfo const &endInfo) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             if (_currentTestWillContinueLater) {
                 // the current section or a previous section will continue
@@ -3227,26 +3190,26 @@ namespace bdn
 
         virtual void pushScopedMessage(MessageInfo const &message) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
             m_messages.push_back(message);
         }
 
         virtual void popScopedMessage(MessageInfo const &message) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
             m_messages.erase(std::remove(m_messages.begin(), m_messages.end(), message), m_messages.end());
         }
 
         virtual std::string getCurrentTestName() const override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             return m_activeTestCase ? m_activeTestCase->getTestCaseInfo().name : "";
         }
 
         virtual bool isCurrentTestExpectedToFail() const override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
             return !_currentTestIgnoreExpectedToFail && (m_activeTestCase ? m_activeTestCase->expectedToFail() : false);
         }
 
@@ -3254,7 +3217,7 @@ namespace bdn
 
         virtual void handleFatalErrorCondition(std::string const &message) override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
 
             ResultBuilder resultBuilder = makeUnexpectedResultBuilder();
             resultBuilder.setResultType(ResultWas::FatalErrorCondition);
@@ -3289,7 +3252,7 @@ namespace bdn
         // !TBD We need to do this another way!
         bool aborting() const override
         {
-            Mutex::Lock lock(_resultCaptureMutex);
+            std::unique_lock lock(_resultCaptureMutex);
             return m_totals.assertions.failed == static_cast<std::size_t>(m_config->abortAfter());
         }
 
@@ -3376,18 +3339,18 @@ namespace bdn
 
             bool wasContinuationDataReleased()
             {
-                Mutex::Lock lock(_mutex);
+                std::unique_lock lock(_mutex);
                 return _continuationDataReleased;
             }
 
             void notifyContinuationDataReleased()
             {
-                Mutex::Lock lock(_mutex);
+                std::unique_lock lock(_mutex);
                 _continuationDataReleased = true;
             }
 
           private:
-            Mutex _mutex;
+            std::recursive_mutex _mutex;
             bool _continuationDataReleased = false;
         };
 
@@ -3397,7 +3360,8 @@ namespace bdn
         class ContinuationData : public Base
         {
           public:
-            ContinuationData(const std::function<void()> &continuationFunc, ContinuationSynchronizer *synchronizer)
+            ContinuationData(const std::function<void()> &continuationFunc,
+                             std::shared_ptr<ContinuationSynchronizer> synchronizer)
             {
                 _continuationFunc = continuationFunc;
                 _synchronizer = synchronizer;
@@ -3419,82 +3383,80 @@ namespace bdn
             ContinuationData(const ContinuationData &) = delete;
 
             std::function<void()> _continuationFunc;
-            P<ContinuationSynchronizer> _synchronizer;
+            std::shared_ptr<ContinuationSynchronizer> _synchronizer;
         };
 
         void continueSectionWhenIdle(std::function<void()> continuationFunc) override
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
+            std::shared_ptr<ContinuationSynchronizer> contSynchronizer = std::make_shared<ContinuationSynchronizer>();
+            std::shared_ptr<ContinuationData> contData =
+                std::make_shared<ContinuationData>(continuationFunc, contSynchronizer);
 
             asyncCallFromMainThreadWhenIdle([this, contData, contSynchronizer]() {
                 doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
         }
 
-        void continueSectionAfterAbsoluteSeconds(double seconds, std::function<void()> continuationFunc) override
+        void continueSectionAfterAbsoluteSeconds(IDispatcher::Duration delay,
+                                                 std::function<void()> continuationFunc) override
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
+            std::shared_ptr<ContinuationSynchronizer> contSynchronizer = std::make_shared<ContinuationSynchronizer>();
+            std::shared_ptr<ContinuationData> contData =
+                std::make_shared<ContinuationData>(continuationFunc, contSynchronizer);
 
-            asyncCallFromMainThreadAfterSeconds(seconds, [this, contData, contSynchronizer]() {
+            asyncCallFromMainThreadWithDelay(delay, [this, contData, contSynchronizer]() {
                 doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
         }
 
-        void continueSectionAfterRunSeconds(double seconds, std::function<void()> continuationFunc) override
+        void continueSectionAfterRunSeconds(IDispatcher::Duration delay,
+                                            std::function<void()> continuationFunc) override
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
+            std::shared_ptr<ContinuationSynchronizer> contSynchronizer = std::make_shared<ContinuationSynchronizer>();
+            std::shared_ptr<ContinuationData> contData =
+                std::make_shared<ContinuationData>(continuationFunc, contSynchronizer);
 
-            // We want to wait for a certain amount of process run time.
-            // Since we cannot easily detect the actual run time in a platform
-            // independent way, we use another mechanism.
-            // We divide the desired wait time into multiple small wait
-            // intervals. Then we simply wait the corresponding number of
-            // intervals and ignore the actual clock. If the app gets suspended,
-            // or does not get much cpu time due to high load then an individual
-            // step will take longer to execute. Since we simply keep waiting
-            // for the predetermined number of steps this will automatically
-            // increase our total wait time accordingly.
+            /* We want to wait for a certain amount of process run time.
+             * Since we cannot easily detect the actual run time in a platform
+             * independent way, we use another mechanism.
+             * We divide the desired wait time into multiple small wait
+             * intervals. Then we simply wait the corresponding number of
+             * intervals and ignore the actual clock. If the app gets suspended,
+             * or does not get much cpu time due to high load then an individual
+             * step will take longer to execute. Since we simply keep waiting
+             * for the predetermined number of steps this will automatically
+             * increase our total wait time accordingly.
+             *
+             * By default we wait in 100ms increments. But we want to use at
+             * least a few steps, otherwise we risk that our mechanism does not
+             * work as intended.
+             */
 
-            // By default we wait in 100ms increments. But we want to use at
-            // least a few steps, otherwise we risk that our mechanism does not
-            // work as intended.
-            double stepSeconds = 0.1;
+            IDispatcher::SteppedDuration steppedDelay = std::chrono::duration_cast<IDispatcher::SteppedDuration>(delay);
 
-            // we want at least 5 steps.
-            if (seconds < stepSeconds * 5)
-                stepSeconds = seconds / 5;
+            steppedDelay = std::max(IDispatcher::SteppedDuration(5), steppedDelay);
 
-            if (stepSeconds < 0.001)
-                stepSeconds = 0.001;
-
-            continueSectionAfterRunSeconds_Step(seconds, stepSeconds, contData, contSynchronizer);
+            continueSectionAfterRunSeconds_Step(steppedDelay, contData, contSynchronizer);
         }
 
-        void continueSectionAfterRunSeconds_Step(double secondsLeft, double stepSeconds, P<ContinuationData> contData,
-                                                 P<ContinuationSynchronizer> contSynchronizer)
+        void continueSectionAfterRunSeconds_Step(IDispatcher::SteppedDuration delay,
+                                                 std::shared_ptr<ContinuationData> contData,
+                                                 std::shared_ptr<ContinuationSynchronizer> contSynchronizer)
         {
-            if (stepSeconds + 0.001 >= secondsLeft) {
-                // last step
-                stepSeconds = secondsLeft;
-                secondsLeft = 0;
-            } else
-                secondsLeft -= stepSeconds;
+            delay -= IDispatcher::SteppedDuration(1);
 
-            asyncCallFromMainThreadAfterSeconds(
-                stepSeconds, [this, contData, contSynchronizer, secondsLeft, stepSeconds]() {
-                    if (secondsLeft <= 0)
+            asyncCallFromMainThreadWithDelay(
+                IDispatcher::SteppedDuration(1), [this, contData, contSynchronizer, delay]() {
+                    if (delay == IDispatcher::SteppedDuration(0))
                         doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
                     else
-                        continueSectionAfterRunSeconds_Step(secondsLeft, stepSeconds, contData, contSynchronizer);
+                        continueSectionAfterRunSeconds_Step(delay, contData, contSynchronizer);
                 });
         }
 
@@ -3503,12 +3465,15 @@ namespace bdn
         {
             beginScheduleContinuation();
 
-            P<ContinuationSynchronizer> contSynchronizer = newObj<ContinuationSynchronizer>();
-            P<ContinuationData> contData = newObj<ContinuationData>(continuationFunc, contSynchronizer);
+            std::shared_ptr<ContinuationSynchronizer> contSynchronizer = std::make_shared<ContinuationSynchronizer>();
+            std::shared_ptr<ContinuationData> contData =
+                std::make_shared<ContinuationData>(continuationFunc, contSynchronizer);
 
-            Thread::exec([this, contData, contSynchronizer]() {
+            std::thread thread([this, contData, contSynchronizer]() {
                 doSectionContinuation(contData->getContinuationFunc(), contSynchronizer);
             });
+
+            thread.detach();
         }
 
 #else
@@ -3525,11 +3490,12 @@ namespace bdn
 
 #endif
 
-        void doSectionContinuation(std::function<void()> continuationFunc, P<ContinuationSynchronizer> synchronizer)
+        void doSectionContinuation(std::function<void()> continuationFunc,
+                                   std::shared_ptr<ContinuationSynchronizer> synchronizer)
         {
             // lock the mutex to ensure that the code that scheduled the
             // continuation has exited.
-            Mutex::Lock lock(_runTestMutex);
+            std::unique_lock lock(_runTestMutex);
 
             bool testDone = continueCurrentTest(continuationFunc);
 
@@ -3552,7 +3518,7 @@ namespace bdn
             }
         }
 
-        void endSectionContinuation(P<ContinuationSynchronizer> synchronizer)
+        void endSectionContinuation(std::shared_ptr<ContinuationSynchronizer> synchronizer)
         {
             // It may be that the previous continuation step is not fully done
             // yet. Its continuation func and captured data might not yet be
@@ -3562,8 +3528,8 @@ namespace bdn
             // between test sections. So if the continuation is not gone yet
             // then we wait a little and check again.
             if (!synchronizer->wasContinuationDataReleased()) {
-                asyncCallFromMainThreadAfterSeconds(0.05,
-                                                    [this, synchronizer]() { endSectionContinuation(synchronizer); });
+                asyncCallFromMainThreadWithDelay(50ms,
+                                                 [this, synchronizer]() { endSectionContinuation(synchronizer); });
 
                 return;
             }
@@ -3589,7 +3555,7 @@ namespace bdn
             // functions from SECTION_CONTINUE_ASYNC and SECTION_CONTINUE_THREAD
             // cannot start before the previous test case code has exited.
 
-            Mutex::Lock lock(_runTestMutex);
+            std::unique_lock lock(_runTestMutex);
 
             // we must allow the operating system to handle events from time to
             // time. So we should not simply keep looping here until the test
@@ -3771,7 +3737,7 @@ namespace bdn
             CurrentTestResult actualCurrentResult = result;
 
             {
-                Mutex::Lock lock(_currentTestResultMutex);
+                std::unique_lock lock(_currentTestResultMutex);
 
                 if (_currentTestResult != CurrentTestResult::Unfinished) {
                     // the current test was already finished. So the new result
@@ -3976,15 +3942,15 @@ namespace bdn
 
         int _currentTestLeafSectionsExited;
 
-        Mutex _currentTestResultMutex;
+        std::recursive_mutex _currentTestResultMutex;
 
-        mutable Mutex _resultCaptureMutex;
+        mutable std::recursive_mutex _resultCaptureMutex;
 
         std::string _testRedirectedCout;
         std::string _testRedirectedCerr;
         Totals _testPrevTotals;
 
-        mutable Mutex _runTestMutex;
+        mutable std::recursive_mutex _runTestMutex;
 
         std::function<void(const Totals &)> _testDoneCallback;
 
@@ -4073,7 +4039,7 @@ namespace bdn
         return reporters;
     }
 
-    class TestRunner : public RequireNewAlloc<Base, TestRunner>
+    class TestRunner
     {
       public:
         TestRunner(Ptr<Config> const &config)
@@ -4087,7 +4053,7 @@ namespace bdn
 
             _context = new RunContext(_iconfig, _reporter);
 
-            BDN_BIND_TO_PROPERTY(*this, setStatusText, *_context, statusText);
+            // BDN_BIND_TO_PROPERTY(*this, setStatusText, *_context, statusText);
 
             _context->testGroupStarting(config->name(), 1, 1);
 
@@ -4105,7 +4071,7 @@ namespace bdn
 
         /** A text describing the current test status (which test case is being
            executed, and wether all tests are done.*/
-        BDN_PROPERTY_WITH_CUSTOM_ACCESS(String, public, statusText, protected, setStatusText);
+        Property<String> statusText;
 
         bool beginNextTest(std::function<void()> doneCallback)
         {
@@ -4165,7 +4131,7 @@ namespace bdn
     Totals runTests(Ptr<Config> const &config)
     {
 
-        P<TestRunner> runner = newObj<TestRunner>(config);
+        std::shared_ptr<TestRunner> runner = std::make_shared<TestRunner>(config);
 
         while (true) {
             bool doneCalled = false;
@@ -4309,7 +4275,7 @@ namespace bdn
             catch (...) {
                 ErrorInfo errorInfo(std::current_exception());
 
-                bdn::cerr() << errorInfo.toString().asUtf8() << std::endl;
+                bdn::cerr() << errorInfo.toString() << std::endl;
                 return 1;
             }
         }
@@ -4346,6 +4312,7 @@ namespace bdn
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 namespace bdn
 {
@@ -4367,7 +4334,10 @@ namespace bdn
         case RunTests::InRandomOrder: {
             seedRng(config);
 
-            std::random_shuffle(sorted.begin(), sorted.end(), [](auto n) { return std::rand() % n; });
+            std::random_device rd;
+            std::mt19937 g(rd());
+
+            std::shuffle(sorted.begin(), sorted.end(), g);
         } break;
         case RunTests::InDeclarationOrder:
             // already in declaration order
@@ -4581,7 +4551,7 @@ namespace bdn
             catch (const char *msg) {
                 return msg;
             }
-#if BDN_PLATFORM_WINUWP
+#ifdef BDN_PLATFORM_WINUWP
             catch (::Platform::Exception ^ e) {
                 return String(e->Message->Data()).asUtf8();
             }
@@ -4758,7 +4728,6 @@ namespace bdn
     // Store the streambuf from cout up-front because
     // cout may get redirected when running tests
     CoutStream::CoutStream() : m_os(bdn::cout().rdbuf()) {}
-
     std::ostream &CoutStream::stream() const { return m_os; }
 
 #ifndef BDN_CONFIG_NOSTDOUT // If you #define this you must implement these
@@ -4766,6 +4735,10 @@ namespace bdn
     std::ostream &cout() { return std::cout; }
     std::ostream &cerr() { return std::cerr; }
 #endif
+
+    LogStream::LogStream(bool clean) : _buffer(clean), _os(&_buffer) {}
+
+    std::ostream &LogStream::stream() const { return _os; }
 }
 
 namespace bdn
@@ -5638,14 +5611,6 @@ namespace bdn
         toLowerInPlace(lc);
         return lc;
     }
-    std::string trim(std::string const &str)
-    {
-        static char const *whitespaceChars = "\n\r\t ";
-        std::string::size_type start = str.find_first_not_of(whitespaceChars);
-        std::string::size_type end = str.find_last_not_of(whitespaceChars);
-
-        return start != std::string::npos ? str.substr(start, 1 + end - start) : "";
-    }
 
     bool replaceInPlace(std::string &str, std::string const &replaceThis, std::string const &withThis)
     {
@@ -5833,32 +5798,43 @@ namespace bdn
         }
         return "\"" + s + "\"";
     }
-    std::string toStringForTest(std::wstring const &value) { return toStringForTest(String(value)); }
 
-    std::string toStringForTest(std::u16string const &value) { return toStringForTest(String(value)); }
+    std::string toStringForTest(std::wstring const &value) { return std::string(); /*toStringForTest(String(value));*/ }
 
-    std::string toStringForTest(std::u32string const &value) { return toStringForTest(String(value)); }
-
-    std::string toStringForTest(StringImpl<Utf8StringData> const &value)
+    std::string toStringForTest(std::u16string const &value)
     {
-        return bdn::toStringForTest(value.asUtf8());
+        return std::string(); /*return toStringForTest(String(value));*/
     }
 
-    std::string toStringForTest(StringImpl<Utf16StringData> const &value)
+    std::string toStringForTest(std::u32string const &value)
     {
-        return bdn::toStringForTest(value.asUtf8());
+        return std::string(); /*return toStringForTest(String(value));*/
     }
 
-    std::string toStringForTest(StringImpl<Utf32StringData> const &value)
-    {
-        return bdn::toStringForTest(value.asUtf8());
-    }
+    /*
+     * TODO
 
-    std::string toStringForTest(StringImpl<WideStringData> const &value)
-    {
-        return bdn::toStringForTest(value.asUtf8());
-    }
+     *
+     * std::string toStringForTest(StringImpl<Utf8StringData> const &value)
+        {
+            return bdn::toStringForTest(value.asUtf8());
+        }
 
+        std::string toStringForTest(StringImpl<Utf16StringData> const &value)
+        {
+            return bdn::toStringForTest(value.asUtf8());
+        }
+
+        std::string toStringForTest(StringImpl<Utf32StringData> const &value)
+        {
+            return bdn::toStringForTest(value.asUtf8());
+        }
+
+        std::string toStringForTest(StringImpl<WideStringData> const &value)
+        {
+            return bdn::toStringForTest(value.asUtf8());
+        }
+    */
     std::string toStringForTest(const char *const value)
     {
         return value ? bdn::toStringForTest(std::string(value)) : std::string("{null string}");
@@ -6562,7 +6538,7 @@ namespace bdn
 
         CumulativeReporterBase(ReporterConfig const &_config)
             : m_config(_config.fullConfig()), actualTargetStream(_config.outputStream())
-#if BDN_PLATFORM_WEBEMS
+#ifdef BDN_PLATFORM_WEBEMS
               // when we output to stdout on Emscripten then the browser
               // sometimes crashes when we do too many short writes. So instead
               // we buffer the data and then write them in one big chunk to the
@@ -6867,11 +6843,12 @@ namespace bdn
                         // of knowing if the input char string is correctly
                         // encoded. So we check first.
                         auto it = m_str.begin() + i;
-                        if (Utf8Codec::decodeChar(it, m_str.end()) == 0xfffd) {
+                        /*if (Utf8Codec::decodeChar(it, m_str.end()) == 0xfffd) {
                             // not a valid UTF-8 sequence. Escape the byte.
                             os << "&#x" << std::uppercase << std::hex
                                << static_cast<uint32_t>(static_cast<unsigned char>(c)) << ";";
-                        } else {
+                        } else */
+                        {
                             // we had a valid UTF-8 sequence. Write the whole
                             // sequence.
                             size_t endIndex = it - m_str.begin();
@@ -7104,7 +7081,7 @@ namespace bdn
         virtual void testCaseStarting(TestCaseInfo const &testInfo) BDN_OVERRIDE
         {
             StreamingReporterBase::testCaseStarting(testInfo);
-            m_xml.startElement("TestCase").writeAttribute("name", trim(testInfo.name));
+            m_xml.startElement("TestCase").writeAttribute("name", trim_copy(testInfo.name));
 
             if (m_config->showDurations() == ShowDurations::Always)
                 m_testCaseTimer.start();
@@ -7115,7 +7092,7 @@ namespace bdn
             StreamingReporterBase::sectionStarting(sectionInfo, firstIteration);
             if (m_sectionDepth++ > 0) {
                 m_xml.startElement("Section")
-                    .writeAttribute("name", trim(sectionInfo.name))
+                    .writeAttribute("name", trim_copy(sectionInfo.name))
                     .writeAttribute("description", sectionInfo.description);
             }
         }
@@ -7497,11 +7474,11 @@ namespace bdn
                 _testFailureStream.str("");
             }
 
-            std::string out = trim(stats.stdOut);
+            std::string out = trim_copy(stats.stdOut);
             if (!out.empty())
                 _groupContentWriter.scopedElement("system-out").writeText(out, false);
 
-            std::string err = trim(stats.stdErr);
+            std::string err = trim_copy(stats.stdErr);
             if (!err.empty())
                 _groupContentWriter.scopedElement("system-err").writeText(err, false);
 
@@ -7574,10 +7551,10 @@ namespace bdn
             // clear group content stream (we don't need it anymore)
             _groupContentStream.str("");
 
-            _outWriter.scopedElement("system-out").writeText(trim(_groupStdOutStream.str()), false);
+            _outWriter.scopedElement("system-out").writeText(trim_copy(_groupStdOutStream.str()), false);
             _groupStdOutStream.str(""); // clear the stream
 
-            _outWriter.scopedElement("system-err").writeText(trim(_groupStdErrStream.str()), false);
+            _outWriter.scopedElement("system-err").writeText(trim_copy(_groupStdErrStream.str()), false);
             _groupStdErrStream.str(""); // clear the stream
 
             _outWriter.endElement();
@@ -7916,6 +7893,9 @@ namespace bdn
 
             if (m_config->rngSeed() != 0)
                 stream << "Randomness seeded to: " << m_config->rngSeed() << "\n\n";
+
+            stream << "boden config:" << std::endl;
+            stream << bdn::config();
 
             currentTestRunInfo.used = true;
         }
@@ -8329,6 +8309,7 @@ namespace bdn
     IStream::~IStream() BDN_NOEXCEPT {}
     FileStream::~FileStream() BDN_NOEXCEPT {}
     CoutStream::~CoutStream() BDN_NOEXCEPT {}
+    LogStream::~LogStream() BDN_NOEXCEPT {}
     StreamBufBase::~StreamBufBase() BDN_NOEXCEPT {}
     IContext::~IContext() {}
     IResultCapture::~IResultCapture() {}
@@ -8410,7 +8391,7 @@ namespace bdn
     static void doTestProcessExit(int exitCode, bool force)
     {
         if (force) {
-            asyncCallFromMainThreadAfterSeconds(3, [exitCode]() { std::exit(exitCode); });
+            asyncCallFromMainThreadWithDelay(3s, [exitCode]() { std::exit(exitCode); });
         }
 
         getAppRunner()->initiateExitIfPossible(exitCode);
@@ -8436,7 +8417,7 @@ namespace bdn
 
                 std::vector<const char *> argPtrs;
                 for (const String &arg : args)
-                    argPtrs.push_back(arg.asUtf8Ptr());
+                    argPtrs.push_back(arg.c_str());
                 if (argPtrs.empty())
                     argPtrs.push_back("");
 
@@ -8462,7 +8443,7 @@ namespace bdn
                     return;
                 }
 
-                _testRunner = newObj<TestRunner>(&_testSession->config());
+                _testRunner = std::make_shared<TestRunner>(&_testSession->config());
             }
             catch (...) {
                 ErrorInfo errorInfo{std::current_exception()};
@@ -8531,13 +8512,12 @@ namespace bdn
 
         virtual void abortingBecauseOfInvalidCommandLineArguments()
         {
-            TestAppController::get()->getUiProvider()->getTextUi()->statusOrProblem()->writeLine("Invalid commandline");
+            bdn::platform::Hooks::get()->log(bdn::Severity::Error, "Fatal error: Invalid commandline");
         }
 
         virtual void abortingBecauseOfException(const ErrorInfo &errorInfo)
         {
-            TestAppController::get()->getUiProvider()->getTextUi()->statusOrProblem()->writeLine("Fatal Error: " +
-                                                                                                 errorInfo.toString());
+            bdn::platform::Hooks::get()->log(bdn::Severity::Error, "Fatal error: " + errorInfo.toString());
         }
 
         virtual void finished(int failedCount) {}
@@ -8556,12 +8536,12 @@ namespace bdn
         {
             bool forceExit = _testSession->config().forceExitAtEnd();
 
-            asyncCallFromMainThreadAfterSeconds(3, [exitCode, forceExit]() { doTestProcessExit(exitCode, forceExit); });
+            asyncCallFromMainThreadWithDelay(3s, [exitCode, forceExit]() { doTestProcessExit(exitCode, forceExit); });
         }
 
       protected:
         std::unique_ptr<Session> _testSession;
-        P<TestRunner> _testRunner;
+        std::shared_ptr<TestRunner> _testRunner;
     };
 
     TestAppController::TestAppController() { _impl = new Impl; }

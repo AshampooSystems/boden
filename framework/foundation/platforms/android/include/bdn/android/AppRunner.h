@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_AppRunner_H_
-#define BDN_ANDROID_AppRunner_H_
+#pragma once
 
 #include <bdn/AppRunnerBase.h>
 #include <bdn/android/Dispatcher.h>
@@ -18,23 +17,21 @@ namespace bdn
             AppLaunchInfo _makeLaunchInfo(JIntent intent);
 
           public:
-            AppRunner(std::function<P<AppControllerBase>()> appControllerCreator, JIntent intent);
+            AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, JIntent intent);
 
             bool isCommandLineApp() const override;
 
             /** Main entry function of the app runner.*/
             void entry();
 
-            P<IDispatcher> getMainDispatcher() override;
+            std::shared_ptr<IDispatcher> getMainDispatcher() override;
 
             void initiateExitIfPossible(int exitCode) override;
 
           protected:
             void disposeMainDispatcher() override;
 
-            P<Dispatcher> _mainDispatcher;
+            std::shared_ptr<Dispatcher> _mainDispatcher;
         };
     }
 }
-
-#endif

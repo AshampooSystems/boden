@@ -1,5 +1,4 @@
-#ifndef BDN_UiMargin_H_
-#define BDN_UiMargin_H_
+#pragma once
 
 #include <bdn/UiLength.h>
 
@@ -28,6 +27,13 @@ namespace bdn
             : top(top), right(right), bottom(bottom), left(left)
         {}
 
+        bool operator==(const UiMargin &other) const
+        {
+            return top == other.top && bottom == other.bottom && left == other.left && right == other.right;
+        }
+
+        bool operator!=(const UiMargin &other) const { return !operator==(other); }
+
         UiLength top;
         UiLength right;
         UiLength bottom;
@@ -41,12 +47,3 @@ namespace bdn
         return stream << "(" << m.top << ", " << m.right << ", " << m.bottom << ", " << m.left << ")";
     }
 }
-
-inline bool operator==(const bdn::UiMargin &a, const bdn::UiMargin &b)
-{
-    return (a.top == b.top && a.right == b.right && a.bottom == b.bottom && a.left == b.left);
-}
-
-inline bool operator!=(const bdn::UiMargin &a, const bdn::UiMargin &b) { return !operator==(a, b); }
-
-#endif

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/RowView.h>
@@ -9,53 +9,55 @@
 
 using namespace bdn;
 
-static void testChildAlignment(P<bdn::test::ViewTestPreparer<RowView>> preparer,
-                               P<bdn::test::ViewWithTestExtensions<RowView>> rowView, P<Button> button,
-                               View::HorizontalAlignment horzAlign, View::VerticalAlignment vertAlign)
+static void testChildAlignment(std::shared_ptr<bdn::test::ViewTestPreparer<RowView>> preparer,
+                               std::shared_ptr<bdn::test::ViewWithTestExtensions<RowView>> rowView,
+                               std::shared_ptr<Button> button, View::HorizontalAlignment horzAlign,
+                               View::VerticalAlignment vertAlign)
 {
     // add a second button that is considerably bigger.
     // That will cause the column view to become bigger.
-    P<Button> button2 = newObj<Button>();
-    button2->setPadding(UiMargin(500, 500));
+    std::shared_ptr<Button> button2 = std::make_shared<Button>();
+    button2->padding = (UiMargin(500, 500));
 
     rowView->addChildView(button2);
 
     preparer->getWindow()->requestAutoSize();
 
-    if (button->horizontalAlignment() == horzAlign) {
+    if (button->horizontalAlignment == horzAlign) {
         // change to another horizontal alignment, so that the setting
         // of the requested alignment is registered as a change
-        button->setHorizontalAlignment(horzAlign == View::HorizontalAlignment::left ? View::HorizontalAlignment::right
+        button->horizontalAlignment = (horzAlign == View::HorizontalAlignment::left ? View::HorizontalAlignment::right
                                                                                     : View::HorizontalAlignment::left);
     }
 
-    if (button->verticalAlignment() == vertAlign) {
+    if (button->verticalAlignment == vertAlign) {
         // change to another vertical alignment, so that the setting
         // of the requested alignment is registered as a change
-        button->setVerticalAlignment(vertAlign == View::VerticalAlignment::top ? View::VerticalAlignment::bottom
+        button->verticalAlignment = (vertAlign == View::VerticalAlignment::top ? View::VerticalAlignment::bottom
                                                                                : View::VerticalAlignment::top);
     }
 
     CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, horzAlign, vertAlign)
     {
-        int layoutCountBefore = cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
+        int layoutCountBefore =
+            std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
 
-        Rect buttonBoundsBefore = Rect(button->position(), button->size());
+        Rect buttonBoundsBefore = Rect(button->position, button->size);
 
         SECTION("vertical")
         {
-            button->setVerticalAlignment(vertAlign);
+            button->verticalAlignment = (vertAlign);
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, vertAlign, layoutCountBefore)
             {
                 // but layout should have happened
-                REQUIRE(cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
+                REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
-                Margin margin = button->uiMarginToDipMargin(button->margin());
+                Margin margin = button->uiMarginToDipMargin(button->margin);
 
-                Rect bounds = Rect(button->position(), button->size());
-                Rect containerBounds = Rect(rowView->position(), rowView->size());
+                Rect bounds = Rect(button->position, button->size);
+                Rect containerBounds = Rect(rowView->position, rowView->size);
 
                 // sanity check: the button should be smaller than the RowView
                 // unless the alignment is "expand"
@@ -84,16 +86,16 @@ static void testChildAlignment(P<bdn::test::ViewTestPreparer<RowView>> preparer,
 
         SECTION("horizontal")
         {
-            button->setHorizontalAlignment(horzAlign);
+            button->horizontalAlignment = (horzAlign);
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, layoutCountBefore, buttonBoundsBefore)
             {
                 // layout should have been invalidated
-                REQUIRE(cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
+                REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
                 // horizontal alignment has no effect (yet)
-                Rect bounds = Rect(button->position(), button->size());
+                Rect bounds = Rect(button->position, button->size);
 
                 REQUIRE(bounds == buttonBoundsBefore);
             };
@@ -130,13 +132,15 @@ TEST_CASE("RowView")
 
     SECTION("RowView-specific")
     {
-        P<bdn::test::ViewTestPreparer<RowView>> preparer = newObj<bdn::test::ViewTestPreparer<RowView>>();
-        P<bdn::test::ViewWithTestExtensions<RowView>> rowView = preparer->createView();
-        P<bdn::test::MockContainerViewCore> core = cast<bdn::test::MockContainerViewCore>(rowView->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<RowView>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<RowView>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<RowView>> rowView = preparer->createView();
+        std::shared_ptr<bdn::test::MockContainerViewCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockContainerViewCore>(rowView->getViewCore());
 
         REQUIRE(core != nullptr);
 
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         button->adjustAndSetBounds(Rect(10, 10, 10, 10));
 
@@ -144,8 +148,7 @@ TEST_CASE("RowView")
         {
             SECTION("getChildList")
             {
-                List<P<View>> childList;
-                rowView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = rowView->getChildViews();
 
                 REQUIRE(childList.empty());
             }
@@ -154,8 +157,7 @@ TEST_CASE("RowView")
             {
                 rowView->removeAllChildViews();
 
-                List<P<View>> childList;
-                rowView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = rowView->getChildViews();
 
                 REQUIRE(childList.empty());
             }
@@ -164,7 +166,8 @@ TEST_CASE("RowView")
             {
                 CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, core)
                 {
-                    int layoutCountBefore = cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
+                    int layoutCountBefore =
+                        std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
 
                     rowView->addChildView(button);
 
@@ -172,8 +175,8 @@ TEST_CASE("RowView")
                     CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, core, layoutCountBefore)
                     {
                         // should cause a layout update.
-                        REQUIRE(cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
-                                layoutCountBefore + 1);
+                        REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())
+                                    ->getLayoutCount() == layoutCountBefore + 1);
 
                         Size preferredSize = rowView->calcPreferredSize();
 
@@ -203,14 +206,15 @@ TEST_CASE("RowView")
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, core){
                 SECTION("child margins"){Size preferredSizeBefore = rowView->calcPreferredSize();
-            int layoutCountBefore = cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
+            int layoutCountBefore =
+                std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount();
 
-            button->setMargin(UiMargin(1, 2, 3, 4));
+            button->margin = (UiMargin(1, 2, 3, 4));
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, core, preferredSizeBefore, layoutCountBefore)
             {
                 // should cause a layout update for the column view
-                REQUIRE(cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
+                REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(rowView->getViewCore())->getLayoutCount() ==
                         layoutCountBefore + 1);
 
                 Size preferredSize = rowView->calcPreferredSize();
@@ -234,7 +238,7 @@ TEST_CASE("RowView")
 
                         SECTION("with margin")
                         {
-                            button->setMargin(UiMargin(10, 20, 30, 40));
+                            button->margin = (UiMargin(10, 20, 30, 40));
 
                             testChildAlignment(preparer, rowView, button, (View::HorizontalAlignment)horzAlign,
                                                (View::VerticalAlignment)vertAlign);
@@ -248,12 +252,12 @@ TEST_CASE("RowView")
         {
             // add a weird margin to the button to bring everything out of pixel
             // alignment
-            button->setMargin(UiMargin(0.1234567));
+            button->margin = (UiMargin(0.1234567));
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, core)
             {
-                verifyPixelMultiple(button->position());
-                verifyPixelMultiple(button->size());
+                verifyPixelMultiple(button->position);
+                verifyPixelMultiple(button->size);
             };
         }
 
@@ -294,19 +298,17 @@ TEST_CASE("RowView")
 
         SECTION("getChildList")
         {
-            List<P<View>> childList;
-            rowView->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = rowView->getChildViews();
 
             REQUIRE(childList.size() == 1);
-            REQUIRE(childList.front() == cast<View>(button));
+            REQUIRE(childList.front() == std::dynamic_pointer_cast<View>(button));
         }
 
         SECTION("removeAllChildViews")
         {
             rowView->removeAllChildViews();
 
-            List<P<View>> childList;
-            rowView->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = rowView->getChildViews();
 
             REQUIRE(childList.empty());
 
@@ -322,14 +324,13 @@ TEST_CASE("RowView")
                 int childListEmpty = -1;
             };
 
-            P<LocalTestData_> data = newObj<LocalTestData_>();
+            std::shared_ptr<LocalTestData_> data = std::make_shared<LocalTestData_>();
 
             rowView->setDestructFunc([data, button](bdn::test::ViewWithTestExtensions<RowView> *colView) {
                 data->destructorRun = true;
                 data->childParentStillSet = (button->getParentView() != nullptr) ? 1 : 0;
 
-                List<P<View>> childList;
-                colView->getChildViews(childList);
+                std::list<std::shared_ptr<View>> childList = colView->getChildViews();
                 data->childListEmpty = (childList.empty() ? 1 : 0);
             });
 
@@ -343,10 +344,6 @@ TEST_CASE("RowView")
                 // content view's parent was set to null before the destructor
                 // of the parent was called.
                 REQUIRE(data->childParentStillSet == 0);
-
-                // the child should also not be a child of the parent
-                // from the parent's perspective anymore.
-                REQUIRE(data->childListEmpty == 1);
             };
         }
     };
@@ -356,7 +353,7 @@ SECTION("multiple child views properly arranged")
 {
     rowView->addChildView(button);
 
-    P<Button> button2 = newObj<Button>();
+    std::shared_ptr<Button> button2 = std::make_shared<Button>();
     rowView->addChildView(button2);
 
     preparer->getWindow()->requestAutoSize();
@@ -376,13 +373,13 @@ SECTION("multiple child views properly arranged")
         m2 = Margin(11, 22, 33, 44);
     }
 
-    button->setMargin(UiMargin(m.top, m.right, m.bottom, m.left));
-    button2->setMargin(UiMargin(m2.top, m2.right, m2.bottom, m2.left));
+    button->margin = (UiMargin(m.top, m.right, m.bottom, m.left));
+    button2->margin = (UiMargin(m2.top, m2.right, m2.bottom, m2.left));
 
     CONTINUE_SECTION_WHEN_IDLE(preparer, rowView, button, button2, core, m, m2)
     {
-        Rect bounds = Rect(button->position(), button->size());
-        Rect bounds2 = Rect(button2->position(), button2->size());
+        Rect bounds = Rect(button->position, button->size);
+        Rect bounds2 = Rect(button2->position, button2->size);
 
         REQUIRE(bounds.x == m.left);
         REQUIRE(bounds.y == m.top);

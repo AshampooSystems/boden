@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestSwitchCore_H_
-#define BDN_TEST_TestSwitchCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/Switch.h>
@@ -14,19 +13,19 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<Switch> switchControl = newObj<Switch>();
-                switchControl->setLabel("hello");
+                std::shared_ptr<Switch> switchControl = std::make_shared<Switch>();
+                switchControl->label = ("hello");
 
                 return switchControl;
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _switch = cast<Switch>(view);
+                _switch = std::dynamic_pointer_cast<Switch>(view);
             }
 
             void runInitTests() override
@@ -39,7 +38,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _switch->setLabel("helloworld");
+                        _switch->label = ("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +46,7 @@ namespace bdn
                     // on set before init
                     SECTION("on")
                     {
-                        _switch->setOn(true);
+                        _switch->on = (true);
                         initCore();
                         verifyCoreOn();
                     }
@@ -56,7 +55,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestSwitchCore> self(this);
+                std::shared_ptr<TestSwitchCore> self = std::dynamic_pointer_cast<TestSwitchCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -65,21 +64,21 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _switch->setLabel("helloworld");
+                        _switch->label = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _switch->label();
+                        String labelBefore = _switch->label;
 
                         // the label should not be empty here
-                        REQUIRE(labelBefore.getLength() > 3);
+                        REQUIRE(labelBefore.size() > 3);
 
                         Size prefSizeBefore = _switch->calcPreferredSize();
 
-                        _switch->setLabel(labelBefore + labelBefore + labelBefore);
+                        _switch->label = (labelBefore + labelBefore + labelBefore);
 
                         CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
@@ -94,7 +93,7 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            self->_switch->setLabel(labelBefore);
+                            self->_switch->label = (labelBefore);
 
                             CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
@@ -109,14 +108,14 @@ namespace bdn
                 {
                     SECTION("valueTrue")
                     {
-                        _switch->setOn(true);
+                        _switch->on = (true);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
 
                     SECTION("valueFalse")
                     {
-                        _switch->setOn(false);
+                        _switch->on = (false);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreOn(); };
                     }
@@ -157,9 +156,7 @@ namespace bdn
                 when the Switch state has been changed by a platform event. */
             /*virtual void setCoreOnPlatform(bool on)=0;*/
 
-            P<Switch> _switch;
+            std::shared_ptr<Switch> _switch;
         };
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_IDGEN_H_
-#define BDN_IDGEN_H_
+#pragma once
 
 #include "Base.h"
 
@@ -20,5 +19,3 @@ namespace bdn
         }
     };
 }
-
-#endif

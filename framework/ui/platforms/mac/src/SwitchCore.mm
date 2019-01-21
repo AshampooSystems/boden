@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/mac/SwitchCore.hh>
 
 @implementation BdnSwitchClickManager

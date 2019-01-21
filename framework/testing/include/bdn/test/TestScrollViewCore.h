@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestScrollViewCore_H_
-#define BDN_TEST_TestScrollViewCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/ScrollView.h>
@@ -16,9 +15,9 @@ namespace bdn
         class TestScrollViewCore : public bdn::test::ScrollViewLayoutTesterBase<TestViewCore<Window>>
         {
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<ScrollView> scrollView = newObj<ScrollView>();
+                std::shared_ptr<ScrollView> scrollView = std::make_shared<ScrollView>();
 
                 return scrollView;
             }
@@ -27,14 +26,14 @@ namespace bdn
             {
                 TestViewCore::initCore();
 
-                _scrollViewCore = cast<IScrollViewCore>(_core);
+                _scrollViewCore = std::dynamic_pointer_cast<IScrollViewCore>(_core);
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _scrollView = cast<ScrollView>(view);
+                _scrollView = std::dynamic_pointer_cast<ScrollView>(view);
             }
 
             void runInitTests() override { TestViewCore::runInitTests(); }
@@ -48,7 +47,7 @@ namespace bdn
                 SECTION("scrollClientRectToVisible and visibleClientRect") { this->testScrollClientRectToVisible(); }
             }
 
-            P<ScrollView> getScrollView() override { return _scrollView; }
+            std::shared_ptr<ScrollView> getScrollView() override { return _scrollView; }
 
             Size callCalcPreferredSize(const Size &availableSpace = Size::none()) override
             {
@@ -71,9 +70,9 @@ namespace bdn
             void calcLayoutAfterPreparation() override
             {
                 // verify that the scroll view has a plausible size.
-                Size scrollViewSize = _scrollView->size();
+                Size scrollViewSize = _scrollView->size;
 
-                Rect expectedBounds(_scrollView->position(), _viewPortSizeRequestedInPrepare);
+                Rect expectedBounds(_scrollView->position, _viewPortSizeRequestedInPrepare);
                 expectedBounds = _scrollView->adjustBounds(expectedBounds, RoundType::nearest, RoundType::nearest);
 
                 Size expectedSize = expectedBounds.getSize();
@@ -104,26 +103,27 @@ namespace bdn
 
             virtual void testScrollClientRectToVisible()
             {
-                P<ScrollView> scrollView = getScrollView();
-                P<Button> button = newObj<Button>();
+                std::shared_ptr<ScrollView> scrollView = getScrollView();
+                std::shared_ptr<Button> button = std::make_shared<Button>();
 
                 // make the button bigger than the scroll view so that
                 // it will scroll
-                button->setPreferredSizeMinimum(Size(1000, 1000));
-                button->setPreferredSizeMaximum(Size(1000, 1000));
+                button->preferredSizeMinimum = (Size(1000, 1000));
+                button->preferredSizeMaximum = (Size(1000, 1000));
 
-                scrollView->setHorizontalScrollingEnabled(true);
+                scrollView->horizontalScrollingEnabled = (true);
                 scrollView->setContentView(button);
 
                 initiateScrollViewResizeToHaveViewPortSize(Size(300, 300));
 
-                P<TestScrollViewCore> self = this;
+                std::shared_ptr<TestScrollViewCore> self =
+                    std::dynamic_pointer_cast<TestScrollViewCore>(shared_from_this());
 
                 CONTINUE_SECTION_WHEN_IDLE(self, button, scrollView)
                 {
-                    Size scrollViewSize = scrollView->size();
-                    Size viewPortSize = scrollView->visibleClientRect().getSize();
-                    Size clientSize = button->size();
+                    Size scrollViewSize = scrollView->size;
+                    Size viewPortSize = scrollView->visibleClientRect.get().getSize();
+                    Size clientSize = button->size;
 
                     // verify that the scroll view initialization was
                     // successful. If this fails then it can be that either the
@@ -426,8 +426,8 @@ namespace bdn
                 };
             }
 
-            P<ScrollView> _scrollView;
-            P<IScrollViewCore> _scrollViewCore;
+            std::shared_ptr<ScrollView> _scrollView;
+            std::shared_ptr<IScrollViewCore> _scrollViewCore;
 
           private:
             enum class TestDir_
@@ -468,7 +468,7 @@ namespace bdn
                     return Size(0, s);
             }
 
-            static void waitForCondition(int timeoutMillisLeft, std::function<bool(bool)> checkFunc,
+            static void waitForCondition(IDispatcher::Duration timeout, std::function<bool(bool)> checkFunc,
                                          std::function<void()> continueFunc)
             {
                 // instead of waiting for a fixed time on the clock we do a
@@ -478,48 +478,49 @@ namespace bdn
                 // so high that the process does not get much cpu time. That is
                 // what we want.
 
-                const int stepDelayMillis = 100;
+                IDispatcher::SteppedDuration steppedTimeout =
+                    std::chrono::duration_cast<IDispatcher::SteppedDuration>(timeout);
 
-                bool lastTry = (timeoutMillisLeft <= stepDelayMillis);
+                bool lastTry = steppedTimeout == IDispatcher::SteppedDuration(1);
 
                 if (!checkFunc(lastTry)) {
-                    timeoutMillisLeft -= stepDelayMillis;
+                    timeout -= IDispatcher::SteppedDuration(1);
 
-                    std::function<void()> f = [timeoutMillisLeft, checkFunc, continueFunc]() {
-                        waitForCondition(timeoutMillisLeft, checkFunc, continueFunc);
+                    std::function<void()> f = [timeout, checkFunc, continueFunc]() {
+                        waitForCondition(timeout, checkFunc, continueFunc);
                     };
 
-                    BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(((double)stepDelayMillis) / 1000, f);
+                    BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(IDispatcher::SteppedDuration(1), f);
                 } else {
                     continueFunc();
                 }
             }
 
-            static void subTestScrollClientRectToVisible_Dir(TestDir_ dir, P<IBase> keepAliveDuringTest,
-                                                             P<ScrollView> scrollView, double initialPos,
+            static void subTestScrollClientRectToVisible_Dir(TestDir_ dir, std::shared_ptr<Base> keepAliveDuringTest,
+                                                             std::shared_ptr<ScrollView> scrollView, double initialPos,
                                                              Size initialPosAdd, double targetPos, Size targetPosAdd,
                                                              double targetSize, Size targetSizeAdd, double expectedPos,
                                                              Size expectedPosAdd)
             {
-                Size scrolledAreaSize = scrollView->getContentView()->size();
+                Size scrolledAreaSize = scrollView->getContentView()->size;
 
                 initialPos += comp(initialPosAdd, dir);
                 targetPos += comp(targetPosAdd, dir);
                 targetSize += comp(targetSizeAdd, dir);
                 expectedPos += comp(expectedPosAdd, dir);
 
-                Rect visibleRectBefore = scrollView->visibleClientRect();
+                Rect visibleRectBefore = scrollView->visibleClientRect;
 
                 scrollView->scrollClientRectToVisible(
-                    Rect(compToPoint(initialPos, dir), scrollView->visibleClientRect().getSize()));
+                    Rect(compToPoint(initialPos, dir), scrollView->visibleClientRect.get().getSize()));
 
                 // it may take a while until the scroll operation is done (for
                 // example, if it is animated). So we wait and check a few times
                 // until the expected condition is present.
                 waitForCondition(
-                    10 * 1000,
+                    10s,
                     [keepAliveDuringTest, scrollView, initialPos, dir, visibleRectBefore](bool lastTry) {
-                        Rect visibleRect = scrollView->visibleClientRect();
+                        Rect visibleRect = scrollView->visibleClientRect;
 
                         Rect expectedInitialRect(compToPoint(initialPos, dir), visibleRectBefore.getSize());
                         Rect adjustedExpectedInitialRect_down = scrollView->getContentView()->adjustBounds(
@@ -550,11 +551,11 @@ namespace bdn
                             Rect(compToPoint(targetPos, dir), compToSize(targetSize, dir)));
 
                         waitForCondition(
-                            10 * 1000,
+                            10s,
                             [keepAliveDuringTest, scrollView, targetPos, targetSize, expectedPos, dir,
                              visibleRectBefore, initialPos, initialPosAdd, targetPosAdd, targetSizeAdd,
                              expectedPosAdd](bool lastTry) {
-                                Rect visibleRect = scrollView->visibleClientRect();
+                                Rect visibleRect = scrollView->visibleClientRect;
 
                                 Rect expectedRect(compToPoint(expectedPos, dir), visibleRectBefore.getSize());
                                 Rect adjustedExpectedRect_down = scrollView->getContentView()->adjustBounds(
@@ -593,7 +594,7 @@ namespace bdn
                                 }
                             },
                             [keepAliveDuringTest, scrollView, visibleRectBefore]() {
-                                Rect visibleRect = scrollView->visibleClientRect();
+                                Rect visibleRect = scrollView->visibleClientRect;
 
                                 // Size should not have changed
                                 REQUIRE(visibleRect.getSize() == visibleRectBefore.getSize());
@@ -601,10 +602,11 @@ namespace bdn
                     });
             }
 
-            static void subTestScrollClientRectToVisible(P<IBase> keepAliveDuringTest, P<ScrollView> scrollView,
-                                                         double initialPos, Size initialPosAdd, double targetPos,
-                                                         Size targetPosAdd, double targetSize, Size targetSizeAdd,
-                                                         double expectedPos, Size expectedPosAdd)
+            static void subTestScrollClientRectToVisible(std::shared_ptr<Base> keepAliveDuringTest,
+                                                         std::shared_ptr<ScrollView> scrollView, double initialPos,
+                                                         Size initialPosAdd, double targetPos, Size targetPosAdd,
+                                                         double targetSize, Size targetSizeAdd, double expectedPos,
+                                                         Size expectedPosAdd)
             {
                 SECTION("vertical")
                 {
@@ -625,5 +627,3 @@ namespace bdn
         };
     }
 }
-
-#endif

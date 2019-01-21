@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_IParentViewCore_H_
-#define BDN_MAC_IParentViewCore_H_
+#pragma once
 
 #include <Cocoa/Cocoa.h>
 
@@ -10,7 +9,7 @@ namespace bdn
 
         /** Interface for view cores that can act as parents for other view
          * cores.*/
-        class IParentViewCore : BDN_IMPLEMENTS IBase
+        class IParentViewCore
         {
           public:
             /** Adds a child Ui element to the parent.*/
@@ -18,5 +17,3 @@ namespace bdn
         };
     }
 }
-
-#endif

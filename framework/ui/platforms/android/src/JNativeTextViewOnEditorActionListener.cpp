@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/JNativeTextViewOnEditorActionListener.h>
 #include <bdn/android/JKeyEvent.h>
 
@@ -14,9 +14,9 @@ extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeTextViewOnEditorAc
 
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::TextFieldCore *core =
-                (bdn::android::TextFieldCore *)bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                    bdn::java::Reference::convertExternalLocal(rawView));
+            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+                    bdn::java::Reference::convertExternalLocal(rawView)));
             bdn::android::JKeyEvent keyEvent(bdn::java::Reference::convertExternalLocal(rawEvent));
 
             if (core == nullptr) {

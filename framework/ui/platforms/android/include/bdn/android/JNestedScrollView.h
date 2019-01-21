@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNestedScrollView_H_
-#define BDN_ANDROID_JNestedScrollView_H_
+#pragma once
 
 #include <bdn/android/JViewGroup.h>
 #include <bdn/android/JContext.h>
@@ -53,5 +52,3 @@ namespace bdn
         };
     }
 }
-
-#endif

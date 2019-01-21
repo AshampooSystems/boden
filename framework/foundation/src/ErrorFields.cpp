@@ -1,49 +1,51 @@
-#include <bdn/init.h>
+
 #include <bdn/ErrorFields.h>
 #include <bdn/Uri.h>
+
+#include <regex>
 
 namespace bdn
 {
 
     ErrorFields::ErrorFields(const String &fieldString)
     {
-        if (fieldString.startsWith("[[") && fieldString.endsWith("]]")) {
-            auto pos = fieldString.begin() + 2;
+        StringView fieldView(fieldString);
+
+        if (cpp20::starts_with(fieldString, "[[") && cpp20::ends_with(fieldString, "]]")) {
+
+            auto pos = size_t{2};
             while (true) {
-                auto found = fieldString.find(":", pos);
-                if (found == fieldString.end())
+                auto found = fieldView.find(':', pos);
+                if (found == StringView::npos)
                     break;
 
-                String name = fieldString.subString(pos, found);
+                StringView name = fieldView.substr(pos, found - pos);
                 pos = found;
                 ++pos;
 
-                if (*pos == ' ')
+                if (fieldView[pos] == ' ')
                     ++pos;
 
-                if (*pos != '\"')
+                if (fieldView[pos] != '"')
                     break;
 
                 ++pos;
 
-                found = fieldString.find("\"", pos);
-                if (found == fieldString.end())
+                found = fieldView.find('"', pos);
+                if (found == StringView::npos)
                     break;
 
-                String value = fieldString.subString(pos, found);
+                StringView value = fieldView.substr(pos, found - pos);
                 pos = found;
                 ++pos;
 
-                name = unescape(name);
-                value = unescape(value);
+                add(unescape(String(name)), unescape(String(value)));
 
-                add(name, value);
-
-                if (*pos != ',')
+                if (fieldView[pos] != ',')
                     break;
                 ++pos;
 
-                if (*pos == ' ')
+                if (fieldView[pos] == ' ')
                     ++pos;
             }
         }
@@ -74,22 +76,18 @@ namespace bdn
 
     String ErrorFields::escapeName(const String &name)
     {
-        String result = name;
-
-        result.findAndReplace("%", "%25");
-        result.findAndReplace("]]", "%5d%5d");
-        result.findAndReplace(":", "%3a");
+        String result = std::regex_replace(name, std::regex("%"), "%25");
+        result = std::regex_replace(result, std::regex("\\]\\]"), "%5d%5d");
+        result = std::regex_replace(result, std::regex(":"), "%3a");
 
         return result;
     }
 
     String ErrorFields::escapeValue(const String &value)
     {
-        String result = value;
-
-        result.findAndReplace("%", "%25");
-        result.findAndReplace("]]", "%5d%5d");
-        result.findAndReplace("\"", "%22");
+        String result = std::regex_replace(value, std::regex("%"), "%25");
+        result = std::regex_replace(result, std::regex("\\]\\]"), "%5d%5d");
+        result = std::regex_replace(result, std::regex("\\\\"), "%22");
 
         return result;
     }

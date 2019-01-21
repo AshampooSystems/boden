@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_CheckboxCore_HH
-#define BDN_MAC_CheckboxCore_HH
+#pragma once
 
 #include <bdn/ICheckboxCore.h>
 #include <bdn/ISwitchCore.h>
@@ -15,16 +14,16 @@ namespace bdn
     {
 
         template <class T>
-        class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
+        class CheckboxCore : public ToggleCoreBase, virtual public ICheckboxCore, virtual public ISwitchCore
         {
           public:
-            CheckboxCore(T *outer) : ToggleCoreBase(outer)
+            CheckboxCore(std::shared_ptr<T> outer) : ToggleCoreBase(outer)
             {
-                if (tryCast<Checkbox>(outer))
+                if (std::dynamic_pointer_cast<Checkbox>(outer))
                     _nsButton.allowsMixedState = true;
 
-                setLabel(outer->label());
-                setState(outer->state());
+                setLabel(outer->label);
+                setState(outer->state);
             }
 
             // Called when attached to a Checkbox or Toggle with checkbox
@@ -45,10 +44,10 @@ namespace bdn
 
             void generateClick() override
             {
-                P<T> outer = cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<T> outer = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
-                    P<Checkbox> checkbox = tryCast<Checkbox>(outer);
-                    P<Toggle> toggle = tryCast<Toggle>(outer);
+                    std::shared_ptr<Checkbox> checkbox = std::dynamic_pointer_cast<Checkbox>(outer);
+                    std::shared_ptr<Toggle> toggle = std::dynamic_pointer_cast<Toggle>(outer);
 
                     bdn::ClickEvent evt(outer);
 
@@ -80,9 +79,9 @@ namespace bdn
                     TriState newState = nsControlStateValueToTriState(_nsButton.state);
 
                     if (checkbox) {
-                        checkbox->setState(newState);
+                        checkbox->state = newState;
                     } else {
-                        toggle->setOn(newState == TriState::on);
+                        toggle->on = newState == TriState::on;
                     }
                     outer->onClick().notify(evt);
                 }
@@ -90,5 +89,3 @@ namespace bdn
         };
     }
 }
-
-#endif /* BDN_MACCheckboxCore_HH */

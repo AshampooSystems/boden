@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/ScrollViewLayoutHelper.h>
@@ -15,21 +15,21 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
   public:
     ScrollViewLayoutHelperTester() : _helper(13, 7)
     {
-        _uiProvider = newObj<bdn::test::MockUiProvider>();
-        _window = newObj<Window>(_uiProvider);
+        _uiProvider = std::make_shared<bdn::test::MockUiProvider>();
+        _window = std::make_shared<Window>(_uiProvider);
 
-        _scrollView = newObj<ScrollView>();
+        _scrollView = std::make_shared<ScrollView>();
 
         _window->setContentView(_scrollView);
     }
 
-    P<bdn::test::MockUiProvider> _uiProvider;
-    P<Window> _window;
-    P<ScrollView> _scrollView;
+    std::shared_ptr<bdn::test::MockUiProvider> _uiProvider;
+    std::shared_ptr<Window> _window;
+    std::shared_ptr<ScrollView> _scrollView;
 
     ScrollViewLayoutHelper _helper;
 
-    P<ScrollView> getScrollView() override { return _scrollView; }
+    std::shared_ptr<ScrollView> getScrollView() override { return _scrollView; }
 
     double getVertBarWidth() override { return 13; }
 
@@ -43,8 +43,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
     Size prepareCalcLayout(const Size &viewPortSize) override
     {
         _prepareCalcLayoutViewPortSize =
-            _scrollView
-                ->adjustBounds(Rect(_scrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest)
+            _scrollView->adjustBounds(Rect(_scrollView->position, viewPortSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // the adjusted size should be roughly the same
@@ -127,7 +126,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
 
 TEST_CASE("ScrollViewLayoutHelper")
 {
-    P<ScrollViewLayoutHelperTester> tester = newObj<ScrollViewLayoutHelperTester>();
+    std::shared_ptr<ScrollViewLayoutHelperTester> tester = std::make_shared<ScrollViewLayoutHelperTester>();
 
     tester->doPreferredSizeAndLayoutTests();
 }

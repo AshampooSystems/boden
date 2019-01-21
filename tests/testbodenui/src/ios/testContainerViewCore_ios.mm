@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/test/TestContainerViewCore.h>
@@ -16,7 +16,7 @@ class TestIosContainerViewCore : public bdn::test::TestIosViewCoreMixin<bdn::tes
 
 TEST_CASE("ios.ContainerViewCore")
 {
-    P<TestIosContainerViewCore> test = newObj<TestIosContainerViewCore>();
+    std::shared_ptr<TestIosContainerViewCore> test = std::make_shared<TestIosContainerViewCore>();
 
     test->runTests();
 }

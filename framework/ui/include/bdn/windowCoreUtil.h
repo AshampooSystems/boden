@@ -1,5 +1,4 @@
-#ifndef BDN_windowCoreUtil_H_
-#define BDN_windowCoreUtil_H_
+#pragma once
 
 #include <bdn/Window.h>
 
@@ -19,8 +18,8 @@ namespace bdn
        (including the border and title bar). This can be Size(0,0) if the
        platform does not impose a minimum size limit.
         */
-    Size defaultWindowCalcPreferredSizeImpl(Window *window, const Size &availableSpace, const Margin &border,
-                                            const Size &minWindowSize);
+    Size defaultWindowCalcPreferredSizeImpl(std::shared_ptr<Window> window, const Size &availableSpace,
+                                            const Margin &border, const Size &minWindowSize);
 
     /** A default implementation for implementing the layout of a Window object
        (see IViewCore::layout() ), intended for use by the window's core object.
@@ -33,7 +32,7 @@ namespace bdn
         The default implementation will arrange the content view inside this
        area, according to the applicable margins and padding.
         */
-    void defaultWindowLayoutImpl(Window *window, const Rect &contentArea);
+    void defaultWindowLayoutImpl(std::shared_ptr<Window> window, const Rect &contentArea);
 
     /** Default implementation for auto-sizing the window (see
        requestAutoSize()), intended for use by the window's core object. This
@@ -45,7 +44,7 @@ namespace bdn
        the screen that can be used to display windows). This excludes taskbars,
        docks, etc.
         */
-    void defaultWindowAutoSizeImpl(Window *window, const Size &screenWorkAreaSize);
+    void defaultWindowAutoSizeImpl(std::shared_ptr<Window> window, const Size &screenWorkAreaSize);
 
     /** Default implementation for centering the window (see requestCenter()),
        intended for use by the window's core object. This function can be called
@@ -55,7 +54,5 @@ namespace bdn
         \param screenWorkArea the screen work area (the part of the screen that
        can be used to display windows). This excludes taskbars, docks, etc.
         */
-    void defaultWindowCenterImpl(Window *window, const Rect &screenWorkArea);
+    void defaultWindowCenterImpl(std::shared_ptr<Window> window, const Rect &screenWorkArea);
 }
-
-#endif

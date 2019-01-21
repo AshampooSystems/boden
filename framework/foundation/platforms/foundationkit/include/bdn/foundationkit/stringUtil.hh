@@ -1,5 +1,6 @@
-#ifndef BDN_FK_stringUtil_HH_
-#define BDN_FK_stringUtil_HH_
+#pragma once
+
+#include <bdn/String.h>
 
 #import <Foundation/Foundation.h>
 
@@ -10,7 +11,7 @@ namespace bdn
 
         inline NSString *stringToNSString(const String &val)
         {
-            return [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding];
+            return [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
         }
 
         inline String nsStringToString(NSString *nsString)
@@ -19,5 +20,3 @@ namespace bdn
         }
     }
 }
-
-#endif

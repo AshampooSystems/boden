@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/AppRunner.h>
 
 namespace bdn
@@ -39,10 +39,10 @@ namespace bdn
             return launchInfo;
         }
 
-        AppRunner::AppRunner(std::function<P<AppControllerBase>()> appControllerCreator, JIntent intent)
+        AppRunner::AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, JIntent intent)
             : AppRunnerBase(appControllerCreator, AppRunner::_makeLaunchInfo(intent))
         {
-            _mainDispatcher = newObj<Dispatcher>(JLooper::getMainLooper());
+            _mainDispatcher = std::make_shared<Dispatcher>(JLooper::getMainLooper());
         }
 
         bool AppRunner::isCommandLineApp() const
@@ -58,7 +58,7 @@ namespace bdn
             launch();
         }
 
-        P<IDispatcher> AppRunner::getMainDispatcher() { return _mainDispatcher; }
+        std::shared_ptr<IDispatcher> AppRunner::getMainDispatcher() { return _mainDispatcher; }
 
         void AppRunner::disposeMainDispatcher() { _mainDispatcher->dispose(); }
 

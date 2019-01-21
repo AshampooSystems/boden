@@ -1,8 +1,9 @@
-#ifndef BDN_ContainerView_H_
-#define BDN_ContainerView_H_
+#pragma once
 
 #include <bdn/View.h>
 #include <bdn/ViewLayout.h>
+
+#include <list>
 
 namespace bdn
 {
@@ -16,7 +17,7 @@ namespace bdn
     class ContainerView : public View
     {
       public:
-        ContainerView() {}
+        ContainerView() = default;
 
         /** Static function that returns the type name for #ContainerView core
          * objects.*/
@@ -29,7 +30,7 @@ namespace bdn
             If the child view is already a child of this container then it
             is moved to the end.
         */
-        void addChildView(View *childView) { insertChildView(nullptr, childView); }
+        void addChildView(std::shared_ptr<View> childView);
 
         /** Inserts a child before another child.
 
@@ -42,92 +43,22 @@ namespace bdn
             If the child view is already a child of this container then it
             is moved to the desired target position.
             */
-        void insertChildView(View *insertBeforeChildView, View *childView)
-        {
-            Thread::assertInMainThread();
-
-            P<View> oldParentView = childView->getParentView();
-            if (oldParentView != nullptr) {
-                // do not use removeChildView on the old parent. Instead we use
-                // childViewStolen. The difference is that with childViewStolen
-                // the old parent will NOT call setParentView on its old child.
-                // That is what we want since we want a single call to
-                // setParentView at the end of the whole operation, so that the
-                // core can potentially be moved directly to its new parent,
-                // without being destroyed and recreated.
-                oldParentView->_childViewStolen(childView);
-            }
-
-            List<P<View>>::Iterator it;
-            if (insertBeforeChildView == nullptr)
-                it = _childViews.end();
-            else
-                it = _childViews.find(insertBeforeChildView);
-
-            _childViews.insertAt(it, childView);
-
-            childView->_setParentView(this);
-
-            // the child will schedule a sizing info update for us when it gets
-            // its core.
-        }
+        void insertChildView(std::shared_ptr<View> insertBeforeChildView, std::shared_ptr<View> childView);
 
         /** Removes the specified child view from the container.
 
             Has no effect if the specified view is not currently a child of this
            container.
         */
-        void removeChildView(View *childView)
-        {
-            Thread::assertInMainThread();
+        void removeChildView(std::shared_ptr<View> childView);
 
-            auto it = std::find(_childViews.begin(), _childViews.end(), childView);
-            if (it != _childViews.end()) {
-                _childViews.erase(it);
-                childView->_setParentView(nullptr);
-            }
-        }
+        void removeAllChildViews() override;
 
-        void removeAllChildViews() override
-        {
-            Thread::assertInMainThread();
+        std::list<std::shared_ptr<View>> getChildViews() const override;
 
-            for (auto &childView : _childViews)
-                childView->_setParentView(nullptr);
+        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
-            _childViews.clear();
-        }
-
-        void getChildViews(List<P<View>> &childViews) const override
-        {
-            Thread::assertInMainThread();
-
-            childViews = _childViews;
-        }
-
-        P<View> findPreviousChildView(View *childView) override
-        {
-            Thread::assertInMainThread();
-
-            View *prevChildView = nullptr;
-            for (const P<View> &currView : _childViews) {
-                if (currView.getPtr() == childView)
-                    return prevChildView;
-
-                prevChildView = currView;
-            }
-
-            return nullptr;
-        }
-
-        void _childViewStolen(View *childView) override
-        {
-            Thread::assertInMainThread();
-
-            auto it = std::find(_childViews.begin(), _childViews.end(), childView);
-            if (it != _childViews.end())
-                _childViews.erase(it);
-        }
+        void _childViewStolen(std::shared_ptr<View> childView) override;
 
         /** Calculates the layout for the container based on the specified total
            container size. The sizes and positions of the child views are
@@ -143,7 +74,7 @@ namespace bdn
            basis for the layout. This does not have to match the current size of
            the container view.
             */
-        virtual P<ViewLayout> calcContainerLayout(const Size &containerSize) const = 0;
+        virtual std::shared_ptr<ViewLayout> calcContainerLayout(const Size &containerSize) const = 0;
 
         /** Calculates the preferred size for the container. Container
            implementations must override this to implement their custom size
@@ -156,8 +87,6 @@ namespace bdn
         virtual Size calcContainerPreferredSize(const Size &availableSpace = Size::none()) const = 0;
 
       protected:
-        List<P<View>> _childViews;
+        std::list<std::shared_ptr<View>> _childViews;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_CastError_H_
-#define BDN_CastError_H_
+#pragma once
 
 #include <bdn/ProgrammingError.h>
 
@@ -17,5 +16,3 @@ namespace bdn
         {}
     };
 }
-
-#endif

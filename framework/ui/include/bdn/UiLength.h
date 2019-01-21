@@ -1,5 +1,6 @@
-#ifndef BDN_UiLength_H_
-#define BDN_UiLength_H_
+#pragma once
+
+#include <ostream>
 
 namespace bdn
 {
@@ -10,12 +11,8 @@ namespace bdn
         UiLength objects can also be "none", which means that they represent a
        non-existent value (similar to the standard nullptr value).
        Default-constructed UiLength objects are none.
-
-
-
-
         */
-    struct UiLength : public Base
+    struct UiLength
     {
       public:
         enum class Unit
@@ -89,6 +86,10 @@ namespace bdn
         /** Returns true if this UiLength object has the special "none" value.*/
         bool isNone() const { return (unit == UiLength::Unit::none); }
 
+        bool operator==(const UiLength &other) const { return unit == other.unit && value == other.value; }
+
+        bool operator!=(const UiLength &other) const { return !operator==(other); }
+
         Unit unit;
         double value;
     };
@@ -113,12 +114,3 @@ namespace bdn
         }
     }
 }
-
-inline bool operator==(const bdn::UiLength &a, const bdn::UiLength &b)
-{
-    return (a.unit == b.unit && a.value == b.value);
-}
-
-inline bool operator!=(const bdn::UiLength &a, const bdn::UiLength &b) { return !operator==(a, b); }
-
-#endif

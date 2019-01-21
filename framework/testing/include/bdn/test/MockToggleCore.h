@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockToggleCore_H_
-#define BDN_TEST_MockToggleCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -17,13 +16,13 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockToggleCore : public MockViewCore, BDN_IMPLEMENTS ISwitchCore
+        class MockToggleCore : public MockViewCore, virtual public ISwitchCore
         {
           public:
-            MockToggleCore(Toggle *toggle) : MockViewCore(toggle)
+            MockToggleCore(std::shared_ptr<Toggle> toggle) : MockViewCore(toggle)
             {
-                _label = toggle->label();
-                _on = toggle->on();
+                _label = toggle->label;
+                _on = toggle->on;
             }
 
             /** Returns the current label of the toggle.*/
@@ -57,10 +56,10 @@ namespace bdn
                 Size size = _getTextSize(_label);
 
                 // add our padding
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    if (!view->padding().isNull())
-                        size += uiMarginToDipMargin(view->padding());
+                    if (view->padding.get())
+                        size += uiMarginToDipMargin(*view->padding.get());
                 }
 
                 // add some space for the fake toggle border
@@ -70,8 +69,8 @@ namespace bdn
 
                 if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -79,11 +78,11 @@ namespace bdn
 
             void generateClick()
             {
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
-                    cast<Toggle>(view)->onClick().notify(evt);
+                    std::dynamic_pointer_cast<Toggle>(view)->onClick().notify(evt);
                 }
             }
 
@@ -95,5 +94,3 @@ namespace bdn
         };
     }
 }
-
-#endif // BDN_TEST_MockToggleCore_H_

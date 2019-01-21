@@ -1,5 +1,4 @@
-#ifndef BDN_Button_H_
-#define BDN_Button_H_
+#pragma once
 
 #include <bdn/View.h>
 #include <bdn/IButtonCore.h>
@@ -13,10 +12,16 @@ namespace bdn
     class Button : public View
     {
       public:
-        Button() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Property<String> label;
 
-        /** The button's label.*/
-        BDN_VIEW_PROPERTY(String, label, setLabel, IButtonCore, influencesPreferredSize());
+      public:
+        Button()
+        {
+            _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
+
+            label.onChange() += View::CorePropertyUpdater<String, IButtonCore>{
+                this, &IButtonCore::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
+        }
 
         ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
@@ -26,8 +31,6 @@ namespace bdn
         String getCoreTypeName() const override { return getButtonCoreTypeName(); }
 
       private:
-        P<SimpleNotifier<const ClickEvent &>> _onClick;
+        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
-
-#endif

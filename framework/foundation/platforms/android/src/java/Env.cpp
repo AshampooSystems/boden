@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/Env.h>
 
 #include <bdn/java/JavaException.h>
@@ -16,7 +16,11 @@ namespace bdn
     namespace java
     {
 
-        BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(Env, Env::get)
+        Env &Env::get()
+        {
+            static thread_local Env init{};
+            return init;
+        }
 
         JavaVM *Env::_globalVm = nullptr;
 

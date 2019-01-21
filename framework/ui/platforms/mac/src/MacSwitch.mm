@@ -117,6 +117,8 @@
     CGContextAddPath(context, roundedRectPath);
     CGContextFillPath(context);
 
+    CGPathRelease(roundedRectPath);
+
     // Draw handle drop shadow
     CGContextSetFillColorWithColor(context, handleDropShadowColor.CGColor);
     CGContextFillEllipseInRect(context, handleDropShadowRect);

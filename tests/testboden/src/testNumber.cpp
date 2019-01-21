@@ -1,7 +1,8 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Number.h>
+#include <bdn/config.h>
 
 #include <type_traits>
 
@@ -342,9 +343,9 @@ template <typename BaseSimpleType, typename ObjectType> static void _testNumberB
             // unless the compiler has activated optimizations that
             // violate the standard.
 
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
-            REQUIRE(nanVal != nanVal);
-#endif
+            if (!bdn::config::aggressive_float_optimization_enabled) {
+                REQUIRE(nanVal != nanVal);
+            }
         } else {
             BaseSimpleType nanVal = ObjectType::nan();
 
@@ -354,10 +355,10 @@ template <typename BaseSimpleType, typename ObjectType> static void _testNumberB
         }
 
         if (ObjectType::hasInfinity()) {
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
-            REQUIRE(ObjectType::infinity() > ObjectType::maxValue());
-            REQUIRE(ObjectType::negativeInfinity() < ObjectType::minValue());
-#endif
+            if (!bdn::config::aggressive_float_optimization_enabled) {
+                REQUIRE(ObjectType::infinity() > ObjectType::maxValue());
+                REQUIRE(ObjectType::negativeInfinity() < ObjectType::minValue());
+            }
         } else {
             REQUIRE(ObjectType::infinity() == 0);
             REQUIRE(ObjectType::negativeInfinity() == 0);

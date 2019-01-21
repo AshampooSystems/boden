@@ -1,5 +1,4 @@
-#ifndef BDN_WideStringData_H_
-#define BDN_WideStringData_H_
+#pragma once
 
 #include <bdn/StringData.h>
 #include <bdn/WideCodec.h>
@@ -27,5 +26,3 @@ namespace bdn
 
 #endif
 }
-
-#endif

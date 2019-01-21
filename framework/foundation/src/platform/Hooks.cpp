@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/debug.h>
 
 #include <bdn/platform/Hooks.h>
@@ -10,13 +10,19 @@ namespace bdn
     namespace platform
     {
 
-        BDN_SAFE_STATIC_IMPL(std::unique_ptr<Hooks>, Hooks::get);
+        std::unique_ptr<Hooks> &Hooks::get()
+        {
+            static std::unique_ptr<Hooks> hooks;
+            return hooks;
+        }
+
+        // BDN_SAFE_STATIC_IMPL(std::unique_ptr<Hooks>, Hooks::get);
 
         void Hooks::initializeThread() {}
 
         void Hooks::debugBreak() { debugBreakDummy(); }
 
-        void Hooks::debuggerPrint(const String &text) { std::cerr << text.asUtf8() << std::endl; }
+        void Hooks::debuggerPrint(const String &text) { std::cerr << text << std::endl; }
 
         bool Hooks::_isDebuggerActive() { return false; }
 
@@ -35,9 +41,14 @@ namespace bdn
                 case Severity::Debug:
                     std::cerr << "Debug: ";
                     break;
+                case Severity::None:
+                    std::cout << message << std::endl;
+                    break;
                 }
 
-                std::cerr << message << std::endl;
+                if (severity != Severity::None) {
+                    std::cerr << message << std::endl;
+                }
             }
             catch (...) {
                 // ignore

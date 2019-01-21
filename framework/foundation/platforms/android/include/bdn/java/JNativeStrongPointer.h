@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JNativeStrongPointer_H_
-#define BDN_JAVA_JNativeStrongPointer_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/JByteBuffer.h>
@@ -26,10 +25,10 @@ namespace bdn
         class JNativeStrongPointer : public JObject
         {
           private:
-            static Reference newInstance_(IBase *object);
+            static Reference newInstance_(std::shared_ptr<Base> pObject);
 
           public:
-            explicit JNativeStrongPointer(IBase *object);
+            explicit JNativeStrongPointer(std::shared_ptr<Base> pObject);
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -41,12 +40,12 @@ namespace bdn
 
             JByteBuffer getWrappedPointer();
 
-            P<IBase> getPointer_();
+            std::shared_ptr<Base> getPointer_();
 
             /** An optimized function to retrieve the stored pointer directly
              * from the specified jobject. The java-side object must be a
              * ByteBuffer as returned by getWrappedPointer().*/
-            static IBase *unwrapJObject(jobject obj);
+            static Base *unwrapJObject(jobject obj);
 
             /** Returns the JClass object for this class.
              *
@@ -63,5 +62,3 @@ namespace bdn
         };
     }
 }
-
-#endif

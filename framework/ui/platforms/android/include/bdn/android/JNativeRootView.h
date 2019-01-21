@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNativeRootView_H_
-#define BDN_ANDROID_JNativeRootView_H_
+#pragma once
 
 #include <bdn/android/JNativeViewGroup.h>
 
@@ -40,5 +39,3 @@ namespace bdn
         };
     }
 }
-
-#endif

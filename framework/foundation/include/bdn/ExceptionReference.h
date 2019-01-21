@@ -1,5 +1,4 @@
-#ifndef BDN_ExceptionReference_H_
-#define BDN_ExceptionReference_H_
+#pragma once
 
 namespace bdn
 {
@@ -39,14 +38,9 @@ namespace bdn
             is allocated with newObj and a pointer to the reference object is
            returned.
          */
-        static P<ExceptionReference> newFromActiveException() noexcept
+        static std::shared_ptr<ExceptionReference> newFromActiveException() noexcept
         {
-            try {
-                return newObj<ExceptionReference>(std::current_exception());
-            }
-            catch (std::bad_alloc &e) {
-                return &getGlobalBadAllocReference();
-            }
+            return std::make_shared<ExceptionReference>(std::current_exception());
         }
 
         /** Creates an ExceptionReference object that points to a copy
@@ -64,14 +58,9 @@ namespace bdn
             is allocated with newObj and a pointer to the reference object is
            returned.
          */
-        template <class ParamType> static P<ExceptionReference> newFromException(ParamType exc) noexcept
+        template <class ParamType> static std::shared_ptr<ExceptionReference> newFromException(ParamType exc) noexcept
         {
-            try {
-                return newObj<ExceptionReference>(std::make_exception_ptr(exc));
-            }
-            catch (std::bad_alloc &e) {
-                return &getGlobalBadAllocReference();
-            }
+            return std::make_shared<ExceptionReference>(std::make_exception_ptr(exc));
         }
 
         /** Rethrows the exception.*/
@@ -106,5 +95,3 @@ namespace bdn
         std::exception_ptr _exceptionPtr;
     };
 }
-
-#endif

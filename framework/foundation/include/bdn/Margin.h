@@ -1,5 +1,4 @@
-#ifndef BDN_Margin_H_
-#define BDN_Margin_H_
+#pragma once
 
 namespace bdn
 {
@@ -113,5 +112,3 @@ inline bool operator>=(const bdn::Margin &a, const bdn::Margin &b)
 {
     return (a.top >= b.top && a.right >= b.right && a.bottom >= b.bottom && a.left >= b.left);
 }
-
-#endif

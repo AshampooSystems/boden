@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_ContainerViewCore_HH_
-#define BDN_IOS_ContainerViewCore_HH_
+#pragma once
 
 #include <bdn/ContainerView.h>
 
@@ -13,42 +12,19 @@ namespace bdn
         class ContainerViewCore : public ViewCore
         {
           private:
-            static UIView *_createContainer(ContainerView *outer)
-            {
-                return [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            }
+            static UIView *_createContainer(std::shared_ptr<ContainerView> outer);
 
           public:
-            ContainerViewCore(ContainerView *outer) : ViewCore(outer, _createContainer(outer)) {}
+            ContainerViewCore(std::shared_ptr<ContainerView> outer);
 
-            Size calcPreferredSize(const Size &availableSpace) const override
-            {
-                // call the outer container's preferred size calculation
+            Size calcPreferredSize(const Size &availableSpace) const override;
 
-                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (outerView != nullptr)
-                    return outerView->calcContainerPreferredSize(availableSpace);
-                else
-                    return Size(0, 0);
-            }
-
-            void layout() override
-            {
-                // call the outer container's layout function
-
-                P<ContainerView> outerView = cast<ContainerView>(getOuterViewIfStillAttached());
-                if (outerView != nullptr) {
-                    P<ViewLayout> layout = outerView->calcContainerLayout(outerView->size());
-                    layout->applyTo(outerView);
-                }
-            }
+            void layout() override;
 
           protected:
-            bool canAdjustToAvailableWidth() const override { return true; }
+            bool canAdjustToAvailableWidth() const override;
 
-            bool canAdjustToAvailableHeight() const override { return true; }
+            bool canAdjustToAvailableHeight() const override;
         };
     }
 }
-
-#endif

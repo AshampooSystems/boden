@@ -1,8 +1,9 @@
-#ifndef BDN_FK_MainDispatcher_HH_
-#define BDN_FK_MainDispatcher_HH_
+#pragma once
 
+#include <bdn/Base.h>
 #include <bdn/IDispatcher.h>
 
+#include <mutex>
 #include <list>
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -14,18 +15,23 @@ namespace bdn
     {
 
         /** A helper class that runs tasks when the app is idle.*/
-        class MainDispatcher : public Base, BDN_IMPLEMENTS IDispatcher
+        class MainDispatcher : public Base, virtual public IDispatcher
         {
+            std::shared_ptr<MainDispatcher> shared_from_this()
+            {
+                return std::static_pointer_cast<MainDispatcher>(Base::shared_from_this());
+            }
+
           public:
             MainDispatcher();
             ~MainDispatcher();
 
             void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-            void enqueueInSeconds(double seconds, std::function<void()> func,
-                                  Priority priority = Priority::normal) override;
+            void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+                                Priority priority = Priority::normal) override;
 
-            void createTimer(double intervalSeconds, std::function<bool()> func) override;
+            void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override;
 
             void dispose();
 
@@ -53,7 +59,8 @@ namespace bdn
                 std::list<std::function<void()>> _funcList;
             };
 
-            static void _scheduleMainThreadCall(const std::function<void()> &func, double delaySeconds = 0);
+            static void _scheduleMainThreadCall(const std::function<void()> &func,
+                                                IDispatcher::Duration delay = IDispatcher::Duration::zero());
 
             void ensureIdleObserverInstalled();
 
@@ -63,15 +70,13 @@ namespace bdn
             bool _idleObserverInstalled = false;
             CFRunLoopObserverRef _idleObserver;
 
-            Mutex _queueMutex;
+            std::recursive_mutex _queueMutex;
 
-            P<IdleQueue> _idleQueue;
+            std::shared_ptr<IdleQueue> _idleQueue;
             std::list<std::function<void()>> _normalQueue;
             std::list<std::function<void()>> _timedNormalQueue;
 
-            P<TimerFuncList_> _timerFuncList;
+            std::shared_ptr<TimerFuncList_> _timerFuncList;
         };
     }
 }
-
-#endif

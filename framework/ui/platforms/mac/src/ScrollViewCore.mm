@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/mac/ScrollViewCore.hh>
 
 #include <bdn/ScrollViewLayoutHelper.h>
@@ -39,8 +39,6 @@
 
 @implementation BdnMacScrollViewCoreEventForwarder_
 
-- (void)setScrollViewCore:(bdn::mac::ScrollViewCore *)core { _scrollViewCore = core; }
-
 - (void)contentViewBoundsDidChange { _scrollViewCore->_contentViewBoundsDidChange(); }
 
 @end
@@ -50,7 +48,8 @@ namespace bdn
     namespace mac
     {
 
-        ScrollViewCore::ScrollViewCore(ScrollView *outer) : ChildViewCore(outer, _createScrollView(outer))
+        ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer)
+            : ChildViewCore(outer, _createScrollView(outer))
         {
             _nsScrollView = (NSScrollView *)getNSView();
 
@@ -73,10 +72,10 @@ namespace bdn
                                                          name:NSViewBoundsDidChangeNotification
                                                        object:_nsScrollView.contentView];
 
-            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled());
-            setVerticalScrollingEnabled(outer->verticalScrollingEnabled());
+            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
+            setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
 
-            setPadding(outer->padding());
+            setPadding(outer->padding);
         }
 
         ScrollViewCore::~ScrollViewCore()
@@ -86,7 +85,7 @@ namespace bdn
                                                           object:_nsScrollView.contentView];
         }
 
-        NSScrollView *ScrollViewCore::_createScrollView(ScrollView *outer)
+        NSScrollView *ScrollViewCore::_createScrollView(std::shared_ptr<ScrollView> outer)
         {
             NSScrollView *scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -106,7 +105,7 @@ namespace bdn
             [_nsScrollView.documentView addSubview:childView];
         }
 
-        void ScrollViewCore::setPadding(const Nullable<UiMargin> &padding)
+        void ScrollViewCore::setPadding(const std::optional<UiMargin> &padding)
         {
             // nothing to do
         }
@@ -121,7 +120,7 @@ namespace bdn
             _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
         }
 
-        P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *borderSize) const
+        std::shared_ptr<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *pBorderSize) const
         {
             // first we need to find out the size of the border around the
             // scroll view and the space needed for scrollbars.
@@ -162,19 +161,20 @@ namespace bdn
             vertBarWidth = scrollerOverhead.width;
             horzBarHeight = scrollerOverhead.height;
 
-            if (borderSize != nullptr)
-                *borderSize = borderSize;
+            if (pBorderSize != nullptr)
+                *pBorderSize = borderSize;
 
-            return newObj<ScrollViewLayoutHelper>(vertBarWidth, horzBarHeight);
+            return std::make_shared<ScrollViewLayoutHelper>(vertBarWidth, horzBarHeight);
         }
 
         Size ScrollViewCore::calcPreferredSize(const Size &availableSpace) const
         {
             Size preferredSize;
 
-            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            std::shared_ptr<ScrollView> outerView =
+                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
             if (outerView != nullptr) {
-                P<ScrollViewLayoutHelper> helper = createLayoutHelper();
+                std::shared_ptr<ScrollViewLayoutHelper> helper = createLayoutHelper();
 
                 preferredSize = helper->calcPreferredSize(outerView, availableSpace);
             }
@@ -184,16 +184,17 @@ namespace bdn
 
         void ScrollViewCore::layout()
         {
-            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            std::shared_ptr<ScrollView> outerView =
+                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
             if (outerView != nullptr) {
                 Size borderSize;
-                P<ScrollViewLayoutHelper> helper = createLayoutHelper(&borderSize);
+                std::shared_ptr<ScrollViewLayoutHelper> helper = createLayoutHelper(&borderSize);
 
-                Size viewPortSizeWithoutScrollbars = outerView->size() - borderSize;
+                Size viewPortSizeWithoutScrollbars = outerView->size - borderSize;
 
                 helper->calcLayout(outerView, viewPortSizeWithoutScrollbars);
 
-                P<View> contentView = outerView->getContentView();
+                std::shared_ptr<View> contentView = outerView->getContentView();
                 if (contentView != nullptr) {
                     Rect contentBounds = helper->getContentViewBounds();
 
@@ -227,11 +228,12 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+            std::shared_ptr<ScrollView> outerView =
+                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
             if (outerView != nullptr) {
                 Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
 
-                outerView->_setVisibleClientRect(visibleClientRect);
+                outerView->visibleClientRect = visibleClientRect;
             }
         }
     }

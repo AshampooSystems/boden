@@ -1,5 +1,4 @@
-#ifndef BDN_ScrollView_H_
-#define BDN_ScrollView_H_
+#pragma once
 
 #include <bdn/View.h>
 
@@ -23,15 +22,14 @@ namespace bdn
       public:
         ScrollView();
 
+      public:
         /** Controls wether or not the view scrolls vertically.
             Default: true*/
-        BDN_VIEW_PROPERTY(bool, verticalScrollingEnabled, setVerticalScrollingEnabled, IScrollViewCore,
-                          influencesPreferredSize().influencesContentLayout());
+        Property<bool> verticalScrollingEnabled;
 
         /** Controls wether or not the view scrolls horizontally.
             Default: false*/
-        BDN_VIEW_PROPERTY(bool, horizontalScrollingEnabled, setHorizontalScrollingEnabled, IScrollViewCore,
-                          influencesPreferredSize().influencesContentLayout());
+        Property<bool> horizontalScrollingEnabled;
 
         /** Read-only property that indicates the part of the client area (=the
            scrolled area) that is currently visible. The rect is in client
@@ -43,13 +41,9 @@ namespace bdn
             The visible client rect / scroll position can be manipulated with
            scrollClientRectToVisible().
         */
-        BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(Rect, visibleClientRect, _setVisibleClientRect, influencesNothing());
-        // note that we do not forward changes to the visibleClientRect to the
-        // core, because this property is updated BY the core. Also note that we
-        // set the influences to nothing because the corresponding layouting
-        // invalidations are already triggered by the process that has caused
-        // this change.
+        Property<Rect> visibleClientRect;
 
+      public:
         /** \fn void ScrollView::_setVisibleClientRect(const Rect&)
 
             Called by the scroll view's core when the visible client area
@@ -64,41 +58,15 @@ namespace bdn
             Note that ScrollView object can only have a single child content
            view. If one is already set then it will be replaced.
             See #ScrollView class documentation for more information.*/
-        virtual void setContentView(View *contentView)
-        {
-            Thread::assertInMainThread();
-
-            if (contentView != _contentView) {
-                if (_contentView != nullptr)
-                    _contentView->_setParentView(nullptr);
-
-                _contentView = contentView;
-
-                if (_contentView != nullptr)
-                    _contentView->_setParentView(this);
-
-                invalidateSizingInfo(View::InvalidateReason::childAddedOrRemoved);
-                needLayout(View::InvalidateReason::childAddedOrRemoved);
-            }
-        }
+        virtual void setContentView(std::shared_ptr<View> contentView);
 
         /** Returns the scroll view's content view (see #getContentView()).
             This can be nullptr if no content view has been set yet.*/
-        virtual P<View> getContentView()
-        {
-            Thread::assertInMainThread();
-
-            return _contentView;
-        }
+        virtual std::shared_ptr<View> getContentView();
 
         /** Returns the scroll view's content view (see #getContentView()).
             This can be nullptr if no content view has been set yet.*/
-        virtual P<const View> getContentView() const
-        {
-            Thread::assertInMainThread();
-
-            return _contentView;
-        }
+        virtual std::shared_ptr<const View> getContentView() const;
 
         /** Changes the scroll position so that the specified part of the
             client area is visible.
@@ -135,34 +103,15 @@ namespace bdn
 
         String getCoreTypeName() const override { return getScrollViewCoreTypeName(); }
 
-        void getChildViews(List<P<View>> &childViews) const override
-        {
-            Thread::assertInMainThread();
-
-            if (_contentView != nullptr)
-                childViews.push_back(_contentView);
-        }
+        std::list<std::shared_ptr<View>> getChildViews() const override;
 
         void removeAllChildViews() override { setContentView(nullptr); }
 
-        P<View> findPreviousChildView(View *childView) override
-        {
-            // we do not have multiple child views with an order - just a single
-            // content view
-            return nullptr;
-        }
+        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
-        void _childViewStolen(View *childView) override
-        {
-            Thread::assertInMainThread();
-
-            if (childView == _contentView)
-                _contentView = nullptr;
-        }
+        void _childViewStolen(std::shared_ptr<View> childView) override;
 
       private:
-        P<View> _contentView;
+        std::shared_ptr<View> _contentView;
     };
 }
-
-#endif

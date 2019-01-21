@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Margin.h>
@@ -173,10 +173,10 @@ TEST_CASE("Margin")
         }
     }
 
-    SECTION("toString")
+    /*SECTION("toString")
     {
         Margin m(1.125, -345.125, 2.775, 3.5);
 
         REQUIRE(toString(m) == "(1.125, -345.125, 2.775, 3.5)");
-    }
+    }*/
 }

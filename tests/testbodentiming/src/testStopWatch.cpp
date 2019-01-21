@@ -1,10 +1,13 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/StopWatch.h>
-#include <bdn/Thread.h>
+
+#include <thread>
+#include <chrono>
 
 using namespace bdn;
+using namespace std::chrono_literals;
 
 TEST_CASE("StopWatch")
 {
@@ -12,25 +15,25 @@ TEST_CASE("StopWatch")
 
     SECTION("noStart")
     {
-        REQUIRE(watch.getMillis() >= 0);
-        REQUIRE(watch.getMillis() < 1000);
+        REQUIRE(watch.elapsed() >= 0ms);
+        REQUIRE(watch.elapsed() < 1000ms);
 
-        Thread::sleepMillis(1000);
+        std::this_thread::sleep_for(1s);
 
-        REQUIRE(watch.getMillis() >= 1000);
-        REQUIRE(watch.getMillis() < 2000);
+        REQUIRE(watch.elapsed() >= 1000ms);
+        REQUIRE(watch.elapsed() < 2000ms);
     }
 
     SECTION("restart")
     {
-        Thread::sleepMillis(1000);
+        std::this_thread::sleep_for(1s);
 
-        REQUIRE(watch.getMillis() >= 1000);
-        REQUIRE(watch.getMillis() < 2000);
+        REQUIRE(watch.elapsed() >= 1000ms);
+        REQUIRE(watch.elapsed() < 2000ms);
 
         watch.start();
 
-        REQUIRE(watch.getMillis() >= 0);
-        REQUIRE(watch.getMillis() < 1000);
+        REQUIRE(watch.elapsed() >= 0ms);
+        REQUIRE(watch.elapsed() < 1000ms);
     }
 }

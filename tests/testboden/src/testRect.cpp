@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Rect.h>
@@ -114,7 +114,9 @@ TEST_CASE("Rect")
     SECTION("toString")
     {
         Rect r(1.125, -345.125, 2.775, 3.5);
+        std::ostringstream str;
+        str << r;
 
-        REQUIRE(toString(r) == "(1.125, -345.125 | 2.775 x 3.5)");
+        REQUIRE(str.str() == "(1.125, -345.125 | 2.775 x 3.5)");
     }
 }

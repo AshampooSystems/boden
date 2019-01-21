@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -22,7 +22,7 @@ class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _button->label();
+        String expectedLabel = _button->label;
 
         String label = bdn::ios::iosStringToString(_uIButton.currentTitle);
 
@@ -35,7 +35,7 @@ class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
 
 TEST_CASE("ios.ButtonCore")
 {
-    P<TestIosButtonCore> test = newObj<TestIosButtonCore>();
+    std::shared_ptr<TestIosButtonCore> test = std::make_shared<TestIosButtonCore>();
 
     test->runTests();
 }

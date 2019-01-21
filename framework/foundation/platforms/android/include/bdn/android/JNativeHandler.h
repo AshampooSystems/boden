@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNativeHandler_H_
-#define BDN_ANDROID_JNativeHandler_H_
+#pragma once
 
 #include <bdn/android/JHandler.h>
 #include <bdn/android/JLooper.h>
@@ -52,5 +51,3 @@ namespace bdn
         };
     }
 }
-
-#endif

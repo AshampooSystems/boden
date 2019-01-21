@@ -1,5 +1,6 @@
-#ifndef BDN_ViewLayout_H_
-#define BDN_ViewLayout_H_
+#pragma once
+
+#include <optional>
 
 namespace bdn
 {
@@ -26,20 +27,19 @@ namespace bdn
             If the layout does not contain data for a child view then the view
            is simply left unmodified.
         */
-        virtual void applyTo(View *parentView) const
+        virtual void applyTo(const std::shared_ptr<View> &parentView) const
         {
-            List<P<View>> childList;
-            parentView->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = parentView->getChildViews();
 
             for (auto &childView : childList) {
-                P<const ViewLayoutData> data = getViewLayoutData(childView);
-                if (data != nullptr)
-                    data->applyTo(childView);
+                auto layoutData = getViewLayoutData(childView);
+                if (layoutData)
+                    layoutData->applyTo(childView);
             }
         }
 
         /** Stores the layout information for one View object.*/
-        class ViewLayoutData : public Base
+        class ViewLayoutData
         {
           public:
             /** Applies the layout data to the specified view.
@@ -47,7 +47,7 @@ namespace bdn
                 Subclasses that store modification information for custom
                 properties should override this and apply the custom
                modifications.*/
-            virtual void applyTo(View *view) const
+            virtual void applyTo(std::shared_ptr<View> view) const
             {
                 if (_boundsInitialized)
                     view->adjustAndSetBounds(_bounds);
@@ -81,32 +81,19 @@ namespace bdn
 
         /** Sets the layout data for the view. If the layout already has data
            for the specified view then it is replaced.*/
-        void setViewLayoutData(View *view, ViewLayoutData *data) { _dataMap[view] = data; }
+        void setViewLayoutData(std::shared_ptr<View> view, ViewLayoutData data) { _dataMap[view] = data; }
 
-        /** Returns the layout data for the specified view, or null if no data
-           has been set for the view.*/
-        P<ViewLayoutData> getViewLayoutData(View *view)
+        std::optional<ViewLayoutData> getViewLayoutData(std::shared_ptr<View> view) const
         {
             auto it = _dataMap.find(view);
             if (it != _dataMap.end())
                 return it->second;
             else
-                return nullptr;
-        }
-
-        P<const ViewLayoutData> getViewLayoutData(View *view) const
-        {
-            auto it = _dataMap.find(view);
-            if (it != _dataMap.end())
-                return it->second;
-            else
-                return nullptr;
+                return std::nullopt;
         }
 
       private:
         Size _size;
-        std::map<View *, P<ViewLayoutData>> _dataMap;
+        std::map<std::shared_ptr<View>, ViewLayoutData> _dataMap;
     };
 }
-
-#endif

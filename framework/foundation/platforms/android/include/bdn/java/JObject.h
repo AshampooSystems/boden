@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JObject_H_
-#define BDN_JAVA_JObject_H_
+#pragma once
 
 namespace bdn
 {
@@ -158,5 +157,3 @@ namespace bdn
         }
     }
 }
-
-#endif

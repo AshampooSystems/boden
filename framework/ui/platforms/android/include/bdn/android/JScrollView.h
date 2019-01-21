@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JScrollView_H_
-#define BDN_ANDROID_JScrollView_H_
+#pragma once
 
 #include <bdn/android/JFrameLayout.h>
 #include <bdn/android/JContext.h>
@@ -75,5 +74,3 @@ namespace bdn
         };
     }
 }
-
-#endif

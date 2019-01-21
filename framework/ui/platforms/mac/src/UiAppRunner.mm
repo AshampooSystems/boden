@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/mac/UiAppRunner.hh>
 
 #import <bdn/foundationkit/MainDispatcher.hh>
@@ -56,7 +56,7 @@ namespace bdn
 
             std::vector<String> argStrings;
             for (int i = 0; i < argCount; i++)
-                argStrings.push_back(String::fromLocaleEncoding(args[i]));
+                argStrings.push_back(args[i]);
             if (argCount == 0)
                 argStrings.push_back(""); // always add the first entry.
 
@@ -65,10 +65,11 @@ namespace bdn
             return launchInfo;
         }
 
-        UiAppRunner::UiAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[])
+        UiAppRunner::UiAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+                                 char *args[])
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
-            _mainDispatcher = newObj<bdn::fk::MainDispatcher>();
+            _mainDispatcher = std::make_shared<bdn::fk::MainDispatcher>();
         }
 
         static void _globalUnhandledNSException(NSException *exception)
@@ -78,9 +79,10 @@ namespace bdn
             if (exception.userInfo != nil)
                 cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
-            P<ExceptionReference> cppExceptionRef;
+            std::shared_ptr<ExceptionReference> cppExceptionRef;
             if (cppExceptionWrapper != nil)
-                cppExceptionRef = tryCast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
+                cppExceptionRef =
+                    std::dynamic_pointer_cast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
             try {
                 // if the exception is a wrapped C++ exception then we rethrow
@@ -150,6 +152,9 @@ namespace bdn
                 []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
         }
 
-        void UiAppRunner::disposeMainDispatcher() { cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose(); }
+        void UiAppRunner::disposeMainDispatcher()
+        {
+            std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose();
+        }
     }
 }

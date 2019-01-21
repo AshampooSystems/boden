@@ -1,5 +1,6 @@
-#ifndef BDN_destruct_H_
-#define BDN_destruct_H_
+#pragma once
+
+#include <exception>
 
 namespace bdn
 {
@@ -61,5 +62,3 @@ namespace bdn
     }                                                                                                                  \
     catch (std::exception & e) { bdn::_handleDestructorException(#className, e); }                                     \
     catch (...) { bdn::_handleDestructorException(#className); }
-
-#endif

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/NotImplementedError.h>
@@ -9,27 +9,27 @@ namespace bdn
 
     LayoutCoordinator::LayoutCoordinator() {}
 
-    void LayoutCoordinator::windowNeedsAutoSizing(Window *window)
+    void LayoutCoordinator::windowNeedsAutoSizing(std::shared_ptr<Window> window)
     {
-        Thread::assertInMainThread();
+        AppRunnerBase::assertInMainThread();
 
         _windowAutoSizeSet.insert(window);
 
         needUpdate();
     }
 
-    void LayoutCoordinator::windowNeedsCentering(Window *window)
+    void LayoutCoordinator::windowNeedsCentering(std::shared_ptr<Window> window)
     {
-        Thread::assertInMainThread();
+        AppRunnerBase::assertInMainThread();
 
         _windowCenterSet.insert(window);
 
         needUpdate();
     }
 
-    void LayoutCoordinator::viewNeedsLayout(View *view)
+    void LayoutCoordinator::viewNeedsLayout(std::shared_ptr<View> view)
     {
-        Thread::assertInMainThread();
+        AppRunnerBase::assertInMainThread();
 
         _layoutSet.insert(view);
 
@@ -38,22 +38,12 @@ namespace bdn
 
     void LayoutCoordinator::needUpdate()
     {
-        Thread::assertInMainThread();
+        AppRunnerBase::assertInMainThread();
 
         if (!_updateScheduled) {
-            if (isBeingDeletedBecauseReferenceCountReachedZero()) {
-                // the layout coordinator is in the process of being deleted.
-                // This can happen because the destructor of the layout
-                // coordinator may destroy Views that are waiting for an update.
-                // And if those views schedule an update in their destructor
-                // then needUpdate might be called. Since we are being destroyed
-                // there is no need to schedule anything
-                // - just do nothing.
-                bdn::doNothing();
-                return;
-            }
+            // TODO
 
-            P<LayoutCoordinator> self = this;
+            std::shared_ptr<LayoutCoordinator> self = std::static_pointer_cast<LayoutCoordinator>(shared_from_this());
 
             _updateScheduled = true;
 
@@ -93,13 +83,13 @@ namespace bdn
             {
                 ToDo() : level(-1) {}
 
-                ToDo(const P<View> &view)
+                ToDo(const std::shared_ptr<View> &view)
                 {
                     this->view = view;
 
                     // find out the view's level inside the UI tree
                     this->level = 0;
-                    P<View> currParent = view->getParentView();
+                    std::shared_ptr<View> currParent = view->getParentView();
                     while (currParent != nullptr) {
                         this->level++;
                         currParent = currParent->getParentView();
@@ -108,10 +98,10 @@ namespace bdn
 
                 bool operator<(const ToDo &o) const
                 {
-                    return (level < o.level || (level == o.level && view.getPtr() < o.view.getPtr()));
+                    return (level < o.level || (level == o.level && view.get() < o.view.get()));
                 }
 
-                P<View> view;
+                std::shared_ptr<View> view;
                 int level;
             };
 
@@ -121,7 +111,7 @@ namespace bdn
                 // note that the order in which we auto-size the windows
                 // does not matter, since all windows are top-level
 
-                Set<P<Window>> toDoSet;
+                std::set<std::shared_ptr<Window>> toDoSet;
                 while (true) {
                     toDoSet.insert(_windowAutoSizeSet.begin(), _windowAutoSizeSet.end());
                     _windowAutoSizeSet.clear();
@@ -131,12 +121,13 @@ namespace bdn
                         break;
                     }
 
-                    P<Window> window = *toDoSet.begin();
+                    std::shared_ptr<Window> window = *toDoSet.begin();
                     toDoSet.erase(toDoSet.begin());
 
                     anyWindowsAutoSized = true;
 
-                    P<IWindowCoreExtension> core = tryCast<IWindowCoreExtension>(window->getViewCore());
+                    std::shared_ptr<IWindowCoreExtension> core =
+                        std::dynamic_pointer_cast<IWindowCoreExtension>(window->getViewCore());
                     if (core != nullptr) {
                         try {
                             core->autoSize();
@@ -172,7 +163,7 @@ namespace bdn
                     ToDo nextToDo;
 
                     {
-                        Set<P<View>> layoutSetCopy;
+                        std::set<std::shared_ptr<View>> layoutSetCopy;
 
                         {
                             layoutSetCopy = _layoutSet;
@@ -205,7 +196,8 @@ namespace bdn
                         anyLayoutDone = true;
 
                         try {
-                            P<IViewCoreExtension> core = tryCast<IViewCoreExtension>(nextToDo.view->getViewCore());
+                            std::shared_ptr<IViewCoreExtension> core =
+                                std::dynamic_pointer_cast<IViewCoreExtension>(nextToDo.view->getViewCore());
                             if (core != nullptr)
                                 core->layout();
                         }
@@ -242,7 +234,7 @@ namespace bdn
                         // note that the order in which we auto-size the windows
                         // does not matter, since all windows are top-level
 
-                        Set<P<Window>> toDoSet;
+                        std::set<std::shared_ptr<Window>> toDoSet;
                         while (true) {
                             toDoSet.insert(_windowCenterSet.begin(), _windowCenterSet.end());
                             _windowCenterSet.clear();
@@ -252,10 +244,11 @@ namespace bdn
                                 break;
                             }
 
-                            P<Window> window = *toDoSet.begin();
+                            std::shared_ptr<Window> window = *toDoSet.begin();
                             toDoSet.erase(toDoSet.begin());
 
-                            P<IWindowCoreExtension> core = tryCast<IWindowCoreExtension>(window->getViewCore());
+                            std::shared_ptr<IWindowCoreExtension> core =
+                                std::dynamic_pointer_cast<IWindowCoreExtension>(window->getViewCore());
                             if (core != nullptr) {
                                 try {
                                     core->center();

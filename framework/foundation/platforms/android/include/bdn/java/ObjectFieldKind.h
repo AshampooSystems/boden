@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_ObjectFieldKind_H_
-#define BDN_JAVA_ObjectFieldKind_H_
+#pragma once
 
 #include <bdn/java/Env.h>
 #include <bdn/java/JClass.h>
@@ -25,7 +24,7 @@ namespace bdn
                     Env &env = Env::get();
 
                     _id = env.getJniEnv()->GetFieldID((jclass)cls.getJObject_(), fieldName,
-                                                      TypeConversion<NativeType>::getJavaSignature().asUtf8Ptr());
+                                                      TypeConversion<NativeType>::getJavaSignature().c_str());
 
                     env.throwAndClearExceptionFromLastJavaCall();
                 }
@@ -60,5 +59,3 @@ namespace bdn
         };
     }
 }
-
-#endif

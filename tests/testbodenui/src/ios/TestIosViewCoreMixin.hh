@@ -21,18 +21,18 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _iosViewCore = cast<bdn::ios::ViewCore>(BaseClass::_view->getViewCore());
+                _iosViewCore = std::dynamic_pointer_cast<bdn::ios::ViewCore>(BaseClass::_view->getViewCore());
                 REQUIRE(_iosViewCore != nullptr);
 
                 _uIView = _iosViewCore->getUIView();
                 REQUIRE(_uIView != nullptr);
             }
 
-            IUiProvider &getUiProvider() override { return bdn::ios::UiProvider::get(); }
+            std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_view->visible();
+                bool expectedVisible = BaseClass::_view->visible;
 
                 REQUIRE(_uIView.hidden == !expectedVisible);
             }
@@ -52,7 +52,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getFrameRect().getPosition();
-                Point expectedPosition = BaseClass::_view->position();
+                Point expectedPosition = BaseClass::_view->position;
 
                 REQUIRE(position == expectedPosition);
             }
@@ -60,7 +60,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getFrameRect().getSize();
-                Size expectedSize = BaseClass::_view->size();
+                Size expectedSize = BaseClass::_view->size;
 
                 REQUIRE(size == expectedSize);
             }
@@ -71,7 +71,7 @@ namespace bdn
                 // So nothing to test here.
             }
 
-            P<bdn::ios::ViewCore> _iosViewCore;
+            std::shared_ptr<bdn::ios::ViewCore> _iosViewCore;
             UIView *_uIView;
         };
     }

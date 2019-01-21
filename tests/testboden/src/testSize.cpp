@@ -1,8 +1,7 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Size.h>
-#include <bdn/TextOutStream.h>
 
 using namespace bdn;
 
@@ -482,39 +481,6 @@ TEST_CASE("Size")
                 a.applyMaximum(Size(11, 20));
                 REQUIRE(a == Size(10, 20));
             }
-        }
-    }
-
-    SECTION("stream <<")
-    {
-        Size s(1.125, -345.125);
-
-        SECTION("char")
-        {
-            std::stringstream stream;
-            stream.imbue(std::locale::classic());
-
-            stream << s;
-            REQUIRE(stream.str() == "(1.125 x -345.125)");
-        }
-
-        SECTION("wchar_t")
-        {
-            std::wstringstream stream;
-            stream.imbue(std::locale::classic());
-
-            stream << s;
-            REQUIRE(stream.str() == L"(1.125 x -345.125)");
-        }
-
-        SECTION("char32_t")
-        {
-            std::basic_stringbuf<char32_t, UnicodeCharTraits> streamBuffer;
-            TextOutStream stream(&streamBuffer);
-            stream.imbue(std::locale::classic());
-
-            stream << s;
-            REQUIRE(streamBuffer.str() == U"(1.125 x -345.125)");
         }
     }
 }

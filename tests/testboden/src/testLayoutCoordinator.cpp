@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/LayoutCoordinator.h>
@@ -26,19 +26,26 @@ class LayoutCoordinatorForTesting : public LayoutCoordinator
 
 TEST_CASE("LayoutCoordinator")
 {
-    P<LayoutCoordinatorForTesting> coord = newObj<LayoutCoordinatorForTesting>();
+    std::shared_ptr<LayoutCoordinatorForTesting> coord = std::make_shared<LayoutCoordinatorForTesting>();
 
-    P<bdn::test::MockUiProvider> uiProvider = newObj<bdn::test::MockUiProvider>();
+    std::shared_ptr<bdn::test::MockUiProvider> uiProvider = std::make_shared<bdn::test::MockUiProvider>();
 
-    P<Window> view1 = newObj<Window>(uiProvider);
-    P<Window> view2 = newObj<Window>(uiProvider);
-    P<Window> view3 = newObj<Window>(uiProvider);
+    std::shared_ptr<Window> view1 = std::make_shared<Window>(uiProvider);
+    std::shared_ptr<Window> view2 = std::make_shared<Window>(uiProvider);
+    std::shared_ptr<Window> view3 = std::make_shared<Window>(uiProvider);
+
+    view1->setContentView(nullptr);
+    view2->setContentView(nullptr);
+    view3->setContentView(nullptr);
 
     // wait for the initial updates by the global layout coordinator to be done
-    CONTINUE_SECTION_WHEN_IDLE(uiProvider, coord, view1, view2,
-                               view3){SECTION("exception"){P<Window> centerWindow = newObj<Window>(uiProvider);
+    CONTINUE_SECTION_WHEN_IDLE(uiProvider, coord, view1, view2, view3){
+        SECTION("exception"){std::shared_ptr<Window> centerWindow = std::make_shared<Window>(uiProvider);
 
-    int initialCenterCount = cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
+    centerWindow->setContentView(nullptr);
+
+    int initialCenterCount =
+        std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
 
     // centerWindow is always scheduled for centering. This is because window
     // centering is always done last, so this allows us to reasonably detect
@@ -47,14 +54,14 @@ TEST_CASE("LayoutCoordinator")
 
     SECTION("layout throws exception")
     {
-        cast<bdn::test::MockViewCore>(view2->getViewCore())->setOverrideLayoutFunc([]() {
+        std::dynamic_pointer_cast<bdn::test::MockViewCore>(view2->getViewCore())->setOverrideLayoutFunc([]() {
             throw std::exception();
             return false;
         });
 
-        int initialCount1 = cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount();
-        int initialCount2 = cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount();
-        int initialCount3 = cast<bdn::test::MockViewCore>(view3->getViewCore())->getLayoutCount();
+        int initialCount1 = std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount();
+        int initialCount2 = std::dynamic_pointer_cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount();
+        int initialCount3 = std::dynamic_pointer_cast<bdn::test::MockViewCore>(view3->getViewCore())->getLayoutCount();
 
         coord->viewNeedsLayout(view1);
         coord->viewNeedsLayout(view2);
@@ -63,12 +70,16 @@ TEST_CASE("LayoutCoordinator")
         CONTINUE_SECTION_WHEN_IDLE(coord, view1, view2, view3, initialCount1, initialCount2, initialCount3,
                                    centerWindow, initialCenterCount)
         {
-            REQUIRE(cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() == initialCount1 + 1);
-            REQUIRE(cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount() == initialCount2 + 1);
-            REQUIRE(cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount() == initialCount3 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
+                    initialCount1 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount() ==
+                    initialCount2 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view2->getViewCore())->getLayoutCount() ==
+                    initialCount3 + 1);
 
-            REQUIRE(cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
-                    initialCenterCount + 1);
+            REQUIRE(
+                std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
+                initialCenterCount + 1);
 
             REQUIRE(coord->exceptionCount == 1);
         };
@@ -76,14 +87,17 @@ TEST_CASE("LayoutCoordinator")
 
     SECTION("autoSize throws exception")
     {
-        int initialCount1 = cast<bdn::test::MockWindowCore>(view1->getViewCore())->getAutoSizeCount();
-        int initialCount2 = cast<bdn::test::MockWindowCore>(view2->getViewCore())->getAutoSizeCount();
-        int initialCount3 = cast<bdn::test::MockWindowCore>(view3->getViewCore())->getAutoSizeCount();
+        int initialCount1 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view1->getViewCore())->getAutoSizeCount();
+        int initialCount2 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->getAutoSizeCount();
+        int initialCount3 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view3->getViewCore())->getAutoSizeCount();
 
         int initialCenterWindowCenterCount =
-            cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
 
-        cast<bdn::test::MockWindowCore>(view2->getViewCore())->setOverrideAutoSizeFunc([]() {
+        std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->setOverrideAutoSizeFunc([]() {
             throw std::exception();
             return false;
         });
@@ -95,11 +109,15 @@ TEST_CASE("LayoutCoordinator")
         CONTINUE_SECTION_WHEN_IDLE(coord, view1, view2, view3, centerWindow, initialCount1, initialCount2,
                                    initialCount3, initialCenterWindowCenterCount)
         {
-            REQUIRE(cast<bdn::test::MockWindowCore>(view1->getViewCore())->getAutoSizeCount() == initialCount1 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(view2->getViewCore())->getAutoSizeCount() == initialCount2 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(view3->getViewCore())->getAutoSizeCount() == initialCount3 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
-                    initialCenterWindowCenterCount + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view1->getViewCore())->getAutoSizeCount() ==
+                    initialCount1 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->getAutoSizeCount() ==
+                    initialCount2 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view3->getViewCore())->getAutoSizeCount() ==
+                    initialCount3 + 1);
+            REQUIRE(
+                std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
+                initialCenterWindowCenterCount + 1);
 
             REQUIRE(coord->exceptionCount == 1);
         };
@@ -107,14 +125,17 @@ TEST_CASE("LayoutCoordinator")
 
     SECTION("center throws exception")
     {
-        int initialCount1 = cast<bdn::test::MockWindowCore>(view1->getViewCore())->getCenterCount();
-        int initialCount2 = cast<bdn::test::MockWindowCore>(view2->getViewCore())->getCenterCount();
-        int initialCount3 = cast<bdn::test::MockWindowCore>(view3->getViewCore())->getCenterCount();
+        int initialCount1 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view1->getViewCore())->getCenterCount();
+        int initialCount2 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->getCenterCount();
+        int initialCount3 =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view3->getViewCore())->getCenterCount();
 
         int initialCenterWindowCenterCount =
-            cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount();
 
-        cast<bdn::test::MockWindowCore>(view2->getViewCore())->setOverrideCenterFunc([]() {
+        std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->setOverrideCenterFunc([]() {
             throw std::exception();
             return false;
         });
@@ -126,11 +147,15 @@ TEST_CASE("LayoutCoordinator")
         CONTINUE_SECTION_WHEN_IDLE(coord, view1, view2, view3, centerWindow, initialCount1, initialCount2,
                                    initialCount3, initialCenterWindowCenterCount)
         {
-            REQUIRE(cast<bdn::test::MockWindowCore>(view1->getViewCore())->getCenterCount() == initialCount1 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(view2->getViewCore())->getCenterCount() == initialCount2 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(view3->getViewCore())->getCenterCount() == initialCount3 + 1);
-            REQUIRE(cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
-                    initialCenterWindowCenterCount + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view1->getViewCore())->getCenterCount() ==
+                    initialCount1 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view2->getViewCore())->getCenterCount() ==
+                    initialCount2 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockWindowCore>(view3->getViewCore())->getCenterCount() ==
+                    initialCount3 + 1);
+            REQUIRE(
+                std::dynamic_pointer_cast<bdn::test::MockWindowCore>(centerWindow->getViewCore())->getCenterCount() ==
+                initialCenterWindowCenterCount + 1);
 
             REQUIRE(coord->exceptionCount == 1);
         };
@@ -157,7 +182,7 @@ SECTION("Pending events are handled between layouts")
     // defined order. The order is only defined if one is on a deeper level, so
     // we create a child view inside the (unused) view3.
 
-    P<Button> view4 = newObj<Button>();
+    std::shared_ptr<Button> view4 = std::make_shared<Button>();
 
     view3->setContentView(view4);
 
@@ -165,8 +190,10 @@ SECTION("Pending events are handled between layouts")
     // handled.
     CONTINUE_SECTION_WHEN_IDLE(view1, view2, view3, view4, coord)
     {
-        int initialLayoutCount1 = cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount();
-        int initialLayoutCount4 = cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount();
+        int initialLayoutCount1 =
+            std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount();
+        int initialLayoutCount4 =
+            std::dynamic_pointer_cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount();
 
         view1->needLayout(View::InvalidateReason::customDataChanged);
         view4->needLayout(View::InvalidateReason::customDataChanged);
@@ -174,27 +201,30 @@ SECTION("Pending events are handled between layouts")
         // layout order is parent-first, so view1 will always be layouted before
         // view4
 
-        cast<bdn::test::MockViewCore>(view1->getViewCore())
+        std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())
             ->setOverrideLayoutFunc([view1, view2, view3, view4, coord, initialLayoutCount1, initialLayoutCount4]() {
                 // view 4 should not have been layouted yet
-                REQUIRE(cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() == initialLayoutCount4);
+                REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() ==
+                        initialLayoutCount4);
 
                 // and view 1 only once (the current call)
-                REQUIRE(cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
+                REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
                         initialLayoutCount1 + 1);
 
                 // now schedule something to the event queue.
                 // This simulates the property change notification.
-                asyncCallFromMainThread(
-                    [view1, view2, view3, view4, coord, initialLayoutCount1, initialLayoutCount4]() {
-                        // view4 should still not have been layouted yet
-                        REQUIRE(cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() ==
-                                initialLayoutCount4);
+                asyncCallFromMainThread([view1, view2, view3, view4, coord, initialLayoutCount1,
+                                         initialLayoutCount4]() {
+                    // view4 should still not have been layouted yet
+                    REQUIRE(
+                        std::dynamic_pointer_cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() ==
+                        initialLayoutCount4);
 
-                        // and view1 still only once
-                        REQUIRE(cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
-                                initialLayoutCount1 + 1);
-                    });
+                    // and view1 still only once
+                    REQUIRE(
+                        std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
+                        initialLayoutCount1 + 1);
+                });
 
                 // execute the normal layout implementation
                 return false;
@@ -203,8 +233,10 @@ SECTION("Pending events are handled between layouts")
         CONTINUE_SECTION_WHEN_IDLE(view1, view2, view3, view4, initialLayoutCount1, initialLayoutCount4, coord)
         {
             // verify that now all layout requests have been handled.
-            REQUIRE(cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() == initialLayoutCount1 + 1);
-            REQUIRE(cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() == initialLayoutCount4 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view1->getViewCore())->getLayoutCount() ==
+                    initialLayoutCount1 + 1);
+            REQUIRE(std::dynamic_pointer_cast<bdn::test::MockViewCore>(view4->getViewCore())->getLayoutCount() ==
+                    initialLayoutCount4 + 1);
         };
     };
 }

@@ -1,8 +1,12 @@
-#ifndef BDN_TEST_testDispatcher_H_
-#define BDN_TEST_testDispatcher_H_
+#pragma once
 
 #include <bdn/IDispatcher.h>
-#include <bdn/Array.h>
+#include <bdn/InvalidArgumentError.h>
+
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 namespace bdn
 {
@@ -11,12 +15,12 @@ namespace bdn
 
         struct TestDispatcherData_ : public Base
         {
-            Array<int> callOrder;
+            std::vector<int> callOrder;
 
-            Array<std::chrono::steady_clock::time_point> callTimes;
+            std::vector<std::chrono::steady_clock::time_point> callTimes;
 
             int callableDestroyedCount = 0;
-            Array<Thread::Id> callableDestructWrongThreadIds;
+            std::vector<std::thread::id> callableDestructWrongThreadIds;
 
             int unhandledProblemCount = 0;
         };
@@ -24,7 +28,8 @@ namespace bdn
         class TestDispatcherCallableDataDestruct_ : public Base
         {
           public:
-            TestDispatcherCallableDataDestruct_(Thread::Id expectedThreadId, TestDispatcherData_ *data)
+            TestDispatcherCallableDataDestruct_(std::thread::id expectedThreadId,
+                                                std::shared_ptr<TestDispatcherData_> data)
             {
                 _expectedThreadId = expectedThreadId;
                 _data = data;
@@ -38,7 +43,7 @@ namespace bdn
                 // exception and we are in a destructor. instead we set a member
                 // in data if the test fails and that is checked from somewhere
                 // else.
-                Thread::Id threadId = Thread::getCurrentId();
+                std::thread::id threadId = std::this_thread::get_id();
                 if (threadId != _expectedThreadId)
                     _data->callableDestructWrongThreadIds.push_back(threadId);
 
@@ -46,37 +51,38 @@ namespace bdn
             }
 
           private:
-            Thread::Id _expectedThreadId;
+            std::thread::id _expectedThreadId;
 
-            P<TestDispatcherData_> _data;
+            std::shared_ptr<TestDispatcherData_> _data;
         };
 
-        inline void _testDispatcherTimer(IDispatcher *dispatcher, int throwException,
-                                         Thread::Id expectedDispatcherThreadId, bool enableTimingTests)
+        inline void _testDispatcherTimer(std::shared_ptr<IDispatcher> dispatcher, int throwException,
+                                         std::thread::id expectedDispatcherThreadId, bool enableTimingTests)
         {
-            P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+            std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
             std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
-            P<TestDispatcherCallableDataDestruct_> destructTest =
-                newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+            std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
-            P<bdn::test::RedirectUnhandledProblem> redirectUnhandled;
+            std::shared_ptr<bdn::test::RedirectUnhandledProblem> redirectUnhandled;
             if (throwException == 1) {
-                redirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
-                    REQUIRE(problem.getType() == IUnhandledProblem::Type::exception);
-                    REQUIRE(problem.getErrorMessage() == "bla");
+                redirectUnhandled =
+                    std::make_shared<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
+                        REQUIRE(problem.getType() == IUnhandledProblem::Type::exception);
+                        REQUIRE(problem.getErrorMessage() == "bla");
 
-                    // ignore and continue.
-                    REQUIRE(problem.canKeepRunning());
-                    problem.keepRunning();
+                        // ignore and continue.
+                        REQUIRE(problem.canKeepRunning());
+                        problem.keepRunning();
 
-                    data->unhandledProblemCount++;
-                });
+                        data->unhandledProblemCount++;
+                    });
             }
 
-            dispatcher->createTimer(0.25, [data, expectedDispatcherThreadId, throwException, destructTest]() -> bool {
-                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+            dispatcher->createTimer(250ms, [data, expectedDispatcherThreadId, throwException, destructTest]() -> bool {
+                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
 
                 data->callTimes.push_back(std::chrono::steady_clock::now());
 
@@ -85,7 +91,7 @@ namespace bdn
                 // scheduled based on the scheduled
                 // time, not the finish time of the
                 // handler.
-                Thread::sleepSeconds(0.1);
+                std::this_thread::sleep_for(100ms);
 
                 if (data->callTimes.size() >= 10)
                     return false;
@@ -102,7 +108,7 @@ namespace bdn
 
             std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(2.5 + 1.0, data, startTime, redirectUnhandled, throwException,
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(3500ms, data, startTime, redirectUnhandled, throwException,
                                                enableTimingTests, waitStartTime)
             {
                 std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
@@ -111,7 +117,7 @@ namespace bdn
 
                 // sanity check: verify that we have waited the expected amount
                 // of time before continuing the test
-                REQUIRE(waitDurationMillis.count() >= 3400);
+                REQUIRE(waitDurationMillis >= 3400ms);
 
                 // our timer is expected to be called once every 100 ms.
                 // Verify that all expected timer calls have happened.
@@ -165,7 +171,7 @@ namespace bdn
         /** Tests an IDispatcher implementation. The dispatcher must execute the
            enqueued items automatically. It may do so in the same thread or a
            separate thread. */
-        inline void testDispatcher(IDispatcher *dispatcher, Thread::Id expectedDispatcherThreadId,
+        inline void testDispatcher(std::shared_ptr<IDispatcher> dispatcher, std::thread::id expectedDispatcherThreadId,
                                    bool enableTimingTests, bool canKeepRunningAfterUnhandledExceptions = true)
         {
             SECTION("enqueue")
@@ -174,23 +180,21 @@ namespace bdn
                 {
                     IDispatcher::Priority prio;
 
-                    SECTION("Priority normal")
-                    prio = IDispatcher::Priority::normal;
-                    SECTION("Priority idle")
-                    prio = IDispatcher::Priority::idle;
+                    SECTION("Priority normal") { prio = IDispatcher::Priority::normal; }
+                    SECTION("Priority idle") { prio = IDispatcher::Priority::idle; }
 
-                    P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                    std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                    P<TestDispatcherCallableDataDestruct_> destructTest =
-                        newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                    std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                        std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
                     dispatcher->enqueue(
                         [data, expectedDispatcherThreadId, destructTest]() {
                             // ensure that the enqueuing thread has time to
                             // release its reference to the destruct test object
-                            Thread::sleepSeconds(0.1);
+                            std::this_thread::sleep_for(100ms);
 
-                            REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                            REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
 
                             data->callOrder.push_back(0);
                         },
@@ -198,11 +202,11 @@ namespace bdn
 
                     destructTest = nullptr;
 
-                    std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+                    IDispatcher::TimePoint waitStartTime = IDispatcher::Clock::now();
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, data, waitStartTime)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(600ms, data, waitStartTime)
                     {
-                        std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
+                        IDispatcher::TimePoint waitEndTime = IDispatcher::Clock::now();
                         std::chrono::milliseconds waitDurationMillis =
                             std::chrono::duration_cast<std::chrono::milliseconds>(waitEndTime - waitStartTime);
 
@@ -227,7 +231,7 @@ namespace bdn
                         SECTION("Priority idle")
                         prio = IDispatcher::Priority::idle;
 
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
                         // there is some potential for race conditions here if
                         // the dispatcher runs in a separate thread. Since we
@@ -241,28 +245,28 @@ namespace bdn
                         // our real items before it starts executing any of
                         // them.
                         dispatcher->enqueue([expectedDispatcherThreadId]() {
-                            REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                            REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
 
-                            Thread::sleepSeconds(0.5);
+                            std::this_thread::sleep_for(500ms);
                         });
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(0);
                             },
                             prio);
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(1);
                             },
                             prio);
 
                         std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, waitStartTime)
                         {
                             std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                             std::chrono::milliseconds waitDurationMillis =
@@ -283,28 +287,28 @@ namespace bdn
 
                     SECTION("normal, then idle")
                     {
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
                         // block execution to avoid race conditions. See above.
-                        dispatcher->enqueue([]() { Thread::sleepSeconds(1); });
+                        dispatcher->enqueue([]() { std::this_thread::sleep_for(1s); });
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(0);
                             },
                             IDispatcher::Priority::normal);
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(1);
                             },
                             IDispatcher::Priority::idle);
 
                         std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(2s, data, waitStartTime)
                         {
                             std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                             std::chrono::milliseconds waitDurationMillis =
@@ -312,7 +316,7 @@ namespace bdn
 
                             // sanity check: verify that we have waited the
                             // expected amount of time.
-                            REQUIRE(waitDurationMillis.count() >= 490);
+                            REQUIRE(waitDurationMillis >= 1900ms);
 
                             REQUIRE(data->callOrder.size() == 2);
 
@@ -325,28 +329,28 @@ namespace bdn
 
                     SECTION("idle, then normal")
                     {
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
                         // block execution to avoid race conditions. See above.
-                        dispatcher->enqueue([]() { Thread::sleepSeconds(1); });
+                        dispatcher->enqueue([]() { std::this_thread::sleep_for(1s); });
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(0);
                             },
                             IDispatcher::Priority::idle);
 
                         dispatcher->enqueue(
                             [data, expectedDispatcherThreadId]() {
-                                REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
+                                REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
                                 data->callOrder.push_back(1);
                             },
                             IDispatcher::Priority::normal);
 
                         std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(2s, data, waitStartTime)
                         {
                             std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                             std::chrono::milliseconds waitDurationMillis =
@@ -354,7 +358,7 @@ namespace bdn
 
                             // sanity check: verify that we have waited the
                             // expected amount of time.
-                            REQUIRE(waitDurationMillis.count() >= 900);
+                            REQUIRE(waitDurationMillis >= 1900ms);
 
                             REQUIRE(data->callOrder.size() == 2);
 
@@ -375,13 +379,13 @@ namespace bdn
                         SECTION("Priority idle")
                         prio = IDispatcher::Priority::idle;
 
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                        P<TestDispatcherCallableDataDestruct_> destructTest =
-                            newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                        std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                            std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
-                        P<bdn::test::RedirectUnhandledProblem> redirectUnhandled =
-                            newObj<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
+                        std::shared_ptr<bdn::test::RedirectUnhandledProblem> redirectUnhandled =
+                            std::make_shared<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
                                 IUnhandledProblem::Type type = problem.getType();
                                 String message = problem.getErrorMessage();
 
@@ -421,7 +425,7 @@ namespace bdn
                                 // ensure that the enqueuing thread has time to
                                 // release its reference to the destruct test
                                 // object
-                                Thread::sleepSeconds(0.5);
+                                std::this_thread::sleep_for(500ms);
 
                                 data->callOrder.push_back(0);
 
@@ -433,7 +437,7 @@ namespace bdn
 
                         std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, redirectUnhandled, waitStartTime)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, redirectUnhandled, waitStartTime)
                         {
                             std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                             std::chrono::milliseconds waitDurationMillis =
@@ -441,7 +445,7 @@ namespace bdn
 
                             // sanity check: verify that we have waited the
                             // expected amount of time.
-                            REQUIRE(waitDurationMillis.count() >= 900);
+                            REQUIRE(waitDurationMillis >= 900ms);
 
                             REQUIRE(data->callOrder.size() == 1);
                             REQUIRE(data->callableDestroyedCount == 1);
@@ -461,16 +465,16 @@ namespace bdn
                     SECTION("Priority idle")
                     prio = IDispatcher::Priority::idle;
 
-                    P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                    std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                    P<TestDispatcherCallableDataDestruct_> destructTest =
-                        newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                    std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                        std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
                     dispatcher->enqueue(
                         [destructTest, data]() {
                             // ensure that the enqueuing thread has time to
                             // release its reference to the destruct test object
-                            Thread::sleepSeconds(0.5);
+                            std::this_thread::sleep_for(500ms);
 
                             data->callOrder.push_back(0);
 
@@ -482,7 +486,7 @@ namespace bdn
 
                     std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, waitStartTime)
                     {
                         std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                         std::chrono::milliseconds waitDurationMillis =
@@ -490,7 +494,7 @@ namespace bdn
 
                         // sanity check: verify that we have waited the expected
                         // amount of time.
-                        REQUIRE(waitDurationMillis.count() >= 900);
+                        REQUIRE(waitDurationMillis >= 900ms);
 
                         REQUIRE(data->callOrder.size() == 1);
                         REQUIRE(data->callableDestroyedCount == 1);
@@ -515,21 +519,22 @@ namespace bdn
                         SECTION("Priority idle")
                         prio = IDispatcher::Priority::idle;
 
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                        P<TestDispatcherCallableDataDestruct_> destructTest =
-                            newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                        std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                            std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
-                        dispatcher->enqueueInSeconds(2,
-                                                     [data, expectedDispatcherThreadId, destructTest]() {
-                                                         REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
-                                                         data->callOrder.push_back(0);
-                                                     },
-                                                     prio);
+                        dispatcher->enqueueDelayed(2s,
+                                                   [data, expectedDispatcherThreadId, destructTest]() {
+                                                       REQUIRE(std::this_thread::get_id() ==
+                                                               expectedDispatcherThreadId);
+                                                       data->callOrder.push_back(0);
+                                                   },
+                                                   prio);
 
                         destructTest = nullptr;
 
-                        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0.5, data)
+                        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(500ms, data)
                         {
                             // should NOT have been called immediately
                             REQUIRE(data->callOrder.size() == 0);
@@ -537,7 +542,7 @@ namespace bdn
                             // should not have been destructed yet
                             REQUIRE(data->callableDestroyedCount == 0);
 
-                            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0.5, data)
+                            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(500ms, data)
                             {
                                 // also not after 1 second
                                 REQUIRE(data->callOrder.size() == 0);
@@ -545,7 +550,7 @@ namespace bdn
 
                                 std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                                CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, data, waitStartTime)
+                                CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, data, waitStartTime)
                                 {
                                     std::chrono::steady_clock::time_point waitEndTime =
                                         std::chrono::steady_clock::now();
@@ -555,7 +560,7 @@ namespace bdn
 
                                     // sanity check: verify that we have waited
                                     // the expected amount of time.
-                                    REQUIRE(waitDurationMillis.count() >= 1900);
+                                    REQUIRE(waitDurationMillis >= 1900ms);
 
                                     // but after another 2 seconds it should
                                     // have been called
@@ -579,18 +584,18 @@ namespace bdn
                     SECTION("Priority idle")
                     prio = IDispatcher::Priority::idle;
 
-                    P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                    std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                    dispatcher->enqueueInSeconds(0,
-                                                 [data, expectedDispatcherThreadId]() {
-                                                     REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
-                                                     data->callOrder.push_back(0);
-                                                 },
-                                                 prio);
+                    dispatcher->enqueueDelayed(0s,
+                                               [data, expectedDispatcherThreadId]() {
+                                                   REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
+                                                   data->callOrder.push_back(0);
+                                               },
+                                               prio);
 
                     std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.9, data, waitStartTime)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(900ms, data, waitStartTime)
                     {
                         std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                         std::chrono::milliseconds waitDurationMillis =
@@ -598,14 +603,14 @@ namespace bdn
 
                         // sanity check: verify that we have waited the expected
                         // amount of time.
-                        REQUIRE(waitDurationMillis.count() >= 800);
+                        REQUIRE(waitDurationMillis >= 800ms);
 
                         // should already have been called.
                         REQUIRE(data->callOrder.size() == 1);
                     };
                 }
 
-                SECTION("time=-1")
+                SECTION("time=-1s")
                 {
                     IDispatcher::Priority prio;
 
@@ -614,18 +619,18 @@ namespace bdn
                     SECTION("Priority idle")
                     prio = IDispatcher::Priority::idle;
 
-                    P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                    std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                    dispatcher->enqueueInSeconds(-1,
-                                                 [data, expectedDispatcherThreadId]() {
-                                                     REQUIRE(Thread::getCurrentId() == expectedDispatcherThreadId);
-                                                     data->callOrder.push_back(0);
-                                                 },
-                                                 prio);
+                    dispatcher->enqueueDelayed(-1s,
+                                               [data, expectedDispatcherThreadId]() {
+                                                   REQUIRE(std::this_thread::get_id() == expectedDispatcherThreadId);
+                                                   data->callOrder.push_back(0);
+                                               },
+                                               prio);
 
                     std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, waitStartTime)
                     {
                         std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                         std::chrono::milliseconds waitDurationMillis =
@@ -633,7 +638,7 @@ namespace bdn
 
                         // sanity check: verify that we have waited the expected
                         // amount of time.
-                        REQUIRE(waitDurationMillis.count() >= 900);
+                        REQUIRE(waitDurationMillis >= 900ms);
 
                         // should already have been called.
                         REQUIRE(data->callOrder.size() == 1);
@@ -645,18 +650,16 @@ namespace bdn
                     {
                         IDispatcher::Priority prio;
 
-                        SECTION("Priority normal")
-                        prio = IDispatcher::Priority::normal;
-                        SECTION("Priority idle")
-                        prio = IDispatcher::Priority::idle;
+                        SECTION("Priority normal") { prio = IDispatcher::Priority::normal; }
+                        SECTION("Priority idle") { prio = IDispatcher::Priority::idle; }
 
-                        P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                        std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                        P<TestDispatcherCallableDataDestruct_> destructTest =
-                            newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                        std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                            std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
-                        P<bdn::test::RedirectUnhandledProblem> redirectUnhandled =
-                            newObj<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
+                        std::shared_ptr<bdn::test::RedirectUnhandledProblem> redirectUnhandled =
+                            std::make_shared<bdn::test::RedirectUnhandledProblem>([data](IUnhandledProblem &problem) {
                                 REQUIRE(problem.getType() == IUnhandledProblem::Type::exception);
                                 REQUIRE(problem.getErrorMessage() == "bla");
 
@@ -667,24 +670,24 @@ namespace bdn
                                 data->unhandledProblemCount++;
                             });
 
-                        dispatcher->enqueueInSeconds(0.5,
-                                                     [destructTest, data]() {
-                                                         // ensure that the enqueuing thread has time to
-                                                         // release its reference to the destruct test
-                                                         // object
-                                                         Thread::sleepSeconds(0.1);
+                        dispatcher->enqueueDelayed(500ms,
+                                                   [destructTest, data]() {
+                                                       // ensure that the enqueuing thread has time to
+                                                       // release its reference to the destruct test
+                                                       // object
+                                                       std::this_thread::sleep_for(100ms);
 
-                                                         data->callOrder.push_back(0);
+                                                       data->callOrder.push_back(0);
 
-                                                         throw InvalidArgumentError("bla");
-                                                     },
-                                                     prio);
+                                                       throw InvalidArgumentError("bla");
+                                                   },
+                                                   prio);
 
                         destructTest = nullptr;
 
                         std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, redirectUnhandled, waitStartTime)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, redirectUnhandled, waitStartTime)
                         {
                             std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                             std::chrono::milliseconds waitDurationMillis =
@@ -692,7 +695,7 @@ namespace bdn
 
                             // sanity check: verify that we have waited the
                             // expected amount of time.
-                            REQUIRE(waitDurationMillis.count() >= 900);
+                            REQUIRE(waitDurationMillis >= 900ms);
 
                             REQUIRE(data->callOrder.size() == 1);
                             REQUIRE(data->callableDestroyedCount == 1);
@@ -712,28 +715,28 @@ namespace bdn
                     SECTION("Priority idle")
                     prio = IDispatcher::Priority::idle;
 
-                    P<TestDispatcherData_> data = newObj<TestDispatcherData_>();
+                    std::shared_ptr<TestDispatcherData_> data = std::make_shared<TestDispatcherData_>();
 
-                    P<TestDispatcherCallableDataDestruct_> destructTest =
-                        newObj<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
+                    std::shared_ptr<TestDispatcherCallableDataDestruct_> destructTest =
+                        std::make_shared<TestDispatcherCallableDataDestruct_>(expectedDispatcherThreadId, data);
 
-                    dispatcher->enqueueInSeconds(0.5,
-                                                 [destructTest, data]() {
-                                                     // ensure that the enqueuing thread has time to
-                                                     // release its reference to the destruct test object
-                                                     Thread::sleepSeconds(0.1);
+                    dispatcher->enqueueDelayed(500ms,
+                                               [destructTest, data]() {
+                                                   // ensure that the enqueuing thread has time to
+                                                   // release its reference to the destruct test object
+                                                   std::this_thread::sleep_for(100ms);
 
-                                                     data->callOrder.push_back(0);
+                                                   data->callOrder.push_back(0);
 
-                                                     throw DanglingFunctionError("bla");
-                                                 },
-                                                 prio);
+                                                   throw DanglingFunctionError("bla");
+                                               },
+                                               prio);
 
                     destructTest = nullptr;
 
                     std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1, data, waitStartTime)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, data, waitStartTime)
                     {
                         std::chrono::steady_clock::time_point waitEndTime = std::chrono::steady_clock::now();
                         std::chrono::milliseconds waitDurationMillis =
@@ -741,7 +744,7 @@ namespace bdn
 
                         // sanity check: verify that we have waited the expected
                         // amount of time.
-                        REQUIRE(waitDurationMillis.count() >= 900);
+                        REQUIRE(waitDurationMillis >= 900ms);
 
                         REQUIRE(data->callOrder.size() == 1);
                         REQUIRE(data->callableDestroyedCount == 1);
@@ -769,5 +772,3 @@ namespace bdn
         }
     }
 }
-
-#endif

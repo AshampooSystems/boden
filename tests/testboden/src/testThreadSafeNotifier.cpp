@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/ThreadSafeNotifier.h>
@@ -16,9 +16,9 @@ class ThreadSafeNotifierTestData : public Base
     int callCount2 = 0;
     int callCount3 = 0;
 
-    P<INotifierSubscription> sub1;
-    P<INotifierSubscription> sub2;
-    P<INotifierSubscription> sub3;
+    std::shared_ptr<INotifierSubscription> sub1;
+    std::shared_ptr<INotifierSubscription> sub2;
+    std::shared_ptr<INotifierSubscription> sub3;
 };
 
 static void verifySame() {}
@@ -32,13 +32,13 @@ template <class T1, class T2> static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 }
 
 template <class... ArgTypes>
-void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> notifier, P<ThreadSafeNotifierTestData> testData,
-                                ArgTypes... args)
+void testNotifierAfterSubscribe(std::shared_ptr<ThreadSafeNotifier<ArgTypes...>> notifier,
+                                std::shared_ptr<ThreadSafeNotifierTestData> testData, ArgTypes... args)
 {
     class Listener : public Base
     {
       public:
-        Listener(ThreadSafeNotifierTestData *testData, std::function<void(ArgTypes...)> argVerifier)
+        Listener(std::shared_ptr<ThreadSafeNotifierTestData> testData, std::function<void(ArgTypes...)> argVerifier)
         {
             _testData = testData;
             _argVerifier = argVerifier;
@@ -53,7 +53,7 @@ void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> notifier, P<T
 
         void onNotifyVoid() { _testData->called1 = true; }
 
-        P<ThreadSafeNotifierTestData> _testData;
+        std::shared_ptr<ThreadSafeNotifierTestData> _testData;
         std::function<void(ArgTypes...)> _argVerifier;
     };
 
@@ -108,8 +108,8 @@ void testNotifierAfterSubscribe(P<ThreadSafeNotifier<ArgTypes...>> notifier, P<T
 
 template <class... ArgTypes> void testNotifier(ArgTypes... args)
 {
-    P<ThreadSafeNotifier<ArgTypes...>> notifier = newObj<ThreadSafeNotifier<ArgTypes...>>();
-    P<ThreadSafeNotifierTestData> testData = newObj<ThreadSafeNotifierTestData>();
+    std::shared_ptr<ThreadSafeNotifier<ArgTypes...>> notifier = std::make_shared<ThreadSafeNotifier<ArgTypes...>>();
+    std::shared_ptr<ThreadSafeNotifierTestData> testData = std::make_shared<ThreadSafeNotifierTestData>();
 
     SECTION("subscribe")
     {
@@ -130,8 +130,9 @@ template <class... ArgTypes> void testNotifier(ArgTypes... args)
     }
 }
 
-static void testThreadSafeNotifierDanglingFunctionError(P<ThreadSafeNotifierTestData> testData,
-                                                        P<ThreadSafeNotifier<>> notifier, P<INotifierSubscription> sub)
+static void testThreadSafeNotifierDanglingFunctionError(std::shared_ptr<ThreadSafeNotifierTestData> testData,
+                                                        std::shared_ptr<ThreadSafeNotifier<>> notifier,
+                                                        std::shared_ptr<INotifierSubscription> sub)
 {
     SECTION("notify")
     {
@@ -171,12 +172,7 @@ static void testThreadSafeNotifierDanglingFunctionError(P<ThreadSafeNotifierTest
 
 TEST_CASE("ThreadSafeNotifier")
 {
-    P<ThreadSafeNotifierTestData> testData = newObj<ThreadSafeNotifierTestData>();
-
-    SECTION("require new alloc")
-    {
-        REQUIRE_THROWS_PROGRAMMING_ERROR({ ThreadSafeNotifier<> testNotifier; });
-    }
+    std::shared_ptr<ThreadSafeNotifierTestData> testData = std::make_shared<ThreadSafeNotifierTestData>();
 
     SECTION("noArgs") { testNotifier<>(); }
 
@@ -186,7 +182,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("multipleSubscriptions")
     {
-        P<ThreadSafeNotifier<int>> notifier = newObj<ThreadSafeNotifier<int>>();
+        std::shared_ptr<ThreadSafeNotifier<int>> notifier = std::make_shared<ThreadSafeNotifier<int>>();
 
         testData->sub1 = notifier->subscribe([testData](int) { testData->called1 = true; });
         testData->sub2 = notifier->subscribe([testData](int) { testData->called2 = true; });
@@ -294,10 +290,10 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("notifier deleted before subControl")
     {
-        P<INotifierSubscription> sub;
+        std::shared_ptr<INotifierSubscription> sub;
 
         {
-            P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+            std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
             sub = notifier->subscribe([]() {});
         }
@@ -307,7 +303,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("Notifier deleted before posted notification func call")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         *notifier += [testData]() { testData->callCount1++; };
 
@@ -325,9 +321,9 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("DanglingFunctionError")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
-        P<INotifierSubscription> sub = notifier->subscribe([testData]() {
+        std::shared_ptr<INotifierSubscription> sub = notifier->subscribe([testData]() {
             testData->callCount1++;
             throw DanglingFunctionError();
         });
@@ -348,7 +344,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("unsubscribe during callback")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         testData->sub1 = notifier->subscribe([testData, notifier]() {
             testData->callCount1++;
@@ -393,7 +389,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("unsubscribe during callback then DanglingException")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         testData->sub1 = notifier->subscribe([testData, notifier]() {
             testData->callCount1++;
@@ -440,7 +436,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("unsubscribe next func during callback")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         testData->sub1 = notifier->subscribe([testData, notifier]() {
             testData->callCount1++;
@@ -497,7 +493,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("unsubscribe func following next during callback")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         testData->sub1 = notifier->subscribe([testData, notifier]() {
             testData->callCount1++;
@@ -561,7 +557,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("unsubscribeAll")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         notifier->subscribe([testData]() { testData->callCount1++; });
 
@@ -606,7 +602,7 @@ TEST_CASE("ThreadSafeNotifier")
 
     SECTION("use control after unsubscribeAll")
     {
-        P<ThreadSafeNotifier<>> notifier = newObj<ThreadSafeNotifier<>>();
+        std::shared_ptr<ThreadSafeNotifier<>> notifier = std::make_shared<ThreadSafeNotifier<>>();
 
         testData->sub1 = notifier->subscribe([testData]() { testData->callCount1++; });
 

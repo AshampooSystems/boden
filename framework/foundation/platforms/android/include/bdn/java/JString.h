@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JString_H_
-#define BDN_JAVA_JString_H_
+#pragma once
 
 #include <bdn/java/JCharSequence.h>
 #include <bdn/java/Env.h>
@@ -17,7 +16,7 @@ namespace bdn
             {
                 Env &env = Env::get();
 
-                jstring obj = env.getJniEnv()->NewStringUTF(s.asUtf8Ptr());
+                jstring obj = env.getJniEnv()->NewStringUTF(s.c_str());
                 env.throwAndClearExceptionFromLastJavaCall();
 
                 return Reference::convertAndDestroyOwnedLocal((jobject)obj);
@@ -71,5 +70,3 @@ namespace bdn
         };
     }
 }
-
-#endif

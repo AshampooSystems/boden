@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/JNativeViewCoreClickListener.h>
 
 #include <bdn/java/Env.h>
@@ -12,7 +12,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::ViewCore *viewCore =
+            std::shared_ptr<bdn::android::ViewCore> viewCore =
                 bdn::android::ViewCore::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
 
             if (viewCore == nullptr) {

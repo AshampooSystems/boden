@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #import <bdn/ios/ButtonCore.hh>
 
 @interface BdnIosButtonClickManager : NSObject
@@ -20,14 +20,13 @@ namespace bdn
     namespace ios
     {
 
-        UIButton *ButtonCore::_createUIButton(Button *outerButton)
+        UIButton *ButtonCore::_createUIButton(std::shared_ptr<Button> outerButton)
         {
-            UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
-
-            return button;
+            return [UIButton buttonWithType:UIButtonTypeSystem];
         }
 
-        ButtonCore::ButtonCore(Button *outerButton) : ViewCore(outerButton, _createUIButton(outerButton))
+        ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
+            : ViewCore(outerButton, _createUIButton(outerButton))
         {
             _button = (UIButton *)getUIView();
 
@@ -38,7 +37,7 @@ namespace bdn
 
             [_button addTarget:clickMan action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
-            setLabel(outerButton->label());
+            setLabel(outerButton->label);
         }
 
         ButtonCore::~ButtonCore()
@@ -48,14 +47,23 @@ namespace bdn
             [_button removeTarget:clickMan action:nil forControlEvents:UIControlEventTouchUpInside];
         }
 
+        UIButton *ButtonCore::getUIButton() { return _button; }
+
+        void ButtonCore::setLabel(const String &label)
+        {
+            [_button setTitle:stringToIosString(label) forState:UIControlStateNormal];
+        }
+
         void ButtonCore::_clicked()
         {
-            P<View> view = getOuterViewIfStillAttached();
+            std::shared_ptr<View> view = getOuterViewIfStillAttached();
             if (view != nullptr) {
                 ClickEvent evt(view);
 
-                cast<Button>(view)->onClick().notify(evt);
+                std::dynamic_pointer_cast<Button>(view)->onClick().notify(evt);
             }
         }
+
+        double ButtonCore::getFontSize() const { return _button.titleLabel.font.pointSize; }
     }
 }

@@ -1,48 +1,48 @@
-#include <bdn/init.h>
+
 #include <bdn/java/JNativeStrongPointer.h>
 
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/Base.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *env, jobject rawSelf,
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *pEnv, jobject rawSelf,
                                                                                   jobject rawByteBuffer)
 {
     bdn::platformEntryWrapper(
         [&]() {
             bdn::java::JByteBuffer byteBuffer((bdn::java::Reference::convertExternalLocal(rawByteBuffer)));
 
-            bdn::IBase *object = static_cast<bdn::IBase *>(byteBuffer.getBuffer_());
+            std::shared_ptr<bdn::Base> *pPtr = static_cast<std::shared_ptr<bdn::Base> *>(byteBuffer.getBuffer_());
 
-            object->releaseRef();
+            delete pPtr;
         },
-        true, env);
+        true, pEnv);
 }
 
 namespace bdn
 {
     namespace java
     {
-        Reference JNativeStrongPointer::newInstance_(IBase *object)
+        Reference JNativeStrongPointer::newInstance_(std::shared_ptr<Base> pObject)
         {
-            if (object == nullptr) {
+            if (pObject == nullptr) {
                 // When the C++ pointer is null then we just return a null
                 // java reference
                 return Reference();
             } else {
                 // wrap the pointer into a java byte buffer
-                JByteBuffer byteBuffer(static_cast<void *>(object), 1);
+                std::shared_ptr<Base> *pPtr = new std::shared_ptr<Base>(pObject);
+                JByteBuffer byteBuffer(static_cast<void *>(pPtr), 1);
 
                 static MethodId constructorId;
 
                 Reference ref = getStaticClass_().newInstance_(constructorId, byteBuffer);
 
-                object->addRef();
-
                 return ref;
             }
         }
 
-        JNativeStrongPointer::JNativeStrongPointer(IBase *object) : JObject(newInstance_(object)) {}
+        JNativeStrongPointer::JNativeStrongPointer(std::shared_ptr<Base> pObject) : JObject(newInstance_(pObject)) {}
 
         JNativeStrongPointer::JNativeStrongPointer(const Reference &objectRef) : JObject(objectRef) {}
 
@@ -53,7 +53,7 @@ namespace bdn
             return invoke_<JByteBuffer>(getStaticClass_(), methodId, "getWrappedPointer");
         }
 
-        P<IBase> JNativeStrongPointer::getPointer_()
+        std::shared_ptr<Base> JNativeStrongPointer::getPointer_()
         {
             JByteBuffer buffer = getWrappedPointer();
 
@@ -61,26 +61,26 @@ namespace bdn
                 // that means that the C++ pointer is null.
                 return nullptr;
             } else {
-                IBase *p = static_cast<IBase *>(buffer.getBuffer_());
+                std::shared_ptr<Base> *ptr = static_cast<std::shared_ptr<Base> *>(buffer.getBuffer_());
 
-                return p;
+                return *ptr;
             }
         }
 
-        IBase *JNativeStrongPointer::unwrapJObject(jobject obj)
+        Base *JNativeStrongPointer::unwrapJObject(jobject obj)
         {
             Env &env = Env::get();
 
-            JNIEnv *jniEnv = env.getJniEnv();
+            JNIEnv *pEnv = env.getJniEnv();
 
-            if (jniEnv->IsSameObject(obj, NULL))
+            if (pEnv->IsSameObject(obj, NULL))
                 return nullptr;
             else {
-                void *buffer = env.getJniEnv()->GetDirectBufferAddress(obj);
+                void *pBuffer = env.getJniEnv()->GetDirectBufferAddress(obj);
 
                 env.throwAndClearExceptionFromLastJavaCall();
 
-                return static_cast<IBase *>(buffer);
+                return static_cast<std::shared_ptr<Base> *>(pBuffer)->get();
             }
         }
 

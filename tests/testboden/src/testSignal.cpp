@@ -1,30 +1,35 @@
-#include <bdn/init.h>
+
 
 #include <bdn/Signal.h>
 
 #include <bdn/test.h>
 #include <bdn/StopWatch.h>
+#include <bdn/config.h>
+
+#include <thread>
+#include <future>
 
 using namespace bdn;
+using namespace std::chrono_literals;
 
-void verifySignalState(Signal *signal, bool expectedSet)
+void verifySignalState(std::shared_ptr<Signal> signal, bool expectedSet)
 {
     REQUIRE(signal->isSet() == expectedSet);
 
     StopWatch stopWatch;
-    REQUIRE(signal->wait(0) == expectedSet);
+    REQUIRE(signal->wait(0s) == expectedSet);
     // should not have waited
-    REQUIRE(stopWatch.getMillis() < 500);
+    REQUIRE(stopWatch.elapsed() < 500ms);
 
     stopWatch.start();
-    REQUIRE(signal->wait(1000) == expectedSet);
+    REQUIRE(signal->wait(1s) == expectedSet);
 
     if (expectedSet) {
         // should not have waited
-        REQUIRE(stopWatch.getMillis() < 500);
+        REQUIRE(stopWatch.elapsed() < 500ms);
     } else {
         // should have waited about 1000ms
-        REQUIRE(stopWatch.getMillis() > 990);
+        REQUIRE(stopWatch.elapsed() > 990ms);
     }
 
     // the wait functions must not have modified the state.
@@ -33,7 +38,7 @@ void verifySignalState(Signal *signal, bool expectedSet)
 
 TEST_CASE("Signal")
 {
-    P<Signal> signal = newObj<Signal>();
+    std::shared_ptr<Signal> signal = std::make_shared<Signal>();
 
     SECTION("initialState")
     verifySignalState(signal, false);
@@ -85,8 +90,8 @@ TEST_CASE("Signal")
     {
         SECTION("setWait")
         {
-            Thread::exec([signal]() {
-                Thread::sleepMillis(3000);
+            auto future = std::async(std::launch::async, [signal]() {
+                std::this_thread::sleep_for(3s);
 
                 signal->set();
             });
@@ -96,10 +101,10 @@ TEST_CASE("Signal")
             // should not yet be set
             verifySignalState(signal, false);
 
-            REQUIRE(signal->wait(5000));
+            REQUIRE(signal->wait(5s));
             // should have waited about 3000ms in total
-            REQUIRE(stopWatch.getMillis() > 2500);
-            REQUIRE(stopWatch.getMillis() < 4500);
+            REQUIRE(stopWatch.elapsed() > 2500ms);
+            REQUIRE(stopWatch.elapsed() < 4500ms);
         }
 
         SECTION("pulseOne")
@@ -108,19 +113,19 @@ TEST_CASE("Signal")
 
             std::list<std::future<void>> futureList;
             for (int i = 0; i < 10; i++) {
-                futureList.push_back(Thread::exec([signal, &signalledCount]() {
-                    Thread::sleepMillis(1000);
+                futureList.push_back(std::async(std::launch::async, [signal, &signalledCount]() {
+                    std::this_thread::sleep_for(1s);
 
-                    if (signal->wait(10000))
+                    if (signal->wait(10s))
                         signalledCount++;
                 }));
             }
 
-            Thread::sleepMillis(4000);
+            std::this_thread::sleep_for(4s);
 
             signal->pulseOne();
 
-            Thread::sleepMillis(1000);
+            std::this_thread::sleep_for(1s);
 
             // one thread should have woken up
             REQUIRE(signalledCount == 1);
@@ -139,15 +144,15 @@ TEST_CASE("Signal")
 
             std::list<std::future<void>> futureList;
             for (int i = 0; i < 10; i++) {
-                futureList.push_back(Thread::exec([signal, &signalledCount]() {
-                    Thread::sleepMillis(1000);
+                futureList.push_back(std::async(std::launch::async, [signal, &signalledCount]() {
+                    std::this_thread::sleep_for(1s);
 
-                    if (signal->wait(10000))
+                    if (signal->wait(10s))
                         signalledCount++;
                 }));
             }
 
-            Thread::sleepMillis(4000);
+            std::this_thread::sleep_for(4s);
 
             signal->pulseAll();
 
@@ -157,7 +162,7 @@ TEST_CASE("Signal")
                 f.get();
 
             // should not have taken long for the threads to finish
-            REQUIRE(stopWatch.getMillis() < 1000);
+            REQUIRE(stopWatch.elapsed() < 1s);
 
             // all of them should have woken up.
             REQUIRE(signalledCount == 10);

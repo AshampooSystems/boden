@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 
 #include <bdn/UiMargin.h>
 
@@ -85,6 +85,9 @@ TEST_CASE("UiMargin")
     {
         UiMargin m(1.125, -345.125, 2.775, 3.5);
 
-        REQUIRE(toString(m) == "(1.125 dip, -345.125 dip, 2.775 dip, 3.5 dip)");
+        std::ostringstream str;
+        str << m;
+
+        REQUIRE(str.str() == "(1.125 dip, -345.125 dip, 2.775 dip, 3.5 dip)");
     }
 }

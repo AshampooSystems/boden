@@ -1,7 +1,8 @@
-#ifndef BDN_JAVA_TypeConversion_H_
-#define BDN_JAVA_TypeConversion_H_
+#pragma once
 
+#include <bdn/String.h>
 #include <bdn/java/Reference.h>
+#include <list>
 
 namespace bdn
 {
@@ -311,5 +312,3 @@ namespace bdn
         }
     }
 }
-
-#endif

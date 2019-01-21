@@ -1,5 +1,7 @@
-#ifndef BDN_Uri_H_
-#define BDN_Uri_H_
+#pragma once
+
+#include <bdn/Base.h>
+#include <bdn/String.h>
 
 namespace bdn
 {
@@ -14,5 +16,3 @@ namespace bdn
         static String unescape(const String &s);
     };
 }
-
-#endif

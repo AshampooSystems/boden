@@ -1,5 +1,4 @@
-#ifndef BDN_TextField_H_
-#define BDN_TextField_H_
+#pragma once
 
 #include <bdn/View.h>
 #include <bdn/ITextFieldCore.h>
@@ -13,7 +12,11 @@ namespace bdn
     class TextField : public View
     {
       public:
-        TextField() { _onSubmit = newObj<SimpleNotifier<const SubmitEvent &>>(); }
+        /** The text field's text */
+        Property<String> text;
+
+      public:
+        TextField();
 
         /** Static function that returns the type name for #TextField objects.
          */
@@ -21,27 +24,18 @@ namespace bdn
 
         String getCoreTypeName() const override { return getTextFieldCoreTypeName(); }
 
-        /** The text field's text */
-        BDN_VIEW_PROPERTY(String, text, setText, ITextFieldCore, influencesNothing());
-
         /** Informs observers of the onSubmit() notifier about a submit event.
          */
-        void submit()
-        {
-            bdn::SubmitEvent event(this);
-            onSubmit().notify(event);
-        }
+        void submit();
 
         /** A notifier for submit events. Subscribe to this notifier if you want
            to be notified about submit events posted to the text field. Submit
            events are posted when the user presses the Enter key or when
            submit() is called programmatically.
         */
-        ISyncNotifier<const SubmitEvent &> &onSubmit() { return *_onSubmit; }
+        ISyncNotifier<const SubmitEvent &> &onSubmit();
 
       private:
-        P<SimpleNotifier<const SubmitEvent &>> _onSubmit;
+        std::shared_ptr<SimpleNotifier<const SubmitEvent &>> _onSubmit;
     };
 }
-
-#endif

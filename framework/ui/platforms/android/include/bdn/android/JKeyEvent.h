@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JKeyEvent_H_
-#define BDN_ANDROID_JKeyEvent_H_
+#pragma once
 
 #include <bdn/android/JInputEvent.h>
 
@@ -39,5 +38,3 @@ namespace bdn
         };
     }
 }
-
-#endif

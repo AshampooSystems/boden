@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_ButtonCore_HH_
-#define BDN_MAC_ButtonCore_HH_
+#pragma once
 
 #include <bdn/IButtonCore.h>
 #include <bdn/Button.h>
@@ -11,10 +10,10 @@ namespace bdn
     namespace mac
     {
 
-        class ButtonCore : public ButtonCoreBase, BDN_IMPLEMENTS IButtonCore
+        class ButtonCore : public ButtonCoreBase, virtual public IButtonCore
         {
           private:
-            static NSButton *_createNsButton(Button *outerButton)
+            static NSButton *_createNsButton(std::shared_ptr<Button> outerButton)
             {
                 NSButton *button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -25,7 +24,7 @@ namespace bdn
             }
 
           public:
-            ButtonCore(Button *outerButton);
+            ButtonCore(std::shared_ptr<Button> outerButton);
 
             void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 
@@ -38,7 +37,7 @@ namespace bdn
                 return adjustedBounds;
             }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 ChildViewCore::setPadding(padding);
 
@@ -84,5 +83,3 @@ namespace bdn
         };
     }
 }
-
-#endif

@@ -1,14 +1,15 @@
-#include <bdn/init.h>
+
 #include <bdn/platform/macplatform.h>
 #include <bdn/debug.h>
 
-#include <bdn/IAppRunner.h>
-#include <bdn/Thread.h>
+#include <bdn/AppRunnerBase.h>
 
 #include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/sysctl.h>
+
+#include <iostream>
 
 namespace bdn
 {
@@ -44,7 +45,7 @@ namespace bdn
             // For commandline apps we must not do that, since stderr may
             // actually be used for user interaction there.
             if (!getAppRunner()->isCommandLineApp()) {
-                std::cerr << text.asUtf8() << std::endl;
+                std::cerr << text << std::endl;
             }
         }
 

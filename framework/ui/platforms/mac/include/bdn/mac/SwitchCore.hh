@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_SwitchCore_HH
-#define BDN_MAC_SwitchCore_HH
+#pragma once
 
 #include <bdn/ICheckboxCore.h>
 #include <bdn/ISwitchCore.h>
@@ -42,7 +41,7 @@ namespace bdn
     {
 
         template <class T>
-        class SwitchCore : public ChildViewCore, BDN_IMPLEMENTS ISwitchCore, BDN_IMPLEMENTS IClickManagerTarget
+        class SwitchCore : public ChildViewCore, virtual public ISwitchCore, virtual public IClickManagerTarget
         {
           private:
             static BdnMacSwitchComposite *_createSwitchComposite()
@@ -64,7 +63,7 @@ namespace bdn
             }
 
           public:
-            SwitchCore(T *outer) : ChildViewCore(outer, _createSwitchComposite())
+            SwitchCore(std::shared_ptr<T> outer) : ChildViewCore(outer, _createSwitchComposite())
             {
                 _clickManager = [[BdnSwitchClickManager alloc] init];
                 _clickManager.target = this;
@@ -73,8 +72,8 @@ namespace bdn
                 [composite.bdnSwitch setTarget:_clickManager];
                 [composite.bdnSwitch setAction:@selector(clicked)];
 
-                setLabel(outer->label());
-                setOn(outer->on());
+                setLabel(outer->label);
+                setOn(outer->on);
             }
 
             virtual ~SwitchCore()
@@ -101,12 +100,12 @@ namespace bdn
 
             void clicked() override
             {
-                P<T> outer = cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<T> outer = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
                     bdn::ClickEvent evt(outer);
 
                     BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
-                    outer->setOn(composite.bdnSwitch.on);
+                    outer->on = composite.bdnSwitch.on;
                     outer->onClick().notify(evt);
                 }
             }
@@ -136,5 +135,3 @@ namespace bdn
         };
     }
 }
-
-#endif /* BDN_MAC_SwitchCore_HH */

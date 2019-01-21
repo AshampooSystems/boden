@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -34,7 +34,7 @@ class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
     void verifyCoreText() override
     {
-        String expectedText = _textView->text();
+        String expectedText = _textView->text;
 
         String text = _jTextView.getText();
 
@@ -47,7 +47,7 @@ class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
 
 TEST_CASE("android.TextViewCore")
 {
-    P<TestAndroidTextViewCore> test = newObj<TestAndroidTextViewCore>();
+    std::shared_ptr<TestAndroidTextViewCore> test = std::make_shared<TestAndroidTextViewCore>();
 
     test->runTests();
 }

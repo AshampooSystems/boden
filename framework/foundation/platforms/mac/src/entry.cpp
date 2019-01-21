@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/entry.h>
 
 namespace bdn

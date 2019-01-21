@@ -1,10 +1,9 @@
-#ifndef BDN_LayoutCoordinator_H_
-#define BDN_LayoutCoordinator_H_
+#pragma once
 
 #include <bdn/Window.h>
 #include <bdn/View.h>
 
-#include <bdn/Set.h>
+#include <set>
 
 namespace bdn
 {
@@ -41,17 +40,17 @@ namespace bdn
            the child views have changed their size or any of the parameters that
            affect their layout (like margins, alignment, etc.)
             */
-        void viewNeedsLayout(View *view);
+        void viewNeedsLayout(std::shared_ptr<View> view);
 
         /** Registers a top level window for auto-sizing.*/
-        void windowNeedsAutoSizing(Window *window);
+        void windowNeedsAutoSizing(std::shared_ptr<Window> window);
 
         /** Registers a top-level window for centering on the screen.*/
-        void windowNeedsCentering(Window *window);
+        void windowNeedsCentering(std::shared_ptr<Window> window);
 
         /** Interface that IViewCore objects which use the LayoutCoordinator
          * should implement.*/
-        class IViewCoreExtension : BDN_IMPLEMENTS IBase
+        class IViewCoreExtension
         {
           public:
             /** Updates the layout of the view's contents (see
@@ -61,7 +60,7 @@ namespace bdn
 
         /** Interfaces that IWindowCore objects which use the LayoutCoordinator
          * should implement.*/
-        class IWindowCoreExtension : BDN_IMPLEMENTS IViewCoreExtension
+        class IWindowCoreExtension : virtual public IViewCoreExtension
         {
           public:
             /** Autosizes the window. See Window::requestAutoSize().*/
@@ -89,15 +88,13 @@ namespace bdn
             */
         virtual void handleException(const std::exception *exceptionIfAvailable, const String &functionName);
 
-        Set<P<View>> _layoutSet;
+        std::set<std::shared_ptr<View>> _layoutSet;
 
-        Set<P<Window>> _windowAutoSizeSet;
-        Set<P<Window>> _windowCenterSet;
+        std::set<std::shared_ptr<Window>> _windowAutoSizeSet;
+        std::set<std::shared_ptr<Window>> _windowCenterSet;
 
         bool _updateScheduled = false;
 
         bool _inUpdateNow = false;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_IdleRunner_H_
-#define BDN_ANDROID_IdleRunner_H_
+#pragma once
 
 #include <bdn/ISimpleCallable.h>
 
@@ -24,9 +23,7 @@ namespace bdn
             void _beginningIdlePhase();
 
           private:
-            std::list<P<ISimpleCallable>> _callWhenIdleList;
+            std::list<std::shared_ptr<ISimpleCallable>> _callWhenIdleList;
         };
     }
 }
-
-#endif

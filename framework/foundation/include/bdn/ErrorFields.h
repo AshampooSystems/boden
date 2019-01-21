@@ -1,7 +1,9 @@
-#ifndef BDN_ErrorFields_H_
-#define BDN_ErrorFields_H_
+#pragma once
 
 #include <map>
+
+#include <bdn/Base.h>
+#include <bdn/String.h>
 
 namespace bdn
 {
@@ -61,5 +63,3 @@ namespace bdn
         static String unescape(const String &value);
     };
 }
-
-#endif

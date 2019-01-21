@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 
 #import <Cocoa/Cocoa.h>
 
@@ -12,8 +12,6 @@
 
 @implementation BdnButtonClickManager
 
-- (void)setButtonCore:(bdn::mac::ButtonCore *)core { _buttonCore = core; }
-
 - (void)clicked { _buttonCore->generateClick(); }
 
 @end
@@ -23,7 +21,8 @@ namespace bdn
     namespace mac
     {
 
-        ButtonCore::ButtonCore(Button *outerButton) : ButtonCoreBase(outerButton, _createNsButton(outerButton))
+        ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
+            : ButtonCoreBase(outerButton, _createNsButton(outerButton))
         {
             _currBezelStyle = NSBezelStyleRounded;
 
@@ -31,7 +30,7 @@ namespace bdn
             [clickMan setButtonCore:this];
             _clickManager = clickMan;
 
-            setLabel(outerButton->label());
+            setLabel(outerButton->label);
 
             _heightWithRoundedBezelStyle = macSizeToSize(getNSView().fittingSize).height;
 
@@ -43,9 +42,9 @@ namespace bdn
         {
             Size size;
 
-            P<View> view = getOuterViewIfStillAttached();
+            std::shared_ptr<View> view = getOuterViewIfStillAttached();
             if (view != nullptr)
-                size = view->size();
+                size = view->size;
             int height = size.height;
 
             // the "normal" button (NSRoundedBezelStyle) has a fixed height.
@@ -70,7 +69,7 @@ namespace bdn
 
         void ButtonCore::generateClick()
         {
-            P<Button> outerButton = cast<Button>(getOuterViewIfStillAttached());
+            std::shared_ptr<Button> outerButton = std::dynamic_pointer_cast<Button>(getOuterViewIfStillAttached());
             if (outerButton != nullptr) {
                 bdn::ClickEvent evt(outerButton);
 

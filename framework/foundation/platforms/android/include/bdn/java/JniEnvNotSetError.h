@@ -1,5 +1,4 @@
-#ifndef BDN_Java_JniEnvNotSetError_H_
-#define BDN_Java_JniEnvNotSetError_H_
+#pragma once
 
 #include <exception>
 
@@ -17,5 +16,3 @@ namespace bdn
         };
     }
 }
-
-#endif

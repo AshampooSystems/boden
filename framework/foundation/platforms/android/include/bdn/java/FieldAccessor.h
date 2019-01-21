@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_FieldAccessor_H_
-#define BDN_JAVA_FieldAccessor_H_
+#pragma once
 
 #include <bdn/java/TypeConversion.h>
 
@@ -204,5 +203,3 @@ namespace bdn
         };
     }
 }
-
-#endif

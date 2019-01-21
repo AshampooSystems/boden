@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/TextView.h>
@@ -15,9 +15,11 @@ TEST_CASE("TextView")
 
     SECTION("TextView-specific")
     {
-        P<bdn::test::ViewTestPreparer<TextView>> preparer = newObj<bdn::test::ViewTestPreparer<TextView>>();
-        P<bdn::test::ViewWithTestExtensions<TextView>> textView = preparer->createView();
-        P<bdn::test::MockTextViewCore> core = cast<bdn::test::MockTextViewCore>(textView->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<TextView>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<TextView>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<TextView>> textView = preparer->createView();
+        std::shared_ptr<bdn::test::MockTextViewCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockTextViewCore>(textView->getViewCore());
 
         REQUIRE(core != nullptr);
 
@@ -27,14 +29,15 @@ TEST_CASE("TextView")
             // the preferredsizehint will have an effect). So it is not in the
             // initial state. So we create a new one here to test the initial
             // state.
-            P<TextView> newView = newObj<TextView>();
+            std::shared_ptr<TextView> newView = std::make_shared<TextView>();
             preparer->getWindow()->setContentView(newView);
 
-            P<bdn::test::MockTextViewCore> newCore = cast<bdn::test::MockTextViewCore>(newView->getViewCore());
+            std::shared_ptr<bdn::test::MockTextViewCore> newCore =
+                std::dynamic_pointer_cast<bdn::test::MockTextViewCore>(newView->getViewCore());
 
             SECTION("text")
             {
-                REQUIRE(newView->text() == "");
+                REQUIRE(newView->text == "");
                 REQUIRE(newCore->getText() == "");
                 REQUIRE(newCore->getTextChangeCount() == 0);
             }
@@ -49,7 +52,7 @@ TEST_CASE("TextView")
                     int initialChangeCount = core->getTextChangeCount();
 
                     bdn::test::_testViewOp(
-                        textView, preparer, [textView, preparer]() { textView->setText("hello"); },
+                        textView, preparer, [textView, preparer]() { textView->text = ("hello"); },
                         [core, textView, preparer, initialChangeCount] {
                             REQUIRE(core->getText() == "hello");
                             REQUIRE(core->getTextChangeCount() == initialChangeCount + 1);

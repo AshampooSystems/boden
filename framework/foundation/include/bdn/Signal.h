@@ -1,7 +1,9 @@
-#ifndef BDN_Signal_H_
-#define BDN_Signal_H_
+#pragma once
 
 #include <condition_variable>
+
+#include <bdn/Base.h>
+#include <bdn/IDispatcher.h>
 
 namespace bdn
 {
@@ -67,9 +69,9 @@ namespace bdn
 
         /** Waits for the signal to be set.
 
-            Optionally a timeout in milliseconds can be specified with the
-           timoutMillis parameter. If timeoutMillis is negative then the
-           function waits indefinitely without timeout. If timeoutMillis is 0
+            Optionally a timeout can be specified with the
+           timeout parameter. If timeout is negative then the
+           function waits indefinitely. If timeout is 0
            then the wait call simply checks the current state of the signal. It
            is equivalent to isSet().
 
@@ -79,7 +81,7 @@ namespace bdn
             It is guaranteed that there are no spurious wakeups. If wait returns
            true then you can be certain that the signal actually occurred.
             */
-        bool wait(int timeoutMillis = -1);
+        bool wait(IDispatcher::Duration timeout = IDispatcher::Duration::min());
 
         void operator=(const Signal &) = delete; // Signal objects cannot be copied.
 
@@ -111,5 +113,3 @@ namespace bdn
         int _waitingCount = 0;
     };
 }
-
-#endif

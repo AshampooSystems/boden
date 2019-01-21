@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_WindowCore_H_
-#define BDN_ANDROID_WindowCore_H_
+#pragma once
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
@@ -20,12 +19,12 @@ namespace bdn
     {
 
         class WindowCore : public ViewCore,
-                           BDN_IMPLEMENTS IWindowCore,
-                           BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension,
-                           BDN_IMPLEMENTS IParentViewCore
+                           virtual public IWindowCore,
+                           virtual public LayoutCoordinator::IWindowCoreExtension,
+                           virtual public IParentViewCore
         {
           private:
-            P<JNativeViewGroup> createJNativeViewGroup(Window *outerWindow)
+            std::shared_ptr<JNativeViewGroup> createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
             {
                 // we need a context to create our view object.
                 // To know the context we first have to determine the root view
@@ -40,7 +39,7 @@ namespace bdn
                                            "views available. You must create a NativeRootActivity "
                                            "or NativeRootView instance!");
 
-                P<JNativeViewGroup> viewGroup = newObj<JNativeViewGroup>(rootView.getContext());
+                std::shared_ptr<JNativeViewGroup> viewGroup = std::make_shared<JNativeViewGroup>(rootView.getContext());
 
                 // add the view group to the root view. That is important so
                 // that the root view we have chosen is fixed to the view group
@@ -51,9 +50,9 @@ namespace bdn
             }
 
           public:
-            WindowCore(Window *outerWindow) : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
+            WindowCore(std::shared_ptr<Window> outerWindow) : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
             {
-                setTitle(outerWindow->title());
+                setTitle(outerWindow->title);
 
                 JNativeRootView rootView(getJView().getParent().getRef_());
 
@@ -61,18 +60,12 @@ namespace bdn
 
                 updateUiScaleFactor(rootView.getContext().getResources().getConfiguration());
 
-                // update our size to fully fill the root view.
-                // Do this async, so that the property change cannot have bad
-                // effects on the in-progress operation.
-                P<WindowCore> self = this;
-                asyncCallFromMainThread([self, rootView]() mutable {
-                    self->rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
-                });
+                rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
             }
 
             ~WindowCore()
             {
-                JView *view = &getJView();
+                std::shared_ptr<JView> view = getJViewPtr();
                 if (view != nullptr) {
                     // remove the view from its parent.
                     JViewGroup parent(view->getParent().getRef_());
@@ -110,17 +103,18 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> outerView = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
-                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UiProvider> provider =
+                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *child) override
+            void childSizingInfoInvalidated(std::shared_ptr<View> child) override
             {
-                P<View> outerView = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
                     outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
                     outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
@@ -129,7 +123,7 @@ namespace bdn
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
                     return defaultWindowCalcPreferredSizeImpl(window, availableSpace, Margin(), Size());
                 else
@@ -138,16 +132,17 @@ namespace bdn
 
             void layout() override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
                     defaultWindowLayoutImpl(window, getContentArea());
             }
 
             void requestAutoSize() override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr) {
-                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    std::shared_ptr<UiProvider> provider =
+                        std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
                 }
@@ -155,9 +150,10 @@ namespace bdn
 
             void requestCenter() override
             {
-                P<Window> window = cast<Window>(getOuterViewIfStillAttached());
+                std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr) {
-                    P<UiProvider> provider = tryCast<UiProvider>(window->getUiProvider());
+                    std::shared_ptr<UiProvider> provider =
+                        std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->windowNeedsCentering(window);
                 }
@@ -191,30 +187,30 @@ namespace bdn
                 // be removed.
                 getRootViewRegistryForCurrentThread().remove(javaRef);
 
-                std::list<P<WindowCore>> windowCoreList;
+                std::list<std::shared_ptr<WindowCore>> windowCoreList;
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &windowCore : windowCoreList)
+                for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
                     windowCore->rootViewDisposed();
             }
 
             static void _rootViewSizeChanged(const bdn::java::Reference &javaRef, int width, int height)
             {
-                std::list<P<WindowCore>> windowCoreList;
+                std::list<std::shared_ptr<WindowCore>> windowCoreList;
 
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &windowCore : windowCoreList)
+                for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
                     windowCore->rootViewSizeChanged(width, height);
             }
 
             static void _rootViewConfigurationChanged(const bdn::java::Reference &javaRef, JConfiguration config)
             {
-                std::list<P<WindowCore>> windowCoreList;
+                std::list<std::shared_ptr<WindowCore>> windowCoreList;
 
                 getWindowCoreListFromRootView(javaRef, windowCoreList);
 
-                for (P<WindowCore> &windowCore : windowCoreList)
+                for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
                     windowCore->rootViewConfigurationChanged(config);
             }
 
@@ -247,7 +243,7 @@ namespace bdn
                 // this may be called by the garbage collector, so it might be
                 // in an arbitrary thread
 
-                Mutex::Lock lock(_rootViewMutex);
+                std::unique_lock lock(_rootViewMutex);
 
                 _weakRootViewRef = bdn::java::WeakReference();
             }
@@ -274,7 +270,7 @@ namespace bdn
 
                 _currentBounds = Rect(0, 0, width / scaleFactor, height / scaleFactor);
 
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr)
                     view->adjustAndSetBounds(_currentBounds);
             }
@@ -331,7 +327,7 @@ namespace bdn
             }
 
             static void getWindowCoreListFromRootView(const bdn::java::Reference &javaRootViewRef,
-                                                      std::list<P<WindowCore>> &windowCoreList)
+                                                      std::list<std::shared_ptr<WindowCore>> &windowCoreList)
             {
                 JNativeRootView rootView(javaRootViewRef);
 
@@ -341,7 +337,8 @@ namespace bdn
                 for (int i = 0; i < childCount; i++) {
                     JView child = rootView.getChildAt(i);
 
-                    P<WindowCore> windowCore = cast<WindowCore>(ViewCore::getViewCoreFromJavaViewRef(child.getRef_()));
+                    std::shared_ptr<WindowCore> windowCore =
+                        std::dynamic_pointer_cast<WindowCore>(ViewCore::getViewCoreFromJavaViewRef(child.getRef_()));
                     if (windowCore != nullptr)
                         windowCoreList.push_back(windowCore);
                 }
@@ -352,12 +349,12 @@ namespace bdn
              *  Note that we only hold a weak reference to the root view, so the
              * root view may have been garbage collected. If it was then this
              * function will return a null reference.*/
-            bdn::java::Reference tryGetAccessibleRootViewRef() const
+            java::Reference tryGetAccessibleRootViewRef() const
             {
                 bdn::java::Reference accessibleRef;
 
                 {
-                    Mutex::Lock lock(_rootViewMutex);
+                    std::unique_lock lock(_rootViewMutex);
 
                     accessibleRef = _weakRootViewRef.toStrong();
 
@@ -413,19 +410,18 @@ namespace bdn
                 std::list<bdn::java::WeakReference> _rootViewList;
             };
 
-            // we make the root view registry thread-local because Android can
-            // sometimes be weird. Activities from different applications can
-            // sometimes run in the same process. By making it thread-local we
-            // ensure that we really can access the most recently created root
-            // view from "our" activity.
-            static BDN_SAFE_STATIC_THREAD_LOCAL(RootViewRegistry, getRootViewRegistryForCurrentThread);
+            // Activities from different applications can sometimes run in the same process.
+            // Make RootViewRegistry thread local to ensure access to most recently created root view.
+            static RootViewRegistry &getRootViewRegistryForCurrentThread()
+            {
+                static RootViewRegistry registry;
+                return registry;
+            }
 
-            mutable Mutex _rootViewMutex;
+            mutable std::recursive_mutex _rootViewMutex;
             bdn::java::WeakReference _weakRootViewRef;
 
             Rect _currentBounds;
         };
     }
 }
-
-#endif

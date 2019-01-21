@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/TextField.h>
@@ -22,7 +22,7 @@ class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::T
 
     void verifyCoreText() override
     {
-        String expectedText = _textField->text();
+        String expectedText = _textField->text;
         String text = bdn::ios::iosStringToString(_uITextField.text);
         REQUIRE(text == expectedText);
     }
@@ -33,6 +33,6 @@ class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::T
 
 TEST_CASE("ios.TextFieldCore")
 {
-    P<TestIosTextFieldCore> test = newObj<TestIosTextFieldCore>();
+    std::shared_ptr<TestIosTextFieldCore> test = std::make_shared<TestIosTextFieldCore>();
     test->runTests();
 }

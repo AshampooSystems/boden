@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/UnhandledException.h>
 
 #include <bdn/ErrorInfo.h>

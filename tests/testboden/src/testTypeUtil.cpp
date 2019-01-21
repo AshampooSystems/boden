@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/typeUtil.h>
@@ -31,7 +31,7 @@ static void testTypeHasCustomArrowOperator()
 {
     REQUIRE(typeHasCustomArrowOperator<std::shared_ptr<std::string>>());
 
-    REQUIRE(typeHasCustomArrowOperator<P<Base>>());
+    REQUIRE(typeHasCustomArrowOperator<std::shared_ptr<Base>>());
 
     REQUIRE(!typeHasCustomArrowOperator<int>());
 
@@ -41,7 +41,7 @@ static void testTypeHasCustomArrowOperator()
 
     // the following verifies that the function can be used in compile time
     // statements.
-    static_assert(typeHasCustomArrowOperator<P<Base>>(),
+    static_assert(typeHasCustomArrowOperator<std::shared_ptr<Base>>(),
                   "typeHasCustomArrowOperator must be usable as a compile expression");
 }
 

@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JInputEvent_H_
-#define BDN_ANDROID_JInputEvent_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 
@@ -32,5 +31,3 @@ class JInputEvent : public bdn::java::JObject
 
     bdn::java::JClass &getClass_() override { return getStaticClass_(); }
 };
-
-#endif

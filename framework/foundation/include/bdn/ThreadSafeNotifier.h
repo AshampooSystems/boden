@@ -1,13 +1,9 @@
-#ifndef BDN_ThreadSafeNotifier_H_
-#define BDN_ThreadSafeNotifier_H_
+#pragma once
 
 #include <bdn/IAsyncNotifier.h>
 #include <bdn/ISyncNotifier.h>
 #include <bdn/NotifierBase.h>
 #include <bdn/mainThread.h>
-#include <bdn/RequireNewAlloc.h>
-
-#include <bdn/Map.h>
 
 namespace bdn
 {
@@ -15,21 +11,24 @@ namespace bdn
     /** A thread safe notifier implementation. ThreadSafeNotifier supports both
        the IAsyncNotifier and the ISyncNotifier interfaces.
 
-        ThreadSafeNotifier objects MUST be allocated with newObj / new.
     */
     template <class... ARG_TYPES>
-    class ThreadSafeNotifier
-        : public RequireNewAlloc<NotifierBase<Mutex, ARG_TYPES...>, ThreadSafeNotifier<ARG_TYPES...>>,
-          BDN_IMPLEMENTS IAsyncNotifier<ARG_TYPES...>,
-          BDN_IMPLEMENTS ISyncNotifier<ARG_TYPES...>
+    class ThreadSafeNotifier : public NotifierBase<bdn::atomic, ARG_TYPES...>,
+                               virtual public IAsyncNotifier<ARG_TYPES...>,
+                               virtual public ISyncNotifier<ARG_TYPES...>
     {
       private:
-        using BASE = NotifierBase<Mutex, ARG_TYPES...>;
+        using BASE = NotifierBase<bdn::atomic, ARG_TYPES...>;
 
       public:
         ThreadSafeNotifier() {}
 
         ~ThreadSafeNotifier() {}
+
+        std::shared_ptr<ThreadSafeNotifier<ARG_TYPES...>> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<ThreadSafeNotifier<ARG_TYPES...>>(Base::shared_from_this());
+        }
 
         void notify(ARG_TYPES... args) override { BASE::doNotify(std::forward<ARG_TYPES>(args)...); }
 
@@ -39,11 +38,9 @@ namespace bdn
             // this has to redirect to the main thread.
 
             asyncCallFromMainThread(std::bind<void, std::function<void(ARG_TYPES...)>, ARG_TYPES...>(
-                strongMethod(this, &ThreadSafeNotifier::notify), std::forward<ARG_TYPES>(args)...));
+                strongMethod(this->shared_from_this(), &ThreadSafeNotifier::notify), std::forward<ARG_TYPES>(args)...));
         }
 
       private:
     };
 }
-
-#endif

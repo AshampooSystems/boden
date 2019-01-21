@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_CheckboxCore_H_
-#define BDN_ANDROID_CheckboxCore_H_
+#pragma once
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JCheckBox.h>
@@ -12,38 +11,35 @@ namespace bdn
     namespace android
     {
 
-        template <class T> class CheckboxCore : public ViewCore, BDN_IMPLEMENTS ICheckboxCore
+        template <class T> class CheckboxCore : public ViewCore, virtual public ICheckboxCore
         {
           private:
-            static P<JCheckBox> _createJCheckBox(T *outer)
+            static std::shared_ptr<JCheckBox> _createJCheckBox(std::shared_ptr<T> outer)
             {
-                // we need to know the context to create the view.
-                // If we have a parent then we can get that from the parent's
-                // core.
-                P<View> parent = outer->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr)
                     throw ProgrammingError("CheckboxCore instance requested for a Checkbox that "
                                            "does not have a parent.");
 
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("CheckboxCore instance requested for a Checkbox with "
                                            "core-less parent.");
 
                 JContext context = parentCore->getJView().getContext();
 
-                return newObj<JCheckBox>(context);
+                return std::make_shared<JCheckBox>(context);
             }
 
           public:
-            CheckboxCore(T *outer) : ViewCore(outer, _createJCheckBox(outer))
+            CheckboxCore(std::shared_ptr<T> outer) : ViewCore(outer, _createJCheckBox(outer))
             {
-                _jCheckBox = cast<JCheckBox>(&getJView());
+                _jCheckBox = std::dynamic_pointer_cast<JCheckBox>(getJViewPtr());
 
                 _jCheckBox->setSingleLine(true);
 
-                setLabel(outer->label());
-                setState(outer->state());
+                setLabel(outer->label);
+                setState(outer->state);
             }
 
             JCheckBox &getJCheckBox() { return *_jCheckBox; }
@@ -51,9 +47,6 @@ namespace bdn
             void setLabel(const String &label) override
             {
                 _jCheckBox->setText(label);
-
-                // we must re-layout the button - otherwise its preferred size
-                // is not updated.
                 _jCheckBox->requestLayout();
             }
 
@@ -67,20 +60,20 @@ namespace bdn
 
             void clicked() override
             {
-                P<T> view = cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<T> view = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
-                    P<Checkbox> checkbox = tryCast<Checkbox>(view);
-                    P<Toggle> toggle = tryCast<Toggle>(view);
+                    std::shared_ptr<Checkbox> checkbox = std::dynamic_pointer_cast<Checkbox>(view);
+                    std::shared_ptr<Toggle> toggle = std::dynamic_pointer_cast<Toggle>(view);
 
                     // User interaction cannot set the checkbox into mixed state
                     _state = _jCheckBox->isChecked() ? TriState::on : TriState::off;
 
                     if (checkbox)
-                        checkbox->setState(_state);
+                        checkbox->state = (_state);
                     else if (toggle)
-                        toggle->setOn(_jCheckBox->isChecked());
+                        toggle->on = (_jCheckBox->isChecked());
 
                     view->onClick().notify(evt);
                 }
@@ -94,10 +87,8 @@ namespace bdn
             }
 
           private:
-            P<JCheckBox> _jCheckBox;
+            std::shared_ptr<JCheckBox> _jCheckBox;
             TriState _state;
         };
     }
 }
-
-#endif

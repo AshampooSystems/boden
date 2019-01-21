@@ -1,7 +1,7 @@
-#ifndef BDN_IDispatcher_H_
-#define BDN_IDispatcher_H_
+#pragma once
 
 #include <map>
+#include <chrono>
 
 namespace bdn
 {
@@ -39,8 +39,14 @@ namespace bdn
        be aborted and the exception propagated upwards to the caller of the
        dispatcher loop (usually causing the app to terminate).
         */
-    class IDispatcher : BDN_IMPLEMENTS IBase
+    class IDispatcher
     {
+      public:
+        using Clock = std::chrono::steady_clock;
+        using TimePoint = Clock::time_point;
+        using Duration = Clock::duration;
+        using SteppedDuration = std::chrono::duration<long long, std::deci>;
+
       public:
         enum class Priority
         {
@@ -62,13 +68,10 @@ namespace bdn
         virtual void enqueue(std::function<void()> func, Priority priority = Priority::normal) = 0;
 
         /** Schedules the specified function to be executed after
-            the specified number of seconds.
+            the specified number of time.
 
-            If seconds is <=0 then the function is executed as soon as possible,
+            If delay is <= 0 then the function is executed as soon as possible,
            as if enqueue() had been called.
-
-            Note that the seconds parameter is a double, so you can specify
-           something like 0.25 to wait for 250 ms, for example.
 
             Other tasks can be executed during the wait time (event events with
            lower priority).
@@ -78,8 +81,8 @@ namespace bdn
             See #IDispatcher class documentation for information about how
            exceptions thrown by func are handled.
             */
-        virtual void enqueueInSeconds(double seconds, std::function<void()> func,
-                                      Priority priority = Priority::normal) = 0;
+        virtual void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+                                    Priority priority = Priority::normal) = 0;
 
         /** Creates a timer that calls the specified function regularly with the
             specified time interval.
@@ -109,13 +112,11 @@ namespace bdn
            exceptions thrown by func are handled.
 
             */
-        virtual void createTimer(double intervalSeconds, std::function<bool()> func) = 0;
+        virtual void createTimer(IDispatcher::Duration interval, std::function<bool()> func) = 0;
     };
 
     /** Returns the main dispatcher of the app.
         This is the same as the one returned by getAppRunner() ->
        getMainDispatcher().*/
-    P<IDispatcher> getMainDispatcher();
+    std::shared_ptr<IDispatcher> getMainDispatcher();
 }
-
-#endif

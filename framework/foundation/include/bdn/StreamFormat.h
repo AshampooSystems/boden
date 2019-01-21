@@ -1,5 +1,4 @@
-#ifndef BDN_StreamFormat_H_
-#define BDN_StreamFormat_H_
+#pragma once
 
 namespace bdn
 {
@@ -482,5 +481,3 @@ namespace bdn
         return StreamFormatApplier_<std::basic_ostream<STREAM_CHAR_TYPE, STREAM_TRAITS>>(stream, format);
     }
 }
-
-#endif

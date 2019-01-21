@@ -1,11 +1,12 @@
-#ifndef BDN_IUnhandledProblem_H_
-#define BDN_IUnhandledProblem_H_
+#pragma once
+
+#include <bdn/String.h>
 
 namespace bdn
 {
 
     /** Contains information about an unhandled problem.*/
-    class IUnhandledProblem : BDN_IMPLEMENTS IBase
+    class IUnhandledProblem
     {
       public:
         enum class Type
@@ -58,5 +59,3 @@ namespace bdn
         virtual String toString() const = 0;
     };
 }
-
-#endif

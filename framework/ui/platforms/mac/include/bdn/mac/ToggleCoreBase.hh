@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_ToggleCoreBase_HH
-#define BDN_MAC_ToggleCoreBase_HH
+#pragma once
 
 #include <bdn/constants.h>
 #include <bdn/IToggleCoreBase.h>
@@ -13,7 +12,7 @@ namespace bdn
     {
 
         /** Base class for all toggle-like control cores on macOS */
-        class ToggleCoreBase : public ButtonCoreBase, BDN_IMPLEMENTS IToggleCoreBase
+        class ToggleCoreBase : public ButtonCoreBase, virtual public IToggleCoreBase
         {
           private:
             static NSButton *_createNsButton()
@@ -24,7 +23,7 @@ namespace bdn
             }
 
           public:
-            ToggleCoreBase(View *outerToggle);
+            ToggleCoreBase(std::shared_ptr<View> outerToggle);
 
             virtual void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 
@@ -35,5 +34,3 @@ namespace bdn
         };
     }
 }
-
-#endif /* ToggleCoreBase_h */

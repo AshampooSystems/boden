@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/JObject.h>
 
 #include <bdn/java/Env.h>

@@ -1,9 +1,10 @@
-#include <bdn/init.h>
+
 #include <bdn/debug.h>
 #include <bdn/platform/Hooks.h>
 
 namespace bdn
 {
+    void doNothing() {}
 
     void debugBreak() { platform::Hooks::get()->debugBreak(); }
 

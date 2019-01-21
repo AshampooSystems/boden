@@ -1,5 +1,6 @@
-#ifndef BDN_DanglingFunctionError_H_
-#define BDN_DanglingFunctionError_H_
+#pragma once
+
+#include <bdn/String.h>
 
 #include <stdexcept>
 
@@ -24,11 +25,9 @@ namespace bdn
 
         DanglingFunctionError() : _message("A function with a dangling target reference was called.") {}
 
-        const char *what() const noexcept override { return _message.asUtf8Ptr(); }
+        const char *what() const noexcept override { return _message.c_str(); }
 
       private:
         String _message;
     };
 }
-
-#endif

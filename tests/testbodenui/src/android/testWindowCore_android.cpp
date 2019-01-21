@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -39,18 +39,18 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
         bdn::android::JView jView;
     };
 
-    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override
     {
         // sanity check
         REQUIRE(!_jView.isNull_());
         REQUIRE(!_jView.getParent().isNull_());
 
-        return newObj<DestructVerificationInfo>(_jView);
+        return std::make_shared<DestructVerificationInfo>(_jView);
     }
 
-    void verifyCoreUiElementDestruction(IBase *verificationInfo) override
+    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override
     {
-        bdn::android::JView jv = cast<DestructVerificationInfo>(verificationInfo)->jView;
+        bdn::android::JView jv = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->jView;
 
         // the view object should have been removed from its parent
         REQUIRE(jv.getParent().isNull_());
@@ -59,7 +59,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
 
 TEST_CASE("android.WindowCore")
 {
-    P<TestAndroidWindowCore> test = newObj<TestAndroidWindowCore>();
+    std::shared_ptr<TestAndroidWindowCore> test = std::make_shared<TestAndroidWindowCore>();
 
     test->runTests();
 }

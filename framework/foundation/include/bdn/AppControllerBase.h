@@ -184,19 +184,22 @@ namespace bdn
         }
 
         /** Returns the global app controller instance.*/
-        static P<AppControllerBase> get() { return _getGlobalRef(); }
+        static std::shared_ptr<AppControllerBase> get() { return _globalAppController(); }
 
         /** Sets the global app controller instance.
 
             This is used internally by the framework. You should not call it.
          */
-        static void _set(AppControllerBase *appController) { _getGlobalRef() = appController; }
+        static void _set(std::shared_ptr<AppControllerBase> pAppController)
+        {
+            std::shared_ptr<AppControllerBase> &globalAppController = _globalAppController();
+            globalAppController = std::move(pAppController);
+        }
 
       private:
-        static P<AppControllerBase> &_getGlobalRef()
+        static std::shared_ptr<AppControllerBase> &_globalAppController()
         {
-            static P<AppControllerBase> controller;
-
+            static std::shared_ptr<AppControllerBase> controller;
             return controller;
         }
     };

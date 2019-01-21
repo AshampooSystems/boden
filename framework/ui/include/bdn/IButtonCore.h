@@ -1,17 +1,14 @@
-#ifndef BDN_IButtonCore_H_
-#define BDN_IButtonCore_H_
+#pragma once
 
 #include <bdn/IViewCore.h>
 
 namespace bdn
 {
 
-    class IButtonCore : BDN_IMPLEMENTS IViewCore
+    class IButtonCore : virtual public IViewCore
     {
       public:
         /** Changes the button's label text.*/
         virtual void setLabel(const String &label) = 0;
     };
 }
-
-#endif

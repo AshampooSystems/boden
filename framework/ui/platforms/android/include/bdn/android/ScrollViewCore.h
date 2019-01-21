@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_ScrollViewCore_H_
-#define BDN_ANDROID_ScrollViewCore_H_
+#pragma once
 
 #include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
@@ -16,37 +15,37 @@ namespace bdn
     namespace android
     {
 
-        class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore, BDN_IMPLEMENTS IParentViewCore
+        class ScrollViewCore : public ViewCore, virtual public IScrollViewCore, virtual public IParentViewCore
         {
           private:
-            static P<JNativeScrollView> _createNativeScrollView(ScrollView *outer)
+            static std::shared_ptr<JNativeScrollView> _createNativeScrollView(std::shared_ptr<ScrollView> outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> parent = outer->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr)
                     throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
                                            "that does not have a parent.");
 
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
                                            "with core-less parent.");
 
                 JContext context = parentCore->getJView().getContext();
 
-                P<JNativeScrollView> man = newObj<JNativeScrollView>(context);
+                std::shared_ptr<JNativeScrollView> man = std::make_shared<JNativeScrollView>(context);
 
                 return man;
             }
 
           public:
-            ScrollViewCore(ScrollView *outer) : ScrollViewCore(outer, _createNativeScrollView(outer)) {}
+            ScrollViewCore(std::shared_ptr<ScrollView> outer) : ScrollViewCore(outer, _createNativeScrollView(outer)) {}
 
           private:
-            ScrollViewCore(ScrollView *outer, P<JNativeScrollView> man)
-                : ViewCore(outer, newObj<JView>(man->getWrapperView()))
+            ScrollViewCore(std::shared_ptr<ScrollView> outer, std::shared_ptr<JNativeScrollView> man)
+                : ViewCore(outer, std::make_shared<JView>(man->getWrapperView()))
             {
                 _man = man;
 
@@ -56,10 +55,10 @@ namespace bdn
                 // ensures that the parent of the content view is a
                 // NativeViewGroup, which is important because we assume that
                 // that is the case in some places.
-                _contentParent = newObj<JNativeViewGroup>(man->getContentParent());
+                _contentParent = std::make_shared<JNativeViewGroup>(man->getContentParent());
 
-                setVerticalScrollingEnabled(outer->verticalScrollingEnabled());
-                setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled());
+                setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
+                setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
             }
 
           public:
@@ -75,7 +74,8 @@ namespace bdn
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {
-                P<ScrollView> outer = cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outer =
+                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
                     // note that the scroll bars are overlays and do not take up
                     // any layout space.
@@ -88,13 +88,14 @@ namespace bdn
 
             void layout() override
             {
-                P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outerView =
+                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
                 if (outerView != nullptr) {
                     // note that the scroll bars are overlays and do not take up
                     // any layout space.
                     ScrollViewLayoutHelper helper(0, 0);
 
-                    Size scrollViewSize = outerView->size();
+                    Size scrollViewSize = outerView->size;
 
                     helper.calcLayout(outerView, scrollViewSize);
 
@@ -111,7 +112,7 @@ namespace bdn
                     // now arrange the content view inside the content parent
                     Rect contentBounds = helper.getContentViewBounds();
 
-                    P<View> contentView = outerView->getContentView();
+                    std::shared_ptr<View> contentView = outerView->getContentView();
                     if (contentView != nullptr)
                         contentView->adjustAndSetBounds(contentBounds);
 
@@ -289,23 +290,22 @@ namespace bdn
           private:
             void updateVisibleClientRect()
             {
-                P<ScrollView> outer = cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outer =
+                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
                     double uiScaleFactor = getUiScaleFactor();
 
                     Rect visibleRect(_man->getScrollX() / uiScaleFactor, _man->getScrollY() / uiScaleFactor,
                                      _man->getWidth() / uiScaleFactor, _man->getHeight() / uiScaleFactor);
 
-                    outer->_setVisibleClientRect(visibleRect);
+                    outer->visibleClientRect = (visibleRect);
                 }
             }
 
-            P<JNativeScrollView> _man;
-            P<JNativeViewGroup> _contentParent;
+            std::shared_ptr<JNativeScrollView> _man;
+            std::shared_ptr<JNativeViewGroup> _contentParent;
 
             JView _currContentJView;
         };
     }
 }
-
-#endif

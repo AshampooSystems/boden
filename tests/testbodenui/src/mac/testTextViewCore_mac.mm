@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -40,7 +40,7 @@ class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
 
     void verifyCoreText() override
     {
-        String expectedText = _textView->text();
+        String expectedText = _textView->text;
 
         String text = bdn::mac::macStringToString(_nSTextView.string);
 
@@ -53,7 +53,7 @@ class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
 
 TEST_CASE("mac.TextViewCore")
 {
-    P<TestMacTextViewCore> test = newObj<TestMacTextViewCore>();
+    std::shared_ptr<TestMacTextViewCore> test = std::make_shared<TestMacTextViewCore>();
 
     test->runTests();
 }

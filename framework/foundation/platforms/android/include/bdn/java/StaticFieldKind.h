@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_StaticFieldKind_H_
-#define BDN_JAVA_StaticFieldKind_H_
+#pragma once
 
 #include <bdn/java/Env.h>
 #include <bdn/java/JClass.h>
@@ -60,5 +59,3 @@ namespace bdn
         };
     }
 }
-
-#endif

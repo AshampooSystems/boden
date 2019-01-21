@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JConfiguration_H_
-#define BDN_ANDROID_JConfiguration_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/ObjectField.h>
@@ -56,5 +55,3 @@ namespace bdn
         };
     }
 }
-
-#endif

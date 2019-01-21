@@ -1,5 +1,4 @@
-#ifndef BDN_UiSize_H_
-#define BDN_UiSize_H_
+#pragma once
 
 #include <bdn/UiLength.h>
 #include <bdn/Size.h>
@@ -41,5 +40,3 @@ inline bool operator==(const bdn::UiSize &a, const bdn::UiSize &b)
 }
 
 inline bool operator!=(const bdn::UiSize &a, const bdn::UiSize &b) { return !operator==(a, b); }
-
-#endif

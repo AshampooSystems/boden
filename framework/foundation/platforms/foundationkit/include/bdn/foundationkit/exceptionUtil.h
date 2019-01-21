@@ -1,5 +1,4 @@
-#ifndef BDN_FK_exceptionUtil_H_
-#define BDN_FK_exceptionUtil_H_
+#pragma once
 
 namespace bdn
 {
@@ -13,5 +12,3 @@ namespace bdn
         void rethrowAsNSException();
     }
 }
-
-#endif

@@ -60,6 +60,7 @@ class CMake:
         packet = cmakelib.waitForReply(self.proc, 'globalSettings', '', False)
 
         self.globalSettings = packet
+        self.logger.debug("VERSION: %s" % self.globalSettings["capabilities"]["version"]["string"])
 
     def waitForResult(self, expectedReply, expectedCookie):
         while 1:

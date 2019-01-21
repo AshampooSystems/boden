@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JNativeRunnable_H_
-#define BDN_JAVA_JNativeRunnable_H_
+#pragma once
 
 #include <bdn/java/JRuntimeException.h>
 #include <bdn/java/JNativeStrongPointer.h>
@@ -28,7 +27,7 @@ namespace bdn
             {
                 static MethodId constructorId;
 
-                P<ExceptionReference> exceptionRef = newObj<ExceptionReference>(exceptionPtr);
+                std::shared_ptr<ExceptionReference> exceptionRef = std::make_shared<ExceptionReference>(exceptionPtr);
 
                 JNativeStrongPointer wrappedExceptionRef(exceptionRef);
 
@@ -53,11 +52,11 @@ namespace bdn
 
             /** Returns the ExceptionReference object that refers to the
              * original C++ exception.*/
-            P<ExceptionReference> getExceptionReference_()
+            std::shared_ptr<ExceptionReference> getExceptionReference_()
             {
                 static MethodId methodId;
 
-                return cast<ExceptionReference>(
+                return std::dynamic_pointer_cast<ExceptionReference>(
                     invoke_<JNativeStrongPointer>(getStaticClass_(), methodId, "getNativeExceptionData").getPointer_());
             }
 
@@ -81,5 +80,3 @@ namespace bdn
         };
     }
 }
-
-#endif

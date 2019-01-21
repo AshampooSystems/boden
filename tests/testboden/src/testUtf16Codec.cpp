@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/Utf16Codec.h>
 
 #include <bdn/test.h>

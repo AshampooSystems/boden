@@ -1,7 +1,5 @@
-#ifndef BDN_SimpleNotifier_H_
-#define BDN_SimpleNotifier_H_
+#pragma once
 
-#include <bdn/DummyMutex.h>
 #include <bdn/ISyncNotifier.h>
 #include <bdn/NotifierBase.h>
 
@@ -16,14 +14,10 @@ namespace bdn
         supports IAsyncNotifier.
     */
     template <class... ARG_TYPES>
-    class SimpleNotifier : public NotifierBase<DummyMutex, ARG_TYPES...>
-        // note that we use DummyMutex (i.e. no actual mutex operations will
-        // happen)
-        ,
-                           BDN_IMPLEMENTS ISyncNotifier<ARG_TYPES...>
+    class SimpleNotifier : public NotifierBase<bdn::nonatomic, ARG_TYPES...>, virtual public ISyncNotifier<ARG_TYPES...>
     {
       private:
-        using BASE = NotifierBase<DummyMutex, ARG_TYPES...>;
+        using BASE = NotifierBase<bdn::nonatomic, ARG_TYPES...>;
 
       public:
         SimpleNotifier() {}
@@ -35,5 +29,3 @@ namespace bdn
       private:
     };
 }
-
-#endif

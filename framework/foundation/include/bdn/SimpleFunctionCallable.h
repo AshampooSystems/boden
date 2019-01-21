@@ -1,5 +1,4 @@
-#ifndef BDN_SimpleFunctionCallable_H_
-#define BDN_SimpleFunctionCallable_H_
+#pragma once
 
 #include <bdn/ISimpleCallable.h>
 
@@ -10,7 +9,7 @@ namespace bdn
 
     /** Basic ISimpleCallable implementation that calls a std::function
      * object.*/
-    class SimpleFunctionCallable : public Base, BDN_IMPLEMENTS ISimpleCallable
+    class SimpleFunctionCallable : public Base, virtual public ISimpleCallable
     {
       public:
         SimpleFunctionCallable(const std::function<void()> &func) { _func = func; }
@@ -21,5 +20,3 @@ namespace bdn
         std::function<void()> _func;
     };
 }
-
-#endif

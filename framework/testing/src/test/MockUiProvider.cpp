@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test.h>
 
@@ -17,46 +17,47 @@ namespace bdn
     namespace test
     {
 
-        P<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName, View *view)
+        std::shared_ptr<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName,
+                                                                  std::shared_ptr<View> view)
         {
             BDN_REQUIRE_IN_MAIN_THREAD();
 
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockContainerViewCore>(cast<ContainerView>(view));
+                return std::make_shared<MockContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(view));
             } else if (coreTypeName == Window::getWindowCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockWindowCore>(cast<Window>(view));
+                return std::make_shared<MockWindowCore>(std::dynamic_pointer_cast<Window>(view));
             } else if (coreTypeName == Button::getButtonCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockButtonCore>(cast<Button>(view));
+                return std::make_shared<MockButtonCore>(std::dynamic_pointer_cast<Button>(view));
             } else if (coreTypeName == Checkbox::getCheckboxCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockCheckboxCore>(cast<Checkbox>(view));
+                return std::make_shared<MockCheckboxCore>(std::dynamic_pointer_cast<Checkbox>(view));
             } else if (coreTypeName == Toggle::getToggleCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockToggleCore>(cast<Toggle>(view));
+                return std::make_shared<MockToggleCore>(std::dynamic_pointer_cast<Toggle>(view));
             } else if (coreTypeName == Switch::getSwitchCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockSwitchCore>(cast<Switch>(view));
+                return std::make_shared<MockSwitchCore>(std::dynamic_pointer_cast<Switch>(view));
             } else if (coreTypeName == TextView::getTextViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockTextViewCore>(cast<TextView>(view));
+                return std::make_shared<MockTextViewCore>(std::dynamic_pointer_cast<TextView>(view));
             } else if (coreTypeName == TextField::getTextFieldCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockTextFieldCore>(cast<TextField>(view));
+                return std::make_shared<MockTextFieldCore>(std::dynamic_pointer_cast<TextField>(view));
             } else if (coreTypeName == ScrollView::getScrollViewCoreTypeName()) {
                 _coresCreated++;
 
-                return newObj<MockScrollViewCore>(cast<ScrollView>(view));
+                return std::make_shared<MockScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(view));
             } else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
         }

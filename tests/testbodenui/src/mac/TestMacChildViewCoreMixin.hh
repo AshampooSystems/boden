@@ -22,18 +22,18 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _macChildViewCore = cast<bdn::mac::ChildViewCore>(BaseClass::_view->getViewCore());
+                _macChildViewCore = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(BaseClass::_view->getViewCore());
                 REQUIRE(_macChildViewCore != nullptr);
 
                 _nSView = _macChildViewCore->getNSView();
                 REQUIRE(_nSView != nullptr);
             }
 
-            IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
+            std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = BaseClass::_view->visible();
+                bool expectedVisible = BaseClass::_view->visible;
 
                 REQUIRE(_nSView.hidden == !expectedVisible);
             }
@@ -60,7 +60,7 @@ namespace bdn
             void verifyCorePosition() override
             {
                 Point position = getFrameRect().getPosition();
-                Point expectedPosition = BaseClass::_view->position();
+                Point expectedPosition = BaseClass::_view->position;
 
                 REQUIRE(position == expectedPosition);
             }
@@ -68,7 +68,7 @@ namespace bdn
             void verifyCoreSize() override
             {
                 Size size = getFrameRect().getSize();
-                Size expectedSize = BaseClass::_view->size();
+                Size expectedSize = BaseClass::_view->size;
 
                 REQUIRE(size == expectedSize);
             }
@@ -79,7 +79,7 @@ namespace bdn
                 // So nothing to test here.
             }
 
-            P<bdn::mac::ChildViewCore> _macChildViewCore;
+            std::shared_ptr<bdn::mac::ChildViewCore> _macChildViewCore;
             NSView *_nSView;
         };
     }

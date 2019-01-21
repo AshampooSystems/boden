@@ -1,15 +1,14 @@
-#ifndef BDN_TEST_TestViewCore_H_
-#define BDN_TEST_TestViewCore_H_
+#pragma once
 
 #include <bdn/View.h>
 #include <bdn/Window.h>
 #include <bdn/test.h>
 #include <bdn/test/testCalcPreferredSize.h>
 #include <bdn/IUiProvider.h>
-#include <bdn/RequireNewAlloc.h>
 #include <bdn/Button.h>
 #include <bdn/ColumnView.h>
-#include <bdn/Array.h>
+
+using namespace std::chrono_literals;
 
 namespace bdn
 {
@@ -17,15 +16,15 @@ namespace bdn
     {
 
         /** Helper for tests that verify IViewCore implementations.*/
-        template <class ViewType> class TestViewCore : public RequireNewAlloc<Base, TestViewCore<ViewType>>
+        template <class ViewType> class TestViewCore : public Base
         {
           public:
             /** Performs the tests.*/
             virtual void runTests()
             {
-                _window = newObj<WindowForTest>(&getUiProvider());
+                _window = std::make_shared<WindowForTest>(getUiProvider());
 
-                _window->setVisible(true);
+                _window->visible = (true);
 
                 setView(createView());
 
@@ -34,7 +33,7 @@ namespace bdn
 
                 SECTION("init")
                 {
-                    if (_view == cast<View>(_window)) {
+                    if (_view == std::dynamic_pointer_cast<View>(_window)) {
                         // the view is a window. These always have a core from
                         // the start, so we cannot do any init tests with them.
 
@@ -57,10 +56,11 @@ namespace bdn
                     initCore();
 
                     // view should always be visible for these tests
-                    _view->setVisible(true);
+                    _view->visible = (true);
 
                     // ensure that all pending initializations have finished.
-                    P<TestViewCore<ViewType>> self = this;
+                    std::shared_ptr<TestViewCore<ViewType>> self =
+                        std::dynamic_pointer_cast<TestViewCore<ViewType>>(shared_from_this());
 
                     CONTINUE_SECTION_WHEN_IDLE(self) { self->runPostInitTests(); };
                 }
@@ -96,7 +96,7 @@ namespace bdn
             {
                 SECTION("visible")
                 {
-                    _view->setVisible(true);
+                    _view->visible = (true);
 
                     initCore();
                     verifyCoreVisibility();
@@ -104,7 +104,7 @@ namespace bdn
 
                 SECTION("invisible")
                 {
-                    _view->setVisible(false);
+                    _view->visible = (false);
 
                     initCore();
                     verifyCoreVisibility();
@@ -116,7 +116,7 @@ namespace bdn
                     {
                         // the default padding of the outer view should be null
                         // (i.e. "use default").
-                        REQUIRE(_view->padding().isNull());
+                        REQUIRE(!_view->padding.get());
 
                         initCore();
                         verifyCorePadding();
@@ -124,8 +124,8 @@ namespace bdn
 
                     SECTION("explicit")
                     {
-                        _view->setPadding(
-                            UiMargin(UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44)));
+                        _view->padding =
+                            (UiMargin(UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44)));
 
                         initCore();
                         verifyCorePadding();
@@ -149,7 +149,8 @@ namespace bdn
                 */
             virtual void runPostInitTests()
             {
-                P<TestViewCore<ViewType>> self = this;
+                std::shared_ptr<TestViewCore<ViewType>> self =
+                    std::dynamic_pointer_cast<TestViewCore>(shared_from_this());
 
                 SECTION("uiLengthToDips")
                 {
@@ -212,21 +213,21 @@ namespace bdn
 
                 if (coreCanCalculatePreferredSize()) {
                     SECTION("calcPreferredSize")
-                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(_view, _core, this);
+                    bdn::test::_testCalcPreferredSize<ViewType, IViewCore>(_view, _core, shared_from_this());
                 }
 
                 SECTION("visibility")
                 {
                     SECTION("visible")
                     {
-                        _view->setVisible(true);
+                        _view->visible = (true);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreVisibility(); };
                     }
 
                     SECTION("invisible")
                     {
-                        _view->setVisible(false);
+                        _view->visible = (false);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreVisibility(); };
                     }
@@ -238,15 +239,15 @@ namespace bdn
                             // preferred size
                             Size prefSizeBefore = _core->calcPreferredSize();
 
-                            _view->setVisible(true);
+                            _view->visible = (true);
 
                             REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
 
-                            self->_view->setVisible(false);
+                            self->_view->visible = (false);
 
                             REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
 
-                            self->_view->setVisible(true);
+                            self->_view->visible = (true);
 
                             REQUIRE(self->_core->calcPreferredSize() == prefSizeBefore);
                         }
@@ -257,7 +258,7 @@ namespace bdn
                 {
                     SECTION("custom")
                     {
-                        _view->setPadding(UiMargin(11, 22, 33, 44));
+                        _view->padding = (UiMargin(11, 22, 33, 44));
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
                     }
@@ -266,8 +267,8 @@ namespace bdn
                     {
                         // set a non-default padding, then go back to default
                         // padding.
-                        _view->setPadding(UiMargin(11, 22, 33, 44));
-                        _view->setPadding(nullptr);
+                        _view->padding = (UiMargin(11, 22, 33, 44));
+                        _view->padding = std::nullopt;
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
                     }
@@ -286,7 +287,7 @@ namespace bdn
 
                             UiMargin paddingBefore(UiLength::sem(10));
 
-                            _view->setPadding(paddingBefore);
+                            _view->padding = (paddingBefore);
 
                             // wait a little so that sizing info is updated.
                             CONTINUE_SECTION_WHEN_IDLE(self, paddingBefore)
@@ -303,7 +304,7 @@ namespace bdn
 
                                 // setting padding should increase the preferred
                                 // size of the core.
-                                self->_view->setPadding(increasedPadding);
+                                self->_view->padding = (increasedPadding);
 
                                 CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, additionalPadding)
                                 {
@@ -325,7 +326,7 @@ namespace bdn
                 SECTION("adjustAndSetBounds")
                 {
                     Rect bounds;
-                    Point initialPosition = _view->position();
+                    Point initialPosition = _view->position;
 
                     SECTION("no need to adjust")
                     {
@@ -346,7 +347,7 @@ namespace bdn
                     // to ensure that our changes have been applied
                     CONTINUE_SECTION_WHEN_IDLE(self, bounds, returnedBounds)
                     {
-                        CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, self, bounds, returnedBounds)
+                        CONTINUE_SECTION_AFTER_RUN_SECONDS(500ms, self, bounds, returnedBounds)
                         {
                             // the core size and position should always
                             // represent what is configured in the view.
@@ -393,7 +394,7 @@ namespace bdn
                         // pre-adjust the bounds
                         bounds = _core->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
 
-                        List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                        std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                         for (RoundType positionRoundType : roundTypes) {
                             for (RoundType sizeRoundType : roundTypes) {
@@ -416,9 +417,9 @@ namespace bdn
 
                         Rect bounds(110.12345, 220.12345, 660.12345, 510.12345);
 
-                        List<RoundType> roundTypes{RoundType::down, RoundType::nearest, RoundType::up};
+                        std::list<RoundType> roundTypes{RoundType::down, RoundType::nearest, RoundType::up};
 
-                        Array<Rect> adjustedBoundsArray;
+                        std::vector<Rect> adjustedBoundsArray;
 
                         for (RoundType sizeRoundType : roundTypes) {
                             for (RoundType positionRoundType : roundTypes) {
@@ -487,12 +488,12 @@ namespace bdn
                view as a child to a visible view container or window.*/
             virtual void initCore()
             {
-                if (_view != cast<View>(_window)) {
+                if (_view != std::dynamic_pointer_cast<View>(_window)) {
                     // the view might need control over its size to be able to
                     // do some of its test. Because of this we cannot add it to
                     // the window directly. Instead we add an intermediate
                     // ColumnView.
-                    P<ColumnView> container = newObj<ColumnView>();
+                    std::shared_ptr<ColumnView> container = std::make_shared<ColumnView>();
                     _window->setContentView(container);
 
                     container->addChildView(_view);
@@ -524,13 +525,13 @@ namespace bdn
             virtual void verifyCoreSize() = 0;
 
             /** Returns the UiProvider to use.*/
-            virtual IUiProvider &getUiProvider() = 0;
+            virtual std::shared_ptr<IUiProvider> getUiProvider() = 0;
 
             /** Creates the view object to use for the tests.*/
-            virtual P<View> createView() = 0;
+            virtual std::shared_ptr<View> createView() = 0;
 
             /** Sets the view object to use for the tests.*/
-            virtual void setView(View *view) { _view = view; }
+            virtual void setView(std::shared_ptr<View> view) { _view = view; }
 
             /** Returns true if the view core can calculate its preferred size.
                 Some core types depend on the outer view to calculate the
@@ -544,7 +545,7 @@ namespace bdn
             class WindowForTest : public Window
             {
               public:
-                WindowForTest(IUiProvider *uiProvider = nullptr) : Window(uiProvider) {}
+                WindowForTest(std::shared_ptr<IUiProvider> uiProvider = nullptr) : Window(uiProvider) {}
 
                 void invalidateSizingInfo(InvalidateReason reason) override
                 {
@@ -559,12 +560,10 @@ namespace bdn
                 int _invalidateSizingInfoCount = 0;
             };
 
-            P<WindowForTest> _window;
-            P<View> _view;
+            std::shared_ptr<WindowForTest> _window;
+            std::shared_ptr<View> _view;
 
-            P<IViewCore> _core;
+            std::shared_ptr<IViewCore> _core;
         };
     }
 }
-
-#endif

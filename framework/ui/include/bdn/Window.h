@@ -1,5 +1,4 @@
-#ifndef BDN_Window_H_
-#define BDN_Window_H_
+#pragma once
 
 #include <bdn/View.h>
 
@@ -23,7 +22,7 @@ namespace bdn
 
         \code
 
-        P<Window> window = newObj<Window>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
 
         window->setTitle( "My Window Title" );
 
@@ -41,31 +40,35 @@ namespace bdn
                 If this is nullptr then the UI provider provided by the
                 app controller is used (see AppControllerBase::getUiProvider() )
            .*/
-        Window(IUiProvider *uiProvider = nullptr);
+        Window(std::shared_ptr<IUiProvider> uiProvider = nullptr);
 
+      public:
+        /** The window's title property.
+
+            Depending on the platform, the title may or may not be visible in a
+           window title bar on the screen. On some platforms a window does not
+           have a title bar, so the title may be invisible. However, it can also
+           be used in other places (e.g. when switching between windows, etc.),
+            so it should always be set to a reasonable string.
+
+            It is safe to use the property from any thread.
+            */
+        Property<String> title;
+
+      public:
         /** Sets the specified view as the content view of the window.
             Note that windows can only have a single child content view. If one
            is already set then it will be replaced. See #Window class
            documentation for more information.*/
-        void setContentView(View *contentView);
+        void setContentView(std::shared_ptr<View> contentView);
 
         /** Returns the window's content view (see #getContentView()).
             This can be nullptr if no content view has been set yet.*/
-        P<View> getContentView()
-        {
-            Thread::assertInMainThread();
-
-            return _contentView;
-        }
+        std::shared_ptr<View> getContentView();
 
         /** Returns the window's content view (see #getContentView()).
             This can be nullptr if no content view has been set yet.*/
-        P<const View> getContentView() const
-        {
-            Thread::assertInMainThread();
-
-            return _contentView;
-        }
+        std::shared_ptr<const View> getContentView() const;
 
         /** Tells the window to auto-size itself. The window size will be
            adapted according to the preferred size of the content view. The
@@ -88,58 +91,25 @@ namespace bdn
         */
         void requestCenter();
 
-        /** The window's title property.
-
-            Depending on the platform, the title may or may not be visible in a
-           window title bar on the screen. On some platforms a window does not
-           have a title bar, so the title may be invisible. However, it can also
-           be used in other places (e.g. when switching between windows, etc.),
-            so it should always be set to a reasonable string.
-
-            It is safe to use the property from any thread.
-            */
-        BDN_VIEW_PROPERTY(String, title, setTitle, IWindowCore, influencesNothing());
-
         /** Static function that returns the type name for #Window objects.*/
         static String getWindowCoreTypeName() { return "bdn.WindowCore"; }
 
         String getCoreTypeName() const override { return getWindowCoreTypeName(); }
 
-        void getChildViews(List<P<View>> &childViews) const override
-        {
-            Thread::assertInMainThread();
+        std::list<std::shared_ptr<View>> getChildViews() const override;
 
-            if (_contentView != nullptr)
-                childViews.push_back(_contentView);
-        }
+        void removeAllChildViews() override;
 
-        void removeAllChildViews() override { setContentView(nullptr); }
+        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
-        P<View> findPreviousChildView(View *childView) override
-        {
-            // we do not have multiple child views with an order - just a single
-            // content view
-            return nullptr;
-        }
-
-        void _childViewStolen(View *childView) override
-        {
-            Thread::assertInMainThread();
-
-            if (childView == _contentView)
-                _contentView = nullptr;
-        }
+        void _childViewStolen(std::shared_ptr<View> childView) override;
 
       protected:
-        P<IUiProvider> determineUiProvider(P<View> parentView = nullptr) override
-        {
-            // our Ui provider never changes. Just return the current one.
-            return cast<IUiProvider>(_uiProvider);
-        }
+        std::shared_ptr<IUiProvider> determineUiProvider(std::shared_ptr<View> parentView = nullptr) override;
+        virtual void _initCore() override;
+        virtual void _deinitCore() override;
 
       private:
-        P<View> _contentView;
+        std::shared_ptr<View> _contentView;
     };
 }
-
-#endif

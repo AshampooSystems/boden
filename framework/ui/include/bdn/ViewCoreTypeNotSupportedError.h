@@ -1,5 +1,4 @@
-#ifndef BDN_ViewCoreTypeNotSupportedError_H_
-#define BDN_ViewCoreTypeNotSupportedError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -15,5 +14,3 @@ namespace bdn
         {}
     };
 }
-
-#endif

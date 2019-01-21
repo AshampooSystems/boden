@@ -1,5 +1,6 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
+#include <bdn/config.h>
 
 #include <bdn/mainThread.h>
 #include <bdn/StopWatch.h>
@@ -7,6 +8,7 @@
 #include <chrono>
 
 using namespace bdn;
+using namespace std::chrono_literals;
 
 TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 {
@@ -16,13 +18,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0, watch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0s, watch)
             {
                 zeroContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() < 900);
+                REQUIRE(watch->elapsed() < 900ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -37,13 +39,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(0.00000000001, watch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(1ns, watch)
             {
                 almostZeroContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() < 500);
+                REQUIRE(watch->elapsed() < 500ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -61,14 +63,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(1.1, watch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(1100ms, watch)
             {
                 millisContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() >= 1050);
-                REQUIRE(watch->getMillis() < 1900);
+                REQUIRE(watch->elapsed() >= 1050ms);
+                REQUIRE(watch->elapsed() < 1900ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -83,14 +85,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, watch)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, watch)
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() >= 1900);
-                REQUIRE(watch->getMillis() < 2500);
+                REQUIRE(watch->elapsed() >= 1900ms);
+                REQUIRE(watch->elapsed() < 2500ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -105,12 +107,12 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
         // CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS should NOT be influences by
         // this (in contrast to CONTINUE_SECTION_AFTER_RUN_SECONDS)
 
-        P<StopWatch> watch = newObj<StopWatch>();
+        std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, watch)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s, watch)
         {
-            REQUIRE(watch->getMillis() >= 1900);
-            REQUIRE(watch->getMillis() < 2500);
+            REQUIRE(watch->elapsed() >= 1900ms);
+            REQUIRE(watch->elapsed() < 2500ms);
         };
 
         // note that the following code is executed before the "continue" code
@@ -121,7 +123,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS")
         // one second.
         asyncCallFromMainThread([]() {
 #if BDN_HAVE_THREADS
-            Thread::sleepSeconds(1);
+            std::this_thread::sleep_for(1s);
 #else
             // we cannot sleep. So we have to busy wait until the time has
             // elapsed.
@@ -153,13 +155,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0, watch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0s, watch)
             {
                 zeroContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() < 900);
+                REQUIRE(watch->elapsed() < 900ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -174,13 +176,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.00000000001, watch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(1ns, watch)
             {
                 almostZeroContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() < 500);
+                REQUIRE(watch->elapsed() < 600ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -198,14 +200,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(1.1, watch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(1100ms, watch)
             {
                 millisContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() >= 1050);
-                REQUIRE(watch->getMillis() < 1900);
+                REQUIRE(watch->elapsed() >= 1050ms);
+                REQUIRE(watch->elapsed() < 1900ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -220,14 +222,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
 
         SECTION("actualTest")
         {
-            P<StopWatch> watch = newObj<StopWatch>();
+            std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_RUN_SECONDS(2, watch)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(2s, watch)
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE(watch->getMillis() >= 1900);
-                REQUIRE(watch->getMillis() < 2500);
+                REQUIRE(watch->elapsed() >= 1900ms);
+                REQUIRE(watch->elapsed() < 2500ms);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -242,13 +244,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
         // CONTINUE_SECTION_AFTER_RUN_SECONDS should increase the wait time
         // accordingly.
 
-        P<StopWatch> watch = newObj<StopWatch>();
+        std::shared_ptr<StopWatch> watch = std::make_shared<StopWatch>();
 
-        CONTINUE_SECTION_AFTER_RUN_SECONDS(2, watch)
+        CONTINUE_SECTION_AFTER_RUN_SECONDS(2s, watch)
         {
             // the wait time should have increased by VERY ROUGHLY one second.
-            REQUIRE(watch->getMillis() >= 2800);
-            REQUIRE(watch->getMillis() < 3500);
+            REQUIRE(watch->elapsed() >= 2800ms);
+            REQUIRE(watch->elapsed() < 3500ms);
         };
 
         // note that the following code is executed before the "continue" code
@@ -259,7 +261,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_RUN_SECONDS")
         // one second.
         asyncCallFromMainThread([]() {
 #if BDN_HAVE_THREADS
-            Thread::sleepSeconds(1);
+            std::this_thread::sleep_for(1s);
 #else
             // we cannot sleep. So we have to busy wait until the time has
             // elapsed.

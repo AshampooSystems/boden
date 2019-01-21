@@ -16,22 +16,22 @@ namespace bdn
         template <class BaseClass> class TestMockViewCoreMixin : public BaseClass
         {
           public:
-            TestMockViewCoreMixin() { _mockProvider = newObj<bdn::test::MockUiProvider>(); }
+            TestMockViewCoreMixin() { _mockProvider = std::make_shared<bdn::test::MockUiProvider>(); }
 
           protected:
             void initCore() override
             {
                 BaseClass::initCore();
 
-                _mockCore = cast<bdn::test::MockViewCore>(this->_view->getViewCore());
+                _mockCore = std::dynamic_pointer_cast<bdn::test::MockViewCore>(this->_view->getViewCore());
                 REQUIRE(_mockCore != nullptr);
             }
 
-            IUiProvider &getUiProvider() override { return *_mockProvider; }
+            std::shared_ptr<IUiProvider> getUiProvider() override { return _mockProvider; }
 
             void verifyCoreVisibility() override
             {
-                bool expectedVisible = this->_view->visible();
+                bool expectedVisible = this->_view->visible;
 
                 REQUIRE(_mockCore->getVisible() == expectedVisible);
             }
@@ -44,33 +44,33 @@ namespace bdn
 
             void verifyCorePosition() override
             {
-                Point expectedPosition = this->_view->position();
+                Point expectedPosition = this->_view->position;
 
                 REQUIRE(_mockCore->getBounds().getPosition() == expectedPosition);
             }
 
             void verifyCoreSize() override
             {
-                Size expectedSize = this->_view->size();
+                Size expectedSize = this->_view->size;
 
                 REQUIRE(_mockCore->getBounds().getSize() == expectedSize);
             }
 
             void verifyCorePadding() override
             {
-                Nullable<UiMargin> expectedPadding = this->_view->padding();
+                std::optional<UiMargin> expectedPadding = this->_view->padding;
 
-                if (expectedPadding.isNull())
-                    REQUIRE(_mockCore->getPadding().isNull());
+                if (expectedPadding)
+                    REQUIRE(_mockCore->getPadding());
                 else {
-                    REQUIRE(!_mockCore->getPadding().isNull());
+                    REQUIRE(!_mockCore->getPadding());
 
-                    REQUIRE(_mockCore->getPadding().get() == expectedPadding.get());
+                    REQUIRE(_mockCore->getPadding() == expectedPadding);
                 }
             }
 
-            P<bdn::test::MockViewCore> _mockCore;
-            P<bdn::test::MockUiProvider> _mockProvider;
+            std::shared_ptr<bdn::test::MockViewCore> _mockCore;
+            std::shared_ptr<bdn::test::MockUiProvider> _mockProvider;
         };
     }
 }

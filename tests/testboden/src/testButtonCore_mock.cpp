@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -14,9 +14,9 @@ class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
   protected:
     void verifyCoreLabel() override
     {
-        String expectedLabel = _button->label();
+        String expectedLabel = _button->label;
 
-        String label = cast<bdn::test::MockButtonCore>(_mockCore)->getLabel();
+        String label = std::dynamic_pointer_cast<bdn::test::MockButtonCore>(_mockCore)->getLabel();
 
         REQUIRE(label == expectedLabel);
     }
@@ -24,7 +24,7 @@ class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
 
 TEST_CASE("mock.ButtonCore")
 {
-    P<TestMockButtonCore> test = newObj<TestMockButtonCore>();
+    std::shared_ptr<TestMockButtonCore> test = std::make_shared<TestMockButtonCore>();
 
     test->runTests();
 }

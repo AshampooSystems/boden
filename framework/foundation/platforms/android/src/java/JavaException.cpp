@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/JavaException.h>
 
 #include <bdn/java/JNativeException.h>
@@ -14,7 +14,7 @@ namespace bdn
                 // this is a C++ exception that was wrapped. Throw that.
                 JNativeException nativeException(throwable.getRef_());
 
-                P<ExceptionReference> ref = nativeException.getExceptionReference_();
+                std::shared_ptr<ExceptionReference> ref = nativeException.getExceptionReference_();
 
                 ref->rethrow();
             } else {

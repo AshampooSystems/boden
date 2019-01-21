@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/windowCoreUtil.h>
 
 #include <bdn/mainThread.h>
@@ -6,22 +6,22 @@
 namespace bdn
 {
 
-    Size defaultWindowCalcPreferredSizeImpl(Window *window, const Size &availableSpace, const Margin &border,
-                                            const Size &minWindowSize)
+    Size defaultWindowCalcPreferredSizeImpl(std::shared_ptr<Window> window, const Size &availableSpace,
+                                            const Margin &border, const Size &minWindowSize)
     {
         Margin contentMargin;
-        P<const View> contentView = window->getContentView();
+        std::shared_ptr<const View> contentView = window->getContentView();
         if (contentView != nullptr)
-            contentMargin = contentView->uiMarginToDipMargin(contentView->margin());
+            contentMargin = contentView->uiMarginToDipMargin(contentView->margin);
 
         Margin padding;
         // default padding is zero
-        Nullable<UiMargin> pad = window->padding();
-        if (!pad.isNull())
-            padding = window->uiMarginToDipMargin(pad);
+        auto pad = *window->padding;
+        if (pad)
+            padding = window->uiMarginToDipMargin(*pad);
 
         // combine maxSize with availableSpace
-        Size maxSize = window->preferredSizeMaximum();
+        Size maxSize = window->preferredSizeMaximum;
         maxSize.applyMaximum(availableSpace);
 
         Size availableContentSpace(maxSize);
@@ -48,7 +48,7 @@ namespace bdn
 
         // apply minimum size constraint (the maximum constraint has already
         // been applied above)
-        preferredSize.applyMinimum(window->preferredSizeMinimum());
+        preferredSize.applyMinimum(window->preferredSizeMinimum);
 
         // also apply the platform's minimm window size
         preferredSize.applyMinimum(minWindowSize);
@@ -60,14 +60,14 @@ namespace bdn
         // because we never want it to be exceeded. Note that we do NOT clip
         // against availableSpace, because we WANT that to be exceeded if the
         // children do not fit.
-        preferredSize.applyMaximum(window->preferredSizeMaximum());
+        preferredSize.applyMaximum(window->preferredSizeMaximum);
 
         return preferredSize;
     }
 
-    void defaultWindowLayoutImpl(Window *window, const Rect &contentArea)
+    void defaultWindowLayoutImpl(std::shared_ptr<Window> window, const Rect &contentArea)
     {
-        P<View> contentView = window->getContentView();
+        std::shared_ptr<View> contentView = window->getContentView();
 
         if (contentView != nullptr) {
             // just set our content window to content area (but taking margins
@@ -76,15 +76,15 @@ namespace bdn
 
             Margin padding;
             // default padding is zero
-            Nullable<UiMargin> pad = window->padding();
-            if (!pad.isNull())
-                padding = window->uiMarginToDipMargin(pad);
+            auto pad = *window->padding;
+            if (pad)
+                padding = window->uiMarginToDipMargin(*pad);
 
             // subtract our padding
             contentBounds -= padding;
 
             // subtract the content view's margins
-            contentBounds -= contentView->uiMarginToDipMargin(contentView->margin());
+            contentBounds -= contentView->uiMarginToDipMargin(*contentView->margin);
 
             contentView->adjustAndSetBounds(contentBounds);
 
@@ -94,7 +94,7 @@ namespace bdn
         }
     }
 
-    void defaultWindowAutoSizeImpl(Window *window, const Size &screenWorkAreaSize)
+    void defaultWindowAutoSizeImpl(std::shared_ptr<Window> window, const Size &screenWorkAreaSize)
     {
         Rect newBounds;
 
@@ -143,14 +143,14 @@ namespace bdn
         // Position is always rounded to nearest.
 
         Rect adjustedBounds =
-            window->adjustBounds(Rect(window->position(), Size(width, height)), RoundType::nearest, RoundType::up);
+            window->adjustBounds(Rect(window->position, Size(width, height)), RoundType::nearest, RoundType::up);
 
         window->adjustAndSetBounds(adjustedBounds);
     }
 
-    void defaultWindowCenterImpl(Window *window, const Rect &screenWorkArea)
+    void defaultWindowCenterImpl(std::shared_ptr<Window> window, const Rect &screenWorkArea)
     {
-        Size size = window->size();
+        Size size = window->size;
 
         double x = screenWorkArea.x + (screenWorkArea.width - size.width) / 2;
         double y = screenWorkArea.y + (screenWorkArea.height - size.height) / 2;

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/Window.h>
 
 #include <bdn/test.h>
@@ -10,12 +10,12 @@
 
 using namespace bdn;
 
-void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> window,
-                               P<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions<Window>> window,
+                               std::shared_ptr<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
-    P<Button> button = newObj<Button>();
-    button->setLabel("HelloWorld");
+    std::shared_ptr<Button> button = std::make_shared<Button>();
+    button->label = ("HelloWorld");
 
     Margin buttonMargin;
 
@@ -26,7 +26,7 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> wind
 
     SECTION("semMargin")
     {
-        button->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
+        button->margin = (UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -34,14 +34,15 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<Window>> wind
 
     SECTION("dipMargin")
     {
-        button->setMargin(UiMargin(1, 2, 3, 4));
+        button->margin = (UiMargin(1, 2, 3, 4));
 
         buttonMargin = Margin(1, 2, 3, 4);
     }
 
     window->setContentView(button);
 
-    P<bdn::test::MockButtonCore> buttonCore = cast<bdn::test::MockButtonCore>(button->getViewCore());
+    std::shared_ptr<bdn::test::MockButtonCore> buttonCore =
+        std::dynamic_pointer_cast<bdn::test::MockButtonCore>(button->getViewCore());
 
     // Sanity check. Verify the fake button size. 9.75 , 19.60 per character,
     // rounded to full 1/3 DIP pixels, plus 10x8 for border
@@ -70,11 +71,13 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("Window-specific")
     {
-        P<bdn::test::ViewTestPreparer<Window>> preparer = newObj<bdn::test::ViewTestPreparer<Window>>();
+        std::shared_ptr<bdn::test::ViewTestPreparer<Window>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<Window>>();
 
-        P<bdn::test::ViewWithTestExtensions<Window>> window = preparer->createView();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<Window>> window = preparer->createView();
 
-        P<bdn::test::MockWindowCore> core = cast<bdn::test::MockWindowCore>(window->getViewCore());
+        std::shared_ptr<bdn::test::MockWindowCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockWindowCore>(window->getViewCore());
         REQUIRE(core != nullptr);
 
         // continue testing after the async init has finished
@@ -83,14 +86,14 @@ TEST_CASE("Window", "[ui]")
                                          // in View. So we only have to test the Window-specific things here.
                                          SECTION("constructWindowSpecific"){REQUIRE(core->getTitleChangeCount() == 0);
 
-        REQUIRE(window->title() == "");
+        REQUIRE(window->title == "");
     }
 
     SECTION("changeWindowProperty")
     {
         SECTION("title")
         {
-            bdn::test::_testViewOp(window, preparer, [window]() { window->setTitle("hello"); },
+            bdn::test::_testViewOp(window, preparer, [window]() { window->title = ("hello"); },
                                    [core, window] {
                                        REQUIRE(core->getTitleChangeCount() == 1);
                                        REQUIRE(core->getTitle() == "hello");
@@ -105,14 +108,15 @@ TEST_CASE("Window", "[ui]")
         {
             SECTION("set to !=null")
             {
-                P<Button> button = newObj<Button>();
-                bdn::test::_testViewOp(window, preparer, [window, button]() { window->setContentView(button); },
-                                       [window, button] { REQUIRE(window->getContentView() == cast<View>(button)); },
-                                       bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
-                                           bdn::test::ExpectedSideEffect_::invalidateLayout
-                                       // should have caused a sizing info update and a layout
-                                       // update should not cause a parent layout update, since
-                                       // there is no parent
+                std::shared_ptr<Button> button = std::make_shared<Button>();
+                bdn::test::_testViewOp(
+                    window, preparer, [window, button]() { window->setContentView(button); },
+                    [window, button] { REQUIRE(window->getContentView() == std::dynamic_pointer_cast<View>(button)); },
+                    bdn::test::ExpectedSideEffect_::invalidateSizingInfo |
+                        bdn::test::ExpectedSideEffect_::invalidateLayout
+                    // should have caused a sizing info update and a layout
+                    // update should not cause a parent layout update, since
+                    // there is no parent
                 );
             }
 
@@ -133,7 +137,7 @@ TEST_CASE("Window", "[ui]")
                 {
                     // first make sure that there is a content view attached
                     // before the test runs
-                    P<Button> button = newObj<Button>();
+                    std::shared_ptr<Button> button = std::make_shared<Button>();
 
                     window->setContentView(button);
 
@@ -154,13 +158,13 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("childParent")
     {
-        P<Button> child = newObj<Button>();
+        std::shared_ptr<Button> child = std::make_shared<Button>();
 
         SECTION("setWhenAdded")
         {
             window->setContentView(child);
 
-            BDN_REQUIRE(child->getParentView() == cast<View>(window));
+            BDN_REQUIRE(child->getParentView() == std::dynamic_pointer_cast<View>(window));
         }
 
         SECTION("nullAfterDestroy")
@@ -168,7 +172,7 @@ TEST_CASE("Window", "[ui]")
             {
                 bdn::test::ViewTestPreparer<Window> preparer2;
 
-                P<bdn::test::ViewWithTestExtensions<Window>> window2 = preparer2.createView();
+                std::shared_ptr<bdn::test::ViewWithTestExtensions<Window>> window2 = preparer2.createView();
 
                 window2->setContentView(child);
             }
@@ -187,22 +191,20 @@ TEST_CASE("Window", "[ui]")
     {
         SECTION("empty")
         {
-            List<P<View>> childList;
-            window->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = window->getChildViews();
 
             REQUIRE(childList.empty());
         }
 
         SECTION("non-empty")
         {
-            P<Button> child = newObj<Button>();
+            std::shared_ptr<Button> child = std::make_shared<Button>();
             window->setContentView(child);
 
-            List<P<View>> childList;
-            window->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = window->getChildViews();
 
             REQUIRE(childList.size() == 1);
-            REQUIRE(childList.front() == cast<View>(child));
+            REQUIRE(childList.front() == std::dynamic_pointer_cast<View>(child));
         }
     }
 
@@ -212,15 +214,14 @@ TEST_CASE("Window", "[ui]")
         {
             window->removeAllChildViews();
 
-            List<P<View>> childList;
-            window->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = window->getChildViews();
 
             REQUIRE(childList.empty());
         }
 
         SECTION("with content view")
         {
-            P<Button> child = newObj<Button>();
+            std::shared_ptr<Button> child = std::make_shared<Button>();
             window->setContentView(child);
 
             window->removeAllChildViews();
@@ -228,8 +229,7 @@ TEST_CASE("Window", "[ui]")
             REQUIRE(window->getContentView() == nullptr);
             REQUIRE(child->getParentView() == nullptr);
 
-            List<P<View>> childList;
-            window->getChildViews(childList);
+            std::list<std::shared_ptr<View>> childList = window->getChildViews();
 
             REQUIRE(childList.empty());
         }
@@ -259,20 +259,20 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("autoSize")
     {
-        Point positionBefore = window->position();
-        Size sizeBefore = window->size();
+        Point positionBefore = window->position;
+        Size sizeBefore = window->size;
 
         window->requestAutoSize();
 
         // auto-sizing is ALWAYS done asynchronously.
         // So nothing should have happened yet.
 
-        REQUIRE(window->position() == positionBefore);
-        REQUIRE(window->size() == sizeBefore);
+        REQUIRE(window->position == positionBefore);
+        REQUIRE(window->size == sizeBefore);
 
         CONTINUE_SECTION_WHEN_IDLE_WITH([window]() {
-            REQUIRE(window->position() == Point(0, 0));
-            REQUIRE(window->size() == Size(100, 32));
+            REQUIRE(window->position == Point(0, 0));
+            REQUIRE(window->size == Size(100, 32));
         });
     }
 
@@ -285,28 +285,28 @@ TEST_CASE("Window", "[ui]")
         // centering is ALWAYS done asynchronously.
         // So nothing should have happened yet.
 
-        REQUIRE(window->position() == Point(0, 0));
-        REQUIRE(window->size() == Size(200, 200));
+        REQUIRE(window->position == Point(0, 0));
+        REQUIRE(window->size == Size(200, 200));
 
         CONTINUE_SECTION_WHEN_IDLE(window)
         {
             // the work area of our mock window is 100,100 800x800
-            REQUIRE(window->position() == Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
+            REQUIRE(window->position == Point(100 + (800 - 200) / 2, 100 + (800 - 200) / 2));
 
-            REQUIRE(window->size() == Size(200, 200));
+            REQUIRE(window->size == Size(200, 200));
         };
     }
 
     SECTION("contentView aligned on full pixels")
     {
-        P<Button> child = newObj<Button>();
-        child->setLabel("hello");
+        std::shared_ptr<Button> child = std::make_shared<Button>();
+        child->label = ("hello");
 
         SECTION("weird child margin")
-        child->setMargin(UiMargin(0.12345678));
+        child->margin = (UiMargin(0.12345678));
 
         SECTION("weird window padding")
-        window->setPadding(UiMargin(0.12345678));
+        window->padding = (UiMargin(0.12345678));
 
         window->setContentView(child);
 
@@ -315,12 +315,12 @@ TEST_CASE("Window", "[ui]")
             // the mock views we use have 3 pixels per dip
             double pixelsPerDip = 3;
 
-            Point pos = child->position();
+            Point pos = child->position;
 
             REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip, std::round(pos.x * pixelsPerDip), 0.000001);
             REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip, std::round(pos.y * pixelsPerDip), 0.000001);
 
-            Size size = child->size();
+            Size size = child->size;
             REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip, std::round(size.width * pixelsPerDip), 0.000001);
             REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip, std::round(size.height * pixelsPerDip), 0.000001);
         };
@@ -328,7 +328,7 @@ TEST_CASE("Window", "[ui]")
 
     SECTION("content view detached before destruction begins")
     {
-        P<Button> child = newObj<Button>();
+        std::shared_ptr<Button> child = std::make_shared<Button>();
         window->setContentView(child);
 
         struct LocalTestData_ : public Base
@@ -338,7 +338,7 @@ TEST_CASE("Window", "[ui]")
             int childStillChild = -1;
         };
 
-        P<LocalTestData_> data = newObj<LocalTestData_>();
+        std::shared_ptr<LocalTestData_> data = std::make_shared<LocalTestData_>();
 
         window->setDestructFunc([data, child](bdn::test::ViewWithTestExtensions<Window> *win) {
             data->destructorRun = true;
@@ -356,10 +356,6 @@ TEST_CASE("Window", "[ui]")
             // content view's parent was set to null before the destructor
             // of the parent was called.
             REQUIRE(data->childParentStillSet == 0);
-
-            // the child should also not be a child of the parent
-            // from the parent's perspective anymore.
-            REQUIRE(data->childStillChild == 0);
         };
     }
 };

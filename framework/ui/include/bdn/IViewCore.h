@@ -1,5 +1,4 @@
-#ifndef BDN_IViewCore_H_
-#define BDN_IViewCore_H_
+#pragma once
 
 namespace bdn
 {
@@ -8,14 +7,14 @@ namespace bdn
 
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
-#include <bdn/Nullable.h>
 #include <bdn/Size.h>
 #include <bdn/round.h>
+#include <optional>
 
 namespace bdn
 {
 
-    class IViewCore : BDN_IMPLEMENTS IBase
+    class IViewCore
     {
       public:
         enum class InvalidateReason
@@ -149,7 +148,7 @@ namespace bdn
            view's own sizing info and layout. But the core has full control over
            this and can use an optimized implementation if it wants to.
             */
-        virtual void childSizingInfoInvalidated(View *child) = 0;
+        virtual void childSizingInfoInvalidated(std::shared_ptr<View> child) = 0;
 
         /** Sets the view core's horizontal alignment. See
          * View::horizontalAlignment() */
@@ -163,7 +162,7 @@ namespace bdn
         virtual void setVisible(const bool &visible) = 0;
 
         /** Sets the view core's padding. See View::padding() */
-        virtual void setPadding(const Nullable<UiMargin> &padding) = 0;
+        virtual void setPadding(const std::optional<UiMargin> &padding) = 0;
 
         /** Sets the view core's margin. See View::margin() */
         virtual void setMargin(const UiMargin &margin) = 0;
@@ -313,7 +312,7 @@ namespace bdn
             Returns true if it is possible to move the core to a new parent or
            false otherwise.
             */
-        virtual bool canMoveToParentView(View &newParentView) const = 0;
+        virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
 
         /** Called when the outer view's parent is being changed and the core
            needs to move to a new parent.
@@ -326,7 +325,7 @@ namespace bdn
            before calling this method and it will only call moveToParentView()
            if a prior call to canMoveToParentView() returned true.
             */
-        virtual void moveToParentView(View &newParentView) = 0;
+        virtual void moveToParentView(std::shared_ptr<View> newParentView) = 0;
 
         /** Called when the outer view's parent has changed and the framework is
            not able to move the view's core to the new parent, or if the parent
@@ -334,8 +333,41 @@ namespace bdn
             */
         virtual void dispose() = 0;
     };
+
+    template <typename CHAR_TYPE, class CHAR_TRAITS>
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const IViewCore::HorizontalAlignment a)
+    {
+        switch (a) {
+        case IViewCore::HorizontalAlignment::left:
+            return stream << "left";
+        case IViewCore::HorizontalAlignment::center:
+            return stream << "center";
+        case IViewCore::HorizontalAlignment::right:
+            return stream << "right";
+        case IViewCore::HorizontalAlignment::expand:
+            return stream << "expand";
+        }
+        return stream << "fail";
+    }
+
+    template <typename CHAR_TYPE, class CHAR_TRAITS>
+    std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> &stream,
+                                                           const IViewCore::VerticalAlignment a)
+    {
+        switch (a) {
+        case IViewCore::VerticalAlignment::top:
+            return stream << "top";
+        case IViewCore::VerticalAlignment::middle:
+            return stream << "middle";
+        case IViewCore::VerticalAlignment::bottom:
+            return stream << "bottom";
+        case IViewCore::VerticalAlignment::expand:
+            return stream << "expand";
+        }
+
+        return stream << "fail";
+    }
 }
 
 #include <bdn/View.h>
-
-#endif

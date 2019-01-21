@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestButtonCore_H_
-#define BDN_TEST_TestButtonCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/Button.h>
@@ -14,19 +13,19 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<Button> button = newObj<Button>();
-                button->setLabel("hello");
+                std::shared_ptr<Button> button = std::make_shared<Button>();
+                button->label = ("hello");
 
                 return button;
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _button = cast<Button>(view);
+                _button = std::dynamic_pointer_cast<Button>(view);
             }
 
             void runInitTests() override
@@ -35,7 +34,7 @@ namespace bdn
 
                 SECTION("label")
                 {
-                    _button->setLabel("helloworld");
+                    _button->label = ("helloworld");
                     initCore();
                     verifyCoreLabel();
                 }
@@ -43,7 +42,7 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestButtonCore> self(this);
+                std::shared_ptr<TestButtonCore> self = std::dynamic_pointer_cast<TestButtonCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -51,21 +50,21 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _button->setLabel("helloworld");
+                        _button->label = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _button->label();
+                        String labelBefore = _button->label;
 
                         // the label should not be empty here
-                        REQUIRE(labelBefore.getLength() > 3);
+                        REQUIRE(labelBefore.size() > 3);
 
                         Size prefSizeBefore = _button->calcPreferredSize();
 
-                        _button->setLabel(labelBefore + labelBefore + labelBefore);
+                        _button->label = (labelBefore + labelBefore + labelBefore);
 
                         Size prefSize = self->_button->calcPreferredSize();
 
@@ -78,7 +77,7 @@ namespace bdn
 
                         // when we go back to the same label as before then the
                         // preferred size should also be the same again
-                        self->_button->setLabel(labelBefore);
+                        self->_button->label = (labelBefore);
 
                         REQUIRE(self->_button->calcPreferredSize() == prefSizeBefore);
                     }
@@ -90,9 +89,7 @@ namespace bdn
                property.*/
             virtual void verifyCoreLabel() = 0;
 
-            P<Button> _button;
+            std::shared_ptr<Button> _button;
         };
     }
 }
-
-#endif

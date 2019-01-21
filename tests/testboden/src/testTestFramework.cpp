@@ -1,12 +1,15 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/mainThread.h>
-#include <bdn/Thread.h>
+#include <bdn/InvalidArgumentError.h>
+#include <bdn/config.h>
 
 #include <thread>
+#include <chrono>
 #include <future>
 
+using namespace std::chrono_literals;
 using namespace bdn;
 
 TEST_CASE("test.checkEquality")
@@ -100,14 +103,14 @@ TEST_CASE("test.failsInOtherThreads", "[!shouldfail]")
 {
     SECTION("exceptionPropagatedToMainThread")
     {
-        std::future<void> result = Thread::exec([]() { REQUIRE(false); });
+        std::future<void> result = std::async(std::launch::async, []() { REQUIRE(false); });
 
         result.get();
     }
 
     SECTION("exceptionNotPropagatedToMainThread")
     {
-        std::future<void> result = Thread::exec([]() { REQUIRE(false); });
+        std::future<void> result = std::async(std::launch::async, []() { REQUIRE(false); });
         result.wait();
     }
 }
@@ -382,22 +385,22 @@ struct TestData : public Base
 
 struct TestContinuationDataRelease : public Base
 {
-    TestContinuationDataRelease(TestData *data) { _data = data; }
+    TestContinuationDataRelease(std::shared_ptr<TestData> data) { _data = data; }
 
     ~TestContinuationDataRelease()
     {
-        Thread::sleepMillis(2000);
+        std::this_thread::sleep_for(2s);
         _data->callCount++;
     }
 
-    P<TestData> _data;
+    std::shared_ptr<TestData> _data;
 };
 
 template <typename FuncType> void testContinueSectionWith(FuncType scheduleContinueWith)
 {
     // we verify that CONTINUE_SECTION_WHEN_IDLE works as expected
 
-    P<TestData> data = newObj<TestData>();
+    std::shared_ptr<TestData> data = std::make_shared<TestData>();
 
     SECTION("notCalledImmediately")
     {
@@ -413,11 +416,11 @@ template <typename FuncType> void testContinueSectionWith(FuncType scheduleConti
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
-        Thread::sleepMillis(2000);
+        std::this_thread::sleep_for(2s);
         REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> calledBeforeNextSectionData;
+    static std::shared_ptr<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
         calledBeforeNextSectionData = data;
@@ -434,12 +437,13 @@ template <typename FuncType> void testContinueSectionWith(FuncType scheduleConti
         REQUIRE(calledBeforeNextSectionData->callCount == 1);
     }
 
-    static P<TestData> continuationFuncReleasedBeforeNextSectionData;
+    static std::shared_ptr<TestData> continuationFuncReleasedBeforeNextSectionData;
     SECTION("continuationFuncReleasedBeforeNextSection-a")
     {
         continuationFuncReleasedBeforeNextSectionData = data;
 
-        P<TestContinuationDataRelease> releaseTestData = newObj<TestContinuationDataRelease>(data);
+        std::shared_ptr<TestContinuationDataRelease> releaseTestData =
+            std::make_shared<TestContinuationDataRelease>(data);
 
         scheduleContinueWith([releaseTestData]() {});
 
@@ -522,7 +526,7 @@ void testContinueSectionWith_expectedFail(void (*scheduleContinueWith)(std::func
 void scheduleContinueAfterPendingEventsWith(std::function<void()> continuationFunc)
 {
     CONTINUE_SECTION_WHEN_IDLE_WITH([continuationFunc]() {
-        REQUIRE(Thread::isCurrentMain());
+        REQUIRE(AppRunnerBase::isMainThread());
         continuationFunc();
     });
 }
@@ -564,7 +568,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH-asyncAfterSectionThatHadAsyncContinua
 void scheduleContinueInThreadWith(std::function<void()> continuationFunc)
 {
     CONTINUE_SECTION_IN_THREAD_WITH([continuationFunc]() {
-        REQUIRE(!Thread::isCurrentMain());
+        REQUIRE(!AppRunnerBase::isMainThread());
         continuationFunc();
     });
 }
@@ -677,7 +681,7 @@ static bool scheduledEventChainDone = false;
 
 TEST_CASE("CONTINUE_SECTION_WHEN_IDLE")
 {
-    P<TestData> data = newObj<TestData>();
+    std::shared_ptr<TestData> data = std::make_shared<TestData>();
 
     SECTION("notCalledImmediately")
     {
@@ -693,11 +697,11 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE")
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
-        Thread::sleepMillis(2000);
+        std::this_thread::sleep_for(2s);
         REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> calledBeforeNextSectionData;
+    static std::shared_ptr<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
         calledBeforeNextSectionData = data;
@@ -873,7 +877,7 @@ TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-complicated-B")
 
 TEST_CASE("CONTINUE_SECTION_IN_THREAD")
 {
-    P<TestData> data = newObj<TestData>();
+    std::shared_ptr<TestData> data = std::make_shared<TestData>();
 
     SECTION("notCalledImmediately")
     {
@@ -889,11 +893,11 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD")
 
         // even if we wait a while, the continuation should not be called yet
         // (not even if it runs in another thread).
-        Thread::sleepMillis(2000);
+        std::this_thread::sleep_for(2s);
         REQUIRE(data->callCount == 0);
     }
 
-    static P<TestData> calledBeforeNextSectionData;
+    static std::shared_ptr<TestData> calledBeforeNextSectionData;
     SECTION("calledBeforeNextSection-a")
     {
         calledBeforeNextSectionData = data;

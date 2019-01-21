@@ -113,8 +113,7 @@
 #include <bdn/UiLength.h>
 #include <bdn/UiMargin.h>
 #include <bdn/UiSize.h>
-#include <bdn/Thread.h>
-#include <bdn/property.h>
+#include <bdn/property/Property.h>
 #include <bdn/ProgrammingError.h>
 #include <bdn/test/ExpectProgrammingError.h>
 
@@ -397,7 +396,6 @@ namespace bdn
     bool contains(std::string const &s, std::string const &infix);
     void toLowerInPlace(std::string &s);
     std::string toLower(std::string const &s);
-    std::string trim(std::string const &str);
     bool replaceInPlace(std::string &str, std::string const &replaceThis, std::string const &withThis);
 
     struct pluralise
@@ -1734,10 +1732,11 @@ namespace bdn
 
     // Built in overloads
 
-    std::string toStringForTest(StringImpl<Utf8StringData> const &value);
-    std::string toStringForTest(StringImpl<Utf16StringData> const &value);
-    std::string toStringForTest(StringImpl<WideStringData> const &value);
-    std::string toStringForTest(StringImpl<Utf32StringData> const &value);
+    // TODO
+    /* std::string toStringForTest(StringImpl<Utf8StringData> const &value);
+     std::string toStringForTest(StringImpl<Utf16StringData> const &value);
+     std::string toStringForTest(StringImpl<WideStringData> const &value);
+     std::string toStringForTest(StringImpl<Utf32StringData> const &value);*/
     std::string toStringForTest(std::string const &value);
     std::string toStringForTest(std::wstring const &value);
     std::string toStringForTest(std::u16string const &value);
@@ -1782,6 +1781,13 @@ namespace bdn
     std::string toStringForTest(const UiLength &length);
     std::string toStringForTest(const UiMargin &margin);
     std::string toStringForTest(const UiSize &size);
+
+    template <class _Rep, class _Period>
+    std::string toStringForTest(const std::chrono::duration<_Rep, _Period> &duration)
+    {
+        auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(duration);
+        return toStringForTest(seconds.count()) + "s";
+    }
 
     namespace Detail
     {
@@ -2199,6 +2205,7 @@ namespace bdn
 #include <string>
 
 #include <bdn/debug.h>
+#include <bdn/IDispatcher.h>
 
 // #included from: catch_interfaces_runner.h
 #define TWOBLUECUBES_BDN_INTERFACES_RUNNER_H_INCLUDED
@@ -2213,8 +2220,10 @@ namespace bdn
         virtual bool aborting() const = 0;
 
         virtual void continueSectionWhenIdle(std::function<void()> continuationFunc) = 0;
-        virtual void continueSectionAfterAbsoluteSeconds(double seconds, std::function<void()> continuationFunc) = 0;
-        virtual void continueSectionAfterRunSeconds(double seconds, std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionAfterAbsoluteSeconds(IDispatcher::Duration delay,
+                                                         std::function<void()> continuationFunc) = 0;
+        virtual void continueSectionAfterRunSeconds(IDispatcher::Duration delay,
+                                                    std::function<void()> continuationFunc) = 0;
         virtual void continueSectionInThread(std::function<void()> continuationFunc) = 0;
     };
 }
@@ -2672,10 +2681,10 @@ namespace bdn
             typename std::vector<const IGenerator<T> *>::const_iterator itEnd = m_composed.end();
             for (size_t index = 0; it != itEnd; ++it) {
                 const IGenerator<T> *generator = *it;
-                if (overallIndex >= index && overallIndex < index + generator->size()) {
+                if (overallIndex >= index && overallIndex < index + generator->size) {
                     return generator->getValue(overallIndex - index);
                 }
-                index += generator->size();
+                index += generator->size;
             }
             BDN_INTERNAL_ERROR("Indexed past end of generated range");
             return T(); // Suppress spurious "not all control paths return a
@@ -2685,7 +2694,7 @@ namespace bdn
 
         void add(const IGenerator<T> *generator)
         {
-            m_totalSize += generator->size();
+            m_totalSize += generator->size;
             m_composed.push_back(generator);
         }
 
@@ -3377,7 +3386,7 @@ namespace bdn
         BDN_REQUIRE_THROWS_AS(expr, bdn::ProgrammingError);                                                            \
     }
 
-#define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE(bdn::Thread::isCurrentMain());
+#define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE(bdn::AppRunnerBase::isMainThread());
 
 #define BDN_REQUIRE_ALMOST_EQUAL(value, expectedValue, maxDeviation)                                                   \
     INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal,                      \
@@ -3503,29 +3512,29 @@ namespace bdn
         class ContinueSectionAfterAbsoluteSecondsStarter_
         {
           public:
-            ContinueSectionAfterAbsoluteSecondsStarter_(double seconds) { _seconds = seconds; }
+            ContinueSectionAfterAbsoluteSecondsStarter_(IDispatcher::Duration delay) { _delay = delay; }
 
             void operator<<(std::function<void()> continuation)
             {
-                BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(_seconds, continuation);
+                BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(_delay, continuation);
             }
 
           private:
-            double _seconds;
+            IDispatcher::Duration _delay;
         };
 
         class ContinueSectionAfterRunSecondsStarter_
         {
           public:
-            ContinueSectionAfterRunSecondsStarter_(double seconds) { _seconds = seconds; }
+            ContinueSectionAfterRunSecondsStarter_(IDispatcher::Duration delay) { _delay = delay; }
 
             void operator<<(std::function<void()> continuation)
             {
-                BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(_seconds, continuation);
+                BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(_delay, continuation);
             }
 
           private:
-            double _seconds;
+            IDispatcher::Duration _delay;
         };
     }
 }
@@ -3603,7 +3612,7 @@ namespace bdn
     INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal,                      \
                               "REQUIRE_ALMOST_EQUAL")
 
-#define REQUIRE_IN_MAIN_THREAD() REQUIRE(bdn::Thread::isCurrentMain());
+#define REQUIRE_IN_MAIN_THREAD() REQUIRE(bdn::AppRunnerBase::isMainThread());
 
 /** Checks the specified condition and records failures, but does not abort the
    test if the condition failed (i.e. does not throw TestFailureException like
@@ -3686,7 +3695,7 @@ namespace bdn
     \code
 
     // do some generic initalization here that applies to all sections
-    P<SomeClass>    someTestObject = newObj<SomeClass>();
+    std::shared_ptr<SomeClass>    someTestObject = std::make_shared<SomeClass>();
     int             someValue = 17;
     double          someOtherValue = 42;
     ... more initialization code....
@@ -3738,15 +3747,15 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* clicked, P<Window> window)
+    void continueButtonClickTest(bool* clicked, std::shared_ptr<Window> window)
     {
         REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -3762,7 +3771,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker
@@ -3814,15 +3823,15 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* clicked, P<Window> window)
+    void continueButtonClickTest(bool* clicked, std::shared_ptr<Window> window)
     {
         REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -3838,7 +3847,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker
@@ -3891,15 +3900,15 @@ namespace bdn
 
     \code
 
-    void continueButtonClickTest(bool* clicked, P<Window> window)
+    void continueButtonClickTest(bool* clicked, std::shared_ptr<Window> window)
     {
         REQUIRE( *clicked );
     }
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -3915,7 +3924,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker
@@ -3994,8 +4003,8 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -4011,7 +4020,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker
@@ -4100,8 +4109,8 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -4117,7 +4126,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker
@@ -4141,7 +4150,7 @@ namespace bdn
 
         // as an alternative we could also have captured ALL local variables
    with a "=" capture statement like this:
-        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2.5, = )
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2s.5, = )
         {
             REQUIRE( *clicked );
         };
@@ -4206,8 +4215,8 @@ namespace bdn
 
     TEST_CASE("ButtonClick")
     {
-        P<Window> window = newObj<Window>();
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Window> window = std::make_shared<Window>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
 
         window->setContentView(myButton);
 
@@ -4223,7 +4232,7 @@ namespace bdn
             } );
 
         // schedule a button click
-        P<ButtonClicker> clicker = newObj<ButtonClicker>( myButton );
+        std::shared_ptr<ButtonClicker> clicker = std::make_shared<ButtonClicker>( myButton );
         clicker->scheduleButtonClick(myButton);
 
         // *clicked will not be true yet because the imaginary ButtonClicker

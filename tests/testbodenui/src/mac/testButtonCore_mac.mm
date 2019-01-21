@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -22,7 +22,7 @@ class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _button->label();
+        String expectedLabel = _button->label;
 
         String label = bdn::mac::macStringToString(_nSButton.title);
 
@@ -35,7 +35,7 @@ class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
 TEST_CASE("mac.ButtonCore")
 {
-    P<TestMacButtonCore> test = newObj<TestMacButtonCore>();
+    std::shared_ptr<TestMacButtonCore> test = std::make_shared<TestMacButtonCore>();
 
     test->runTests();
 }

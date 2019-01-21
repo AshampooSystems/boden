@@ -1,5 +1,6 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
+#include <bdn/config.h>
 
 #include <bdn/Dip.h>
 
@@ -25,21 +26,22 @@ template <class AType, class BType> static void verifyDipRelationImpl(AType a, B
     REQUIRE(Dip::equal(a, b) == (rel == 0));
 }
 
-template <class AType, class BType> static void verifyDipRelation(AType a, BType b, double expectedRelation)
-{
-    SECTION("normal")
-    verifyDipRelationImpl<AType, BType>(a, b, expectedRelation);
+template <class AType, class BType>
+static void verifyDipRelation(AType a, BType b, double expectedRelation){
+    SECTION("normal"){verifyDipRelationImpl<AType, BType>(a, b, expectedRelation);
+}
 
-    SECTION("inverse")
-    {
-        if (std::isnan(expectedRelation)) {
-            // if the expected result is NaN then the order of the operands does
-            // not matter.
-            verifyDipRelationImpl<BType, AType>(b, a, expectedRelation);
-        } else
-            verifyDipRelationImpl<BType, AType>(b, a, expectedRelation * -1);
-    }
-};
+SECTION("inverse")
+{
+    if (std::isnan(expectedRelation)) {
+        // if the expected result is NaN then the order of the operands does
+        // not matter.
+        verifyDipRelationImpl<BType, AType>(b, a, expectedRelation);
+    } else
+        verifyDipRelationImpl<BType, AType>(b, a, expectedRelation * -1);
+}
+}
+;
 
 void testDipComparison(double a, double b, double expectedRelation)
 {
@@ -197,61 +199,65 @@ TEST_CASE("Dip")
         SECTION("sign significant")
         testDipComparison(-1.23456, 1.23456, -1);
 
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+        if (!bdn::config::aggressive_float_optimization_enabled) {
 
-        SECTION("infinity")
-        {
-            SECTION("to infinity")
-            testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), 0);
-
-            SECTION("to -infinity")
-            testDipComparison(std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 1);
-
-            SECTION("to non-infinity")
-            testDipComparison(std::numeric_limits<double>::infinity(), 1, 1);
-
-            SECTION("to nan")
-            testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
-                              std::numeric_limits<double>::quiet_NaN());
-        }
-
-        SECTION("-infinity")
-        {
-            SECTION("to infinity")
-            testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), -1);
-
-            SECTION("to -infinity")
-            testDipComparison(-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 0);
-
-            SECTION("to non-infinity")
-            testDipComparison(-std::numeric_limits<double>::infinity(), 1, -1);
-
-            SECTION("to nan")
-            testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
-                              std::numeric_limits<double>::quiet_NaN());
-        }
-
-        SECTION("nan")
-        {
-            SECTION("to infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::quiet_NaN());
-
-            SECTION("to -infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(), -std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::quiet_NaN());
-
-            SECTION("to non-infinity")
-            testDipComparison(std::numeric_limits<double>::quiet_NaN(), 1, std::numeric_limits<double>::quiet_NaN());
-
-            SECTION("to nan")
+            SECTION("infinity")
             {
-                // nan is not equal to anything, not even itself
-                testDipComparison(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(),
+                SECTION("to infinity")
+                testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), 0);
+
+                SECTION("to -infinity")
+                testDipComparison(std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 1);
+
+                SECTION("to non-infinity")
+                testDipComparison(std::numeric_limits<double>::infinity(), 1, 1);
+
+                SECTION("to nan")
+                testDipComparison(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
                                   std::numeric_limits<double>::quiet_NaN());
             }
+
+            SECTION("-infinity")
+            {
+                SECTION("to infinity")
+                testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+                                  -1);
+
+                SECTION("to -infinity")
+                testDipComparison(-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(),
+                                  0);
+
+                SECTION("to non-infinity")
+                testDipComparison(-std::numeric_limits<double>::infinity(), 1, -1);
+
+                SECTION("to nan")
+                testDipComparison(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN(),
+                                  std::numeric_limits<double>::quiet_NaN());
+            }
+
+            SECTION("nan")
+            {
+                SECTION("to infinity")
+                testDipComparison(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::quiet_NaN());
+
+                SECTION("to -infinity")
+                testDipComparison(std::numeric_limits<double>::quiet_NaN(), -std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::quiet_NaN());
+
+                SECTION("to non-infinity")
+                testDipComparison(std::numeric_limits<double>::quiet_NaN(), 1,
+                                  std::numeric_limits<double>::quiet_NaN());
+
+                SECTION("to nan")
+                {
+                    // nan is not equal to anything, not even itself
+                    testDipComparison(std::numeric_limits<double>::quiet_NaN(),
+                                      std::numeric_limits<double>::quiet_NaN(),
+                                      std::numeric_limits<double>::quiet_NaN());
+                }
+            }
         }
-#endif
     }
 
     SECTION("equal")
@@ -266,18 +272,18 @@ TEST_CASE("Dip")
             REQUIRE(Dip::equal(Size(1, 2 + significanceBoundary - epsilon), Size(1, 2)));
             REQUIRE(!Dip::equal(Size(1, 2 + significanceBoundary + epsilon), Size(1, 2)));
 
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+            if (!bdn::config::aggressive_float_optimization_enabled) {
 
-            REQUIRE(Dip::equal(Size(std::numeric_limits<double>::infinity(), 2),
-                               Size(std::numeric_limits<double>::infinity(), 2)));
-            REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::infinity(), 2), Size(1, 2)));
-            REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::quiet_NaN(), 2), Size(1, 2)));
+                REQUIRE(Dip::equal(Size(std::numeric_limits<double>::infinity(), 2),
+                                   Size(std::numeric_limits<double>::infinity(), 2)));
+                REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::infinity(), 2), Size(1, 2)));
+                REQUIRE(!Dip::equal(Size(std::numeric_limits<double>::quiet_NaN(), 2), Size(1, 2)));
 
-            REQUIRE(Dip::equal(Size(1, std::numeric_limits<double>::infinity()),
-                               Size(1, std::numeric_limits<double>::infinity())));
-            REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::infinity()), Size(1, 2)));
-            REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::quiet_NaN()), Size(1, 2)));
-#endif
+                REQUIRE(Dip::equal(Size(1, std::numeric_limits<double>::infinity()),
+                                   Size(1, std::numeric_limits<double>::infinity())));
+                REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::infinity()), Size(1, 2)));
+                REQUIRE(!Dip::equal(Size(1, std::numeric_limits<double>::quiet_NaN()), Size(1, 2)));
+            }
         }
 
         SECTION("Point")
@@ -290,18 +296,18 @@ TEST_CASE("Dip")
             REQUIRE(Dip::equal(Point(1, 2 + significanceBoundary - epsilon), Point(1, 2)));
             REQUIRE(!Dip::equal(Point(1, 2 + significanceBoundary + epsilon), Point(1, 2)));
 
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+            if (!bdn::config::aggressive_float_optimization_enabled) {
 
-            REQUIRE(Dip::equal(Point(std::numeric_limits<double>::infinity(), 2),
-                               Point(std::numeric_limits<double>::infinity(), 2)));
-            REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::infinity(), 2), Point(1, 2)));
-            REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::quiet_NaN(), 2), Point(1, 2)));
+                REQUIRE(Dip::equal(Point(std::numeric_limits<double>::infinity(), 2),
+                                   Point(std::numeric_limits<double>::infinity(), 2)));
+                REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::infinity(), 2), Point(1, 2)));
+                REQUIRE(!Dip::equal(Point(std::numeric_limits<double>::quiet_NaN(), 2), Point(1, 2)));
 
-            REQUIRE(Dip::equal(Point(1, std::numeric_limits<double>::infinity()),
-                               Point(1, std::numeric_limits<double>::infinity())));
-            REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::infinity()), Point(1, 2)));
-            REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::quiet_NaN()), Point(1, 2)));
-#endif
+                REQUIRE(Dip::equal(Point(1, std::numeric_limits<double>::infinity()),
+                                   Point(1, std::numeric_limits<double>::infinity())));
+                REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::infinity()), Point(1, 2)));
+                REQUIRE(!Dip::equal(Point(1, std::numeric_limits<double>::quiet_NaN()), Point(1, 2)));
+            }
         }
 
         SECTION("Rect")
@@ -320,27 +326,28 @@ TEST_CASE("Dip")
             REQUIRE(Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary - epsilon), Rect(1, 2, 3, 4)));
             REQUIRE(!Dip::equal(Rect(1, 2, 3, 4 + significanceBoundary + epsilon), Rect(1, 2, 3, 4)));
 
-#if !BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
-            REQUIRE(Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4),
-                               Rect(std::numeric_limits<double>::infinity(), 2, 3, 4)));
-            REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4), Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::quiet_NaN(), 2, 3, 4), Rect(1, 2, 3, 4)));
+            if (!bdn::config::aggressive_float_optimization_enabled) {
 
-            REQUIRE(Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4),
-                               Rect(1, std::numeric_limits<double>::infinity(), 3, 4)));
-            REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4), Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::quiet_NaN(), 3, 4), Rect(1, 2, 3, 4)));
+                REQUIRE(Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4),
+                                   Rect(std::numeric_limits<double>::infinity(), 2, 3, 4)));
+                REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::infinity(), 2, 3, 4), Rect(1, 2, 3, 4)));
+                REQUIRE(!Dip::equal(Rect(std::numeric_limits<double>::quiet_NaN(), 2, 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4),
-                               Rect(1, 2, std::numeric_limits<double>::infinity(), 4)));
-            REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4), Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::quiet_NaN(), 4), Rect(1, 2, 3, 4)));
+                REQUIRE(Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4),
+                                   Rect(1, std::numeric_limits<double>::infinity(), 3, 4)));
+                REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::infinity(), 3, 4), Rect(1, 2, 3, 4)));
+                REQUIRE(!Dip::equal(Rect(1, std::numeric_limits<double>::quiet_NaN(), 3, 4), Rect(1, 2, 3, 4)));
 
-            REQUIRE(Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()),
-                               Rect(1, 2, 3, std::numeric_limits<double>::infinity())));
-            REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()), Rect(1, 2, 3, 4)));
-            REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::quiet_NaN()), Rect(1, 2, 3, 4)));
-#endif
+                REQUIRE(Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4),
+                                   Rect(1, 2, std::numeric_limits<double>::infinity(), 4)));
+                REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::infinity(), 4), Rect(1, 2, 3, 4)));
+                REQUIRE(!Dip::equal(Rect(1, 2, std::numeric_limits<double>::quiet_NaN(), 4), Rect(1, 2, 3, 4)));
+
+                REQUIRE(Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()),
+                                   Rect(1, 2, 3, std::numeric_limits<double>::infinity())));
+                REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::infinity()), Rect(1, 2, 3, 4)));
+                REQUIRE(!Dip::equal(Rect(1, 2, 3, std::numeric_limits<double>::quiet_NaN()), Rect(1, 2, 3, 4)));
+            }
         }
     }
 

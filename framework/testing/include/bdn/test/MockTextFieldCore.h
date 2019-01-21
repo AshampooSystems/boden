@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockTextFieldCore_H_
-#define BDN_TEST_MockTextFieldCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -17,10 +16,13 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockTextFieldCore : public MockViewCore, BDN_IMPLEMENTS ITextFieldCore
+        class MockTextFieldCore : public MockViewCore, virtual public ITextFieldCore
         {
           public:
-            MockTextFieldCore(TextField *textField) : MockViewCore(textField) { _text = textField->text(); }
+            MockTextFieldCore(std::shared_ptr<TextField> textField) : MockViewCore(textField)
+            {
+                _text = textField->text;
+            }
 
             String getText() const { return _text; }
 
@@ -40,10 +42,10 @@ namespace bdn
 
                 Margin padding;
 
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    if (!view->padding().isNull())
-                        padding = uiMarginToDipMargin(view->padding().get());
+                    if (view->padding.get())
+                        padding = uiMarginToDipMargin(*view->padding.get());
                 }
 
                 // Calculate size from line height + padding
@@ -52,8 +54,8 @@ namespace bdn
 
                 if (view != nullptr) {
                     // Clip to min and max size
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -65,5 +67,3 @@ namespace bdn
         };
     }
 }
-
-#endif

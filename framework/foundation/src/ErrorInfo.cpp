@@ -1,11 +1,8 @@
-#include <bdn/init.h>
-#include <bdn/ErrorInfo.h>
 
+#include <bdn/ErrorInfo.h>
 #include <bdn/Uri.h>
 
-#if BDN_PLATFORM_WINUWP
-#include <bdn/win32/hresultError.h>
-#endif
+#include <regex>
 
 namespace bdn
 {
@@ -54,38 +51,23 @@ namespace bdn
     {
         _message = errorString;
 
-        auto startIt = _message.find("[[", _message.begin());
-        if (startIt != _message.end()) {
-            auto endIt = _message.find("]]", startIt);
-            if (endIt != _message.end()) {
-                endIt += 2;
+        std::regex e("(.*)[ ]*(\\[\\[.*\\]\\])[: ]*(.*)");
+        std::smatch match;
 
-                String fieldString = _message.subString(startIt, endIt);
-                _fields = ErrorFields(fieldString);
+        if (std::regex_match(_message, match, e)) {
+            if (match.size() == 4) {
+                std::ssub_match preMsg = match[1];
+                std::ssub_match errorFields = match[2];
+                std::ssub_match postMsg = match[3];
 
-                bool removedSpaceAtStart = false;
-                if (startIt != _message.begin()) {
-                    // if a space precedes the fields string then we remove that
-                    // as well
-                    --startIt;
-                    if (*startIt == ' ')
-                        removedSpaceAtStart = true;
-                    else
-                        ++startIt;
+                _fields = ErrorFields(errorFields.str());
+
+                _message = rtrim_copy(preMsg.str());
+                String postStr = postMsg.str();
+                if (_message.size() > 0 && postStr.size() > 0) {
+                    _message += " ";
                 }
-
-                if (!removedSpaceAtStart) {
-                    while (endIt != _message.end() && *endIt == ' ')
-                        ++endIt;
-
-                    if (endIt != _message.end() && *endIt == ':')
-                        ++endIt;
-
-                    while (endIt != _message.end() && *endIt == ' ')
-                        ++endIt;
-                }
-
-                _message.erase(startIt, endIt);
+                _message += postStr;
             }
         }
     }
@@ -95,7 +77,7 @@ namespace bdn
         String result = _message;
 
         String fieldString = _fields.toString();
-        if (!fieldString.isEmpty())
+        if (!fieldString.empty())
             result += " " + fieldString;
 
         return result;

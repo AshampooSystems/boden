@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -29,7 +29,7 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
 
     void verifyCoreText() override
     {
-        String expectedText = _textView->text();
+        String expectedText = _textView->text;
 
         String text = bdn::ios::iosStringToString(_uILabel.text);
 
@@ -42,7 +42,7 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
 
 TEST_CASE("ios.TextViewCore")
 {
-    P<TestIosTextViewCore> test = newObj<TestIosTextViewCore>();
+    std::shared_ptr<TestIosTextViewCore> test = std::make_shared<TestIosTextViewCore>();
 
     test->runTests();
 }

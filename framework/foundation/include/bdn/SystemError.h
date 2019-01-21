@@ -1,5 +1,4 @@
-#ifndef BDN_SystemError_H_
-#define BDN_SystemError_H_
+#pragma once
 
 #include <system_error>
 
@@ -31,5 +30,3 @@ namespace bdn
     */
     typedef std::system_error SystemError;
 }
-
-#endif

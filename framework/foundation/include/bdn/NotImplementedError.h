@@ -1,5 +1,4 @@
-#ifndef BDN_NotImplementedError_H_
-#define BDN_NotImplementedError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -12,5 +11,3 @@ namespace bdn
         NotImplementedError(const String &funcName) : std::logic_error("Not implemented: " + funcName) {}
     };
 }
-
-#endif

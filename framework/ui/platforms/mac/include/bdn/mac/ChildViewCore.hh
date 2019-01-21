@@ -1,9 +1,9 @@
-#ifndef BDN_MAC_ChildViewCore_HH_
-#define BDN_MAC_ChildViewCore_HH_
+#pragma once
 
 #include <Cocoa/Cocoa.h>
 #include <bdn/IViewCore.h>
 #include <bdn/mac/IParentViewCore.h>
+#include <bdn/ProgrammingError.h>
 
 #import <bdn/mac/UiProvider.hh>
 #import <bdn/mac/util.hh>
@@ -14,12 +14,12 @@ namespace bdn
     {
 
         class ChildViewCore : public Base,
-                              BDN_IMPLEMENTS IViewCore,
-                              BDN_IMPLEMENTS IParentViewCore,
-                              BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
+                              virtual public IViewCore,
+                              virtual public IParentViewCore,
+                              virtual public LayoutCoordinator::IViewCoreExtension
         {
           public:
-            ChildViewCore(View *outerView, NSView *nsView)
+            ChildViewCore(std::shared_ptr<View> outerView, NSView *nsView)
             {
                 _outerViewWeak = outerView;
 
@@ -27,13 +27,13 @@ namespace bdn
 
                 _addToParent(outerView->getParentView());
 
-                setVisible(outerView->visible());
-                setPadding(outerView->padding());
+                setVisible(outerView->visible);
+                setPadding(outerView->padding);
             }
 
             void setVisible(const bool &visible) override { _nsView.hidden = !visible; }
 
-            void setPadding(const Nullable<UiMargin> &padding) override
+            void setPadding(const std::optional<UiMargin> &padding) override
             {
                 // NSView does not have any padding properties. subclasses will
                 // override this if the corresponding Cocoa view class supports
@@ -52,17 +52,18 @@ namespace bdn
 
             void needLayout(View::InvalidateReason reason) override
             {
-                P<View> outerView = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
-                    P<UiProvider> provider = tryCast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UiProvider> provider =
+                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
             }
 
-            void childSizingInfoInvalidated(View *child) override
+            void childSizingInfoInvalidated(std::shared_ptr<View> child) override
             {
-                P<View> outerView = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
                     outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
                     outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
@@ -180,17 +181,14 @@ namespace bdn
                 Size size = macSizeToSize(_nsView.fittingSize);
 
                 // add the padding
-                Nullable<UiMargin> pad;
-                P<const View> view = getOuterViewIfStillAttached();
+                std::optional<UiMargin> pad;
+                std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                 if (view != nullptr)
-                    pad = view->padding();
+                    pad = view->padding;
 
                 Margin additionalPadding;
-                if (pad.isNull()) {
-                    // we should use the "default" padding. So additionalPadding
-                    // should be zero.
-                } else {
-                    additionalPadding = uiMarginToDipMargin(pad);
+                if (pad) {
+                    additionalPadding = uiMarginToDipMargin(*pad);
 
                     // some controls auto-include a base padding in the
                     // fittingSize. We need to subtract that.
@@ -215,8 +213,8 @@ namespace bdn
                     size.height = 0;
 
                 if (view != nullptr) {
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -227,26 +225,26 @@ namespace bdn
                 // do nothing by default
             }
 
-            bool canMoveToParentView(View &newParentView) const override { return true; }
+            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
-            void moveToParentView(View &newParentView) override
+            void moveToParentView(std::shared_ptr<View> newParentView) override
             {
-                P<View> outer = getOuterViewIfStillAttached();
+                std::shared_ptr<View> outer = getOuterViewIfStillAttached();
                 if (outer != nullptr) {
-                    P<View> parent = outer->getParentView();
+                    std::shared_ptr<View> parent = outer->getParentView();
 
-                    if (&newParentView != parent.getPtr()) {
+                    if (newParentView != parent) {
                         // Parent has changed. Remove the view from its current
                         // super view.
                         dispose();
-                        _addToParent(&newParentView);
+                        _addToParent(newParentView);
                     }
                 }
             }
 
             void dispose() override { removeFromNsSuperview(); }
 
-            P<View> getOuterViewIfStillAttached() const { return _outerViewWeak.toStrong(); }
+            std::shared_ptr<View> getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
 
             NSView *getNSView() const { return _nsView; }
 
@@ -281,13 +279,13 @@ namespace bdn
             double getSemSizeDips() const
             {
                 if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+                    _semDipsIfInitialized = UiProvider::get()->getSemSizeDips();
 
                 return _semDipsIfInitialized;
             }
 
           private:
-            void _addToParent(View *parentView)
+            void _addToParent(std::shared_ptr<View> parentView)
             {
                 if (parentView == nullptr) {
                     // classes derived from ChildViewCore MUST have a parent.
@@ -296,7 +294,7 @@ namespace bdn
                                            "does not have a parent.");
                 }
 
-                P<IViewCore> parentCore = parentView->getViewCore();
+                std::shared_ptr<IViewCore> parentCore = parentView->getViewCore();
                 if (parentCore == nullptr) {
                     // this should not happen. The parent MUST have a core -
                     // otherwise we cannot initialize ourselves.
@@ -304,10 +302,10 @@ namespace bdn
                                            "parent does not have a core.");
                 }
 
-                cast<IParentViewCore>(parentCore)->addChildNsView(_nsView);
+                std::dynamic_pointer_cast<IParentViewCore>(parentCore)->addChildNsView(_nsView);
             }
 
-            WeakP<View> _outerViewWeak;
+            std::weak_ptr<View> _outerViewWeak;
             NSView *_nsView;
 
             mutable double _emDipsIfInitialized = -1;
@@ -315,5 +313,3 @@ namespace bdn
         };
     }
 }
-
-#endif

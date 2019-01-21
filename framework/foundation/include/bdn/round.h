@@ -1,5 +1,6 @@
-#ifndef BDN_round_H_
-#define BDN_round_H_
+#pragma once
+
+#include <bdn/InvalidArgumentError.h>
 
 #include <cmath>
 
@@ -146,5 +147,3 @@ namespace bdn
             return stableScaledRoundNearest(value, scaleFactor);
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_ButtonCore_H_
-#define BDN_ANDROID_ButtonCore_H_
+#pragma once
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JButton.h>
@@ -11,71 +10,25 @@ namespace bdn
     namespace android
     {
 
-        class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
+        class ButtonCore : public ViewCore, virtual public IButtonCore
         {
           private:
-            static P<JButton> _createJButton(Button *outer)
-            {
-                // we need to know the context to create the view.
-                // If we have a parent then we can get that from the parent's
-                // core.
-                P<View> parent = outer->getParentView();
-                if (parent == nullptr)
-                    throw ProgrammingError("ButtonCore instance requested for a Button that does "
-                                           "not have a parent.");
-
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
-                if (parentCore == nullptr)
-                    throw ProgrammingError("ButtonCore instance requested for "
-                                           "a Button with core-less parent.");
-
-                JContext context = parentCore->getJView().getContext();
-
-                return newObj<JButton>(context);
-            }
+            static std::shared_ptr<JButton> _createJButton(std::shared_ptr<Button> outer);
 
           public:
-            ButtonCore(Button *outerButton) : ViewCore(outerButton, _createJButton(outerButton))
-            {
-                _jButton = cast<JButton>(&getJView());
+            ButtonCore(std::shared_ptr<Button> outerButton);
 
-                _jButton->setSingleLine(true);
+            JButton &getJButton();
 
-                setLabel(outerButton->label());
-            }
+            void setLabel(const String &label) override;
 
-            JButton &getJButton() { return *_jButton; }
-
-            void setLabel(const String &label) override
-            {
-                _jButton->setText(label);
-
-                // we must re-layout the button - otherwise its preferred size
-                // is not updated.
-                _jButton->requestLayout();
-            }
-
-            void clicked() override
-            {
-                P<View> view = getOuterViewIfStillAttached();
-                if (view != nullptr) {
-                    ClickEvent evt(view);
-
-                    cast<Button>(view)->onClick().notify(evt);
-                }
-            }
+            void clicked() override;
 
           protected:
-            double getFontSizeDips() const override
-            {
-                // the text size is in pixels
-                return _jButton->getTextSize() / getUiScaleFactor();
-            }
+            double getFontSizeDips() const override;
 
           private:
-            P<JButton> _jButton;
+            std::shared_ptr<JButton> _jButton;
         };
     }
 }
-
-#endif

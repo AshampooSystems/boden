@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Switch.h>
@@ -23,7 +23,7 @@ class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _switch->label();
+        String expectedLabel = _switch->label;
 
         String label = bdn::mac::macStringToString(_switchComposite.label.stringValue);
 
@@ -32,7 +32,7 @@ class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _switch->on();
+        bool expectedOn = _switch->on;
         bool on = _switchComposite.bdnSwitch.on;
         REQUIRE(on == expectedOn);
     }
@@ -43,7 +43,7 @@ class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
 
 TEST_CASE("mac.SwitchCore")
 {
-    P<TestMacSwitchCore> test = newObj<TestMacSwitchCore>();
+    std::shared_ptr<TestMacSwitchCore> test = std::make_shared<TestMacSwitchCore>();
 
     test->runTests();
 }

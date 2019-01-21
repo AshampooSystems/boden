@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_SwitchCore_H_
-#define BDN_ANDROID_SwitchCore_H_
+#pragma once
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JSwitch.h>
@@ -12,38 +11,38 @@ namespace bdn
     namespace android
     {
 
-        template <class T> class SwitchCore : public ViewCore, BDN_IMPLEMENTS ISwitchCore
+        template <class T> class SwitchCore : public ViewCore, virtual public ISwitchCore
         {
           private:
-            static P<JSwitch> _createJSwitch(T *outer)
+            static std::shared_ptr<JSwitch> _createJSwitch(std::shared_ptr<T> outer)
             {
                 // we need to know the context to create the view.
                 // If we have a parent then we can get that from the parent's
                 // core.
-                P<View> parent = outer->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr)
                     throw ProgrammingError("SwitchCore instance requested for a Switch that does "
                                            "not have a parent.");
 
-                P<ViewCore> parentCore = cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("SwitchCore instance requested for "
                                            "a Switch with core-less parent.");
 
                 JContext context = parentCore->getJView().getContext();
 
-                return newObj<JSwitch>(context);
+                return std::make_shared<JSwitch>(context);
             }
 
           public:
-            SwitchCore(T *outer) : ViewCore(outer, _createJSwitch(outer))
+            SwitchCore(std::shared_ptr<T> outer) : ViewCore(outer, _createJSwitch(outer))
             {
-                _jSwitch = cast<JSwitch>(&getJView());
+                _jSwitch = std::dynamic_pointer_cast<JSwitch>(getJViewPtr());
 
                 _jSwitch->setSingleLine(true);
 
-                setLabel(outer->label());
-                setOn(outer->on());
+                setLabel(outer->label);
+                setOn(outer->on);
             }
 
             JSwitch &getJSwitch() { return *_jSwitch; }
@@ -61,11 +60,11 @@ namespace bdn
 
             void clicked() override
             {
-                P<T> view = cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<T> view = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
-                    view->setOn(_jSwitch->isChecked());
+                    view->on = (_jSwitch->isChecked());
                     view->onClick().notify(evt);
                 }
             }
@@ -78,9 +77,7 @@ namespace bdn
             }
 
           private:
-            P<JSwitch> _jSwitch;
+            std::shared_ptr<JSwitch> _jSwitch;
         };
     }
 }
-
-#endif

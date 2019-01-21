@@ -1,5 +1,4 @@
-#ifndef BDN_Checkbox_H_
-#define BDN_Checkbox_H_
+#pragma once
 
 #include <bdn/constants.h>
 #include <bdn/View.h>
@@ -41,19 +40,17 @@ namespace bdn
     class Checkbox : public View
     {
       public:
-        Checkbox() { _onClick = newObj<SimpleNotifier<const ClickEvent &>>(); }
+        Property<String> label;
+        Property<TriState> state;
 
-        /** The checkbox's label */
-        BDN_VIEW_PROPERTY(String, label, setLabel, ICheckboxCore, influencesPreferredSize());
-
-        /** State of the checkbox, see TriState */
-        BDN_VIEW_PROPERTY(TriState, state, setState, ICheckboxCore, influencesNothing());
+      public:
+        Checkbox();
 
         /** A notifier for click events. Subscribe to this notifier if you want
            to be notified about click events. Click events are posted when the
            user clicks on the checkbox or checkbox label.
          */
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
+        ISyncNotifier<const ClickEvent &> &onClick();
 
         /** Returns the name of Checkbox core objects */
         static String getCheckboxCoreTypeName() { return "bdn.CheckboxCore"; }
@@ -62,8 +59,6 @@ namespace bdn
         String getCoreTypeName() const override { return getCheckboxCoreTypeName(); }
 
       protected:
-        P<SimpleNotifier<const ClickEvent &>> _onClick;
+        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
     };
 }
-
-#endif // BDN_Checkbox_H_

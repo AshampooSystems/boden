@@ -1,5 +1,4 @@
-#ifndef BDN_SequenceFilter_H_
-#define BDN_SequenceFilter_H_
+#pragma once
 
 #include <bdn/config.h>
 
@@ -37,7 +36,7 @@ namespace bdn
         SequenceFilter is a template with the following template parameters:
 
         - BaseSequenceType: the type of the base sequence. For example, if an
-       integer Array is filtered then this would be bdn::Array<int> .
+       integer Array is filtered then this would be bdn::std::vector<int> .
         - FilterFuncType: the type of the filter function (see below)
 
         The filter function must take one parameter: an iterator from the base
@@ -56,9 +55,9 @@ namespace bdn
         \code
 
         // the base sequence consists of the numbers 1 to 5
-        Array<int> baseSequence {1, 2, 3, 4, 5};
+        std::vector<int> baseSequence {1, 2, 3, 4, 5};
 
-        SequenceFilter< Array<int>, Array<int>::Iterator,
+        SequenceFilter< std::vector<int>, Array<int>::Iterator,
 
         */
     template <class BaseSequenceType, class FilterFuncType> class SequenceFilter
@@ -216,5 +215,3 @@ namespace bdn
         mutable FilterFuncType _filterFunc;
     };
 }
-
-#endif

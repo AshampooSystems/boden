@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_ButtonCoreBase_HH_
-#define BDN_MAC_ButtonCoreBase_HH_
+#pragma once
 
 #include <bdn/ClickEvent.h>
 
@@ -15,7 +14,10 @@ namespace bdn
         class ButtonCoreBase : public ChildViewCore
         {
           public:
-            ButtonCoreBase(View *outer, NSButton *nsButton) : ChildViewCore(outer, nsButton) { _nsButton = nsButton; }
+            ButtonCoreBase(std::shared_ptr<View> outer, NSButton *nsButton) : ChildViewCore(outer, nsButton)
+            {
+                _nsButton = nsButton;
+            }
 
             void setLabel(const String &label)
             {
@@ -30,5 +32,3 @@ namespace bdn
         };
     }
 }
-
-#endif

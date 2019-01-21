@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JRStyle_H_
-#define BDN_ANDROID_JRStyle_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 
@@ -43,5 +42,3 @@ namespace bdn
         };
     }
 }
-
-#endif

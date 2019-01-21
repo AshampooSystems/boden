@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNativeViewCoreClickListener_H_
-#define BDN_ANDROID_JNativeViewCoreClickListener_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JView.h>
@@ -54,5 +53,3 @@ namespace bdn
         };
     }
 }
-
-#endif

@@ -1,6 +1,8 @@
-#include <bdn/init.h>
+
 #include <bdn/GenericDispatcher.h>
 
+#include <bdn/AppRunnerBase.h>
+#include <iostream>
 #include <bdn/log.h>
 
 namespace bdn
@@ -26,23 +28,23 @@ namespace bdn
         return false;
     }
 
-    bool GenericDispatcher::waitForNext(double timeoutSeconds)
+    bool GenericDispatcher::waitForNext(IDispatcher::Duration timeout)
     {
         bool absoluteTimeoutTimeInitialized = false;
         TimePoint absoluteTimeoutTime;
 
         while (true) {
-            double currWaitSeconds = 0;
+            IDispatcher::Duration currWaitSeconds{0s};
 
             {
-                Mutex::Lock lock(_mutex);
+                std::unique_lock lock(_mutex);
 
                 std::function<void()> func;
 
                 if (getNextReady(func, false)) {
                     // we have items pending that are ready to be executed.
                     return true;
-                } else if (timeoutSeconds <= 0) {
+                } else if (timeout <= 0s) {
                     // no items ready and the caller does not want us to wait.
                     // So, return false.
                     return false;
@@ -55,8 +57,6 @@ namespace bdn
 
                 // get an absolute timeout time.
                 if (!absoluteTimeoutTimeInitialized) {
-                    Duration timeout = secondsToDuration(timeoutSeconds);
-
                     absoluteTimeoutTime = now + timeout;
                     absoluteTimeoutTimeInitialized = true;
                 }
@@ -81,11 +81,11 @@ namespace bdn
                 }
 
                 Duration currWaitDuration = nextCheckTime - now;
-                currWaitSeconds = durationToSeconds(currWaitDuration);
+                currWaitSeconds = currWaitDuration;
 
                 // wait at least a millisecond
-                if (currWaitSeconds < 0.001)
-                    currWaitSeconds = 0.001;
+                if (currWaitDuration < 1ms)
+                    currWaitDuration = 1ms;
 
                 _somethingChangedSignal.clear();
             }
@@ -96,7 +96,7 @@ namespace bdn
             // timeout, or the first timed item became active. In either case
             // we also want to check again.
             // So the return value of the wait does not matter.
-            _somethingChangedSignal.wait((int)(currWaitSeconds * 1000.0));
+            _somethingChangedSignal.wait(currWaitSeconds);
         }
 
         return false;
@@ -104,13 +104,13 @@ namespace bdn
 
     bool GenericDispatcher::getNextReady(std::function<void()> &func, bool remove)
     {
-        Mutex::Lock lock(_mutex);
+        std::unique_lock lock(_mutex);
 
         enqueueTimedItemsIfTimeReached();
 
         // go through the queues in priority order and handle one item
         for (int priorityIndex = priorityCount - 1; priorityIndex >= 0; priorityIndex--) {
-            List<std::function<void()>> &queue = _queues[priorityIndex];
+            std::list<std::function<void()>> &queue = _queues[priorityIndex];
 
             if (!queue.empty()) {
                 func = queue.front();

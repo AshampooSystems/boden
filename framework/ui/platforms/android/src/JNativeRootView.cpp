@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/JNativeRootView.h>
 
 #include <bdn/java/Env.h>

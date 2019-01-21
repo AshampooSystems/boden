@@ -1,5 +1,4 @@
-#ifndef BDN_TestAppController_H_
-#define BDN_TestAppController_H_
+#pragma once
 
 #include <bdn/AppControllerBase.h>
 #include <bdn/UiAppControllerBase.h>
@@ -30,5 +29,3 @@ namespace bdn
 }
 
 #define BDN_TEST_APP_INIT() BDN_APP_INIT(bdn::TestAppController)
-
-#endif

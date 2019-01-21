@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JNativeEditTextTextWatcher_H_
-#define BDN_ANDROID_JNativeEditTextTextWatcher_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JTextView.h>
@@ -51,5 +50,3 @@ namespace bdn
         };
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_TextViewCore_HH_
-#define BDN_IOS_TextViewCore_HH_
+#pragma once
 
 #include <bdn/ITextViewCore.h>
 #include <bdn/ClickEvent.h>
@@ -12,24 +11,22 @@ namespace bdn
     namespace ios
     {
 
-        class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
+        class TextViewCore : public ViewCore, virtual public ITextViewCore
         {
           private:
-            static UILabel *_createUILabel(TextView *outerTextView)
+            static UILabel *_createUILabel(std::shared_ptr<TextView> outerTextView)
             {
                 UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-
                 label.numberOfLines = 0;
-
                 return label;
             }
 
           public:
-            TextViewCore(TextView *outerTextView) : ViewCore(outerTextView, _createUILabel(outerTextView))
+            TextViewCore(std::shared_ptr<TextView> outerTextView)
+                : ViewCore(outerTextView, _createUILabel(outerTextView))
             {
                 _uiLabel = (UILabel *)getUIView();
-
-                setText(outerTextView->text());
+                setText(outerTextView->text);
             }
 
             UILabel *getUILabel() { return _uiLabel; }
@@ -42,9 +39,9 @@ namespace bdn
                 // where the view wraps its text. To achieve that we incorporate
                 // it into the available width value.
                 Size availableSpaceToUse(availableSpace);
-                P<const View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    Size hint = view->preferredSizeHint();
+                    Size hint = view->preferredSizeHint;
 
                     // ignore the height hint - the view cannot change its width
                     // to match a certain height, only the other way round.
@@ -67,5 +64,3 @@ namespace bdn
         };
     }
 }
-
-#endif

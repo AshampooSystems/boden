@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_ArrayOfObjects_H_
-#define BDN_JAVA_ArrayOfObjects_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/Env.h>
@@ -97,5 +96,3 @@ namespace bdn
         };
     }
 }
-
-#endif

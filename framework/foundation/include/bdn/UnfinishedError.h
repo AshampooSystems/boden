@@ -1,5 +1,4 @@
-#ifndef BDN_UnfinishedError_H_
-#define BDN_UnfinishedError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -16,5 +15,3 @@ namespace bdn
         UnfinishedError() : std::logic_error("Operation has not finished yet") {}
     };
 }
-
-#endif

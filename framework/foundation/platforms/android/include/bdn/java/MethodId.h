@@ -1,5 +1,7 @@
-#ifndef BDN_JAVA_MethodId_H_
-#define BDN_JAVA_MethodId_H_
+#pragma once
+
+#include <bdn/String.h>
+#include <bdn/ProgrammingError.h>
 
 namespace bdn
 {
@@ -78,5 +80,3 @@ namespace bdn
 }
 
 #include <bdn/java/JObject.h>
-
-#endif

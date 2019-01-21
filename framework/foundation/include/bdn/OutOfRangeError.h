@@ -1,5 +1,4 @@
-#ifndef BDN_OutOfRangeError_H_
-#define BDN_OutOfRangeError_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -44,5 +43,3 @@ namespace bdn
 
 #endif
 }
-
-#endif

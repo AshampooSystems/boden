@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/android/JNativeEditTextTextWatcher.h>
 
 #include <bdn/java/Env.h>
@@ -11,9 +11,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::TextFieldCore *core =
-                (bdn::android::TextFieldCore *)bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                    bdn::java::Reference::convertExternalLocal(rawView));
+            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+                    bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
                 // no view core is associated with the view => ignore the event
@@ -32,9 +32,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::TextFieldCore *core =
-                (bdn::android::TextFieldCore *)bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                    bdn::java::Reference::convertExternalLocal(rawView));
+            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+                    bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
                 // no view core is associated with the view => ignore the event
@@ -53,9 +53,9 @@ Java_io_boden_android_NativeEditTextTextWatcher_nativeAfterTextChanged(JNIEnv *e
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::TextFieldCore *core =
-                (bdn::android::TextFieldCore *)bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                    bdn::java::Reference::convertExternalLocal(rawView));
+            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+                    bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
                 // no view core is associated with the view => ignore the event

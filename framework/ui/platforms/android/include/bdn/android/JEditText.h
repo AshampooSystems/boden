@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JEditText_H_
-#define BDN_ANDROID_JEditText_H_
+#pragma once
 
 #include <bdn/android/JTextView.h>
 #include <bdn/java/JString.h>
@@ -51,5 +50,3 @@ namespace bdn
         };
     }
 }
-
-#endif // BDN_ANDROID_JEditText_H_

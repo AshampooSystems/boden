@@ -1,11 +1,13 @@
-#include <bdn/init.h>
 #include <bdn/android/Dispatcher.h>
+#include <bdn/InvalidArgumentError.h>
 
 #include <bdn/java/JNativeStrongPointer.h>
 
 #include <bdn/entry.h>
 
 #include <jni.h>
+
+using namespace std::chrono_literals;
 
 extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *env,
                                                                                               jclass rawClass,
@@ -33,9 +35,9 @@ namespace bdn
 
         void Dispatcher::dispose() { _dispatcher.dispose(); }
 
-        void Dispatcher::enqueue(std::function<void()> func, Priority priority) { enqueueInSeconds(0, func, priority); }
+        void Dispatcher::enqueue(std::function<void()> func, Priority priority) { enqueueDelayed(0s, func, priority); }
 
-        void Dispatcher::enqueueInSeconds(double seconds, std::function<void()> func, Priority priority)
+        void Dispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func, Priority priority)
         {
             bool idlePriority = false;
 
@@ -48,14 +50,14 @@ namespace bdn
                                            "invalid priority argument: " +
                                            std::to_string((int)priority));
 
-            _dispatcher.enqueue(seconds, func, idlePriority);
+            _dispatcher.enqueue(delay, func, idlePriority);
         }
 
-        void Dispatcher::createTimer(double intervalSeconds, std::function<bool()> func)
+        void Dispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
         {
-            P<Timer_> timer = newObj<Timer_>(func);
+            std::shared_ptr<Timer_> timer = std::make_shared<Timer_>(func);
 
-            _dispatcher.createTimer(intervalSeconds, timer);
+            _dispatcher.createTimer(interval, timer);
         }
 
         bool Dispatcher::Timer_::onEvent()

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Button.h>
@@ -14,9 +14,9 @@ class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test::
   protected:
     void verifyCoreText() override
     {
-        String expectedText = _textView->text();
+        String expectedText = _textView->text;
 
-        String text = cast<bdn::test::MockTextViewCore>(_mockCore)->getText();
+        String text = std::dynamic_pointer_cast<bdn::test::MockTextViewCore>(_mockCore)->getText();
 
         REQUIRE(text == expectedText);
     }
@@ -26,7 +26,7 @@ class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin<bdn::test::
 
 TEST_CASE("mock.TextViewCore")
 {
-    P<TestMockTextViewCore> test = newObj<TestMockTextViewCore>();
+    std::shared_ptr<TestMockTextViewCore> test = std::make_shared<TestMockTextViewCore>();
 
     test->runTests();
 }

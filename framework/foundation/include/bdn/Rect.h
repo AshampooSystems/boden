@@ -1,5 +1,4 @@
-#ifndef BDN_Rect_H_
-#define BDN_Rect_H_
+#pragma once
 
 #include <bdn/Margin.h>
 #include <bdn/Size.h>
@@ -79,5 +78,3 @@ inline bool operator==(const bdn::Rect &a, const bdn::Rect &b)
 }
 
 inline bool operator!=(const bdn::Rect &a, const bdn::Rect &b) { return !operator==(a, b); }
-
-#endif

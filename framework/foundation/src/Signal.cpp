@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/Signal.h>
 
 namespace bdn
@@ -94,16 +94,16 @@ namespace bdn
         return _signalled;
     }
 
-    bool Signal::wait(int timeoutMillis)
+    bool Signal::wait(IDispatcher::Duration timeout)
     {
-        if (timeoutMillis == 0)
+        if (timeout == IDispatcher::Duration::zero())
             return isSet();
 
         // we must use steady_clock here, to ensure that clock changes do not
         // mess up our timeout
-        std::chrono::time_point<std::chrono::steady_clock> absoluteTimeoutTime;
-        if (timeoutMillis > 0)
-            absoluteTimeoutTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMillis);
+        IDispatcher::TimePoint absoluteTimeoutTime;
+        if (timeout > IDispatcher::Duration::zero())
+            absoluteTimeoutTime = IDispatcher::Clock::now() + timeout;
 
         // we must lock the mutex with unique_lock so that the condition
         // variable can unlock it.
@@ -123,7 +123,7 @@ namespace bdn
 
                 // the wait functions will release the lock while we wait and
                 // then reacquire it before they return.
-                if (timeoutMillis < 0)
+                if (timeout < IDispatcher::Duration::zero())
                     _condition.wait(lock);
                 else {
                     std::cv_status waitResult;
@@ -132,13 +132,13 @@ namespace bdn
                         // use wait_for on first iteration to ensure that short
                         // timeouts do not cause wait to return immediately
                         // without checking the condition.
-                        waitResult = _condition.wait_for(lock, std::chrono::milliseconds(timeoutMillis));
+                        waitResult = _condition.wait_for(lock, timeout);
                     } else {
                         // use the absolute timeout time on subsequent
                         // iterations. If the system clock has been adjusted
                         // forwards then the timeout will expire "early", but
                         // that is acceptable.
-                        waitResult = _condition.wait_until<std::chrono::steady_clock>(lock, absoluteTimeoutTime);
+                        waitResult = _condition.wait_until(lock, absoluteTimeoutTime);
                     }
 
                     if (waitResult == std::cv_status::timeout) {

@@ -6,6 +6,8 @@ namespace bdn
 {
     void debugBreak();
 
+    void doNothing();
+
     /** This is a dummy function that does nothing. It is called by
        BDN_DEBUG_BREAK when the programs wants to break into the debugger. It is
        useful when BDN_DEBUG_BREAK cannot actually break into the debugger on

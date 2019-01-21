@@ -1,5 +1,4 @@
-#ifndef BDN_MAC_ScrollViewCore_HH_
-#define BDN_MAC_ScrollViewCore_HH_
+#pragma once
 
 #include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
@@ -14,16 +13,16 @@ namespace bdn
     namespace mac
     {
 
-        class ScrollViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore, BDN_IMPLEMENTS IScrollViewCore
+        class ScrollViewCore : public ChildViewCore, virtual public IParentViewCore, virtual public IScrollViewCore
         {
           private:
-            static NSScrollView *_createScrollView(ScrollView *outer);
+            static NSScrollView *_createScrollView(std::shared_ptr<ScrollView> outer);
 
           public:
-            ScrollViewCore(ScrollView *outer);
+            ScrollViewCore(std::shared_ptr<ScrollView> outer);
             ~ScrollViewCore();
 
-            void setPadding(const Nullable<UiMargin> &padding) override;
+            void setPadding(const std::optional<UiMargin> &padding) override;
 
             void setHorizontalScrollingEnabled(const bool &enabled) override;
             void setVerticalScrollingEnabled(const bool &enabled) override;
@@ -46,7 +45,7 @@ namespace bdn
                 \param borderSize an optional parameter that receives the size
                of the nonclient border around
                     the scroll view (if borderSize is not null).*/
-            P<ScrollViewLayoutHelper> createLayoutHelper(Size *borderSize = nullptr) const;
+            std::shared_ptr<ScrollViewLayoutHelper> createLayoutHelper(Size *borderSize = nullptr) const;
 
             /** Updates the ScrollView::visibleClientRect property of the outer
              * view.*/
@@ -59,5 +58,3 @@ namespace bdn
         };
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BDN_XxHash32_H_
-#define BDN_XxHash32_H_
+#pragma once
 
 #include <bdn/Number.h>
 
@@ -241,5 +240,3 @@ namespace bdn
         };
     };
 }
-
-#endif

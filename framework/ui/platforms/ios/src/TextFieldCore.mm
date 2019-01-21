@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 
 #import <UIKit/UIKit.h>
 
@@ -6,9 +6,9 @@
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
-@property(nonatomic, assign) bdn::WeakP<bdn::ios::TextFieldCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::TextField> outerTextField;
 
-- (id)initWithCore:(bdn::WeakP<bdn::ios::TextFieldCore>)core;
+- (id)initWithTextField:(UITextField *)textField outerTextField:(std::shared_ptr<bdn::TextField>)outerTextField;
 - (void)textFieldDidChange:(UITextField *)textField;
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;
 
@@ -16,13 +16,10 @@
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithCore:(bdn::WeakP<bdn::ios::TextFieldCore>)core
+- (id)initWithTextField:(UITextField *)textField outerTextField:(std::shared_ptr<bdn::TextField>)outerTextField
 {
     if ((self = [super init])) {
-        self.core = core;
-
-        bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-        UITextField *textField = (UITextField *)textFieldCore->getUIView();
+        self.outerTextField = outerTextField;
         textField.delegate = self;
 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -40,20 +37,12 @@
 
 - (void)textFieldDidChange:(NSNotification *)notification
 {
-    bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
-    if (outerTextField) {
-        outerTextField->setText(bdn::ios::iosStringToString(((UITextField *)notification.object).text));
-    }
+    self.outerTextField.lock()->text = (bdn::ios::iosStringToString(((UITextField *)notification.object).text));
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
-    if (outerTextField) {
-        outerTextField->submit();
-    }
+    self.outerTextField.lock()->submit();
 
     // close virtual keyboard
     [textField resignFirstResponder];
@@ -67,14 +56,40 @@ namespace bdn
 {
     namespace ios
     {
-
-        TextFieldCore::TextFieldCore(TextField *outerTextField)
-            : ViewCore(outerTextField, _createUITextField(outerTextField)),
-              _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
+        UITextField *TextFieldCore::_createUITextField(std::shared_ptr<TextField> outerTextField)
         {
-            setText(outerTextField->text());
+            UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            textField.backgroundColor = [UIColor clearColor];
+            textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
+            textField.layer.borderWidth = 1;
+            textField.layer.cornerRadius = 5;
+            textField.font = [UIFont systemFontOfSize:15];
+            textField.borderStyle = UITextBorderStyleRoundedRect;
+            textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+            textField.keyboardType = UIKeyboardTypeDefault;
+            textField.autocorrectionType = UITextAutocorrectionTypeNo;
+            textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+            textField.returnKeyType = UIReturnKeyDone;
+
+            return textField;
+        }
+
+        TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
+            : ViewCore(outerTextField, _createUITextField(outerTextField))
+        {
+            setText(outerTextField->text);
+            _delegate = [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)getUIView()
+                                                         outerTextField:outerTextField];
         }
 
         TextFieldCore::~TextFieldCore() { _delegate = nil; }
+
+        void TextFieldCore::setText(const String &text)
+        {
+            UITextField *textField = (UITextField *)getUIView();
+            if (iosStringToString(textField.text) != text) {
+                textField.text = stringToIosString(text);
+            }
+        }
     }
 }

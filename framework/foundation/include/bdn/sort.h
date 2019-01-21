@@ -1,5 +1,4 @@
-#ifndef BDN_sort_H_
-#define BDN_sort_H_
+#pragma once
 
 namespace bdn
 {
@@ -18,5 +17,3 @@ namespace bdn
         */
     template <typename ElementType> inline bool descending(const ElementType &a, const ElementType &b) { return b < a; }
 }
-
-#endif

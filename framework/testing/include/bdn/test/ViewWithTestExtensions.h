@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_ViewWithTestExtensions_H_
-#define BDN_TEST_ViewWithTestExtensions_H_
+#pragma once
 
 namespace bdn
 {
@@ -38,5 +37,3 @@ namespace bdn
         };
     }
 }
-
-#endif

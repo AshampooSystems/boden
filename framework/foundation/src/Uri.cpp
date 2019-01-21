@@ -1,52 +1,40 @@
-#include <bdn/init.h>
+
 #include <bdn/Uri.h>
 
-#include <bdn/hex.h>
+#include <regex>
+#include <sstream>
 
 namespace bdn
 {
 
     String Uri::unescape(const String &s)
     {
+        std::regex re("%([0-9a-fA-F]{2})");
+        auto matchBegin = std::sregex_iterator(s.begin(), s.end(), re);
+        auto matchEnd = std::sregex_iterator();
+
         String result;
 
-        std::string unescapedUtf8;
+        for (std::sregex_iterator i = matchBegin; i != matchEnd;) {
+            std::smatch match = *i;
 
-        auto pos = s.begin();
-        auto lastEscapeEnd = s.begin();
-        while (true) {
-            pos = s.find('%', pos);
-            if (pos == s.end() || pos != lastEscapeEnd) {
-                if (!unescapedUtf8.empty()) {
-                    result += unescapedUtf8;
-                    unescapedUtf8.clear();
-                }
+            result += match.prefix();
 
-                result += s.subString(lastEscapeEnd, pos);
-                lastEscapeEnd = pos;
+            std::istringstream stream(match[1]);
+            int value;
+            stream >> std::hex >> value;
 
-                if (pos == s.end())
-                    break;
+            result += (char)value;
+
+            ++i;
+
+            if (i == matchEnd) {
+                result += match.suffix();
             }
+        }
 
-            ++pos;
-            if (pos != s.end()) {
-                char32_t chr1 = *pos;
-
-                if (isHexDigit(chr1)) {
-                    ++pos;
-
-                    if (pos != s.end()) {
-                        char32_t chr2 = *pos;
-                        if (isHexDigit(chr2)) {
-                            ++pos;
-
-                            unescapedUtf8 += (char)((decodeHexDigit(chr1) << 4) | decodeHexDigit(chr2));
-                            lastEscapeEnd = pos;
-                        }
-                    }
-                }
-            }
+        if (matchBegin == matchEnd) {
+            result = s;
         }
 
         return result;

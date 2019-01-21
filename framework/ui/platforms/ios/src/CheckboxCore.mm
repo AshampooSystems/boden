@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/ios/CheckboxCore.hh>
 
 #define BDN_IOS_CHECKBOX_LABEL_MARGIN 5
@@ -77,7 +77,8 @@ namespace bdn
             return switchComposite;
         }
 
-        CheckboxCore::CheckboxCore(Checkbox *outerCheckbox) : ToggleCoreBase(outerCheckbox, _createCheckboxComposite())
+        CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outerCheckbox)
+            : ToggleCoreBase(outerCheckbox, _createCheckboxComposite())
         {
             _composite = (BdnIosCheckboxComposite *)getUIView();
 
@@ -90,8 +91,8 @@ namespace bdn
                         forControlEvents:UIControlEventTouchUpInside];
 
             // Set initial state
-            setLabel(outerCheckbox->label());
-            setState(outerCheckbox->state());
+            setLabel(outerCheckbox->label);
+            setState(outerCheckbox->state);
         }
 
         CheckboxCore::~CheckboxCore()
@@ -102,6 +103,13 @@ namespace bdn
                                     forControlEvents:UIControlEventTouchUpInside];
             [checkboxComposite removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
         }
+
+        void CheckboxCore::setState(const TriState &state)
+        {
+            ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state;
+        }
+
+        void CheckboxCore::setOn(const bool &on) { setState(on ? TriState::on : TriState::off); }
 
         void CheckboxCore::layout()
         {
@@ -124,7 +132,7 @@ namespace bdn
 
         void CheckboxCore::_clicked()
         {
-            P<View> view = getOuterViewIfStillAttached();
+            std::shared_ptr<View> view = getOuterViewIfStillAttached();
             if (view != nullptr) {
                 ClickEvent evt(view);
 
@@ -137,8 +145,9 @@ namespace bdn
                 //
                 // We guarantee that the on property will be set before
                 // a notification is posted to onClick.
-                cast<Checkbox>(view)->setState(((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState);
-                cast<Checkbox>(view)->onClick().notify(evt);
+                std::dynamic_pointer_cast<Checkbox>(view)->state =
+                    (((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState);
+                std::dynamic_pointer_cast<Checkbox>(view)->onClick().notify(evt);
             }
         }
     }

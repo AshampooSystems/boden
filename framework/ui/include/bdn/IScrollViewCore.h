@@ -1,5 +1,4 @@
-#ifndef BDN_IScrollViewCore_H_
-#define BDN_IScrollViewCore_H_
+#pragma once
 
 #include <bdn/IViewCore.h>
 
@@ -7,7 +6,7 @@ namespace bdn
 {
 
     /** The core for scroll views.*/
-    class IScrollViewCore : BDN_IMPLEMENTS IViewCore
+    class IScrollViewCore : virtual public IViewCore
     {
       public:
         /** Controls wether or not the view scrolls horizontally.*/
@@ -46,5 +45,3 @@ namespace bdn
         virtual void scrollClientRectToVisible(const Rect &clientRect) = 0;
     };
 }
-
-#endif

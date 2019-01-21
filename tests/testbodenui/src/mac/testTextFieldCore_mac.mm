@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/TextField.h>
@@ -22,7 +22,7 @@ class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin<bdn::te
 
     void verifyCoreText() override
     {
-        String expectedText = _textField->text();
+        String expectedText = _textField->text;
         String text = bdn::mac::macStringToString(_nSTextField.stringValue);
         REQUIRE(text == expectedText);
     }
@@ -33,7 +33,7 @@ class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin<bdn::te
 
 TEST_CASE("mac.TextFieldCore")
 {
-    P<TestMacTextFieldCore> test = newObj<TestMacTextFieldCore>();
+    std::shared_ptr<TestMacTextFieldCore> test = std::make_shared<TestMacTextFieldCore>();
 
     test->runTests();
 }

@@ -1,15 +1,19 @@
-#ifndef BDN_GenericDispatcher_H_
-#define BDN_GenericDispatcher_H_
+#pragma once
 
+#include <bdn/Base.h>
+#include <bdn/AppRunnerBase.h>
 #include <bdn/IDispatcher.h>
 #include <bdn/Signal.h>
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/log.h>
-#include <bdn/IAppRunner.h>
-#include <bdn/List.h>
+#include <bdn/InvalidArgumentError.h>
+#include <bdn/DanglingFunctionError.h>
 
 #include <chrono>
 #include <functional>
+#include <list>
+
+using namespace std::chrono_literals;
 
 namespace bdn
 {
@@ -21,7 +25,7 @@ namespace bdn
        secondary work thread.
 
         */
-    class GenericDispatcher : public Base, BDN_IMPLEMENTS IDispatcher
+    class GenericDispatcher : public Base, virtual public IDispatcher
     {
       public:
         GenericDispatcher() {}
@@ -30,10 +34,10 @@ namespace bdn
         {
             // disposes the dispatcher and clears any pending items from the
             // queue (without executing them).
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             for (int priorityQueueIndex = 0; priorityQueueIndex < priorityCount; priorityQueueIndex++) {
-                List<std::function<void()>> &queue = _queues[priorityQueueIndex];
+                std::list<std::function<void()>> &queue = _queues[priorityQueueIndex];
 
                 // remove the objects one by one so that we can ignore
                 // exceptions that happen in the destructor.
@@ -65,30 +69,29 @@ namespace bdn
 
         void enqueue(std::function<void()> func, Priority priority = Priority::normal) override
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             getQueue(priority).push_back(func);
 
             _somethingChangedSignal.set();
         }
 
-        void enqueueInSeconds(double seconds, std::function<void()> func, Priority priority = Priority::normal) override
+        void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+                            Priority priority = Priority::normal) override
         {
-            if (seconds <= 0)
+            if (delay <= IDispatcher::Duration::zero())
                 enqueue(func, priority);
             else
-                addTimedItem(Clock::now() + secondsToDuration(seconds), func, priority);
+                addTimedItem(Clock::now() + delay, func, priority);
         }
 
-        void createTimer(double intervalSeconds, std::function<bool()> func) override
+        void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override
         {
-            if (intervalSeconds <= 0)
+            if (interval <= 0s)
                 throw InvalidArgumentError("GenericDispatcher::createTimer must be called with "
-                                           "intervalSeconds > 0");
+                                           "interval > 0");
             else {
-                Duration interval = secondsToDuration(intervalSeconds);
-
-                P<Timer> timer = newObj<Timer>(this, func, interval);
+                std::shared_ptr<Timer> timer = std::make_shared<Timer>(this, func, interval);
 
                 timer->scheduleNextEvent();
             }
@@ -105,11 +108,11 @@ namespace bdn
 
         /** Waits until at least one work item is ready to be executed.
 
-            timeoutSeconds is the number of seconds to wait at most.
+            timeout is the limit on how long it will wait.
 
             \return true if a work item is ready, false if the timeout has
            elapsed.*/
-        bool waitForNext(double timeoutSeconds);
+        bool waitForNext(IDispatcher::Duration timeout);
 
         /** Convenience implementation of a IThreadRunnable for a thread that
            has a GenericDispatcher at its core.
@@ -118,9 +121,9 @@ namespace bdn
 
             \code
 
-            P<GenericDispatcher> dispatcher = newObj<GenericDispatcher>();
-            P<Thread>            thread = newObj<Thread>(
-           newObj<GenericDispatcher::Runnable>( dispatcher) );
+            std::shared_ptr<GenericDispatcher> dispatcher = std::make_shared<GenericDispatcher>();
+            std::shared_ptr<Thread>            thread = std::make_shared<Thread>(
+           std::make_shared<GenericDispatcher::Runnable>( dispatcher) );
 
             // the thread will now execute the items from the dispatcher.
 
@@ -133,7 +136,7 @@ namespace bdn
         class ThreadRunnable : public ThreadRunnableBase
         {
           public:
-            ThreadRunnable(GenericDispatcher *dispatcher) { _dispatcher = dispatcher; }
+            ThreadRunnable(std::shared_ptr<GenericDispatcher> dispatcher) : _dispatcher(std::move(dispatcher)) {}
 
             void signalStop() override
             {
@@ -152,7 +155,7 @@ namespace bdn
                             // we can wait for a long time here because when
                             // signalStop is called we will get an item posted.
                             // So we automatically wake up.
-                            _dispatcher->waitForNext(10);
+                            _dispatcher->waitForNext(10s);
                         }
                     }
                     catch (...) {
@@ -165,25 +168,11 @@ namespace bdn
             }
 
           private:
-            P<GenericDispatcher> _dispatcher;
+            std::shared_ptr<GenericDispatcher> _dispatcher;
         };
 
       private:
         bool getNextReady(std::function<void()> &func, bool remove);
-
-        typedef std::chrono::steady_clock Clock;
-        typedef Clock::time_point TimePoint;
-        typedef Clock::duration Duration;
-
-        Duration secondsToDuration(double seconds)
-        {
-            return Duration((Duration::rep)(seconds * Duration::period::den / Duration::period::num));
-        }
-
-        double durationToSeconds(const Duration &dur)
-        {
-            return ((double)dur.count()) * Duration::period::num / Duration::period::den;
-        }
 
         enum
         {
@@ -202,11 +191,14 @@ namespace bdn
             throw InvalidArgumentError("Invalid dispatcher item priority: " + std::to_string((int)priority));
         }
 
-        List<std::function<void()>> &getQueue(Priority priority) { return _queues[priorityToQueueIndex(priority)]; }
+        std::list<std::function<void()>> &getQueue(Priority priority)
+        {
+            return _queues[priorityToQueueIndex(priority)];
+        }
 
         void addTimedItem(TimePoint scheduledTime, std::function<void()> func, Priority priority)
         {
-            Mutex::Lock lock(_mutex);
+            std::unique_lock lock(_mutex);
 
             // we enqueue all timed items in a map, so that the set of scheduled
             // items remains sorted automatically and we can easily find the
@@ -266,18 +258,22 @@ namespace bdn
                 _interval = interval;
             }
 
-            void scheduleNextEvent() { _dispatcherWeak->addTimedItem(_nextEventTime, Caller(this), Priority::normal); }
+            void scheduleNextEvent()
+            {
+                _dispatcherWeak->addTimedItem(
+                    _nextEventTime, Caller(std::static_pointer_cast<Timer>(shared_from_this())), Priority::normal);
+            }
 
           private:
             class Caller
             {
               public:
-                Caller(Timer *timer) { _timer = timer; }
+                Caller(std::shared_ptr<Timer> timer) : _timer(std::move(timer)) {}
 
                 void operator()() { _timer->onEvent(); }
 
               protected:
-                P<Timer> _timer;
+                std::shared_ptr<Timer> _timer;
             };
             friend class Caller;
 
@@ -354,9 +350,9 @@ namespace bdn
             Priority priority = Priority::normal;
         };
 
-        Mutex _mutex;
+        std::recursive_mutex _mutex;
 
-        List<std::function<void()>> _queues[priorityCount];
+        std::list<std::function<void()>> _queues[priorityCount];
 
         std::map<TimedItemKey, TimedItem> _timedItemMap;
         int64_t _timedItemCounter = 0;
@@ -364,5 +360,3 @@ namespace bdn
         Signal _somethingChangedSignal;
     };
 }
-
-#endif

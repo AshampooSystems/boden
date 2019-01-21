@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -21,10 +21,10 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
             // the window's content parent must have the flipped
             // flag set, so that the origin of the coordinate
             // system is the top-left.
-            P<Button> button = newObj<Button>();
+            std::shared_ptr<Button> button = std::make_shared<Button>();
             _window->setContentView(button);
 
-            NSView *child = cast<bdn::mac::ChildViewCore>(button->getViewCore())->getNSView();
+            NSView *child = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(button->getViewCore())->getNSView();
 
             REQUIRE(child.superview.flipped);
         }
@@ -34,18 +34,18 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         TestWindowCore::initCore();
 
-        _macWindowCore = cast<bdn::mac::WindowCore>(_view->getViewCore());
+        _macWindowCore = std::dynamic_pointer_cast<bdn::mac::WindowCore>(_view->getViewCore());
         REQUIRE(_macWindowCore != nullptr);
 
         _nSWindow = _macWindowCore->getNSWindow();
         REQUIRE(_nSWindow != nullptr);
     }
 
-    IUiProvider &getUiProvider() override { return bdn::mac::UiProvider::get(); }
+    std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
     void verifyCoreVisibility() override
     {
-        bool expectedVisible = _view->visible();
+        bool expectedVisible = _view->visible;
 
         REQUIRE(_nSWindow.visible == expectedVisible);
     }
@@ -71,7 +71,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     void verifyCorePosition() override
     {
         bdn::Rect rect = getFrameRect();
-        bdn::Point expectedPosition = _view->position();
+        bdn::Point expectedPosition = _view->position;
 
         REQUIRE(rect.getPosition() == expectedPosition);
     }
@@ -79,7 +79,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     void verifyCoreSize() override
     {
         bdn::Rect rect = getFrameRect();
-        bdn::Size expectedSize = _view->size();
+        bdn::Size expectedSize = _view->size;
 
         REQUIRE(rect.getSize() == expectedSize);
     }
@@ -92,7 +92,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
 
     void verifyCoreTitle() override
     {
-        String expectedTitle = _window->title();
+        String expectedTitle = _window->title;
 
         String title = bdn::mac::macStringToString(_nSWindow.title);
 
@@ -115,29 +115,29 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         NSWindow __weak *_nSWindow;
     };
 
-    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override
     {
         // sanity check
         REQUIRE(_nSWindow != nullptr);
 
-        return newObj<DestructVerificationInfo>(_nSWindow);
+        return std::make_shared<DestructVerificationInfo>(_nSWindow);
     }
 
-    void verifyCoreUiElementDestruction(IBase *verificationInfo) override
+    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override
     {
-        NSWindow __weak *nSWindow = cast<DestructVerificationInfo>(verificationInfo)->_nSWindow;
+        NSWindow __weak *nSWindow = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->_nSWindow;
 
         // window should have been destroyed.
         REQUIRE(nSWindow == nullptr);
     }
 
-    P<bdn::mac::WindowCore> _macWindowCore;
+    std::shared_ptr<bdn::mac::WindowCore> _macWindowCore;
     NSWindow *_nSWindow;
 };
 
 TEST_CASE("mac.WindowCore")
 {
-    P<TestMacWindowCore> test = newObj<TestMacWindowCore>();
+    std::shared_ptr<TestMacWindowCore> test = std::make_shared<TestMacWindowCore>();
 
     test->runTests();
 }

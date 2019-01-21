@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/test/TestContainerViewCore.h>
@@ -16,7 +16,7 @@ class TestMacContainerViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn
 
 TEST_CASE("mac.ContainerViewCore")
 {
-    P<TestMacContainerViewCore> test = newObj<TestMacContainerViewCore>();
+    std::shared_ptr<TestMacContainerViewCore> test = std::make_shared<TestMacContainerViewCore>();
 
     test->runTests();
 }

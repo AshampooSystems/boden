@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_StaticMethodCaller_H_
-#define BDN_JAVA_StaticMethodCaller_H_
+#pragma once
 
 #include <bdn/java/MethodCaller.h>
 
@@ -160,5 +159,3 @@ namespace bdn
         };
     }
 }
-
-#endif

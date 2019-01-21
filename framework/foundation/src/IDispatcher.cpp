@@ -1,9 +1,9 @@
-#include <bdn/init.h>
+
 #include <bdn/IDispatcher.h>
-#include <bdn/IAppRunner.h>
+#include <bdn/AppRunnerBase.h>
 
 namespace bdn
 {
 
-    P<IDispatcher> getMainDispatcher() { return getAppRunner()->getMainDispatcher(); }
+    std::shared_ptr<IDispatcher> getMainDispatcher() { return getAppRunner()->getMainDispatcher(); }
 }

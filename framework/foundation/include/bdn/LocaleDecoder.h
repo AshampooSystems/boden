@@ -1,11 +1,11 @@
-#ifndef BDN_LocaleDecoder_H_
-#define BDN_LocaleDecoder_H_
+#pragma once
 
 #include <bdn/WideCodec.h>
 #include <bdn/Utf16Codec.h>
 #include <bdn/Utf8Codec.h>
 
 #include <cstring>
+#include <locale>
 
 namespace bdn
 {
@@ -295,5 +295,3 @@ namespace bdn
         std::locale _locale;
     };
 }
-
-#endif

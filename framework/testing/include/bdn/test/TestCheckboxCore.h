@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_TestCheckboxCore_H_
-#define BDN_TEST_TestCheckboxCore_H_
+#pragma once
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/Checkbox.h>
@@ -14,19 +13,19 @@ namespace bdn
         {
 
           protected:
-            P<View> createView() override
+            std::shared_ptr<View> createView() override
             {
-                P<Checkbox> checkbox = newObj<Checkbox>();
-                checkbox->setLabel("hello");
+                std::shared_ptr<Checkbox> checkbox = std::make_shared<Checkbox>();
+                checkbox->label = ("hello");
 
                 return checkbox;
             }
 
-            void setView(View *view) override
+            void setView(std::shared_ptr<View> view) override
             {
                 TestViewCore::setView(view);
 
-                _checkbox = cast<Checkbox>(view);
+                _checkbox = std::dynamic_pointer_cast<Checkbox>(view);
             }
 
             void runInitTests() override
@@ -39,7 +38,7 @@ namespace bdn
                     // label set before init
                     SECTION("label")
                     {
-                        _checkbox->setLabel("helloworld");
+                        _checkbox->label = ("helloworld");
                         initCore();
                         verifyCoreLabel();
                     }
@@ -47,7 +46,7 @@ namespace bdn
                     // state set before init
                     SECTION("state")
                     {
-                        _checkbox->setState(TriState::on);
+                        _checkbox->state = (TriState::on);
                         initCore();
                         verifyCoreState();
                     }
@@ -56,7 +55,8 @@ namespace bdn
 
             void runPostInitTests() override
             {
-                P<TestCheckboxCore> self(this);
+                std::shared_ptr<TestCheckboxCore> self =
+                    std::dynamic_pointer_cast<TestCheckboxCore>(shared_from_this());
 
                 TestViewCore::runPostInitTests();
 
@@ -65,21 +65,21 @@ namespace bdn
                 {
                     SECTION("value")
                     {
-                        _checkbox->setLabel("helloworld");
+                        _checkbox->label = ("helloworld");
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreLabel(); };
                     }
 
                     SECTION("effectsOnPreferredSize")
                     {
-                        String labelBefore = _checkbox->label();
+                        String labelBefore = _checkbox->label;
 
                         // the label should not be empty here
-                        REQUIRE(labelBefore.getLength() > 3);
+                        REQUIRE(labelBefore.size() > 3);
 
                         Size prefSizeBefore = _checkbox->calcPreferredSize();
 
-                        _checkbox->setLabel(labelBefore + labelBefore + labelBefore);
+                        _checkbox->label = (labelBefore + labelBefore + labelBefore);
 
                         CONTINUE_SECTION_WHEN_IDLE(self, prefSizeBefore, labelBefore)
                         {
@@ -94,7 +94,7 @@ namespace bdn
 
                             // when we go back to the same label as before then
                             // the preferred size should also be the same again
-                            self->_checkbox->setLabel(labelBefore);
+                            self->_checkbox->label = (labelBefore);
 
                             CONTINUE_SECTION_WHEN_IDLE(self, labelBefore, prefSizeBefore)
                             {
@@ -109,21 +109,21 @@ namespace bdn
                 {
                     SECTION("valueOn")
                     {
-                        _checkbox->setState(TriState::on);
+                        _checkbox->state = (TriState::on);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
 
                     SECTION("valueOff")
                     {
-                        _checkbox->setState(TriState::off);
+                        _checkbox->state = (TriState::off);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
 
                     SECTION("valueMixed")
                     {
-                        _checkbox->setState(TriState::mixed);
+                        _checkbox->state = (TriState::mixed);
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCoreState(); };
                     }
@@ -143,9 +143,7 @@ namespace bdn
                Checkbox::on() property.*/
             virtual void verifyCoreState() = 0;
 
-            P<Checkbox> _checkbox;
+            std::shared_ptr<Checkbox> _checkbox;
         };
     }
 }
-
-#endif

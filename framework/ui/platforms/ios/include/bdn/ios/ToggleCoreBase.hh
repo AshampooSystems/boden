@@ -1,5 +1,4 @@
-#ifndef BDN_IOS_ToggleCoreBase_HH_
-#define BDN_IOS_ToggleCoreBase_HH_
+#pragma once
 
 #include <bdn/IToggleCoreBase.h>
 #include <bdn/ClickEvent.h>
@@ -18,11 +17,10 @@ namespace bdn
 {
     namespace ios
     {
-
-        class ToggleCoreBase : public ViewCore, BDN_IMPLEMENTS IToggleCoreBase
+        class ToggleCoreBase : public ViewCore, virtual public IToggleCoreBase
         {
           public:
-            ToggleCoreBase(View *outer, BdnIosToggleCompositeBase *toggleComposite);
+            ToggleCoreBase(std::shared_ptr<View> outer, BdnIosToggleCompositeBase *toggleComposite);
             virtual ~ToggleCoreBase();
 
             void setLabel(const String &label) override;
@@ -35,5 +33,3 @@ namespace bdn
         };
     }
 }
-
-#endif

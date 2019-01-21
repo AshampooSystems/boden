@@ -1,5 +1,4 @@
-#ifndef BDN_Point_H_
-#define BDN_Point_H_
+#pragma once
 
 namespace bdn
 {
@@ -74,5 +73,3 @@ inline bool operator>(const bdn::Point &a, const bdn::Point &b) { return (a.x > 
 
 /** Returns true if a's x and y are each bigger or equal to b's */
 inline bool operator>=(const bdn::Point &a, const bdn::Point &b) { return (a.x >= b.x && a.y >= b.y); }
-
-#endif

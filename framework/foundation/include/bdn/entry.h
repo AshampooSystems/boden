@@ -1,7 +1,6 @@
 #pragma once
 
-#include <bdn/IAppRunner.h>
-#include <bdn/P.h>
+#include <bdn/AppRunnerBase.h>
 
 namespace bdn
 {
@@ -16,8 +15,7 @@ namespace bdn
      */
     inline bool unhandledException(bool canKeepRunningAfterException)
     {
-        P<IAppRunner> appRunner = getAppRunner();
-        if (appRunner != nullptr) {
+        if (auto appRunner = getAppRunner()) {
             return appRunner->unhandledException(canKeepRunningAfterException);
         }
 

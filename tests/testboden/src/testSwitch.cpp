@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Switch.h>
@@ -15,9 +15,11 @@ TEST_CASE("Switch")
 
     SECTION("Switch-specific")
     {
-        P<bdn::test::ViewTestPreparer<Switch>> preparer = newObj<bdn::test::ViewTestPreparer<Switch>>();
-        P<bdn::test::ViewWithTestExtensions<Switch>> switchControl = preparer->createView();
-        P<bdn::test::MockSwitchCore> core = cast<bdn::test::MockSwitchCore>(switchControl->getViewCore());
+        std::shared_ptr<bdn::test::ViewTestPreparer<Switch>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<Switch>>();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<Switch>> switchControl = preparer->createView();
+        std::shared_ptr<bdn::test::MockSwitchCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockSwitchCore>(switchControl->getViewCore());
 
         REQUIRE(core != nullptr);
 
@@ -25,14 +27,14 @@ TEST_CASE("Switch")
         {
             SECTION("label")
             {
-                REQUIRE(switchControl->label() == "");
+                REQUIRE(switchControl->label == "");
                 REQUIRE(core->getLabel() == "");
                 REQUIRE(core->getLabelChangeCount() == 0);
             }
 
             SECTION("on")
             {
-                REQUIRE(switchControl->on() == false);
+                REQUIRE(switchControl->on == false);
                 REQUIRE(core->getOn() == false);
                 REQUIRE(core->getOnChangeCount() == 0);
             }
@@ -43,7 +45,7 @@ TEST_CASE("Switch")
             SECTION("label")
             {
                 bdn::test::_testViewOp(
-                    switchControl, preparer, [switchControl]() { switchControl->setLabel("hello"); },
+                    switchControl, preparer, [switchControl]() { switchControl->label = ("hello"); },
                     [core, switchControl] {
                         REQUIRE(core->getLabel() == "hello");
                         REQUIRE(core->getLabelChangeCount() == 1);
@@ -58,7 +60,7 @@ TEST_CASE("Switch")
 
             SECTION("on")
             {
-                bdn::test::_testViewOp(switchControl, preparer, [switchControl]() { switchControl->setOn(true); },
+                bdn::test::_testViewOp(switchControl, preparer, [switchControl]() { switchControl->on = (true); },
                                        [core, switchControl] {
                                            REQUIRE(core->getOn() == true);
                                            REQUIRE(core->getOnChangeCount() == 1);

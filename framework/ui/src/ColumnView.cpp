@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/ColumnView.h>
 
 #include <bdn/debug.h>

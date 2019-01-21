@@ -1,6 +1,6 @@
-#ifndef BDN_ThreadRunnableBase_H_
-#define BDN_ThreadRunnableBase_H_
+#pragma once
 
+#include <bdn/Base.h>
 #include <bdn/IThreadRunnable.h>
 
 namespace bdn
@@ -13,7 +13,7 @@ namespace bdn
         should regularly call shouldStop() and abort when that returns true.
 
      */
-    class ThreadRunnableBase : public Base, BDN_IMPLEMENTS IThreadRunnable
+    class ThreadRunnableBase : public Base, virtual public IThreadRunnable
     {
       public:
         /** Derived classes should override this. The run method should perform
@@ -39,5 +39,3 @@ namespace bdn
         volatile bool _shouldStop = false;
     };
 }
-
-#endif

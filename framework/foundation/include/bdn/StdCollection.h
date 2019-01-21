@@ -1,5 +1,4 @@
-#ifndef BDN_StdCollection_H_
-#define BDN_StdCollection_H_
+#pragma once
 
 #include <bdn/sort.h>
 
@@ -47,10 +46,10 @@ namespace bdn
 
             \code
 
-            Array<String> ar = {"one", "two", "three"};
+            std::vector<String> ar = {"one", "two", "three"};
 
             // get an iterator to the first element
-            Array<String>::Iterator it = ar.begin();
+            std::vector<String>::Iterator it = ar.begin();
 
             // note that the previous line could also be written with the "auto"
             // keyword instead of the iterator type:
@@ -104,7 +103,7 @@ namespace bdn
 
             \code
 
-            Array<int> ar = {1, 5, 7};
+            std::vector<int> ar = {1, 5, 7};
 
             auto it = ar.begin();
             while( it != ar.end() )
@@ -248,5 +247,3 @@ namespace bdn
         }
     };
 }
-
-#endif

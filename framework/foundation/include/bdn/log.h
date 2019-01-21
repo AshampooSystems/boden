@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bdn/String.h>
+
 namespace bdn
 {
     enum class Severity
@@ -7,6 +9,7 @@ namespace bdn
         Error,
         Info,
         Debug,
+        None,
     };
 
     void log(Severity severity, const String &message) noexcept;

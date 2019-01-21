@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/WeakReference.h>
 
 #include <bdn/java/Env.h>

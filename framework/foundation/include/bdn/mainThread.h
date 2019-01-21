@@ -1,37 +1,45 @@
-#ifndef BDN_mainThread_H_
-#define BDN_mainThread_H_
+#pragma once
 
 #include <bdn/ISimpleCallable.h>
-#include <bdn/Thread.h>
 #include <bdn/IDispatcher.h>
+#include <bdn/DanglingFunctionError.h>
+#include <bdn/AppRunnerBase.h>
 
 #include <future>
 
 namespace bdn
 {
 
-    class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ISimpleCallable
+    class CallFromMainThreadBase_ : public Base, virtual public ISimpleCallable
     {
       public:
-        void dispatchCall() { getMainDispatcher()->enqueue(Caller(this)); }
-
-        void dispatchCallWithDelaySeconds(double seconds)
+        std::shared_ptr<CallFromMainThreadBase_> shared_from_this()
         {
-            getMainDispatcher()->enqueueInSeconds(seconds, Caller(this));
+            return std::static_pointer_cast<CallFromMainThreadBase_>(Base::shared_from_this());
         }
 
-        void dispatchCallWhenIdle() { getMainDispatcher()->enqueue(Caller(this), IDispatcher::Priority::idle); }
+        void dispatchCall() { getMainDispatcher()->enqueue(Caller(shared_from_this())); }
+
+        void dispatchCallWithDelay(IDispatcher::Duration delay)
+        {
+            getMainDispatcher()->enqueueDelayed(delay, Caller(shared_from_this()));
+        }
+
+        void dispatchCallWhenIdle()
+        {
+            getMainDispatcher()->enqueue(Caller(shared_from_this()), IDispatcher::Priority::idle);
+        }
 
       private:
         class Caller
         {
           public:
-            Caller(CallFromMainThreadBase_ *callable) { _callable = callable; }
+            Caller(std::shared_ptr<CallFromMainThreadBase_> callable) { _callable = callable; }
 
             void operator()() { _callable->call(); }
 
           private:
-            P<CallFromMainThreadBase_> _callable;
+            std::shared_ptr<CallFromMainThreadBase_> _callable;
         };
     };
 
@@ -81,15 +89,16 @@ namespace bdn
     template <class FuncType, class... Args>
     std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> call =
-            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
+        std::shared_ptr<CallFromMainThread_<FuncType, Args...>> call =
+            std::make_shared<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func),
+                                                                     std::forward<Args>(args)...);
 
         // we return a future object that will block until the function
         // finishes. So if we are called from the main thread there is a
         // potential for a deadlock here, since no events will be processed
         // while we wait blocking. So if we are on the main thread then we must
         // execute the function immediately.
-        if (Thread::isCurrentMain())
+        if (AppRunnerBase::isMainThread())
             call->call();
         else
             call->dispatchCall();
@@ -114,8 +123,9 @@ namespace bdn
     {
         // always dispatch to the event loop.
 
-        P<CallFromMainThread_<FuncType, Args...>> call =
-            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
+        std::shared_ptr<CallFromMainThread_<FuncType, Args...>> call =
+            std::make_shared<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func),
+                                                                     std::forward<Args>(args)...);
 
         call->dispatchCall();
     }
@@ -144,28 +154,27 @@ namespace bdn
     */
     template <class FuncType, class... Args> void asyncCallFromMainThreadWhenIdle(FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> call =
-            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
+        std::shared_ptr<CallFromMainThread_<FuncType, Args...>> call =
+            std::make_shared<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func),
+                                                                     std::forward<Args>(args)...);
 
         call->dispatchCallWhenIdle();
     }
 
     /** Schedules the specified function to be called from the main thread
-       asynchronously after a delay of the specified number of seconds. The
-       seconds parameter is a floating point number, so you can specify
-       non-integer amounts of seconds (e.g. a value 0.2 would cause a delay of
-       200 milliseconds).
+       asynchronously after a delay of the specified time.
 
         The main thread is the thread that runs the user interface and the event
        loop.
     */
     template <class FuncType, class... Args>
-    void asyncCallFromMainThreadAfterSeconds(double seconds, FuncType &&func, Args &&... args)
+    void asyncCallFromMainThreadWithDelay(IDispatcher::Duration delay, FuncType &&func, Args &&... args)
     {
-        P<CallFromMainThread_<FuncType, Args...>> call =
-            newObj<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func), std::forward<Args>(args)...);
+        std::shared_ptr<CallFromMainThread_<FuncType, Args...>> call =
+            std::make_shared<CallFromMainThread_<FuncType, Args...>>(std::forward<FuncType>(func),
+                                                                     std::forward<Args>(args)...);
 
-        call->dispatchCallWithDelaySeconds(seconds);
+        call->dispatchCallWithDelay(delay);
     }
 
     /** Wraps a function (called the "inner function") into a wrapper function.
@@ -346,5 +355,3 @@ namespace bdn
         return [innerFunc](Args... args) { asyncCallFromMainThread(innerFunc, args...); };
     }
 }
-
-#endif

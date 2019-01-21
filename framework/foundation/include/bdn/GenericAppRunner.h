@@ -1,5 +1,4 @@
-#ifndef BDN_GenericAppRunner_H_
-#define BDN_GenericAppRunner_H_
+#pragma once
 
 #include <bdn/AppRunnerBase.h>
 #include <bdn/GenericDispatcher.h>
@@ -18,11 +17,13 @@ namespace bdn
         {
             AppLaunchInfo launchInfo;
 
-            Array<String> argStrings;
-            for (int i = 0; i < argCount; i++)
-                argStrings.add(String::fromLocaleEncoding(args[i]));
-            if (argCount == 0)
-                argStrings.add(""); // always add the first entry.
+            std::vector<String> argStrings;
+            argStrings.reserve(argCount);
+            argStrings.assign(args, args + argCount);
+
+            if (argCount == 0) {
+                argStrings.push_back(""); // always add the first entry.
+            }
             launchInfo.setArguments(argStrings);
 
             return launchInfo;
@@ -35,11 +36,11 @@ namespace bdn
            arguments \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, int argCount, char *args[],
-                         bool commandLineApp)
+        GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+                         char *args[], bool commandLineApp)
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args)), _commandLineApp(commandLineApp)
         {
-            _dispatcher = newObj<GenericDispatcher>();
+            _dispatcher = std::make_shared<GenericDispatcher>();
         }
 
         /** \param appControllerCreator function that creates the app controller
@@ -47,18 +48,18 @@ namespace bdn
            information \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(std::function<P<AppControllerBase>()> appControllerCreator, const AppLaunchInfo &launchInfo,
-                         bool commandLineApp)
+        GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+                         const AppLaunchInfo &launchInfo, bool commandLineApp)
             : AppRunnerBase(appControllerCreator, launchInfo), _commandLineApp(commandLineApp)
         {
-            _dispatcher = newObj<GenericDispatcher>();
+            _dispatcher = std::make_shared<GenericDispatcher>();
         }
 
         bool isCommandLineApp() const override { return _commandLineApp; }
 
         void initiateExitIfPossible(int exitCode) override
         {
-            Mutex::Lock lock(_exitMutex);
+            std::unique_lock lock(_exitMutex);
 
             _exitRequested = true;
             _exitCode = exitCode;
@@ -73,18 +74,18 @@ namespace bdn
             terminating();
 
             {
-                Mutex::Lock lock(_exitMutex);
+                std::unique_lock lock(_exitMutex);
 
                 return _exitCode;
             }
         }
 
-        P<IDispatcher> getMainDispatcher() override { return _dispatcher; }
+        std::shared_ptr<IDispatcher> getMainDispatcher() override { return _dispatcher; }
 
       protected:
         virtual bool shouldExit() const
         {
-            Mutex::Lock lock(_exitMutex);
+            std::unique_lock lock(_exitMutex);
             return _exitRequested;
         }
 
@@ -99,7 +100,7 @@ namespace bdn
                 try {
                     if (!_dispatcher->executeNext()) {
                         // just wait for the next work item.
-                        _dispatcher->waitForNext(10);
+                        _dispatcher->waitForNext(10s);
                     }
                 }
                 catch (...) {
@@ -115,13 +116,11 @@ namespace bdn
 
         bool _commandLineApp;
 
-        mutable Mutex _exitMutex;
+        mutable std::recursive_mutex _exitMutex;
 
-        P<GenericDispatcher> _dispatcher;
+        std::shared_ptr<GenericDispatcher> _dispatcher;
 
         bool _exitRequested = false;
         int _exitCode = 0;
     };
 }
-
-#endif

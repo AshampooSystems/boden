@@ -1,5 +1,4 @@
-#ifndef BDN_IStringData_H_
-#define BDN_IStringData_H_
+#pragma once
 
 #include <bdn/IBase.h>
 #include <bdn/CharIterator.h>
@@ -16,5 +15,3 @@ namespace bdn
         virtual bool operator==(CharIterator otherBegin, CharIterator otherEnd) = 0;
     };
 }
-
-#endif

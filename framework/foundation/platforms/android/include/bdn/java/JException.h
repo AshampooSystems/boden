@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JException_H_
-#define BDN_JAVA_JException_H_
+#pragma once
 
 #include <bdn/java/JThrowable.h>
 
@@ -50,5 +49,3 @@ namespace bdn
         };
     }
 }
-
-#endif

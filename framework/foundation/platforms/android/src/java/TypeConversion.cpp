@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/TypeConversion.h>
 
 #include <bdn/java/JString.h>

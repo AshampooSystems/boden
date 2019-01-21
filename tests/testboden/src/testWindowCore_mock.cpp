@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -16,12 +16,12 @@ class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
     {
         bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>::initCore();
 
-        _mockWindowCore = cast<bdn::test::MockWindowCore>(_mockCore);
+        _mockWindowCore = std::dynamic_pointer_cast<bdn::test::MockWindowCore>(_mockCore);
     }
 
     void verifyCoreTitle() override
     {
-        String expectedTitle = _window->title();
+        String expectedTitle = _window->title;
 
         REQUIRE(_mockWindowCore->getTitle() == expectedTitle);
     }
@@ -33,16 +33,16 @@ class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
         _mockWindowCore = nullptr;
     }
 
-    P<IBase> createInfoToVerifyCoreUiElementDestruction() override { return nullptr; }
+    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override { return nullptr; }
 
-    void verifyCoreUiElementDestruction(IBase *verificationInfo) override {}
+    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override {}
 
-    P<bdn::test::MockWindowCore> _mockWindowCore;
+    std::shared_ptr<bdn::test::MockWindowCore> _mockWindowCore;
 };
 
 TEST_CASE("mock.WindowCore")
 {
-    P<TestMockWindowCore> test = newObj<TestMockWindowCore>();
+    std::shared_ptr<TestMockWindowCore> test = std::make_shared<TestMockWindowCore>();
 
     test->runTests();
 }

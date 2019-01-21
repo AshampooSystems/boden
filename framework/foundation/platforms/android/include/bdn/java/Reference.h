@@ -1,5 +1,6 @@
-#ifndef BDN_JAVA_Reference_H_
-#define BDN_JAVA_Reference_H_
+#pragma once
+
+#include <bdn/Base.h>
 
 #include <jni.h>
 
@@ -101,7 +102,7 @@ namespace bdn
             bool operator!=(const Reference &o) const { return !operator==(o); }
 
           private:
-            Reference(jobject strongRef) : _shared(newObj<Shared>(strongRef)) {}
+            Reference(jobject strongRef) : _shared(std::make_shared<Shared>(strongRef)) {}
 
             class Shared : public Base
             {
@@ -116,9 +117,7 @@ namespace bdn
                 jobject _ref;
             };
 
-            P<Shared> _shared;
+            std::shared_ptr<Shared> _shared;
         };
     }
 }
-
-#endif

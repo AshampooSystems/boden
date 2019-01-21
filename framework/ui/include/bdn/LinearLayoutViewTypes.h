@@ -130,21 +130,21 @@ namespace bdn
         expand
     };
 
-    inline VirtualAlignment primaryToVirtualAlignment(bool h, const P<View> &view)
+    inline VirtualAlignment primaryToVirtualAlignment(bool h, const std::shared_ptr<View> &view)
     {
         if (h) {
-            return (VirtualAlignment)view->horizontalAlignment();
+            return (VirtualAlignment)*view->horizontalAlignment;
         } else {
-            return (VirtualAlignment)view->verticalAlignment();
+            return (VirtualAlignment)*view->verticalAlignment;
         }
     }
 
-    inline VirtualAlignment secondaryToVirtualAlignment(bool h, const P<View> &view)
+    inline VirtualAlignment secondaryToVirtualAlignment(bool h, const std::shared_ptr<View> &view)
     {
         if (h) {
-            return (VirtualAlignment)view->verticalAlignment();
+            return (VirtualAlignment)*view->verticalAlignment;
         } else {
-            return (VirtualAlignment)view->horizontalAlignment();
+            return (VirtualAlignment)*view->horizontalAlignment;
         }
     }
 }

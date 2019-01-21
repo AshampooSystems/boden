@@ -1,5 +1,4 @@
-#ifndef BDN_ANDROID_JHandler_H_
-#define BDN_ANDROID_JHandler_H_
+#pragma once
 
 #include <bdn/java/JObject.h>
 #include <bdn/java/JRunnable.h>
@@ -76,5 +75,3 @@ namespace bdn
         };
     }
 }
-
-#endif

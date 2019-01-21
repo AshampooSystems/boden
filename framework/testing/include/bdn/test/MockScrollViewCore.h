@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockScrollViewCore_H_
-#define BDN_TEST_MockScrollViewCore_H_
+#pragma once
 
 #include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
@@ -18,15 +17,15 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockScrollViewCore : public MockViewCore, BDN_IMPLEMENTS IScrollViewCore
+        class MockScrollViewCore : public MockViewCore, virtual public IScrollViewCore
         {
           public:
-            MockScrollViewCore(ScrollView *view) : MockViewCore(view)
+            MockScrollViewCore(std::shared_ptr<ScrollView> view) : MockViewCore(view)
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _horizontalScrollingEnabled = view->horizontalScrollingEnabled();
-                _verticalScrollingEnabled = view->verticalScrollingEnabled();
+                _horizontalScrollingEnabled = view->horizontalScrollingEnabled;
+                _verticalScrollingEnabled = view->verticalScrollingEnabled;
             }
 
             void setHorizontalScrollingEnabled(const bool &enabled) override
@@ -52,10 +51,11 @@ namespace bdn
             void scrollClientRectToVisible(const Rect &targetRect) override
             {
                 // update the scroll position of the outer view
-                P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outerView =
+                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
 
                 if (outerView != nullptr) {
-                    Rect visibleRect = outerView->visibleClientRect();
+                    Rect visibleRect = outerView->visibleClientRect;
 
                     double targetLeft = targetRect.x;
                     double targetRight = targetRect.x + targetRect.width;
@@ -197,7 +197,7 @@ namespace bdn
 
                     visibleRect = Rect(visibleLeft, visibleTop, visibleRight - visibleLeft, visibleBottom - visibleTop);
 
-                    outerView->_setVisibleClientRect(visibleRect);
+                    outerView->visibleClientRect = visibleRect;
                 }
             }
 
@@ -206,7 +206,8 @@ namespace bdn
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 if (!_overrideLayoutFunc || !_overrideLayoutFunc()) {
-                    P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+                    std::shared_ptr<ScrollView> outerView =
+                        std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
 
                     ScrollViewLayoutHelper helper(10, 10);
                     helper.calcLayout(outerView, _bounds.getSize());
@@ -214,7 +215,7 @@ namespace bdn
                     _clientSize = helper.getScrolledAreaSize();
 
                     if (outerView != nullptr) {
-                        P<View> contentView = outerView->getContentView();
+                        std::shared_ptr<View> contentView = outerView->getContentView();
                         if (contentView != nullptr)
                             contentView->adjustAndSetBounds(helper.getContentViewBounds());
                     }
@@ -225,7 +226,7 @@ namespace bdn
                     _viewPortSize = helper.getViewPortSize();
 
                     // update the size of the visible client rect
-                    Rect visibleClientRect = outerView->visibleClientRect();
+                    Rect visibleClientRect = outerView->visibleClientRect;
                     visibleClientRect.width = _viewPortSize.width;
                     visibleClientRect.height = _viewPortSize.height;
 
@@ -236,7 +237,7 @@ namespace bdn
                     if (visibleClientRect.y + visibleClientRect.height > _clientSize.height)
                         visibleClientRect.y = _clientSize.height - visibleClientRect.height;
 
-                    outerView->_setVisibleClientRect(visibleClientRect);
+                    outerView->visibleClientRect = visibleClientRect;
                 }
             }
 
@@ -250,7 +251,8 @@ namespace bdn
 
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                P<ScrollView> outerView = cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outerView =
+                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
 
                 ScrollViewLayoutHelper helper(10, 10);
                 Size prefSize = helper.calcPreferredSize(outerView, availableSpace);
@@ -272,5 +274,3 @@ namespace bdn
         };
     }
 }
-
-#endif

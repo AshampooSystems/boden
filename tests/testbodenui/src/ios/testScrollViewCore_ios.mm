@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
@@ -50,7 +50,7 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
 
         viewSize =
             _scrollView
-                ->adjustBounds(bdn::Rect(_scrollView->position(), viewSize), RoundType::nearest, RoundType::nearest)
+                ->adjustBounds(bdn::Rect(_scrollView->position, viewSize), RoundType::nearest, RoundType::nearest)
                 .getSize();
 
         // we cannot resize the scroll view directly with adjustAndSetBounds.
@@ -58,8 +58,8 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _scrollView->setPreferredSizeMinimum(viewSize);
-        _scrollView->setPreferredSizeMaximum(viewSize);
+        _scrollView->preferredSizeMinimum = (viewSize);
+        _scrollView->preferredSizeMaximum = (viewSize);
 
         // also request a re-layout here. With the normal propagation of the
         // property changes it would take two event cycles until the layout
@@ -99,10 +99,10 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> contentView = _scrollView->getContentView();
+        std::shared_ptr<View> contentView = _scrollView->getContentView();
 
         if (contentView != nullptr) {
-            bdn::Rect bounds(_scrollView->getContentView()->position(), contentView->size());
+            bdn::Rect bounds(_scrollView->getContentView()->position, contentView->size);
 
             if (maxDeviation == 0)
                 REQUIRE(bounds == expectedBounds);
@@ -138,7 +138,7 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
 
 TEST_CASE("ios.ScrollViewCore")
 {
-    P<TestIosScrollViewCore> test = newObj<TestIosScrollViewCore>();
+    std::shared_ptr<TestIosScrollViewCore> test = std::make_shared<TestIosScrollViewCore>();
 
     test->runTests();
 }

@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/ScrollView.h>
 
 #include <bdn/test.h>
@@ -10,13 +10,13 @@
 
 using namespace bdn;
 
-void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView,
-                               P<IBase> keepAliveInContinuations, P<bdn::test::MockUiProvider> uiProvider,
-                               std::function<Size()> getSizeFunc)
+void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView,
+                               std::shared_ptr<Base> keepAliveInContinuations,
+                               std::shared_ptr<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
-    P<Button> button = newObj<Button>();
-    button->setLabel("HelloWorld");
+    std::shared_ptr<Button> button = std::make_shared<Button>();
+    button->label = ("HelloWorld");
 
     Margin buttonMargin;
 
@@ -27,7 +27,7 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<ScrollView>> 
 
     SECTION("semMargin")
     {
-        button->setMargin(UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
+        button->margin = (UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -35,14 +35,15 @@ void testSizingWithContentView(P<bdn::test::ViewWithTestExtensions<ScrollView>> 
 
     SECTION("dipMargin")
     {
-        button->setMargin(UiMargin(1, 2, 3, 4));
+        button->margin = (UiMargin(1, 2, 3, 4));
 
         buttonMargin = Margin(1, 2, 3, 4);
     }
 
     scrollView->setContentView(button);
 
-    P<bdn::test::MockButtonCore> buttonCore = cast<bdn::test::MockButtonCore>(button->getViewCore());
+    std::shared_ptr<bdn::test::MockButtonCore> buttonCore =
+        std::dynamic_pointer_cast<bdn::test::MockButtonCore>(button->getViewCore());
 
     // Sanity check. Verify the fake button size. 9.75 , 19.60 per character,
     // rounded up to 1/3 pixel size, plus 10x8 for border
@@ -68,11 +69,13 @@ TEST_CASE("ScrollView", "[ui]")
 
     SECTION("ScrollView-specific")
     {
-        P<bdn::test::ViewTestPreparer<ScrollView>> preparer = newObj<bdn::test::ViewTestPreparer<ScrollView>>();
+        std::shared_ptr<bdn::test::ViewTestPreparer<ScrollView>> preparer =
+            std::make_shared<bdn::test::ViewTestPreparer<ScrollView>>();
 
-        P<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView = preparer->createView();
+        std::shared_ptr<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView = preparer->createView();
 
-        P<bdn::test::MockScrollViewCore> core = cast<bdn::test::MockScrollViewCore>(scrollView->getViewCore());
+        std::shared_ptr<bdn::test::MockScrollViewCore> core =
+            std::dynamic_pointer_cast<bdn::test::MockScrollViewCore>(scrollView->getViewCore());
         REQUIRE(core != nullptr);
 
         // continue testing after the async init has finished
@@ -82,10 +85,12 @@ TEST_CASE("ScrollView", "[ui]")
             SECTION("constructWindowSpecific"){}
 
             SECTION("changeWindowProperty"){
-                SECTION("contentView"){SECTION("!=null"){P<Button> button = newObj<Button>();
+                SECTION("contentView"){SECTION("!=null"){std::shared_ptr<Button> button = std::make_shared<Button>();
         bdn::test::_testViewOp(
             scrollView, preparer, [scrollView, button, preparer]() { scrollView->setContentView(button); },
-            [scrollView, button, preparer] { REQUIRE(scrollView->getContentView() == cast<View>(button)); },
+            [scrollView, button, preparer] {
+                REQUIRE(scrollView->getContentView() == std::dynamic_pointer_cast<View>(button));
+            },
             bdn::test::ExpectedSideEffect_::invalidateSizingInfo         // should have caused sizing info to be
                                                                          // invalidated
                 | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout
@@ -112,7 +117,7 @@ TEST_CASE("ScrollView", "[ui]")
 
     SECTION("null (was not null)")
     {
-        P<Button> button = newObj<Button>();
+        std::shared_ptr<Button> button = std::make_shared<Button>();
         scrollView->setContentView(button);
 
         // basically we only test here that there is no crash when the content
@@ -134,13 +139,13 @@ TEST_CASE("ScrollView", "[ui]")
 
 SECTION("contentViewParent")
 {
-    P<Button> child = newObj<Button>();
+    std::shared_ptr<Button> child = std::make_shared<Button>();
 
     SECTION("parent is set directly after add")
     {
         scrollView->setContentView(child);
 
-        BDN_REQUIRE(child->getParentView() == cast<View>(scrollView));
+        BDN_REQUIRE(child->getParentView() == std::dynamic_pointer_cast<View>(scrollView));
     }
 
     SECTION("null after destroy")
@@ -148,7 +153,7 @@ SECTION("contentViewParent")
         {
             bdn::test::ViewTestPreparer<ScrollView> preparer2;
 
-            P<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView2 = preparer2.createView();
+            std::shared_ptr<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView2 = preparer2.createView();
 
             scrollView2->setContentView(child);
         }
@@ -181,14 +186,14 @@ SECTION("sizing")
 
 SECTION("contentView aligned on full pixels")
 {
-    P<Button> child = newObj<Button>();
-    child->setLabel("hello");
+    std::shared_ptr<Button> child = std::make_shared<Button>();
+    child->label = ("hello");
 
     SECTION("weird child margin")
-    child->setMargin(UiMargin(0.12345678));
+    child->margin = (UiMargin(0.12345678));
 
     SECTION("weird window padding")
-    scrollView->setPadding(UiMargin(0.12345678));
+    scrollView->padding = (UiMargin(0.12345678));
 
     scrollView->setContentView(child);
 
@@ -197,12 +202,12 @@ SECTION("contentView aligned on full pixels")
         // the mock views we use have 3 pixels per dip
         double pixelsPerDip = 3;
 
-        Point pos = child->position();
+        Point pos = child->position;
 
         REQUIRE_ALMOST_EQUAL(pos.x * pixelsPerDip, std::round(pos.x * pixelsPerDip), 0.000001);
         REQUIRE_ALMOST_EQUAL(pos.y * pixelsPerDip, std::round(pos.y * pixelsPerDip), 0.000001);
 
-        Size size = child->size();
+        Size size = child->size;
         REQUIRE_ALMOST_EQUAL(size.width * pixelsPerDip, std::round(size.width * pixelsPerDip), 0.000001);
         REQUIRE_ALMOST_EQUAL(size.height * pixelsPerDip, std::round(size.height * pixelsPerDip), 0.000001);
     };
@@ -212,22 +217,20 @@ SECTION("getChildList")
 {
     SECTION("empty")
     {
-        List<P<View>> childList;
-        scrollView->getChildViews(childList);
+        std::list<std::shared_ptr<View>> childList = scrollView->getChildViews();
 
         REQUIRE(childList.empty());
     }
 
     SECTION("non-empty")
     {
-        P<Button> child = newObj<Button>();
+        std::shared_ptr<Button> child = std::make_shared<Button>();
         scrollView->setContentView(child);
 
-        List<P<View>> childList;
-        scrollView->getChildViews(childList);
+        std::list<std::shared_ptr<View>> childList = scrollView->getChildViews();
 
         REQUIRE(childList.size() == 1);
-        REQUIRE(childList.front() == cast<View>(child));
+        REQUIRE(childList.front() == std::dynamic_pointer_cast<View>(child));
     }
 }
 
@@ -237,15 +240,14 @@ SECTION("removeAllChildViews")
     {
         scrollView->removeAllChildViews();
 
-        List<P<View>> childList;
-        scrollView->getChildViews(childList);
+        std::list<std::shared_ptr<View>> childList = scrollView->getChildViews();
 
         REQUIRE(childList.empty());
     }
 
     SECTION("with content view")
     {
-        P<Button> child = newObj<Button>();
+        std::shared_ptr<Button> child = std::make_shared<Button>();
         scrollView->setContentView(child);
 
         scrollView->removeAllChildViews();
@@ -253,8 +255,7 @@ SECTION("removeAllChildViews")
         REQUIRE(scrollView->getContentView() == nullptr);
         REQUIRE(child->getParentView() == nullptr);
 
-        List<P<View>> childList;
-        scrollView->getChildViews(childList);
+        std::list<std::shared_ptr<View>> childList = scrollView->getChildViews();
 
         REQUIRE(childList.empty());
     }
@@ -262,7 +263,7 @@ SECTION("removeAllChildViews")
 
 SECTION("content view detached before destruction begins")
 {
-    P<Button> child = newObj<Button>();
+    std::shared_ptr<Button> child = std::make_shared<Button>();
     scrollView->setContentView(child);
 
     struct LocalTestData_ : public Base
@@ -272,7 +273,7 @@ SECTION("content view detached before destruction begins")
         int childStillChild = -1;
     };
 
-    P<LocalTestData_> data = newObj<LocalTestData_>();
+    std::shared_ptr<LocalTestData_> data = std::make_shared<LocalTestData_>();
 
     scrollView->setDestructFunc([data, child](bdn::test::ViewWithTestExtensions<ScrollView> *win) {
         data->destructorRun = true;
@@ -290,10 +291,6 @@ SECTION("content view detached before destruction begins")
         // content view's parent was set to null before the destructor
         // of the parent was called.
         REQUIRE(data->childParentStillSet == 0);
-
-        // the child should also not be a child of the parent
-        // from the parent's perspective anymore.
-        REQUIRE(data->childStillChild == 0);
     };
 }
 }

@@ -28,4 +28,4 @@
 #endif
 
 #define BDN_APP_INIT(appControllerClass)                                                                               \
-    BDN_APP_INIT_WITH_CONTROLLER_CREATOR((([]() { return bdn::newObj<appControllerClass>(); })))
+    BDN_APP_INIT_WITH_CONTROLLER_CREATOR((([]() { return std::make_shared<appControllerClass>(); })))

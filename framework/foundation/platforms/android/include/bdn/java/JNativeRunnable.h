@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JNativeRunnable_H_
-#define BDN_JAVA_JNativeRunnable_H_
+#pragma once
 
 #include <bdn/java/JRunnable.h>
 #include <bdn/java/JNativeStrongPointer.h>
@@ -25,24 +24,24 @@ namespace bdn
         class JNativeRunnable : public bdn::java::JRunnable
         {
           private:
-            static Reference newInstance_(ISimpleCallable *callable)
+            static Reference newInstance_(std::shared_ptr<ISimpleCallable> pCallable)
             {
                 static MethodId constructorId;
 
-                JNativeStrongPointer wrappedCallable(callable);
+                JNativeStrongPointer wrappedCallable(std::dynamic_pointer_cast<Base>(pCallable));
 
                 return getStaticClass_().newInstance_(constructorId, wrappedCallable);
             }
 
             static Reference newInstance_(const std::function<void()> &func)
             {
-                return newInstance_(newObj<SimpleFunctionCallable>(func));
+                return newInstance_(std::make_shared<SimpleFunctionCallable>(func));
             }
 
           public:
             explicit JNativeRunnable(const std::function<void()> &func) : JRunnable(newInstance_(func)) {}
 
-            explicit JNativeRunnable(ISimpleCallable *callable) : JRunnable(newInstance_(callable)) {}
+            explicit JNativeRunnable(std::shared_ptr<ISimpleCallable> pCallable) : JRunnable(newInstance_(pCallable)) {}
 
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
@@ -72,5 +71,3 @@ namespace bdn
         };
     }
 }
-
-#endif

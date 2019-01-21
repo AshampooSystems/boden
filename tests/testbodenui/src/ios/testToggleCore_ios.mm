@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/test.h>
 
 #include <bdn/Toggle.h>
@@ -22,14 +22,14 @@ class TestIosToggleCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
 
     void verifyCoreOn() override
     {
-        bool expectedOn = _toggle->on();
+        bool expectedOn = _toggle->on;
         bool on = _switchComposite.uiSwitch.on;
         REQUIRE(on == expectedOn);
     }
 
     void verifyCoreLabel() override
     {
-        String expectedLabel = _toggle->label();
+        String expectedLabel = _toggle->label;
         String label = bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
@@ -40,7 +40,7 @@ class TestIosToggleCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
 
 TEST_CASE("ios.ToggleCore")
 {
-    P<TestIosToggleCore> test = newObj<TestIosToggleCore>();
+    std::shared_ptr<TestIosToggleCore> test = std::make_shared<TestIosToggleCore>();
 
     test->runTests();
 }

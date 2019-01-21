@@ -1,5 +1,4 @@
-#ifndef BDN_JAVA_JRuntimeException_H_
-#define BDN_JAVA_JRuntimeException_H_
+#pragma once
 
 #include <bdn/java/JException.h>
 
@@ -40,5 +39,3 @@ namespace bdn
         };
     }
 }
-
-#endif

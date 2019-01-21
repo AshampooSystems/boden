@@ -1,5 +1,4 @@
-#ifndef BDN_LocaleEncoder_H_
-#define BDN_LocaleEncoder_H_
+#pragma once
 
 #include <locale>
 
@@ -403,5 +402,3 @@ namespace bdn
         std::locale _locale;
     };
 }
-
-#endif

@@ -1,5 +1,6 @@
-#ifndef BDN_JAVA_Env_H_
-#define BDN_JAVA_Env_H_
+#pragma once
+
+#include <bdn/Base.h>
 
 #include <bdn/java/JniEnvNotSetError.h>
 
@@ -28,7 +29,7 @@ namespace bdn
             /** Static function that returns a reference to the Env instance for
              * the current thread. The instance cannot be used in other threads.
              *  */
-            static BDN_SAFE_STATIC_THREAD_LOCAL(Env, get);
+            static Env &get();
 
             /** Indicates that a block of native code was begun.
              *
@@ -84,7 +85,6 @@ namespace bdn
 
           private:
             Env();
-            friend class RawNewAllocator_Base_<Env>;
 
             void createEnv();
             void setEnv(JNIEnv *env, bool mustDetachThread);
@@ -96,5 +96,3 @@ namespace bdn
         };
     }
 }
-
-#endif

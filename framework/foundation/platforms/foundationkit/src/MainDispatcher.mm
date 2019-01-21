@@ -1,19 +1,19 @@
-#include <bdn/init.h>
+
 #import <bdn/foundationkit/MainDispatcher.hh>
 
 #include <bdn/log.h>
 #include <bdn/mainThread.h>
 #include <bdn/entry.h>
+#include <bdn/InvalidArgumentError.h>
+#include <iostream>
 
 #import <Foundation/Foundation.h>
 
 @interface BdnFkDispatchFuncWrapper_ : NSObject {
-    std::function<void()> func;
-    double delaySeconds;
 }
 
 @property std::function<void()> func;
-@property double delaySeconds;
+@property bdn::IDispatcher::Duration delay;
 
 - (void)invoke;
 
@@ -22,13 +22,13 @@
 @implementation BdnFkDispatchFuncWrapper_
 
 @synthesize func;
-@synthesize delaySeconds;
+@synthesize delay;
 
 - (void)invoke
 {
     bdn::platformEntryWrapper(
         [=]() {
-            if (delaySeconds <= 0) {
+            if (delay <= bdn::IDispatcher::Duration::zero()) {
                 try {
                     func();
                 }
@@ -38,10 +38,12 @@
                     // no-op.
                 }
             } else {
-                double delay = delaySeconds;
-                delaySeconds = 0; // set to 0 so that we will not wait again
 
-                [self performSelector:@selector(invoke) withObject:nil afterDelay:delay];
+                double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
+
+                delay = bdn::IDispatcher::Duration::zero();
+
+                [self performSelector:@selector(invoke) withObject:nil afterDelay:delayInSeconds];
             }
         },
         true);
@@ -50,11 +52,11 @@
 @end
 
 @interface BdnFkTimerFuncWrapper_ : NSObject {
-    bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
+    std::shared_ptr<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
     std::list<std::function<bool()>>::iterator timerFuncIt;
 }
 
-@property bdn::P<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
+@property std::shared_ptr<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
 @property std::list<std::function<bool()>>::iterator timerFuncIt;
 
 - (void)targetMethod:(NSTimer *)theTimer;
@@ -104,8 +106,8 @@ namespace bdn
 
         MainDispatcher::MainDispatcher()
         {
-            _idleQueue = newObj<IdleQueue>();
-            _timerFuncList = newObj<TimerFuncList_>();
+            _idleQueue = std::make_shared<IdleQueue>();
+            _timerFuncList = std::make_shared<TimerFuncList_>();
         }
 
         MainDispatcher::~MainDispatcher()
@@ -128,7 +130,7 @@ namespace bdn
 
         void MainDispatcher::dispose()
         {
-            Mutex::Lock lock(_queueMutex);
+            std::unique_lock lock(_queueMutex);
 
             // empty our idle queue.
             _idleQueue->dispose();
@@ -175,9 +177,9 @@ namespace bdn
             }
         }
 
-        void MainDispatcher::_scheduleMainThreadCall(const std::function<void()> &func, double delaySeconds)
+        void MainDispatcher::_scheduleMainThreadCall(const std::function<void()> &func, IDispatcher::Duration delay)
         {
-            // if delaySeconds is >0 then we also simply schedule an immediate
+            // if delay is >0 then we also simply schedule an immediate
             // call, because there is no performSelectorOnMainThread function
             // that takes a delay parameter. So we first schedule the call
             // without a delay and then from the main thread we reschedule with
@@ -186,29 +188,29 @@ namespace bdn
 
             BdnFkDispatchFuncWrapper_ *wrapper = [[BdnFkDispatchFuncWrapper_ alloc] init];
             wrapper.func = func;
-            wrapper.delaySeconds = delaySeconds;
+            wrapper.delay = delay;
 
             [wrapper performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:NO];
         }
 
         void MainDispatcher::enqueue(std::function<void()> func, Priority priority)
         {
-            enqueueInSeconds(0, func, priority);
+            enqueueDelayed(IDispatcher::Duration::zero(), func, priority);
         }
 
-        void MainDispatcher::enqueueInSeconds(double seconds, std::function<void()> func, Priority priority)
+        void MainDispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func, Priority priority)
         {
             if (priority == Priority::normal) {
-                P<MainDispatcher> self = this;
+                std::shared_ptr<MainDispatcher> self(shared_from_this());
 
                 // we do not schedule the func call directly. Instead we add
                 // func to our own queue and schedule a call to our
                 // callNextQueued. That enables us to dipose all queued items
                 // when dipose() is called.
 
-                if (seconds <= 0) {
+                if (delay <= IDispatcher::Duration::zero()) {
                     {
-                        Mutex::Lock lock(_queueMutex);
+                        std::unique_lock lock(_queueMutex);
                         _normalQueue.push_back(func);
                     }
 
@@ -216,13 +218,13 @@ namespace bdn
                 } else {
                     std::list<std::function<void()>>::iterator it;
                     {
-                        Mutex::Lock lock(_queueMutex);
+                        std::unique_lock lock(_queueMutex);
                         _timedNormalQueue.push_back(func);
                         it = _timedNormalQueue.end();
                         --it;
                     }
 
-                    _scheduleMainThreadCall([self, it] { self->callTimedItem(it); }, seconds);
+                    _scheduleMainThreadCall([self, it] { self->callTimedItem(it); }, delay);
                 }
             } else if (priority == Priority::idle) {
                 // we must only access the run loop from the main thread.
@@ -233,7 +235,7 @@ namespace bdn
                 // Both of these can be solved by enqueuing the setup code with
                 // normal priority
 
-                P<MainDispatcher> self = this;
+                std::shared_ptr<MainDispatcher> self(shared_from_this());
 
                 _scheduleMainThreadCall(
                     [self, func] {
@@ -242,9 +244,9 @@ namespace bdn
                         self->ensureIdleObserverInstalled();
                     },
 
-                    seconds);
+                    delay);
             } else
-                throw InvalidArgumentError("MainDispatcher::enqueueInSeconds "
+                throw InvalidArgumentError("MainDispatcher::enqueueIn"
                                            "called with invalid priority: " +
                                            std::to_string((int)priority));
         }
@@ -254,7 +256,7 @@ namespace bdn
             std::function<void()> func;
 
             {
-                Mutex::Lock lock(_queueMutex);
+                std::unique_lock lock(_queueMutex);
 
                 if (_normalQueue.empty())
                     return;
@@ -280,7 +282,7 @@ namespace bdn
             std::function<void()> func;
 
             {
-                Mutex::Lock lock(_queueMutex);
+                std::unique_lock lock(_queueMutex);
                 func = *it;
                 _timedNormalQueue.erase(it);
             }
@@ -294,11 +296,11 @@ namespace bdn
             }
         }
 
-        void MainDispatcher::createTimer(double intervalSeconds, std::function<bool()> func)
+        void MainDispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
         {
             std::list<std::function<bool()>>::iterator it;
             {
-                Mutex::Lock lock(_queueMutex);
+                std::unique_lock lock(_queueMutex);
                 _timerFuncList->funcList.push_back(func);
                 it = _timerFuncList->funcList.end();
                 --it;
@@ -308,7 +310,9 @@ namespace bdn
             wrapper.timerFuncList = _timerFuncList;
             wrapper.timerFuncIt = it;
 
-            [NSTimer scheduledTimerWithTimeInterval:intervalSeconds
+            double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
+
+            [NSTimer scheduledTimerWithTimeInterval:intervalInSeconds
                                              target:wrapper
                                            selector:@selector(targetMethod:)
                                            userInfo:nil
@@ -318,7 +322,7 @@ namespace bdn
         void MainDispatcher::ensureIdleObserverInstalled()
         {
             if (!_idleObserverInstalled) {
-                P<IdleQueue> queue = _idleQueue;
+                std::shared_ptr<IdleQueue> queue = _idleQueue;
 
                 id handler = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
                   if (activity == kCFRunLoopBeforeWaiting)

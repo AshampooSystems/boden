@@ -1,5 +1,4 @@
-#ifndef BDN_TEST_MockTextViewCore_H_
-#define BDN_TEST_MockTextViewCore_H_
+#pragma once
 
 #include <bdn/test/MockViewCore.h>
 
@@ -17,10 +16,10 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockTextViewCore : public MockViewCore, BDN_IMPLEMENTS ITextViewCore
+        class MockTextViewCore : public MockViewCore, virtual public ITextViewCore
         {
           public:
-            MockTextViewCore(TextView *view) : MockViewCore(view) { _text = view->text(); }
+            MockTextViewCore(std::shared_ptr<TextView> view) : MockViewCore(view) { _text = view->text; }
 
             /** Returns the current text content of the text view.*/
             String getText() const { return _text; }
@@ -43,12 +42,12 @@ namespace bdn
                 Size preferredSizeHint(Size::none());
                 Margin padding;
 
-                P<View> view = getOuterViewIfStillAttached();
+                std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr) {
-                    if (!view->padding().isNull())
-                        padding = uiMarginToDipMargin(view->padding());
+                    if (view->padding.get())
+                        padding = uiMarginToDipMargin(*view->padding.get());
 
-                    preferredSizeHint = view->preferredSizeHint();
+                    preferredSizeHint = view->preferredSizeHint;
                 }
 
                 double wrapWidth = preferredSizeHint.width;
@@ -68,8 +67,8 @@ namespace bdn
 
                 if (view != nullptr) {
                     // clip to min and max size
-                    size.applyMinimum(view->preferredSizeMinimum());
-                    size.applyMaximum(view->preferredSizeMaximum());
+                    size.applyMinimum(view->preferredSizeMinimum);
+                    size.applyMaximum(view->preferredSizeMaximum);
                 }
 
                 return size;
@@ -81,5 +80,3 @@ namespace bdn
         };
     }
 }
-
-#endif

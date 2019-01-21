@@ -12,5 +12,5 @@ class AppController : public UiAppControllerBase
     void beginLaunch(const AppLaunchInfo &launchInfo) override;
 
   protected:
-    P<MainViewController> _mainViewController;
+    std::shared_ptr<MainViewController> _mainViewController;
 };

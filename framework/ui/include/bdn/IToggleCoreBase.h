@@ -1,17 +1,14 @@
-#ifndef BDN_IToggleCoreBase_H_
-#define BDN_IToggleCoreBase_H_
+#pragma once
 
 #include <bdn/IViewCore.h>
 
 namespace bdn
 {
 
-    class IToggleCoreBase : BDN_IMPLEMENTS IViewCore
+    class IToggleCoreBase : virtual public IViewCore
     {
       public:
         /** Changes the control's label text.*/
         virtual void setLabel(const String &label) = 0;
     };
 }
-
-#endif /* BDN_IToggleCoreBase_H_ */

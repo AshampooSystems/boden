@@ -1,4 +1,4 @@
-#include <bdn/init.h>
+
 #include <bdn/java/JClass.h>
 
 #include <bdn/java/Env.h>
@@ -10,9 +10,9 @@ namespace bdn
 
         String JClass::nameInSlashNotationToSignature_(const String &nameInSlashNotation)
         {
-            if (nameInSlashNotation.endsWith("[]"))
-                return "[" + nameInSlashNotationToSignature_(
-                                 nameInSlashNotation.subString(0, nameInSlashNotation.length() - 2));
+            if (cpp20::ends_with(nameInSlashNotation, "[]"))
+                return "[" +
+                       nameInSlashNotationToSignature_(nameInSlashNotation.substr(0, nameInSlashNotation.length() - 2));
             else
                 return "L" + nameInSlashNotation + ";";
         }
@@ -25,10 +25,10 @@ namespace bdn
             // For arrays it wants the type signature.
 
             String findArg = nameInSlashNotation;
-            if (findArg.endsWith("[]"))
+            if (cpp20::ends_with(findArg, "[]"))
                 findArg = nameInSlashNotationToSignature_(nameInSlashNotation);
 
-            jclass clazz = env.getJniEnv()->FindClass(findArg.asUtf8Ptr());
+            jclass clazz = env.getJniEnv()->FindClass(findArg.c_str());
             env.throwAndClearExceptionFromLastJavaCall();
 
             return Reference::convertAndDestroyOwnedLocal((jobject)clazz);
