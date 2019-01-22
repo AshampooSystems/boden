@@ -5,6 +5,7 @@
 #include <Availability.h>
 
 #include <bdn/constants.h>
+#include <bdn/Rect.h>
 
 namespace bdn
 {
@@ -100,9 +101,9 @@ namespace bdn
             return macSize;
         }
 
-        inline NSString *stringToMacString(const String &val) { return bdn::fk::stringToNSString(val); }
+        inline NSString *stringToNSString(const String &val) { return bdn::fk::stringToNSString(val); }
 
-        inline String macStringToString(NSString *nsString) { return bdn::fk::nsStringToString(nsString); }
+        inline String nsStringToString(NSString *nsString) { return bdn::fk::nsStringToString(nsString); }
 
 #if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
 

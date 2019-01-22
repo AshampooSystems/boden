@@ -30,7 +30,7 @@ class TestIosToggleCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     void verifyCoreLabel() override
     {
         String expectedLabel = _toggle->label;
-        String label = bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
+        String label = bdn::ios::nsStringToString(_switchComposite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
 

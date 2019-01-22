@@ -23,7 +23,7 @@ class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin<bdn::te
     void verifyCoreText() override
     {
         String expectedText = _textField->text;
-        String text = bdn::mac::macStringToString(_nSTextField.stringValue);
+        String text = bdn::mac::nsStringToString(_nSTextField.stringValue);
         REQUIRE(text == expectedText);
     }
 

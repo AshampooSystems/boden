@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.13)
 
 project(boden VERSION 0.1.1 LANGUAGES CXX)
 
@@ -16,6 +16,9 @@ add_subdirectory(bauer)
 fix_ios_package()
 # Documentation
 add_subdirectory(doxygen)
+
+# 3rdParty support libraries
+add_subdirectory(3rdparty)
 
 # Main Library
 add_subdirectory(framework)

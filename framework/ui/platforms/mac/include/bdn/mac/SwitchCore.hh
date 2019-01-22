@@ -86,7 +86,7 @@ namespace bdn
             void setLabel(const String &label) override
             {
                 BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
-                composite.label.stringValue = stringToMacString(label);
+                composite.label.stringValue = stringToNSString(label);
                 NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
                 [composite.label setFrameSize:cell.cellSize];
             }

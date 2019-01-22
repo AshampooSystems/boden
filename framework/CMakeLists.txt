@@ -49,5 +49,6 @@ install(
 # Boden modules
 
 add_subdirectory(foundation)
+add_subdirectory(net)
 add_subdirectory(ui)
 add_subdirectory(testing)

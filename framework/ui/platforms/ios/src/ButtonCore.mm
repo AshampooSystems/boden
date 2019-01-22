@@ -51,7 +51,7 @@ namespace bdn
 
         void ButtonCore::setLabel(const String &label)
         {
-            [_button setTitle:stringToIosString(label) forState:UIControlStateNormal];
+            [_button setTitle:stringToNSString(label) forState:UIControlStateNormal];
         }
 
         void ButtonCore::_clicked()

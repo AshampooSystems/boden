@@ -15,6 +15,8 @@
 
 #include <bdn/property/Property.h>
 
+#include <iostream>
+
 using namespace bdn;
 
 class MainViewController : public Base

@@ -28,7 +28,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     {
         String expectedTitle = _window->title;
 
-        String title = bdn::ios::iosStringToString(_uIWindow.rootViewController.title);
+        String title = bdn::ios::nsStringToString(_uIWindow.rootViewController.title);
 
         REQUIRE(title == expectedTitle);
     }

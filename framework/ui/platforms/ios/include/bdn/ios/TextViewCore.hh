@@ -31,7 +31,7 @@ namespace bdn
 
             UILabel *getUILabel() { return _uiLabel; }
 
-            void setText(const String &text) override { _uiLabel.text = stringToIosString(text); }
+            void setText(const String &text) override { _uiLabel.text = stringToNSString(text); }
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
             {

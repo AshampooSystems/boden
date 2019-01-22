@@ -25,7 +25,7 @@ class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
     {
         String expectedLabel = _switch->label;
 
-        String label = bdn::mac::macStringToString(_switchComposite.label.stringValue);
+        String label = bdn::mac::nsStringToString(_switchComposite.label.stringValue);
 
         REQUIRE(label == expectedLabel);
     }

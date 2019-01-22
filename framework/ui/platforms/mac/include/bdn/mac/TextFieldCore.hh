@@ -33,8 +33,8 @@ namespace bdn
             void setText(const String &text) override
             {
                 NSTextField *textField = (NSTextField *)getNSView();
-                if (macStringToString(textField.stringValue) != text) {
-                    textField.stringValue = stringToMacString(text);
+                if (nsStringToString(textField.stringValue) != text) {
+                    textField.stringValue = stringToNSString(text);
                 }
             }
 

@@ -40,7 +40,7 @@
         std::dynamic_pointer_cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
     if (outerTextField) {
         NSTextView *textView = [obj.userInfo objectForKey:@"NSFieldEditor"];
-        outerTextField->text = bdn::mac::macStringToString(textView.textStorage.string);
+        outerTextField->text = bdn::mac::nsStringToString(textView.textStorage.string);
     }
 }
 

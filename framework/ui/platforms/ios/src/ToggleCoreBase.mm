@@ -38,7 +38,7 @@ namespace bdn
 
         void ToggleCoreBase::setLabel(const String &label)
         {
-            _composite.uiLabel.text = stringToIosString(label);
+            _composite.uiLabel.text = stringToNSString(label);
             [_composite.uiLabel sizeToFit];
             needLayout(View::InvalidateReason::childSizingInfoInvalidated);
         }

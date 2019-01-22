@@ -37,7 +37,7 @@
 
 - (void)textFieldDidChange:(NSNotification *)notification
 {
-    self.outerTextField.lock()->text = (bdn::ios::iosStringToString(((UITextField *)notification.object).text));
+    self.outerTextField.lock()->text = (bdn::ios::nsStringToString(((UITextField *)notification.object).text));
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -87,8 +87,8 @@ namespace bdn
         void TextFieldCore::setText(const String &text)
         {
             UITextField *textField = (UITextField *)getUIView();
-            if (iosStringToString(textField.text) != text) {
-                textField.text = stringToIosString(text);
+            if (nsStringToString(textField.text) != text) {
+                textField.text = stringToNSString(text);
             }
         }
     }

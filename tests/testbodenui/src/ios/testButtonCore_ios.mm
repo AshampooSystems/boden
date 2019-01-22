@@ -24,7 +24,7 @@ class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     {
         String expectedLabel = _button->label;
 
-        String label = bdn::ios::iosStringToString(_uIButton.currentTitle);
+        String label = bdn::ios::nsStringToString(_uIButton.currentTitle);
 
         REQUIRE(label == expectedLabel);
     }

@@ -24,7 +24,7 @@ class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
     {
         String expectedLabel = _button->label;
 
-        String label = bdn::mac::macStringToString(_nSButton.title);
+        String label = bdn::mac::nsStringToString(_nSButton.title);
 
         REQUIRE(label == expectedLabel);
     }

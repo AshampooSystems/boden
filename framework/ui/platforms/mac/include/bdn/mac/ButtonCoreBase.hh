@@ -21,7 +21,7 @@ namespace bdn
 
             void setLabel(const String &label)
             {
-                NSString *macLabel = stringToMacString(label);
+                NSString *macLabel = stringToNSString(label);
                 [_nsButton setTitle:macLabel];
             }
 

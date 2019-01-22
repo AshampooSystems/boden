@@ -54,7 +54,7 @@ namespace bdn
             return iosRectToRect(_window.frame);
         }
 
-        void WindowCore::setTitle(const String &title) { _window.rootViewController.title = stringToIosString(title); }
+        void WindowCore::setTitle(const String &title) { _window.rootViewController.title = stringToNSString(title); }
 
         void WindowCore::invalidateSizingInfo(View::InvalidateReason reason)
         {

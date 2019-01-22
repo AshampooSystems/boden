@@ -64,7 +64,7 @@ namespace bdn
 
             void setText(const String &text) override
             {
-                NSString *macText = stringToMacString(text);
+                NSString *macText = stringToNSString(text);
                 _nsTextView.string = macText;
 
                 // force immediate re-layout

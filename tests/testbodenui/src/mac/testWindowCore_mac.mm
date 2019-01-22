@@ -94,7 +94,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         String expectedTitle = _window->title;
 
-        String title = bdn::mac::macStringToString(_nSWindow.title);
+        String title = bdn::mac::nsStringToString(_nSWindow.title);
 
         REQUIRE(title == expectedTitle);
     }

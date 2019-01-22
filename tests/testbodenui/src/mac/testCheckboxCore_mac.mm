@@ -26,7 +26,7 @@ class TestMacCheckboxCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
     {
         String expectedLabel = _checkbox->label;
 
-        String label = bdn::mac::macStringToString(_nSButton.title);
+        String label = bdn::mac::nsStringToString(_nSButton.title);
 
         REQUIRE(label == expectedLabel);
     }

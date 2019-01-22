@@ -23,7 +23,7 @@ class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::T
     void verifyCoreText() override
     {
         String expectedText = _textField->text;
-        String text = bdn::ios::iosStringToString(_uITextField.text);
+        String text = bdn::ios::nsStringToString(_uITextField.text);
         REQUIRE(text == expectedText);
     }
 

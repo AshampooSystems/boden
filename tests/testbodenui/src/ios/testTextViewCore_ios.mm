@@ -31,7 +31,7 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     {
         String expectedText = _textView->text;
 
-        String text = bdn::ios::iosStringToString(_uILabel.text);
+        String text = bdn::ios::nsStringToString(_uILabel.text);
 
         REQUIRE(text == expectedText);
     }

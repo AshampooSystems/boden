@@ -1,7 +1,7 @@
 include(CMakeDependentOption)
 
-if(CMAKE_CXX_STANDARD VERSION_LESS 14)
-    message(FATAL_ERROR "Boden requires at least the C++14 standard")
+if(CMAKE_CXX_STANDARD VERSION_LESS 17)
+    message(FATAL_ERROR "Boden requires at least the C++17 standard")
 endif()
 
 CMAKE_DEPENDENT_OPTION(BDN_SHARED_LIB "Compile foundation as a shared library" OFF "NOT BDN_NEEDS_TO_BE_SHARED_LIBRARY;NOT BDN_NEEDS_TO_BE_STATIC_LIBRARY" Off)

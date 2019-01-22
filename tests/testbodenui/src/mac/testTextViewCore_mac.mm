@@ -42,7 +42,7 @@ class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::tes
     {
         String expectedText = _textView->text;
 
-        String text = bdn::mac::macStringToString(_nSTextView.string);
+        String text = bdn::mac::nsStringToString(_nSTextView.string);
 
         REQUIRE(text == expectedText);
     }

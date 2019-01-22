@@ -1,5 +1,10 @@
 #pragma once
 
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+
+#include <bdn/Rect.h>
+
 namespace bdn
 {
     namespace ios
@@ -52,12 +57,12 @@ namespace bdn
             return iosPoint;
         }
 
-        inline NSString *stringToIosString(const String &val)
+        inline NSString *stringToNSString(const String &val)
         {
             return [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
         }
 
-        inline String iosStringToString(NSString *nsString)
+        inline String nsStringToString(NSString *nsString)
         {
             return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
         }

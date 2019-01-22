@@ -34,7 +34,7 @@ namespace bdn
 
             std::shared_ptr<const Window> getOuterWindowIfStillAttached() const { return _outerWindowWeak.lock(); }
 
-            void setTitle(const String &title) override { [_nsWindow setTitle:stringToMacString(title)]; }
+            void setTitle(const String &title) override { [_nsWindow setTitle:stringToNSString(title)]; }
 
             void setVisible(const bool &visible) override
             {

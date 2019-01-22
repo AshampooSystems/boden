@@ -31,7 +31,7 @@ class TestIosCheckboxCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     void verifyCoreLabel() override
     {
         String expectedLabel = _checkbox->label;
-        String label = bdn::ios::iosStringToString(_composite.uiLabel.text);
+        String label = bdn::ios::nsStringToString(_composite.uiLabel.text);
         REQUIRE(label == expectedLabel);
     }
 
