@@ -1,10 +1,9 @@
 #pragma once
 
-using namespace bdn;
-
 #include <bdn/UiAppControllerBase.h>
-
 #include "MainViewController.h"
+
+using namespace bdn;
 
 class AppController : public UiAppControllerBase
 {

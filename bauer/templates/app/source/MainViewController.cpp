@@ -1,19 +1,18 @@
-#include <bdn/init.h>
 #include <bdn/Button.h>
 
 #include "MainViewController.h"
 
 MainViewController::MainViewController()
 {
-    _window = bdn::newObj<bdn::Window>();
-    _window->setTitle("{project_name}");
+    _window = std::make_shared<bdn::Window>();
+    _window->title = "{project_name}";
 
-    bdn::P<bdn::Button> button = bdn::newObj<bdn::Button>();
-    button->setLabel("Hello World");
+    std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
+    button->label = "Hello World";
 
     _window->setContentView(button);
     _window->requestAutoSize();
     _window->requestCenter();
 
-    _window->setVisible(true);
+    _window->visible = true;
 }

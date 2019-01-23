@@ -1,4 +1,3 @@
-#include <bdn/init.h>
 #include <bdn/appInit.h>
 
 #include "AppController.h"
