@@ -164,19 +164,19 @@ class AndroidExecutor:
         targetDependencies = self.calculateDependencies(self.cmake.codeModel)
 
         config = cmakeConfigurations[0]
-        projects = []
-        for project in config["projects"]:
-            self.logger.debug("Found project: %s", project["name"])
-            #projects += [project]
-            targetNames = []
-            targets = []
-            for target in project["targets"]:
-                if target["type"] == "SHARED_LIBRARY" or target["type"] == "EXECUTABLE" or target["type"] == "STATIC_LIBRARY":
-                    self.logger.debug("Found target: %s", target["name"])
-                    targetNames += [target["name"]]
-                    targets += [target]
+        project = config["main-project"]
 
-            projects += [{"name" : project["name"], "sourceDirectory" : project["sourceDirectory"],"targetNames" : targetNames, "targets" : targets}]
+        self.logger.debug("Found project: %s", project["name"])
+        #projects += [project]
+        targetNames = []
+        targets = []
+        for target in project["targets"]:
+            if target["type"] == "SHARED_LIBRARY" or target["type"] == "EXECUTABLE" or target["type"] == "STATIC_LIBRARY":
+                self.logger.debug("Found target: %s", target["name"])
+                targetNames += [target["name"]]
+                targets += [target]
+
+        projects = [{"name" : project["name"], "sourceDirectory" : project["sourceDirectory"],"targetNames" : targetNames, "targets" : targets}]
 
         # Use external CMake for building native code (supported as of AndroidStudio 3.2)
         generator = AndroidStudioProjectGenerator(self.gradle, self.cmake, buildDir, self.androidBuildApiVersion)

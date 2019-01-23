@@ -166,12 +166,10 @@ class CommandProcessor:
 
         if configuration.buildsystem == 'Xcode':
             for cmakeConfig in cmake.codeModel['configurations']:
-                for project in cmakeConfig['projects']:
-                    if project["sourceDirectory"] == self.sourceFolder:
-                        project_file_name = os.path.join(buildDirectory, project['name'] + ".xcodeproj")
-                        self.logger.debug("Starting: %s", project_file_name)
-                        self.bauerGlobals.open_file(project_file_name)
-                        return
+                project_file_name = os.path.join(buildDirectory, cmakeConfig['main-project']['name'] + ".xcodeproj")
+                self.logger.debug("Starting: %s", project_file_name)
+                self.bauerGlobals.open_file(project_file_name)
+                return
 
         elif configuration.buildsystem == 'AndroidStudio':
             self.logger.debug("Looking for 'studio'")

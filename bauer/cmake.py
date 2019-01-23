@@ -60,6 +60,7 @@ class CMake:
         packet = cmakelib.waitForReply(self.proc, 'globalSettings', '', False)
 
         self.globalSettings = packet
+        self.sourceDirectory = sourceDirectory
         self.logger.debug("VERSION: %s" % self.globalSettings["capabilities"]["version"]["string"])
 
     def waitForResult(self, expectedReply, expectedCookie):
@@ -101,6 +102,15 @@ class CMake:
             raise Exception("Something went wrong trying to configure the project. ( Unexpected response from cmake during codemodel request: %s )" % (payload))
 
         self.codeModel = payload
+
+
+        for cmakeConfig in self.codeModel['configurations']:
+            for project in cmakeConfig['projects']:
+                if project["sourceDirectory"] == self.sourceDirectory:
+                    cmakeConfig['main-project'] = project
+                    self.logger.debug("Main project for '%s' : %s" % (cmakeConfig['name'], project['name']))
+
+#        print(json.dumps(self.codeModel))
 
     def executableTarget(self, config, targetName):
         cmakeTargetToRun = None
