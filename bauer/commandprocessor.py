@@ -24,6 +24,7 @@ class CommandProcessor:
         self.generatorInfo = generatorInfo
         self.buildFolder = buildFolder
         self.rootPath = rootPath
+        self.sourceFolder = sourceFolder
         self.buildExecutor = BuildExecutor(generatorInfo, rootPath, sourceFolder, buildFolder)
         self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder)
 
@@ -166,10 +167,11 @@ class CommandProcessor:
         if configuration.buildsystem == 'Xcode':
             for cmakeConfig in cmake.codeModel['configurations']:
                 for project in cmakeConfig['projects']:
-                    project_file_name = os.path.join(buildDirectory, project['name'] + ".xcodeproj")
-                    self.logger.debug("Starting: %s", project_file_name)
-                    self.bauerGlobals.open_file(project_file_name)
-                    return
+                    if project["sourceDirectory"] == self.sourceFolder:
+                        project_file_name = os.path.join(buildDirectory, project['name'] + ".xcodeproj")
+                        self.logger.debug("Starting: %s", project_file_name)
+                        self.bauerGlobals.open_file(project_file_name)
+                        return
 
         elif configuration.buildsystem == 'AndroidStudio':
             self.logger.debug("Looking for 'studio'")
