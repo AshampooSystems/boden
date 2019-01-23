@@ -5,7 +5,7 @@ Rock solid and truly native C++ cross-platform framework for Android and iOS dev
 ![](README/uidemo.png)
 
 * **Native widgets**: Instead of drawing widgets that look nearly identical to the platform's design, Boden uses native OEM widgets ensuring that your app will always have a truly native look and feel.
-* **Fast**: Boden is written in modern C++11 to make development easy and apps fast and battery-friendly.
+* **Fast**: Boden is written in modern C++17 to make development easy and apps fast and battery-friendly.
 * **Open**: Boden is an open framework and welcomes contributions and feedback from the community. We want you to shape its development so Boden can meet your requirements.
 
 > 🚧👷‍♂️ We are happy to release our first preview of the Boden framework. Please be aware that this is an early preview release featuring a small set of widgets and limited layout functionality. We’re happy about your [feedback](#contact--feedback).
