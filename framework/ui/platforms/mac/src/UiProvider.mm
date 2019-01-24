@@ -16,6 +16,7 @@
 #import <bdn/mac/TextViewCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
 #import <bdn/mac/ScrollViewCore.hh>
+#import <bdn/mac/ListViewCore.hh>
 #import <bdn/mac/TextFieldCore.hh>
 
 namespace bdn
@@ -55,6 +56,7 @@ namespace bdn
             registerCoreType<ScrollViewCore, ScrollView>();
             registerCoreType<WindowCore, Window>();
             registerCoreTypeWithInit<TextFieldCore, TextField>();
+            registerCoreType<ListViewCore, ListView>();
         }
 
         String UiProvider::getName() const { return "mac"; }

@@ -1,5 +1,6 @@
 
 #include <bdn/android/ButtonCore.h>
+#include <bdn/android/JNativeViewCoreClickListener.h>
 
 namespace bdn
 {
@@ -30,6 +31,9 @@ namespace bdn
             _jButton->setSingleLine(true);
 
             setLabel(outerButton->label);
+
+            bdn::android::JNativeViewCoreClickListener listener;
+            _jButton->setOnClickListener(listener);
         }
 
         JButton &ButtonCore::getJButton() { return *_jButton; }

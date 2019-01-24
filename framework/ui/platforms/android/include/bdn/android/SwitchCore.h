@@ -5,6 +5,7 @@
 #include <bdn/ISwitchCore.h>
 #include <bdn/Switch.h>
 #include <bdn/Toggle.h>
+#include <bdn/android/JNativeViewCoreClickListener.h>
 
 namespace bdn
 {
@@ -43,6 +44,9 @@ namespace bdn
 
                 setLabel(outer->label);
                 setOn(outer->on);
+
+                bdn::android::JNativeViewCoreClickListener listener;
+                _jSwitch->setOnClickListener(listener);                
             }
 
             JSwitch &getJSwitch() { return *_jSwitch; }

@@ -10,6 +10,7 @@
 #import <bdn/ios/TextViewCore.hh>
 #import <bdn/ios/TextFieldCore.hh>
 #import <bdn/ios/ScrollViewCore.hh>
+#import <bdn/ios/ListViewCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -80,6 +81,9 @@ namespace bdn
 
             else if (coreTypeName == ScrollView::getScrollViewCoreTypeName())
                 return std::make_shared<ScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(view));
+
+            else if (coreTypeName == ListView::getListViewCoreTypeName())
+                return std::make_shared<ListViewCore>(std::dynamic_pointer_cast<ListView>(view));
 
             else if (coreTypeName == Window::getWindowCoreTypeName())
                 return std::make_shared<WindowCore>(std::dynamic_pointer_cast<Window>(view));

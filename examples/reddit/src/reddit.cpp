@@ -1,6 +1,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
+#include <bdn/ListView.h>
 #include <bdn/RowView.h>
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
@@ -26,6 +27,59 @@
 using namespace bdn;
 
 using namespace nlohmann;
+
+class RedditPost
+{
+public:
+    RedditPost() = default;
+    RedditPost(String title_) {
+        title = title_;
+    }
+    Property<String> title;
+};
+
+class RedditStore
+{
+public:
+    void fetchPosts(std::function<void()> doneHandler)
+    {
+        auto response = net::http::request({"https://www.reddit.com/hot.json", [this, doneHandler](auto r) {
+                                                json j = json::parse(r->data);
+
+                                                for (auto child : j["data"]["children"]) {
+                                                    auto post = std::make_shared<RedditPost>();
+                                                    post->title = child["data"]["title"];
+                                                    posts.push_back(post);
+                                                }
+            
+                                                doneHandler();
+                                            }});
+    }
+
+    std::vector<std::shared_ptr<RedditPost>> posts;
+};
+
+class RedditListViewDataSource : public ListViewDataSource
+{
+public:
+    RedditListViewDataSource(std::shared_ptr<RedditStore> store)
+    {
+        _store = store;
+    }
+    
+    size_t numberOfRows() override
+    {
+        return _store->posts.size();
+    }
+    
+    String labelTextForRowIndex(size_t rowIndex) override
+    {
+        return _store->posts.at(rowIndex)->title;
+    }
+
+private:
+    std::shared_ptr<RedditStore> _store;
+};
 
 class MainViewController : public Base
 {
@@ -115,67 +169,45 @@ class MainViewController : public Base
 
         addControlWithHeading("Scrolling multiline text", textScrollView, mainColumn, false);
 
-        auto listColumn = std::make_shared<ColumnView>();
+        
+        
+        auto store = std::make_shared<RedditStore>();
+        store->posts.push_back(std::make_shared<RedditPost>("Test"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test2"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test3"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test4"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test5"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test6"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test7"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test8"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test9"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test10"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test11"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test12"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test13"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test14"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test15"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test16"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test17"));
+        store->posts.push_back(std::make_shared<RedditPost>("Test18"));
+        _dataSource = std::make_shared<RedditListViewDataSource>(store);
 
-        String demoEntries[] = {"List Item 1", "List Item 2"};
+        auto listView = std::make_shared<ListView>();
+        listView->dataSource = _dataSource;
 
-        for (auto entry : demoEntries) {
-            auto newEntry = std::make_shared<TextView>();
-            newEntry->text = entry;
-            listColumn->addChildView(newEntry);
-        }
+        store->fetchPosts([listView]() {
+            listView->reloadData();
+        });
+        
+        listView->horizontalAlignment = View::HorizontalAlignment::expand;
+        listView->verticalAlignment = View::VerticalAlignment::expand;
+        listView->preferredSizeMinimum = Size(100, 200);
+        listView->margin = UiMargin(15, 15, 15, 15);
 
-        listColumn->horizontalAlignment = View::HorizontalAlignment::expand;
-        listColumn->margin = UiMargin(15, 15, 15, 15);
-
-        auto addButton = std::make_shared<Button>();
-        addButton->label = "Add";
-        addButton->horizontalAlignment = View::HorizontalAlignment::expand;
-
-        addButton->onClick() += [listColumn, textFieldCtrl](auto) {
-            auto newEntry = std::make_shared<TextView>();
-            newEntry->text = textFieldCtrl->text.get().empty() ? "New Item" : textFieldCtrl->text.get();
-            listColumn->addChildView(newEntry);
-        };
-
-        auto removeButton = std::make_shared<Button>();
-        removeButton->label = "Remove";
-        removeButton->horizontalAlignment = View::HorizontalAlignment::expand;
-        removeButton->onClick() += [listColumn](auto) {
-            std::list<std::shared_ptr<bdn::View>> children = listColumn->getChildViews();
-            if (children.size() > 0) {
-                listColumn->removeChildView(children.back());
-            }
-        };
-
-        auto clearButton = std::make_shared<Button>();
-        clearButton->label = "Clear";
-        clearButton->horizontalAlignment = View::HorizontalAlignment::expand;
-        clearButton->onClick() += [listColumn](auto) { listColumn->removeAllChildViews(); };
-
-        auto buttonRow = std::make_shared<RowView>();
-        buttonRow->preferredSizeMinimum = Size(200, 0);
-        buttonRow->addChildView(addButton);
-        buttonRow->addChildView(removeButton);
-        buttonRow->addChildView(clearButton);
-
-        addControlWithHeading("List", buttonRow, mainColumn, true);
-        mainColumn->addChildView(listColumn);
+        mainColumn->addChildView(listView);
 
         auto mainScrollView = std::make_shared<ScrollView>();
         mainScrollView->setContentView(mainColumn);
-
-        auto response = net::http::request({"https://www.reddit.com/hot.json", [listColumn](auto r) {
-                                                listColumn->removeAllChildViews();
-                                                json j = json::parse(r->data);
-
-                                                for (auto child : j["data"]["children"]) {
-                                                    auto newEntry = std::make_shared<TextView>();
-                                                    newEntry->text = child["data"]["title"];
-                                                    newEntry->margin = UiMargin(10, 0, 10, 0);
-                                                    listColumn->addChildView(newEntry);
-                                                }
-                                            }});
 
         _window->setContentView(mainScrollView);
 
@@ -215,6 +247,7 @@ class MainViewController : public Base
 
   protected:
     std::shared_ptr<Window> _window;
+    std::shared_ptr<RedditListViewDataSource> _dataSource;
 };
 
 class AppController : public UiAppControllerBase

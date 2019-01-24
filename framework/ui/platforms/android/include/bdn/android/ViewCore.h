@@ -15,7 +15,6 @@ namespace bdn
 
 #include <bdn/java/NativeWeakPointer.h>
 
-#include <bdn/android/JNativeViewCoreClickListener.h>
 #include <bdn/android/JView.h>
 #include <bdn/android/JNativeViewGroup.h>
 #include <bdn/android/UiProvider.h>
@@ -46,11 +45,6 @@ namespace bdn
                                               _jView->getPaddingBottom(), _jView->getPaddingLeft());
 
                 setPadding(outerView->padding);
-
-                // initialize the onClick listener. It will call the view core's
-                // virtual clicked() method.
-                bdn::android::JNativeViewCoreClickListener listener;
-                _jView->setOnClickListener(listener);
             }
 
             ~ViewCore()

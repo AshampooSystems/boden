@@ -8,6 +8,7 @@
 #include <bdn/android/TextViewCore.h>
 #include <bdn/android/TextFieldCore.h>
 #include <bdn/android/WindowCore.h>
+#include <bdn/android/ListViewCore.h>
 #include <bdn/android/ScrollViewCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -62,6 +63,7 @@ namespace bdn
             registerAndroidCoreType<ScrollViewCore, ScrollView>();
             registerAndroidCoreType<WindowCore, Window>();
             registerAndroidCoreType<TextFieldCore, TextField>();
+            registerAndroidCoreType<ListViewCore, ListView>();
         }
 
         String UiProvider::getName() const { return "android"; }

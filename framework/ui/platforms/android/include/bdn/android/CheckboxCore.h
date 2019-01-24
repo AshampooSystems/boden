@@ -5,6 +5,7 @@
 #include <bdn/ICheckboxCore.h>
 #include <bdn/Checkbox.h>
 #include <bdn/Toggle.h>
+#include <bdn/android/JNativeViewCoreClickListener.h>
 
 namespace bdn
 {
@@ -40,6 +41,9 @@ namespace bdn
 
                 setLabel(outer->label);
                 setState(outer->state);
+
+                bdn::android::JNativeViewCoreClickListener listener;
+                _jCheckBox->setOnClickListener(listener);                
             }
 
             JCheckBox &getJCheckBox() { return *_jCheckBox; }
