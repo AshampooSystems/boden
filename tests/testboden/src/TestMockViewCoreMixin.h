@@ -27,7 +27,7 @@ namespace bdn
                 REQUIRE(_mockCore != nullptr);
             }
 
-            std::shared_ptr<IUiProvider> getUiProvider() override { return _mockProvider; }
+            std::shared_ptr<UiProvider> getUiProvider() override { return _mockProvider; }
 
             void verifyCoreVisibility() override
             {

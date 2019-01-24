@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -58,10 +58,10 @@ namespace bdn
 
             \endcore
             */
-        class MockUiProvider : public Base, virtual public IUiProvider
+        class MockUiProvider : public Base, virtual public bdn::UiProvider
         {
           public:
-            MockUiProvider() { _layoutCoordinator = std::make_shared<LayoutCoordinator>(); }
+            MockUiProvider();
 
             String getName() const override { return "mock"; }
 
@@ -72,7 +72,19 @@ namespace bdn
                created by this provider share.*/
             std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
-            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
+            template <class CoreType, class ViewType>
+            std::shared_ptr<IViewCore> makeMockCore(std::shared_ptr<View> view)
+            {
+                _coresCreated++;
+                return std::make_shared<CoreType>(std::dynamic_pointer_cast<ViewType>(view));
+            }
+
+            template <class CoreType, class ViewType> void registerMockCoreType()
+            {
+                registerConstruction(
+                    ViewType::coreTypeName,
+                    std::bind(&MockUiProvider::makeMockCore<CoreType, ViewType>, this, std::placeholders::_1));
+            }
 
           protected:
             int _coresCreated = 0;

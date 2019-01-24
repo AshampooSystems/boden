@@ -99,9 +99,9 @@ namespace bdn
 
         /** Static function that returns the type name for #ScrollView
          * objects.*/
-        static String getScrollViewCoreTypeName() { return "bdn.ScrollView"; }
+        static constexpr char coreTypeName[] = "bdn.ScrollView";
 
-        String getCoreTypeName() const override { return getScrollViewCoreTypeName(); }
+        String getCoreTypeName() const override { return coreTypeName; }
 
         std::list<std::shared_ptr<View>> getChildViews() const override;
 

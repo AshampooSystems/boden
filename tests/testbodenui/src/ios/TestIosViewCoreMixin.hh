@@ -28,7 +28,7 @@ namespace bdn
                 REQUIRE(_uIView != nullptr);
             }
 
-            std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
+            std::shared_ptr<UiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/AppControllerBase.h>
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>
 
 namespace bdn
 {
@@ -11,7 +11,7 @@ namespace bdn
       public:
         using AppControllerBase::AppControllerBase;
 
-        virtual std::shared_ptr<IUiProvider> getUiProvider() { return getDefaultUiProvider(); }
+        virtual std::shared_ptr<UiProvider> getUiProvider() { return getDefaultUiProvider(); }
 
         static std::shared_ptr<UiAppControllerBase> get()
         {

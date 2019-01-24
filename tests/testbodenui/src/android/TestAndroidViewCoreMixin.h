@@ -27,7 +27,7 @@ namespace bdn
                 REQUIRE(!_jView.isNull_());
             }
 
-            std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::android::UiProvider::get(); }
+            std::shared_ptr<UiProvider> getUiProvider() override { return bdn::android::UiProvider::get(); }
 
             void verifyCoreVisibility() override
             {

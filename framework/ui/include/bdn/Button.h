@@ -25,10 +25,10 @@ namespace bdn
 
         ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
-        /** Static function that returns the type name for #Button objects.*/
-        static String getButtonCoreTypeName() { return "bdn.ButtonCore"; }
+        String getCoreTypeName() const override { return coreTypeName; }
 
-        String getCoreTypeName() const override { return getButtonCoreTypeName(); }
+      public:
+        static constexpr char coreTypeName[] = "bdn.ButtonCore";
 
       private:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

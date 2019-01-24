@@ -21,9 +21,10 @@ namespace bdn
 
         /** Static function that returns the type name for #ContainerView core
          * objects.*/
-        static String getContainerViewCoreTypeName() { return "bdn.ContainerViewCore"; }
 
-        String getCoreTypeName() const override { return getContainerViewCoreTypeName(); }
+        static constexpr char coreTypeName[] = "bdn.ContainerViewCore";
+
+        String getCoreTypeName() const override { return coreTypeName; }
 
         /** Adds a child to the end of the container.
 

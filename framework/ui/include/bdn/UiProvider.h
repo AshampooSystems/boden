@@ -2,11 +2,13 @@
 
 namespace bdn
 {
-    class IUiProvider;
+    class UiProvider;
 }
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/Factory.h>
+#include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
 {
@@ -28,14 +30,14 @@ namespace bdn
        the testing of a user interface and make it easier to automate such
        tests.
     */
-    class IUiProvider
+    class UiProvider : public bdn::Factory<std::shared_ptr<IViewCore>, std::shared_ptr<View>>
     {
       public:
         /** Returns the name of the UI provider. This is intended for logging
          * and diagnostics.*/
         virtual String getName() const = 0;
 
-        /** Create thes core for the specified UI object.
+        /** Create the core for the specified UI object.
 
             If the view type is not supported then a
            bdn::ViewCoreTypeNotSupportedError is thrown.
@@ -79,20 +81,47 @@ namespace bdn
            necessary. So you should not store the view pointer in a smart
            pointer (like std::shared_ptr<View>). Use weak pointers (like WeakP<View>) instead.
                 */
-        virtual std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) = 0;
+        std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
+        {
+            auto viewCore = create(coreTypeName, view);
+
+            if (!viewCore) {
+                throw ViewCoreTypeNotSupportedError(coreTypeName);
+            }
+
+            return *viewCore;
+        }
+
+      protected:
+        template <class CoreType, class ViewType> static std::shared_ptr<IViewCore> makeCore(std::shared_ptr<View> view)
+        {
+            return std::make_shared<CoreType>(std::dynamic_pointer_cast<ViewType>(view));
+        }
+
+        template <class CoreType, class ViewType>
+        static std::shared_ptr<IViewCore> makeCoreAndInit(std::shared_ptr<View> view)
+        {
+            auto realView = std::dynamic_pointer_cast<ViewType>(view);
+            auto p = std::make_shared<CoreType>(realView);
+            p->init(realView);
+            return p;
+        }
+
+        template <class CoreType, class ViewType> void registerCoreType()
+        {
+            registerConstruction(ViewType::coreTypeName, &makeCore<CoreType, ViewType>);
+        }
+
+        template <class CoreType, class ViewType> void registerCoreTypeWithInit()
+        {
+            registerConstruction(ViewType::coreTypeName, &makeCoreAndInit<CoreType, ViewType>);
+        }
     };
 
-    /** Returns the default UI provider for the current platform. Note that this
-       is not necessarily the active UI provider that is used by the app. To get
-       that use AppControllerBase::getUiProvider().
-
-        For commandline applications (those running exclusively in a Terminal /
-       Command window) the default UI provider uses the stdio streams
-       (std::cout, etc.) to provide the user interface. In these cases the some
-       or all bdn::View types might not be supported by the provider, but text
-       UI is always supported (see IUiProvider::getTextUi()).
-
-        This function is thread-safe.
-    */
-    std::shared_ptr<IUiProvider> getDefaultUiProvider();
+    /*!
+     * \brief Returns the default UI provider for the current platform.
+     * Note that this is not necessarily the active UI
+     * provider that is used by the app. To get that use AppControllerBase::getUiProvider().
+     */
+    std::shared_ptr<UiProvider> getDefaultUiProvider();
 }

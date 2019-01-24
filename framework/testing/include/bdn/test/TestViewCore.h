@@ -4,7 +4,7 @@
 #include <bdn/Window.h>
 #include <bdn/test.h>
 #include <bdn/test/testCalcPreferredSize.h>
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>
 #include <bdn/Button.h>
 #include <bdn/ColumnView.h>
 
@@ -525,7 +525,7 @@ namespace bdn
             virtual void verifyCoreSize() = 0;
 
             /** Returns the UiProvider to use.*/
-            virtual std::shared_ptr<IUiProvider> getUiProvider() = 0;
+            virtual std::shared_ptr<UiProvider> getUiProvider() = 0;
 
             /** Creates the view object to use for the tests.*/
             virtual std::shared_ptr<View> createView() = 0;
@@ -545,7 +545,7 @@ namespace bdn
             class WindowForTest : public Window
             {
               public:
-                WindowForTest(std::shared_ptr<IUiProvider> uiProvider = nullptr) : Window(uiProvider) {}
+                WindowForTest(std::shared_ptr<UiProvider> uiProvider = nullptr) : Window(uiProvider) {}
 
                 void invalidateSizingInfo(InvalidateReason reason) override
                 {

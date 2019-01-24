@@ -39,14 +39,9 @@ namespace bdn
          */
         ISyncNotifier<const ClickEvent &> &onClick();
 
-        static String getToggleCoreTypeName()
-        {
-            // UIProvider decides whether this will be a CheckboxCore<Toggle>
-            // or a SwitchCore<Toggle>
-            return "bdn.ToggleCore";
-        }
+        static constexpr char coreTypeName[] = "bdn.ToggleCore";
 
-        String getCoreTypeName() const override { return getToggleCoreTypeName(); }
+        String getCoreTypeName() const override { return coreTypeName; }
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

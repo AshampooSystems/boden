@@ -56,9 +56,9 @@ namespace bdn
 
         /** Static function that returns the type name for text view core
          * objects.*/
-        static String getTextViewCoreTypeName() { return "bdn.TextViewCore"; }
+        static constexpr char coreTypeName[] = "bdn.TextViewCore";
 
-        String getCoreTypeName() const override { return getTextViewCoreTypeName(); }
+        String getCoreTypeName() const override { return coreTypeName; }
 
       protected:
     };

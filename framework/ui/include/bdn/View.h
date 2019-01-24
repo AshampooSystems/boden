@@ -3,8 +3,8 @@
 namespace bdn
 {
     class View;
-    class IViewCore;   // included below
-    class IUiProvider; // included below
+    class IViewCore;  // included below
+    class UiProvider; // included below
 }
 
 #include <bdn/UiMargin.h>
@@ -205,8 +205,8 @@ namespace bdn
           for short periods of time when a reinitialization was necessary.
 
            The core provides the actual implementation of the view. It is
-          provided by the IUiProvider object that the view uses. The
-          IUiProvider is inherited from the parent view and can be explicitly
+          provided by the UiProvider object that the view uses. The
+          UiProvider is inherited from the parent view and can be explicitly
           set when creating a top level window.
            */
         std::shared_ptr<IViewCore> getViewCore() const { return _core; }
@@ -278,7 +278,7 @@ namespace bdn
            been added to a new parent until its UI provider becomes available in
            the child view.
             */
-        std::shared_ptr<IUiProvider> getUiProvider() { return _uiProvider; }
+        std::shared_ptr<UiProvider> getUiProvider() { return _uiProvider; }
 
         /** Returns the type name of the view core. This is a somewhat arbitrary
            name that is used in the internal implementation. It is NOT
@@ -591,7 +591,7 @@ namespace bdn
             or null if the view does not have a parent or the parent does not
             have a ui provider.
             */
-        virtual std::shared_ptr<IUiProvider> determineUiProvider(std::shared_ptr<View> parentView = nullptr)
+        virtual std::shared_ptr<UiProvider> determineUiProvider(std::shared_ptr<View> parentView = nullptr)
         {
             if (parentView == nullptr)
                 parentView = getParentView();
@@ -613,7 +613,7 @@ namespace bdn
         virtual void _initCore();
 
       protected:
-        std::shared_ptr<IUiProvider> _uiProvider;
+        std::shared_ptr<UiProvider> _uiProvider;
         std::weak_ptr<View> _parentViewWeak;
         std::shared_ptr<IViewCore> _core;
 
@@ -622,4 +622,4 @@ namespace bdn
     };
 }
 
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>

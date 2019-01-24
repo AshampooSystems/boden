@@ -21,7 +21,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<IUiProvider> getDefaultUiProvider()
+    std::shared_ptr<UiProvider> getDefaultUiProvider()
     {
         /*if (getAppRunner()->isCommandLineApp()) {
             static std::shared_ptr<StdioUiProvider<char>> provider(
@@ -45,6 +45,16 @@ namespace bdn
             _semDips = NSFont.systemFontSize;
 
             _layoutCoordinator = std::make_shared<LayoutCoordinator>();
+
+            registerCoreType<ButtonCore, Button>();
+            registerCoreType<ContainerViewCore, ContainerView>();
+            registerCoreType<CheckboxCore<Checkbox>, Checkbox>();
+            registerCoreType<SwitchCore<Switch>, Switch>();
+            registerCoreType<CheckboxCore<Toggle>, Toggle>();
+            registerCoreType<TextViewCore, TextView>();
+            registerCoreType<ScrollViewCore, ScrollView>();
+            registerCoreType<WindowCore, Window>();
+            registerCoreTypeWithInit<TextFieldCore, TextField>();
         }
 
         String UiProvider::getName() const { return "mac"; }
@@ -53,33 +63,6 @@ namespace bdn
         {
             static std::shared_ptr<UiProvider> globalUiProvider = std::make_shared<UiProvider>();
             return globalUiProvider;
-        }
-
-        std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
-        {
-            if (coreTypeName == ContainerView::getContainerViewCoreTypeName()) {
-                return std::make_shared<ContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(view));
-
-            } else if (coreTypeName == Button::getButtonCoreTypeName()) {
-                return std::make_shared<ButtonCore>(std::dynamic_pointer_cast<Button>(view));
-            } else if (coreTypeName == Checkbox::getCheckboxCoreTypeName()) {
-                return std::make_shared<CheckboxCore<Checkbox>>(std::dynamic_pointer_cast<Checkbox>(view));
-            } else if (coreTypeName == Switch::getSwitchCoreTypeName()) {
-                return std::make_shared<SwitchCore<Switch>>(std::dynamic_pointer_cast<Switch>(view));
-            } else if (coreTypeName == Toggle::getToggleCoreTypeName()) {
-                return std::make_shared<CheckboxCore<Toggle>>(std::dynamic_pointer_cast<Toggle>(view));
-            } else if (coreTypeName == TextView::getTextViewCoreTypeName()) {
-                return std::make_shared<TextViewCore>(std::dynamic_pointer_cast<TextView>(view));
-            } else if (coreTypeName == TextField::getTextFieldCoreTypeName()) {
-                auto core = std::make_shared<TextFieldCore>(std::dynamic_pointer_cast<TextField>(view));
-                core->init(std::dynamic_pointer_cast<TextField>(view));
-                return core;
-            } else if (coreTypeName == ScrollView::getScrollViewCoreTypeName()) {
-                return std::make_shared<ScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(view));
-            } else if (coreTypeName == Window::getWindowCoreTypeName()) {
-                return std::make_shared<WindowCore>(std::dynamic_pointer_cast<Window>(view));
-            } else
-                throw ViewCoreTypeNotSupportedError(coreTypeName);
         }
     }
 }

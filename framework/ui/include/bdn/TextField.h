@@ -20,9 +20,9 @@ namespace bdn
 
         /** Static function that returns the type name for #TextField objects.
          */
-        static String getTextFieldCoreTypeName() { return "bdn.TextFieldCore"; }
+        static constexpr char coreTypeName[] = "bdn.TextFieldCore";
 
-        String getCoreTypeName() const override { return getTextFieldCoreTypeName(); }
+        String getCoreTypeName() const override { return coreTypeName; }
 
         /** Informs observers of the onSubmit() notifier about a submit event.
          */

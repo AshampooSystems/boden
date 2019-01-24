@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 namespace bdn
@@ -8,7 +8,7 @@ namespace bdn
     namespace ios
     {
 
-        class UiProvider : public Base, virtual public IUiProvider
+        class UiProvider : public Base, virtual public bdn::UiProvider
         {
           public:
             UiProvider();
@@ -16,8 +16,6 @@ namespace bdn
             void operator=(UiProvider const &) = delete;
 
             String getName() const override;
-
-            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
 
             static std::shared_ptr<UiProvider> get();
 

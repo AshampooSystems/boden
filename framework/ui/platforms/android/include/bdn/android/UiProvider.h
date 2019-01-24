@@ -9,7 +9,7 @@ namespace bdn
     }
 }
 
-#include <bdn/IUiProvider.h>
+#include <bdn/UiProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/android/ViewCore.h>
@@ -22,18 +22,12 @@ namespace bdn
     namespace android
     {
 
-        class UiProvider : public Base, virtual public IUiProvider
+        class UiProvider : public Base, virtual public bdn::UiProvider
         {
           public:
-            UiProvider()
-            {
-                _semDips = -1;
-                _layoutCoordinator = std::make_shared<LayoutCoordinator>();
-            }
+            UiProvider();
 
             String getName() const override;
-
-            std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view) override;
 
             double getSemSizeDips(ViewCore &viewCore);
 
@@ -42,6 +36,22 @@ namespace bdn
             std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
             static std::shared_ptr<UiProvider> get();
+
+          private:
+            template <class CoreType, class ViewType>
+            static std::shared_ptr<IViewCore> makeAndroidCore(std::shared_ptr<View> view)
+            {
+                auto realView = std::dynamic_pointer_cast<ViewType>(view);
+                auto p = std::make_shared<CoreType>(realView);
+
+                p->getJViewPtr()->setTag(bdn::java::NativeWeakPointer(p));
+                return p;
+            }
+
+            template <class CoreType, class ViewType> void registerAndroidCoreType()
+            {
+                registerConstruction(ViewType::coreTypeName, &makeAndroidCore<CoreType, ViewType>);
+            }
 
           private:
             double _semDips;

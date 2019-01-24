@@ -19,7 +19,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<IUiProvider> getDefaultUiProvider() { return bdn::ios::UiProvider::get(); }
+    std::shared_ptr<UiProvider> getDefaultUiProvider() { return bdn::ios::UiProvider::get(); }
 }
 
 namespace bdn
@@ -41,11 +41,21 @@ namespace bdn
             _semDips = UIFont.systemFontSize;
 
             _layoutCoordinator = std::make_shared<LayoutCoordinator>();
+
+            registerCoreType<ButtonCore, Button>();
+            registerCoreType<ContainerViewCore, ContainerView>();
+            registerCoreType<CheckboxCore, Checkbox>();
+            registerCoreType<SwitchCore<Switch>, Switch>();
+            registerCoreType<SwitchCore<Toggle>, Toggle>();
+            registerCoreType<TextViewCore, TextView>();
+            registerCoreType<ScrollViewCore, ScrollView>();
+            registerCoreType<WindowCore, Window>();
+            registerCoreType<TextFieldCore, TextField>();
         }
 
         String UiProvider::getName() const { return "ios"; }
 
-        std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
+        /*std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
         {
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
                 return std::make_shared<ContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(view));
@@ -76,6 +86,6 @@ namespace bdn
 
             else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
-        }
+        }*/
     }
 }

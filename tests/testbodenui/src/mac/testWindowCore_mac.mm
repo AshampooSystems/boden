@@ -41,7 +41,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         REQUIRE(_nSWindow != nullptr);
     }
 
-    std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
+    std::shared_ptr<UiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
 
     void verifyCoreVisibility() override
     {

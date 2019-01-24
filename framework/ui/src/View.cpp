@@ -315,7 +315,7 @@ namespace bdn
         // Note that we can only keep the current core if the old and new
         // parent's use the same UI provider.
 
-        std::shared_ptr<IUiProvider> newUiProvider = determineUiProvider(parentView);
+        std::shared_ptr<UiProvider> newUiProvider = determineUiProvider(parentView);
 
         return _uiProvider == newUiProvider && _uiProvider != nullptr && parentView != nullptr && _core != nullptr &&
                _core->canMoveToParentView(parentView);

@@ -17,7 +17,22 @@ namespace bdn
     namespace test
     {
 
-        std::shared_ptr<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName,
+        MockUiProvider::MockUiProvider()
+        {
+            _layoutCoordinator = std::make_shared<LayoutCoordinator>();
+
+            registerMockCoreType<MockButtonCore, Button>();
+            registerMockCoreType<MockContainerViewCore, ContainerView>();
+            registerMockCoreType<MockCheckboxCore, Checkbox>();
+            registerMockCoreType<MockSwitchCore, Switch>();
+            registerMockCoreType<MockToggleCore, Toggle>();
+            registerMockCoreType<MockTextViewCore, TextView>();
+            registerMockCoreType<MockScrollViewCore, ScrollView>();
+            registerMockCoreType<MockWindowCore, Window>();
+            registerMockCoreType<MockTextFieldCore, TextField>();
+        }
+
+        /*std::shared_ptr<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName,
                                                                   std::shared_ptr<View> view)
         {
             BDN_REQUIRE_IN_MAIN_THREAD();
@@ -60,6 +75,6 @@ namespace bdn
                 return std::make_shared<MockScrollViewCore>(std::dynamic_pointer_cast<ScrollView>(view));
             } else
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
-        }
+        }*/
     }
 }

@@ -22,7 +22,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         REQUIRE(_uIWindow != nullptr);
     }
 
-    std::shared_ptr<IUiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
+    std::shared_ptr<UiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
 
     void verifyCoreTitle() override
     {

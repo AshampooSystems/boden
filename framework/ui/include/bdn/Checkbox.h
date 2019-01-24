@@ -53,10 +53,10 @@ namespace bdn
         ISyncNotifier<const ClickEvent &> &onClick();
 
         /** Returns the name of Checkbox core objects */
-        static String getCheckboxCoreTypeName() { return "bdn.CheckboxCore"; }
+        static constexpr char coreTypeName[] = "bdn.CheckboxCore";
 
         /** Returns the core type name */
-        String getCoreTypeName() const override { return getCheckboxCoreTypeName(); }
+        String getCoreTypeName() const override { return coreTypeName; }
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

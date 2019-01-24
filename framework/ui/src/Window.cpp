@@ -8,7 +8,7 @@
 namespace bdn
 {
 
-    Window::Window(std::shared_ptr<IUiProvider> uiProvider)
+    Window::Window(std::shared_ptr<UiProvider> uiProvider)
     {
         title.onChange() += CorePropertyUpdater<String, IWindowCore>(this, &IWindowCore::setTitle);
 
@@ -137,9 +137,9 @@ namespace bdn
             _contentView = nullptr;
     }
 
-    std::shared_ptr<IUiProvider> Window::determineUiProvider(std::shared_ptr<View> parentView)
+    std::shared_ptr<UiProvider> Window::determineUiProvider(std::shared_ptr<View> parentView)
     {
         // our Ui provider never changes. Just return the current one.
-        return std::dynamic_pointer_cast<IUiProvider>(_uiProvider);
+        return std::dynamic_pointer_cast<UiProvider>(_uiProvider);
     }
 }
