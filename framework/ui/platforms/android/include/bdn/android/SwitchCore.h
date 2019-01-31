@@ -46,7 +46,7 @@ namespace bdn
                 setOn(outer->on);
 
                 bdn::android::JNativeViewCoreClickListener listener;
-                _jSwitch->setOnClickListener(listener);                
+                _jSwitch->setOnClickListener(listener);
             }
 
             JSwitch &getJSwitch() { return *_jSwitch; }

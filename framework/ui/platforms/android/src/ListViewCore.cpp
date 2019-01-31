@@ -3,8 +3,8 @@
 
 namespace bdn
 {
-	namespace android
-	{
+    namespace android
+    {
         std::shared_ptr<JListView> ListViewCore::createJListView(std::shared_ptr<ListView> outer)
         {
             std::shared_ptr<View> parent = outer->getParentView();
@@ -22,21 +22,16 @@ namespace bdn
             return std::make_shared<JListView>(context);
         }
 
-		ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createJListView(outer))
-		{
-	        _jListView = std::dynamic_pointer_cast<JListView>(getJViewPtr());
+        ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createJListView(outer))
+        {
+            _jListView = std::dynamic_pointer_cast<JListView>(getJViewPtr());
 
-	        _jNativeListAdapter = std::make_shared<bdn::android::JNativeListAdapter>(*_jListView);
-	        _jListView->setAdapter(*_jNativeListAdapter);
-		}
+            _jNativeListAdapter = std::make_shared<bdn::android::JNativeListAdapter>(*_jListView);
+            _jListView->setAdapter(*_jNativeListAdapter);
+        }
 
-		void ListViewCore::setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource)
-		{
-		}
+        void ListViewCore::setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) {}
 
-		void ListViewCore::reloadData()
-		{
-			_jNativeListAdapter->notifyDataSetChanged();
-		}
-	}
+        void ListViewCore::reloadData() { _jNativeListAdapter->notifyDataSetChanged(); }
+    }
 }

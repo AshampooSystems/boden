@@ -8,20 +8,20 @@
 
 namespace bdn
 {
-	namespace ios
-	{
-		class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
-		{
-		public:
-			ListViewCore(std::shared_ptr<ListView> outerListView);
+    namespace ios
+    {
+        class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
+        {
+          public:
+            ListViewCore(std::shared_ptr<ListView> outerListView);
 
-			virtual void setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) override;
+            virtual void setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) override;
             virtual void reloadData() override;
 
-		private:
-			static UITableView *createUITableView(std::shared_ptr<ListView> outerListView);
-            
+          private:
+            static UITableView *createUITableView(std::shared_ptr<ListView> outerListView);
+
             ListViewDataSourceIOS *_nativeDataSource;
-		};
-	}
+        };
+    }
 }

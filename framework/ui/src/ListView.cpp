@@ -3,30 +3,24 @@
 
 namespace bdn
 {
-	ListView::ListView()
-	{
+    ListView::ListView()
+    {
         dataSource.onChange() += View::CorePropertyUpdater<std::shared_ptr<ListViewDataSource>, ListViewCore>{
             this, &ListViewCore::setDataSource};
-	}
+    }
 
-	void ListView::reloadData()
-	{
-		std::shared_ptr<ListViewCore> core = std::dynamic_pointer_cast<ListViewCore>(getViewCore());
-		
-		if (core == nullptr) {
-			return;
-		}
+    void ListView::reloadData()
+    {
+        std::shared_ptr<ListViewCore> core = std::dynamic_pointer_cast<ListViewCore>(getViewCore());
 
-		core->reloadData();
-	}
+        if (core == nullptr) {
+            return;
+        }
 
-	String ListView::getListViewCoreTypeName()
-	{
-		return "bdn.ListViewCore";
-	}
+        core->reloadData();
+    }
 
-	String ListView::getCoreTypeName() const
-	{
-		return ListView::getListViewCoreTypeName();
-	}
+    String ListView::getListViewCoreTypeName() { return "bdn.ListViewCore"; }
+
+    String ListView::getCoreTypeName() const { return ListView::getListViewCoreTypeName(); }
 }

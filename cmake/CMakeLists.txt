@@ -6,6 +6,7 @@ set(_CMAKE_UTILITIES
     utilities/warnings.cmake
     utilities/xcode.cmake
     utilities/ios.cmake
+    utilities/android.cmake
     utilities/utilities.cmake
     utilities/install.cmake
     utilities/clangformat.cmake)

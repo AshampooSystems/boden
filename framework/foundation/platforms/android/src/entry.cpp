@@ -22,7 +22,7 @@ namespace bdn
         }
     }
 
-    template<typename RETURN_TYPE>
+    template <typename RETURN_TYPE>
     RETURN_TYPE nonVoidPlatformEntryWrapper(std::function<RETURN_TYPE()> function, bool, void *platformSpecific)
     {
         auto env = static_cast<JNIEnv *>(platformSpecific);
@@ -43,5 +43,6 @@ namespace bdn
     }
 
     template int nonVoidPlatformEntryWrapper<int>(std::function<int()> function, bool, void *platformSpecific);
-    template jstring nonVoidPlatformEntryWrapper<jstring>(std::function<jstring()> function, bool, void *platformSpecific);
+    template jstring nonVoidPlatformEntryWrapper<jstring>(std::function<jstring()> function, bool,
+                                                          void *platformSpecific);
 }

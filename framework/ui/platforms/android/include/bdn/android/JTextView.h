@@ -176,6 +176,12 @@ namespace bdn
                 invoke_<void>(getStaticClass_(), methodId, "removeTextChangedListener", watcher);
             }
 
+            /*
+            static constexpr char kOnEditorActionListenerName[] = "android/widget/TextView$OnEditorActionListener";
+
+            using OnEditorActionListener = bdn::java::JTObject<kOnEditorActionListenerName>;
+            */
+
             class OnEditorActionListener : public bdn::java::JObject
             {
               public:

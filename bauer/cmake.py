@@ -30,6 +30,9 @@ class CMake:
 
     def open(self, sourceDirectory, buildDirectory, generatorName, extraGeneratorName = "", extraEnv = {}):
 
+        self.sourceDirectory = sourceDirectory
+        self.buildDirectory = buildDirectory
+
         self.proc = cmakelib.initServerProc(self.cmakeExecutable, cmakelib.communicationMethods[0], extraEnv)
         if self.proc is None:
             raise Exception("Failed starting cmake server")
@@ -102,15 +105,30 @@ class CMake:
             raise Exception("Something went wrong trying to configure the project. ( Unexpected response from cmake during codemodel request: %s )" % (payload))
 
         self.codeModel = payload
-
-
+        
         for cmakeConfig in self.codeModel['configurations']:
             for project in cmakeConfig['projects']:
                 if project["sourceDirectory"] == self.sourceDirectory:
                     cmakeConfig['main-project'] = project
                     self.logger.debug("Main project for '%s' : %s" % (cmakeConfig['name'], project['name']))
 
-#        print(json.dumps(self.codeModel))
+        cmakelib.writePayload(self.proc, { "type":"cache", "cookie":"CACHE" } )
+        payload = cmakelib.waitForRawMessage(self.proc)
+
+        if not payload or not "cookie" in payload or payload["cookie"] != "CACHE":
+            raise Exception("Something went wrong trying to configure the project. ( Unexpected response from cmake during cache request: %s )" % (payload))
+
+        #self.cache = payload
+        self.cache = {}
+        for entry in payload["cache"]:
+            self.cache[entry["key"]] = entry["value"]
+
+        if self.logger.isEnabledFor(logging.DEBUG):
+            with open(os.path.join(self.sourceDirectory, 'codemodel.debug.json'), 'w') as outfile:
+                json.dump(self.codeModel, outfile, indent=4, sort_keys=True)
+
+            with open(os.path.join(self.sourceDirectory, 'cache.debug.json'), 'w') as outfile:
+                json.dump(self.cache, outfile, indent=4, sort_keys=True)
 
     def executableTarget(self, config, targetName):
         cmakeTargetToRun = None

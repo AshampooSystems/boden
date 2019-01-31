@@ -87,7 +87,7 @@ public class NativeRootView extends NativeViewGroup
 
 
     @Override
-    public void	onSizeChanged(int newWidth, int newHeight, int oldWidth, int oldHeight)
+    public void onSizeChanged(int newWidth, int newHeight, int oldWidth, int oldHeight)
     {
         sizeChanged(newWidth, newHeight);
     }

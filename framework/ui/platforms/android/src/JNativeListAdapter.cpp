@@ -5,8 +5,8 @@
 #include <bdn/java/Env.h>
 #include <bdn/entry.h>
 
-extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_nativeGetCount(
-    JNIEnv *env, jobject rawSelf, jobject rawView)
+extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_nativeGetCount(JNIEnv *env, jobject rawSelf,
+                                                                                         jobject rawView)
 {
     return bdn::nonVoidPlatformEntryWrapper<jint>(
         [&]() -> jint {
@@ -18,7 +18,8 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
                 return 0;
             }
 
-            std::shared_ptr<bdn::ListView> listView = std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
+            std::shared_ptr<bdn::ListView> listView =
+                std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
 
             if (listView == nullptr) {
                 return 0;
@@ -35,8 +36,10 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
         true, env);
 }
 
-extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nativeLabelTextForRowIndex(
-    JNIEnv *env, jobject rawSelf, jobject rawView, jint rowIndex)
+extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nativeLabelTextForRowIndex(JNIEnv *env,
+                                                                                                        jobject rawSelf,
+                                                                                                        jobject rawView,
+                                                                                                        jint rowIndex)
 {
     return bdn::nonVoidPlatformEntryWrapper<jstring>(
         [&]() -> jstring {
@@ -48,7 +51,8 @@ extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nat
                 return env->NewStringUTF("");
             }
 
-            std::shared_ptr<bdn::ListView> listView = std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
+            std::shared_ptr<bdn::ListView> listView =
+                std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
 
             if (listView == nullptr) {
                 return env->NewStringUTF("");
@@ -65,4 +69,3 @@ extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nat
         },
         true, env);
 }
-

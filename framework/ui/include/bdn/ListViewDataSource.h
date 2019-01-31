@@ -4,12 +4,12 @@
 
 namespace bdn
 {
-	class ListViewDataSource
-	{
-	public:
-		virtual ~ListViewDataSource() = default;
+    class ListViewDataSource
+    {
+      public:
+        virtual ~ListViewDataSource() = default;
 
-		virtual size_t numberOfRows() = 0;
-		virtual String labelTextForRowIndex(size_t rowIndex) = 0;
-	};
+        virtual size_t numberOfRows() = 0;
+        virtual String labelTextForRowIndex(size_t rowIndex) = 0;
+    };
 }

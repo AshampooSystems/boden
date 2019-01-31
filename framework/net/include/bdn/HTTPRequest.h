@@ -41,7 +41,7 @@ namespace bdn
           public:
             HTTPRequest() = default;
             HTTPRequest(String requestUrl, DoneHandler requestDoneHandler)
-                : url(requestUrl), doneHandler(requestDoneHandler)
+                : method(bdn::net::http::Method::GET), url(requestUrl), doneHandler(requestDoneHandler)
             {}
             HTTPRequest(http::Method requestMethod, String requestUrl, DoneHandler requestDoneHandler)
                 : method(requestMethod), url(requestUrl), doneHandler(requestDoneHandler)

@@ -43,7 +43,7 @@ namespace bdn
                 setState(outer->state);
 
                 bdn::android::JNativeViewCoreClickListener listener;
-                _jCheckBox->setOnClickListener(listener);                
+                _jCheckBox->setOnClickListener(listener);
             }
 
             JCheckBox &getJCheckBox() { return *_jCheckBox; }

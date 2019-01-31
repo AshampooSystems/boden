@@ -155,5 +155,32 @@ namespace bdn
         {
             return cls.invokeStaticMethod_<ReturnType, Arguments...>(methodId, methodName, args...);
         }
+
+        template <const char *javaClassName, class... ConstructorArguments> class JTObject : public bdn::java::JObject
+        {
+          public:
+            static bdn::java::JClass &javaClass()
+            {
+                static bdn::java::JClass staticJavaClass(javaClassName);
+                return staticJavaClass;
+            }
+
+            static bdn::java::Reference newInstance(ConstructorArguments... arguments)
+            {
+                static bdn::java::MethodId constructorId;
+                return javaClass().newInstance_(constructorId, arguments...);
+            }
+
+          public:
+            JTObject(ConstructorArguments... arguments) : bdn::java::JObject(newInstance(arguments...)) {}
+            explicit JTObject(const bdn::java::Reference &javaReference) : bdn::java::JObject(javaReference) {}
+
+            template <typename ReturnType, const char *methodName, typename... Arguments>
+            ReturnType invoke(Arguments... args)
+            {
+                static bdn::java::MethodId methodId;
+                return invoke_<ReturnType>(javaClass(), methodId, methodName, args...);
+            }
+        };
     }
 }

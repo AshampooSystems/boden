@@ -50,7 +50,7 @@ namespace bdn
                 static bdn::java::MethodId methodId;
 
                 invoke_<void>(getStaticClass_(), methodId, "notifyDataSetChanged");
-            }            
+            }
         };
     }
 }

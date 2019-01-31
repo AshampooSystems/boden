@@ -4,8 +4,8 @@
 
 namespace bdn
 {
-	namespace android
-	{
+    namespace android
+    {
         /** Accessor for Java android.widget.ListView objects.*/
         class JListAdapter : public bdn::java::JObject
         {
@@ -43,6 +43,6 @@ namespace bdn
 
                 return cls;
             }
-        };		
-	}
+        };
+    }
 }

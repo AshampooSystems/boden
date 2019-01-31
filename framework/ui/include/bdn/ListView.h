@@ -5,17 +5,17 @@
 
 namespace bdn
 {
-	class ListView : public View
-	{
-	public:
-		ListView();
-		virtual ~ListView() = default;
+    class ListView : public View
+    {
+      public:
+        ListView();
+        virtual ~ListView() = default;
 
-		void reloadData();
+        void reloadData();
 
-		static String getListViewCoreTypeName();
-		String getCoreTypeName() const override;
+        static String getListViewCoreTypeName();
+        String getCoreTypeName() const override;
 
-		Property<std::shared_ptr<ListViewDataSource>> dataSource;
-	};
+        Property<std::shared_ptr<ListViewDataSource>> dataSource;
+    };
 }

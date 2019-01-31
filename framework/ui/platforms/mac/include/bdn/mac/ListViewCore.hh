@@ -8,21 +8,21 @@
 
 namespace bdn
 {
-	namespace mac
-	{
+    namespace mac
+    {
         class ListViewCore : public ChildViewCore, virtual public bdn::ListViewCore
-		{
-        public:
+        {
+          public:
             ListViewCore(std::shared_ptr<ListView> outerListView);
-            
+
             virtual void setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) override;
             virtual void reloadData() override;
-            
-        private:
+
+          private:
             static NSScrollView *createNSTableView(std::shared_ptr<ListView> outerListView);
-            
+
             ListViewDataSourceMac *_nativeDataSource;
             NSTableView *_nsTableView;
-		};
-	}
+        };
+    }
 }

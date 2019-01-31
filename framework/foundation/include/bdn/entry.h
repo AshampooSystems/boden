@@ -40,8 +40,7 @@ namespace bdn
     void platformEntryWrapper(std::function<void()> function, bool canKeepRunningAfterException,
                               void *platformSpecific = nullptr);
 
-
-    template<typename RETURN_TYPE>
+    template <typename RETURN_TYPE>
     RETURN_TYPE nonVoidPlatformEntryWrapper(std::function<RETURN_TYPE()> function, bool canKeepRunningAfterException,
-                              void *platformSpecific = nullptr);
+                                            void *platformSpecific = nullptr);
 }

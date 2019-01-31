@@ -2,22 +2,27 @@ import os
 import tempfile
 import shutil
 import subprocess
+import logging
+
 
 class AndroidStudioProjectGenerator(object):
     def __init__(self, gradle, cmake, platformBuildDir, androidBuildApiVersion):
+        self.logger = logging.getLogger(__name__)
         self._projectDir = platformBuildDir;
         self.gradle = gradle
         self.cmake = cmake
         self.androidBuildApiVersion = androidBuildApiVersion
-        
+
     def getGradleDependency(self):
         return "classpath 'com.android.tools.build:gradle:3.2.0'"
-
-
 
     def generateTopLevelProject(self, moduleNameList):
         if not os.path.isdir(self._projectDir):
             os.makedirs(self._projectDir);
+
+        self.dependencies = self.cmake.cache["BAUER_ANDROID_DEPENDENCIES"].split(';')
+
+        self.logger.debug("Dependencies: %s" % self.dependencies)
 
         # the underlying commandline build system for android is gradle.
         # Gradle uses a launcher script (called the gradle wrapper)
@@ -167,6 +172,9 @@ task clean(type: Delete) {
                 android:roundIcon="@mipmap/ic_launcher_round"
                 android:theme="@style/AppTheme"
                 android:supportsRtl="true" -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:label="@string/app_name" >
@@ -214,6 +222,10 @@ task clean(type: Delete) {
             abiFilterStatement = ""
 
         cmakeVersion = self.cmake.globalSettings["capabilities"]["version"]["string"]
+
+        dependencies = ""
+        for dep in self.dependencies:
+            dependencies += "    implementation '%s'\n" % (dep)
         
         return """
 apply plugin: '$$PluginName$$'
@@ -264,8 +276,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:$$BuildSdkVersion$$.+'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+$$AndroidDependencies$$
 
 $$ModuleDependencyCode$$
 }
@@ -279,7 +291,8 @@ $$ModuleDependencyCode$$
     .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
     .replace("$$TargetSourceDirectory$$", targetSourceDirectory) \
     .replace("$$RootCMakeFile$$", rootCMakeFile) \
-    .replace("$$CmakeVersion$$", cmakeVersion)
+    .replace("$$CmakeVersion$$", cmakeVersion) \
+    .replace("$$AndroidDependencies$$", dependencies)
 
 
     def makeCMakePath(self, path):

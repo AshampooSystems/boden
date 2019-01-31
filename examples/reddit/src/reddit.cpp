@@ -30,30 +30,29 @@ using namespace nlohmann;
 
 class RedditPost
 {
-public:
+  public:
     RedditPost() = default;
-    RedditPost(String title_) {
-        title = title_;
-    }
+    RedditPost(String title_) { title = title_; }
     Property<String> title;
 };
 
 class RedditStore
 {
-public:
+  public:
     void fetchPosts(std::function<void()> doneHandler)
     {
-        auto response = net::http::request({"https://www.reddit.com/hot.json", [this, doneHandler](auto r) {
-                                                json j = json::parse(r->data);
+        auto response = net::http::request(
+            {bdn::net::http::Method::GET, "https://www.reddit.com/hot.json", [this, doneHandler](auto r) {
+                 json j = json::parse(r->data);
 
-                                                for (auto child : j["data"]["children"]) {
-                                                    auto post = std::make_shared<RedditPost>();
-                                                    post->title = child["data"]["title"];
-                                                    posts.push_back(post);
-                                                }
-            
-                                                doneHandler();
-                                            }});
+                 for (auto child : j["data"]["children"]) {
+                     auto post = std::make_shared<RedditPost>();
+                     post->title = child["data"]["title"];
+                     posts.push_back(post);
+                 }
+
+                 doneHandler();
+             }});
     }
 
     std::vector<std::shared_ptr<RedditPost>> posts;
@@ -61,23 +60,14 @@ public:
 
 class RedditListViewDataSource : public ListViewDataSource
 {
-public:
-    RedditListViewDataSource(std::shared_ptr<RedditStore> store)
-    {
-        _store = store;
-    }
-    
-    size_t numberOfRows() override
-    {
-        return _store->posts.size();
-    }
-    
-    String labelTextForRowIndex(size_t rowIndex) override
-    {
-        return _store->posts.at(rowIndex)->title;
-    }
+  public:
+    RedditListViewDataSource(std::shared_ptr<RedditStore> store) { _store = store; }
 
-private:
+    size_t numberOfRows() override { return _store->posts.size(); }
+
+    String labelTextForRowIndex(size_t rowIndex) override { return _store->posts.at(rowIndex)->title; }
+
+  private:
     std::shared_ptr<RedditStore> _store;
 };
 
@@ -169,36 +159,14 @@ class MainViewController : public Base
 
         addControlWithHeading("Scrolling multiline text", textScrollView, mainColumn, false);
 
-        
-        
         auto store = std::make_shared<RedditStore>();
-        store->posts.push_back(std::make_shared<RedditPost>("Test"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test2"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test3"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test4"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test5"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test6"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test7"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test8"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test9"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test10"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test11"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test12"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test13"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test14"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test15"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test16"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test17"));
-        store->posts.push_back(std::make_shared<RedditPost>("Test18"));
         _dataSource = std::make_shared<RedditListViewDataSource>(store);
 
         auto listView = std::make_shared<ListView>();
         listView->dataSource = _dataSource;
 
-        store->fetchPosts([listView]() {
-            listView->reloadData();
-        });
-        
+        store->fetchPosts([listView]() { listView->reloadData(); });
+
         listView->horizontalAlignment = View::HorizontalAlignment::expand;
         listView->verticalAlignment = View::VerticalAlignment::expand;
         listView->preferredSizeMinimum = Size(100, 200);
