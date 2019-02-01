@@ -53,6 +53,7 @@ Follow these steps to set up Boden for iOS development:
 3. Run the `boden` build tool to generate an Xcode project:
 
 		cd boden
+		git submodule update --init
 		./boden prepare -p ios
 
 4. Open the generated project in Xcode:
@@ -85,6 +86,7 @@ Follow these steps to set up Boden for Android development on the Mac:
 2. Run the `boden` build tool to prepare an Android Studio project:
 
 		cd boden
+		git submodule update --init
 		./boden prepare -p android
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
@@ -116,6 +118,7 @@ Follow these steps to set up Boden for Android development on Windows 10:
 3. Run the `boden.py` build tool to generate an Android Studio project:
 
 		cd boden
+		git submodule update --init
 		python boden.py prepare
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
@@ -147,6 +150,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 3. Run the `boden` build tool to generate an Xcode project:
 
 		cd boden
+		git submodule update --init
 		./boden prepare
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
