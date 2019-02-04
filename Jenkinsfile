@@ -52,7 +52,11 @@ pipeline {
 
         stage('Documentation') {
             agent {
-                label 'linux-build-docs'
+                dockerfile {
+                    filename 'Dockerfile_documentation'
+                    additionalBuildArgs '-t boden_documentation'
+                    label 'boden'
+                }
             }
             steps {
                 sh 'mkdir -p ${WORKSPACE}/build/documentation'

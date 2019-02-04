@@ -44,7 +44,7 @@ namespace bdn
                 auto realView = std::dynamic_pointer_cast<ViewType>(view);
                 auto p = std::make_shared<CoreType>(realView);
 
-                p->getJViewPtr()->setTag(bdn::java::NativeWeakPointer(p));
+                p->getJView().setTag(bdn::java::NativeWeakPointer(p));
                 return p;
             }
 

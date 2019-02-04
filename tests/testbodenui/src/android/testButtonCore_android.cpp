@@ -11,11 +11,10 @@ using namespace bdn;
 
 class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>
 {
-public:
+  public:
     TestAndroidButtonCore() : _jButton(nullptr) {}
 
   protected:
-
     void initCore() override
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>::initCore();

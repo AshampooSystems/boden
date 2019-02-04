@@ -52,6 +52,7 @@ namespace bdn
             registerCoreType<ScrollViewCore, ScrollView>();
             registerCoreType<WindowCore, Window>();
             registerCoreType<TextFieldCore, TextField>();
+            registerCoreType<ListViewCore, ListView>();
         }
 
         String UiProvider::getName() const { return "ios"; }

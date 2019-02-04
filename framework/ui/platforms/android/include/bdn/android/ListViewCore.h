@@ -20,8 +20,6 @@ namespace bdn
             virtual void reloadData() override;
 
           private:
-            static JView createJListView(std::shared_ptr<ListView> outer);
-
             JListView _jListView;
             JNativeListAdapter _jNativeListAdapter;
         };

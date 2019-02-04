@@ -11,11 +11,10 @@ using namespace bdn;
 
 class TestAndroidToggleCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestToggleCore>
 {
-public:
-
+  public:
     TestAndroidToggleCore() : _jSwitch(nullptr) {}
-  protected:
 
+  protected:
     void initCore() override
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestToggleCore>::initCore();

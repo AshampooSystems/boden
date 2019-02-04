@@ -20,7 +20,5 @@ namespace bdn
         core->reloadData();
     }
 
-    String ListView::getListViewCoreTypeName() { return "bdn.ListViewCore"; }
-
-    String ListView::getCoreTypeName() const { return ListView::getListViewCoreTypeName(); }
+    String ListView::getCoreTypeName() const { return coreTypeName; }
 }

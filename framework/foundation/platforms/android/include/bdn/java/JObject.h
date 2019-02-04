@@ -187,7 +187,7 @@ namespace bdn
             template <class T> T cast() { return T(getRef_()); }
 
           public:
-            JTObject(const std::nullptr_t&) : JObject(Reference()) {}
+            JTObject(const std::nullptr_t &) : JObject(Reference()) {}
             JTObject(ConstructorArguments... arguments) : JObject(newInstance(arguments...)) {}
             JTObject(const bdn::java::Reference &javaReference) : JObject(javaReference) {}
 

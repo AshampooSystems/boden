@@ -15,15 +15,10 @@ namespace bdn
          parameter BaseClass.*/
         template <class BaseClass> class TestAndroidViewCoreMixin : public BaseClass
         {
-        public:
-            TestAndroidViewCoreMixin()
-                : _jView(nullptr)
-            {
-
-            }
+          public:
+            TestAndroidViewCoreMixin() : _jView(nullptr) {}
 
           protected:
-
             void initCore() override
             {
                 BaseClass::initCore();
