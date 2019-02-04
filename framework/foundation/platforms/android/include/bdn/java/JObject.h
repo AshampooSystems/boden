@@ -104,6 +104,9 @@ namespace bdn
             inline ReturnType invoke_(JClass &cls, MethodId &methodId, const String &methodName, Arguments... args);
 
             template <typename ReturnType, typename... Arguments>
+            inline ReturnType invokeWithId_(MethodId &methodId, Arguments... args);
+
+            template <typename ReturnType, typename... Arguments>
             inline static ReturnType invokeStatic_(JClass &cls, MethodId &methodId, const String &methodName,
                                                    Arguments... args);
 
@@ -150,6 +153,12 @@ namespace bdn
         }
 
         template <typename ReturnType, typename... Arguments>
+        inline ReturnType JObject::invokeWithId_(MethodId &methodId, Arguments... args)
+        {
+            return MethodCaller<ReturnType>::template call<Arguments...>(getJObject_(), methodId.getId(), args...);
+        }
+
+        template <typename ReturnType, typename... Arguments>
         inline ReturnType JObject::invokeStatic_(JClass &cls, MethodId &methodId, const String &methodName,
                                                  Arguments... args)
         {
@@ -171,9 +180,16 @@ namespace bdn
                 return javaClass().newInstance_(constructorId, arguments...);
             }
 
+            virtual bdn::java::JClass &getClass_() override { return javaClass(); }
+
+            static JClass &getStaticClass_() { return javaClass(); }
+
+            template <class T> T cast() { return T(getRef_()); }
+
           public:
-            JTObject(ConstructorArguments... arguments) : bdn::java::JObject(newInstance(arguments...)) {}
-            explicit JTObject(const bdn::java::Reference &javaReference) : bdn::java::JObject(javaReference) {}
+            JTObject(const std::nullptr_t&) : JObject(Reference()) {}
+            JTObject(ConstructorArguments... arguments) : JObject(newInstance(arguments...)) {}
+            JTObject(const bdn::java::Reference &javaReference) : JObject(javaReference) {}
 
             template <typename ReturnType, const char *methodName, typename... Arguments>
             ReturnType invoke(Arguments... args)
@@ -181,6 +197,28 @@ namespace bdn
                 static bdn::java::MethodId methodId;
                 return invoke_<ReturnType>(javaClass(), methodId, methodName, args...);
             }
+        };
+
+        template <class _Fp> class Method; // undefined
+
+        template <class ReturnType, class... ArgumentTypes> class Method<ReturnType(ArgumentTypes...)>
+        {
+          public:
+            JObject object;
+
+            Method() = delete;
+            explicit Method(JObject *obj, std::string name) : object(*obj)
+            {
+                obj->getClass_().initMethodId<ReturnType, ArgumentTypes...>(methodId, name);
+            }
+
+            ReturnType operator()(ArgumentTypes... arguments)
+            {
+                return object.invokeWithId_<ReturnType>(methodId, arguments...);
+            }
+
+          private:
+            mutable bdn::java::MethodId methodId;
         };
     }
 }

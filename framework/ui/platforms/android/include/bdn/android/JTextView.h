@@ -11,60 +11,15 @@ namespace bdn
     namespace android
     {
 
-        /** Accessor for Java android.widget.TextView objects.*/
-        class JTextView : public JView
+        static constexpr char kOnEditorActionListenerName[] = "android/widget/TextView$OnEditorActionListener";
+        using OnEditorActionListener = bdn::java::JTObject<kOnEditorActionListenerName>;
+
+        constexpr const char kTextViewClassName[] = "android/widget/TextView";
+
+        template <const char *javaClassName = kTextViewClassName, class... ConstructorArguments>
+        class JBaseTextView : public JBaseView<javaClassName, ConstructorArguments...>
         {
-          private:
-            static bdn::java::Reference newInstance_(JContext context)
-            {
-                static bdn::java::MethodId constructorId;
-
-                return getStaticClass_().newInstance_(constructorId, context);
-            }
-
           public:
-            /** @param objectRef the reference to the Java object.
-             *      The JObject instance will copy this reference and keep its
-             * type. So if you want the JObject instance to hold a strong
-             * reference then you need to call toStrong() on the reference first
-             * and pass the result.
-             *      */
-            explicit JTextView(const bdn::java::Reference &objectRef) : JView(objectRef) {}
-
-            JTextView(JContext context) : JTextView(newInstance_(context)) {}
-
-            JTextView() {}
-
-            /** Returns the TextPaint object that is used by this text view.*/
-            JTextPaint getPaint()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<JTextPaint>(getStaticClass_(), methodId, "getPaint");
-            }
-
-            void setText(const String &text)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "setText",
-                              bdn::java::JCharSequence(bdn::java::JString(text).getRef_()));
-            }
-
-            String getText()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<bdn::java::JCharSequence>(getStaticClass_(), methodId, "getText").toString();
-            }
-
-            void setSingleLine(bool singleLine)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "setSingleLine", singleLine);
-            }
-
             enum class BreakStrategy
             {
                 /** Value for break strategy indicating simple line breaking.
@@ -87,157 +42,35 @@ namespace bdn
                 balanced = 2
             };
 
-            /** Sets the break strategy for breaking paragraphs into lines.
-             *  The default value for TextView is BREAK_STRATEGY_HIGH_QUALITY,
-             *  and the default value for EditText is BREAK_STRATEGY_SIMPLE, the
-             * latter to avoid the text "dancing" when being edited.*/
-            void setBreakStrategy(BreakStrategy strategy)
-            {
-                static bdn::java::MethodId methodId;
+          public:
+            using JBaseView<javaClassName, ConstructorArguments...>::JBaseView;
 
-                invoke_<void>(getStaticClass_(), methodId, "setBreakStrategy", (int)strategy);
-            }
+            Method<JTextPaint()> getPaint{this, "getPaint"};
 
-            /** Sets whether the text should be allowed to be wider than the
-             * View is. If false, it will be wrapped to the width of the View.*/
-            void setHorizontallyScrolling(bool scroll)
-            {
-                static bdn::java::MethodId methodId;
+            Method<void(JCharSequence)> setText{this, "setText"};
+            Method<JCharSequence()> getText{this, "getText"};
 
-                invoke_<void>(getStaticClass_(), methodId, "setHorizontallyScrolling", scroll);
-            }
+            Method<void(bool)> setSingleLine{this, "setSingleLine"};
 
-            /** Makes the TextView at most this many lines tall. Setting this
-             * value overrides any other (maximum) height setting. */
-            void setMaxLines(int lines)
-            {
-                static bdn::java::MethodId methodId;
+            Method<void(int)> setBreakStrategy{this, "setBreakStrategy"};
 
-                invoke_<void>(getStaticClass_(), methodId, "setMaxLines", lines);
-            }
+            Method<void(bool)> setHorizontallyScrolling{this, "setHorizontallyScrolling"};
 
-            /** Makes the TextView exactly this many pixels wide. You could do
-             * the same thing by specifying this number in the LayoutParams. */
-            void setWidth(int pixels)
-            {
-                static bdn::java::MethodId methodId;
+            Method<void(int)> setMaxLines{this, "setMaxLines"};
 
-                invoke_<void>(getStaticClass_(), methodId, "setWidth", pixels);
-            }
+            Method<void(int)> setWidth{this, "setWidth"};
+            Method<void(int)> setMaxWidth{this, "setMaxWidth"};
+            Method<void(int)> setMaxHeight{this, "setMaxHeight"};
 
-            /** Makes the TextView at most this many pixels wide */
-            void setMaxWidth(int maxPixels)
-            {
-                static bdn::java::MethodId methodId;
+            Method<float()> getTextSize{this, "getTextSize"};
+            Method<void(int)> setTextAppearance{this, "setTextAppearance"};
 
-                invoke_<void>(getStaticClass_(), methodId, "setMaxWidth", maxPixels);
-            }
+            Method<void(JTextWatcher)> addTextChangedListener{this, "addTextChangedListener"};
+            Method<void(JTextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
 
-            /** Makes the TextView at least this many pixels tall. Setting this
-             * value overrides any other (minimum) number of lines setting.*/
-            void setMaxHeight(int maxPixels)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "setMaxHeight", maxPixels);
-            }
-
-            /** Returns the size (in pixels) of the default text size in this
-             * TextView.*/
-            double getTextSize()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<float>(getStaticClass_(), methodId, "getTextSize");
-            }
-
-            /** Sets the text appearance from the specified style resource.
-             */
-            void setTextAppearance(int resId)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "setTextAppearance", resId);
-            }
-
-            /** Adds a text watcher to observe changes to editable text, see
-             * JEditText. */
-            void addTextChangedListener(JTextWatcher &watcher)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "addTextChangedListener", watcher);
-            }
-
-            void removeTextChangedListener(JTextWatcher &watcher)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "removeTextChangedListener", watcher);
-            }
-
-            /*
-            static constexpr char kOnEditorActionListenerName[] = "android/widget/TextView$OnEditorActionListener";
-
-            using OnEditorActionListener = bdn::java::JTObject<kOnEditorActionListenerName>;
-            */
-
-            class OnEditorActionListener : public bdn::java::JObject
-            {
-              public:
-                /** @param javaRef the reference to the Java object.
-                 *      The JObject instance will copy this reference and keep
-                 * its type. So if you want the JObject instance to hold a
-                 * strong reference then you need to call toStrong() on the
-                 * reference first and pass the result.
-                 *      */
-                explicit OnEditorActionListener(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
-
-                /** Returns the JClass object for this class.
-                 *
-                 *  Note that the returned class object is not necessarily
-                 * unique for the whole process. You might get different objects
-                 * if this function is called from different shared libraries.
-                 *
-                 *  If you want to check for type equality then you should
-                 * compare the type name (see getTypeName() )
-                 *  */
-                static bdn::java::JClass &getStaticClass_()
-                {
-                    static bdn::java::JClass cls("android/widget/TextView$OnEditorActionListener");
-
-                    return cls;
-                }
-
-                bdn::java::JClass &getClass_() override { return getStaticClass_(); }
-            };
-
-            /** Adds a text watcher to observe changes to editable text, see
-             * JEditText. */
-            void setOnEditorActionListener(OnEditorActionListener &listener)
-            {
-                static bdn::java::MethodId methodId;
-
-                invoke_<void>(getStaticClass_(), methodId, "setOnEditorActionListener", listener);
-            }
-
-            /** Returns the JClass object for this class.s
-             *
-             *  Note that the returned class object is not necessarily unique
-             * for the whole process. You might get different objects if this
-             * function is called from different shared libraries.
-             *
-             *  If you want to check for type equality then you should compare
-             * the type name (see getTypeName() )
-             *  */
-            static bdn::java::JClass &getStaticClass_()
-            {
-                static bdn::java::JClass cls("android/widget/TextView");
-
-                return cls;
-            }
-
-            bdn::java::JClass &getClass_() { return getStaticClass_(); }
+            Method<void(OnEditorActionListener)> setOnEditorActionListener{this, "setOnEditorActionListener"};
         };
+
+        using JTextView = JBaseTextView<>;
     }
 }

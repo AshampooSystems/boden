@@ -22,6 +22,8 @@ namespace bdn
 
 #include <bdn/log.h>
 
+using namespace std::string_literals;
+
 namespace bdn
 {
     namespace android
@@ -30,34 +32,49 @@ namespace bdn
         class ViewCore : public Base, virtual public IViewCore, virtual public LayoutCoordinator::IViewCoreExtension
         {
           public:
-            ViewCore(std::shared_ptr<View> outerView, std::shared_ptr<JView> jView)
+            ViewCore(std::shared_ptr<View> outerView, JView jView) : _outerViewWeak(outerView), _jView(jView)
             {
-                _jView = jView;
-                _outerViewWeak = outerView;
-
                 _uiScaleFactor = 1; // will be updated in _addToParent
 
                 setVisible(outerView->visible);
 
                 _addToParent(outerView->getParentView());
 
-                _defaultPixelPadding = Margin(_jView->getPaddingTop(), _jView->getPaddingRight(),
-                                              _jView->getPaddingBottom(), _jView->getPaddingLeft());
+                _defaultPixelPadding = Margin(_jView.getPaddingTop(), _jView.getPaddingRight(),
+                                              _jView.getPaddingBottom(), _jView.getPaddingLeft());
 
                 setPadding(outerView->padding);
             }
 
             ~ViewCore()
             {
-                if (_jView != nullptr) {
-                    // remove the the reference to ourselves from the java-side
-                    // view object. Note that we hold a strong reference to the
-                    // java-side object, So we know that the reference to the
-                    // java-side object is still valid.
-                    _jView->setTag(bdn::java::JObject(bdn::java::Reference()));
+                // remove the the reference to ourselves from the java-side
+                // view object. Note that we hold a strong reference to the
+                // java-side object, So we know that the reference to the
+                // java-side object is still valid.
+                _jView.setTag(bdn::java::JObject(bdn::java::Reference()));
+            }
 
-                    _jView = nullptr;
+          public:
+            template <class T> static JView createAndroidViewClass(std::shared_ptr<View> outerView)
+            {
+
+                std::shared_ptr<View> parent = outerView->getParentView();
+                if (parent == nullptr) {
+                    throw ProgrammingError("ViewCore instance requested for a "s + typeid(T).name() +
+                                           " that does not have a parent."s);
                 }
+
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
+
+                if (parentCore == nullptr) {
+                    throw ProgrammingError("ViewCore instance requested for a "s + typeid(T).name() +
+                                           " with core-less parent."s);
+                }
+
+                T view(parentCore->getJView().getContext());
+
+                return JView(view.getRef_());
             }
 
             static std::shared_ptr<ViewCore> getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef)
@@ -76,15 +93,13 @@ namespace bdn
                still attached to it or null otherwise.*/
             std::shared_ptr<View> getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
 
-            /** Returns a pointer to the accessor object for the java-side view
-             * object.
-             */
-            JView &getJView() { return *_jView; }
-            std::shared_ptr<JView> getJViewPtr() { return _jView; }
+            JView &getJView() { return _jView; }
+
+            template <class JSuperType> JSuperType getJViewAS() { return _jView.cast<JSuperType>(); }
 
             void setVisible(const bool &visible) override
             {
-                _jView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
+                _jView.setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
             }
 
             void setPadding(const std::optional<UiMargin> &padding) override
@@ -99,7 +114,7 @@ namespace bdn
                                           dipPadding.bottom * _uiScaleFactor, dipPadding.left * _uiScaleFactor);
                 }
 
-                _jView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
+                _jView.setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
             }
 
             void setMargin(const UiMargin &margin) override
@@ -146,14 +161,14 @@ namespace bdn
              * not have a view core associated with it.*/
             std::shared_ptr<ViewCore> getParentViewCore()
             {
-                return getViewCoreFromJavaViewRef(_jView->getParent().getRef_());
+                return getViewCoreFromJavaViewRef(_jView.getParent().getRef_());
             }
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override
             {
                 Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
-                bdn::java::JObject parent(_jView->getParent());
+                bdn::java::JObject parent(_jView.getParent());
 
                 if (parent.isNull_()) {
                     // we do not have a parent => we cannot set any position.
@@ -213,10 +228,10 @@ namespace bdn
                 } else
                     heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
 
-                _jView->measure(widthSpec, heightSpec);
+                _jView.measure(widthSpec, heightSpec);
 
-                int width = _jView->getMeasuredWidth();
-                int height = _jView->getMeasuredHeight();
+                int width = _jView.getMeasuredWidth();
+                int height = _jView.getMeasuredHeight();
 
                 // logInfo("Preferred size of "+std::to_string((int64_t)this)+"
                 // "+String(typeid(*this).name())+" :
@@ -351,7 +366,7 @@ namespace bdn
                                                "either does not have a core, or its core does not "
                                                "support child views.");
 
-                    parentCore->addChildJView(*_jView);
+                    parentCore->addChildJView(_jView);
 
                     setUiScaleFactor(parentCore->getUiScaleFactor());
                 }
@@ -375,14 +390,14 @@ namespace bdn
                     // multiple levels of views. Either change
                     // removeAllChildViews()/_deinitCore() to DFS or change the
                     // removal mechanism to use the platform parent.
-                    parentCore->removeChildJView(*_jView);
+                    parentCore->removeChildJView(_jView);
                 }
             }
 
             std::weak_ptr<View> _outerViewWeak;
 
           private:
-            std::shared_ptr<JView> _jView;
+            mutable JView _jView;
             double _uiScaleFactor;
 
             Margin _defaultPixelPadding;

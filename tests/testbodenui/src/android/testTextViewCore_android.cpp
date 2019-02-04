@@ -10,7 +10,10 @@ using namespace bdn;
 
 class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>
 {
+public:
+    TestAndroidTextViewCore() : _jTextView(nullptr) {}
   protected:
+
     void initCore() override
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>::initCore();

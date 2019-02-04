@@ -25,7 +25,8 @@ namespace bdn
                 auto response = std::make_shared<HTTPResponse>();
                 response->originalRequest = request;
 
-                staticVolleyAdapter->request(request.method, request.url, response);
+                staticVolleyAdapter->request(android::JVolleyAdapter::toVolleyRequestMethod(request.method),
+                                             request.url, response);
 
                 return response;
             }

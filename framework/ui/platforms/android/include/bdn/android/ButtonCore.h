@@ -12,9 +12,6 @@ namespace bdn
 
         class ButtonCore : public ViewCore, virtual public IButtonCore
         {
-          private:
-            static std::shared_ptr<JButton> _createJButton(std::shared_ptr<Button> outer);
-
           public:
             ButtonCore(std::shared_ptr<Button> outerButton);
 
@@ -28,7 +25,7 @@ namespace bdn
             double getFontSizeDips() const override;
 
           private:
-            std::shared_ptr<JButton> _jButton;
+            mutable JButton _jButton;
         };
     }
 }

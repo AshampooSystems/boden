@@ -12,7 +12,10 @@ using namespace bdn;
 
 class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>
 {
+public:
+    TestAndroidCheckboxCore() : _jCheckBox(nullptr) {}
   protected:
+
     void initCore() override
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();

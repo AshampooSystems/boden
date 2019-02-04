@@ -6,6 +6,8 @@
 
 #include <bdn/HTTP.h>
 
+#include <functional>
+
 namespace bdn
 {
     namespace net
@@ -14,23 +16,15 @@ namespace bdn
         {
             namespace android
             {
+                constexpr char kVolleyAdapterClassName[] = "io/boden/java/VolleyAdapter";
 
-                constexpr char kVolleyAdapterName[] = "io/boden/java/VolleyAdapter";
-
-                class JVolleyAdapter : public bdn::java::JTObject<kVolleyAdapterName>
+                class JVolleyAdapter : public bdn::java::JTObject<kVolleyAdapterClassName>
                 {
                   public:
                     using JTObject::JTObject;
 
-                    static constexpr char requestMethodName[] = "request";
-
-                    void request(bdn::net::http::Method requestMethod, String url,
-                                 std::shared_ptr<bdn::net::HTTPResponse> response)
-                    {
-                        int volleyRequestMethod = toVolleyRequestMethod(requestMethod);
-                        bdn::java::JNativeStrongPointer responsePtr(std::static_pointer_cast<Base>(response));
-                        invoke<void, requestMethodName>(volleyRequestMethod, bdn::java::JString(url), responsePtr);
-                    }
+                    bdn::java::Method<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this,
+                                                                                                          "request"};
 
                     static constexpr int toVolleyRequestMethod(bdn::net::http::Method bdnHttpMethod)
                     {

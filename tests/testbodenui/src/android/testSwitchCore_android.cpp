@@ -11,7 +11,10 @@ using namespace bdn;
 
 class TestAndroidSwitchCore : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestSwitchCore>
 {
+public:
+    TestAndroidSwitchCore() : _jSwitch(nullptr) {}
   protected:
+
     void initCore() override
     {
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestSwitchCore>::initCore();

@@ -11,6 +11,8 @@ namespace bdn
         class JCharSequence : public JObject
         {
           public:
+            JCharSequence(const String &str);
+
             /** @param objectRef the reference to the Java object.
              *      The JObject instance will copy this reference and keep its
              * type. So if you want the JObject instance to hold a strong
@@ -36,6 +38,8 @@ namespace bdn
             }
 
             JClass &getClass_() override { return getStaticClass_(); }
+
+            operator String() { return toString(); }
         };
     }
 }

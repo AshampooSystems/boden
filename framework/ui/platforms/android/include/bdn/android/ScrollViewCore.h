@@ -17,45 +17,23 @@ namespace bdn
 
         class ScrollViewCore : public ViewCore, virtual public IScrollViewCore, virtual public IParentViewCore
         {
-          private:
-            static std::shared_ptr<JNativeScrollView> _createNativeScrollView(std::shared_ptr<ScrollView> outer)
-            {
-                // we need to know the context to create the view.
-                // If we have a parent then we can get that from the parent's
-                // core.
-                std::shared_ptr<View> parent = outer->getParentView();
-                if (parent == nullptr)
-                    throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
-                                           "that does not have a parent.");
-
-                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
-                if (parentCore == nullptr)
-                    throw ProgrammingError("ScrollViewCore instance requested for a ScrollView "
-                                           "with core-less parent.");
-
-                JContext context = parentCore->getJView().getContext();
-
-                std::shared_ptr<JNativeScrollView> man = std::make_shared<JNativeScrollView>(context);
-
-                return man;
-            }
-
           public:
-            ScrollViewCore(std::shared_ptr<ScrollView> outer) : ScrollViewCore(outer, _createNativeScrollView(outer)) {}
+            ScrollViewCore(std::shared_ptr<ScrollView> outer)
+                : ScrollViewCore(outer,
+                                 ViewCore::createAndroidViewClass<JNativeScrollView>(outer).cast<JNativeScrollView>())
+            {}
 
           private:
-            ScrollViewCore(std::shared_ptr<ScrollView> outer, std::shared_ptr<JNativeScrollView> man)
-                : ViewCore(outer, std::make_shared<JView>(man->getWrapperView()))
+            ScrollViewCore(std::shared_ptr<ScrollView> outer, JNativeScrollView nativeScrollView)
+                : ViewCore(outer, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
+                  _jContentParent(_jNativeScrollView.getContentParent())
             {
-                _man = man;
-
                 // inside the scroll view we have a NativeViewGroup object as
                 // the glue between our layout system and that of android. That
                 // allows us to position the content view manually. It also
                 // ensures that the parent of the content view is a
                 // NativeViewGroup, which is important because we assume that
                 // that is the case in some places.
-                _contentParent = std::make_shared<JNativeViewGroup>(man->getContentParent());
 
                 setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
                 setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
@@ -106,7 +84,7 @@ namespace bdn
                     // resize the content parent to the scrolled area size.
                     // That causes the content parent to get that size the next
                     // time and android layout happens.
-                    _contentParent->setSize(std::lround(scrolledAreaSize.width * uiScaleFactor),
+                    _jContentParent.setSize(std::lround(scrolledAreaSize.width * uiScaleFactor),
                                             std::lround(scrolledAreaSize.height * uiScaleFactor));
 
                     // now arrange the content view inside the content parent
@@ -116,10 +94,10 @@ namespace bdn
                     if (contentView != nullptr)
                         contentView->adjustAndSetBounds(contentBounds);
 
-                    // we must call _contentParent->requestLayout because we
+                    // we must call _contentParent.requestLayout because we
                     // have to clear its measure cache. Otherwise the changes
                     // might not take effect.
-                    _contentParent->requestLayout();
+                    _jContentParent.requestLayout();
 
                     updateVisibleClientRect();
                 }
@@ -127,15 +105,15 @@ namespace bdn
 
             void scrollClientRectToVisible(const Rect &clientRect) override
             {
-                int visibleLeft = _man->getScrollX();
-                int visibleTop = _man->getScrollY();
-                int visibleWidth = _man->getWidth();
-                int visibleHeight = _man->getHeight();
+                int visibleLeft = _jNativeScrollView.getScrollX();
+                int visibleTop = _jNativeScrollView.getScrollY();
+                int visibleWidth = _jNativeScrollView.getWidth();
+                int visibleHeight = _jNativeScrollView.getHeight();
                 int visibleRight = visibleLeft + visibleWidth;
                 int visibleBottom = visibleTop + visibleHeight;
 
-                int clientWidth = _contentParent->getWidth();
-                int clientHeight = _contentParent->getHeight();
+                int clientWidth = _jContentParent.getWidth();
+                int clientHeight = _jContentParent.getHeight();
 
                 double uiScaleFactor = getUiScaleFactor();
 
@@ -268,21 +246,18 @@ namespace bdn
                 if (targetTop < visibleTop)
                     scrollY = targetTop;
 
-                _man->smoothScrollTo(scrollX, scrollY);
+                _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
             }
 
             double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
 
             void addChildJView(JView childJView) override
             {
-                if (!_currContentJView.isNull_())
-                    _contentParent->removeView(_currContentJView);
-
-                _currContentJView = childJView;
-                _contentParent->addView(childJView);
+                _jContentParent.removeAllViews();
+                _jContentParent.addView(childJView);
             }
 
-            void removeChildJView(JView childJView) override { _contentParent->removeView(childJView); }
+            void removeChildJView(JView childJView) override { _jContentParent.removeView(childJView); }
 
             /** Used internally - do not call.*/
             void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY) { updateVisibleClientRect(); }
@@ -295,17 +270,17 @@ namespace bdn
                 if (outer != nullptr) {
                     double uiScaleFactor = getUiScaleFactor();
 
-                    Rect visibleRect(_man->getScrollX() / uiScaleFactor, _man->getScrollY() / uiScaleFactor,
-                                     _man->getWidth() / uiScaleFactor, _man->getHeight() / uiScaleFactor);
+                    Rect visibleRect(_jNativeScrollView.getScrollX() / uiScaleFactor,
+                                     _jNativeScrollView.getScrollY() / uiScaleFactor,
+                                     _jNativeScrollView.getWidth() / uiScaleFactor,
+                                     _jNativeScrollView.getHeight() / uiScaleFactor);
 
                     outer->visibleClientRect = (visibleRect);
                 }
             }
 
-            std::shared_ptr<JNativeScrollView> _man;
-            std::shared_ptr<JNativeViewGroup> _contentParent;
-
-            JView _currContentJView;
+            JNativeScrollView _jNativeScrollView;
+            JNativeViewGroup _jContentParent;
         };
     }
 }

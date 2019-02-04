@@ -14,49 +14,31 @@ namespace bdn
 
         template <class T> class CheckboxCore : public ViewCore, virtual public ICheckboxCore
         {
-          private:
-            static std::shared_ptr<JCheckBox> _createJCheckBox(std::shared_ptr<T> outer)
-            {
-                std::shared_ptr<View> parent = outer->getParentView();
-                if (parent == nullptr)
-                    throw ProgrammingError("CheckboxCore instance requested for a Checkbox that "
-                                           "does not have a parent.");
-
-                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
-                if (parentCore == nullptr)
-                    throw ProgrammingError("CheckboxCore instance requested for a Checkbox with "
-                                           "core-less parent.");
-
-                JContext context = parentCore->getJView().getContext();
-
-                return std::make_shared<JCheckBox>(context);
-            }
-
           public:
-            CheckboxCore(std::shared_ptr<T> outer) : ViewCore(outer, _createJCheckBox(outer))
+            CheckboxCore(std::shared_ptr<T> outer)
+                : ViewCore(outer, ViewCore::createAndroidViewClass<JCheckBox>(outer)),
+                  _jCheckBox(getJViewAS<JCheckBox>())
             {
-                _jCheckBox = std::dynamic_pointer_cast<JCheckBox>(getJViewPtr());
-
-                _jCheckBox->setSingleLine(true);
+                _jCheckBox.setSingleLine(true);
 
                 setLabel(outer->label);
                 setState(outer->state);
 
                 bdn::android::JNativeViewCoreClickListener listener;
-                _jCheckBox->setOnClickListener(listener);
+                _jCheckBox.setOnClickListener(listener);
             }
 
-            JCheckBox &getJCheckBox() { return *_jCheckBox; }
+            JCheckBox &getJCheckBox() { return _jCheckBox; }
 
             void setLabel(const String &label) override
             {
-                _jCheckBox->setText(label);
-                _jCheckBox->requestLayout();
+                _jCheckBox.setText(label);
+                _jCheckBox.requestLayout();
             }
 
             void setState(const TriState &state) override
             {
-                _jCheckBox->setChecked(state == TriState::on);
+                _jCheckBox.setChecked(state == TriState::on);
                 _state = state;
             }
 
@@ -72,12 +54,12 @@ namespace bdn
                     std::shared_ptr<Toggle> toggle = std::dynamic_pointer_cast<Toggle>(view);
 
                     // User interaction cannot set the checkbox into mixed state
-                    _state = _jCheckBox->isChecked() ? TriState::on : TriState::off;
+                    _state = _jCheckBox.isChecked() ? TriState::on : TriState::off;
 
                     if (checkbox)
                         checkbox->state = (_state);
                     else if (toggle)
-                        toggle->on = (_jCheckBox->isChecked());
+                        toggle->on = (_jCheckBox.isChecked());
 
                     view->onClick().notify(evt);
                 }
@@ -87,11 +69,11 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jCheckBox->getTextSize() / getUiScaleFactor();
+                return _jCheckBox.getTextSize() / getUiScaleFactor();
             }
 
           private:
-            std::shared_ptr<JCheckBox> _jCheckBox;
+            mutable JCheckBox _jCheckBox;
             TriState _state;
         };
     }

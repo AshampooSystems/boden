@@ -60,5 +60,60 @@ namespace bdn
 
             JClass &getClass_() override { return getStaticClass_(); }
         };
+
+        template <> class TypeConversion<std::shared_ptr<bdn::Base>> : public TypeConversionBase_
+        {
+          public:
+            typedef jobject JavaType;
+            typedef std::shared_ptr<bdn::Base> NativeType;
+
+            static String getJavaSignature()
+            {
+                static String s("Lio/boden/java/NativeStrongPointer;");
+                return s;
+            }
+
+            static JavaType nativeToJava(const NativeType &arg, std::list<Reference> &createdJavaObjects)
+            {
+
+                JNativeStrongPointer javaPtr(arg);
+                Reference ref = javaPtr.getRef_();
+                createdJavaObjects.push_back(ref);
+                return ref.getJObject();
+            }
+
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
+            {
+                bdn::java::JNativeStrongPointer native(bdn::java::Reference::convertExternalLocal(arg));
+                return native.getPointer_();
+            }
+        };
+
+        template <class Actual> class TypeConversion<std::shared_ptr<Actual>> : public TypeConversionBase_
+        {
+          public:
+            typedef jobject JavaType;
+            typedef std::shared_ptr<Actual> NativeType;
+
+            static String getJavaSignature()
+            {
+                static String s("Lio/boden/java/NativeStrongPointer;");
+                return s;
+            }
+
+            static JavaType nativeToJava(const NativeType &arg, std::list<Reference> &createdJavaObjects)
+            {
+                JNativeStrongPointer javaPtr(std::static_pointer_cast<bdn::Base>(arg));
+                Reference ref = javaPtr.getRef_();
+                createdJavaObjects.push_back(ref);
+                return ref.getJObject();
+            }
+
+            static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
+            {
+                bdn::java::JNativeStrongPointer native(bdn::java::Reference::convertExternalLocal(arg));
+                return std::dynamic_pointer_cast<Actual>(native.getPointer_());
+            }
+        };
     }
 }

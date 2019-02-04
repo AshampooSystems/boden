@@ -5,30 +5,8 @@ namespace bdn
 {
     namespace android
     {
-
-        std::shared_ptr<JNativeViewGroup>
-        ContainerViewCore::_createJNativeViewGroup(std::shared_ptr<ContainerView> outer)
-        {
-            // we need to know the context to create the view.
-            // If we have a parent then we can get that from the parent's
-            // core.
-            std::shared_ptr<View> parent = outer->getParentView();
-            if (parent == nullptr)
-                throw ProgrammingError("ContainerViewCore instance requested for a "
-                                       "ContainerView that does not have a parent.");
-
-            std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
-            if (parentCore == nullptr)
-                throw ProgrammingError("ContainerViewCore instance requested for a "
-                                       "ContainerView with core-less parent.");
-
-            JContext context = parentCore->getJView().getContext();
-
-            return std::make_shared<JNativeViewGroup>(context);
-        }
-
         ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
-            : ViewCore(outer, _createJNativeViewGroup(outer))
+            : ViewCore(outer, ViewCore::createAndroidViewClass<JNativeViewGroup>(outer))
         {}
 
         Size ContainerViewCore::calcPreferredSize(const Size &availableSpace) const

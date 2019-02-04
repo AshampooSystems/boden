@@ -178,6 +178,16 @@ namespace bdn
                 return _newObject((jclass)getJObject_(), constructorId.getId(), nativeToJava(args, tempObjects)...);
             }
 
+            template <typename ReturnType, typename... Arguments> void initMethodId(MethodId &id, const String &name)
+            {
+                if (!id.isInitialized()) {
+                    String methodSignature =
+                        "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
+
+                    id.init(*this, name, methodSignature);
+                }
+            }
+
           private:
             /** Converts a name in slash notation to the corresponding signature
              * string.*/
@@ -198,16 +208,6 @@ namespace bdn
             template <typename... Types> static String _makeTypeSignatureList()
             {
                 return _makeTypeSignatureListImpl<int, Types...>();
-            }
-
-            template <typename ReturnType, typename... Arguments> void initMethodId(MethodId &id, const String &name)
-            {
-                if (!id.isInitialized()) {
-                    String methodSignature =
-                        "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
-
-                    id.init(*this, name, methodSignature);
-                }
             }
 
             template <typename ReturnType, typename... Arguments>

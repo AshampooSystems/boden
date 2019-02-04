@@ -18,53 +18,30 @@ namespace bdn
 
         class TextFieldCore : public ViewCore, virtual public ITextFieldCore
         {
-          private:
-            static std::shared_ptr<JEditText> _createJEditText(std::shared_ptr<TextField> outer)
-            {
-                // We need to know the context to create the view.
-                // If we have a parent then we can get that from the parent's
-                // core.
-                std::shared_ptr<View> parent = outer->getParentView();
-                if (parent == nullptr)
-                    throw ProgrammingError("TextFieldCore instance requested for a TextField that "
-                                           "does not have a parent.");
-
-                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
-                if (parentCore == nullptr)
-                    throw ProgrammingError("TextFieldCore instance requested for a TextField with "
-                                           "core-less parent.");
-
-                JContext context = parentCore->getJView().getContext();
-
-                return std::make_shared<JEditText>(context);
-            }
-
           public:
             TextFieldCore(std::shared_ptr<TextField> outerTextField)
-                : ViewCore(outerTextField, _createJEditText(outerTextField))
+                : ViewCore(outerTextField, ViewCore::createAndroidViewClass<JEditText>(outerTextField)),
+                  _jEditText(getJViewAS<JEditText>()), _watcher(_jEditText.cast<JTextView>())
             {
-                _jEditText = std::dynamic_pointer_cast<JEditText>(getJViewPtr());
-                _jEditText->setSingleLine(true);
+                _jEditText.setSingleLine(true);
 
-                _watcher = std::make_shared<bdn::android::JNativeEditTextTextWatcher>(*_jEditText);
-                _jEditText->addTextChangedListener(*_watcher);
+                _jEditText.addTextChangedListener(_watcher.cast<JTextWatcher>());
 
-                _onEditorActionListener = std::make_shared<bdn::android::JNativeTextViewOnEditorActionListener>();
-                _jEditText->setOnEditorActionListener(*_onEditorActionListener);
+                _jEditText.setOnEditorActionListener(_onEditorActionListener.cast<OnEditorActionListener>());
 
                 setText(outerTextField->text);
             }
 
-            JEditText &getJEditText() { return *_jEditText; }
+            JEditText &getJEditText() { return _jEditText; }
 
             void setText(const String &text) override
             {
-                _jEditText->removeTextChangedListener(*_watcher);
-                String currentText = _jEditText->getText();
+                _jEditText.removeTextChangedListener(_watcher.cast<JTextWatcher>());
+                String currentText = _jEditText.getText();
                 if (text != currentText) {
-                    _jEditText->setText(text);
+                    _jEditText.setText(text);
                 }
-                _jEditText->addTextChangedListener(*_watcher);
+                _jEditText.addTextChangedListener(_watcher.cast<JTextWatcher>());
             }
 
           public:
@@ -77,7 +54,7 @@ namespace bdn
             // Called by Java (via JNativeEditTextTextWatcher)
             void afterTextChanged()
             {
-                String newText = _jEditText->getText();
+                String newText = _jEditText.getText();
                 std::shared_ptr<TextField> outerTextField =
                     std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
                 if (outerTextField) {
@@ -89,8 +66,8 @@ namespace bdn
             {
                 // hide virtual keyboard
                 JInputMethodManager inputManager(
-                    _jEditText->getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
-                inputManager.hideSoftInputFromWindow(_jEditText->getWindowToken(), 0);
+                    _jEditText.getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
+                inputManager.hideSoftInputFromWindow(_jEditText.getWindowToken(), 0);
 
                 std::shared_ptr<TextField> outerTextField =
                     std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
@@ -104,13 +81,13 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jEditText->getTextSize() / getUiScaleFactor();
+                return _jEditText.getTextSize() / getUiScaleFactor();
             }
 
           private:
-            std::shared_ptr<JEditText> _jEditText;
-            std::shared_ptr<JNativeEditTextTextWatcher> _watcher;
-            std::shared_ptr<JNativeTextViewOnEditorActionListener> _onEditorActionListener;
+            mutable JEditText _jEditText;
+            JNativeEditTextTextWatcher _watcher;
+            JNativeTextViewOnEditorActionListener _onEditorActionListener;
         };
     }
 }

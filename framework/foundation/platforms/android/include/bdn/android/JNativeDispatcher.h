@@ -9,31 +9,21 @@ namespace bdn
 {
     namespace android
     {
+        constexpr const char kNativeDispatcherClassName[] = "io/boden/android/NativeDispatcher";
 
-        /** Accessor for Java io.boden.android.NativeDispatcher class.
-         *
-         * */
-        class JNativeDispatcher : public bdn::java::JObject
+        class JNativeDispatcher : public java::JTObject<kNativeDispatcherClassName, JLooper>
         {
-          private:
-            static bdn::java::Reference newInstance_(JLooper looper)
-            {
-                static bdn::java::MethodId constructorId;
+          public:
+            using java::JTObject<kNativeDispatcherClassName, JLooper>::JTObject;
 
-                return getStaticClass_().newInstance_(constructorId, looper);
-            }
+          protected:
+            java::Method<void(double, java::JNativeRunnable, bool)> native_enqueue{this, "enqueue"};
+            java::Method<void(double, java::JNativeStrongPointer)> native_createTimer{this, "createTimer"};
 
           public:
-            /** @param javaRef the reference to the Java object.
-             *      The JObject instance will copy this reference and keep its
-             * type. So if you want the JObject instance to hold a strong
-             * reference then you need to call toStrong() on the reference first
-             * and pass the result.
-             *      */
-            explicit JNativeDispatcher(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
+            java::Method<void()> dispose{this, "dispose"};
 
-            explicit JNativeDispatcher(JLooper looper) : JObject(newInstance_(looper)) {}
-
+          public:
             void enqueue(IDispatcher::Duration delay, std::function<void()> func, bool idlePriority)
             {
                 bdn::java::JNativeOnceRunnable runnable([func]() {
@@ -47,11 +37,7 @@ namespace bdn
                 });
 
                 double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
-
-                static bdn::java::MethodId methodId;
-
-                return invoke_<void>(getStaticClass_(), methodId, "enqueue", delayInSeconds,
-                                     (bdn::java::JNativeRunnable &)runnable, idlePriority);
+                return native_enqueue(delayInSeconds, (bdn::java::JNativeRunnable &)runnable, idlePriority);
             }
 
             void createTimer(IDispatcher::Duration interval, std::shared_ptr<Base> timerData)
@@ -59,35 +45,8 @@ namespace bdn
                 bdn::java::JNativeStrongPointer nativeTimerData(timerData);
 
                 double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
-
-                static bdn::java::MethodId methodId;
-                return invoke_<void>(getStaticClass_(), methodId, "createTimer", intervalInSeconds, nativeTimerData);
+                return native_createTimer(intervalInSeconds, nativeTimerData);
             }
-
-            void dispose()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<void>(getStaticClass_(), methodId, "dispose");
-            }
-
-            /** Returns the JClass object for this class.
-             *
-             *  Note that the returned class object is not necessarily unique
-             * for the whole process. You might get different objects if this
-             * function is called from different shared libraries.
-             *
-             *  If you want to check for type equality then you should compare
-             * the type name (see getTypeName() )
-             *  */
-            static bdn::java::JClass &getStaticClass_()
-            {
-                static bdn::java::JClass cls("io/boden/android/NativeDispatcher");
-
-                return cls;
-            }
-
-            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

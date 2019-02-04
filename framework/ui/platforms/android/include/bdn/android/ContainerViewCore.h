@@ -13,7 +13,7 @@ namespace bdn
         class ContainerViewCore : public ViewCore, virtual public IParentViewCore
         {
           private:
-            static std::shared_ptr<JNativeViewGroup> _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
+            static JView _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
 
           public:
             ContainerViewCore(std::shared_ptr<ContainerView> outer);

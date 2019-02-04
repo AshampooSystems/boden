@@ -24,7 +24,7 @@ namespace bdn
                            virtual public IParentViewCore
         {
           private:
-            std::shared_ptr<JNativeViewGroup> createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
+            JView createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
             {
                 // we need a context to create our view object.
                 // To know the context we first have to determine the root view
@@ -39,14 +39,16 @@ namespace bdn
                                            "views available. You must create a NativeRootActivity "
                                            "or NativeRootView instance!");
 
-                std::shared_ptr<JNativeViewGroup> viewGroup = std::make_shared<JNativeViewGroup>(rootView.getContext());
+                JNativeViewGroup viewGroup(rootView.getContext());
+
+                JView view(viewGroup.getRef_());
 
                 // add the view group to the root view. That is important so
                 // that the root view we have chosen is fixed to the view group
                 // instance.
-                rootView.addView(*viewGroup);
+                rootView.addView(view);
 
-                return viewGroup;
+                return view;
             }
 
           public:
@@ -65,12 +67,13 @@ namespace bdn
 
             ~WindowCore()
             {
-                std::shared_ptr<JView> view = getJViewPtr();
-                if (view != nullptr) {
+                JView view(getJView());
+                if (!view.isNull_()) {
                     // remove the view from its parent.
-                    JViewGroup parent(view->getParent().getRef_());
-                    if (!parent.isNull_())
-                        parent.removeView(*view);
+                    JViewGroup parent(view.getParent().getRef_());
+                    if (!parent.isNull_()) {
+                        parent.removeView(view);
+                    }
                 }
             }
 

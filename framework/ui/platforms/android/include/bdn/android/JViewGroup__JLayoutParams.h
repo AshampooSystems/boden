@@ -6,34 +6,14 @@ namespace bdn
 {
     namespace android
     {
+        constexpr const char kViewGroupLayoutParamsClassName[] = "android/view/ViewGroup$LayoutParams";
 
-        /** Wrapper for Java android.view.ViewGroup.LayoutParams objects.
-         *
-         *  This is defined outside of JViewGroup for technical reasons.
-         * JViewGroup also has an alias to this class; it can also be accessed
-         * under the name JViewGroup::JLayoutParams
-         * */
-        class JViewGroup__JLayoutParams : public bdn::java::JObject
+        class JViewGroup__JLayoutParams : public java::JTObject<kViewGroupLayoutParamsClassName, int, int>
         {
-          private:
-            static bdn::java::Reference newInstance_(int width, int height)
-            {
-                static bdn::java::MethodId constructorId;
-
-                return getStaticClass_().newInstance_(constructorId, width, height);
-            }
+          public:
+            using java::JTObject<kViewGroupLayoutParamsClassName, int, int>::JTObject;
 
           public:
-            /** @param javaRef the reference to the Java object.
-             *      The JObject instance will copy this reference and keep its
-             * type. So if you want the JObject instance to hold a strong
-             * reference then you need to call toStrong() on the reference first
-             * and pass the result.
-             *      */
-            explicit JViewGroup__JLayoutParams(const bdn::java::Reference &javaRef) : bdn::java::JObject(javaRef) {}
-
-            JViewGroup__JLayoutParams(int width, int height) : bdn::java::JObject(newInstance_(width, height)) {}
-
             enum
             {
                 /** Special value for the height or width requested by a View.
@@ -70,24 +50,6 @@ namespace bdn
 
                 return bdn::java::ObjectField<int>(getRef_(), fieldId);
             }
-
-            /** Returns the JClass object for this class.
-             *
-             *  Note that the returned class object is not necessarily unique
-             * for the whole process. You might get different objects if this
-             * function is called from different shared libraries.
-             *
-             *  If you want to check for type equality then you should compare
-             * the type name (see getTypeName() )
-             *  */
-            static bdn::java::JClass &getStaticClass_()
-            {
-                static bdn::java::JClass cls("android/view/ViewGroup$LayoutParams");
-
-                return cls;
-            }
-
-            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
         };
     }
 }

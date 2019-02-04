@@ -7,57 +7,19 @@ namespace bdn
 {
     namespace android
     {
+        constexpr const char kIntentClassName[] = "android/content/Intent";
 
-        /** Accessor for Java android.content.Intent objects.*/
-        class JIntent : public bdn::java::JObject
+        class JIntent : public java::JTObject<kIntentClassName>
         {
           public:
-            /** @param javaRef the reference to the Java object.
-             *      The JObject instance will copy this reference and keep its
-             * type. So if you want the JObject instance to hold a strong
-             * reference then you need to call toStrong() on the reference first
-             * and pass the result.
-             *      */
-            explicit JIntent(const bdn::java::Reference &javaRef) : JObject(javaRef) {}
+            constexpr static const char ACTION_MAIN[] = "android.intent.action.MAIN";
+            constexpr static const char ACTION_VIEW[] = "android.intent.action.VIEW";
 
-            static String ACTION_MAIN;
-            static String ACTION_VIEW;
+          public:
+            using java::JTObject<kIntentClassName>::JTObject;
 
-            /** The general action to be performed, such as ACTION_VIEW,
-             * ACTION_EDIT, ACTION_MAIN
-             * */
-            String getAction()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<String>(getStaticClass_(), methodId, "getAction");
-            }
-
-            /** Retrieves a map of extended data from the intent. */
-            JBundle getExtras()
-            {
-                static bdn::java::MethodId methodId;
-
-                return invoke_<JBundle>(getStaticClass_(), methodId, "getExtras");
-            }
-
-            /** Returns the JClass object for this class.
-             *
-             *  Note that the returned class object is not necessarily unique
-             * for the whole process. You might get different objects if this
-             * function is called from different shared libraries.
-             *
-             *  If you want to check for type equality then you should compare
-             * the type name (see getTypeName() )
-             *  */
-            static bdn::java::JClass &getStaticClass_()
-            {
-                static bdn::java::JClass cls("android/content/Intent");
-
-                return cls;
-            }
-
-            bdn::java::JClass &getClass_() override { return getStaticClass_(); }
+            java::Method<String()> getAction{this, "getAction"};
+            java::Method<JBundle()> getExtras{this, "getExtras"};
         };
     }
 }

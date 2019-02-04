@@ -29,7 +29,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
         bdn::test::TestAndroidViewCoreMixin<bdn::test::TestWindowCore>::clearAllReferencesToCore();
 
         _androidViewCore = nullptr;
-        _jView = bdn::android::JView();
+        //        _jView = bdn::android::JView();
     }
 
     struct DestructVerificationInfo : public Base
