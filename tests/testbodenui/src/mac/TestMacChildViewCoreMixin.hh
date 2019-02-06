@@ -4,7 +4,7 @@
 #include <bdn/View.h>
 #import <bdn/mac/ChildViewCore.hh>
 #import <bdn/mac/WindowCore.hh>
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 #import <bdn/mac/util.hh>
 
 namespace bdn
@@ -25,17 +25,17 @@ namespace bdn
                 _macChildViewCore = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(BaseClass::_view->getViewCore());
                 REQUIRE(_macChildViewCore != nullptr);
 
-                _nSView = _macChildViewCore->getNSView();
-                REQUIRE(_nSView != nullptr);
+                _nsView = _macChildViewCore->getNSView();
+                REQUIRE(_nsView != nullptr);
             }
 
-            std::shared_ptr<UiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
+            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::mac::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {
                 bool expectedVisible = BaseClass::_view->visible;
 
-                REQUIRE(_nSView.hidden == !expectedVisible);
+                REQUIRE(_nsView.hidden == !expectedVisible);
             }
 
             Rect getFrameRect() const
@@ -44,7 +44,7 @@ namespace bdn
                 // already configured so that the origin is top-left. And top
                 // level Windows have an intermediate contentWindow parent that
                 // is configured the same way.
-                return bdn::mac::macRectToRect(_nSView.frame, -1);
+                return bdn::mac::macRectToRect(_nsView.frame, -1);
             }
 
             void verifyInitialDummyCoreSize() override
@@ -80,7 +80,7 @@ namespace bdn
             }
 
             std::shared_ptr<bdn::mac::ChildViewCore> _macChildViewCore;
-            NSView *_nSView;
+            NSView *_nsView;
         };
     }
 }

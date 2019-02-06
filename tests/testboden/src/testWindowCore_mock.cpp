@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestWindowCore.h>
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/test/MockWindowCore.h>
 #include "TestMockViewCoreMixin.h"
 
@@ -33,9 +33,9 @@ class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin<bdn::test::Te
         _mockWindowCore = nullptr;
     }
 
-    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override { return nullptr; }
+    std::shared_ptr<Base> createInfoToVerifyCoreUIElementDestruction() override { return nullptr; }
 
-    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override {}
+    void verifyCoreUIElementDestruction(std::shared_ptr<Base> verificationInfo) override {}
 
     std::shared_ptr<bdn::test::MockWindowCore> _mockWindowCore;
 };

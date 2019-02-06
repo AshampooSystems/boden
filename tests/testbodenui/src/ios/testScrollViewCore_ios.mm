@@ -8,7 +8,7 @@
 
 #import <bdn/ios/util.hh>
 
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 
 #import <bdn/ios/ScrollViewCore.hh>
 

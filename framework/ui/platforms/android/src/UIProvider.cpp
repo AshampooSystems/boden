@@ -1,5 +1,5 @@
 
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ButtonCore.h>
@@ -18,7 +18,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UiProvider> getDefaultUiProvider() { return bdn::android::UiProvider::get(); }
+    std::shared_ptr<UIProvider> getDefaultUIProvider() { return bdn::android::UIProvider::get(); }
 }
 
 namespace bdn
@@ -26,13 +26,13 @@ namespace bdn
     namespace android
     {
 
-        std::shared_ptr<UiProvider> UiProvider::get()
+        std::shared_ptr<UIProvider> UIProvider::get()
         {
-            static std::shared_ptr<UiProvider> uiProvider = std::make_shared<UiProvider>();
+            static std::shared_ptr<UIProvider> uiProvider = std::make_shared<UIProvider>();
             return uiProvider;
         }
 
-        double UiProvider::getSemSizeDips(ViewCore &viewCore)
+        double UIProvider::getSemSizeDips(ViewCore &viewCore)
         {
             if (_semDips == -1) {
                 // sem size is not yet initialized.
@@ -43,13 +43,13 @@ namespace bdn
                 double textSize = paint.getTextSize();
 
                 // getTextSize returns the size in real pixels.
-                _semDips = textSize / viewCore.getUiScaleFactor();
+                _semDips = textSize / viewCore.getUIScaleFactor();
             }
 
             return _semDips;
         }
 
-        UiProvider::UiProvider()
+        UIProvider::UIProvider()
         {
             _semDips = -1;
             _layoutCoordinator = std::make_shared<LayoutCoordinator>();
@@ -65,6 +65,6 @@ namespace bdn
             registerAndroidCoreType<ListViewCore, ListView>();
         }
 
-        String UiProvider::getName() const { return "android"; }
+        String UIProvider::getName() const { return "android"; }
     }
 }

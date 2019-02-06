@@ -24,7 +24,7 @@ namespace bdn
 
             Rect adjustAndSetBounds(const Rect &requestedBounds) override;
 
-            double getUiScaleFactor() const override;
+            double getUIScaleFactor() const override;
 
             void addChildJView(JView childJView) override;
 

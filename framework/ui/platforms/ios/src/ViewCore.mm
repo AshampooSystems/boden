@@ -27,9 +27,9 @@ namespace bdn
 
         void ViewCore::setVisible(const bool &visible) { _view.hidden = !visible; }
 
-        void ViewCore::setPadding(const std::optional<UiMargin> &padding) {}
+        void ViewCore::setPadding(const std::optional<UIMargin> &padding) {}
 
-        void ViewCore::setMargin(const UiMargin &margin) {}
+        void ViewCore::setMargin(const UIMargin &margin) {}
 
         void ViewCore::invalidateSizingInfo(View::InvalidateReason reason)
         {
@@ -40,8 +40,8 @@ namespace bdn
         {
             std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
             if (outerView != nullptr) {
-                std::shared_ptr<UiProvider> provider =
-                    std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                std::shared_ptr<UIProvider> provider =
+                    std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
             }
@@ -121,29 +121,29 @@ namespace bdn
             return Dip::pixelAlign(requestedBounds, scale, positionRoundType, sizeRoundType);
         }
 
-        double ViewCore::uiLengthToDips(const UiLength &uiLength) const
+        double ViewCore::uiLengthToDips(const UILength &uiLength) const
         {
             switch (uiLength.unit) {
-            case UiLength::Unit::none:
+            case UILength::Unit::none:
                 return 0;
 
-            case UiLength::Unit::dip:
+            case UILength::Unit::dip:
                 return uiLength.value;
 
-            case UiLength::Unit::em:
+            case UILength::Unit::em:
                 return uiLength.value * getEmSizeDips();
 
-            case UiLength::Unit::sem:
+            case UILength::Unit::sem:
                 return uiLength.value * getSemSizeDips();
 
             default:
-                throw InvalidArgumentError("Invalid UiLength unit passed to "
+                throw InvalidArgumentError("Invalid UILength unit passed to "
                                            "ViewCore::uiLengthToDips: " +
                                            std::to_string((int)uiLength.unit));
             }
         }
 
-        Margin ViewCore::uiMarginToDipMargin(const UiMargin &margin) const
+        Margin ViewCore::uiMarginToDipMargin(const UIMargin &margin) const
         {
             return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
                           uiLengthToDips(margin.left));
@@ -229,7 +229,7 @@ namespace bdn
             // add the padding
             Margin padding;
 
-            std::optional<UiMargin> pad;
+            std::optional<UIMargin> pad;
             std::shared_ptr<const View> view = getOuterViewIfStillAttached();
             if (view != nullptr)
                 pad = view->padding;
@@ -267,7 +267,7 @@ namespace bdn
         double ViewCore::getFontSize() const
         {
             // most views do not have a font size attached to them on ios.
-            // UiLabel and UiButton are pretty much the only ones.
+            // UILabel and UIButton are pretty much the only ones.
             // Those should override this function.
             // In the default implementation we simply return the system
             // font size.
@@ -285,7 +285,7 @@ namespace bdn
         double ViewCore::getSemSizeDips() const
         {
             if (_semDipsIfInitialized == -1)
-                _semDipsIfInitialized = UiProvider::get()->getSemSizeDips();
+                _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
 
             return _semDipsIfInitialized;
         }

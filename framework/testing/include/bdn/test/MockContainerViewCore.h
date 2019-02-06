@@ -15,7 +15,7 @@ namespace bdn
            actually show anything visible, but behaves otherwise like a normal
            container view core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockContainerViewCore : public MockViewCore
         {

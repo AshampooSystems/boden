@@ -3,7 +3,7 @@
 
 #include <bdn/View.h>
 #include <bdn/test/MockViewCore.h>
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 
 namespace bdn
 {
@@ -16,7 +16,7 @@ namespace bdn
         template <class BaseClass> class TestMockViewCoreMixin : public BaseClass
         {
           public:
-            TestMockViewCoreMixin() { _mockProvider = std::make_shared<bdn::test::MockUiProvider>(); }
+            TestMockViewCoreMixin() { _mockProvider = std::make_shared<bdn::test::MockUIProvider>(); }
 
           protected:
             void initCore() override
@@ -27,7 +27,7 @@ namespace bdn
                 REQUIRE(_mockCore != nullptr);
             }
 
-            std::shared_ptr<UiProvider> getUiProvider() override { return _mockProvider; }
+            std::shared_ptr<UIProvider> getUIProvider() override { return _mockProvider; }
 
             void verifyCoreVisibility() override
             {
@@ -58,7 +58,7 @@ namespace bdn
 
             void verifyCorePadding() override
             {
-                std::optional<UiMargin> expectedPadding = this->_view->padding;
+                std::optional<UIMargin> expectedPadding = this->_view->padding;
 
                 if (expectedPadding)
                     REQUIRE(_mockCore->getPadding());
@@ -70,7 +70,7 @@ namespace bdn
             }
 
             std::shared_ptr<bdn::test::MockViewCore> _mockCore;
-            std::shared_ptr<bdn::test::MockUiProvider> _mockProvider;
+            std::shared_ptr<bdn::test::MockUIProvider> _mockProvider;
         };
     }
 }

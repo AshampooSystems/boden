@@ -1,7 +1,7 @@
 
 
 #import <UIKit/UIKit.h>
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/WindowCore.hh>
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ButtonCore.hh>
@@ -20,7 +20,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UiProvider> getDefaultUiProvider() { return bdn::ios::UiProvider::get(); }
+    std::shared_ptr<UIProvider> getDefaultUIProvider() { return bdn::ios::UIProvider::get(); }
 }
 
 namespace bdn
@@ -28,13 +28,13 @@ namespace bdn
     namespace ios
     {
 
-        std::shared_ptr<UiProvider> UiProvider::get()
+        std::shared_ptr<UIProvider> UIProvider::get()
         {
-            static std::shared_ptr<UiProvider> globalUIProvider = std::make_shared<UiProvider>();
+            static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
             return globalUIProvider;
         };
 
-        UiProvider::UiProvider()
+        UIProvider::UIProvider()
         {
             // iOS uses DIPs for font sizes (although they call it "points").
             // So no conversion necessary
@@ -54,9 +54,9 @@ namespace bdn
             registerCoreType<ListViewCore, ListView>();
         }
 
-        String UiProvider::getName() const { return "ios"; }
+        String UIProvider::getName() const { return "ios"; }
 
-        /*std::shared_ptr<IViewCore> UiProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
+        /*std::shared_ptr<IViewCore> UIProvider::createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
         {
             if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
                 return std::make_shared<ContainerViewCore>(std::dynamic_pointer_cast<ContainerView>(view));

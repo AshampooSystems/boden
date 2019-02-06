@@ -1,5 +1,5 @@
 
-#import <bdn/mac/UiAppRunner.hh>
+#import <bdn/mac/UIAppRunner.hh>
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
@@ -11,15 +11,15 @@
 
 @interface BdnMacAppDelegate_ : NSObject <NSApplicationDelegate>
 
-- (void)setAppRunner:(bdn::mac::UiAppRunner *)runner;
+- (void)setAppRunner:(bdn::mac::UIAppRunner *)runner;
 
 @end
 
 @implementation BdnMacAppDelegate_
 
-bdn::mac::UiAppRunner *_runner;
+bdn::mac::UIAppRunner *_runner;
 
-- (void)setAppRunner:(bdn::mac::UiAppRunner *)runner { _runner = runner; }
+- (void)setAppRunner:(bdn::mac::UIAppRunner *)runner { _runner = runner; }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
@@ -50,7 +50,7 @@ namespace bdn
     namespace mac
     {
 
-        AppLaunchInfo UiAppRunner::_makeLaunchInfo(int argCount, char *args[])
+        AppLaunchInfo UIAppRunner::_makeLaunchInfo(int argCount, char *args[])
         {
             AppLaunchInfo launchInfo;
 
@@ -65,7 +65,7 @@ namespace bdn
             return launchInfo;
         }
 
-        UiAppRunner::UiAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+        UIAppRunner::UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
                                  char *args[])
             : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
         {
@@ -100,9 +100,9 @@ namespace bdn
             }
         }
 
-        bool UiAppRunner::isCommandLineApp() const { return false; }
+        bool UIAppRunner::isCommandLineApp() const { return false; }
 
-        int UiAppRunner::entry()
+        int UIAppRunner::entry()
         {
             NSSetUncaughtExceptionHandler(&_globalUnhandledNSException);
 
@@ -116,7 +116,7 @@ namespace bdn
             return 0;
         }
 
-        void UiAppRunner::_applicationWillFinishLaunching(NSNotification *notification)
+        void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)
         {
             bdn::platformEntryWrapper(
                 [&]() {
@@ -126,33 +126,33 @@ namespace bdn
                 false);
         }
 
-        void UiAppRunner::_applicationDidFinishLaunching(NSNotification *notification)
+        void UIAppRunner::_applicationDidFinishLaunching(NSNotification *notification)
         {
             bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
         }
 
-        void UiAppRunner::_applicationDidBecomeActive(NSNotification *notification)
+        void UIAppRunner::_applicationDidBecomeActive(NSNotification *notification)
         {
             bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
         }
 
-        void UiAppRunner::_applicationDidResignActive(NSNotification *notification)
+        void UIAppRunner::_applicationDidResignActive(NSNotification *notification)
         {
             bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
         }
 
-        void UiAppRunner::_applicationWillTerminate(NSNotification *notification)
+        void UIAppRunner::_applicationWillTerminate(NSNotification *notification)
         {
             bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
         }
 
-        void UiAppRunner::initiateExitIfPossible(int exitCode)
+        void UIAppRunner::initiateExitIfPossible(int exitCode)
         {
             _mainDispatcher->enqueue(
                 []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
         }
 
-        void UiAppRunner::disposeMainDispatcher()
+        void UIAppRunner::disposeMainDispatcher()
         {
             std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose();
         }

@@ -60,7 +60,7 @@ namespace bdn
 
                 _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
 
-                updateUiScaleFactor(rootView.getContext().getResources().getConfiguration());
+                updateUIScaleFactor(rootView.getContext().getResources().getConfiguration());
 
                 rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
             }
@@ -108,8 +108,8 @@ namespace bdn
             {
                 std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
-                    std::shared_ptr<UiProvider> provider =
-                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UIProvider> provider =
+                        std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
@@ -144,8 +144,8 @@ namespace bdn
             {
                 std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr) {
-                    std::shared_ptr<UiProvider> provider =
-                        std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                    std::shared_ptr<UIProvider> provider =
+                        std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
                 }
@@ -155,8 +155,8 @@ namespace bdn
             {
                 std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr) {
-                    std::shared_ptr<UiProvider> provider =
-                        std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                    std::shared_ptr<UIProvider> provider =
+                        std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->windowNeedsCentering(window);
                 }
@@ -217,7 +217,7 @@ namespace bdn
                     windowCore->rootViewConfigurationChanged(config);
             }
 
-            double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
+            double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
             void addChildJView(JView childJView) override
             {
@@ -269,7 +269,7 @@ namespace bdn
                 rootView.setChildBounds(getJView(), 0, 0, width, height);
                 rootView.requestLayout();
 
-                double scaleFactor = getUiScaleFactor();
+                double scaleFactor = getUIScaleFactor();
 
                 _currentBounds = Rect(0, 0, width / scaleFactor, height / scaleFactor);
 
@@ -283,7 +283,7 @@ namespace bdn
              *  The default implementation updates the Window's size to match
              * the new root dimensions.
              *  */
-            virtual void rootViewConfigurationChanged(JConfiguration config) { updateUiScaleFactor(config); }
+            virtual void rootViewConfigurationChanged(JConfiguration config) { updateUIScaleFactor(config); }
 
             virtual void attachedToNewRootView(const bdn::java::Reference &javaRef)
             {
@@ -292,7 +292,7 @@ namespace bdn
 
                 JConfiguration config(rootView.getContext().getResources().getConfiguration());
 
-                updateUiScaleFactor(config);
+                updateUIScaleFactor(config);
 
                 rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
             }
@@ -316,7 +316,7 @@ namespace bdn
                 }
             }
 
-            void updateUiScaleFactor(JConfiguration config)
+            void updateUIScaleFactor(JConfiguration config)
             {
                 int dpi = config.densityDpi();
 
@@ -326,7 +326,7 @@ namespace bdn
 
                 double scaleFactor = dpi / 160.0;
 
-                setUiScaleFactor(scaleFactor);
+                setUIScaleFactor(scaleFactor);
             }
 
             static void getWindowCoreListFromRootView(const bdn::java::Reference &javaRootViewRef,

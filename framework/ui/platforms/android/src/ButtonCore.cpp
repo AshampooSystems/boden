@@ -39,7 +39,7 @@ namespace bdn
         double ButtonCore::getFontSizeDips() const
         {
             // the text size is in pixels
-            return _jButton.getTextSize() / getUiScaleFactor();
+            return _jButton.getTextSize() / getUIScaleFactor();
         }
     }
 }

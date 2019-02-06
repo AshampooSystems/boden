@@ -1,7 +1,7 @@
 
 #include <bdn/android/ViewCore.h>
 
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 
 #include <cmath>
 
@@ -10,23 +10,23 @@ namespace bdn
     namespace android
     {
 
-        double ViewCore::uiLengthToDips(const UiLength &uiLength) const
+        double ViewCore::uiLengthToDips(const UILength &uiLength) const
         {
             switch (uiLength.unit) {
-            case UiLength::Unit::none:
+            case UILength::Unit::none:
                 return 0;
 
-            case UiLength::Unit::dip:
+            case UILength::Unit::dip:
                 return uiLength.value;
 
-            case UiLength::Unit::em:
+            case UILength::Unit::em:
                 return uiLength.value * getEmSizeDips();
 
-            case UiLength::Unit::sem:
-                return uiLength.value * UiProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
+            case UILength::Unit::sem:
+                return uiLength.value * UIProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
 
             default:
-                throw InvalidArgumentError("Invalid UiLength unit passed to "
+                throw InvalidArgumentError("Invalid UILength unit passed to "
                                            "ViewCore::uiLengthToDips: " +
                                            std::to_string((int)uiLength.unit));
             }
@@ -35,7 +35,7 @@ namespace bdn
         double ViewCore::getSemSizeDips() const
         {
             if (_semDipsIfInitialized == -1)
-                _semDipsIfInitialized = UiProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
+                _semDipsIfInitialized = UIProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
 
             return _semDipsIfInitialized;
         }
@@ -44,8 +44,8 @@ namespace bdn
         {
             std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
             if (outerView != nullptr) {
-                std::shared_ptr<UiProvider> provider =
-                    std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                std::shared_ptr<UIProvider> provider =
+                    std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
             }

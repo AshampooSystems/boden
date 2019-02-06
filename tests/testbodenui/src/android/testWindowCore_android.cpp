@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestWindowCore.h>
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 #include <bdn/android/WindowCore.h>
 #include "TestAndroidViewCoreMixin.h"
 
@@ -39,7 +39,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
         bdn::android::JView jView;
     };
 
-    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override
+    std::shared_ptr<Base> createInfoToVerifyCoreUIElementDestruction() override
     {
         // sanity check
         REQUIRE(!_jView.isNull_());
@@ -48,7 +48,7 @@ class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin<bdn::te
         return std::make_shared<DestructVerificationInfo>(_jView);
     }
 
-    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override
+    void verifyCoreUIElementDestruction(std::shared_ptr<Base> verificationInfo) override
     {
         bdn::android::JView jv = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->jView;
 

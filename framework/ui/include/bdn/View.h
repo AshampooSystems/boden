@@ -4,11 +4,11 @@ namespace bdn
 {
     class View;
     class IViewCore;  // included below
-    class UiProvider; // included below
+    class UIProvider; // included below
 }
 
-#include <bdn/UiMargin.h>
-#include <bdn/UiSize.h>
+#include <bdn/UIMargin.h>
+#include <bdn/UISize.h>
 #include <bdn/Rect.h>
 #include <bdn/property/Property.h>
 #include <bdn/mainThread.h>
@@ -70,7 +70,7 @@ namespace bdn
 
             The default margin is 0.
         */
-        Property<UiMargin> margin;
+        Property<UIMargin> margin;
 
         /** The size space around the content inside this view.
 
@@ -88,7 +88,7 @@ namespace bdn
 
             The default padding is "null".
         */
-        Property<std::optional<UiMargin>> padding;
+        Property<std::optional<UIMargin>> padding;
 
         /** The position of the view, in client coordinates of the parent view.
             in DIP units (see \ref dip.md).
@@ -205,8 +205,8 @@ namespace bdn
           for short periods of time when a reinitialization was necessary.
 
            The core provides the actual implementation of the view. It is
-          provided by the UiProvider object that the view uses. The
-          UiProvider is inherited from the parent view and can be explicitly
+          provided by the UIProvider object that the view uses. The
+          UIProvider is inherited from the parent view and can be explicitly
           set when creating a top level window.
            */
         std::shared_ptr<IViewCore> getViewCore() const { return _core; }
@@ -278,7 +278,7 @@ namespace bdn
            been added to a new parent until its UI provider becomes available in
            the child view.
             */
-        std::shared_ptr<UiProvider> getUiProvider() { return _uiProvider; }
+        std::shared_ptr<UIProvider> getUIProvider() { return _uiProvider; }
 
         /** Returns the type name of the view core. This is a somewhat arbitrary
            name that is used in the internal implementation. It is NOT
@@ -373,7 +373,7 @@ namespace bdn
             */
         virtual void needLayout(InvalidateReason reason);
 
-        /** Converts a UiLength object to DIPs.
+        /** Converts a UILength object to DIPs.
             DIP stands for "device independent pixel", a special unit (see \ref
            dip.md).
 
@@ -383,9 +383,9 @@ namespace bdn
             (if the view's parameters or the operating systems settings have
            changed).
             */
-        double uiLengthToDips(const UiLength &length) const;
+        double uiLengthToDips(const UILength &length) const;
 
-        /** Converts a UiMargin object to a DIP based margin object.
+        /** Converts a UIMargin object to a DIP based margin object.
             DIP stands for "device independent pixel", a special unit (see \ref
            dip.md)
 
@@ -395,7 +395,7 @@ namespace bdn
             (if the view's parameters or the operating systems settings have
            changed).
             */
-        Margin uiMarginToDipMargin(const UiMargin &uiMargin) const;
+        Margin uiMarginToDipMargin(const UIMargin &uiMargin) const;
 
         /** Asks the view to calculate its preferred size in DIPs (see \ref
            dip.md), based on it current contents and properties.
@@ -586,17 +586,17 @@ namespace bdn
             */
         void reinitCore();
 
-        /** Determines the Ui provider to use with this view object.
-            The default implementation returns the parent view's Ui provider,
+        /** Determines the UI provider to use with this view object.
+            The default implementation returns the parent view's UI provider,
             or null if the view does not have a parent or the parent does not
             have a ui provider.
             */
-        virtual std::shared_ptr<UiProvider> determineUiProvider(std::shared_ptr<View> parentView = nullptr)
+        virtual std::shared_ptr<UIProvider> determineUIProvider(std::shared_ptr<View> parentView = nullptr)
         {
             if (parentView == nullptr)
                 parentView = getParentView();
 
-            return (parentView != nullptr) ? parentView->getUiProvider() : nullptr;
+            return (parentView != nullptr) ? parentView->getUIProvider() : nullptr;
         }
 
       private:
@@ -613,7 +613,7 @@ namespace bdn
         virtual void _initCore();
 
       protected:
-        std::shared_ptr<UiProvider> _uiProvider;
+        std::shared_ptr<UIProvider> _uiProvider;
         std::weak_ptr<View> _parentViewWeak;
         std::shared_ptr<IViewCore> _core;
 
@@ -622,4 +622,4 @@ namespace bdn
     };
 }
 
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>

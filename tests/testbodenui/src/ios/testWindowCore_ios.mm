@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestWindowCore.h>
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/WindowCore.hh>
 #import <bdn/ios/ViewCore.hh>
 
@@ -22,7 +22,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         REQUIRE(_uIWindow != nullptr);
     }
 
-    std::shared_ptr<UiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
+    std::shared_ptr<UIProvider> getUIProvider() override { return bdn::ios::UIProvider::get(); }
 
     void verifyCoreTitle() override
     {
@@ -62,7 +62,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         __weak UIWindow *uIWindow;
     };
 
-    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override
+    std::shared_ptr<Base> createInfoToVerifyCoreUIElementDestruction() override
     {
         // sanity check
         REQUIRE(_uIWindow != nullptr);
@@ -70,7 +70,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         return std::make_shared<DestructVerificationInfo>(_uIWindow);
     }
 
-    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override
+    void verifyCoreUIElementDestruction(std::shared_ptr<Base> verificationInfo) override
     {
         __weak UIWindow *uIWindow = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->uIWindow;
 

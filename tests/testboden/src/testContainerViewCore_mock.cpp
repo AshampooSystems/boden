@@ -3,7 +3,7 @@
 
 #include <bdn/test/TestContainerViewCore.h>
 
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include "TestMockViewCoreMixin.h"
 
 using namespace bdn;

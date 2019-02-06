@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/test/ViewWithTestExtensions.h>
 #include <bdn/test/testCalcPreferredSize.h>
 #include <bdn/test/MockViewCore.h>
@@ -27,11 +27,11 @@ namespace bdn
           public:
             ViewTestPreparer()
             {
-                _uiProvider = std::make_shared<MockUiProvider>();
+                _uiProvider = std::make_shared<MockUIProvider>();
                 _window = std::make_shared<Window>(_uiProvider);
             }
 
-            std::shared_ptr<MockUiProvider> getUiProvider() { return _uiProvider; }
+            std::shared_ptr<MockUIProvider> getUIProvider() { return _uiProvider; }
 
             std::shared_ptr<Window> getWindow() { return _window; }
 
@@ -63,16 +63,16 @@ namespace bdn
             void createLocalView() { ViewType view; }
 
           protected:
-            std::shared_ptr<MockUiProvider> _uiProvider;
+            std::shared_ptr<MockUIProvider> _uiProvider;
             std::shared_ptr<Window> _window;
         };
 
         template <> class ViewTestPreparer<Window> : public Base
         {
           public:
-            ViewTestPreparer() { _uiProvider = std::make_shared<MockUiProvider>(); }
+            ViewTestPreparer() { _uiProvider = std::make_shared<MockUIProvider>(); }
 
-            std::shared_ptr<MockUiProvider> getUiProvider() { return _uiProvider; }
+            std::shared_ptr<MockUIProvider> getUIProvider() { return _uiProvider; }
 
             std::shared_ptr<Window> getWindow() { return _window; }
 
@@ -95,7 +95,7 @@ namespace bdn
             void createLocalView() { Window window(_uiProvider); }
 
           protected:
-            std::shared_ptr<MockUiProvider> _uiProvider;
+            std::shared_ptr<MockUIProvider> _uiProvider;
             std::shared_ptr<Window> _window;
         };
 
@@ -252,11 +252,11 @@ namespace bdn
         {
             std::shared_ptr<ViewTestPreparer<ViewType>> preparer = std::make_shared<ViewTestPreparer<ViewType>>();
 
-            int initialCoresCreated = preparer->getUiProvider()->getCoresCreated();
+            int initialCoresCreated = preparer->getUIProvider()->getCoresCreated();
 
             SECTION("onlyNewAllocAllowed")
             {
-                BDN_REQUIRE(preparer->getUiProvider()->getCoresCreated() == initialCoresCreated);
+                BDN_REQUIRE(preparer->getUIProvider()->getCoresCreated() == initialCoresCreated);
             }
 
             SECTION("without parent")
@@ -291,7 +291,7 @@ namespace bdn
             SECTION("with parent")
             {
                 std::shared_ptr<ViewWithTestExtensions<ViewType>> view = preparer->createView();
-                // BDN_REQUIRE(preparer->getUiProvider()->getCoresCreated() == initialCoresCreated + 1);
+                // BDN_REQUIRE(preparer->getUIProvider()->getCoresCreated() == initialCoresCreated + 1);
 
                 std::shared_ptr<bdn::test::MockViewCore> core =
                     std::dynamic_pointer_cast<bdn::test::MockViewCore>(view->getViewCore());
@@ -313,7 +313,7 @@ namespace bdn
 
                         BDN_REQUIRE(view->visible == shouldViewBeInitiallyVisible<ViewType>());
 
-                        BDN_REQUIRE(view->margin == UiMargin(UiLength()));
+                        BDN_REQUIRE(view->margin == UIMargin(UILength()));
                         BDN_REQUIRE(!view->padding.get());
 
                         BDN_REQUIRE(view->horizontalAlignment == View::HorizontalAlignment::left);
@@ -323,7 +323,7 @@ namespace bdn
                         BDN_REQUIRE(view->preferredSizeMinimum == Size::none());
                         BDN_REQUIRE(view->preferredSizeMaximum == Size::none());
 
-                        BDN_REQUIRE(view->getUiProvider() == preparer->getUiProvider());
+                        BDN_REQUIRE(view->getUIProvider() == preparer->getUIProvider());
 
                         if (shouldViewHaveParent<ViewType>())
                             BDN_REQUIRE(view->getParentView() ==
@@ -505,7 +505,7 @@ namespace bdn
 
                         SECTION("margin")
                         {
-                            UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4));
+                            UIMargin m(UILength::sem(1), UILength::sem(2), UILength::sem(3), UILength::sem(4));
 
                             _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->margin = (m); },
                                                   [core, m, view, window]() {
@@ -525,7 +525,7 @@ namespace bdn
 
                         SECTION("padding")
                         {
-                            UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4));
+                            UIMargin m(UILength::sem(1), UILength::sem(2), UILength::sem(3), UILength::sem(4));
 
                             _testViewOp<ViewType>(view, preparer, [view, m, window]() { view->padding = (m); },
                                                   [core, m, view, window]() {
@@ -808,16 +808,16 @@ namespace bdn
                             view, preparer,
                             [view, window]() {
                                 view->padding =
-                                    (UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10)));
+                                    (UIMargin(UILength::sem(7), UILength::sem(8), UILength::sem(9), UILength::sem(10)));
                                 view->padding =
-                                    (UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9)));
+                                    (UIMargin(UILength::sem(6), UILength::sem(7), UILength::sem(8), UILength::sem(9)));
                             },
 
                             [core, view, window]() {
                                 // padding changed twice
                                 BDN_REQUIRE(core->getPaddingChangeCount() == 2);
-                                BDN_REQUIRE(core->getPadding() == UiMargin(UiLength::sem(6), UiLength::sem(7),
-                                                                           UiLength::sem(8), UiLength::sem(9)));
+                                BDN_REQUIRE(core->getPadding() == UIMargin(UILength::sem(6), UILength::sem(7),
+                                                                           UILength::sem(8), UILength::sem(9)));
                             },
 
                             ExpectedSideEffect_::invalidateSizingInfo         // should have caused

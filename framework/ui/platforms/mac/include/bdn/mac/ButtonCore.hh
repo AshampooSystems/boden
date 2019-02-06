@@ -39,7 +39,7 @@ namespace bdn
                 return adjustedBounds;
             }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 ChildViewCore::setPadding(padding);
 
@@ -72,7 +72,7 @@ namespace bdn
                 // the button automatically includes some padding in the fitting
                 // size. This is rougly this:
 
-                return uiMarginToDipMargin(UiMargin(UiLength::sem(0.5), UiLength::sem(1)));
+                return uiMarginToDipMargin(UIMargin(UILength::sem(0.5), UILength::sem(1)));
             }
 
           private:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 namespace bdn
@@ -8,14 +8,14 @@ namespace bdn
     namespace mac
     {
 
-        class UiProvider : public Base, virtual public bdn::UiProvider
+        class UIProvider : public Base, virtual public bdn::UIProvider
         {
           public:
-            UiProvider();
+            UIProvider();
 
             String getName() const override;
 
-            static std::shared_ptr<UiProvider> get();
+            static std::shared_ptr<UIProvider> get();
 
             double getSemSizeDips() const { return _semDips; }
 

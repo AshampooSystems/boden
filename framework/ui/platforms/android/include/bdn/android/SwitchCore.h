@@ -54,7 +54,7 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jSwitch.getTextSize() / getUiScaleFactor();
+                return _jSwitch.getTextSize() / getUIScaleFactor();
             }
 
           private:

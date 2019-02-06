@@ -17,7 +17,7 @@ class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestSwitchCore>::initCore();
 
-        _switchComposite = (BdnMacSwitchComposite *)_nSView;
+        _switchComposite = (BdnMacSwitchComposite *)_nsView;
         REQUIRE(_switchComposite != nullptr);
     }
 

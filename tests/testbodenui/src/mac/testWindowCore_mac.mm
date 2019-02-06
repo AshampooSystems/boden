@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestWindowCore.h>
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ChildViewCore.hh>
 
@@ -37,26 +37,26 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         _macWindowCore = std::dynamic_pointer_cast<bdn::mac::WindowCore>(_view->getViewCore());
         REQUIRE(_macWindowCore != nullptr);
 
-        _nSWindow = _macWindowCore->getNSWindow();
-        REQUIRE(_nSWindow != nullptr);
+        _nsWindow = _macWindowCore->getNSWindow();
+        REQUIRE(_nsWindow != nullptr);
     }
 
-    std::shared_ptr<UiProvider> getUiProvider() override { return bdn::mac::UiProvider::get(); }
+    std::shared_ptr<UIProvider> getUIProvider() override { return bdn::mac::UIProvider::get(); }
 
     void verifyCoreVisibility() override
     {
         bool expectedVisible = _view->visible;
 
-        REQUIRE(_nSWindow.visible == expectedVisible);
+        REQUIRE(_nsWindow.visible == expectedVisible);
     }
 
     bdn::Rect getFrameRect() const
     {
-        NSScreen *screen = _nSWindow.screen;
+        NSScreen *screen = _nsWindow.screen;
         if (screen == nil) // happens when window is not visible
             screen = [NSScreen mainScreen];
 
-        bdn::Rect resultRect = bdn::mac::macRectToRect(_nSWindow.frame, screen.frame.size.height);
+        bdn::Rect resultRect = bdn::mac::macRectToRect(_nsWindow.frame, screen.frame.size.height);
 
         return resultRect;
     }
@@ -94,7 +94,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         String expectedTitle = _window->title;
 
-        String title = bdn::mac::nsStringToString(_nSWindow.title);
+        String title = bdn::mac::nsStringToString(_nsWindow.title);
 
         REQUIRE(title == expectedTitle);
     }
@@ -104,35 +104,35 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         TestWindowCore::clearAllReferencesToCore();
 
         _macWindowCore = nullptr;
-        _nSWindow = nullptr;
+        _nsWindow = nullptr;
     }
 
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(NSWindow *nSWindow) { this->_nSWindow = nSWindow; }
+        DestructVerificationInfo(NSWindow *nSWindow) { this->_nsWindow = nSWindow; }
 
         // store a weak reference so that we do not keep the window alive
-        NSWindow __weak *_nSWindow;
+        NSWindow __weak *_nsWindow;
     };
 
-    std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() override
+    std::shared_ptr<Base> createInfoToVerifyCoreUIElementDestruction() override
     {
         // sanity check
-        REQUIRE(_nSWindow != nullptr);
+        REQUIRE(_nsWindow != nullptr);
 
-        return std::make_shared<DestructVerificationInfo>(_nSWindow);
+        return std::make_shared<DestructVerificationInfo>(_nsWindow);
     }
 
-    void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) override
+    void verifyCoreUIElementDestruction(std::shared_ptr<Base> verificationInfo) override
     {
-        NSWindow __weak *nSWindow = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->_nSWindow;
+        NSWindow __weak *nSWindow = std::dynamic_pointer_cast<DestructVerificationInfo>(verificationInfo)->_nsWindow;
 
         // window should have been destroyed.
         REQUIRE(nSWindow == nullptr);
     }
 
     std::shared_ptr<bdn::mac::WindowCore> _macWindowCore;
-    NSWindow *_nSWindow;
+    NSWindow *_nsWindow;
 };
 
 TEST_CASE("mac.WindowCore")

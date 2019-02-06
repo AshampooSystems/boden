@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestScrollViewCore.h>
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 #include <bdn/android/JScrollView.h>
 #include <bdn/android/JHorizontalScrollView.h>
 #include "TestAndroidViewCoreMixin.h"
@@ -122,7 +122,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
     {
         Size scrollAreaSizePixels = getScrollAreaSizePixels();
 
-        double scaleFactor = _androidViewCore->getUiScaleFactor();
+        double scaleFactor = _androidViewCore->getUIScaleFactor();
 
         Size scrollAreaSize(scrollAreaSizePixels.width / scaleFactor, scrollAreaSizePixels.height / scaleFactor);
 
@@ -136,7 +136,7 @@ class TestAndroidScrollViewCore : public bdn::test::TestAndroidViewCoreMixin<bdn
 
     void verifyViewPortSize(const Size &expectedSize) override
     {
-        double scaleFactor = _androidViewCore->getUiScaleFactor();
+        double scaleFactor = _androidViewCore->getUIScaleFactor();
 
         Size viewPortSize(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
 

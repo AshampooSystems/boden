@@ -7,7 +7,7 @@
 #include <bdn/NotImplementedError.h>
 #include <bdn/windowCoreUtil.h>
 
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 
 #include <bdn/mac/IParentViewCore.h>
 
@@ -44,13 +44,13 @@ namespace bdn
                     [_nsWindow orderOut:NSApp];
             }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 // the outer window handles padding during layout. So nothing to
                 // do here.
             }
 
-            void setMargin(const UiMargin &margin) override
+            void setMargin(const UIMargin &margin) override
             {
                 // Ignore - window margins have no effect.
             }
@@ -64,8 +64,8 @@ namespace bdn
             {
                 std::shared_ptr<View> outerView = getOuterWindowIfStillAttached();
                 if (outerView != nullptr) {
-                    std::shared_ptr<UiProvider> provider =
-                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UIProvider> provider =
+                        std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
@@ -110,29 +110,29 @@ namespace bdn
             Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override;
 
-            double uiLengthToDips(const UiLength &uiLength) const override
+            double uiLengthToDips(const UILength &uiLength) const override
             {
                 switch (uiLength.unit) {
-                case UiLength::Unit::none:
+                case UILength::Unit::none:
                     return 0;
 
-                case UiLength::Unit::dip:
+                case UILength::Unit::dip:
                     return uiLength.value;
 
-                case UiLength::Unit::em:
+                case UILength::Unit::em:
                     return uiLength.value * getEmSizeDips();
 
-                case UiLength::Unit::sem:
+                case UILength::Unit::sem:
                     return uiLength.value * getSemSizeDips();
 
                 default:
-                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                    throw InvalidArgumentError("Invalid UILength unit passed to "
                                                "ViewCore::uiLengthToDips: " +
                                                std::to_string((int)uiLength.unit));
                 }
             }
 
-            Margin uiMarginToDipMargin(const UiMargin &margin) const override
+            Margin uiMarginToDipMargin(const UIMargin &margin) const override
             {
                 return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
                               uiLengthToDips(margin.left));
@@ -250,7 +250,7 @@ namespace bdn
             double getSemSizeDips() const
             {
                 if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UiProvider::get()->getSemSizeDips();
+                    _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
 
                 return _semDipsIfInitialized;
             }

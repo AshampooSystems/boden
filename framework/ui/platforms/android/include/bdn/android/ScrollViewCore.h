@@ -79,7 +79,7 @@ namespace bdn
 
                     Size scrolledAreaSize = helper.getScrolledAreaSize();
 
-                    double uiScaleFactor = getUiScaleFactor();
+                    double uiScaleFactor = getUIScaleFactor();
 
                     // resize the content parent to the scrolled area size.
                     // That causes the content parent to get that size the next
@@ -115,7 +115,7 @@ namespace bdn
                 int clientWidth = _jContentParent.getWidth();
                 int clientHeight = _jContentParent.getHeight();
 
-                double uiScaleFactor = getUiScaleFactor();
+                double uiScaleFactor = getUIScaleFactor();
 
                 int targetLeft;
                 int targetRight;
@@ -249,7 +249,7 @@ namespace bdn
                 _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
             }
 
-            double getUiScaleFactor() const override { return ViewCore::getUiScaleFactor(); }
+            double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
             void addChildJView(JView childJView) override
             {
@@ -268,7 +268,7 @@ namespace bdn
                 std::shared_ptr<ScrollView> outer =
                     std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
-                    double uiScaleFactor = getUiScaleFactor();
+                    double uiScaleFactor = getUIScaleFactor();
 
                     Rect visibleRect(_jNativeScrollView.getScrollX() / uiScaleFactor,
                                      _jNativeScrollView.getScrollY() / uiScaleFactor,

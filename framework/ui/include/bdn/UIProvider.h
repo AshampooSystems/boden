@@ -2,7 +2,7 @@
 
 namespace bdn
 {
-    class UiProvider;
+    class UIProvider;
 }
 
 #include <bdn/IViewCore.h>
@@ -30,7 +30,7 @@ namespace bdn
        the testing of a user interface and make it easier to automate such
        tests.
     */
-    class UiProvider : public bdn::Factory<std::shared_ptr<IViewCore>, std::shared_ptr<View>>
+    class UIProvider : public bdn::Factory<std::shared_ptr<IViewCore>, std::shared_ptr<View>>
     {
       public:
         /** Returns the name of the UI provider. This is intended for logging
@@ -107,7 +107,7 @@ namespace bdn
     /*!
      * \brief Returns the default UI provider for the current platform.
      * Note that this is not necessarily the active UI
-     * provider that is used by the app. To get that use AppControllerBase::getUiProvider().
+     * provider that is used by the app. To get that use AppControllerBase::getUIProvider().
      */
-    std::shared_ptr<UiProvider> getDefaultUiProvider();
+    std::shared_ptr<UIProvider> getDefaultUIProvider();
 }

@@ -4,7 +4,7 @@
 #include <bdn/Window.h>
 #include <bdn/test.h>
 #include <bdn/test/testCalcPreferredSize.h>
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>
 #include <bdn/Button.h>
 #include <bdn/ColumnView.h>
 
@@ -22,7 +22,7 @@ namespace bdn
             /** Performs the tests.*/
             virtual void runTests()
             {
-                _window = std::make_shared<WindowForTest>(getUiProvider());
+                _window = std::make_shared<WindowForTest>(getUIProvider());
 
                 _window->visible = (true);
 
@@ -125,7 +125,7 @@ namespace bdn
                     SECTION("explicit")
                     {
                         _view->padding =
-                            (UiMargin(UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44)));
+                            (UIMargin(UILength::sem(11), UILength::sem(22), UILength::sem(33), UILength::sem(44)));
 
                         initCore();
                         verifyCorePadding();
@@ -154,21 +154,21 @@ namespace bdn
 
                 SECTION("uiLengthToDips")
                 {
-                    REQUIRE(_core->uiLengthToDips(UiLength::none()) == 0);
-                    REQUIRE(_core->uiLengthToDips(UiLength(17, UiLength::Unit::none)) == 0);
-                    REQUIRE(_core->uiLengthToDips(UiLength::dip(0)) == 0);
-                    REQUIRE(_core->uiLengthToDips(UiLength::sem(0)) == 0);
-                    REQUIRE(_core->uiLengthToDips(UiLength::em(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UILength::none()) == 0);
+                    REQUIRE(_core->uiLengthToDips(UILength(17, UILength::Unit::none)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UILength::dip(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UILength::sem(0)) == 0);
+                    REQUIRE(_core->uiLengthToDips(UILength::em(0)) == 0);
 
-                    REQUIRE(_core->uiLengthToDips(UiLength::dip(17.34)) == 17.34);
+                    REQUIRE(_core->uiLengthToDips(UILength::dip(17.34)) == 17.34);
 
-                    double semSize = _core->uiLengthToDips(UiLength::sem(1));
+                    double semSize = _core->uiLengthToDips(UILength::sem(1));
                     REQUIRE(semSize > 0);
-                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UiLength::sem(3)), semSize * 3, 3);
+                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UILength::sem(3)), semSize * 3, 3);
 
-                    double emSize = _core->uiLengthToDips(UiLength::em(1));
+                    double emSize = _core->uiLengthToDips(UILength::em(1));
                     REQUIRE(emSize > 0);
-                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UiLength::em(3)), emSize * 3, 3);
+                    REQUIRE_ALMOST_EQUAL(_core->uiLengthToDips(UILength::em(3)), emSize * 3, 3);
                 }
 
                 SECTION("uiMarginToDipMargin")
@@ -176,22 +176,22 @@ namespace bdn
                     SECTION("none")
                     {
                         REQUIRE(_core->uiMarginToDipMargin(
-                                    UiMargin(UiLength(10, UiLength::Unit::none), UiLength(20, UiLength::Unit::none),
-                                             UiLength(30, UiLength::Unit::none), UiLength(40, UiLength::Unit::none))) ==
+                                    UIMargin(UILength(10, UILength::Unit::none), UILength(20, UILength::Unit::none),
+                                             UILength(30, UILength::Unit::none), UILength(40, UILength::Unit::none))) ==
                                 Margin(0, 0, 0, 0));
                     }
 
                     SECTION("dip")
                     {
-                        REQUIRE(_core->uiMarginToDipMargin(UiMargin(10, 20, 30, 40)) == Margin(10, 20, 30, 40));
+                        REQUIRE(_core->uiMarginToDipMargin(UIMargin(10, 20, 30, 40)) == Margin(10, 20, 30, 40));
                     }
 
                     SECTION("sem")
                     {
-                        double semDips = _core->uiLengthToDips(UiLength::sem(1));
+                        double semDips = _core->uiLengthToDips(UILength::sem(1));
 
                         Margin m = _core->uiMarginToDipMargin(
-                            UiMargin(UiLength::sem(10), UiLength::sem(20), UiLength::sem(30), UiLength::sem(40)));
+                            UIMargin(UILength::sem(10), UILength::sem(20), UILength::sem(30), UILength::sem(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * semDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * semDips, 20);
                         REQUIRE_ALMOST_EQUAL(m.bottom, 30 * semDips, 30);
@@ -200,10 +200,10 @@ namespace bdn
 
                     SECTION("em")
                     {
-                        double emDips = _core->uiLengthToDips(UiLength::em(1));
+                        double emDips = _core->uiLengthToDips(UILength::em(1));
 
                         Margin m = _core->uiMarginToDipMargin(
-                            UiMargin(UiLength::em(10), UiLength::em(20), UiLength::em(30), UiLength::em(40)));
+                            UIMargin(UILength::em(10), UILength::em(20), UILength::em(30), UILength::em(40)));
                         REQUIRE_ALMOST_EQUAL(m.top, 10 * emDips, 10);
                         REQUIRE_ALMOST_EQUAL(m.right, 20 * emDips, 20);
                         REQUIRE_ALMOST_EQUAL(m.bottom, 30 * emDips, 30);
@@ -258,7 +258,7 @@ namespace bdn
                 {
                     SECTION("custom")
                     {
-                        _view->padding = (UiMargin(11, 22, 33, 44));
+                        _view->padding = (UIMargin(11, 22, 33, 44));
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
                     }
@@ -267,7 +267,7 @@ namespace bdn
                     {
                         // set a non-default padding, then go back to default
                         // padding.
-                        _view->padding = (UiMargin(11, 22, 33, 44));
+                        _view->padding = (UIMargin(11, 22, 33, 44));
                         _view->padding = std::nullopt;
 
                         CONTINUE_SECTION_WHEN_IDLE(self) { self->verifyCorePadding(); };
@@ -285,7 +285,7 @@ namespace bdn
                             // a big padding that we are fairly confident to be
                             // over any minimum.
 
-                            UiMargin paddingBefore(UiLength::sem(10));
+                            UIMargin paddingBefore(UILength::sem(10));
 
                             _view->padding = (paddingBefore);
 
@@ -294,13 +294,13 @@ namespace bdn
                             {
                                 Size prefSizeBefore = self->_core->calcPreferredSize();
 
-                                UiMargin additionalPadding(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3),
-                                                           UiLength::sem(4));
-                                UiMargin increasedPadding =
-                                    UiMargin(UiLength::sem(paddingBefore.top.value + additionalPadding.top.value),
-                                             UiLength::sem(paddingBefore.right.value + additionalPadding.right.value),
-                                             UiLength::sem(paddingBefore.bottom.value + additionalPadding.bottom.value),
-                                             UiLength::sem(paddingBefore.left.value + additionalPadding.left.value));
+                                UIMargin additionalPadding(UILength::sem(1), UILength::sem(2), UILength::sem(3),
+                                                           UILength::sem(4));
+                                UIMargin increasedPadding =
+                                    UIMargin(UILength::sem(paddingBefore.top.value + additionalPadding.top.value),
+                                             UILength::sem(paddingBefore.right.value + additionalPadding.right.value),
+                                             UILength::sem(paddingBefore.bottom.value + additionalPadding.bottom.value),
+                                             UILength::sem(paddingBefore.left.value + additionalPadding.left.value));
 
                                 // setting padding should increase the preferred
                                 // size of the core.
@@ -524,8 +524,8 @@ namespace bdn
              * view.*/
             virtual void verifyCoreSize() = 0;
 
-            /** Returns the UiProvider to use.*/
-            virtual std::shared_ptr<UiProvider> getUiProvider() = 0;
+            /** Returns the UIProvider to use.*/
+            virtual std::shared_ptr<UIProvider> getUIProvider() = 0;
 
             /** Creates the view object to use for the tests.*/
             virtual std::shared_ptr<View> createView() = 0;
@@ -545,7 +545,7 @@ namespace bdn
             class WindowForTest : public Window
             {
               public:
-                WindowForTest(std::shared_ptr<UiProvider> uiProvider = nullptr) : Window(uiProvider) {}
+                WindowForTest(std::shared_ptr<UIProvider> uiProvider = nullptr) : Window(uiProvider) {}
 
                 void invalidateSizingInfo(InvalidateReason reason) override
                 {

@@ -5,7 +5,7 @@ namespace bdn
     class View;
 }
 
-#include <bdn/UiMargin.h>
+#include <bdn/UIMargin.h>
 #include <bdn/Rect.h>
 #include <bdn/Size.h>
 #include <bdn/round.h>
@@ -162,10 +162,10 @@ namespace bdn
         virtual void setVisible(const bool &visible) = 0;
 
         /** Sets the view core's padding. See View::padding() */
-        virtual void setPadding(const std::optional<UiMargin> &padding) = 0;
+        virtual void setPadding(const std::optional<UIMargin> &padding) = 0;
 
         /** Sets the view core's margin. See View::margin() */
-        virtual void setMargin(const UiMargin &margin) = 0;
+        virtual void setMargin(const UIMargin &margin) = 0;
 
         /** Sets the view core's preferred size hint.*/
         virtual void setPreferredSizeHint(const Size &hint) = 0;
@@ -214,16 +214,16 @@ namespace bdn
         virtual Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                                   RoundType sizeRoundType) const = 0;
 
-        /** Converts the specified Ui length to DIPs (see \ref dip.md).
+        /** Converts the specified UI length to DIPs (see \ref dip.md).
 
-            Return 0 for "none" values (see UiLength::isNone()).
+            Return 0 for "none" values (see UILength::isNone()).
 
         */
-        virtual double uiLengthToDips(const UiLength &uiLength) const = 0;
+        virtual double uiLengthToDips(const UILength &uiLength) const = 0;
 
-        /** Converts a UiMargin object to a DIP-based margin object (see \ref
+        /** Converts a UIMargin object to a DIP-based margin object (see \ref
          * dip.md).*/
-        virtual Margin uiMarginToDipMargin(const UiMargin &margin) const = 0;
+        virtual Margin uiMarginToDipMargin(const UIMargin &margin) const = 0;
 
         /** Asks the view to calculate its preferred size in DIPs (see \ref
            dip.md), based on it current contents	and properties.

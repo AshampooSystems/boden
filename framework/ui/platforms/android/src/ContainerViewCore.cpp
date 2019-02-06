@@ -39,7 +39,7 @@ namespace bdn
 
             JNativeViewGroup thisGroup(getJView().getRef_());
 
-            double scaleFactor = getUiScaleFactor();
+            double scaleFactor = getUIScaleFactor();
 
             thisGroup.setSize(std::lround(adjustedBounds.width * scaleFactor),
                               std::lround(adjustedBounds.height * scaleFactor));
@@ -47,7 +47,7 @@ namespace bdn
             return adjustedBounds;
         }
 
-        double ContainerViewCore::getUiScaleFactor() const { return ViewCore::getUiScaleFactor(); }
+        double ContainerViewCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
 
         void ContainerViewCore::addChildJView(JView childJView)
         {

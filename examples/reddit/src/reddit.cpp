@@ -1,4 +1,3 @@
-
 #include <bdn/foundation.h>
 #include <bdn/ui.h>
 #include <bdn/net.h>
@@ -76,7 +75,7 @@ class MainViewController : public Base
         listView->horizontalAlignment = View::HorizontalAlignment::expand;
         listView->verticalAlignment = View::VerticalAlignment::expand;
         listView->preferredSizeMinimum = Size(100, 200);
-        listView->margin = UiMargin(15, 15, 15, 15);
+        listView->margin = UIMargin(15, 15, 15, 15);
 
         mainColumn->addChildView(listView);
 
@@ -93,7 +92,7 @@ class MainViewController : public Base
     std::shared_ptr<RedditListViewDataSource> _dataSource;
 };
 
-class AppController : public UiAppControllerBase
+class AppController : public UIAppControllerBase
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override

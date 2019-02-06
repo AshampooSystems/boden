@@ -87,7 +87,7 @@ namespace bdn
                     // set a left/top margin for the child so that it is moved
                     // to the bottom right
                     Margin margin(11, 0, 0, 22);
-                    child->margin = (UiMargin(margin.top, margin.right, margin.bottom, margin.left));
+                    child->margin = (UIMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                     // then autosize the window
                     _window->requestAutoSize();
@@ -102,7 +102,7 @@ namespace bdn
 
                         // then invert the margin and make the top margin a
                         // bottom margin and the left margin a right margin
-                        child->margin = (UiMargin(0, margin.left, margin.top, 0));
+                        child->margin = (UIMargin(0, margin.left, margin.top, 0));
 
                         // this should cause a layout. We know the layout
                         // happens (we test that in another case). Here we only
@@ -126,25 +126,25 @@ namespace bdn
                     };
                 }
 
-                SECTION("Ui element destroyed when object destroyed")
+                SECTION("UI element destroyed when object destroyed")
                 {
                     // there may be pending sizing info updates for the window,
                     // which keep it alive. Ensure that those are done first.
 
-                    CONTINUE_SECTION_WHEN_IDLE(self) { self->testCoreUiElementDestroyedWhenObjectDestroyed(); };
+                    CONTINUE_SECTION_WHEN_IDLE(self) { self->testCoreUIElementDestroyedWhenObjectDestroyed(); };
                 }
             }
 
             /** Implementations must return an object with the necessary
-               information to be able to verify later that the core Ui element
+               information to be able to verify later that the core UI element
                for the window was destroyed (see
-               verifyCoreUiElementDestruction() ).
+               verifyCoreUIElementDestruction() ).
 
                 The returned object must not hold a reference to the Window
                object or the core object.
 
                 */
-            virtual std::shared_ptr<Base> createInfoToVerifyCoreUiElementDestruction() = 0;
+            virtual std::shared_ptr<Base> createInfoToVerifyCoreUIElementDestruction() = 0;
 
             /** Verify that the core UI element of the window was destroyed.
 
@@ -153,9 +153,9 @@ namespace bdn
 
                 verificationInfo is the object with the verification
                information that was returned by an earlier call to
-               createInfoToVerifyCoreUiElementDestruction().
+               createInfoToVerifyCoreUIElementDestruction().
                 */
-            virtual void verifyCoreUiElementDestruction(std::shared_ptr<Base> verificationInfo) = 0;
+            virtual void verifyCoreUIElementDestruction(std::shared_ptr<Base> verificationInfo) = 0;
 
             /** Removes all references to the outer window object, causing it to
              * be destroyed.*/
@@ -172,9 +172,9 @@ namespace bdn
                 _windowCore = nullptr;
             }
 
-            void testCoreUiElementDestroyedWhenObjectDestroyed()
+            void testCoreUIElementDestroyedWhenObjectDestroyed()
             {
-                std::shared_ptr<Base> verifyInfo = createInfoToVerifyCoreUiElementDestruction();
+                std::shared_ptr<Base> verifyInfo = createInfoToVerifyCoreUIElementDestruction();
 
                 clearAllReferencesToOuterWindow();
 
@@ -196,7 +196,7 @@ namespace bdn
                 // gone
                 CONTINUE_SECTION_AFTER_RUN_SECONDS(1s, self, this, verifyInfo)
                 {
-                    CONTINUE_SECTION_WHEN_IDLE(self, this, verifyInfo) { verifyCoreUiElementDestruction(verifyInfo); };
+                    CONTINUE_SECTION_WHEN_IDLE(self, this, verifyInfo) { verifyCoreUIElementDestruction(verifyInfo); };
                 };
             }
 

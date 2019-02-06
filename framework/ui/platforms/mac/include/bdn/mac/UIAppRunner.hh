@@ -9,13 +9,13 @@ namespace bdn
     namespace mac
     {
 
-        class UiAppRunner : public AppRunnerBase
+        class UIAppRunner : public AppRunnerBase
         {
           private:
             AppLaunchInfo _makeLaunchInfo(int argCount, char *args[]);
 
           public:
-            UiAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+            UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
                         char *args[]);
 
             bool isCommandLineApp() const override;

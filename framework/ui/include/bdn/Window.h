@@ -3,7 +3,7 @@
 #include <bdn/View.h>
 
 #include <bdn/IWindowCore.h>
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>
 
 namespace bdn
 {
@@ -36,11 +36,11 @@ namespace bdn
     {
       public:
         /** @param uiProvider the UI provider that the window should use.
-                See the UiProvider documentation for more information.
+                See the UIProvider documentation for more information.
                 If this is nullptr then the UI provider provided by the
-                app controller is used (see AppControllerBase::getUiProvider() )
+                app controller is used (see AppControllerBase::getUIProvider() )
            .*/
-        Window(std::shared_ptr<UiProvider> uiProvider = nullptr);
+        Window(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
       public:
         /** The window's title property.
@@ -105,7 +105,7 @@ namespace bdn
         void _childViewStolen(std::shared_ptr<View> childView) override;
 
       protected:
-        std::shared_ptr<UiProvider> determineUiProvider(std::shared_ptr<View> parentView = nullptr) override;
+        std::shared_ptr<UIProvider> determineUIProvider(std::shared_ptr<View> parentView = nullptr) override;
         virtual void _initCore() override;
         virtual void _deinitCore() override;
 

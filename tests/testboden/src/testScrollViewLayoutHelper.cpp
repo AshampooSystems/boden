@@ -5,7 +5,7 @@
 #include <bdn/ScrollView.h>
 #include <bdn/Dip.h>
 
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/test/ScrollViewLayoutTesterBase.h>
 
 using namespace bdn;
@@ -15,7 +15,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
   public:
     ScrollViewLayoutHelperTester() : _helper(13, 7)
     {
-        _uiProvider = std::make_shared<bdn::test::MockUiProvider>();
+        _uiProvider = std::make_shared<bdn::test::MockUIProvider>();
         _window = std::make_shared<Window>(_uiProvider);
 
         _scrollView = std::make_shared<ScrollView>();
@@ -23,7 +23,7 @@ class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBas
         _window->setContentView(_scrollView);
     }
 
-    std::shared_ptr<bdn::test::MockUiProvider> _uiProvider;
+    std::shared_ptr<bdn::test::MockUIProvider> _uiProvider;
     std::shared_ptr<Window> _window;
     std::shared_ptr<ScrollView> _scrollView;
 

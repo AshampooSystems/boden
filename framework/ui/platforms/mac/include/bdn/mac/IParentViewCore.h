@@ -12,7 +12,7 @@ namespace bdn
         class IParentViewCore
         {
           public:
-            /** Adds a child Ui element to the parent.*/
+            /** Adds a child UI element to the parent.*/
             virtual void addChildNsView(NSView *nsView) = 0;
         };
     }

@@ -17,7 +17,7 @@ namespace bdn
 
 #include <bdn/android/JView.h>
 #include <bdn/android/JNativeViewGroup.h>
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 #include <bdn/android/IParentViewCore.h>
 
 #include <bdn/log.h>
@@ -102,7 +102,7 @@ namespace bdn
                 _jView.setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible);
             }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 Margin pixelPadding;
                 if (!padding)
@@ -117,7 +117,7 @@ namespace bdn
                 _jView.setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
             }
 
-            void setMargin(const UiMargin &margin) override
+            void setMargin(const UIMargin &margin) override
             {
                 // nothing to do. Our parent handles this.
             }
@@ -193,9 +193,9 @@ namespace bdn
                 return Dip::pixelAlign(requestedBounds, _uiScaleFactor, positionRoundType, sizeRoundType);
             }
 
-            double uiLengthToDips(const UiLength &uiLength) const override;
+            double uiLengthToDips(const UILength &uiLength) const override;
 
-            Margin uiMarginToDipMargin(const UiMargin &margin) const override
+            Margin uiMarginToDipMargin(const UIMargin &margin) const override
             {
                 return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
                               uiLengthToDips(margin.left));
@@ -295,12 +295,12 @@ namespace bdn
              *view switches to another display.
              *
              **/
-            double getUiScaleFactor() const { return _uiScaleFactor; }
+            double getUIScaleFactor() const { return _uiScaleFactor; }
 
             /** Changes the UI scale factor of this view and all its child
-             * views. See getUiScaleFactor()
+             * views. See getUIScaleFactor()
              * */
-            void setUiScaleFactor(double scaleFactor)
+            void setUIScaleFactor(double scaleFactor)
             {
                 if (scaleFactor != _uiScaleFactor) {
                     _uiScaleFactor = scaleFactor;
@@ -312,7 +312,7 @@ namespace bdn
                         std::shared_ptr<ViewCore> childCore = std::dynamic_pointer_cast<ViewCore>(child->getViewCore());
 
                         if (childCore != nullptr)
-                            childCore->setUiScaleFactor(scaleFactor);
+                            childCore->setUIScaleFactor(scaleFactor);
                     }
                 }
             }
@@ -368,7 +368,7 @@ namespace bdn
 
                     parentCore->addChildJView(_jView);
 
-                    setUiScaleFactor(parentCore->getUiScaleFactor());
+                    setUIScaleFactor(parentCore->getUIScaleFactor());
                 }
             }
 

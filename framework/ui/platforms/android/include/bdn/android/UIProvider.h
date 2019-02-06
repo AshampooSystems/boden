@@ -5,11 +5,11 @@ namespace bdn
     namespace android
     {
 
-        class UiProvider;
+        class UIProvider;
     }
 }
 
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/android/ViewCore.h>
@@ -22,10 +22,10 @@ namespace bdn
     namespace android
     {
 
-        class UiProvider : public Base, virtual public bdn::UiProvider
+        class UIProvider : public Base, virtual public bdn::UIProvider
         {
           public:
-            UiProvider();
+            UIProvider();
 
             String getName() const override;
 
@@ -35,7 +35,7 @@ namespace bdn
              * created by this UI provider.*/
             std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
 
-            static std::shared_ptr<UiProvider> get();
+            static std::shared_ptr<UIProvider> get();
 
           private:
             template <class CoreType, class ViewType>

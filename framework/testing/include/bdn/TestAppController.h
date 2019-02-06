@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/AppControllerBase.h>
-#include <bdn/UiAppControllerBase.h>
+#include <bdn/UIAppControllerBase.h>
 
 namespace bdn
 {
@@ -11,7 +11,7 @@ namespace bdn
         Usually you do not need to use this directly. Use the macro
        #BDN_TEST_APP_INIT() instead.
     */
-    class TestAppController : public UiAppControllerBase
+    class TestAppController : public UIAppControllerBase
     {
       public:
         TestAppController();

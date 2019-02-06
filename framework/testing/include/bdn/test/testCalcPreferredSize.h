@@ -45,12 +45,12 @@ namespace bdn
 
             SECTION("padding influence")
             {
-                view->padding = (UiMargin(0));
+                view->padding = (UIMargin(0));
 
                 Size zeroPaddingSize = object->calcPreferredSize();
 
                 // increasing the padding
-                view->padding = (UiMargin(100, 200, 300, 400));
+                view->padding = (UIMargin(100, 200, 300, 400));
 
                 Size sizeWithPadding = object->calcPreferredSize();
 
@@ -70,7 +70,7 @@ namespace bdn
                     // do nothing
                 }
 
-                SECTION("with padding") { view->padding = (UiMargin(10, 20, 30, 40)); }
+                SECTION("with padding") { view->padding = (UIMargin(10, 20, 30, 40)); }
 
                 Size prefSize = object->calcPreferredSize();
 
@@ -129,7 +129,7 @@ namespace bdn
                 // that limit. We do that by artificially enlarging the
                 // preferred size with a big padding.
 
-                view->padding = (UiMargin(300));
+                view->padding = (UIMargin(300));
 
                 CONTINUE_SECTION_WHEN_IDLE(view, object, keepAliveDuringContinuations)
                 {
@@ -229,7 +229,7 @@ namespace bdn
                 // that limit. We do that by artificially enlarging the
                 // preferred size with a big padding.
 
-                view->padding = (UiMargin(300));
+                view->padding = (UIMargin(300));
 
                 CONTINUE_SECTION_WHEN_IDLE(view, object, keepAliveDuringContinuations)
                 {

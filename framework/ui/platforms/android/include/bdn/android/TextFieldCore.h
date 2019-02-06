@@ -81,7 +81,7 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jEditText.getTextSize() / getUiScaleFactor();
+                return _jEditText.getTextSize() / getUIScaleFactor();
             }
 
           private:

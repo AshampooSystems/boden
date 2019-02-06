@@ -207,7 +207,7 @@ namespace bdn
 
                     SECTION("with padding")
                     {
-                        getScrollView()->padding = (UiMargin(5, 6, 7, 8));
+                        getScrollView()->padding = (UIMargin(5, 6, 7, 8));
 
                         Size prefSize = callCalcPreferredSize(Size::none());
                         REQUIRE(prefSize == Size(6 + 8, 5 + 7));
@@ -217,8 +217,8 @@ namespace bdn
                     {
                         // the scrollview's own margin should not matter - only
                         // the margin of the content view
-                        getScrollView()->margin = (UiMargin(1, 2, 3, 4));
-                        getScrollView()->padding = (UiMargin(5, 6, 7, 8));
+                        getScrollView()->margin = (UIMargin(1, 2, 3, 4));
+                        getScrollView()->padding = (UIMargin(5, 6, 7, 8));
 
                         Size prefSize = callCalcPreferredSize(Size::none());
                         REQUIRE(prefSize == Size(6 + 8, 5 + 7));
@@ -230,8 +230,8 @@ namespace bdn
                     std::shared_ptr<Button> button = std::make_shared<Button>();
                     getScrollView()->setContentView(button);
 
-                    button->margin = (UiMargin(1, 2, 3, 4));
-                    getScrollView()->padding = (UiMargin(5, 6, 7, 8));
+                    button->margin = (UIMargin(1, 2, 3, 4));
+                    getScrollView()->padding = (UIMargin(5, 6, 7, 8));
 
                     CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize)
                     {
@@ -584,11 +584,11 @@ namespace bdn
                         margin.left = stableScaledRound(RoundType::nearest, margin.left, 1.0 / pixelSize.width);
                         margin.right = stableScaledRound(RoundType::nearest, margin.right, 1.0 / pixelSize.width);
 
-                        getScrollView()->padding = (UiMargin(padding.top, padding.right, padding.bottom, padding.left));
+                        getScrollView()->padding = (UIMargin(padding.top, padding.right, padding.bottom, padding.left));
 
                         // the scrollview's margin should not influence the
                         // layout
-                        getScrollView()->margin = (UiMargin(margin.top, margin.right, margin.bottom, margin.left));
+                        getScrollView()->margin = (UIMargin(margin.top, margin.right, margin.bottom, margin.left));
 
                         CONTINUE_SECTION_WHEN_IDLE(self, padding)
                         {
@@ -641,7 +641,7 @@ namespace bdn
                         stableScaledRound(RoundType::nearest, buttonMargin.right, 1.0 / pixelSize.width);
 
                     button->margin =
-                        (UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left));
+                        (UIMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left));
 
                     Margin scrollViewPadding(35, 36, 37, 38);
 
@@ -654,7 +654,7 @@ namespace bdn
                     scrollViewPadding.right =
                         stableScaledRound(RoundType::nearest, scrollViewPadding.right, 1.0 / pixelSize.width);
 
-                    getScrollView()->padding = (UiMargin(scrollViewPadding.top, scrollViewPadding.right,
+                    getScrollView()->padding = (UIMargin(scrollViewPadding.top, scrollViewPadding.right,
                                                          scrollViewPadding.bottom, scrollViewPadding.left));
 
                     CONTINUE_SECTION_WHEN_IDLE(self, button, pixelSize, buttonMargin, scrollViewPadding)

@@ -15,7 +15,7 @@ namespace bdn
            show anything visible, but behaves otherwise like a normal scrollview
            core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockScrollViewCore : public MockViewCore, virtual public IScrollViewCore
         {

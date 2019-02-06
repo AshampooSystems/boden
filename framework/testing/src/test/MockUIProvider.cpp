@@ -1,5 +1,5 @@
 
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/test.h>
 
 #include <bdn/test/MockContainerViewCore.h>
@@ -16,7 +16,7 @@ namespace bdn
     namespace test
     {
 
-        MockUiProvider::MockUiProvider()
+        MockUIProvider::MockUIProvider()
         {
             _layoutCoordinator = std::make_shared<LayoutCoordinator>();
 
@@ -30,7 +30,7 @@ namespace bdn
             registerMockCoreType<MockTextFieldCore, TextField>();
         }
 
-        /*std::shared_ptr<IViewCore> MockUiProvider::createViewCore(const String &coreTypeName,
+        /*std::shared_ptr<IViewCore> MockUIProvider::createViewCore(const String &coreTypeName,
                                                                   std::shared_ptr<View> view)
         {
             BDN_REQUIRE_IN_MAIN_THREAD();

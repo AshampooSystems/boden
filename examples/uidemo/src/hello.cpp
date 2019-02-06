@@ -1,4 +1,3 @@
-
 #include <bdn/foundation.h>
 #include <bdn/ui.h>
 
@@ -105,7 +104,7 @@ class MainViewController : public Base
         }
 
         listColumn->horizontalAlignment = View::HorizontalAlignment::expand;
-        listColumn->margin = UiMargin(15, 15, 15, 15);
+        listColumn->margin = UIMargin(15, 15, 15, 15);
 
         auto addButton = std::make_shared<Button>();
         addButton->label = "Add";
@@ -164,15 +163,15 @@ class MainViewController : public Base
             control->verticalAlignment = View::VerticalAlignment::middle;
             header->verticalAlignment = View::VerticalAlignment::middle;
             auto row = std::make_shared<RowView>();
-            row->margin = UiMargin(15, 15, 15, 15);
+            row->margin = UIMargin(15, 15, 15, 15);
             row->horizontalAlignment = View::HorizontalAlignment::expand;
             header->horizontalAlignment = View::HorizontalAlignment::expand;
             row->addChildView(header);
             row->addChildView(control);
             container->addChildView(row);
         } else {
-            header->margin = UiMargin(15 + 6, 15, 18, 15);
-            control->margin = UiMargin(2, 15, 15, 15);
+            header->margin = UIMargin(15 + 6, 15, 18, 15);
+            control->margin = UIMargin(2, 15, 15, 15);
             control->horizontalAlignment = View::HorizontalAlignment::expand;
 
             container->addChildView(header);
@@ -184,7 +183,7 @@ class MainViewController : public Base
     std::shared_ptr<Window> _window;
 };
 
-class AppController : public UiAppControllerBase
+class AppController : public UIAppControllerBase
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override

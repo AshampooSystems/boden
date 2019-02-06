@@ -14,7 +14,7 @@ namespace bdn
            show anything visible, but behaves otherwise like a normal text view
            core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockTextViewCore : public MockViewCore, virtual public ITextViewCore
         {

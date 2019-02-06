@@ -44,12 +44,12 @@ namespace bdn
         automatically wrap its text into multiple lines. It is usually best to
         set the height component of the preferred size hint to -1.
 
-        Property<UiSize>& preferredSizeHint()
+        Property<UISize>& preferredSizeHint()
         {
             return _preferredSizeHint;
         }
 
-        const ReadProperty<UiSize>& preferredSizeHint() const
+        const ReadProperty<UISize>& preferredSizeHint() const
         {
             return _preferredSizeHint;
         }*/

@@ -202,7 +202,7 @@ namespace bdn
         {
             std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr) {
-                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
             }
@@ -212,7 +212,7 @@ namespace bdn
         {
             std::shared_ptr<Window> window = _outerWindowWeak.lock();
             if (window != nullptr) {
-                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsCentering(window);
             }

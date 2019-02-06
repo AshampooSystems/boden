@@ -71,7 +71,7 @@ namespace bdn
                 [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
             }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 // we can set an "inset" for the text.
                 // However, that is CGSize value that is used as both the

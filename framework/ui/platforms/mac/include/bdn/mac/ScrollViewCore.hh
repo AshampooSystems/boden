@@ -22,7 +22,7 @@ namespace bdn
             ScrollViewCore(std::shared_ptr<ScrollView> outer);
             ~ScrollViewCore();
 
-            void setPadding(const std::optional<UiMargin> &padding) override;
+            void setPadding(const std::optional<UIMargin> &padding) override;
 
             void setHorizontalScrollingEnabled(const bool &enabled) override;
             void setVerticalScrollingEnabled(const bool &enabled) override;

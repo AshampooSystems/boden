@@ -2,7 +2,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/Dip.h>
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/round.h>
 
 #include <bdn/test.h>
@@ -17,7 +17,7 @@ namespace bdn
         /** Implementation of a "fake" view core that does not actually show
            anything visible, but behaves otherwise like a normal view core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockViewCore : public Base, virtual public IViewCore, virtual public LayoutCoordinator::IViewCoreExtension
         {
@@ -60,13 +60,13 @@ namespace bdn
             int getVisibleChangeCount() const { return _visibleChangeCount; }
 
             /** Returns the padding that is currently configured.*/
-            std::optional<UiMargin> getPadding() const { return _padding; }
+            std::optional<UIMargin> getPadding() const { return _padding; }
 
             /** Returns the number of times the view's padding has changed.*/
             int getPaddingChangeCount() const { return _paddingChangeCount; }
 
             /** Returns the margin that is currently configured.*/
-            UiMargin getMargin() const { return _margin; }
+            UIMargin getMargin() const { return _margin; }
 
             /** Returns the number of times the view's margin has changed.*/
             int getMarginChangeCount() const { return _marginChangeCount; }
@@ -163,7 +163,7 @@ namespace bdn
                 _visibleChangeCount++;
             }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -171,7 +171,7 @@ namespace bdn
                 _paddingChangeCount++;
             }
 
-            void setMargin(const UiMargin &margin) override
+            void setMargin(const UIMargin &margin) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -255,33 +255,33 @@ namespace bdn
                 return Dip::pixelAlign(requestedBounds, _pixelsPerDip, positionRoundType, sizeRoundType);
             }
 
-            double uiLengthToDips(const UiLength &uiLength) const override
+            double uiLengthToDips(const UILength &uiLength) const override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
                 switch (uiLength.unit) {
-                case UiLength::Unit::none:
+                case UILength::Unit::none:
                     return 0;
 
-                case UiLength::Unit::dip:
+                case UILength::Unit::dip:
                     return uiLength.value;
 
-                case UiLength::Unit::em:
+                case UILength::Unit::em:
                     // one em = 23 mock DIPs;
                     return uiLength.value * 23;
 
-                case UiLength::Unit::sem:
+                case UILength::Unit::sem:
                     // one sem = 20 mock DIPs;
                     return uiLength.value * 20;
 
                 default:
-                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                    throw InvalidArgumentError("Invalid UILength unit passed to "
                                                "MockViewCore::uiLengthToDips: " +
                                                std::to_string((int)uiLength.unit));
                 }
             }
 
-            Margin uiMarginToDipMargin(const UiMargin &margin) const override
+            Margin uiMarginToDipMargin(const UIMargin &margin) const override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -360,7 +360,7 @@ namespace bdn
 
                 std::shared_ptr<View> view = getOuterViewIfStillAttached();
                 if (view != nullptr)
-                    std::dynamic_pointer_cast<MockUiProvider>(view->getUiProvider())
+                    std::dynamic_pointer_cast<MockUIProvider>(view->getUIProvider())
                         ->getLayoutCoordinator()
                         ->viewNeedsLayout(view);
             }
@@ -384,10 +384,10 @@ namespace bdn
             bool _visible = false;
             int _visibleChangeCount = 0;
 
-            std::optional<UiMargin> _padding;
+            std::optional<UIMargin> _padding;
             int _paddingChangeCount = 0;
 
-            UiMargin _margin;
+            UIMargin _margin;
             int _marginChangeCount = 0;
 
             View::HorizontalAlignment _horizontalAlignment;

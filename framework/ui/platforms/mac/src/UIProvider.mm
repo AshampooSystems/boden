@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 
 #import <Cocoa/Cocoa.h>
 
@@ -22,16 +22,16 @@
 namespace bdn
 {
 
-    std::shared_ptr<UiProvider> getDefaultUiProvider()
+    std::shared_ptr<UIProvider> getDefaultUIProvider()
     {
         /*if (getAppRunner()->isCommandLineApp()) {
-            static std::shared_ptr<StdioUiProvider<char>> provider(
-                std::make_shared<StdioUiProvider<char>>(&std::cin, &std::cout, &std::cerr));
+            static std::shared_ptr<StdioUIProvider<char>> provider(
+                std::make_shared<StdioUIProvider<char>>(&std::cin, &std::cout, &std::cerr));
 
             return provider;
         } else */
         {
-            return bdn::mac::UiProvider::get();
+            return bdn::mac::UIProvider::get();
         }
     }
 }
@@ -40,7 +40,7 @@ namespace bdn
 {
     namespace mac
     {
-        UiProvider::UiProvider()
+        UIProvider::UIProvider()
         {
             // mac uses DIPs natively. So no conversion necessary
             _semDips = NSFont.systemFontSize;
@@ -58,12 +58,12 @@ namespace bdn
             registerCoreType<ListViewCore, ListView>();
         }
 
-        String UiProvider::getName() const { return "mac"; }
+        String UIProvider::getName() const { return "mac"; }
 
-        std::shared_ptr<UiProvider> UiProvider::get()
+        std::shared_ptr<UIProvider> UIProvider::get()
         {
-            static std::shared_ptr<UiProvider> globalUiProvider = std::make_shared<UiProvider>();
-            return globalUiProvider;
+            static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
+            return globalUIProvider;
         }
     }
 }

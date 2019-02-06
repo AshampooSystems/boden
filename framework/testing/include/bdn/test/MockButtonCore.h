@@ -13,7 +13,7 @@ namespace bdn
         /** Implementation of a "fake" button core that does not actually show
            anything visible, but behaves otherwise like a normal button core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockButtonCore : public MockViewCore, virtual public IButtonCore
         {

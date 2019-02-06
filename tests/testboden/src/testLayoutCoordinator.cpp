@@ -4,7 +4,7 @@
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/Button.h>
 
-#include <bdn/test/MockUiProvider.h>
+#include <bdn/test/MockUIProvider.h>
 #include <bdn/test/MockViewCore.h>
 #include <bdn/test/MockWindowCore.h>
 
@@ -28,7 +28,7 @@ TEST_CASE("LayoutCoordinator")
 {
     std::shared_ptr<LayoutCoordinatorForTesting> coord = std::make_shared<LayoutCoordinatorForTesting>();
 
-    std::shared_ptr<bdn::test::MockUiProvider> uiProvider = std::make_shared<bdn::test::MockUiProvider>();
+    std::shared_ptr<bdn::test::MockUIProvider> uiProvider = std::make_shared<bdn::test::MockUIProvider>();
 
     std::shared_ptr<Window> view1 = std::make_shared<Window>(uiProvider);
     std::shared_ptr<Window> view2 = std::make_shared<Window>(uiProvider);

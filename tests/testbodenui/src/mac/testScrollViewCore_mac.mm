@@ -8,7 +8,7 @@
 
 #import <bdn/mac/util.hh>
 
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 
 #import <bdn/mac/ScrollViewCore.hh>
 
@@ -21,7 +21,7 @@ class TestMacScrollViewCore : public bdn::test::TestMacChildViewCoreMixin<bdn::t
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _nsScrollView = (NSScrollView *)_nSView;
+        _nsScrollView = (NSScrollView *)_nsView;
     }
 
     bdn::Size getScrollerSize()

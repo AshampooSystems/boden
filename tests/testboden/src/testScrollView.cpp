@@ -12,7 +12,7 @@ using namespace bdn;
 
 void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions<ScrollView>> scrollView,
                                std::shared_ptr<Base> keepAliveInContinuations,
-                               std::shared_ptr<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
+                               std::shared_ptr<bdn::test::MockUIProvider> uiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
     std::shared_ptr<Button> button = std::make_shared<Button>();
@@ -27,7 +27,7 @@ void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions
 
     SECTION("semMargin")
     {
-        button->margin = (UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
+        button->margin = (UIMargin(UILength::sem(1), UILength::sem(2), UILength::sem(3), UILength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -35,7 +35,7 @@ void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions
 
     SECTION("dipMargin")
     {
-        button->margin = (UiMargin(1, 2, 3, 4));
+        button->margin = (UIMargin(1, 2, 3, 4));
 
         buttonMargin = Margin(1, 2, 3, 4);
     }
@@ -179,7 +179,7 @@ SECTION("sizing")
     SECTION("with contentView")
     {
         SECTION("calcPreferredSize")
-        testSizingWithContentView(scrollView, preparer, preparer->getUiProvider(),
+        testSizingWithContentView(scrollView, preparer, preparer->getUIProvider(),
                                   [scrollView]() { return scrollView->calcPreferredSize(); });
     }
 }
@@ -190,10 +190,10 @@ SECTION("contentView aligned on full pixels")
     child->label = ("hello");
 
     SECTION("weird child margin")
-    child->margin = (UiMargin(0.12345678));
+    child->margin = (UIMargin(0.12345678));
 
     SECTION("weird window padding")
-    scrollView->padding = (UiMargin(0.12345678));
+    scrollView->padding = (UIMargin(0.12345678));
 
     scrollView->setContentView(child);
 

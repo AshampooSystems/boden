@@ -13,7 +13,7 @@ namespace bdn
         /** Implementation of a "fake" Switch core that does not actually show
            anything visible, but behaves otherwise like a normal Switch core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockSwitchCore : public MockViewCore, virtual public SwitchCore
         {

@@ -3,7 +3,7 @@
 
 #include <bdn/test/TestContainerViewCore.h>
 
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 #include "TestAndroidViewCoreMixin.h"
 
 using namespace bdn;

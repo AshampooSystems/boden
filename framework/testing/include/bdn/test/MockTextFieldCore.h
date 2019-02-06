@@ -14,7 +14,7 @@ namespace bdn
            show anything visible, but behaves otherwise like a normal TextField
            core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockTextFieldCore : public MockViewCore, virtual public ITextFieldCore
         {

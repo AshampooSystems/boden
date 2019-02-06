@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/UiProvider.h>
+#include <bdn/UIProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -10,16 +10,16 @@ namespace bdn
     namespace test
     {
 
-        /** A Ui provider that implements a "fake" UI that does not actually
+        /** A UI provider that implements a "fake" UI that does not actually
            show anything visible, but behaves otherwise like a "real" UI.
 
             All the UI elements created by the provider also record some
            statistics about the calls that are made on them and they allow
            access to their internal state. This is useful for UI testing.
 
-            The MockUiProvider is intended for UI tests. You can specify the UI
+            The MockUIProvider is intended for UI tests. You can specify the UI
            provider to the top level #Window instance you use. Pass a
-           MockUiProvider instance there and your UI code will run in a "fake"
+           MockUIProvider instance there and your UI code will run in a "fake"
            UI world that you can examine and manipulate for your tests. That
            allows you to test your application UI easily without having to
            modify the UI code (except for passing the UI provider to the top
@@ -29,8 +29,8 @@ namespace bdn
 
             \code
 
-            std::shared_ptr<bdn::test::MockUiProvider> uiProvider =
-           std::make_shared<bdn::test::MockUiProvider>();
+            std::shared_ptr<bdn::test::MockUIProvider> uiProvider =
+           std::make_shared<bdn::test::MockUIProvider>();
 
             std::shared_ptr<Window> myWindow = std::make_shared<Window>( uiProvider );
 
@@ -58,10 +58,10 @@ namespace bdn
 
             \endcore
             */
-        class MockUiProvider : public Base, virtual public bdn::UiProvider
+        class MockUIProvider : public Base, virtual public bdn::UIProvider
         {
           public:
-            MockUiProvider();
+            MockUIProvider();
 
             String getName() const override { return "mock"; }
 
@@ -83,7 +83,7 @@ namespace bdn
             {
                 registerConstruction(
                     ViewType::coreTypeName,
-                    std::bind(&MockUiProvider::makeMockCore<CoreType, ViewType>, this, std::placeholders::_1));
+                    std::bind(&MockUIProvider::makeMockCore<CoreType, ViewType>, this, std::placeholders::_1));
             }
 
           protected:

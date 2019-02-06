@@ -6,7 +6,7 @@
 #include <bdn/View.h>
 #include <bdn/LayoutCoordinator.h>
 
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>
 
 #include <bdn/Dip.h>
@@ -27,8 +27,8 @@ namespace bdn
             UIView *getUIView() const;
 
             void setVisible(const bool &visible) override;
-            void setPadding(const std::optional<UiMargin> &padding) override;
-            void setMargin(const UiMargin &margin) override;
+            void setPadding(const std::optional<UIMargin> &padding) override;
+            void setMargin(const UIMargin &margin) override;
 
             void invalidateSizingInfo(View::InvalidateReason reason) override;
 
@@ -48,9 +48,9 @@ namespace bdn
             Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
                               RoundType sizeRoundType) const override;
 
-            double uiLengthToDips(const UiLength &uiLength) const override;
+            double uiLengthToDips(const UILength &uiLength) const override;
 
-            Margin uiMarginToDipMargin(const UiMargin &margin) const override;
+            Margin uiMarginToDipMargin(const UIMargin &margin) const override;
 
             Size calcPreferredSize(const Size &availableSpace = Size::none()) const override;
 

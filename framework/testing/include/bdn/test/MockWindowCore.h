@@ -14,7 +14,7 @@ namespace bdn
         /** Implementation of a "fake" window core that does not actually show
            anything visible, but behaves otherwise like a normal window core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockWindowCore : public MockViewCore,
                                virtual public IWindowCore,
@@ -71,7 +71,7 @@ namespace bdn
             {
                 std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
-                    std::dynamic_pointer_cast<MockUiProvider>(window->getUiProvider())
+                    std::dynamic_pointer_cast<MockUIProvider>(window->getUIProvider())
                         ->getLayoutCoordinator()
                         ->windowNeedsAutoSizing(window);
             }
@@ -80,7 +80,7 @@ namespace bdn
             {
                 std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
                 if (window != nullptr)
-                    std::dynamic_pointer_cast<MockUiProvider>(window->getUiProvider())
+                    std::dynamic_pointer_cast<MockUIProvider>(window->getUIProvider())
                         ->getLayoutCoordinator()
                         ->windowNeedsCentering(window);
             }

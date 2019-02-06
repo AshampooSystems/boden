@@ -3,7 +3,7 @@
 
 #include <bdn/View.h>
 #include <bdn/android/ViewCore.h>
-#include <bdn/android/UiProvider.h>
+#include <bdn/android/UIProvider.h>
 
 namespace bdn
 {
@@ -30,7 +30,7 @@ namespace bdn
                 REQUIRE(!_jView.isNull_());
             }
 
-            std::shared_ptr<UiProvider> getUiProvider() override { return bdn::android::UiProvider::get(); }
+            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::android::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {
@@ -44,14 +44,14 @@ namespace bdn
 
             Point getViewPosition()
             {
-                double scaleFactor = _androidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUIScaleFactor();
 
                 return Point(_jView.getLeft() / scaleFactor, _jView.getTop() / scaleFactor);
             }
 
             Size getViewSize()
             {
-                double scaleFactor = _androidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUIScaleFactor();
 
                 return Size(_jView.getWidth() / scaleFactor, _jView.getHeight() / scaleFactor);
             }
@@ -88,7 +88,7 @@ namespace bdn
                 int bottom = _jView.getPaddingBottom();
                 int left = _jView.getPaddingLeft();
 
-                std::optional<UiMargin> pad = BaseClass::_view->padding;
+                std::optional<UIMargin> pad = BaseClass::_view->padding;
 
                 if (!pad) {
                     // the default padding is used. This is simply the padding
@@ -100,7 +100,7 @@ namespace bdn
 
                 Margin expectedDipPadding = BaseClass::_view->uiMarginToDipMargin(*pad);
 
-                double scaleFactor = _androidViewCore->getUiScaleFactor();
+                double scaleFactor = _androidViewCore->getUIScaleFactor();
 
                 REQUIRE_ALMOST_EQUAL(top / scaleFactor, expectedDipPadding.top, 1);
                 REQUIRE_ALMOST_EQUAL(right / scaleFactor, expectedDipPadding.right, 1);

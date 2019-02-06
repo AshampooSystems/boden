@@ -5,7 +5,7 @@
 #include <bdn/mac/IParentViewCore.h>
 #include <bdn/ProgrammingError.h>
 
-#import <bdn/mac/UiProvider.hh>
+#import <bdn/mac/UIProvider.hh>
 #import <bdn/mac/util.hh>
 
 namespace bdn
@@ -33,14 +33,14 @@ namespace bdn
 
             void setVisible(const bool &visible) override { _nsView.hidden = !visible; }
 
-            void setPadding(const std::optional<UiMargin> &padding) override
+            void setPadding(const std::optional<UIMargin> &padding) override
             {
                 // NSView does not have any padding properties. subclasses will
                 // override this if the corresponding Cocoa view class supports
                 // setting a padding.
             }
 
-            void setMargin(const UiMargin &margin) override
+            void setMargin(const UIMargin &margin) override
             {
                 // Ignore: our parent handles margins
             }
@@ -54,8 +54,8 @@ namespace bdn
             {
                 std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
                 if (outerView != nullptr) {
-                    std::shared_ptr<UiProvider> provider =
-                        std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                    std::shared_ptr<UIProvider> provider =
+                        std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                     if (provider != nullptr)
                         provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
                 }
@@ -148,29 +148,29 @@ namespace bdn
                 return adjustedBounds;
             }
 
-            double uiLengthToDips(const UiLength &uiLength) const override
+            double uiLengthToDips(const UILength &uiLength) const override
             {
                 switch (uiLength.unit) {
-                case UiLength::Unit::none:
+                case UILength::Unit::none:
                     return 0;
 
-                case UiLength::Unit::dip:
+                case UILength::Unit::dip:
                     return uiLength.value;
 
-                case UiLength::Unit::em:
+                case UILength::Unit::em:
                     return uiLength.value * getEmSizeDips();
 
-                case UiLength::Unit::sem:
+                case UILength::Unit::sem:
                     return uiLength.value * getSemSizeDips();
 
                 default:
-                    throw InvalidArgumentError("Invalid UiLength unit passed to "
+                    throw InvalidArgumentError("Invalid UILength unit passed to "
                                                "ViewCore::uiLengthToDips: " +
                                                std::to_string((int)uiLength.unit));
                 }
             }
 
-            Margin uiMarginToDipMargin(const UiMargin &margin) const override
+            Margin uiMarginToDipMargin(const UIMargin &margin) const override
             {
                 return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
                               uiLengthToDips(margin.left));
@@ -181,7 +181,7 @@ namespace bdn
                 Size size = macSizeToSize(_nsView.fittingSize);
 
                 // add the padding
-                std::optional<UiMargin> pad;
+                std::optional<UIMargin> pad;
                 std::shared_ptr<const View> view = getOuterViewIfStillAttached();
                 if (view != nullptr)
                     pad = view->padding;
@@ -279,7 +279,7 @@ namespace bdn
             double getSemSizeDips() const
             {
                 if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UiProvider::get()->getSemSizeDips();
+                    _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
 
                 return _semDipsIfInitialized;
             }

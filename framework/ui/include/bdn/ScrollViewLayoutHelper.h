@@ -225,7 +225,7 @@ namespace bdn
             Margin outerPadding;
             Size maxSize(Size::none());
             if (scrollView != nullptr) {
-                outerPadding = scrollView->uiMarginToDipMargin((*scrollView->padding).value_or(UiMargin()));
+                outerPadding = scrollView->uiMarginToDipMargin((*scrollView->padding).value_or(UIMargin()));
 
                 maxSize = scrollView->preferredSizeMaximum;
             }

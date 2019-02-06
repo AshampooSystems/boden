@@ -14,11 +14,11 @@ namespace bdn
 
         size.onChange() += [this](auto) { Influences_(this).influencesContentLayout(); };
 
-        margin.onChange() += CorePropertyUpdater<UiMargin, IViewCore>(this, &IViewCore::setMargin, [](auto &inf) {
+        margin.onChange() += CorePropertyUpdater<UIMargin, IViewCore>(this, &IViewCore::setMargin, [](auto &inf) {
             inf.influencesParentPreferredSize().influencesParentLayout();
         });
 
-        padding.onChange() += CorePropertyUpdater<std::optional<UiMargin>, IViewCore>(
+        padding.onChange() += CorePropertyUpdater<std::optional<UIMargin>, IViewCore>(
             this, &IViewCore::setPadding, [](auto &inf) { inf.influencesPreferredSize().influencesContentLayout(); });
 
         verticalAlignment.onChange() += CorePropertyUpdater<VerticalAlignment, IViewCore>(
@@ -221,14 +221,14 @@ namespace bdn
             core->needLayout(reason);
     }
 
-    double View::uiLengthToDips(const UiLength &length) const
+    double View::uiLengthToDips(const UILength &length) const
     {
         AppRunnerBase::assertInMainThread();
 
         if (length.isNone())
             return 0;
 
-        else if (length.unit == UiLength::Unit::dip)
+        else if (length.unit == UILength::Unit::dip)
             return length.value;
 
         else {
@@ -241,7 +241,7 @@ namespace bdn
         }
     }
 
-    Margin View::uiMarginToDipMargin(const UiMargin &uiMargin) const
+    Margin View::uiMarginToDipMargin(const UIMargin &uiMargin) const
     {
         AppRunnerBase::assertInMainThread();
 
@@ -315,9 +315,9 @@ namespace bdn
         // Note that we can only keep the current core if the old and new
         // parent's use the same UI provider.
 
-        std::shared_ptr<UiProvider> newUiProvider = determineUiProvider(parentView);
+        std::shared_ptr<UIProvider> newUIProvider = determineUIProvider(parentView);
 
-        return _uiProvider == newUiProvider && _uiProvider != nullptr && parentView != nullptr && _core != nullptr &&
+        return _uiProvider == newUIProvider && _uiProvider != nullptr && parentView != nullptr && _core != nullptr &&
                _core->canMoveToParentView(parentView);
     }
 
@@ -354,7 +354,7 @@ namespace bdn
         // If the core is not null then we already have a core. We do nothing in
         // that case.
         if (_core == nullptr) {
-            _uiProvider = determineUiProvider();
+            _uiProvider = determineUIProvider();
 
             if (_uiProvider != nullptr)
                 _core = _uiProvider->createViewCore(getCoreTypeName(), shared_from_this());

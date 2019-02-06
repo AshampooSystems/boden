@@ -65,7 +65,7 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jCheckBox.getTextSize() / getUiScaleFactor();
+                return _jCheckBox.getTextSize() / getUIScaleFactor();
             }
 
           private:

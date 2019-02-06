@@ -3,7 +3,7 @@
 
 #include <bdn/test/TestContainerViewCore.h>
 
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 #import "TestIosViewCoreMixin.hh"
 
 using namespace bdn;

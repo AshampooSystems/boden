@@ -65,8 +65,8 @@ namespace bdn
         {
             std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
             if (outerView != nullptr) {
-                std::shared_ptr<UiProvider> provider =
-                    std::dynamic_pointer_cast<UiProvider>(outerView->getUiProvider());
+                std::shared_ptr<UIProvider> provider =
+                    std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
             }
@@ -102,7 +102,7 @@ namespace bdn
             // TODO: Why request auto size if we are not able to resize ?
             std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
             if (window != nullptr) {
-                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
             }
@@ -112,7 +112,7 @@ namespace bdn
         {
             std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
             if (window != nullptr) {
-                std::shared_ptr<UiProvider> provider = std::dynamic_pointer_cast<UiProvider>(window->getUiProvider());
+                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
                 if (provider != nullptr)
                     provider->getLayoutCoordinator()->windowNeedsCentering(window);
             }

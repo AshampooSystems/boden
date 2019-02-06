@@ -11,7 +11,7 @@
 using namespace bdn;
 
 void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions<Window>> window,
-                               std::shared_ptr<bdn::test::MockUiProvider> uiProvider, std::function<Size()> getSizeFunc)
+                               std::shared_ptr<bdn::test::MockUIProvider> uiProvider, std::function<Size()> getSizeFunc)
 {
     // we add a button as a content view
     std::shared_ptr<Button> button = std::make_shared<Button>();
@@ -26,7 +26,7 @@ void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions
 
     SECTION("semMargin")
     {
-        button->margin = (UiMargin(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4)));
+        button->margin = (UIMargin(UILength::sem(1), UILength::sem(2), UILength::sem(3), UILength::sem(4)));
 
         // 1 sem = 20 DIPs in our mock ui
         buttonMargin = Margin(20, 40, 60, 80);
@@ -34,7 +34,7 @@ void testSizingWithContentView(std::shared_ptr<bdn::test::ViewWithTestExtensions
 
     SECTION("dipMargin")
     {
-        button->margin = (UiMargin(1, 2, 3, 4));
+        button->margin = (UIMargin(1, 2, 3, 4));
 
         buttonMargin = Margin(1, 2, 3, 4);
     }
@@ -252,7 +252,7 @@ TEST_CASE("Window", "[ui]")
         SECTION("withContentView")
         {
             SECTION("calcPreferredSize")
-            testSizingWithContentView(window, preparer->getUiProvider(),
+            testSizingWithContentView(window, preparer->getUIProvider(),
                                       [window]() { return window->calcPreferredSize(); });
         }
     }
@@ -303,10 +303,10 @@ TEST_CASE("Window", "[ui]")
         child->label = ("hello");
 
         SECTION("weird child margin")
-        child->margin = (UiMargin(0.12345678));
+        child->margin = (UIMargin(0.12345678));
 
         SECTION("weird window padding")
-        window->padding = (UiMargin(0.12345678));
+        window->padding = (UIMargin(0.12345678));
 
         window->setContentView(child);
 

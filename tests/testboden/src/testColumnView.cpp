@@ -17,7 +17,7 @@ static void testChildAlignment(std::shared_ptr<bdn::test::ViewTestPreparer<Colum
     // add a second button that is considerably bigger.
     // That will cause the column view to become bigger.
     std::shared_ptr<Button> button2 = std::make_shared<Button>();
-    button2->padding = (UiMargin(500, 500));
+    button2->padding = (UIMargin(500, 500));
 
     columnView->addChildView(button2);
 
@@ -207,7 +207,7 @@ TEST_CASE("ColumnView")
             int layoutCountBefore =
                 std::dynamic_pointer_cast<bdn::test::MockViewCore>(columnView->getViewCore())->getLayoutCount();
 
-            button->margin = (UiMargin(1, 2, 3, 4));
+            button->margin = (UIMargin(1, 2, 3, 4));
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core, preferredSizeBefore, layoutCountBefore)
             {
@@ -236,7 +236,7 @@ TEST_CASE("ColumnView")
 
                         SECTION("with margin")
                         {
-                            button->margin = (UiMargin(10, 20, 30, 40));
+                            button->margin = (UIMargin(10, 20, 30, 40));
 
                             testChildAlignment(preparer, columnView, button, (View::HorizontalAlignment)horzAlign,
                                                (View::VerticalAlignment)vertAlign);
@@ -250,7 +250,7 @@ TEST_CASE("ColumnView")
         {
             // add a weird margin to the button to bring everything out of pixel
             // alignment
-            button->margin = (UiMargin(0.1234567));
+            button->margin = (UIMargin(0.1234567));
 
             CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, core)
             {
@@ -377,8 +377,8 @@ SECTION("multiple child views properly arranged")
         m2 = Margin(11, 22, 33, 44);
     }
 
-    button->margin = (UiMargin(m.top, m.right, m.bottom, m.left));
-    button2->margin = (UiMargin(m2.top, m2.right, m2.bottom, m2.left));
+    button->margin = (UIMargin(m.top, m.right, m.bottom, m.left));
+    button2->margin = (UIMargin(m2.top, m2.right, m2.bottom, m2.left));
 
     CONTINUE_SECTION_WHEN_IDLE(preparer, columnView, button, button2, core, m, m2)
     {

@@ -10,7 +10,7 @@ namespace bdn
         class IParentViewCore
         {
           public:
-            /** Adds a child Ui element to the parent.*/
+            /** Adds a child UI element to the parent.*/
             virtual void addChildJView(JView view) = 0;
 
             /** Removes a child UI element from the parent */
@@ -29,7 +29,7 @@ namespace bdn
              *view switches to another display.
              *
              **/
-            virtual double getUiScaleFactor() const = 0;
+            virtual double getUIScaleFactor() const = 0;
         };
     }
 }

@@ -13,7 +13,7 @@ namespace bdn
         /** Implementation of a "fake" checkbox core that does not actually show
            anything visible, but behaves otherwise like a normal checkbox core.
 
-            See MockUiProvider.
+            See MockUIProvider.
             */
         class MockCheckboxCore : public MockViewCore, virtual public CheckboxCore
         {

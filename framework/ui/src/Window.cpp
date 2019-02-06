@@ -3,12 +3,12 @@
 
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/debug.h>
-#include <bdn/UiAppControllerBase.h>
+#include <bdn/UIAppControllerBase.h>
 
 namespace bdn
 {
 
-    Window::Window(std::shared_ptr<UiProvider> uiProvider)
+    Window::Window(std::shared_ptr<UIProvider> uiProvider)
     {
         title.onChange() += CorePropertyUpdater<String, IWindowCore>(this, &IWindowCore::setTitle);
 
@@ -20,7 +20,7 @@ namespace bdn
             }
         };
 
-        _uiProvider = (uiProvider != nullptr) ? uiProvider : UiAppControllerBase::get()->getUiProvider();
+        _uiProvider = (uiProvider != nullptr) ? uiProvider : UIAppControllerBase::get()->getUIProvider();
     }
 
     void Window::_initCore()
@@ -32,7 +32,7 @@ namespace bdn
         // If the core is not null then we already have a core. We do nothing in
         // that case.
         if (_core == nullptr) {
-            _uiProvider = determineUiProvider();
+            _uiProvider = determineUIProvider();
 
             if (_uiProvider != nullptr)
                 _core = _uiProvider->createViewCore(getCoreTypeName(), shared_from_this());
@@ -137,9 +137,9 @@ namespace bdn
             _contentView = nullptr;
     }
 
-    std::shared_ptr<UiProvider> Window::determineUiProvider(std::shared_ptr<View> parentView)
+    std::shared_ptr<UIProvider> Window::determineUIProvider(std::shared_ptr<View> parentView)
     {
-        // our Ui provider never changes. Just return the current one.
-        return std::dynamic_pointer_cast<UiProvider>(_uiProvider);
+        // our UI provider never changes. Just return the current one.
+        return std::dynamic_pointer_cast<UIProvider>(_uiProvider);
     }
 }

@@ -105,7 +105,7 @@ namespace bdn
             [_nsScrollView.documentView addSubview:childView];
         }
 
-        void ScrollViewCore::setPadding(const std::optional<UiMargin> &padding)
+        void ScrollViewCore::setPadding(const std::optional<UIMargin> &padding)
         {
             // nothing to do
         }

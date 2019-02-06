@@ -16,21 +16,21 @@ class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin<bdn::test:
     {
         bdn::test::TestMacChildViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
-        _nSButton = (NSButton *)_nSView;
-        REQUIRE(_nSButton != nullptr);
+        _nsButton = (NSButton *)_nsView;
+        REQUIRE(_nsButton != nullptr);
     }
 
     void verifyCoreLabel() override
     {
         String expectedLabel = _button->label;
 
-        String label = bdn::mac::nsStringToString(_nSButton.title);
+        String label = bdn::mac::nsStringToString(_nsButton.title);
 
         REQUIRE(label == expectedLabel);
     }
 
   protected:
-    NSButton *_nSButton;
+    NSButton *_nsButton;
 };
 
 TEST_CASE("mac.ButtonCore")

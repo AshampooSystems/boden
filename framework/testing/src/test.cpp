@@ -3706,7 +3706,7 @@ namespace bdn
 
             if (_currentTestWillContinueLater) {
                 // the test is an async test (probably a UI test). I.e. it will
-                // run asynchronously and endUiTest will be called when it
+                // run asynchronously and endUITest will be called when it
                 // finishes. So, nothing else to do here. Just end and tell our
                 // caller that the test has not finished yet.
                 return false;
@@ -4143,7 +4143,7 @@ namespace bdn
 
             if (!doneCalled) {
                 // we cannot support asynchronous tests with this interface.
-                // Caller should use the TestAppWithUiController app controller
+                // Caller should use the TestAppWithUIController app controller
                 // or use the TestRunner object directly.
                 programmingError("Asynchronous tests (UI tests) not supported. You have to "
                                  "use BDN_INIT_UI_TEST_APP for your test app if you want to "
@@ -5957,20 +5957,20 @@ namespace bdn
                toStringForTest(margin.bottom) + ", " + toStringForTest(margin.left) + ")";
     }
 
-    std::string toStringForTest(const UiLength &length)
+    std::string toStringForTest(const UILength &length)
     {
         std::string unit;
         switch (length.unit) {
-        case UiLength::Unit::none:
+        case UILength::Unit::none:
             return "none";
             break;
-        case UiLength::Unit::em:
+        case UILength::Unit::em:
             unit = "em";
             break;
-        case UiLength::Unit::sem:
+        case UILength::Unit::sem:
             unit = "sem";
             break;
-        case UiLength::Unit::dip:
+        case UILength::Unit::dip:
             unit = "dip";
             break;
         default:
@@ -5980,13 +5980,13 @@ namespace bdn
         return toStringForTest(length.value) + " " + unit;
     }
 
-    std::string toStringForTest(const UiMargin &margin)
+    std::string toStringForTest(const UIMargin &margin)
     {
         return "(" + toStringForTest(margin.top) + ", " + toStringForTest(margin.right) + ", " +
                toStringForTest(margin.bottom) + ", " + toStringForTest(margin.left) + ")";
     }
 
-    std::string toStringForTest(const UiSize &size)
+    std::string toStringForTest(const UISize &size)
     {
         return "(" + toStringForTest(size.width) + " x " + toStringForTest(size.height) + ")";
     }

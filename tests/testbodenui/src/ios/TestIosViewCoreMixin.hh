@@ -3,7 +3,7 @@
 
 #include <bdn/View.h>
 #import <bdn/ios/ViewCore.hh>
-#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>
 
 namespace bdn
@@ -28,7 +28,7 @@ namespace bdn
                 REQUIRE(_uiView != nullptr);
             }
 
-            std::shared_ptr<UiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
+            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::ios::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {

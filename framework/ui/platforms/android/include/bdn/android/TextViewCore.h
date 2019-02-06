@@ -48,7 +48,7 @@ namespace bdn
                 // we explicitly set the width with setMaxWidth (even if the
                 // widget's size is actually smaller than the text). This seems
                 // to be a bug in android.
-                int widthPixels = std::lround(adjustedBounds.width * getUiScaleFactor());
+                int widthPixels = std::lround(adjustedBounds.width * getUIScaleFactor());
 
                 _jTextView.setMaxWidth(widthPixels);
                 _currWidthPixels = widthPixels;
@@ -72,7 +72,7 @@ namespace bdn
                     limit.applyMaximum(view->preferredSizeMaximum);
 
                     if (std::isfinite(limit.width))
-                        maxWidthPixels = std::lround(limit.width * getUiScaleFactor());
+                        maxWidthPixels = std::lround(limit.width * getUIScaleFactor());
                 }
 
                 _jTextView.setMaxWidth(maxWidthPixels);
@@ -104,7 +104,7 @@ namespace bdn
             double getFontSizeDips() const override
             {
                 // the text size is in pixels
-                return _jTextView.getTextSize() / getUiScaleFactor();
+                return _jTextView.getTextSize() / getUIScaleFactor();
             }
 
           private:

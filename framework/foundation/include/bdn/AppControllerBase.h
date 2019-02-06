@@ -24,14 +24,14 @@ namespace bdn
         */
     class AppControllerBase : public Base
     {
-        friend class UiAppControllerBase;
+        friend class UIAppControllerBase;
 
       public:
-        /** Returns the app's Ui provider (i.e. the object that provides
+        /** Returns the app's UI provider (i.e. the object that provides
            elements for interacting with the user).
 
             The default implementation calls the global function
-           bdn::getDefaultUiProvider(). Derived app controller classes may
+           bdn::getDefaultUIProvider(). Derived app controller classes may
            override this to control which UI provider is used.
             */
 
