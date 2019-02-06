@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/constants.h>
-#include <bdn/ISwitchCore.h>
+#include <bdn/SwitchCore.h>
 #include <bdn/View.h>
 #include <bdn/ClickEvent.h>
 
@@ -13,21 +13,7 @@ namespace bdn
     /** A control that offers an on or off choice
 
         The Switch class implements a binary state switch offering the user an
-       on or off choice.
-
-        If the target platform does not provide a native switch control, a
-       platform-specific substitution provided by the framework will be
-       displayed instead.
-
-        Use switches to provide users with a control for switching a single
-       option immediately. Do not use switches in cases where the user is
-       presented with multiple options and the result of switching requires
-       additional confirmation. In these cases, consider using the Checkbox
-       class.
-
-        Switches are commonly used on mobile platforms. See the Toggle class for
-       a control that adapts its appearance as a switch or checkbox with regard
-       to the target platofmr.
+        on or off choice.
      */
     class Switch : public View
     {
@@ -39,10 +25,10 @@ namespace bdn
         Switch()
         {
             _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
-            label.onChange() += View::CorePropertyUpdater<String, IToggleCoreBase>{
-                this, &IToggleCoreBase::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
+            label.onChange() += View::CorePropertyUpdater<String, SwitchCore>{
+                this, &SwitchCore::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
 
-            on.onChange() += View::CorePropertyUpdater<bool, ISwitchCore>{this, &ISwitchCore::setOn};
+            on.onChange() += View::CorePropertyUpdater<bool, SwitchCore>{this, &SwitchCore::setOn};
         }
 
         /** The switch's state, see TriState */

@@ -5,15 +5,25 @@
 
 @interface BdnIosCheckboxClickManager : NSObject
 
-@property bdn::ios::CheckboxCore *core;
+@property(nonatomic, assign) std::weak_ptr<bdn::Checkbox> outer;
+@property(nonatomic, weak) BdnIosCheckboxComposite *composite;
 
 @end
 
 @implementation BdnIosCheckboxClickManager
 
-- (void)setCheckboxCore:(bdn::ios::CheckboxCore *)core { _core = core; }
+- (void)clicked
+{
+    if (auto outer = self.outer.lock()) {
+        // Make sure outer state is updated before posting click event
+        if (self.composite) {
+            outer->state = self.composite.checkbox.checkboxState;
+        }
 
-- (void)clicked { _core->_clicked(); }
+        bdn::ClickEvent clickEvent(outer);
+        outer->onClick().notify(clickEvent);
+    }
+}
 
 @end
 
@@ -77,10 +87,13 @@ namespace bdn
             return switchComposite;
         }
 
-        CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outerCheckbox)
-            : ToggleCoreBase(outerCheckbox, _createCheckboxComposite())
+        CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outer) : ViewCore(outer, _createCheckboxComposite())
         {
             _composite = (BdnIosCheckboxComposite *)getUIView();
+
+            _clickManager = [[BdnIosCheckboxClickManager alloc] init];
+            _clickManager.outer = outer;
+            _clickManager.composite = _composite;
 
             BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
             [checkboxComposite.checkbox addTarget:_clickManager
@@ -91,8 +104,8 @@ namespace bdn
                         forControlEvents:UIControlEventTouchUpInside];
 
             // Set initial state
-            setLabel(outerCheckbox->label);
-            setState(outerCheckbox->state);
+            setLabel(outer->label);
+            setState(outer->state);
         }
 
         CheckboxCore::~CheckboxCore()
@@ -109,7 +122,12 @@ namespace bdn
             ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state;
         }
 
-        void CheckboxCore::setOn(const bool &on) { setState(on ? TriState::on : TriState::off); }
+        void CheckboxCore::setLabel(const String &label)
+        {
+            _composite.uiLabel.text = stringToNSString(label);
+            [_composite.uiLabel sizeToFit];
+            needLayout(View::InvalidateReason::childSizingInfoInvalidated);
+        }
 
         void CheckboxCore::layout()
         {
@@ -128,27 +146,6 @@ namespace bdn
                                            compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
                                            labelBounds.size.width, labelBounds.size.height);
             _composite.uiLabel.frame = labelFrame;
-        }
-
-        void CheckboxCore::_clicked()
-        {
-            std::shared_ptr<View> view = getOuterViewIfStillAttached();
-            if (view != nullptr) {
-                ClickEvent evt(view);
-
-                // Observing the UISwitch state via KVO does not work when
-                // the switch state is changed via user interaction. KVO
-                // works though when state is set programatically, which
-                // unfortunately is useless in the case that a user changes
-                // the switch state. This means we have to stick to the
-                // click event to propagate the state change to the framework.
-                //
-                // We guarantee that the on property will be set before
-                // a notification is posted to onClick.
-                std::dynamic_pointer_cast<Checkbox>(view)->state =
-                    (((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState);
-                std::dynamic_pointer_cast<Checkbox>(view)->onClick().notify(evt);
-            }
         }
     }
 }

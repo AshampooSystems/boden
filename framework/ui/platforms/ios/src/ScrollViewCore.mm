@@ -5,13 +5,20 @@
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
 
-@property(nonatomic) bdn::ios::ScrollViewCore *scrollViewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ScrollView> outer;
 
 @end
 
 @implementation BdnIosScrollViewDelegate_
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView { _scrollViewCore->_scrollViewDidScroll(); }
+- (void)scrollViewDidScroll:(UIScrollView *)uiScrollView
+{
+    if (auto outer = self.outer.lock()) {
+        if (auto core = std::dynamic_pointer_cast<bdn::ios::ScrollViewCore>(outer->getViewCore())) {
+            core->updateVisibleClientRect();
+        }
+    }
+}
 
 @end
 
@@ -28,7 +35,7 @@ namespace bdn
         {
             _uiScrollView = (UIScrollView *)getUIView();
 
-            // we add a custom view as the document view so that we have better
+            // We add a custom view as the document view so that we have better
             // control over the positioning of the content view
             _uiContentViewParent = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
@@ -39,12 +46,9 @@ namespace bdn
 
             setPadding(outer->padding);
 
-            BdnIosScrollViewDelegate_ *delegate = [BdnIosScrollViewDelegate_ alloc];
-            [delegate setScrollViewCore:this];
-            // make sure that we keep the delegate alive as long as we exist
-            _delegate = delegate;
-
-            _uiScrollView.delegate = delegate;
+            _delegate = [[BdnIosScrollViewDelegate_ alloc] init];
+            _delegate.outer = outer;
+            _uiScrollView.delegate = _delegate;
         }
 
         void ScrollViewCore::addChildUIView(UIView *childView)
@@ -315,22 +319,14 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-            if (outerView != nullptr) {
+            if (auto outer = std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached())) {
                 Point scrollPosition = iosPointToPoint(_uiScrollView.contentOffset);
 
-                // note that this is only correct if the scroll view does not
-                // currently zoom. However, since we do not support zooming yet
-                // that is ok for now.
+                // Not correct if scroll view is zoomed. Zooming is not supported yet.
                 Size visibleSize = iosSizeToSize(_uiScrollView.bounds.size);
-
                 Rect visibleClientRect(scrollPosition, visibleSize);
-
-                outerView->visibleClientRect = (visibleClientRect);
+                outer->visibleClientRect = (visibleClientRect);
             }
         }
-
-        void ScrollViewCore::_scrollViewDidScroll() { updateVisibleClientRect(); }
     }
 }

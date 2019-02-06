@@ -6,6 +6,8 @@
 
 #import <bdn/ios/ViewCore.hh>
 
+@class BdnIosButtonClickManager;
+
 namespace bdn
 {
     namespace ios
@@ -22,15 +24,13 @@ namespace bdn
 
             UIButton *getUIButton();
             void setLabel(const String &label) override;
-            void _clicked();
 
           protected:
             double getFontSize() const override;
 
           private:
             UIButton *_button;
-
-            NSObject *_clickManager;
+            BdnIosButtonClickManager *_clickManager;
         };
     }
 }

@@ -56,9 +56,8 @@ namespace bdn
 
             registerAndroidCoreType<ButtonCore, Button>();
             registerAndroidCoreType<ContainerViewCore, ContainerView>();
-            registerAndroidCoreType<CheckboxCore<Checkbox>, Checkbox>();
-            registerAndroidCoreType<SwitchCore<Switch>, Switch>();
-            registerAndroidCoreType<SwitchCore<Toggle>, Toggle>();
+            registerAndroidCoreType<CheckboxCore, Checkbox>();
+            registerAndroidCoreType<SwitchCore, Switch>();
             registerAndroidCoreType<TextViewCore, TextView>();
             registerAndroidCoreType<ScrollViewCore, ScrollView>();
             registerAndroidCoreType<WindowCore, Window>();

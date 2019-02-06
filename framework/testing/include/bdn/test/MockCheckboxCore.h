@@ -2,7 +2,7 @@
 
 #include <bdn/test/MockViewCore.h>
 
-#include <bdn/ICheckboxCore.h>
+#include <bdn/CheckboxCore.h>
 #include <bdn/Checkbox.h>
 
 namespace bdn
@@ -15,7 +15,7 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockCheckboxCore : public MockViewCore, virtual public ICheckboxCore
+        class MockCheckboxCore : public MockViewCore, virtual public CheckboxCore
         {
           public:
             MockCheckboxCore(std::shared_ptr<Checkbox> checkbox) : MockViewCore(checkbox)

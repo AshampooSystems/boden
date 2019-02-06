@@ -15,7 +15,7 @@ class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     {
         TestIosViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
 
-        _uILabel = (UILabel *)_uIView;
+        _uILabel = (UILabel *)_uiView;
         REQUIRE(_uILabel != nullptr);
     }
 

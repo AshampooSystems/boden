@@ -33,7 +33,7 @@ class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin<bdn::
     void verifyCoreState() override
     {
         TriState expectedState = _checkbox->state;
-        TriState state = std::dynamic_pointer_cast<bdn::android::CheckboxCore<Checkbox>>(_androidViewCore)->getState();
+        TriState state = std::dynamic_pointer_cast<bdn::android::CheckboxCore>(_androidViewCore)->getState();
         REQUIRE(state == expectedState);
     }
 

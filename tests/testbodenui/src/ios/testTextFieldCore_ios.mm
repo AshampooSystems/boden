@@ -16,7 +16,7 @@ class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin<bdn::test::T
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>::initCore();
 
-        _uITextField = (UITextField *)_uIView;
+        _uITextField = (UITextField *)_uiView;
         REQUIRE(_uITextField != nullptr);
     }
 

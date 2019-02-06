@@ -6,7 +6,6 @@
 #include <bdn/TextView.h>
 #include <bdn/ScrollView.h>
 #include <bdn/TextField.h>
-#include <bdn/Toggle.h>
 #include <bdn/Switch.h>
 #include <bdn/Checkbox.h>
 

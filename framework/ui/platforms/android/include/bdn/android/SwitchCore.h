@@ -2,9 +2,8 @@
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JSwitch.h>
-#include <bdn/ISwitchCore.h>
+#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
-#include <bdn/Toggle.h>
 #include <bdn/android/JNativeViewCoreClickListener.h>
 
 namespace bdn
@@ -12,10 +11,10 @@ namespace bdn
     namespace android
     {
 
-        template <class T> class SwitchCore : public ViewCore, virtual public ISwitchCore
+        class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
         {
           public:
-            SwitchCore(std::shared_ptr<T> outer)
+            SwitchCore(std::shared_ptr<Switch> outer)
                 : ViewCore(outer, ViewCore::createAndroidViewClass<JSwitch>(outer)), _jSwitch(getJViewAS<JSwitch>())
             {
                 _jSwitch.setSingleLine(true);
@@ -42,7 +41,7 @@ namespace bdn
 
             void clicked() override
             {
-                std::shared_ptr<T> view = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<Switch> view = std::dynamic_pointer_cast<Switch>(getOuterViewIfStillAttached());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 

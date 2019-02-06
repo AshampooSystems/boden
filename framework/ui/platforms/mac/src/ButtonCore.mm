@@ -6,13 +6,19 @@
 
 @interface BdnButtonClickManager : NSObject
 
-@property bdn::mac::ButtonCore *buttonCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::Button> outer;
 
 @end
 
 @implementation BdnButtonClickManager
 
-- (void)clicked { _buttonCore->generateClick(); }
+- (void)clicked
+{
+    if (auto outer = self.outer.lock()) {
+        bdn::ClickEvent clickEvent(outer);
+        outer->onClick().notify(clickEvent);
+    }
+}
 
 @end
 
@@ -21,20 +27,18 @@ namespace bdn
     namespace mac
     {
 
-        ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
-            : ButtonCoreBase(outerButton, _createNsButton(outerButton))
+        ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ButtonCoreBase(outer, _createNsButton(outer))
         {
             _currBezelStyle = NSBezelStyleRounded;
 
-            BdnButtonClickManager *clickMan = [BdnButtonClickManager alloc];
-            [clickMan setButtonCore:this];
-            _clickManager = clickMan;
+            _clickManager = [[BdnButtonClickManager alloc] init];
+            _clickManager.outer = outer;
 
-            setLabel(outerButton->label);
+            setLabel(outer->label);
 
             _heightWithRoundedBezelStyle = macSizeToSize(getNSView().fittingSize).height;
 
-            [_nsButton setTarget:clickMan];
+            [_nsButton setTarget:_clickManager];
             [_nsButton setAction:@selector(clicked)];
         }
 
@@ -64,16 +68,6 @@ namespace bdn
 
             if (bezelStyle != _currBezelStyle) {
                 [_nsButton setBezelStyle:bezelStyle];
-            }
-        }
-
-        void ButtonCore::generateClick()
-        {
-            std::shared_ptr<Button> outerButton = std::dynamic_pointer_cast<Button>(getOuterViewIfStillAttached());
-            if (outerButton != nullptr) {
-                bdn::ClickEvent evt(outerButton);
-
-                outerButton->onClick().notify(evt);
             }
         }
     }

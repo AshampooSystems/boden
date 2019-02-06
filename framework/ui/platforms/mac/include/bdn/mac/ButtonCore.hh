@@ -5,6 +5,8 @@
 
 #import <bdn/mac/ButtonCoreBase.hh>
 
+@class BdnButtonClickManager;
+
 namespace bdn
 {
     namespace mac
@@ -76,7 +78,7 @@ namespace bdn
           private:
             void _updateBezelStyle();
 
-            NSObject *_clickManager;
+            BdnButtonClickManager *_clickManager;
 
             NSBezelStyle _currBezelStyle;
             int _heightWithRoundedBezelStyle;

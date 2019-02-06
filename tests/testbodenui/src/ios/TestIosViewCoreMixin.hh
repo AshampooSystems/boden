@@ -24,8 +24,8 @@ namespace bdn
                 _iosViewCore = std::dynamic_pointer_cast<bdn::ios::ViewCore>(BaseClass::_view->getViewCore());
                 REQUIRE(_iosViewCore != nullptr);
 
-                _uIView = _iosViewCore->getUIView();
-                REQUIRE(_uIView != nullptr);
+                _uiView = _iosViewCore->getUIView();
+                REQUIRE(_uiView != nullptr);
             }
 
             std::shared_ptr<UiProvider> getUiProvider() override { return bdn::ios::UiProvider::get(); }
@@ -34,10 +34,10 @@ namespace bdn
             {
                 bool expectedVisible = BaseClass::_view->visible;
 
-                REQUIRE(_uIView.hidden == !expectedVisible);
+                REQUIRE(_uiView.hidden == !expectedVisible);
             }
 
-            Rect getFrameRect() const { return bdn::ios::iosRectToRect(_uIView.frame); }
+            Rect getFrameRect() const { return bdn::ios::iosRectToRect(_uiView.frame); }
 
             void verifyInitialDummyCoreSize() override
             {
@@ -72,7 +72,7 @@ namespace bdn
             }
 
             std::shared_ptr<bdn::ios::ViewCore> _iosViewCore;
-            UIView *_uIView;
+            UIView *_uiView;
         };
     }
 }

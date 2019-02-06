@@ -17,7 +17,7 @@ class TestIosCheckboxCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Te
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
 
-        _composite = (BdnIosCheckboxComposite *)_uIView;
+        _composite = (BdnIosCheckboxComposite *)_uiView;
         REQUIRE(_composite != nullptr);
     }
 

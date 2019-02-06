@@ -1,14 +1,12 @@
-
-
 #import <Cocoa/Cocoa.h>
-
 #import <bdn/mac/TextFieldCore.hh>
 
 @interface BdnTextFieldDelegate : NSObject <NSTextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::TextFieldCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::TextField> outer;
+@property(nonatomic, weak) NSTextField *nsTextField;
 
-- (id)initWithCore:(std::weak_ptr<bdn::mac::TextFieldCore>)core;
+- (id)initWithOuter:(std::weak_ptr<bdn::TextField>)outer nsTextField:(NSTextField *)nsTextField;
 - (void)controlTextDidChange:(NSNotification *)obj;
 - (void)submitted;
 
@@ -16,16 +14,15 @@
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithCore:(std::weak_ptr<bdn::mac::TextFieldCore>)core
+- (id)initWithOuter:(std::weak_ptr<bdn::TextField>)outer nsTextField:(NSTextField *)nsTextField
 {
     if ((self = [super init])) {
-        self.core = core;
+        self.outer = outer;
+        self.nsTextField = nsTextField;
 
-        std::shared_ptr<bdn::mac::TextFieldCore> textFieldCore = self.core.lock();
-        NSTextField *textField = (NSTextField *)textFieldCore->getNSView();
-        textField.delegate = self;
-        textField.target = self;
-        textField.action = @selector(submitted);
+        nsTextField.delegate = self;
+        nsTextField.target = self;
+        nsTextField.action = @selector(submitted);
 
         return self;
     }
@@ -35,22 +32,16 @@
 
 - (void)controlTextDidChange:(NSNotification *)obj
 {
-    std::shared_ptr<bdn::mac::TextFieldCore> textFieldCore = self.core.lock();
-    std::shared_ptr<bdn::TextField> outerTextField =
-        std::dynamic_pointer_cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
-    if (outerTextField) {
+    if (auto outer = self.outer.lock()) {
         NSTextView *textView = [obj.userInfo objectForKey:@"NSFieldEditor"];
-        outerTextField->text = bdn::mac::nsStringToString(textView.textStorage.string);
+        outer->text = bdn::mac::nsStringToString(textView.textStorage.string);
     }
 }
 
 - (void)submitted
 {
-    std::shared_ptr<bdn::mac::TextFieldCore> textFieldCore = self.core.lock();
-    std::shared_ptr<bdn::TextField> outerTextField =
-        std::dynamic_pointer_cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
-    if (outerTextField) {
-        outerTextField->submit();
+    if (auto outer = self.outer.lock()) {
+        outer->submit();
     }
 }
 
@@ -63,13 +54,9 @@ namespace bdn
 
         TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
             : ChildViewCore(outerTextField, _createNsTextView(outerTextField))
-
-        {}
-
-        void TextFieldCore::init(std::shared_ptr<TextField> outerTextField)
         {
-            _delegate = [[BdnTextFieldDelegate alloc]
-                initWithCore:std::dynamic_pointer_cast<TextFieldCore>(shared_from_this())];
+            _delegate =
+                [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)getNSView()];
 
             setText(outerTextField->text);
         }

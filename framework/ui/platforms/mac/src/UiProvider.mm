@@ -49,13 +49,12 @@ namespace bdn
 
             registerCoreType<ButtonCore, Button>();
             registerCoreType<ContainerViewCore, ContainerView>();
-            registerCoreType<CheckboxCore<Checkbox>, Checkbox>();
-            registerCoreType<SwitchCore<Switch>, Switch>();
-            registerCoreType<CheckboxCore<Toggle>, Toggle>();
+            registerCoreType<CheckboxCore, Checkbox>();
+            registerCoreType<SwitchCore, Switch>();
             registerCoreType<TextViewCore, TextView>();
             registerCoreType<ScrollViewCore, ScrollView>();
             registerCoreType<WindowCore, Window>();
-            registerCoreTypeWithInit<TextFieldCore, TextField>();
+            registerCoreType<TextFieldCore, TextField>();
             registerCoreType<ListViewCore, ListView>();
         }
 

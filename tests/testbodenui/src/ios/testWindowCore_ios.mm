@@ -18,7 +18,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     {
         TestIosViewCoreMixin<TestWindowCore>::initCore();
 
-        _uIWindow = (UIWindow *)_uIView;
+        _uIWindow = (UIWindow *)_uiView;
         REQUIRE(_uIWindow != nullptr);
     }
 
@@ -50,7 +50,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         TestIosViewCoreMixin<TestWindowCore>::clearAllReferencesToCore();
 
         _iosViewCore = nullptr;
-        _uIView = nullptr;
+        _uiView = nullptr;
         _uIWindow = nullptr;
     }
 

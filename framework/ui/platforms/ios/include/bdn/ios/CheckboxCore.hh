@@ -1,25 +1,26 @@
 #pragma once
 
-#include <bdn/ICheckboxCore.h>
-#include <bdn/ISwitchCore.h>
-#include <bdn/ClickEvent.h>
+#include <bdn/CheckboxCore.h>
 #include <bdn/Checkbox.h>
+#include <bdn/ClickEvent.h>
 
-#import <bdn/ios/ToggleCoreBase.hh>
+#import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/IosCheckbox.hh>
 
-@interface BdnIosCheckboxComposite : BdnIosToggleCompositeBase
+@interface BdnIosCheckboxComposite : UIControl
 
 @property(strong) BdnIosCheckbox *checkbox;
+@property(strong) UILabel *uiLabel;
 
 @end
+
+@class BdnIosCheckboxClickManager;
 
 namespace bdn
 {
     namespace ios
     {
-
-        class CheckboxCore : public ToggleCoreBase, virtual public ICheckboxCore, virtual public ISwitchCore
+        class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
         {
           private:
             static BdnIosCheckboxComposite *_createCheckboxComposite();
@@ -30,11 +31,15 @@ namespace bdn
 
             void setState(const TriState &state) override;
 
-            void setOn(const bool &on) override;
+            void setLabel(const String &label) override;
 
-            void _clicked() override;
+            void _clicked();
 
             void layout() override;
+
+          private:
+            BdnIosCheckboxComposite *_composite;
+            BdnIosCheckboxClickManager *_clickManager;
         };
     }
 }

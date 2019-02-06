@@ -1,18 +1,17 @@
 #pragma once
 
-#include <bdn/ICheckboxCore.h>
-#include <bdn/ISwitchCore.h>
+#include <bdn/CheckboxCore.h>
+#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
-#include <bdn/Toggle.h>
 
+#import <bdn/mac/ChildViewCore.hh>
 #import <bdn/mac/MacSwitch.hh>
-#import <bdn/mac/ToggleCoreBase.hh>
 
 namespace bdn
 {
     namespace mac
     {
-        template <class T> class SwitchCore;
+        class SwitchCore;
 
         class IClickManagerTarget
         {
@@ -40,8 +39,7 @@ namespace bdn
     namespace mac
     {
 
-        template <class T>
-        class SwitchCore : public ChildViewCore, virtual public ISwitchCore, virtual public IClickManagerTarget
+        class SwitchCore : public ChildViewCore, virtual public bdn::SwitchCore, virtual public IClickManagerTarget
         {
           private:
             static BdnMacSwitchComposite *_createSwitchComposite()
@@ -63,7 +61,7 @@ namespace bdn
             }
 
           public:
-            SwitchCore(std::shared_ptr<T> outer) : ChildViewCore(outer, _createSwitchComposite())
+            SwitchCore(std::shared_ptr<Switch> outer) : ChildViewCore(outer, _createSwitchComposite())
             {
                 _clickManager = [[BdnSwitchClickManager alloc] init];
                 _clickManager.target = this;
@@ -91,7 +89,6 @@ namespace bdn
                 [composite.label setFrameSize:cell.cellSize];
             }
 
-            // Called when attached to a Switch or Toggle with switch appearance
             void setOn(const bool &on) override
             {
                 BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
@@ -100,7 +97,7 @@ namespace bdn
 
             void clicked() override
             {
-                std::shared_ptr<T> outer = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<Switch> outer = std::dynamic_pointer_cast<Switch>(getOuterViewIfStillAttached());
                 if (outer != nullptr) {
                     bdn::ClickEvent evt(outer);
 

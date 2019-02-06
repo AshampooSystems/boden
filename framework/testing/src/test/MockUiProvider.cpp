@@ -6,7 +6,6 @@
 #include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
 #include <bdn/test/MockCheckboxCore.h>
-#include <bdn/test/MockToggleCore.h>
 #include <bdn/test/MockSwitchCore.h>
 #include <bdn/test/MockTextViewCore.h>
 #include <bdn/test/MockTextFieldCore.h>
@@ -25,7 +24,6 @@ namespace bdn
             registerMockCoreType<MockContainerViewCore, ContainerView>();
             registerMockCoreType<MockCheckboxCore, Checkbox>();
             registerMockCoreType<MockSwitchCore, Switch>();
-            registerMockCoreType<MockToggleCore, Toggle>();
             registerMockCoreType<MockTextViewCore, TextView>();
             registerMockCoreType<MockScrollViewCore, ScrollView>();
             registerMockCoreType<MockWindowCore, Window>();
@@ -53,10 +51,6 @@ namespace bdn
                 _coresCreated++;
 
                 return std::make_shared<MockCheckboxCore>(std::dynamic_pointer_cast<Checkbox>(view));
-            } else if (coreTypeName == Toggle::getToggleCoreTypeName()) {
-                _coresCreated++;
-
-                return std::make_shared<MockToggleCore>(std::dynamic_pointer_cast<Toggle>(view));
             } else if (coreTypeName == Switch::getSwitchCoreTypeName()) {
                 _coresCreated++;
 

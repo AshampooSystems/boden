@@ -98,23 +98,9 @@ namespace bdn
             return std::make_shared<CoreType>(std::dynamic_pointer_cast<ViewType>(view));
         }
 
-        template <class CoreType, class ViewType>
-        static std::shared_ptr<IViewCore> makeCoreAndInit(std::shared_ptr<View> view)
-        {
-            auto realView = std::dynamic_pointer_cast<ViewType>(view);
-            auto p = std::make_shared<CoreType>(realView);
-            p->init(realView);
-            return p;
-        }
-
         template <class CoreType, class ViewType> void registerCoreType()
         {
             registerConstruction(ViewType::coreTypeName, &makeCore<CoreType, ViewType>);
-        }
-
-        template <class CoreType, class ViewType> void registerCoreTypeWithInit()
-        {
-            registerConstruction(ViewType::coreTypeName, &makeCoreAndInit<CoreType, ViewType>);
         }
     };
 

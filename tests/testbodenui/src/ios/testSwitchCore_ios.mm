@@ -16,7 +16,7 @@ class TestIosSwitchCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     void initCore() override
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>::initCore();
-        _switchComposite = (BdnIosSwitchComposite *)_uIView;
+        _switchComposite = (BdnIosSwitchComposite *)_uiView;
         REQUIRE(_switchComposite != nullptr);
     }
 

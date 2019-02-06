@@ -8,7 +8,7 @@ namespace bdn
     namespace test
     {
 
-        /** Helper for tests that verify ISwitchCore implementations.*/
+        /** Helper for tests that verify SwitchCore implementations.*/
         class TestSwitchCore : public TestViewCore<Switch>
         {
 

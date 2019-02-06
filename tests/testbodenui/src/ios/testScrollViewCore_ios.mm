@@ -21,7 +21,7 @@ class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin<bdn::test::
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestScrollViewCore>::initCore();
 
-        _uiScrollView = (UIScrollView *)_uIView;
+        _uiScrollView = (UIScrollView *)_uiView;
     }
 
     double getVertBarWidth() override

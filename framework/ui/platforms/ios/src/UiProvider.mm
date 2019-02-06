@@ -46,8 +46,7 @@ namespace bdn
             registerCoreType<ButtonCore, Button>();
             registerCoreType<ContainerViewCore, ContainerView>();
             registerCoreType<CheckboxCore, Checkbox>();
-            registerCoreType<SwitchCore<Switch>, Switch>();
-            registerCoreType<SwitchCore<Toggle>, Toggle>();
+            registerCoreType<SwitchCore, Switch>();
             registerCoreType<TextViewCore, TextView>();
             registerCoreType<ScrollViewCore, ScrollView>();
             registerCoreType<WindowCore, Window>();
@@ -68,11 +67,8 @@ namespace bdn
             else if (coreTypeName == Checkbox::getCheckboxCoreTypeName())
                 return std::make_shared<CheckboxCore>(std::dynamic_pointer_cast<Checkbox>(view));
 
-            else if (coreTypeName == Toggle::getToggleCoreTypeName())
-                return std::make_shared<SwitchCore<Toggle>>(std::dynamic_pointer_cast<Toggle>(view));
-
             else if (coreTypeName == Switch::getSwitchCoreTypeName())
-                return std::make_shared<SwitchCore<Switch>>(std::dynamic_pointer_cast<Switch>(view));
+                return std::make_shared<SwitchCore>(std::dynamic_pointer_cast<Switch>(view));
 
             else if (coreTypeName == TextView::getTextViewCoreTypeName())
                 return std::make_shared<TextViewCore>(std::dynamic_pointer_cast<TextView>(view));

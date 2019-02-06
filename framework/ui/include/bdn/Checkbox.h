@@ -3,7 +3,7 @@
 #include <bdn/constants.h>
 #include <bdn/View.h>
 #include <bdn/ClickEvent.h>
-#include <bdn/ICheckboxCore.h>
+#include <bdn/CheckboxCore.h>
 #include <bdn/SimpleNotifier.h>
 
 namespace bdn
@@ -12,28 +12,8 @@ namespace bdn
     /** A control providing the user with an on/off choice.
 
         The Checkbox class implements a checkbox control. If the target platform
-       does not provide a native checkbox widget, a platform-specific
-       substitution provided by the framework will be displayed instead.
-
-        Use checkboxes for selecting options in settings dialogs, property
-       panels, or forms. Checkboxes are common on Desktop platforms, but they
-       rarely used on mobile platforms.
-
-        If your use case does neither require mixed state nor additional user
-       confirmation for the setting to take effect, consider using the Toggle
-       class instead. Toggles automatically adapt their appearence with regard
-       to the target platform.
-
-        Checkboxes can be used as a dual-state (on/off) or tri-state
-       (on/off/mixed) toggle. Mixed state (sometimes also referred to as
-       indeterminate or inconsistent state) is used to represent a partial
-       state, usually summarizing the state of other checkbox items in a group
-       of which only some items are checked.
-
-        While you can set a Checkbox to mixed state programatically, user
-       interaction is limited to setting the on or off state. When the user
-       clicks a Checkbox which is currently set to mixed state, the state
-       transition behavior is defined by the platform.
+        does not provide a native checkbox widget, a platform-specific
+        substitution provided by the framework will be displayed instead.
 
         Note that Android does not support mixed state checkboxes.
      */

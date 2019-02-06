@@ -28,8 +28,6 @@ namespace bdn
             TextFieldCore(std::shared_ptr<TextField> outerTextField);
             ~TextFieldCore();
 
-            void init(std::shared_ptr<TextField> outerTextField);
-
             void setText(const String &text) override
             {
                 NSTextField *textField = (NSTextField *)getNSView();

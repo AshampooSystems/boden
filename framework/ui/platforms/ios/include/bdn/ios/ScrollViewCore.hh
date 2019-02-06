@@ -7,6 +7,8 @@
 
 #import <bdn/ios/ViewCore.hh>
 
+@class BdnIosScrollViewDelegate_;
+
 namespace bdn
 {
     namespace ios
@@ -33,8 +35,7 @@ namespace bdn
 
             void addChildUIView(UIView *childView) override;
 
-            /** Used internally - do not call.*/
-            void _scrollViewDidScroll();
+            void updateVisibleClientRect();
 
           protected:
             bool canAdjustToAvailableWidth() const override { return true; }
@@ -42,15 +43,13 @@ namespace bdn
             bool canAdjustToAvailableHeight() const override { return true; }
 
           private:
-            void updateVisibleClientRect();
-
             UIScrollView *_uiScrollView;
             UIView *_uiContentViewParent;
 
             bool _horzScrollEnabled = false;
             bool _vertScrollEnabled = false;
 
-            NSObject *_delegate = nil;
+            BdnIosScrollViewDelegate_ *_delegate = nil;
         };
     }
 }

@@ -16,7 +16,7 @@ class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
     {
         bdn::test::TestIosViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
-        _uIButton = (UIButton *)_uIView;
+        _uIButton = (UIButton *)_uiView;
         REQUIRE(_uIButton != nullptr);
     }
 

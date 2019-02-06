@@ -2,9 +2,8 @@
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JCheckBox.h>
-#include <bdn/ICheckboxCore.h>
+#include <bdn/CheckboxCore.h>
 #include <bdn/Checkbox.h>
-#include <bdn/Toggle.h>
 #include <bdn/android/JNativeViewCoreClickListener.h>
 
 namespace bdn
@@ -12,10 +11,10 @@ namespace bdn
     namespace android
     {
 
-        template <class T> class CheckboxCore : public ViewCore, virtual public ICheckboxCore
+        class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
         {
           public:
-            CheckboxCore(std::shared_ptr<T> outer)
+            CheckboxCore(std::shared_ptr<Checkbox> outer)
                 : ViewCore(outer, ViewCore::createAndroidViewClass<JCheckBox>(outer)),
                   _jCheckBox(getJViewAS<JCheckBox>())
             {
@@ -46,20 +45,17 @@ namespace bdn
 
             void clicked() override
             {
-                std::shared_ptr<T> view = std::dynamic_pointer_cast<T>(getOuterViewIfStillAttached());
+                std::shared_ptr<Checkbox> view = std::dynamic_pointer_cast<Checkbox>(getOuterViewIfStillAttached());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 
                     std::shared_ptr<Checkbox> checkbox = std::dynamic_pointer_cast<Checkbox>(view);
-                    std::shared_ptr<Toggle> toggle = std::dynamic_pointer_cast<Toggle>(view);
 
-                    // User interaction cannot set the checkbox into mixed state
                     _state = _jCheckBox.isChecked() ? TriState::on : TriState::off;
 
+                    // User interaction cannot set the checkbox into mixed state
                     if (checkbox)
                         checkbox->state = (_state);
-                    else if (toggle)
-                        toggle->on = (_jCheckBox.isChecked());
 
                     view->onClick().notify(evt);
                 }

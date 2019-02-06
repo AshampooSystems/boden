@@ -2,7 +2,7 @@
 
 #include <bdn/test/MockViewCore.h>
 
-#include <bdn/ISwitchCore.h>
+#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
 
 namespace bdn
@@ -15,7 +15,7 @@ namespace bdn
 
             See MockUiProvider.
             */
-        class MockSwitchCore : public MockViewCore, virtual public ISwitchCore
+        class MockSwitchCore : public MockViewCore, virtual public SwitchCore
         {
           public:
             MockSwitchCore(std::shared_ptr<Switch> outerSwitch) : MockViewCore(outerSwitch)

@@ -8,7 +8,7 @@ namespace bdn
     namespace test
     {
 
-        /** Helper for tests that verify ICheckboxCore implementations.*/
+        /** Helper for tests that verify CheckboxCore implementations.*/
         class TestCheckboxCore : public TestViewCore<Checkbox>
         {
 
