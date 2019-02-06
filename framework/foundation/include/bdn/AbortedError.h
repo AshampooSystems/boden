@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <bdn/String.h>
 
 namespace bdn
 {

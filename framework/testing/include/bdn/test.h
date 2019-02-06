@@ -1731,12 +1731,6 @@ namespace bdn
     template <typename T> std::string toStringForTest(T const &value);
 
     // Built in overloads
-
-    // TODO
-    /* std::string toStringForTest(StringImpl<Utf8StringData> const &value);
-     std::string toStringForTest(StringImpl<Utf16StringData> const &value);
-     std::string toStringForTest(StringImpl<WideStringData> const &value);
-     std::string toStringForTest(StringImpl<Utf32StringData> const &value);*/
     std::string toStringForTest(std::string const &value);
     std::string toStringForTest(std::wstring const &value);
     std::string toStringForTest(std::u16string const &value);

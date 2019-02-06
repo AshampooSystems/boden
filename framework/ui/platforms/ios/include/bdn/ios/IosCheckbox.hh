@@ -2,7 +2,7 @@
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/constants.h>
+#include <bdn/TriState.h>
 
 @interface BdnIosCheckbox : UIControl
 

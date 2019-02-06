@@ -1,24 +1,7 @@
 
-#include <bdn/Window.h>
-#include <bdn/ColumnView.h>
-#include <bdn/ListView.h>
-#include <bdn/RowView.h>
-#include <bdn/Button.h>
-#include <bdn/TextView.h>
-#include <bdn/ScrollView.h>
-#include <bdn/TextField.h>
-#include <bdn/Toggle.h>
-#include <bdn/Switch.h>
-#include <bdn/Checkbox.h>
-
-#include <bdn/appInit.h>
-#include <bdn/UiAppControllerBase.h>
-
-#include <bdn/property/Property.h>
-
-#include <bdn/HTTP.h>
-#include <bdn/HTTPRequest.h>
-#include <bdn/HTTPResponse.h>
+#include <bdn/foundation.h>
+#include <bdn/ui.h>
+#include <bdn/net.h>
 
 #include <nlohmann/json.hpp>
 

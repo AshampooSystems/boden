@@ -17,5 +17,3 @@ namespace bdn
         mixed
     };
 }
-
-#endif // BDN_Constants_H_

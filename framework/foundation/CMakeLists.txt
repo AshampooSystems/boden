@@ -19,11 +19,17 @@ file(GLOB_RECURSE _files
     ${CMAKE_CURRENT_LIST_DIR}/include/*.h
     ${CMAKE_CURRENT_LIST_DIR}/include/*.hh)
 
+file(GLOB_RECURSE _headers ${CMAKE_CURRENT_LIST_DIR}/include/*.h)
+
+GenerateTopLevelIncludeFile(_combined_header
+    ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/foundation.h
+    ${CMAKE_CURRENT_LIST_DIR}/include ${_headers} ${CMAKE_CURRENT_LIST_DIR}/include/bdn/appInit.h)
+
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config/platform.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h)
 
 list(APPEND _files ${CMAKE_CURRENT_LIST_DIR}/config/platform.h.in)
 
-set(_BDN_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h)
+set(_BDN_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h ${_combined_header})
 
 ##########################################################################
 # Target

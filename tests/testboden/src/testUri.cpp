@@ -2,7 +2,6 @@
 #include <bdn/test.h>
 
 #include <bdn/Uri.h>
-#include <bdn/hex.h>
 
 using namespace bdn;
 
@@ -24,25 +23,6 @@ void testUnescape()
     SECTION("withEscapedPercent")
     REQUIRE(Uri::unescape(bdn::fromUtf32(U"he\U00012345llow%2531%25%25orld")) ==
             bdn::fromUtf32(U"he\U00012345llow%31%%orld"));
-
-    SECTION("escapedUtf8")
-    {
-        String orig = bdn::fromUtf32(U"he\U00012345\U00002345lloworld");
-
-        String escaped;
-        for (char utf8Char : orig) {
-            uint8_t el = (uint8_t)utf8Char;
-
-            if (el >= 0x80) {
-                escaped += "%";
-                escaped += encodeHexDigit(el >> 4);
-                escaped += encodeHexDigit(el & 0xf);
-            } else
-                escaped += (char32_t)el;
-        }
-
-        REQUIRE(Uri::unescape(escaped) == orig);
-    }
 
     SECTION("invalidSequence") { REQUIRE(Uri::unescape("hell%1go") == "hell%1go"); }
 

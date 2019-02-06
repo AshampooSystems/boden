@@ -1,8 +1,12 @@
-
 ##########################################################################
 # Files
 
 add_sources(_BDN_NET_FILES _BDN_HEADERS ./)
+
+GenerateTopLevelIncludeFile(_BDN_NET_COMBINED ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/net.h ${CMAKE_CURRENT_LIST_DIR}/include ${_BDN_HEADERS})
+
+set(_BDN_NET_FILES ${_BDN_NET_FILES} ${_BDN_NET_COMBINED})
+
 add_sources(_BDN_NET_FILES _BDN_HEADERS ./${BDN_TARGET})
 
 if( BDN_USES_FK )

@@ -6,6 +6,7 @@
 #include <bdn/test/TestCheckboxCore.h>
 #include <bdn/mac/CheckboxCore.hh>
 #include <bdn/mac/util.hh>
+#include <bdn/mac/ui_util.hh>
 
 #import "TestMacChildViewCoreMixin.hh"
 

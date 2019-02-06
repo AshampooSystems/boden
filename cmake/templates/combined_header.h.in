@@ -1,0 +1,7 @@
+/*
+    Automatically generated during boden build process
+*/
+
+#pragma once
+
+@_HEADERS_@

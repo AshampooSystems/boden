@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/constants.h>
+#include <bdn/TriState.h>
 #include <bdn/SwitchCore.h>
 #include <bdn/View.h>
 #include <bdn/ClickEvent.h>

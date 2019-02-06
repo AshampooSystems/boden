@@ -3,6 +3,7 @@
 #include <map>
 
 #include <bdn/round.h>
+#include <bdn/Rect.h>
 
 namespace bdn
 {

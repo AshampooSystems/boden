@@ -5811,30 +5811,6 @@ namespace bdn
         return std::string(); /*return toStringForTest(String(value));*/
     }
 
-    /*
-     * TODO
-
-     *
-     * std::string toStringForTest(StringImpl<Utf8StringData> const &value)
-        {
-            return bdn::toStringForTest(value.asUtf8());
-        }
-
-        std::string toStringForTest(StringImpl<Utf16StringData> const &value)
-        {
-            return bdn::toStringForTest(value.asUtf8());
-        }
-
-        std::string toStringForTest(StringImpl<Utf32StringData> const &value)
-        {
-            return bdn::toStringForTest(value.asUtf8());
-        }
-
-        std::string toStringForTest(StringImpl<WideStringData> const &value)
-        {
-            return bdn::toStringForTest(value.asUtf8());
-        }
-    */
     std::string toStringForTest(const char *const value)
     {
         return value ? bdn::toStringForTest(std::string(value)) : std::string("{null string}");

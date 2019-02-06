@@ -1,18 +1,6 @@
 
-#include <bdn/Window.h>
-#include <bdn/ColumnView.h>
-#include <bdn/RowView.h>
-#include <bdn/Button.h>
-#include <bdn/TextView.h>
-#include <bdn/ScrollView.h>
-#include <bdn/TextField.h>
-#include <bdn/Switch.h>
-#include <bdn/Checkbox.h>
-
-#include <bdn/appInit.h>
-#include <bdn/UiAppControllerBase.h>
-
-#include <bdn/property/Property.h>
+#include <bdn/foundation.h>
+#include <bdn/ui.h>
 
 #include <iostream>
 

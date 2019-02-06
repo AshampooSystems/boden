@@ -3,9 +3,12 @@
 # Files
 
 add_sources(_BDN_TEST_FILES _BDN_HEADERS ./)
+
+GenerateTopLevelIncludeFile(_combined_header ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/testing.h ${CMAKE_CURRENT_LIST_DIR}/include ${_BDN_HEADERS})
+set(_BDN_TEST_FILES ${_BDN_TEST_FILES} ${_combined_header})
+
 add_sources(_BDN_TEST_FILES _BDN_HEADERS ./${BDN_TARGET})
 add_sources(_BDN_TEST_FILES _BDN_HEADERS ./test)
-
 
 if( BDN_USES_FK )
     add_sources(_BDN_TEST_FILES _BDN_HEADERS ./fk)

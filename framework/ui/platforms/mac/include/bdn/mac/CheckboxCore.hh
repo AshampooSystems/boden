@@ -6,6 +6,7 @@
 
 #import <bdn/mac/ButtonCoreBase.hh>
 #import <bdn/mac/util.hh>
+#import <bdn/mac/ui_util.hh>
 
 namespace bdn
 {

@@ -3,6 +3,10 @@
 # Files
 
 add_sources(_BDN_UI_FILES _BDN_HEADERS ./)
+
+GenerateTopLevelIncludeFile(_combined_header ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/ui.h ${CMAKE_CURRENT_LIST_DIR}/include ${_BDN_HEADERS})
+set(_BDN_UI_FILES ${_BDN_UI_FILES} ${_combined_header})
+
 add_sources(_BDN_UI_FILES _BDN_HEADERS ./${BDN_TARGET})
 
 if( BDN_USES_FK )
