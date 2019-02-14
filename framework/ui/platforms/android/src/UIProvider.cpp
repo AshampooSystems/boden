@@ -10,6 +10,7 @@
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/ListViewCore.h>
 #include <bdn/android/ScrollViewCore.h>
+#include <bdn/android/StackCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -63,6 +64,7 @@ namespace bdn
             registerAndroidCoreType<WindowCore, Window>();
             registerAndroidCoreType<TextFieldCore, TextField>();
             registerAndroidCoreType<ListViewCore, ListView>();
+            registerAndroidCoreType<StackCore, Stack>();
         }
 
         String UIProvider::getName() const { return "android"; }

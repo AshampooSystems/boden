@@ -63,39 +63,88 @@ class RedditListViewDataSource : public ListViewDataSource
     std::shared_ptr<RedditStore> _store;
 };
 
+class PostListViewController : public Base
+{
+  public:
+    using clickNotifier_t = SimpleNotifier<String, String>;
+
+    PostListViewController() : _listView(std::make_shared<ListView>())
+    {
+        auto store = std::make_shared<RedditStore>();
+        _dataSource = std::make_shared<RedditListViewDataSource>(store);
+
+        _listView->dataSource = _dataSource;
+
+        store->fetchPosts([this]() { _listView->reloadData(); });
+
+        _listView->horizontalAlignment = View::HorizontalAlignment::expand;
+        _listView->verticalAlignment = View::VerticalAlignment::expand;
+        _listView->preferredSizeMinimum = Size(100, 200);
+        _listView->margin = UIMargin(15, 15, 15, 15);
+
+        _listView->selectedRowIndex.onChange() += [store, this](auto indexAccessor) {
+            auto post = store->posts.at(*indexAccessor->get());
+            _onClicked.notify(post->title, post->url);
+        };
+    }
+
+    std::shared_ptr<View> view() { return _listView; }
+
+    clickNotifier_t &onClicked() { return _onClicked; }
+
+  private:
+    std::shared_ptr<RedditListViewDataSource> _dataSource;
+
+    std::shared_ptr<ListView> _listView;
+
+    clickNotifier_t _onClicked;
+};
+
+class PostDetailController : public Base
+{
+  public:
+    PostDetailController(String title, String url) : _mainColumn(std::make_shared<ColumnView>())
+    {
+        auto titleField = std::make_shared<TextView>();
+        auto urlField = std::make_shared<TextView>();
+        auto openButton = std::make_shared<Button>();
+
+        titleField->text = "Title: " + title;
+        urlField->text = "URL: " + url;
+
+        openButton->label = "Open in Browser";
+        openButton->onClick() += [url](auto) { getAppRunner()->openURL(url); };
+
+        _mainColumn->addChildView(titleField);
+        _mainColumn->addChildView(urlField);
+        _mainColumn->addChildView(openButton);
+    }
+
+    std::shared_ptr<View> view() { return _mainColumn; }
+
+  private:
+    std::shared_ptr<ColumnView> _mainColumn;
+};
+
 class MainViewController : public Base
 {
   public:
-    MainViewController()
+    MainViewController() : _listViewController(std::make_shared<PostListViewController>())
     {
         _window = std::make_shared<Window>();
         _window->title = "UI Demo";
 
-        auto mainColumn = std::make_shared<ColumnView>();
-        mainColumn->preferredSizeMinimum = Size(250, 0);
+        auto stack = std::make_shared<Stack>();
+        stack->preferredSizeMinimum = Size(250, 0);
 
-        auto store = std::make_shared<RedditStore>();
-        _dataSource = std::make_shared<RedditListViewDataSource>(store);
+        stack->pushView(_listViewController->view(), "Reddit");
 
-        auto listView = std::make_shared<ListView>();
-        listView->dataSource = _dataSource;
-
-        store->fetchPosts([listView]() { listView->reloadData(); });
-
-        listView->horizontalAlignment = View::HorizontalAlignment::expand;
-        listView->verticalAlignment = View::VerticalAlignment::expand;
-        listView->preferredSizeMinimum = Size(100, 200);
-        listView->margin = UIMargin(15, 15, 15, 15);
-
-        listView->selectedRowIndex.onChange() += [listView, store](auto) {
-            size_t index = *listView->selectedRowIndex.get();
-            logInfo("selectedRowIndex changed: " + std::to_string(index));
-            getAppRunner()->openURL(store->posts.at(index)->url);
+        _listViewController->onClicked() += [stack](auto title, auto url) {
+            auto post = std::make_shared<PostDetailController>(title, url);
+            stack->pushView(post->view(), "Details");
         };
 
-        mainColumn->addChildView(listView);
-
-        _window->setContentView(mainColumn);
+        _window->setContentView(stack);
 
         _window->requestAutoSize();
         _window->requestCenter();
@@ -105,7 +154,7 @@ class MainViewController : public Base
 
   protected:
     std::shared_ptr<Window> _window;
-    std::shared_ptr<RedditListViewDataSource> _dataSource;
+    std::shared_ptr<PostListViewController> _listViewController;
 };
 
 class AppController : public UIAppControllerBase

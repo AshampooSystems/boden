@@ -186,6 +186,7 @@ namespace bdn
         {
             std::shared_ptr<ScrollView> outerView =
                 std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
+
             if (outerView != nullptr) {
                 Size borderSize;
                 std::shared_ptr<ScrollViewLayoutHelper> helper = createLayoutHelper(&borderSize);

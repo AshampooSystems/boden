@@ -53,6 +53,21 @@ namespace bdn
                 gone = 8
             };
 
+            enum SYSTEM_UI_FLAG
+            {
+                VISIBLE = 0,
+                LOW_PROFILE = 0x00000001,
+                HIDE_NAVIGATION = 0x00000002,
+                FULLSCREEN = 0x00000004,
+                LAYOUT_STABLE = 0x00000100,
+                LAYOUT_HIDE_NAVIGATION = 0x00000200,
+                LAYOUT_FULLSCREEN = 0x00000400,
+                IMMERSIVE = 0x00000800,
+                IMMERSIVE_STICKY = 0x00001000,
+                LIGHT_STATUS_BAR = 0x00002000,
+                LIGHT_NAVIGATION_BAR = 0x00000010
+            };
+
             class MeasureSpec
             {
               public:
@@ -75,6 +90,9 @@ namespace bdn
             };
 
           public:
+            Method<void(int)> setSystemUiVisibility{this, "setSystemUiVisibility"};
+            Method<int()> getSystemUiVisibility{this, "getSystemUiVisibility"};
+
             Method<void(int)> setVisibility{this, "setVisibility"};
             Method<int()> getVisibility{this, "getVisibility"};
 

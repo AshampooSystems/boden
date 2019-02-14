@@ -18,6 +18,7 @@
 #import <bdn/mac/ScrollViewCore.hh>
 #import <bdn/mac/ListViewCore.hh>
 #import <bdn/mac/TextFieldCore.hh>
+#import <bdn/mac/StackCore.hh>
 
 namespace bdn
 {
@@ -56,6 +57,7 @@ namespace bdn
             registerCoreType<WindowCore, Window>();
             registerCoreType<TextFieldCore, TextField>();
             registerCoreType<ListViewCore, ListView>();
+            registerCoreType<StackCore, Stack>();
         }
 
         String UIProvider::getName() const { return "mac"; }

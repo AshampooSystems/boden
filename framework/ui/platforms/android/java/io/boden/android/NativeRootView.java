@@ -1,9 +1,14 @@
 package io.boden.android;
 
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.AttributeSet;
+import android.widget.Toolbar;
+
+import io.boden.android.ui_android.R;
 
 /**
  * Root view group that contains user interface components that are controlled by native code.
@@ -29,6 +34,7 @@ public class NativeRootView extends NativeViewGroup
     {
         super(context);
 
+
         created();
     }
 
@@ -44,6 +50,15 @@ public class NativeRootView extends NativeViewGroup
         super(context, attrs, defStyle);
 
         created();
+    }
+
+    public void setTitle(CharSequence title)
+    {
+        ((Activity)getContext()).getActionBar().setTitle(title);
+    }
+
+    public void enableBackButton(boolean enabled) {
+        ((Activity)getContext()).getActionBar().setDisplayHomeAsUpEnabled(enabled);
     }
 
 
@@ -92,13 +107,18 @@ public class NativeRootView extends NativeViewGroup
         sizeChanged(newWidth, newHeight);
     }
 
+    public boolean handleBackPressed() {
+        return native_handleBackPressed();
+    }
+
     private native void created();
     private native void disposed();
     private native void sizeChanged(int width, int height);
     private native void configurationChanged(Configuration newConfig);
 
-    private boolean _disposed = false;
+    private native boolean native_handleBackPressed();
 
+    private boolean _disposed = false;
 };
 
 

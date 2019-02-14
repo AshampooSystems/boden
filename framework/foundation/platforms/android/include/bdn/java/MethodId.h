@@ -26,7 +26,7 @@ namespace bdn
         class MethodId
         {
           public:
-            MethodId() { _initialized = false; }
+            constexpr MethodId() : _id(nullptr), _initialized(false) {}
 
             /** Initializes the Id by looking up the method with the specified
              * name and signature from the specified class.

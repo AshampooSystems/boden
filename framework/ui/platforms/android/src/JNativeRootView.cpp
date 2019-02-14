@@ -45,3 +45,17 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configura
         },
         true, env);
 }
+
+extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeRootView_native_1handleBackPressed(JNIEnv *env,
+                                                                                                 jobject rawSelf)
+{
+    bool result = false;
+
+    bdn::platformEntryWrapper(
+        [&]() {
+            result = bdn::android::WindowCore::_handleBackPressed(bdn::java::Reference::convertExternalLocal(rawSelf));
+        },
+        true, env);
+
+    return result;
+}

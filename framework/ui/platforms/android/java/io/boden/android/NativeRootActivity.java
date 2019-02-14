@@ -4,6 +4,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.Window;
 
 /** An activity that is controlled by native code.
  *
@@ -39,21 +41,36 @@ public class NativeRootActivity extends android.app.Activity
 
         NativeInit.baseInit(_libName);
 
-        _rootView = new NativeRootView(this);
+        _rootView = new NativeRootView(this );
         setContentView(_rootView);
 
         NativeInit.launch( getIntent() );
     }
 
     @Override
-    public void onConfigurationChanged (Configuration newConfig)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged (Configuration newConfig) {
         _rootView.onConfigurationChanged(newConfig);
 
         super.onConfigurationChanged(newConfig);
     }
 
-
+    @Override
+    public void onBackPressed() {
+        if(!_rootView.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
 
     private void loadMetaData()
     {
@@ -83,10 +100,7 @@ public class NativeRootActivity extends android.app.Activity
             return defaultValue;
     }
 
-
-
     private NativeRootView _rootView;
-
     private Bundle _metaData;
     private String _libName;
 }

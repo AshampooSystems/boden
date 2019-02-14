@@ -81,7 +81,6 @@ public class NativeViewGroup extends ViewGroup
         super.addView(child);
     }
 
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {

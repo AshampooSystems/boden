@@ -110,6 +110,9 @@ namespace bdn
             inline static ReturnType invokeStatic_(JClass &cls, MethodId &methodId, const String &methodName,
                                                    Arguments... args);
 
+            template <typename ReturnType, typename... Arguments>
+            inline static ReturnType invokeStaticWithId_(JClass &cls, MethodId &methodId, Arguments... args);
+
             /** Returns the JClass object for this class.
              *
              *  Note that the returned class object is not necessarily unique
@@ -165,6 +168,13 @@ namespace bdn
             return cls.invokeStaticMethod_<ReturnType, Arguments...>(methodId, methodName, args...);
         }
 
+        template <typename ReturnType, typename... Arguments>
+        inline ReturnType JObject::invokeStaticWithId_(JClass &cls, MethodId &methodId, Arguments... args)
+        {
+            return StaticMethodCaller<ReturnType>::template call<Arguments...>((jclass)cls.getJObject_(),
+                                                                               methodId.getId(), args...);
+        }
+
         template <const char *javaClassName, class... ConstructorArguments> class JTObject : public bdn::java::JObject
         {
           public:
@@ -197,6 +207,24 @@ namespace bdn
                 static bdn::java::MethodId methodId;
                 return invoke_<ReturnType>(javaClass(), methodId, methodName, args...);
             }
+
+          public:
+            template <class ReturnType, class... ArgumentTypes> class StaticMethod
+            {
+              public:
+                using JTObjectType = JTObject<javaClassName, ConstructorArguments...>;
+
+                constexpr StaticMethod(const char *name) : _name(name) {}
+
+                ReturnType operator()(ArgumentTypes... arguments) const
+                {
+                    return JTObjectType::invokeStatic_<ReturnType, ArgumentTypes...>(JTObjectType::getStaticClass_(),
+                                                                                     methodId, _name, arguments...);
+                }
+
+                const char *_name;
+                mutable bdn::java::MethodId methodId;
+            };
         };
 
         template <class _Fp> class Method; // undefined
