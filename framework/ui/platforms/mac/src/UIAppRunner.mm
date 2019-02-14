@@ -1,5 +1,6 @@
 
 #import <bdn/mac/UIAppRunner.hh>
+#import <bdn/mac/util.hh>
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
@@ -114,6 +115,11 @@ namespace bdn
             [NSApp run];
 
             return 0;
+        }
+
+        void UIAppRunner::openURL(const String &url)
+        {
+            [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:stringToNSString(url)]];
         }
 
         void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)

@@ -1,5 +1,6 @@
 
 #import <bdn/ios/AppRunner.hh>
+#import <bdn/ios/util.hh>
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
@@ -8,6 +9,8 @@
 #include <bdn/ExceptionReference.h>
 
 #include <bdn/AppControllerBase.h>
+
+#import <UIKit/UIKit.h>
 
 @interface BdnIosAppDelegate_ : UIResponder <UIApplicationDelegate>
 
@@ -138,6 +141,13 @@ namespace bdn
             @autoreleasepool {
                 return UIApplicationMain(argCount, args, nil, NSStringFromClass([BdnIosAppDelegate_ class]));
             }
+        }
+
+        void AppRunner::openURL(const String &url)
+        {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:stringToNSString(url)]
+                                               options:@{}
+                                     completionHandler:nil];
         }
 
         bool AppRunner::_applicationWillFinishLaunching(NSDictionary *launchOptions)

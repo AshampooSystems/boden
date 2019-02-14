@@ -1,5 +1,6 @@
 #include <bdn/android/ListViewCore.h>
 #include <bdn/android/JNativeListAdapter.h>
+#include <bdn/android/JNativeAdapterViewOnItemClickListener.h>
 
 namespace bdn
 {
@@ -9,10 +10,14 @@ namespace bdn
             : ViewCore(outer, ViewCore::createAndroidViewClass<JListView>(outer)), _jListView(getJViewAS<JListView>()),
               _jNativeListAdapter(getJView())
         {
+            _jListView.setDescendantFocusability(0x00060000);
+            _jListView.setStackFromBottom(false); // I don't know what I'm doing
+            _jListView.setChoiceMode(0x00000001);
             _jListView.setAdapter(JListAdapter(_jNativeListAdapter.getRef_()));
-        }
 
-        void ListViewCore::setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) {}
+            bdn::android::JNativeAdapterViewOnItemClickListener listener2;
+            _jListView.setOnItemClickListener(listener2.cast<OnItemClickListener>());
+        }
 
         void ListViewCore::reloadData() { _jNativeListAdapter.notifyDataSetChanged(); }
     }

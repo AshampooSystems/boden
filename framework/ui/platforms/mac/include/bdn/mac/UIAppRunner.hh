@@ -28,6 +28,8 @@ namespace bdn
 
             void disposeMainDispatcher() override;
 
+            void openURL(const String &url) override;
+
             /** Used internally. Do not call.*/
             void _applicationWillFinishLaunching(NSNotification *notification);
 

@@ -4,7 +4,7 @@
 #include <bdn/ListViewCore.h>
 #include <bdn/ListView.h>
 
-@class ListViewDataSourceMac;
+@class ListViewDelegateMac;
 
 namespace bdn
 {
@@ -15,13 +15,12 @@ namespace bdn
           public:
             ListViewCore(std::shared_ptr<ListView> outerListView);
 
-            virtual void setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) override;
             virtual void reloadData() override;
 
           private:
             static NSScrollView *createNSTableView(std::shared_ptr<ListView> outerListView);
 
-            ListViewDataSourceMac *_nativeDataSource;
+            ListViewDelegateMac *_nativeDelegate;
             NSTableView *_nsTableView;
         };
     }

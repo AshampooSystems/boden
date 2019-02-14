@@ -28,6 +28,8 @@ namespace bdn
 
             void initiateExitIfPossible(int exitCode) override;
 
+            void openURL(const String &url) override;
+
           protected:
             void disposeMainDispatcher() override;
 

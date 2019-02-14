@@ -3,11 +3,7 @@
 
 namespace bdn
 {
-    ListView::ListView()
-    {
-        dataSource.onChange() += View::CorePropertyUpdater<std::shared_ptr<ListViewDataSource>, ListViewCore>{
-            this, &ListViewCore::setDataSource};
-    }
+    ListView::ListView() {}
 
     void ListView::reloadData()
     {

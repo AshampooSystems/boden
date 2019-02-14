@@ -77,6 +77,8 @@ namespace bdn
         static bool isMainThread() { return std::this_thread::get_id() == _mainThreadId; }
         static void assertInMainThread() { assert(isMainThread()); }
 
+        virtual void openURL(const String &url) = 0;
+
       protected:
         void setLaunchInfo(const AppLaunchInfo &launchInfo) { _launchInfo = launchInfo; }
 

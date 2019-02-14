@@ -1,32 +1,34 @@
 #import <bdn/mac/ListViewCore.hh>
 
-@interface ListViewDataSourceMac : NSObject <NSTableViewDataSource, NSTableViewDelegate>
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView;
-
-@property(nonatomic, assign) std::weak_ptr<bdn::ListViewDataSource> outerDataSource;
-
+@interface ListViewDelegateMac : NSObject <NSTableViewDataSource, NSTableViewDelegate>
+@property(nonatomic, assign) std::weak_ptr<bdn::ListView> outer;
 @end
 
-@implementation ListViewDataSourceMac
+@implementation ListViewDelegateMac
+
+- (std::shared_ptr<bdn::ListViewDataSource>)outerDataSource
+{
+    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
+    if (outer == nullptr) {
+        return nullptr;
+    }
+
+    return outer->dataSource;
+}
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    std::shared_ptr<bdn::ListViewDataSource> outerDataSource = self.outerDataSource.lock();
-
-    if (outerDataSource == nullptr) {
+    if (self.outerDataSource == nullptr) {
         return 0;
     }
 
-    return (NSInteger)outerDataSource->numberOfRows();
+    return (NSInteger)self.outerDataSource->numberOfRows();
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    std::shared_ptr<bdn::ListViewDataSource> outerDataSource = self.outerDataSource.lock();
-
-    if (outerDataSource == nullptr) {
-        return 0;
+    if (self.outerDataSource == nullptr) {
+        return nil;
     }
 
     NSTextField *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
@@ -36,9 +38,21 @@
         result.identifier = @"Column";
     }
 
-    result.stringValue = bdn::mac::stringToNSString(outerDataSource->labelTextForRowIndex(row));
+    result.stringValue = bdn::mac::stringToNSString(self.outerDataSource->labelTextForRowIndex(row));
 
     return result;
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
+
+    if (outer == nullptr) {
+        return;
+    }
+
+    NSTableView *tableView = (NSTableView *)notification.object;
+    outer->selectedRowIndex = (size_t)tableView.selectedRow;
 }
 
 @end
@@ -47,25 +61,20 @@ namespace bdn
 {
     namespace mac
     {
-        ListViewCore::ListViewCore(std::shared_ptr<ListView> outerListView)
-            : ChildViewCore(outerListView, createNSTableView(outerListView))
+        ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ChildViewCore(outer, createNSTableView(outer))
         {
-            ListViewDataSourceMac *nativeDataSource = [[ListViewDataSourceMac alloc] init];
-            _nsTableView = ((NSScrollView *)getNSView()).documentView;
-            _nsTableView.dataSource = nativeDataSource;
-            _nsTableView.delegate = nativeDataSource;
-            _nativeDataSource = nativeDataSource;
-            setDataSource(outerListView->dataSource);
-        }
+            ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
+            nativeDelegate.outer = outer;
 
-        void ListViewCore::setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource)
-        {
-            _nativeDataSource.outerDataSource = dataSource;
+            _nsTableView = ((NSScrollView *)getNSView()).documentView;
+            _nsTableView.dataSource = nativeDelegate;
+            _nsTableView.delegate = nativeDelegate;
+            _nativeDelegate = nativeDelegate;
         }
 
         void ListViewCore::reloadData() { [_nsTableView reloadData]; }
 
-        NSScrollView *ListViewCore::createNSTableView(std::shared_ptr<ListView> outerListView)
+        NSScrollView *ListViewCore::createNSTableView(std::shared_ptr<ListView> outer)
         {
             NSScrollView *nsScrollView = [[NSScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
             NSTableView *nsTableView = [[NSTableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];

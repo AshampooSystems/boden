@@ -2,6 +2,7 @@
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JResources.h>
+#include <bdn/android/JIntent.h>
 
 namespace bdn
 {
@@ -20,6 +21,7 @@ namespace bdn
           public:
             java::Method<java::JObject(String)> getSystemService{this, "getSystemService"};
             java::Method<JResources()> getResources{this, "getResources"};
+            java::Method<void(JIntent)> startActivity{this, "startActivity"};
         };
     }
 }

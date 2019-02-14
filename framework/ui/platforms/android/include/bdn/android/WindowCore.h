@@ -232,7 +232,6 @@ namespace bdn
                 parentGroup.removeView(childJView);
             }
 
-          protected:
             Rect getContentArea()
             {
                 // content area = bounds (there are no borders)
@@ -297,7 +296,6 @@ namespace bdn
                 rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
             }
 
-          private:
             Rect getScreenWorkArea() const
             {
                 JNativeRootView rootView(tryGetAccessibleRootViewRef());

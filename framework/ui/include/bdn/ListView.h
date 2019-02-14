@@ -19,5 +19,6 @@ namespace bdn
         String getCoreTypeName() const override;
 
         Property<std::shared_ptr<ListViewDataSource>> dataSource;
+        Property<std::optional<size_t>> selectedRowIndex;
     };
 }

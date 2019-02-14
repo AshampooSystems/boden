@@ -15,8 +15,8 @@ namespace bdn
             using java::JTObject<kHandlerClassName>::JTObject;
 
           public:
-            Method<bool(java::JRunnable)> post{this, "post"};
-            Method<bool(java::JRunnable, int64_t)> postDelayed{this, "postDelayed"};
+            java::Method<bool(java::JRunnable)> post{this, "post"};
+            java::Method<bool(java::JRunnable, int64_t)> postDelayed{this, "postDelayed"};
         };
     }
 }

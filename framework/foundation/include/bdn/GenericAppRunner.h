@@ -82,6 +82,8 @@ namespace bdn
 
         std::shared_ptr<IDispatcher> getMainDispatcher() override { return _dispatcher; }
 
+        void openURL(const String &url) override {}
+
       protected:
         virtual bool shouldExit() const
         {

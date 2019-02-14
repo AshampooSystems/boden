@@ -1,8 +1,11 @@
 #include <bdn/foundation.h>
 #include <bdn/ui.h>
 #include <bdn/net.h>
+#include <bdn/log.h>
 
 #include <nlohmann/json.hpp>
+
+#include <bdn/AppRunnerBase.h>
 
 #include <iostream>
 
@@ -14,8 +17,14 @@ class RedditPost
 {
   public:
     RedditPost() = default;
-    RedditPost(String title_) { title = title_; }
+    RedditPost(String title_, String url_)
+    {
+        title = title_;
+        url = url_;
+    }
+
     Property<String> title;
+    Property<String> url;
 };
 
 class RedditStore
@@ -30,6 +39,7 @@ class RedditStore
                  for (auto child : j["data"]["children"]) {
                      auto post = std::make_shared<RedditPost>();
                      post->title = child["data"]["title"];
+                     post->url = child["data"]["url"];
                      posts.push_back(post);
                  }
 
@@ -76,6 +86,12 @@ class MainViewController : public Base
         listView->verticalAlignment = View::VerticalAlignment::expand;
         listView->preferredSizeMinimum = Size(100, 200);
         listView->margin = UIMargin(15, 15, 15, 15);
+
+        listView->selectedRowIndex.onChange() += [listView, store](auto) {
+            size_t index = *listView->selectedRowIndex.get();
+            logInfo("selectedRowIndex changed: " + std::to_string(index));
+            getAppRunner()->openURL(store->posts.at(index)->url);
+        };
 
         mainColumn->addChildView(listView);
 

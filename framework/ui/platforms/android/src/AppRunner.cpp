@@ -1,5 +1,8 @@
-
 #include <bdn/android/AppRunner.h>
+#include <bdn/android/JNativeRootView.h>
+#include <bdn/android/JIntent.h>
+#include <bdn/android/JUri.h>
+#include <bdn/android/WindowCore.h>
 
 namespace bdn
 {
@@ -67,6 +70,13 @@ namespace bdn
             // android apps should never exit on their own. So, do nothing here.
             int x = 0;
             x++;
+        }
+
+        void AppRunner::openURL(const String &url)
+        {
+            JIntent intent(JIntent::ACTION_VIEW, JUri::parse(url));
+            JNativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
+            rootView.getContext().startActivity(intent);
         }
     }
 }

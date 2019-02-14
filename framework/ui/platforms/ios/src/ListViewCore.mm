@@ -4,34 +4,40 @@
 
 #include <bdn/ListViewDataSource.h>
 
-@interface ListViewDataSourceIOS : NSObject <UITableViewDataSource>
+@interface ListViewDelegateIOS : NSObject <UITableViewDataSource, UITableViewDelegate>
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
-@property(nonatomic, assign) std::weak_ptr<bdn::ListViewDataSource> outerDataSource;
+@property(nonatomic, assign) std::weak_ptr<bdn::ListView> outer;
 @end
 
-@implementation ListViewDataSourceIOS
+@implementation ListViewDelegateIOS
+
+- (std::shared_ptr<bdn::ListViewDataSource>)outerDataSource
+{
+    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
+    if (outer == nullptr) {
+        return nullptr;
+    }
+
+    return outer->dataSource;
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 1; }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    std::shared_ptr<bdn::ListViewDataSource> outerDataSource = self.outerDataSource.lock();
-
-    if (outerDataSource == nullptr) {
+    if (self.outerDataSource == nullptr) {
         return 0;
     }
 
-    return (NSInteger)outerDataSource->numberOfRows();
+    return (NSInteger)self.outerDataSource->numberOfRows();
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    std::shared_ptr<bdn::ListViewDataSource> outerDataSource = self.outerDataSource.lock();
-
-    if (outerDataSource == nullptr) {
+    if (self.outerDataSource == nullptr) {
         return nil;
     }
 
@@ -41,9 +47,20 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
     }
 
-    cell.textLabel.text = bdn::ios::stringToNSString(outerDataSource->labelTextForRowIndex(indexPath.row));
+    cell.textLabel.text = bdn::ios::stringToNSString(self.outerDataSource->labelTextForRowIndex(indexPath.row));
 
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
+
+    if (outer == nullptr) {
+        return;
+    }
+
+    outer->selectedRowIndex = (size_t)indexPath.row;
 }
 
 @end
@@ -52,23 +69,20 @@ namespace bdn
 {
     namespace ios
     {
-        ListViewCore::ListViewCore(std::shared_ptr<ListView> outerListView)
-            : ViewCore(outerListView, createUITableView(outerListView))
+        ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createUITableView(outer))
         {
-            ListViewDataSourceIOS *nativeDataSource = [[ListViewDataSourceIOS alloc] init];
-            ((UITableView *)getUIView()).dataSource = nativeDataSource;
-            _nativeDataSource = nativeDataSource;
-            setDataSource(outerListView->dataSource);
-        }
+            ListViewDelegateIOS *nativeDelegate = [[ListViewDelegateIOS alloc] init];
+            nativeDelegate.outer = outer;
+            _nativeDelegate = nativeDelegate;
 
-        void ListViewCore::setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource)
-        {
-            _nativeDataSource.outerDataSource = dataSource;
+            UITableView *uiTableView = (UITableView *)getUIView();
+            uiTableView.dataSource = nativeDelegate;
+            uiTableView.delegate = nativeDelegate;
         }
 
         void ListViewCore::reloadData() { [((UITableView *)getUIView())reloadData]; }
 
-        UITableView *ListViewCore::createUITableView(std::shared_ptr<ListView> outerListView)
+        UITableView *ListViewCore::createUITableView(std::shared_ptr<ListView> outer)
         {
             UITableView *uiTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
             return uiTableView;

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <bdn/android/JViewGroup.h>
-#include <bdn/android/JNativeListAdapter.h>
+#include <bdn/android/JAdapterView.h>
 
 namespace bdn
 {
@@ -11,12 +10,14 @@ namespace bdn
         constexpr const char kListViewClassName[] = "android/widget/ListView";
 
         /** Accessor for Java android.widget.ListView objects.*/
-        class JListView : public JBaseViewGroup<kListViewClassName>
+        class JListView : public JBaseAdapterView<kListViewClassName>
         {
           public:
-            using JBaseViewGroup<kListViewClassName>::JBaseViewGroup;
+            using JBaseAdapterView<kListViewClassName>::JBaseAdapterView;
 
-            Method<void(JListAdapter)> setAdapter{this, "setAdapter"};
+            Method<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
+            Method<void(int)> setChoiceMode{this, "setChoiceMode"};
+            Method<void(bool)> setStackFromBottom{this, "setStackFromBottom"};
         };
     }
 }

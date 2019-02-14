@@ -16,7 +16,6 @@ namespace bdn
           public:
             ListViewCore(std::shared_ptr<ListView> outerView);
 
-            virtual void setDataSource(const std::shared_ptr<ListViewDataSource> &dataSource) override;
             virtual void reloadData() override;
 
           private:
