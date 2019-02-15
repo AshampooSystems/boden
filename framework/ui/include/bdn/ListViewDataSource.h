@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <bdn/String.h>
 
 namespace bdn
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
-#include <bdn/android/JResources.h>
 #include <bdn/android/JIntent.h>
+#include <bdn/android/JResources.h>
+#include <bdn/java/JObject.h>
 
 namespace bdn
 {

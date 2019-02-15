@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/Point.h>
-#include <bdn/Size.h>
-#include <bdn/Rect.h>
 #include <bdn/Margin.h>
+#include <bdn/Point.h>
+#include <bdn/Rect.h>
+#include <bdn/Size.h>
 
 #include <bdn/View.h>
 

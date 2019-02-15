@@ -2,8 +2,8 @@
 
 #import <bdn/mac/ChildViewCore.hh>
 
-#include <bdn/StackCore.h>
 #include <bdn/Stack.h>
+#include <bdn/StackCore.h>
 
 #include <deque>
 

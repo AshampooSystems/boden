@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bdn/android/JView.h>
+
 namespace bdn
 {
     namespace android

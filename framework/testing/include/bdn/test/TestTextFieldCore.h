@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/test/TestViewCore.h>
 #include <bdn/TextField.h>
+#include <bdn/test/TestViewCore.h>
 
 namespace bdn
 {

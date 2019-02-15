@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/java/JNativeStrongPointer.h>
+#include <bdn/java/JObject.h>
 #include <bdn/java/JString.h>
 
 #include <bdn/HTTP.h>
@@ -18,13 +18,12 @@ namespace bdn
             {
                 constexpr char kVolleyAdapterClassName[] = "io/boden/java/VolleyAdapter";
 
-                class JVolleyAdapter : public bdn::java::JTObject<kVolleyAdapterClassName>
+                class JVolleyAdapter : public java::JTObject<kVolleyAdapterClassName>
                 {
                   public:
-                    using JTObject::JTObject;
+                    using JTObject<kVolleyAdapterClassName>::JTObject;
 
-                    bdn::java::Method<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this,
-                                                                                                          "request"};
+                    java::Method<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this, "request"};
 
                     static constexpr int toVolleyRequestMethod(bdn::net::http::Method bdnHttpMethod)
                     {

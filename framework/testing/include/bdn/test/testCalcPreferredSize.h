@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/View.h>
 #include <bdn/TextView.h>
+#include <bdn/View.h>
 
 namespace bdn
 {

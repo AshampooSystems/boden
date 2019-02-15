@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/UIProvider.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/UIProvider.h>
 
 namespace bdn
 {

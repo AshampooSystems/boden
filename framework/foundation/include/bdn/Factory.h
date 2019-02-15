@@ -2,8 +2,8 @@
 
 #include <bdn/String.h>
 
-#include <map>
 #include <functional>
+#include <map>
 #include <optional>
 
 namespace bdn

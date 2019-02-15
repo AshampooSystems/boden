@@ -2,8 +2,8 @@
 #include <bdn/AppRunnerBase.h>
 #include <bdn/debug.h>
 
-#include <bdn/log.h>
 #include <bdn/UnhandledException.h>
+#include <bdn/log.h>
 
 namespace bdn
 {

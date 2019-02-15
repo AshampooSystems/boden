@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/android/JContext.h>
 #include <bdn/android/JIBinder.h>
 #include <bdn/android/JViewParent.h>
+#include <bdn/java/JObject.h>
 
 #include <bdn/android/JViewGroup__JLayoutParams.h>
 
@@ -11,14 +11,12 @@ namespace bdn
 {
     namespace android
     {
-        using namespace java;
-
         constexpr const char kOnClickListenerClassName[] = "android/view/View$OnClickListener";
         template <const char *javaClassName = kOnClickListenerClassName, class... ConstructorArguments>
-        class OnClickListenerBase : public JTObject<javaClassName, ConstructorArguments...>
+        class OnClickListenerBase : public java::JTObject<javaClassName, ConstructorArguments...>
         {
           public:
-            using JTObject<javaClassName, ConstructorArguments...>::JTObject;
+            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
 
             template <class Other> OnClickListenerBase(Other &other) : OnClickListenerBase(other.getRef_()) {}
         };
@@ -26,18 +24,18 @@ namespace bdn
         using OnClickListener = OnClickListenerBase<>;
 
         constexpr const char kOnScrollChangeListenerClassName[] = "android/view/View$OnScrollChangeListener";
-        using OnScrollChangeListener = JTObject<kOnScrollChangeListenerClassName>;
+        using OnScrollChangeListener = java::JTObject<kOnScrollChangeListenerClassName>;
 
         constexpr const char kOnLayoutChangeListenerClassName[] = "android/view/View$OnLayoutChangeListener";
-        using OnLayoutChangeListener = JTObject<kOnLayoutChangeListenerClassName>;
+        using OnLayoutChangeListener = java::JTObject<kOnLayoutChangeListenerClassName>;
 
         constexpr const char kViewClassName[] = "android/view/View";
 
         template <const char *javaClassName = kViewClassName, class... ConstructorArguments>
-        class JBaseView : public JTObject<javaClassName, JContext, ConstructorArguments...>
+        class JBaseView : public java::JTObject<javaClassName, JContext, ConstructorArguments...>
         {
           public:
-            using JTObject<javaClassName, JContext, ConstructorArguments...>::JTObject;
+            using java::JTObject<javaClassName, JContext, ConstructorArguments...>::JTObject;
 
           public:
             enum Visibility
@@ -90,51 +88,51 @@ namespace bdn
             };
 
           public:
-            Method<void(int)> setSystemUiVisibility{this, "setSystemUiVisibility"};
-            Method<int()> getSystemUiVisibility{this, "getSystemUiVisibility"};
+            java::Method<void(int)> setSystemUiVisibility{this, "setSystemUiVisibility"};
+            java::Method<int()> getSystemUiVisibility{this, "getSystemUiVisibility"};
 
-            Method<void(int)> setVisibility{this, "setVisibility"};
-            Method<int()> getVisibility{this, "getVisibility"};
+            java::Method<void(int)> setVisibility{this, "setVisibility"};
+            java::Method<int()> getVisibility{this, "getVisibility"};
 
-            Method<int()> getLeft{this, "getLeft"};
-            Method<int()> getTop{this, "getTop"};
-            Method<int()> getWidth{this, "getWidth"};
-            Method<int()> getHeight{this, "getHeight"};
+            java::Method<int()> getLeft{this, "getLeft"};
+            java::Method<int()> getTop{this, "getTop"};
+            java::Method<int()> getWidth{this, "getWidth"};
+            java::Method<int()> getHeight{this, "getHeight"};
 
-            Method<void(int, int, int, int)> setPadding{this, "setPadding"};
+            java::Method<void(int, int, int, int)> setPadding{this, "setPadding"};
 
-            Method<int()> getPaddingLeft{this, "getPaddingLeft"};
-            Method<int()> getPaddingTop{this, "getPaddingTop"};
-            Method<int()> getPaddingRight{this, "getPaddingRight"};
-            Method<int()> getPaddingBottom{this, "getPaddingBottom"};
+            java::Method<int()> getPaddingLeft{this, "getPaddingLeft"};
+            java::Method<int()> getPaddingTop{this, "getPaddingTop"};
+            java::Method<int()> getPaddingRight{this, "getPaddingRight"};
+            java::Method<int()> getPaddingBottom{this, "getPaddingBottom"};
 
-            Method<JViewParent()> getParent{this, "getParent"};
-            Method<JContext()> getContext{this, "getContext"};
+            java::Method<JViewParent()> getParent{this, "getParent"};
+            java::Method<JContext()> getContext{this, "getContext"};
 
-            Method<void(JObject)> setTag{this, "setTag"};
-            Method<JObject()> getTag{this, "getTag"};
+            java::Method<void(java::JObject)> setTag{this, "setTag"};
+            java::Method<java::JObject()> getTag{this, "getTag"};
 
-            Method<void(int, int)> measure{this, "measure"};
+            java::Method<void(int, int)> measure{this, "measure"};
 
-            Method<int()> getMeasuredWidth{this, "getMeasuredWidth"};
-            Method<int()> getMeasuredHeight{this, "getMeasuredHeight"};
+            java::Method<int()> getMeasuredWidth{this, "getMeasuredWidth"};
+            java::Method<int()> getMeasuredHeight{this, "getMeasuredHeight"};
 
-            Method<void()> requestLayout{this, "requestLayout"};
-            Method<void()> invalidate{this, "invalidate"};
+            java::Method<void()> requestLayout{this, "requestLayout"};
+            java::Method<void()> invalidate{this, "invalidate"};
 
-            Method<int()> getSuggestedMinimumWidth{this, "getSuggestedMinimumWidth"};
-            Method<int()> getSuggestedMinimumHeight{this, "getSuggestedMinimumHeight"};
+            java::Method<int()> getSuggestedMinimumWidth{this, "getSuggestedMinimumWidth"};
+            java::Method<int()> getSuggestedMinimumHeight{this, "getSuggestedMinimumHeight"};
 
-            Method<int()> getScrollX{this, "getScrollX"};
-            Method<int()> getScrollY{this, "getScrollY"};
+            java::Method<int()> getScrollX{this, "getScrollX"};
+            java::Method<int()> getScrollY{this, "getScrollY"};
 
-            Method<void(OnClickListener)> setOnClickListener{this, "setOnClickListener"};
-            Method<void(OnScrollChangeListener)> setOnScrollChangeListener{this, "setOnScrollChangeListener"};
-            Method<void(OnLayoutChangeListener)> addOnLayoutChangeListener{this, "addOnLayoutChangeListener"};
+            java::Method<void(OnClickListener)> setOnClickListener{this, "setOnClickListener"};
+            java::Method<void(OnScrollChangeListener)> setOnScrollChangeListener{this, "setOnScrollChangeListener"};
+            java::Method<void(OnLayoutChangeListener)> addOnLayoutChangeListener{this, "addOnLayoutChangeListener"};
 
-            Method<void(JViewGroup__JLayoutParams)> setLayoutParams{this, "setLayoutParams"};
+            java::Method<void(JViewGroup__JLayoutParams)> setLayoutParams{this, "setLayoutParams"};
 
-            Method<JIBinder()> getWindowToken{this, "getWindowToken"};
+            java::Method<JIBinder()> getWindowToken{this, "getWindowToken"};
         };
 
         using JView = JBaseView<>;

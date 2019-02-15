@@ -1,9 +1,9 @@
 
 #include <bdn/test.h>
 
-#include <bdn/errno.h>
 #include <bdn/ErrorInfo.h>
 #include <bdn/config.h>
+#include <bdn/errno.h>
 
 #include <system_error>
 

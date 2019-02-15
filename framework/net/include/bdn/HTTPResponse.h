@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/HTTPRequest.h>
 #include <bdn/Base.h>
+#include <bdn/HTTPRequest.h>
 
 namespace bdn
 {

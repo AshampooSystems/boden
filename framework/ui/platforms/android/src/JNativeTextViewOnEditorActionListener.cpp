@@ -1,9 +1,9 @@
 
-#include <bdn/android/JNativeTextViewOnEditorActionListener.h>
 #include <bdn/android/JKeyEvent.h>
+#include <bdn/android/JNativeTextViewOnEditorActionListener.h>
 
-#include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
 #include <bdn/android/TextFieldCore.h>
 

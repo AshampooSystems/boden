@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JListView.h>
 #include <bdn/ListView.h>
 #include <bdn/ListViewCore.h>
+#include <bdn/android/JListView.h>
+#include <bdn/android/ViewCore.h>
 
 #include <bdn/android/JNativeListAdapter.h>
 

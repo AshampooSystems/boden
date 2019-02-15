@@ -1,8 +1,8 @@
 
 #include <bdn/mac/appEntry.h>
 
-#import <bdn/mac/UIAppRunner.hh>
 #include <bdn/entry.h>
+#import <bdn/mac/UIAppRunner.hh>
 
 namespace bdn
 {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <bdn/test/MockUIProvider.h>
+#include <bdn/test/MockViewCore.h>
 #include <bdn/test/ViewWithTestExtensions.h>
 #include <bdn/test/testCalcPreferredSize.h>
-#include <bdn/test/MockViewCore.h>
 
 namespace bdn
 {

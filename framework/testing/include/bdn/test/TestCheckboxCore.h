@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/test/TestViewCore.h>
 #include <bdn/Checkbox.h>
+#include <bdn/test/TestViewCore.h>
 
 namespace bdn
 {

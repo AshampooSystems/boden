@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/SystemError.h>
 #include <bdn/ErrorFields.h>
+#include <bdn/SystemError.h>
 #include <bdn/config.h>
 
 #include <cerrno>

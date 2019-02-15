@@ -5,8 +5,8 @@
 #import <bdn/foundationkit/objectUtil.hh>
 #import <bdn/foundationkit/stringUtil.hh>
 
-#include <bdn/ExceptionReference.h>
 #include <bdn/ErrorInfo.h>
+#include <bdn/ExceptionReference.h>
 
 #import <Foundation/Foundation.h>
 

@@ -6,19 +6,19 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/AppRunnerBase.h>
+#include <bdn/ViewCoreTypeNotSupportedError.h>
 
-#import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
 #import <bdn/mac/CheckboxCore.hh>
-#import <bdn/mac/SwitchCore.hh>
-#import <bdn/mac/TextViewCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
-#import <bdn/mac/ScrollViewCore.hh>
 #import <bdn/mac/ListViewCore.hh>
-#import <bdn/mac/TextFieldCore.hh>
+#import <bdn/mac/ScrollViewCore.hh>
 #import <bdn/mac/StackCore.hh>
+#import <bdn/mac/SwitchCore.hh>
+#import <bdn/mac/TextFieldCore.hh>
+#import <bdn/mac/TextViewCore.hh>
+#import <bdn/mac/WindowCore.hh>
 
 namespace bdn
 {

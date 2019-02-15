@@ -1,12 +1,12 @@
 #pragma once
 
+#include <bdn/Checkbox.h>
 #include <bdn/CheckboxCore.h>
 #include <bdn/SwitchCore.h>
-#include <bdn/Checkbox.h>
 
 #import <bdn/mac/ButtonCoreBase.hh>
-#import <bdn/mac/util.hh>
 #import <bdn/mac/ui_util.hh>
+#import <bdn/mac/util.hh>
 
 namespace bdn
 {

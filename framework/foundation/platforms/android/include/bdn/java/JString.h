@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JCharSequence.h>
 #include <bdn/java/Env.h>
+#include <bdn/java/JCharSequence.h>
 
 namespace bdn
 {

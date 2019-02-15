@@ -5,9 +5,9 @@ namespace bdn
     class View;
 }
 
-#include <bdn/UIMargin.h>
 #include <bdn/Rect.h>
 #include <bdn/Size.h>
+#include <bdn/UIMargin.h>
 #include <bdn/round.h>
 #include <optional>
 

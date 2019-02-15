@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JButton.h>
-#include <bdn/IButtonCore.h>
 #include <bdn/Button.h>
+#include <bdn/IButtonCore.h>
+#include <bdn/android/JButton.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

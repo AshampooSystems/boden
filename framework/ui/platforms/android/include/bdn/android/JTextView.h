@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/android/JView.h>
 #include <bdn/android/JContext.h>
 #include <bdn/android/JTextPaint.h>
 #include <bdn/android/JTextWatcher.h>
+#include <bdn/android/JView.h>
 #include <bdn/java/JString.h>
 
 namespace bdn
@@ -45,30 +45,30 @@ namespace bdn
           public:
             using JBaseView<javaClassName, ConstructorArguments...>::JBaseView;
 
-            Method<JTextPaint()> getPaint{this, "getPaint"};
+            java::Method<JTextPaint()> getPaint{this, "getPaint"};
 
-            Method<void(JCharSequence)> setText{this, "setText"};
-            Method<JCharSequence()> getText{this, "getText"};
+            java::Method<void(java::JCharSequence)> setText{this, "setText"};
+            java::Method<java::JCharSequence()> getText{this, "getText"};
 
-            Method<void(bool)> setSingleLine{this, "setSingleLine"};
+            java::Method<void(bool)> setSingleLine{this, "setSingleLine"};
 
-            Method<void(int)> setBreakStrategy{this, "setBreakStrategy"};
+            java::Method<void(int)> setBreakStrategy{this, "setBreakStrategy"};
 
-            Method<void(bool)> setHorizontallyScrolling{this, "setHorizontallyScrolling"};
+            java::Method<void(bool)> setHorizontallyScrolling{this, "setHorizontallyScrolling"};
 
-            Method<void(int)> setMaxLines{this, "setMaxLines"};
+            java::Method<void(int)> setMaxLines{this, "setMaxLines"};
 
-            Method<void(int)> setWidth{this, "setWidth"};
-            Method<void(int)> setMaxWidth{this, "setMaxWidth"};
-            Method<void(int)> setMaxHeight{this, "setMaxHeight"};
+            java::Method<void(int)> setWidth{this, "setWidth"};
+            java::Method<void(int)> setMaxWidth{this, "setMaxWidth"};
+            java::Method<void(int)> setMaxHeight{this, "setMaxHeight"};
 
-            Method<float()> getTextSize{this, "getTextSize"};
-            Method<void(int)> setTextAppearance{this, "setTextAppearance"};
+            java::Method<float()> getTextSize{this, "getTextSize"};
+            java::Method<void(int)> setTextAppearance{this, "setTextAppearance"};
 
-            Method<void(JTextWatcher)> addTextChangedListener{this, "addTextChangedListener"};
-            Method<void(JTextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
+            java::Method<void(JTextWatcher)> addTextChangedListener{this, "addTextChangedListener"};
+            java::Method<void(JTextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
 
-            Method<void(OnEditorActionListener)> setOnEditorActionListener{this, "setOnEditorActionListener"};
+            java::Method<void(OnEditorActionListener)> setOnEditorActionListener{this, "setOnEditorActionListener"};
         };
 
         using JTextView = JBaseTextView<>;

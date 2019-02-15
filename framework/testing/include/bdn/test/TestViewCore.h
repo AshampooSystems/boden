@@ -1,12 +1,12 @@
 #pragma once
 
+#include <bdn/Button.h>
+#include <bdn/ColumnView.h>
+#include <bdn/UIProvider.h>
 #include <bdn/View.h>
 #include <bdn/Window.h>
 #include <bdn/test.h>
 #include <bdn/test/testCalcPreferredSize.h>
-#include <bdn/UIProvider.h>
-#include <bdn/Button.h>
-#include <bdn/ColumnView.h>
 
 using namespace std::chrono_literals;
 

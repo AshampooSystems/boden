@@ -1,8 +1,8 @@
 
 #include <bdn/test.h>
 
-#include <bdn/ThreadSafeNotifier.h>
 #include <bdn/DanglingFunctionError.h>
+#include <bdn/ThreadSafeNotifier.h>
 
 using namespace bdn;
 

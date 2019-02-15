@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/test/TestViewCore.h>
-#include <bdn/ContainerView.h>
 #include <bdn/ColumnView.h>
+#include <bdn/ContainerView.h>
+#include <bdn/test/TestViewCore.h>
 
 namespace bdn
 {

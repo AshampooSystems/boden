@@ -1,8 +1,8 @@
 
 #include <bdn/test.h>
 
-#include <bdn/LayoutCoordinator.h>
 #include <bdn/Button.h>
+#include <bdn/LayoutCoordinator.h>
 
 #include <bdn/test/MockUIProvider.h>
 #include <bdn/test/MockViewCore.h>

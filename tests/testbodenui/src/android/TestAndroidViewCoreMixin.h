@@ -2,8 +2,8 @@
 #define BDN_TEST_TestAndroidViewCore_H_
 
 #include <bdn/View.h>
-#include <bdn/android/ViewCore.h>
 #include <bdn/android/UIProvider.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

@@ -2,8 +2,8 @@
 
 #include <bdn/IDispatcher.h>
 
-#include <bdn/android/JNativeDispatcher.h>
 #include <bdn/android/JLooper.h>
+#include <bdn/android/JNativeDispatcher.h>
 
 namespace bdn
 {

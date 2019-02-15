@@ -1,6 +1,6 @@
-#include <bdn/android/StackCore.h>
-#include <bdn/android/JNativeViewGroup.h>
 #include <bdn/Stack.h>
+#include <bdn/android/JNativeViewGroup.h>
+#include <bdn/android/StackCore.h>
 
 namespace bdn
 {

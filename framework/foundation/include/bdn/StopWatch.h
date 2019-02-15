@@ -1,7 +1,7 @@
 #pragma once
 
-#include <chrono>
 #include <bdn/IDispatcher.h>
+#include <chrono>
 
 namespace bdn
 {

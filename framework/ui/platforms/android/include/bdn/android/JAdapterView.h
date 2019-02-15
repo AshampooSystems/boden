@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/android/JViewGroup.h>
 #include <bdn/android/JNativeListAdapter.h>
+#include <bdn/android/JViewGroup.h>
 
 namespace bdn
 {
@@ -20,8 +20,8 @@ namespace bdn
             using JBaseViewGroup<javaClassName>::JBaseViewGroup;
             using JAdapterView = JBaseViewGroup<>;
 
-            Method<void(JListAdapter)> setAdapter{this, "setAdapter"};
-            Method<void(OnItemClickListener)> setOnItemClickListener{this, "setOnItemClickListener"};
+            java::Method<void(JListAdapter)> setAdapter{this, "setAdapter"};
+            java::Method<void(OnItemClickListener)> setOnItemClickListener{this, "setOnItemClickListener"};
         };
     }
 }

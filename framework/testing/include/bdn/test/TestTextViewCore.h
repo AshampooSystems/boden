@@ -2,7 +2,6 @@
 
 #include <bdn/TextView.h>
 #include <bdn/test/TestViewCore.h>
-#include <bdn/TextView.h>
 
 namespace bdn
 {

@@ -3,8 +3,8 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/IViewCore.h>
-#include <bdn/View.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/View.h>
 
 #import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>

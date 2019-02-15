@@ -2,8 +2,9 @@
 
 #include <map>
 
-#include <bdn/round.h>
+#include <bdn/Base.h>
 #include <bdn/Rect.h>
+#include <bdn/round.h>
 
 namespace bdn
 {

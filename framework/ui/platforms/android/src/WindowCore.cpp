@@ -1,6 +1,6 @@
 
-#include <bdn/android/WindowCore.h>
 #include "../include/bdn/android/JNativeRootView.h"
+#include <bdn/android/WindowCore.h>
 
 namespace bdn
 {
@@ -161,14 +161,14 @@ namespace bdn
             // we cannot change our position. So, do nothing.
         }
 
-        void WindowCore::_rootViewCreated(const Reference &javaRef)
+        void WindowCore::_rootViewCreated(const java::Reference &javaRef)
         {
             // we store only a weak referene in the registry. We do not want
             // to keep the java-side root view object alive.
             getRootViewRegistryForCurrentThread().add(bdn::java::WeakReference(javaRef));
         }
 
-        void WindowCore::_rootViewDisposed(const Reference &javaRef)
+        void WindowCore::_rootViewDisposed(const java::Reference &javaRef)
         {
             // this may be called by the garbage collector, so it might be
             // in an arbitrary thread. That means that the root view
@@ -186,7 +186,7 @@ namespace bdn
                 windowCore->rootViewDisposed();
         }
 
-        void WindowCore::_rootViewSizeChanged(const Reference &javaRef, int width, int height)
+        void WindowCore::_rootViewSizeChanged(const java::Reference &javaRef, int width, int height)
         {
             std::list<std::shared_ptr<WindowCore>> windowCoreList;
 
@@ -196,7 +196,7 @@ namespace bdn
                 windowCore->rootViewSizeChanged(width, height);
         }
 
-        void WindowCore::_rootViewConfigurationChanged(const Reference &javaRef, JConfiguration config)
+        void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, JConfiguration config)
         {
             std::list<std::shared_ptr<WindowCore>> windowCoreList;
 
@@ -206,9 +206,8 @@ namespace bdn
                 windowCore->rootViewConfigurationChanged(config);
         }
 
-        bool WindowCore::_handleBackPressed(const Reference &javaRef)
+        bool WindowCore::_handleBackPressed(const java::Reference &javaRef)
         {
-
             std::list<std::shared_ptr<WindowCore>> windowCoreList;
 
             getWindowCoreListFromRootView(javaRef, windowCoreList);
@@ -280,7 +279,7 @@ namespace bdn
 
         void WindowCore::rootViewConfigurationChanged(JConfiguration config) { updateUIScaleFactor(config); }
 
-        void WindowCore::attachedToNewRootView(const Reference &javaRef)
+        void WindowCore::attachedToNewRootView(const java::Reference &javaRef)
         {
             // set the window's bounds to fill the root view completely.
             JNativeRootView rootView(javaRef);
@@ -332,7 +331,7 @@ namespace bdn
             setUIScaleFactor(scaleFactor);
         }
 
-        void WindowCore::getWindowCoreListFromRootView(const Reference &javaRootViewRef,
+        void WindowCore::getWindowCoreListFromRootView(const java::Reference &javaRootViewRef,
                                                        std::list<std::shared_ptr<WindowCore>> &windowCoreList)
         {
             JNativeRootView rootView(javaRootViewRef);
@@ -350,9 +349,9 @@ namespace bdn
             }
         }
 
-        Reference WindowCore::tryGetAccessibleRootViewRef() const
+        java::Reference WindowCore::tryGetAccessibleRootViewRef() const
         {
-            bdn::java::Reference accessibleRef;
+            java::Reference accessibleRef;
 
             {
                 std::unique_lock lock(_rootViewMutex);

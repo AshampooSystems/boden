@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JRunnable.h>
 #include <bdn/java/JNativeStrongPointer.h>
+#include <bdn/java/JRunnable.h>
 
 #include <bdn/SimpleFunctionCallable.h>
 

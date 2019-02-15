@@ -1,8 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/win32/hresultError.h>
 #include <bdn/ErrorInfo.h>
+#include <bdn/win32/hresultError.h>
 
 #include <system_error>
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #import <AppKit/AppKit.h>
-#import <bdn/foundationkit/stringUtil.hh>
 #include <Availability.h>
+#import <bdn/foundationkit/stringUtil.hh>
 
 namespace bdn
 {

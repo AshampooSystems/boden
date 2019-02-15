@@ -1,12 +1,12 @@
 
 #include <bdn/test.h>
 
-#include <bdn/Window.h>
-#include <bdn/test/TestScrollViewCore.h>
-#include <bdn/android/UIProvider.h>
-#include <bdn/android/JScrollView.h>
-#include <bdn/android/JHorizontalScrollView.h>
 #include "TestAndroidViewCoreMixin.h"
+#include <bdn/Window.h>
+#include <bdn/android/JHorizontalScrollView.h>
+#include <bdn/android/JScrollView.h>
+#include <bdn/android/UIProvider.h>
+#include <bdn/test/TestScrollViewCore.h>
 
 using namespace bdn;
 

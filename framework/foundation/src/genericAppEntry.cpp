@@ -1,8 +1,8 @@
 
 #include <bdn/genericAppEntry.h>
 
-#include <bdn/entry.h>
 #include <bdn/GenericAppRunner.h>
+#include <bdn/entry.h>
 
 namespace bdn
 {

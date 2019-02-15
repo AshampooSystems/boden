@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JCheckBox.h>
-#include <bdn/CheckboxCore.h>
 #include <bdn/Checkbox.h>
+#include <bdn/CheckboxCore.h>
+#include <bdn/android/JCheckBox.h>
 #include <bdn/android/JNativeViewCoreClickListener.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

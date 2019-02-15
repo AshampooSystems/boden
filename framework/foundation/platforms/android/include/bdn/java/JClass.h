@@ -19,11 +19,11 @@ namespace bdn
     }
 }
 
+#include <bdn/java/MethodCaller.h>
 #include <bdn/java/MethodId.h>
 #include <bdn/java/Reference.h>
-#include <bdn/java/TypeConversion.h>
-#include <bdn/java/MethodCaller.h>
 #include <bdn/java/StaticMethodCaller.h>
+#include <bdn/java/TypeConversion.h>
 
 namespace bdn
 {

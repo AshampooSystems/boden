@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/SwitchCore.h>
 #include <bdn/ClickEvent.h>
 #include <bdn/Switch.h>
+#include <bdn/SwitchCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 

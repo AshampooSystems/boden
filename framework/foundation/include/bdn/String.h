@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <locale>
-#include <codecvt>
 #include <algorithm>
 #include <cctype>
+#include <codecvt>
+#include <locale>
+#include <string>
 
 namespace bdn
 {

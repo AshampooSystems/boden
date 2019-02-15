@@ -9,16 +9,16 @@ namespace bdn
     }
 }
 
-#include <bdn/IViewCore.h>
 #include <bdn/Dip.h>
+#include <bdn/IViewCore.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/java/NativeWeakPointer.h>
 
-#include <bdn/android/JView.h>
-#include <bdn/android/JNativeViewGroup.h>
-#include <bdn/android/UIProvider.h>
 #include <bdn/android/IParentViewCore.h>
+#include <bdn/android/JNativeViewGroup.h>
+#include <bdn/android/JView.h>
+#include <bdn/android/UIProvider.h>
 
 #include <bdn/log.h>
 

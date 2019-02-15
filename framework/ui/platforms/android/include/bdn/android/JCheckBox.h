@@ -16,7 +16,7 @@ namespace bdn
             using JBaseCompoundButton<kCheckBoxClassName>::JBaseCompoundButton;
 
           public:
-            Method<void(bool)> setChecked{this, "setChecked"};
+            java::Method<void(bool)> setChecked{this, "setChecked"};
         };
     }
 }

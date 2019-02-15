@@ -2,8 +2,8 @@
 #define BDN_TEST_TestIosViewCore_H_
 
 #include <bdn/View.h>
-#import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/UIProvider.hh>
+#import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/util.hh>
 
 namespace bdn

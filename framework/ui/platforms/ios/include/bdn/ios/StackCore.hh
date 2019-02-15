@@ -1,8 +1,8 @@
 #pragma once
 
-#import <bdn/ios/ViewCore.hh>
-#include <bdn/StackCore.h>
 #include <bdn/Stack.h>
+#include <bdn/StackCore.h>
+#import <bdn/ios/ViewCore.hh>
 
 namespace bdn
 {

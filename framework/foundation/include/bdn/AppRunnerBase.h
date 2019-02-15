@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/AppLaunchInfo.h>
 #include <bdn/AppControllerBase.h>
+#include <bdn/AppLaunchInfo.h>
 #include <bdn/IDispatcher.h>
 
 #include <functional>

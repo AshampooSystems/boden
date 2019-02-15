@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/ISimpleCallable.h>
-#include <bdn/IDispatcher.h>
-#include <bdn/DanglingFunctionError.h>
 #include <bdn/AppRunnerBase.h>
+#include <bdn/DanglingFunctionError.h>
+#include <bdn/IDispatcher.h>
+#include <bdn/ISimpleCallable.h>
 
 #include <future>
 

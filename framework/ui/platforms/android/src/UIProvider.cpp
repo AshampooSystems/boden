@@ -1,16 +1,16 @@
 
 #include <bdn/android/UIProvider.h>
 
-#include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ButtonCore.h>
-#include <bdn/android/SwitchCore.h>
 #include <bdn/android/CheckboxCore.h>
-#include <bdn/android/TextViewCore.h>
-#include <bdn/android/TextFieldCore.h>
-#include <bdn/android/WindowCore.h>
+#include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ListViewCore.h>
 #include <bdn/android/ScrollViewCore.h>
 #include <bdn/android/StackCore.h>
+#include <bdn/android/SwitchCore.h>
+#include <bdn/android/TextFieldCore.h>
+#include <bdn/android/TextViewCore.h>
+#include <bdn/android/WindowCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 

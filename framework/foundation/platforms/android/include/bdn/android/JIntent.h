@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/android/JBundle.h>
 #include <bdn/android/JUri.h>
+#include <bdn/java/JObject.h>
 
 namespace bdn
 {
@@ -23,10 +23,10 @@ namespace bdn
                 return javaClass().newInstance_(constructorId, string, uri);
             }
 
-            JIntent(String string, JUri uri) : JTObject(createIntentInstance(string, uri)) {}
+            JIntent(String string, JUri uri) : JTObject<kIntentClassName>(createIntentInstance(string, uri)) {}
 
           public:
-            using java::JTObject<kIntentClassName>::JTObject;
+            using JTObject<kIntentClassName>::JTObject;
 
             java::Method<String()> getAction{this, "getAction"};
             java::Method<JBundle()> getExtras{this, "getExtras"};

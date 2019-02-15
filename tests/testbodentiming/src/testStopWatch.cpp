@@ -3,8 +3,8 @@
 
 #include <bdn/StopWatch.h>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace bdn;
 using namespace std::chrono_literals;

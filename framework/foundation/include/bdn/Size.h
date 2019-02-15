@@ -2,8 +2,8 @@
 
 #include <bdn/Margin.h>
 
-#include <limits>
 #include <cmath>
+#include <limits>
 
 namespace bdn
 {

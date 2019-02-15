@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/CheckboxCore.h>
-#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
+#include <bdn/SwitchCore.h>
 
 #import <bdn/mac/ChildViewCore.hh>
 #import <bdn/mac/MacSwitch.hh>

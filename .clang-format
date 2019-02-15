@@ -1,7 +1,7 @@
 ---
 BasedOnStyle: LLVM
 
-SortIncludes: false
+SortIncludes: true
 
 BreakBeforeBraces: Custom
 BraceWrapping:

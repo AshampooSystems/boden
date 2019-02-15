@@ -12,7 +12,7 @@ namespace bdn
         class JListAdapterBase : public java::JTObject<javaClassName, ConstructorArguments...>
         {
           public:
-            using JTObject<javaClassName, ConstructorArguments...>::JTObject;
+            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
 
           public:
             java::Method<bool()> areAllItemsEnabled{this, "areAllItemsEnabled"};

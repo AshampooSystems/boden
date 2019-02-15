@@ -1,10 +1,10 @@
 
 #include <bdn/test.h>
 
-#include <bdn/Window.h>
-#include <bdn/Dip.h>
-#include <bdn/test/TestScrollViewCore.h>
 #import "TestIosViewCoreMixin.hh"
+#include <bdn/Dip.h>
+#include <bdn/Window.h>
+#include <bdn/test/TestScrollViewCore.h>
 
 #import <bdn/ios/util.hh>
 

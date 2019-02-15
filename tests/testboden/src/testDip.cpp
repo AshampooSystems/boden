@@ -1,6 +1,6 @@
 
-#include <bdn/test.h>
 #include <bdn/config.h>
+#include <bdn/test.h>
 
 #include <bdn/Dip.h>
 

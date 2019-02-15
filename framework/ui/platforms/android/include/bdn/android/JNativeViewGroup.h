@@ -15,8 +15,8 @@ namespace bdn
             using JBaseViewGroup<javaClassName, ConstructorArguments...>::JBaseViewGroup;
 
           public:
-            Method<void(int, int)> setSize{this, "setSize"};
-            Method<void(JView, int, int, int, int)> setChildBounds{this, "setChildBounds"};
+            java::Method<void(int, int)> setSize{this, "setSize"};
+            java::Method<void(JView, int, int, int, int)> setChildBounds{this, "setChildBounds"};
         };
 
         using JNativeViewGroup = JBaseNativeViewGroup<>;

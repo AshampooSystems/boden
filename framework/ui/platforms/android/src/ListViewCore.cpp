@@ -1,6 +1,6 @@
-#include <bdn/android/ListViewCore.h>
-#include <bdn/android/JNativeListAdapter.h>
 #include <bdn/android/JNativeAdapterViewOnItemClickListener.h>
+#include <bdn/android/JNativeListAdapter.h>
+#include <bdn/android/ListViewCore.h>
 
 namespace bdn
 {

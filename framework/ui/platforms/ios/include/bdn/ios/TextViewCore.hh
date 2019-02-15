@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/ITextViewCore.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
 
 #import <bdn/ios/ViewCore.hh>

@@ -5,9 +5,9 @@ namespace bdn
     class UIProvider;
 }
 
+#include <bdn/Factory.h>
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
-#include <bdn/Factory.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn

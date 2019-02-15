@@ -2,8 +2,8 @@
 #define BDN_TEST_TestMockViewCoreMixin_H_
 
 #include <bdn/View.h>
-#include <bdn/test/MockViewCore.h>
 #include <bdn/test/MockUIProvider.h>
+#include <bdn/test/MockViewCore.h>
 
 namespace bdn
 {

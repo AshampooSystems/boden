@@ -1,10 +1,10 @@
 
 #include <bdn/test.h>
 
+#include "TestAndroidViewCoreMixin.h"
 #include <bdn/Button.h>
 #include <bdn/Window.h>
 #include <bdn/test/TestTextViewCore.h>
-#include "TestAndroidViewCoreMixin.h"
 
 using namespace bdn;
 

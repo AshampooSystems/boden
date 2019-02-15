@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/mac/ChildViewCore.hh>
-#include <bdn/ListViewCore.h>
 #include <bdn/ListView.h>
+#include <bdn/ListViewCore.h>
+#include <bdn/mac/ChildViewCore.hh>
 
 @class ListViewDelegateMac;
 

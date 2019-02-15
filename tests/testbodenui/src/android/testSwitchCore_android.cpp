@@ -1,11 +1,11 @@
 
 #include <bdn/test.h>
 
+#include "TestAndroidViewCoreMixin.h"
 #include <bdn/Switch.h>
 #include <bdn/Window.h>
-#include <bdn/test/TestSwitchCore.h>
 #include <bdn/android/JSwitch.h>
-#include "TestAndroidViewCoreMixin.h"
+#include <bdn/test/TestSwitchCore.h>
 
 using namespace bdn;
 

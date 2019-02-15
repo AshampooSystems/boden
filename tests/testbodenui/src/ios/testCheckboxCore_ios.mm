@@ -3,8 +3,8 @@
 
 #include <bdn/Checkbox.h>
 #include <bdn/Window.h>
-#include <bdn/test/TestCheckboxCore.h>
 #include <bdn/ios/CheckboxCore.hh>
+#include <bdn/test/TestCheckboxCore.h>
 
 #import "TestIosViewCoreMixin.hh"
 

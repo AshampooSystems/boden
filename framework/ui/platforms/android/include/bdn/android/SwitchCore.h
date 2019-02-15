@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JSwitch.h>
-#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
+#include <bdn/SwitchCore.h>
 #include <bdn/android/JNativeViewCoreClickListener.h>
+#include <bdn/android/JSwitch.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

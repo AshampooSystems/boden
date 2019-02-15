@@ -1,11 +1,11 @@
 
 #include <bdn/android/JNativeRootView.h>
 
-#include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
-#include <bdn/android/WindowCore.h>
 #include <bdn/android/JContext.h>
+#include <bdn/android/WindowCore.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv *env, jobject rawSelf)
 {

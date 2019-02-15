@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/test/TestViewCore.h>
-#include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
+#include <bdn/ScrollView.h>
+#include <bdn/test/TestViewCore.h>
 
 #include <bdn/test/ScrollViewLayoutTesterBase.h>
 

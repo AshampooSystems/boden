@@ -1,9 +1,9 @@
 
 #include <bdn/java/JNativeStrongPointer.h>
 
-#include <bdn/java/Env.h>
-#include <bdn/entry.h>
 #include <bdn/Base.h>
+#include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv *pEnv, jobject rawSelf,
                                                                                   jobject rawByteBuffer)

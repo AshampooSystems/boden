@@ -2,8 +2,8 @@
 #include <bdn/test.h>
 
 #include <bdn/TextField.h>
-#include <bdn/test/testView.h>
 #include <bdn/test/MockTextFieldCore.h>
+#include <bdn/test/testView.h>
 
 using namespace bdn;
 

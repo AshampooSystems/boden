@@ -1,8 +1,8 @@
 
 #include <bdn/ProgrammingError.h>
 
-#include <bdn/log.h>
 #include <bdn/debug.h>
+#include <bdn/log.h>
 
 #include <cassert>
 

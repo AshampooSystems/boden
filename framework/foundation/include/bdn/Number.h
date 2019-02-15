@@ -3,8 +3,8 @@
 #include <bdn/config.h>
 
 // needed so that we can provide specializations for std::hash
-#include <functional>
 #include <cmath>
+#include <functional>
 
 namespace bdn
 {

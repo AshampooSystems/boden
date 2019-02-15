@@ -2,8 +2,8 @@
 
 #include <bdn/test/MockViewCore.h>
 
-#include <bdn/IButtonCore.h>
 #include <bdn/Button.h>
+#include <bdn/IButtonCore.h>
 
 namespace bdn
 {

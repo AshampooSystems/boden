@@ -1,8 +1,8 @@
 #pragma once
 
+#include <bdn/DanglingFunctionError.h>
 #include <bdn/IAsyncNotifier.h>
 #include <bdn/ISyncNotifier.h>
-#include <bdn/DanglingFunctionError.h>
 
 #include <functional>
 #include <map>

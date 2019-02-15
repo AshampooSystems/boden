@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/IViewCore.h>
 #include <bdn/Dip.h>
-#include <bdn/test/MockUIProvider.h>
+#include <bdn/IViewCore.h>
 #include <bdn/round.h>
+#include <bdn/test/MockUIProvider.h>
 
 #include <bdn/test.h>
 

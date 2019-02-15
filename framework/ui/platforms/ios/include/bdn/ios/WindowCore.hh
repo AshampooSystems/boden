@@ -3,13 +3,13 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/IWindowCore.h>
-#include <bdn/Window.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/Window.h>
 
 #include <bdn/windowCoreUtil.h>
 
-#import <bdn/ios/util.hh>
 #import <bdn/ios/ViewCore.hh>
+#import <bdn/ios/util.hh>
 
 namespace bdn
 {

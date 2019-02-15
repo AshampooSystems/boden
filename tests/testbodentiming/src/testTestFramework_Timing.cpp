@@ -1,9 +1,9 @@
 
-#include <bdn/test.h>
 #include <bdn/config.h>
+#include <bdn/test.h>
 
-#include <bdn/mainThread.h>
 #include <bdn/StopWatch.h>
+#include <bdn/mainThread.h>
 
 #include <chrono>
 

@@ -1,11 +1,11 @@
 
 #include <bdn/test.h>
 
+#include "TestAndroidViewCoreMixin.h"
 #include <bdn/Window.h>
-#include <bdn/test/TestWindowCore.h>
 #include <bdn/android/UIProvider.h>
 #include <bdn/android/WindowCore.h>
-#include "TestAndroidViewCoreMixin.h"
+#include <bdn/test/TestWindowCore.h>
 
 using namespace bdn;
 

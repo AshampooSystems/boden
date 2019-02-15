@@ -2,8 +2,8 @@
 #include <bdn/GenericDispatcher.h>
 
 #include <bdn/AppRunnerBase.h>
-#include <iostream>
 #include <bdn/log.h>
+#include <iostream>
 
 namespace bdn
 {

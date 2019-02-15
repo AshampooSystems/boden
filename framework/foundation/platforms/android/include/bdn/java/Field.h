@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/java/FieldAccessor.h>
-#include <bdn/java/Reference.h>
 #include <bdn/java/ObjectFieldKind.h>
+#include <bdn/java/Reference.h>
 #include <bdn/java/StaticFieldKind.h>
 
 namespace bdn

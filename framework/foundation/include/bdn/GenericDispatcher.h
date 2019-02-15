@@ -1,13 +1,13 @@
 #pragma once
 
-#include <bdn/Base.h>
 #include <bdn/AppRunnerBase.h>
+#include <bdn/Base.h>
+#include <bdn/DanglingFunctionError.h>
 #include <bdn/IDispatcher.h>
+#include <bdn/InvalidArgumentError.h>
 #include <bdn/Signal.h>
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/log.h>
-#include <bdn/InvalidArgumentError.h>
-#include <bdn/DanglingFunctionError.h>
 
 #include <chrono>
 #include <functional>

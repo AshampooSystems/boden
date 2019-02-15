@@ -2,8 +2,8 @@
 #include <bdn/test.h>
 
 #include <bdn/TextView.h>
-#include <bdn/test/testView.h>
 #include <bdn/test/MockTextViewCore.h>
+#include <bdn/test/testView.h>
 
 using namespace bdn;
 

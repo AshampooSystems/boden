@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/IButtonCore.h>
-#include <bdn/ClickEvent.h>
 #include <bdn/Button.h>
+#include <bdn/ClickEvent.h>
+#include <bdn/IButtonCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 

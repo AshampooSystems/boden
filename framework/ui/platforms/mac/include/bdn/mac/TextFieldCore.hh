@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/TextField.h>
 #include <bdn/ITextFieldCore.h>
+#include <bdn/TextField.h>
 #include <bdn/mac/ChildViewCore.hh>
 #include <bdn/mac/util.hh>
 

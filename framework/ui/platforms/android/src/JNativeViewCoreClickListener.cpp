@@ -1,8 +1,8 @@
 
 #include <bdn/android/JNativeViewCoreClickListener.h>
 
-#include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
 #include <bdn/android/ViewCore.h>
 

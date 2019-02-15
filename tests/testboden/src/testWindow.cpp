@@ -2,9 +2,9 @@
 #include <bdn/Window.h>
 
 #include <bdn/test.h>
-#include <bdn/test/testView.h>
 #include <bdn/test/MockButtonCore.h>
 #include <bdn/test/MockWindowCore.h>
+#include <bdn/test/testView.h>
 
 #include <bdn/Button.h>
 

@@ -3,8 +3,8 @@
 #include <bdn/IDispatcher.h>
 #include <bdn/InvalidArgumentError.h>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std::chrono_literals;
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JTextView.h>
-#include <bdn/android/JRStyle.h>
 #include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
+#include <bdn/android/JRStyle.h>
+#include <bdn/android/JTextView.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

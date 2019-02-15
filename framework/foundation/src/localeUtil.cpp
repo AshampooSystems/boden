@@ -1,8 +1,8 @@
 
 #include <bdn/localeUtil.h>
 
-#include <locale>
 #include <cstring>
+#include <locale>
 
 namespace bdn
 {

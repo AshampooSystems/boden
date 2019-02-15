@@ -12,7 +12,7 @@ namespace bdn
         class JBaseTextWatcher : public java::JTObject<javaClassName, ConstructorArguments...>
         {
           public:
-            using JTObject<javaClassName, ConstructorArguments...>::JTObject;
+            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
         };
 
         using JTextWatcher = JBaseTextWatcher<>;

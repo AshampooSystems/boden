@@ -1,7 +1,7 @@
 
-#include <bdn/platform/androidplatform.h>
-#include <bdn/java/Env.h>
 #include <bdn/debug.h>
+#include <bdn/java/Env.h>
+#include <bdn/platform/androidplatform.h>
 
 #include <cassert>
 #include <sys/types.h>

@@ -1,7 +1,7 @@
 #include <bdn/foundation.h>
-#include <bdn/ui.h>
-#include <bdn/net.h>
 #include <bdn/log.h>
+#include <bdn/net.h>
+#include <bdn/ui.h>
 
 #include <nlohmann/json.hpp>
 

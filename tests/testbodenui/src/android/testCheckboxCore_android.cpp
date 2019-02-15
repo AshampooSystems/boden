@@ -1,12 +1,12 @@
 
 #include <bdn/test.h>
 
+#include "TestAndroidViewCoreMixin.h"
 #include <bdn/Checkbox.h>
 #include <bdn/Window.h>
-#include <bdn/test/TestCheckboxCore.h>
 #include <bdn/android/CheckboxCore.h>
 #include <bdn/android/JCheckBox.h>
-#include "TestAndroidViewCoreMixin.h"
+#include <bdn/test/TestCheckboxCore.h>
 
 using namespace bdn;
 

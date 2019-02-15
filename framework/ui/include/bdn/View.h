@@ -7,13 +7,13 @@ namespace bdn
     class UIProvider; // included below
 }
 
+#include <bdn/PreferredViewSizeManager.h>
+#include <bdn/Rect.h>
 #include <bdn/UIMargin.h>
 #include <bdn/UISize.h>
-#include <bdn/Rect.h>
-#include <bdn/property/Property.h>
 #include <bdn/mainThread.h>
+#include <bdn/property/Property.h>
 #include <bdn/round.h>
-#include <bdn/PreferredViewSizeManager.h>
 
 #include <bdn/IViewCore.h>
 

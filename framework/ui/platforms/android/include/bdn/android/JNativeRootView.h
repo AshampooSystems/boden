@@ -16,8 +16,8 @@ namespace bdn
             using JBaseNativeViewGroup<kNativeRootViewClassName>::JBaseNativeViewGroup;
 
           public:
-            Method<void(JCharSequence)> setTitle{this, "setTitle"};
-            Method<void(bool)> enableBackButton{this, "enableBackButton"};
+            java::Method<void(java::JCharSequence)> setTitle{this, "setTitle"};
+            java::Method<void(bool)> enableBackButton{this, "enableBackButton"};
         };
     }
 }

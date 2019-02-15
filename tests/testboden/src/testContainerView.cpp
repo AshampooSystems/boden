@@ -1,11 +1,11 @@
 
 #include <bdn/test.h>
 
-#include <bdn/ContainerView.h>
 #include <bdn/Button.h>
-#include <bdn/test/testView.h>
-#include <bdn/test/MockViewCore.h>
+#include <bdn/ContainerView.h>
 #include <bdn/test/MockContainerViewCore.h>
+#include <bdn/test/MockViewCore.h>
+#include <bdn/test/testView.h>
 
 using namespace bdn;
 

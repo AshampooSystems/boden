@@ -2,8 +2,8 @@
 #include <bdn/test.h>
 
 #include <bdn/Checkbox.h>
-#include <bdn/test/testView.h>
 #include <bdn/test/MockCheckboxCore.h>
+#include <bdn/test/testView.h>
 
 using namespace bdn;
 

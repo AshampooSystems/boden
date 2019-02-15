@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/Window.h>
 #include <bdn/View.h>
+#include <bdn/Window.h>
 
 #include <set>
 

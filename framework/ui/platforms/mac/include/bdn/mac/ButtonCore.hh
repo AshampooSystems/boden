@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/IButtonCore.h>
 #include <bdn/Button.h>
+#include <bdn/IButtonCore.h>
 
 #import <bdn/mac/ButtonCoreBase.hh>
 

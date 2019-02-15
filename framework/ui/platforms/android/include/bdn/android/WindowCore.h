@@ -5,15 +5,15 @@
 
 #include <bdn/windowCoreUtil.h>
 
-#include <bdn/java/WeakReference.h>
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JNativeRootView.h>
-#include <bdn/android/JConfiguration.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JActivity.h>
+#include <bdn/android/JConfiguration.h>
+#include <bdn/android/JNativeRootView.h>
+#include <bdn/android/ViewCore.h>
+#include <bdn/java/WeakReference.h>
 
-#include <bdn/log.h>
 #include "JWindow.h"
+#include <bdn/log.h>
 
 namespace bdn
 {
@@ -61,15 +61,15 @@ namespace bdn
 
             void center() override;
 
-            static void _rootViewCreated(const bdn::java::Reference &javaRef);
+            static void _rootViewCreated(const java::Reference &javaRef);
 
-            static void _rootViewDisposed(const bdn::java::Reference &javaRef);
+            static void _rootViewDisposed(const java::Reference &javaRef);
 
-            static void _rootViewSizeChanged(const bdn::java::Reference &javaRef, int width, int height);
+            static void _rootViewSizeChanged(const java::Reference &javaRef, int width, int height);
 
-            static void _rootViewConfigurationChanged(const bdn::java::Reference &javaRef, JConfiguration config);
+            static void _rootViewConfigurationChanged(const java::Reference &javaRef, JConfiguration config);
 
-            static bool _handleBackPressed(const bdn::java::Reference &javaRef);
+            static bool _handleBackPressed(const java::Reference &javaRef);
 
             double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
@@ -107,7 +107,7 @@ namespace bdn
              *  */
             virtual void rootViewConfigurationChanged(JConfiguration config);
 
-            virtual void attachedToNewRootView(const bdn::java::Reference &javaRef);
+            virtual void attachedToNewRootView(const java::Reference &javaRef);
 
             virtual bool handleBackPressed();
 
@@ -116,7 +116,7 @@ namespace bdn
 
             void updateUIScaleFactor(JConfiguration config);
 
-            static void getWindowCoreListFromRootView(const bdn::java::Reference &javaRootViewRef,
+            static void getWindowCoreListFromRootView(const java::Reference &javaRootViewRef,
                                                       std::list<std::shared_ptr<WindowCore>> &windowCoreList);
 
             /** Returns an accessible reference to the window's root view.
@@ -129,9 +129,9 @@ namespace bdn
             class RootViewRegistry : public Base
             {
               public:
-                void add(const bdn::java::WeakReference &javaRef) { _rootViewList.push_back(javaRef); }
+                void add(const java::WeakReference &javaRef) { _rootViewList.push_back(javaRef); }
 
-                void remove(const bdn::java::Reference &javaRef)
+                void remove(const java::Reference &javaRef)
                 {
                     auto it = std::find(_rootViewList.begin(), _rootViewList.end(), javaRef);
                     if (it != _rootViewList.end())
@@ -149,12 +149,12 @@ namespace bdn
                  *  Returns a null reference if not valid root view is found.
                  *
                  * */
-                bdn::java::Reference getNewestValidRootView()
+                java::Reference getNewestValidRootView()
                 {
                     // So we can simply return the first root view from the
                     // list.
                     while (!_rootViewList.empty()) {
-                        bdn::java::Reference javaRef = _rootViewList.back().toStrong();
+                        java::Reference javaRef = _rootViewList.back().toStrong();
 
                         if (!javaRef.isNull())
                             return javaRef;
@@ -164,11 +164,11 @@ namespace bdn
                         _rootViewList.pop_back();
                     }
 
-                    return bdn::java::Reference();
+                    return java::Reference();
                 }
 
               private:
-                std::list<bdn::java::WeakReference> _rootViewList;
+                std::list<java::WeakReference> _rootViewList;
             };
 
           public:
@@ -182,7 +182,7 @@ namespace bdn
 
           private:
             mutable std::recursive_mutex _rootViewMutex;
-            bdn::java::WeakReference _weakRootViewRef;
+            java::WeakReference _weakRootViewRef;
 
             Rect _currentBounds;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#import <bdn/ios/ViewCore.hh>
-#include <bdn/ListViewCore.h>
 #include <bdn/ListView.h>
+#include <bdn/ListViewCore.h>
+#import <bdn/ios/ViewCore.hh>
 
 @class ListViewDelegateIOS;
 

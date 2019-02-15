@@ -1,15 +1,15 @@
 
-#include <bdn/test/MockUIProvider.h>
 #include <bdn/test.h>
+#include <bdn/test/MockUIProvider.h>
 
-#include <bdn/test/MockContainerViewCore.h>
-#include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
 #include <bdn/test/MockCheckboxCore.h>
-#include <bdn/test/MockSwitchCore.h>
-#include <bdn/test/MockTextViewCore.h>
-#include <bdn/test/MockTextFieldCore.h>
+#include <bdn/test/MockContainerViewCore.h>
 #include <bdn/test/MockScrollViewCore.h>
+#include <bdn/test/MockSwitchCore.h>
+#include <bdn/test/MockTextFieldCore.h>
+#include <bdn/test/MockTextViewCore.h>
+#include <bdn/test/MockWindowCore.h>
 
 namespace bdn
 {

@@ -1,14 +1,14 @@
 #pragma once
 
 #include <bdn/android/JEditText.h>
-#include <bdn/android/JKeyEvent.h>
 #include <bdn/android/JInputMethodManager.h>
+#include <bdn/android/JKeyEvent.h>
 #include <bdn/android/JNativeEditTextTextWatcher.h>
 #include <bdn/android/JNativeTextViewOnEditorActionListener.h>
 
-#include <bdn/android/ViewCore.h>
 #include <bdn/ITextFieldCore.h>
 #include <bdn/TextField.h>
+#include <bdn/android/ViewCore.h>
 #include <bdn/debug.h>
 
 namespace bdn

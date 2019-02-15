@@ -2,10 +2,10 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/TestWindowCore.h>
+#import <bdn/mac/ChildViewCore.hh>
 #import <bdn/mac/UIProvider.hh>
 #import <bdn/mac/WindowCore.hh>
-#import <bdn/mac/ChildViewCore.hh>
+#include <bdn/test/TestWindowCore.h>
 
 using namespace bdn;
 

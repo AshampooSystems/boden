@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdexcept>
 #include <bdn/String.h>
+#include <stdexcept>
 
 namespace bdn
 {

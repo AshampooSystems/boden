@@ -102,19 +102,19 @@
 #define INTERNAL_BDN_STRINGIFY2(expr) #expr
 #define INTERNAL_BDN_STRINGIFY(expr) INTERNAL_BDN_STRINGIFY2(expr)
 
-#include <sstream>
-#include <stdexcept>
 #include <algorithm>
 #include <list>
+#include <sstream>
+#include <stdexcept>
 
-#include <bdn/Size.h>
-#include <bdn/Rect.h>
 #include <bdn/Margin.h>
+#include <bdn/ProgrammingError.h>
+#include <bdn/Rect.h>
+#include <bdn/Size.h>
 #include <bdn/UILength.h>
 #include <bdn/UIMargin.h>
 #include <bdn/UISize.h>
 #include <bdn/property/Property.h>
-#include <bdn/ProgrammingError.h>
 #include <bdn/test/ExpectProgrammingError.h>
 
 // #included from: catch_compiler_capabilities.h
@@ -605,8 +605,8 @@ namespace bdn
 #endif
 
 #include <memory>
-#include <vector>
 #include <stdlib.h>
+#include <vector>
 
 namespace bdn
 {
@@ -1664,11 +1664,11 @@ namespace bdn
 // #included from: catch_tostring.h
 #define TWOBLUECUBES_BDN_TOSTRING_H_INCLUDED
 
-#include <sstream>
+#include <cstddef>
 #include <iomanip>
 #include <limits>
+#include <sstream>
 #include <vector>
-#include <cstddef>
 
 #ifdef __OBJC__
 // #included from: catch_objc_arc.hpp
@@ -2198,8 +2198,8 @@ namespace bdn
 
 #include <string>
 
-#include <bdn/debug.h>
 #include <bdn/IDispatcher.h>
+#include <bdn/debug.h>
 
 // #included from: catch_interfaces_runner.h
 #define TWOBLUECUBES_BDN_INTERFACES_RUNNER_H_INCLUDED

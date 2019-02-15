@@ -1,9 +1,9 @@
 
 #include <bdn/test.h>
 
-#include <bdn/ScrollViewLayoutHelper.h>
-#include <bdn/ScrollView.h>
 #include <bdn/Dip.h>
+#include <bdn/ScrollView.h>
+#include <bdn/ScrollViewLayoutHelper.h>
 
 #include <bdn/test/MockUIProvider.h>
 #include <bdn/test/ScrollViewLayoutTesterBase.h>

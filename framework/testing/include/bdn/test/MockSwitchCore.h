@@ -2,8 +2,8 @@
 
 #include <bdn/test/MockViewCore.h>
 
-#include <bdn/SwitchCore.h>
 #include <bdn/Switch.h>
+#include <bdn/SwitchCore.h>
 
 namespace bdn
 {

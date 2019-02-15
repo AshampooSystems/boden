@@ -1,11 +1,11 @@
 
-#include <bdn/test.h>
-#include <bdn/test/testDispatcher.h>
 #include <bdn/GenericDispatcher.h>
 #include <bdn/config.h>
+#include <bdn/test.h>
+#include <bdn/test/testDispatcher.h>
 
-#include <thread>
 #include <iostream>
+#include <thread>
 
 using namespace bdn;
 

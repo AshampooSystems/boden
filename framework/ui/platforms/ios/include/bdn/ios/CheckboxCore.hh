@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bdn/CheckboxCore.h>
 #include <bdn/Checkbox.h>
+#include <bdn/CheckboxCore.h>
 #include <bdn/ClickEvent.h>
 
-#import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/IosCheckbox.hh>
+#import <bdn/ios/ViewCore.hh>
 
 @interface BdnIosCheckboxComposite : UIControl
 

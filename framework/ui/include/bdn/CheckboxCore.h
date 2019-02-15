@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/TriState.h>
 #include <bdn/IViewCore.h>
+#include <bdn/TriState.h>
 
 namespace bdn
 {

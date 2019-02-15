@@ -1,12 +1,12 @@
 
 #include <bdn/test.h>
 
-#include <bdn/Window.h>
 #include <bdn/Checkbox.h>
-#include <bdn/test/TestCheckboxCore.h>
+#include <bdn/Window.h>
 #include <bdn/mac/CheckboxCore.hh>
-#include <bdn/mac/util.hh>
 #include <bdn/mac/ui_util.hh>
+#include <bdn/mac/util.hh>
+#include <bdn/test/TestCheckboxCore.h>
 
 #import "TestMacChildViewCoreMixin.hh"
 

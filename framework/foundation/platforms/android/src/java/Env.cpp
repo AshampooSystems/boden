@@ -1,8 +1,8 @@
 
 #include <bdn/java/Env.h>
 
-#include <bdn/java/JavaException.h>
 #include <bdn/java/JNativeException.h>
+#include <bdn/java/JavaException.h>
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 {

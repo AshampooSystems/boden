@@ -1,14 +1,13 @@
 #pragma once
 
-#include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
+#include <bdn/ScrollView.h>
 #include <bdn/ScrollViewLayoutHelper.h>
-#include <bdn/java/NativeWeakPointer.h>
-#include <bdn/android/ViewCore.h>
-#include <bdn/android/JNativeScrollView.h>
 #include <bdn/android/IParentViewCore.h>
-#include <bdn/android/JViewGroup.h>
 #include <bdn/android/JNativeScrollView.h>
+#include <bdn/android/JViewGroup.h>
+#include <bdn/android/ViewCore.h>
+#include <bdn/java/NativeWeakPointer.h>
 
 namespace bdn
 {

@@ -1,10 +1,10 @@
 
 #include <bdn/test.h>
 
+#import "TestMacChildViewCoreMixin.hh"
 #include <bdn/Button.h>
 #include <bdn/Window.h>
 #include <bdn/test/TestTextViewCore.h>
-#import "TestMacChildViewCoreMixin.hh"
 
 using namespace bdn;
 

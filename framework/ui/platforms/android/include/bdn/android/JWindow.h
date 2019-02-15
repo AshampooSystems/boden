@@ -8,7 +8,7 @@ namespace bdn
     {
         constexpr const char kWindowClassName[] = "android/view/Window";
 
-        class JWindow : public JTObject<kWindowClassName>
+        class JWindow : public java::JTObject<kWindowClassName>
         {
           public:
             using JTObject<kWindowClassName>::JTObject;

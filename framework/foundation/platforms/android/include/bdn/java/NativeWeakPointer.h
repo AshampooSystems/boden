@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/java/JByteBuffer.h>
+#include <bdn/java/JObject.h>
 
 #include <memory>
 

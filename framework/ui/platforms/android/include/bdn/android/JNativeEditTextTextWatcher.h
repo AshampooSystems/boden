@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/android/JTextView.h>
 #include <bdn/android/JTextWatcher.h>
+#include <bdn/java/JObject.h>
 
 namespace bdn
 {

@@ -2,8 +2,8 @@
 #include <bdn/Window.h>
 
 #include <bdn/LayoutCoordinator.h>
-#include <bdn/debug.h>
 #include <bdn/UIAppControllerBase.h>
+#include <bdn/debug.h>
 
 namespace bdn
 {

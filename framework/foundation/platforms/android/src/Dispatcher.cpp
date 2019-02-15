@@ -1,5 +1,5 @@
-#include <bdn/android/Dispatcher.h>
 #include <bdn/InvalidArgumentError.h>
+#include <bdn/android/Dispatcher.h>
 
 #include <bdn/java/JNativeStrongPointer.h>
 

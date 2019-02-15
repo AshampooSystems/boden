@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <climits>
 #include <cstddef>
+#include <cstdint>
 #include <ostream>
 
 #include <bdn/platform.h>

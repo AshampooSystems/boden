@@ -1,5 +1,9 @@
 #pragma once
 
+#include <bdn/Base.h>
+#include <bdn/Size.h>
+#include <map>
+
 namespace bdn
 {
 

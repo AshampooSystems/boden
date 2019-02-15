@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/android/JViewGroup.h>
 #include <bdn/android/JContext.h>
+#include <bdn/android/JViewGroup.h>
 #include <bdn/java/JString.h>
 
 namespace bdn

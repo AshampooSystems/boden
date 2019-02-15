@@ -3,8 +3,8 @@
 #include <Cocoa/Cocoa.h>
 
 #include <bdn/IWindowCore.h>
-#include <bdn/Window.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/Window.h>
 #include <bdn/windowCoreUtil.h>
 
 #import <bdn/mac/UIProvider.hh>

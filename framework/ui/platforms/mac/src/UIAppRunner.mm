@@ -5,8 +5,8 @@
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
 
-#include <bdn/entry.h>
 #include <bdn/ExceptionReference.h>
+#include <bdn/entry.h>
 
 #import <Cocoa/Cocoa.h>
 

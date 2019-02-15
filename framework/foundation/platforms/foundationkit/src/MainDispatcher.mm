@@ -1,10 +1,10 @@
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 
+#include <bdn/InvalidArgumentError.h>
+#include <bdn/entry.h>
 #include <bdn/log.h>
 #include <bdn/mainThread.h>
-#include <bdn/entry.h>
-#include <bdn/InvalidArgumentError.h>
 #include <iostream>
 
 #import <Foundation/Foundation.h>

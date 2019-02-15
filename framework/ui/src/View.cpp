@@ -2,8 +2,8 @@
 #include <bdn/View.h>
 
 #include <bdn/LayoutCoordinator.h>
-#include <bdn/debug.h>
 #include <bdn/ProgrammingError.h>
+#include <bdn/debug.h>
 
 namespace bdn
 {

@@ -1,6 +1,6 @@
 #include <bdn/android/AppRunner.h>
-#include <bdn/android/JNativeRootView.h>
 #include <bdn/android/JIntent.h>
+#include <bdn/android/JNativeRootView.h>
 #include <bdn/android/JUri.h>
 #include <bdn/android/WindowCore.h>
 

@@ -2,12 +2,12 @@
 
 #include <bdn/Signal.h>
 
-#include <bdn/test.h>
 #include <bdn/StopWatch.h>
 #include <bdn/config.h>
+#include <bdn/test.h>
 
-#include <thread>
 #include <future>
+#include <thread>
 
 using namespace bdn;
 using namespace std::chrono_literals;

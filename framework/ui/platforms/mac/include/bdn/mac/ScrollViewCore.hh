@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
+#include <bdn/ScrollView.h>
 
 #include <bdn/ScrollViewLayoutHelper.h>
 

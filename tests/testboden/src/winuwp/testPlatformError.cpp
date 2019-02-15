@@ -1,8 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/winuwp/platformError.h>
 #include <bdn/win32/hresultError.h>
+#include <bdn/winuwp/platformError.h>
 
 using namespace bdn;
 using namespace bdn::winuwp;

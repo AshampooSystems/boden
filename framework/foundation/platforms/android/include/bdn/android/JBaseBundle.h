@@ -1,8 +1,8 @@
 #pragma once
 
+#include <bdn/java/ArrayOfObjects.h>
 #include <bdn/java/JObject.h>
 #include <bdn/java/JString.h>
-#include <bdn/java/ArrayOfObjects.h>
 
 namespace bdn
 {

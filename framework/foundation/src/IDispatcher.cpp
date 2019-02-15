@@ -1,6 +1,6 @@
 
-#include <bdn/IDispatcher.h>
 #include <bdn/AppRunnerBase.h>
+#include <bdn/IDispatcher.h>
 
 namespace bdn
 {

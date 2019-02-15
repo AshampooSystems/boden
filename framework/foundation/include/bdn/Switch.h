@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/TriState.h>
-#include <bdn/SwitchCore.h>
-#include <bdn/View.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/SwitchCore.h>
+#include <bdn/TriState.h>
+#include <bdn/View.h>
 
 #include <bdn/SimpleNotifier.h>
 

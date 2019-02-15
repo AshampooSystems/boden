@@ -1,10 +1,10 @@
 #include <bdn/android/JNativeAdapterViewOnItemClickListener.h>
 
-#include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
-#include <bdn/android/ViewCore.h>
 #include <bdn/ListView.h>
+#include <bdn/android/ViewCore.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeAdapterViewOnItemClickListener_nativeOnItemClick(
     JNIEnv *env, jobject rawSelf, jobject rawAdapterView, jobject rawView, int position, long id)

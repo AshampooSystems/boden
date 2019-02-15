@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/UnfinishedError.h>
 #include <bdn/AbortedError.h>
-#include <bdn/OneShotStateNotifier.h>
 #include <bdn/IAsyncNotifier.h>
+#include <bdn/OneShotStateNotifier.h>
+#include <bdn/UnfinishedError.h>
 
 namespace bdn
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
 #include <bdn/android/JView.h>
+#include <bdn/java/JObject.h>
 
 namespace bdn
 {

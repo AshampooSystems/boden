@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/View.h>
-#include <bdn/IButtonCore.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/IButtonCore.h>
 #include <bdn/SimpleNotifier.h>
+#include <bdn/View.h>
 
 namespace bdn
 {

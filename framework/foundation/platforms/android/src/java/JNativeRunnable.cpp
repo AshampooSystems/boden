@@ -1,8 +1,8 @@
 
 #include <bdn/java/JNativeRunnable.h>
 
-#include <bdn/java/Env.h>
 #include <bdn/entry.h>
+#include <bdn/java/Env.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv *pEnv, jobject rawSelf,
                                                                               jobject rawNativeObject)

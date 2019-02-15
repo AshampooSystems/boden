@@ -3,8 +3,8 @@
 
 #include <bdn/Switch.h>
 #include <bdn/Window.h>
-#include <bdn/test/TestSwitchCore.h>
 #include <bdn/ios/SwitchCore.hh>
+#include <bdn/test/TestSwitchCore.h>
 
 #import "TestIosViewCoreMixin.hh"
 

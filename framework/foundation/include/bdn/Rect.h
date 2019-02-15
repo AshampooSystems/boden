@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/Margin.h>
-#include <bdn/Size.h>
 #include <bdn/Point.h>
+#include <bdn/Size.h>
 
 namespace bdn
 {

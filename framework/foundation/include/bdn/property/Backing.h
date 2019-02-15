@@ -1,13 +1,12 @@
 #pragma once
 
-#include <bdn/property/Property.h>
-#include <bdn/property/IValueAccessor.h>
 #include <bdn/SimpleNotifier.h>
-
+#include <bdn/property/IValueAccessor.h>
 #include <memory>
 
 namespace bdn
 {
+    template <class ValType> class Property;
 
     template <class ValType> class Backing : virtual public IValueAccessor<ValType>
     {

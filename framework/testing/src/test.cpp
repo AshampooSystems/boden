@@ -39,18 +39,18 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/ErrorInfo.h>
 
-#include <bdn/AppRunnerBase.h>
 #include <bdn/AppControllerBase.h>
-#include <bdn/TestAppController.h>
-#include <bdn/Window.h>
+#include <bdn/AppRunnerBase.h>
 #include <bdn/ColumnView.h>
-#include <bdn/TextView.h>
-#include <bdn/mainThread.h>
-#include <bdn/debug.h>
-#include <bdn/NotImplementedError.h>
-#include <bdn/platform/Hooks.h>
-#include <bdn/config.h>
 #include <bdn/IDispatcher.h>
+#include <bdn/NotImplementedError.h>
+#include <bdn/TestAppController.h>
+#include <bdn/TextView.h>
+#include <bdn/Window.h>
+#include <bdn/config.h>
+#include <bdn/debug.h>
+#include <bdn/mainThread.h>
+#include <bdn/platform/Hooks.h>
 
 #include <cstring>
 
@@ -466,9 +466,9 @@ namespace bdn
     };
 }
 
-#include <streambuf>
-#include <ostream>
 #include <fstream>
+#include <ostream>
+#include <streambuf>
 
 namespace bdn
 {
@@ -537,11 +537,11 @@ namespace bdn
     };
 }
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <iostream>
 #include <ctime>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 #ifndef BDN_CONFIG_CONSOLE_WIDTH
 #define BDN_CONFIG_CONSOLE_WIDTH 80
@@ -719,9 +719,9 @@ namespace bdn
 #define TBC_TEXT_FORMAT_H_INCLUDED
 #endif
 
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 // Use optional outer namespace
 #ifdef STITCH_TBC_TEXT_FORMAT_OUTER_NAMESPACE
@@ -874,10 +874,10 @@ namespace STITCH_TBC_TEXT_FORMAT_OUTER_NAMESPACE
 
 #undef STITCH_TBC_TEXT_FORMAT_OPEN_NAMESPACE
 
-#include <map>
 #include <algorithm>
-#include <stdexcept>
+#include <map>
 #include <memory>
+#include <stdexcept>
 
 // Use optional outer namespace
 #ifdef STITCH_CLARA_OPEN_NAMESPACE
@@ -1780,9 +1780,9 @@ namespace bdn
 #endif
 #endif
 #ifndef TWOBLUECUBES_TEXT_FORMAT_H_ALREADY_INCLUDED
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 // Use optional outer namespace
 #ifdef CLICHE_TBC_TEXT_FORMAT_OUTER_NAMESPACE
@@ -2000,10 +2000,10 @@ namespace bdn
 // #included from: catch_interfaces_reporter.h
 #define TWOBLUECUBES_BDN_INTERFACES_REPORTER_H_INCLUDED
 
-#include <string>
-#include <ostream>
-#include <map>
 #include <assert.h>
+#include <map>
+#include <ostream>
+#include <string>
 
 namespace bdn
 {
@@ -2253,8 +2253,8 @@ namespace bdn
                                         Ptr<IStreamingReporter> const &additionalReporter);
 }
 
-#include <limits>
 #include <algorithm>
+#include <limits>
 
 namespace bdn
 {
@@ -2415,9 +2415,9 @@ namespace bdn
 // #included from: catch_test_case_tracker.hpp
 #define TWOBLUECUBES_BDN_TEST_CASE_TRACKER_HPP_INCLUDED
 
+#include <assert.h>
 #include <map>
 #include <string>
-#include <assert.h>
 #include <vector>
 
 namespace bdn
@@ -4000,8 +4000,8 @@ namespace bdn
 }
 
 #include <fstream>
-#include <stdlib.h>
 #include <limits>
+#include <stdlib.h>
 
 namespace bdn
 {
@@ -4307,12 +4307,12 @@ namespace bdn
 // #included from: catch_test_case_registry_impl.hpp
 #define TWOBLUECUBES_BDN_TEST_CASE_REGISTRY_IMPL_HPP_INCLUDED
 
-#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <random>
 #include <set>
 #include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <random>
+#include <vector>
 
 namespace bdn
 {
@@ -4670,9 +4670,9 @@ namespace bdn
 // #included from: catch_stream.hpp
 #define TWOBLUECUBES_BDN_STREAM_HPP_INCLUDED
 
-#include <stdexcept>
 #include <cstdio>
 #include <iostream>
+#include <stdexcept>
 
 namespace bdn
 {
@@ -5047,9 +5047,9 @@ namespace bdn
 // #included from: catch_generators_impl.hpp
 #define TWOBLUECUBES_BDN_GENERATORS_IMPL_HPP_INCLUDED
 
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace bdn
 {
@@ -6187,8 +6187,8 @@ namespace bdn
 
 } // end namespace bdn
 
-#include <map>
 #include <iostream>
+#include <map>
 
 namespace bdn
 {
@@ -6760,10 +6760,10 @@ namespace bdn
 // #included from: ../internal/catch_xmlwriter.hpp
 #define TWOBLUECUBES_BDN_XMLWRITER_HPP_INCLUDED
 
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iomanip>
 
 namespace bdn
 {

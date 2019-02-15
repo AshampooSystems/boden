@@ -1,13 +1,13 @@
 
 #include <bdn/test.h>
 
-#include <bdn/mainThread.h>
 #include <bdn/InvalidArgumentError.h>
 #include <bdn/config.h>
+#include <bdn/mainThread.h>
 
-#include <thread>
 #include <chrono>
 #include <future>
+#include <thread>
 
 using namespace std::chrono_literals;
 using namespace bdn;

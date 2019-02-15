@@ -2,8 +2,8 @@
 
 #include <Cocoa/Cocoa.h>
 #include <bdn/IViewCore.h>
-#include <bdn/mac/IParentViewCore.h>
 #include <bdn/ProgrammingError.h>
+#include <bdn/mac/IParentViewCore.h>
 
 #import <bdn/mac/UIProvider.hh>
 #import <bdn/mac/util.hh>

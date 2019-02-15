@@ -3,12 +3,12 @@
 #include <bdn/NotifierBase.h>
 #include <bdn/property/IValueAccessor.h>
 
-#include <bdn/property/property_forward_decl.h>
-#include <bdn/property/InternalValueBacking.h>
-#include <bdn/property/GetterSetterBacking.h>
 #include <bdn/property/GetterSetter.h>
-#include <bdn/property/SetterBacking.h>
+#include <bdn/property/GetterSetterBacking.h>
+#include <bdn/property/InternalValueBacking.h>
 #include <bdn/property/Setter.h>
+#include <bdn/property/SetterBacking.h>
+#include <bdn/property/property_forward_decl.h>
 
 #include <bdn/func.h>
 

@@ -16,7 +16,7 @@ namespace bdn
             using JBaseTextView<javaClassName>::JBaseTextView;
 
           public:
-            Method<bool()> isChecked{this, "isChecked"};
+            java::Method<bool()> isChecked{this, "isChecked"};
         };
 
         using JCompountButton = JBaseCompoundButton<>;

@@ -3,8 +3,8 @@
 
 #include <bdn/View.h>
 #import <bdn/mac/ChildViewCore.hh>
-#import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/UIProvider.hh>
+#import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/util.hh>
 
 namespace bdn

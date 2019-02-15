@@ -17,12 +17,12 @@ namespace bdn
           public:
             using JBaseView<javaClassName, ConstructorArguments...>::JBaseView;
 
-            Method<void(JView)> addView{this, "addView"};
-            Method<void(JView)> removeView{this, "removeView"};
-            Method<void()> removeAllViews{this, "removeAllViews"};
+            java::Method<void(JView)> addView{this, "addView"};
+            java::Method<void(JView)> removeView{this, "removeView"};
+            java::Method<void()> removeAllViews{this, "removeAllViews"};
 
-            Method<int()> getChildCount{this, "getChildCount"};
-            Method<JView(int)> getChildAt{this, "getChildAt"};
+            java::Method<int()> getChildCount{this, "getChildCount"};
+            java::Method<JView(int)> getChildAt{this, "getChildAt"};
 
           public:
             using JLayoutParams = JViewGroup__JLayoutParams;

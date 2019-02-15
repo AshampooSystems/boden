@@ -1,10 +1,10 @@
 
 #include <bdn/test.h>
 
+#import "TestIosViewCoreMixin.hh"
 #include <bdn/Button.h>
 #include <bdn/Window.h>
 #include <bdn/test/TestTextViewCore.h>
-#import "TestIosViewCoreMixin.hh"
 
 using namespace bdn;
 

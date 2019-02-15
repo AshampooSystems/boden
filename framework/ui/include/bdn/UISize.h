@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/UILength.h>
 #include <bdn/Size.h>
+#include <bdn/UILength.h>
 
 namespace bdn
 {

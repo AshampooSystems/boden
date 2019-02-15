@@ -1,13 +1,13 @@
 
-#include <bdn/platform/macplatform.h>
 #include <bdn/debug.h>
+#include <bdn/platform/macplatform.h>
 
 #include <bdn/AppRunnerBase.h>
 
 #include <cassert>
+#include <sys/sysctl.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/sysctl.h>
 
 #include <iostream>
 

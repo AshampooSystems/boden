@@ -2,10 +2,10 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/TestWindowCore.h>
 #import <bdn/ios/UIProvider.hh>
-#import <bdn/ios/WindowCore.hh>
 #import <bdn/ios/ViewCore.hh>
+#import <bdn/ios/WindowCore.hh>
+#include <bdn/test/TestWindowCore.h>
 
 #import "TestIosViewCoreMixin.hh"
 

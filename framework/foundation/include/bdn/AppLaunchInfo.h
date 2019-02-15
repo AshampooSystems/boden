@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include <bdn/String.h>
 #include <bdn/Base.h>
+#include <bdn/String.h>
 
 namespace bdn
 {

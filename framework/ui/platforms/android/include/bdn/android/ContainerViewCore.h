@@ -1,9 +1,9 @@
 #pragma once
 
 #include <bdn/ContainerView.h>
-#include <bdn/android/ViewCore.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JNativeViewGroup.h>
+#include <bdn/android/ViewCore.h>
 
 namespace bdn
 {

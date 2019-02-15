@@ -1,14 +1,14 @@
-#include <bdn/config.h>
+#include <bdn/AppRunnerBase.h>
 #include <bdn/HTTP.h>
 #include <bdn/HTTPRequest.h>
 #include <bdn/HTTPResponse.h>
-#include <bdn/AppRunnerBase.h>
+#include <bdn/config.h>
 #include <bdn/entry.h>
 #include <bdn/log.h>
 #include <ostream>
 
-#include "VolleyAdapter.h"
 #include "../../../include/bdn/HTTPRequest.h"
+#include "VolleyAdapter.h"
 
 namespace bdn
 {

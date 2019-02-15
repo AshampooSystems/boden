@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <bdn/ProgrammingError.h>
+#include <bdn/String.h>
 
 namespace bdn
 {

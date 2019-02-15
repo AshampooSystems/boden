@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bdn/java/JRuntimeException.h>
 #include <bdn/java/JNativeStrongPointer.h>
+#include <bdn/java/JRuntimeException.h>
 
-#include <bdn/SimpleFunctionCallable.h>
-#include <bdn/ExceptionReference.h>
 #include <bdn/ErrorInfo.h>
+#include <bdn/ExceptionReference.h>
+#include <bdn/SimpleFunctionCallable.h>
 
 #include <functional>
 

@@ -1,14 +1,14 @@
 
-#include <bdn/platform/iosplatform.h>
 #include <bdn/debug.h>
+#include <bdn/platform/iosplatform.h>
 
 #include <bdn/AppRunnerBase.h>
 
 #include <cassert>
+#include <iostream>
+#include <sys/sysctl.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/sysctl.h>
-#include <iostream>
 
 #include <csignal>
 
