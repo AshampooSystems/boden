@@ -1,0 +1,18 @@
+site_name: Boden X-platform Framework
+
+theme:
+  name: 'material'
+  palette:
+    primary: 'white'
+
+nav:
+  - Getting Started: 'getting-started.md'
+  - Setup: 'setup.md'
+  - Reference:
+    - Foundation:
+      - Base: 'reference/foundation/base.md'
+      - String: 'reference/foundation/string.md'
+    - UI:
+      - TextField: 'reference/ui/text_field.md'
+      - View: 'reference/ui/view.md'
+      - ViewCore: 'reference/ui/view_core.md'
