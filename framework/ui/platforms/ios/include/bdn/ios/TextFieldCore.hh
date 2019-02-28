@@ -13,9 +13,6 @@ namespace bdn
 
         class TextFieldCore : public ViewCore, virtual public ITextFieldCore
         {
-          private:
-            static UITextField *_createUITextField(std::shared_ptr<TextField> outerTextField);
-
           public:
             TextFieldCore(std::shared_ptr<TextField> outerTextField);
             ~TextFieldCore();

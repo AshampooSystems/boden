@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bdn/IViewCore.h>
+#include <bdn/ViewCore.h>
 
 namespace bdn
 {
 
     /** The core for scroll views.*/
-    class IScrollViewCore : virtual public IViewCore
+    class IScrollViewCore : virtual public ViewCore
     {
       public:
         /** Controls wether or not the view scrolls horizontally.*/

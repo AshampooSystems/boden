@@ -13,7 +13,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
     bdn::platformEntryWrapper(
         [&]() {
             std::shared_ptr<bdn::android::ViewCore> viewCore =
-                bdn::android::ViewCore::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
+                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
 
             if (viewCore == nullptr) {
                 // no view core is associated with the view => ignore the event

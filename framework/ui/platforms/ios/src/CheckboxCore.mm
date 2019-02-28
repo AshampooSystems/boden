@@ -66,6 +66,13 @@
     }
 }
 
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
 @end
 
 namespace bdn
@@ -103,6 +110,24 @@ namespace bdn
                                   action:@selector(clicked)
                         forControlEvents:UIControlEventTouchUpInside];
 
+            geometry.onChange() += [=](auto va) {
+                CGRect compositeBounds = _composite.bounds;
+                CGRect checkboxBounds = ((BdnIosCheckboxComposite *)_composite).checkbox.bounds;
+                CGRect labelBounds = _composite.uiLabel.bounds;
+
+                // Center checkbox vertically, left align horizontally in composite
+                CGRect checkboxFrame = CGRectMake(0, compositeBounds.size.height / 2. - checkboxBounds.size.height / 2.,
+                                                  checkboxBounds.size.width, checkboxBounds.size.height);
+                ((BdnIosCheckboxComposite *)_composite).checkbox.frame = checkboxFrame;
+
+                // Center label vertically, align next to checkbox horizontally in
+                // composite
+                CGRect labelFrame = CGRectMake(checkboxBounds.size.width + BDN_IOS_CHECKBOX_LABEL_MARGIN,
+                                               compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
+                                               labelBounds.size.width, labelBounds.size.height);
+                _composite.uiLabel.frame = labelFrame;
+            };
+
             // Set initial state
             setLabel(outer->label);
             setState(outer->state);
@@ -126,26 +151,6 @@ namespace bdn
         {
             _composite.uiLabel.text = stringToNSString(label);
             [_composite.uiLabel sizeToFit];
-            needLayout(View::InvalidateReason::childSizingInfoInvalidated);
-        }
-
-        void CheckboxCore::layout()
-        {
-            CGRect compositeBounds = _composite.bounds;
-            CGRect checkboxBounds = ((BdnIosCheckboxComposite *)_composite).checkbox.bounds;
-            CGRect labelBounds = _composite.uiLabel.bounds;
-
-            // Center checkbox vertically, left align horizontally in composite
-            CGRect checkboxFrame = CGRectMake(0, compositeBounds.size.height / 2. - checkboxBounds.size.height / 2.,
-                                              checkboxBounds.size.width, checkboxBounds.size.height);
-            ((BdnIosCheckboxComposite *)_composite).checkbox.frame = checkboxFrame;
-
-            // Center label vertically, align next to checkbox horizontally in
-            // composite
-            CGRect labelFrame = CGRectMake(checkboxBounds.size.width + BDN_IOS_CHECKBOX_LABEL_MARGIN,
-                                           compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
-                                           labelBounds.size.width, labelBounds.size.height);
-            _composite.uiLabel.frame = labelFrame;
         }
     }
 }

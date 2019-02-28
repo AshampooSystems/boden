@@ -3,8 +3,6 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
-#include <bdn/windowCoreUtil.h>
-
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JActivity.h>
 #include <bdn/android/JConfiguration.h>
@@ -20,46 +18,16 @@ namespace bdn
     namespace android
     {
 
-        class WindowCore : public ViewCore,
-                           virtual public IWindowCore,
-                           virtual public LayoutCoordinator::IWindowCoreExtension,
-                           virtual public IParentViewCore
+        class WindowCore : public ViewCore, virtual public IWindowCore, virtual public IParentViewCore
         {
           private:
             JView createJNativeViewGroup(std::shared_ptr<Window> outerWindow);
 
           public:
             WindowCore(std::shared_ptr<Window> outerWindow);
+            virtual ~WindowCore();
 
-            ~WindowCore();
-
-            void setTitle(const String &title) override;
             void enableBackButton(bool enable);
-
-            Rect adjustAndSetBounds(const Rect &requestedBounds) override;
-
-            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
-                              RoundType sizeRoundType) const override;
-
-            void setVisible(const bool &visible) override;
-
-            void invalidateSizingInfo(View::InvalidateReason reason) override;
-
-            void needLayout(View::InvalidateReason reason) override;
-
-            void childSizingInfoInvalidated(std::shared_ptr<View> child) override;
-
-            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override;
-
-            void layout() override;
-
-            void requestAutoSize() override;
-
-            void requestCenter() override;
-
-            void autoSize() override;
-
-            void center() override;
 
             static void _rootViewCreated(const java::Reference &javaRef);
 
@@ -84,6 +52,10 @@ namespace bdn
             };
 
             void setAndroidNavigationButtonHandler(std::shared_ptr<IAndroidNavigationButtonHandler> handler);
+
+            void scheduleLayout() override;
+
+            void initTag() override;
 
           protected:
             Rect getContentArea();

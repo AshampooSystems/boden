@@ -1,4 +1,21 @@
+#include <bdn/FixedView.h>
+#include <bdn/mac/ContainerViewCore.hh>
+
 #import <bdn/mac/ListViewCore.hh>
+
+@interface FixedNSView : NSView <BdnLayoutable>
+@property(nonatomic, assign) std::shared_ptr<bdn::FixedView> view;
+@end
+
+@implementation FixedNSView
+- (BOOL)isFlipped { return YES; }
+- (void)layout
+{
+    if (auto layout = _view->getLayout()) {
+        layout->layout(_view.get());
+    }
+}
+@end
 
 @interface ListViewDelegateMac : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 @property(nonatomic, assign) std::weak_ptr<bdn::ListView> outer;
@@ -31,14 +48,36 @@
         return nil;
     }
 
-    NSTextField *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
+    auto listView = self.outer.lock();
+    std::shared_ptr<bdn::FixedView> fixedView;
+    std::shared_ptr<bdn::View> view;
+
+    FixedNSView *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
 
     if (result == nil) {
-        result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
         result.identifier = @"Column";
+
+        fixedView = std::make_shared<bdn::FixedView>();
+
+        fixedView->_setParentView(listView);
+
+        fixedView->setViewCore(listView->getUIProvider(),
+                               std::make_shared<bdn::mac::ContainerViewCore>(fixedView, result));
+
+        result.view = fixedView;
+
+    } else {
+        fixedView = result.view;
+        if (!fixedView->getChildViews().empty()) {
+            view = fixedView->getChildViews().front();
+        }
     }
 
-    result.stringValue = bdn::mac::stringToNSString(self.outerDataSource->labelTextForRowIndex(row));
+    view = self.outerDataSource->viewForRowIndex(row, view);
+
+    fixedView->removeAllChildViews();
+    fixedView->addChildView(view);
 
     return result;
 }
@@ -69,6 +108,7 @@ namespace bdn
             _nsTableView = ((NSScrollView *)getNSView()).documentView;
             _nsTableView.dataSource = nativeDelegate;
             _nsTableView.delegate = nativeDelegate;
+            _nsTableView.headerView = nil;
             _nativeDelegate = nativeDelegate;
         }
 

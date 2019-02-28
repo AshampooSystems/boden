@@ -51,10 +51,11 @@ namespace bdn
     {
         AppRunnerBase::assertInMainThread();
 
-        for (auto &childView : _childViews)
-            childView->_setParentView(nullptr);
-
+        auto copyChildren = _childViews;
         _childViews.clear();
+
+        for (auto &childView : copyChildren)
+            childView->_setParentView(nullptr);
     }
 
     std::list<std::shared_ptr<View>> ContainerView::getChildViews() const

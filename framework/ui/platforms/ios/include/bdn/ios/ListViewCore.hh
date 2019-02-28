@@ -18,8 +18,6 @@ namespace bdn
             virtual void reloadData() override;
 
           private:
-            static UITableView *createUITableView(std::shared_ptr<ListView> outerListView);
-
             ListViewDelegateIOS *_nativeDelegate;
         };
     }

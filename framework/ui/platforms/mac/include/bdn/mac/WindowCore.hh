@@ -5,7 +5,6 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/Window.h>
-#include <bdn/windowCoreUtil.h>
 
 #import <bdn/mac/UIProvider.hh>
 
@@ -13,265 +12,59 @@
 
 #import <bdn/mac/util.hh>
 
+@interface BdnMacWindowContentViewParent_ : NSView <BdnLayoutable>
+@property bdn::Window *bdnWindow;
+@end
+
 namespace bdn
 {
     namespace mac
     {
 
-        class WindowCore : public Base,
-                           virtual public IWindowCore,
-                           virtual public IParentViewCore,
-                           virtual public LayoutCoordinator::IWindowCoreExtension
+        class WindowCore : public Base, virtual public IWindowCore, virtual public IParentViewCore
         {
           public:
             WindowCore(std::shared_ptr<View> outer);
-
             ~WindowCore();
 
+          public:
             NSWindow *getNSWindow() { return _nsWindow; }
 
             std::shared_ptr<Window> getOuterWindowIfStillAttached() { return _outerWindowWeak.lock(); }
-
             std::shared_ptr<const Window> getOuterWindowIfStillAttached() const { return _outerWindowWeak.lock(); }
 
-            void setTitle(const String &title) override { [_nsWindow setTitle:stringToNSString(title)]; }
+            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
+            void moveToParentView(std::shared_ptr<View> newParentView) override;
 
-            void setVisible(const bool &visible) override
-            {
-                if (visible)
-                    [_nsWindow makeKeyAndOrderFront:NSApp];
-                else
-                    [_nsWindow orderOut:NSApp];
-            }
+            void dispose() override;
 
-            void setPadding(const std::optional<UIMargin> &padding) override
-            {
-                // the outer window handles padding during layout. So nothing to
-                // do here.
-            }
+            void addChildNsView(NSView *childView) override;
 
-            void setMargin(const UIMargin &margin) override
-            {
-                // Ignore - window margins have no effect.
-            }
+            void _movedOrResized();
 
-            void invalidateSizingInfo(View::InvalidateReason reason) override
-            {
-                // nothing to do since we do not cache sizing info in the core.
-            }
-
-            void needLayout(View::InvalidateReason reason) override
-            {
-                std::shared_ptr<View> outerView = getOuterWindowIfStillAttached();
-                if (outerView != nullptr) {
-                    std::shared_ptr<UIProvider> provider =
-                        std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
-                    if (provider != nullptr)
-                        provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
-                }
-            }
-
-            void childSizingInfoInvalidated(std::shared_ptr<View> child) override
-            {
-                std::shared_ptr<View> outerView = getOuterWindowIfStillAttached();
-                if (outerView != nullptr) {
-                    outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                    outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
-                }
-            }
-
-            void setHorizontalAlignment(const View::HorizontalAlignment &align) override
-            {
-                // do nothing. The View handles this.
-            }
-
-            void setVerticalAlignment(const View::VerticalAlignment &align) override
-            {
-                // do nothing. The View handles this.
-            }
-
-            void setPreferredSizeHint(const Size &hint) override
-            {
-                // nothing to do by default. Most views do not use this.
-            }
-
-            void setPreferredSizeMinimum(const Size &limit) override
-            {
-                // do nothing. The View handles this.
-            }
-
-            void setPreferredSizeMaximum(const Size &limit) override
-            {
-                // do nothing. The View handles this.
-            }
-
-            Rect adjustAndSetBounds(const Rect &requestedBounds) override;
-
-            Rect adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
-                              RoundType sizeRoundType) const override;
-
-            double uiLengthToDips(const UILength &uiLength) const override
-            {
-                switch (uiLength.unit) {
-                case UILength::Unit::none:
-                    return 0;
-
-                case UILength::Unit::dip:
-                    return uiLength.value;
-
-                case UILength::Unit::em:
-                    return uiLength.value * getEmSizeDips();
-
-                case UILength::Unit::sem:
-                    return uiLength.value * getSemSizeDips();
-
-                default:
-                    throw InvalidArgumentError("Invalid UILength unit passed to "
-                                               "ViewCore::uiLengthToDips: " +
-                                               std::to_string((int)uiLength.unit));
-                }
-            }
-
-            Margin uiMarginToDipMargin(const UIMargin &margin) const override
-            {
-                return Margin(uiLengthToDips(margin.top), uiLengthToDips(margin.right), uiLengthToDips(margin.bottom),
-                              uiLengthToDips(margin.left));
-            }
-
-            void layout() override;
-            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override;
-
-            void requestAutoSize() override;
-            void requestCenter() override;
-
-            void autoSize() override;
-            void center() override;
-
-            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override
-            {
-                // we don't have a parent. Report that we cannot do this.
-                return false;
-            }
-
-            void moveToParentView(std::shared_ptr<View> newParentView) override
-            {
-                // do nothing
-            }
-
-            void dispose() override
-            {
-                // Window does not need to be removed from view hierarchy – do
-                // nothing
-            }
-
-            void addChildNsView(NSView *childView) override { [_nsContentParent addSubview:childView]; }
-
-            void _movedOrResized()
-            {
-                _currActualWindowBounds = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
-
-                std::shared_ptr<Window> outer = getOuterWindowIfStillAttached();
-                if (outer != nullptr)
-                    outer->adjustAndSetBounds(_currActualWindowBounds);
-            }
+            virtual void scheduleLayout() override;
 
           private:
-            Rect getContentArea()
-            {
-                // the content parent is inside the inverted coordinate space of
-                // the window origin is bottom left. So we need to pass the
-                // content height, so that the coordinates can be flipped.
-                return macRectToRect(_nsContentParent.frame, _nsContentParent.frame.size.height);
-            }
+            Rect getContentArea();
 
-            Rect getScreenWorkArea() const
-            {
-                NSScreen *screen = _getNsScreen();
+            Rect getScreenWorkArea() const;
 
-                NSRect workArea = screen.visibleFrame;
-                NSRect fullArea = screen.frame;
+            Size getMinimumSize() const;
 
-                return macRectToRect(workArea, fullArea.size.height);
-            }
+            Margin getNonClientMargin() const;
 
-            Size getMinimumSize() const { return macSizeToSize(_nsWindow.minSize); }
+            double getEmSizeDips() const;
 
-            Margin getNonClientMargin() const
-            {
-                Size dummyContentSize = getMinimumSize();
+            double getSemSizeDips() const;
 
-                NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), dummyContentSize), -1);
-                NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
+            NSScreen *_getNsScreen() const;
 
-                Rect windowRect = macRectToRect(macWindowRect, -1);
-
-                return Margin(fabs(windowRect.y), fabs(windowRect.x + windowRect.width - dummyContentSize.width),
-                              fabs(windowRect.y + windowRect.height - dummyContentSize.height), fabs(windowRect.x));
-            }
-
-            Size calcWindowSizeFromContentAreaSize(const Size &contentSize)
-            {
-                // we can ignore the coordinate space being inverted here. We do
-                // not care about the position, just the size.
-                NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), contentSize), -1);
-
-                NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
-
-                return macRectToRect(macWindowRect, -1).getSize();
-            }
-
-            Size calcContentAreaSizeFromWindowSize(const Size &windowSize)
-            {
-                // we can ignore the coordinate space being inverted here. We do
-                // not care about the position, just the size.
-                NSRect macWindowRect = rectToMacRect(Rect(Point(0, 0), windowSize), -1);
-
-                NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
-
-                Size resultSize = macRectToRect(macContentRect, -1).getSize();
-
-                resultSize.width = std::max(resultSize.width, 0.0);
-                resultSize.height = std::max(resultSize.height, 0.0);
-
-                return resultSize;
-            }
-
-            double getEmSizeDips() const
-            {
-                if (_emDipsIfInitialized == -1) {
-                    // windows on mac cannot have their own font attached. So
-                    // use the system font size
-                    _emDipsIfInitialized = getSemSizeDips();
-                }
-
-                return _emDipsIfInitialized;
-            }
-
-            double getSemSizeDips() const
-            {
-                if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
-
-                return _semDipsIfInitialized;
-            }
-
-            NSScreen *_getNsScreen() const
-            {
-                NSScreen *screen = _nsWindow.screen;
-
-                if (screen == nil) // happens when window is not visible
-                    screen = [NSScreen mainScreen];
-
-                return screen;
-            }
-
+          private:
             std::weak_ptr<Window> _outerWindowWeak;
             NSWindow *_nsWindow;
-            NSView *_nsContentParent;
+            BdnMacWindowContentViewParent_ *_nsContentParent;
 
             NSObject *_ourDelegate;
-
-            Rect _currActualWindowBounds;
 
             mutable double _emDipsIfInitialized = -1;
             mutable double _semDipsIfInitialized = -1;

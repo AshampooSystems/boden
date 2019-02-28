@@ -6,7 +6,9 @@ namespace bdn
 
     TextView::TextView()
     {
-        text.onChange() += View::CorePropertyUpdater<String, ITextViewCore>{
-            this, &ITextViewCore::setText, [](auto &inf) { inf.influencesPreferredSize(); }};
+        wrap = true;
+
+        text.onChange() += View::CorePropertyUpdater<String, ITextViewCore>{this, &ITextViewCore::setText};
+        wrap.onChange() += View::CorePropertyUpdater<bool, ITextViewCore>{this, &ITextViewCore::setWrap};
     }
 }

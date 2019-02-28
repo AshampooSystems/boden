@@ -22,22 +22,23 @@ namespace bdn
           public:
             virtual void pushView(std::shared_ptr<View> view, String title) override;
             virtual void popView() override;
+            virtual std::list<std::shared_ptr<View>> getChildViews() override;
 
           public:
-            virtual Size calcPreferredSize(const Size &availableSpace) const override;
-            virtual void layout() override;
-
           private:
             void updateCurrentView();
             std::shared_ptr<Stack> getStack() const;
+
+            void reLayout();
 
           private:
             NSView *_navigationBar;
             NSButton *_backButton;
             NSTextField *_title;
-            NSView *_contentView;
 
             std::shared_ptr<View> _currentView;
+
+            std::shared_ptr<FixedView> _container;
 
             BdnBackButtonClickHandler *_backButtonClickHandler;
         };

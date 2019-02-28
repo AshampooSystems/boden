@@ -7,11 +7,10 @@
 #import <bdn/ios/IosCheckbox.hh>
 #import <bdn/ios/ViewCore.hh>
 
-@interface BdnIosCheckboxComposite : UIControl
-
+@interface BdnIosCheckboxComposite : UIControl <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
 @property(strong) BdnIosCheckbox *checkbox;
 @property(strong) UILabel *uiLabel;
-
 @end
 
 @class BdnIosCheckboxClickManager;
@@ -34,8 +33,6 @@ namespace bdn
             void setLabel(const String &label) override;
 
             void _clicked();
-
-            void layout() override;
 
           private:
             BdnIosCheckboxComposite *_composite;

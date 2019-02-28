@@ -1,8 +1,10 @@
 
 macro(enable_automatic_reference_counting TARGET SCOPE)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Apple")
-	    target_compile_options(${TARGET} ${SCOPE} "-fobjc-arc")
-	endif()
+    if (BDN_USES_FK)
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Apple")
+            target_compile_options(${TARGET} ${SCOPE} "-fobjc-arc")
+        endif()
+    endif()
 endmacro()
 
 macro(enable_warnings_as_errors TARGET SCOPE)

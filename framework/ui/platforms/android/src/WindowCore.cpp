@@ -37,7 +37,11 @@ namespace bdn
         WindowCore::WindowCore(std::shared_ptr<Window> outerWindow)
             : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
         {
-            setTitle(outerWindow->title);
+            title.onChange() += [=](auto va) {
+                JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+
+                rootView.setTitle(va->get());
+            };
 
             JNativeRootView rootView(getJView().getParent().getRef_());
 
@@ -60,105 +64,18 @@ namespace bdn
             }
         }
 
-        void WindowCore::setTitle(const String &title)
+        void WindowCore::initTag()
         {
-            JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+            ViewCore::initTag();
 
-            rootView.setTitle(title);
+            JNativeRootView rootView(getJView().getParent().getRef_());
+            rootView.setTag(bdn::java::NativeWeakPointer(std::dynamic_pointer_cast<ViewCore>(shared_from_this())));
         }
 
         void WindowCore::enableBackButton(bool enable)
         {
             JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
             rootView.enableBackButton(enable);
-        }
-
-        Rect WindowCore::adjustAndSetBounds(const Rect &requestedBounds)
-        {
-            // we cannot influence our bounds. So "adjust" the bounds to the
-            // view's current bounds
-            return _currentBounds;
-        }
-
-        Rect WindowCore::adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
-                                      RoundType sizeRoundType) const
-        {
-            // we cannot influence our bounds. So "adjust" the bounds to the
-            // view's current bounds
-            return _currentBounds;
-        }
-
-        void WindowCore::setVisible(const bool &visible) { ViewCore::setVisible(visible); }
-
-        void WindowCore::invalidateSizingInfo(View::InvalidateReason reason)
-        {
-            // nothing to do since we do not cache sizing info in the core.
-        }
-
-        void WindowCore::needLayout(View::InvalidateReason reason)
-        {
-            std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
-            if (outerView != nullptr) {
-                std::shared_ptr<UIProvider> provider =
-                    std::dynamic_pointer_cast<UIProvider>(outerView->getUIProvider());
-                if (provider != nullptr)
-                    provider->getLayoutCoordinator()->viewNeedsLayout(outerView);
-            }
-        }
-
-        void WindowCore::childSizingInfoInvalidated(std::shared_ptr<View> child)
-        {
-            std::shared_ptr<View> outerView = getOuterViewIfStillAttached();
-            if (outerView != nullptr) {
-                outerView->invalidateSizingInfo(View::InvalidateReason::childSizingInfoInvalidated);
-                outerView->needLayout(View::InvalidateReason::childSizingInfoInvalidated);
-            }
-        }
-
-        Size WindowCore::calcPreferredSize(const Size &availableSpace) const
-        {
-            std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
-            if (window != nullptr)
-                return defaultWindowCalcPreferredSizeImpl(window, availableSpace, Margin(), Size());
-            else
-                return Size(0, 0);
-        }
-
-        void WindowCore::layout()
-        {
-            std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
-            if (window != nullptr)
-                defaultWindowLayoutImpl(window, getContentArea());
-        }
-
-        void WindowCore::requestAutoSize()
-        {
-            std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
-            if (window != nullptr) {
-                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
-                if (provider != nullptr)
-                    provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
-            }
-        }
-
-        void WindowCore::requestCenter()
-        {
-            std::shared_ptr<Window> window = std::dynamic_pointer_cast<Window>(getOuterViewIfStillAttached());
-            if (window != nullptr) {
-                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
-                if (provider != nullptr)
-                    provider->getLayoutCoordinator()->windowNeedsCentering(window);
-            }
-        }
-
-        void WindowCore::autoSize()
-        {
-            // we cannot change our size. So, do nothing
-        }
-
-        void WindowCore::center()
-        {
-            // we cannot change our position. So, do nothing.
         }
 
         void WindowCore::_rootViewCreated(const java::Reference &javaRef)
@@ -272,9 +189,8 @@ namespace bdn
 
             _currentBounds = Rect(0, 0, width / scaleFactor, height / scaleFactor);
 
-            std::shared_ptr<View> view = getOuterViewIfStillAttached();
-            if (view != nullptr)
-                view->adjustAndSetBounds(_currentBounds);
+            contentGeometry = _currentBounds;
+            geometry = _currentBounds;
         }
 
         void WindowCore::rootViewConfigurationChanged(JConfiguration config) { updateUIScaleFactor(config); }
@@ -343,7 +259,7 @@ namespace bdn
                 JView child = rootView.getChildAt(i);
 
                 std::shared_ptr<WindowCore> windowCore =
-                    std::dynamic_pointer_cast<WindowCore>(ViewCore::getViewCoreFromJavaViewRef(child.getRef_()));
+                    std::dynamic_pointer_cast<WindowCore>(getViewCoreFromJavaViewRef(child.getRef_()));
                 if (windowCore != nullptr)
                     windowCoreList.push_back(windowCore);
             }
@@ -364,5 +280,7 @@ namespace bdn
 
             return accessibleRef;
         }
+
+        void WindowCore::scheduleLayout() { getJView().requestLayout(); }
     }
 }

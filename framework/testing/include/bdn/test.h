@@ -111,9 +111,6 @@
 #include <bdn/ProgrammingError.h>
 #include <bdn/Rect.h>
 #include <bdn/Size.h>
-#include <bdn/UILength.h>
-#include <bdn/UIMargin.h>
-#include <bdn/UISize.h>
 #include <bdn/property/Property.h>
 #include <bdn/test/ExpectProgrammingError.h>
 
@@ -1772,9 +1769,6 @@ namespace bdn
     std::string toStringForTest(const Size &size);
     std::string toStringForTest(const Rect &rect);
     std::string toStringForTest(const Margin &margin);
-    std::string toStringForTest(const UILength &length);
-    std::string toStringForTest(const UIMargin &margin);
-    std::string toStringForTest(const UISize &size);
 
     template <class _Rep, class _Period>
     std::string toStringForTest(const std::chrono::duration<_Rep, _Period> &duration)

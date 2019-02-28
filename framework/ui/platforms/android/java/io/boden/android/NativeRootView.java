@@ -6,6 +6,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toolbar;
 
 import io.boden.android.ui_android.R;
@@ -100,6 +103,46 @@ public class NativeRootView extends NativeViewGroup
         super.finalize();
     }
 
+
+    public static String padLeft(String s, int n) {
+        String result = "";
+
+        for(int i=0;i<n;i++) {
+            result += " ";
+        }
+
+        result += s;
+        return result;
+    }
+
+    @Override
+    protected void onMeasure(int w, int h) {
+        super.onMeasure(w,h);
+        doLayout(false, 0, 0, 0, 0);
+    }
+
+/*
+    protected void printInfo(View v, int depth) {
+        Log.i("boden",  padLeft(v.toString() + ": " + Integer.toString((int) v.getX()) + "x" + Integer.toString((int) v.getY()) +
+                ", " + Integer.toString((int) v.getWidth()) + "x" + Integer.toString((int) v.getHeight()), depth));
+
+        if(v instanceof ViewGroup) {
+            ViewGroup vGroup = ((ViewGroup) v);
+            final int childCount = vGroup.getChildCount();
+            for(int i=0; i<childCount; i++) {
+                final View child = vGroup.getChildAt(i);
+                printInfo(child, depth+1);
+            }
+        }
+    }
+*/
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        getChildAt(0).layout(0, 0, right, bottom);
+        //printInfo(this, 0);
+    }
 
     @Override
     public void onSizeChanged(int newWidth, int newHeight, int oldWidth, int oldHeight)

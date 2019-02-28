@@ -1,6 +1,8 @@
 #pragma once
 
+#include <bdn/FixedView.h>
 #include <bdn/Stack.h>
+
 #include <bdn/StackCore.h>
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/WindowCore.h>
@@ -22,10 +24,7 @@ namespace bdn
           public:
             virtual void pushView(std::shared_ptr<View> view, String title) override;
             virtual void popView() override;
-
-            // IViewCoreExtension interface
-          public:
-            virtual void layout() override;
+            virtual std::list<std::shared_ptr<View>> getChildViews() override;
 
             // IParentViewCore interface
           public:
@@ -40,9 +39,11 @@ namespace bdn
           private:
             void updateCurrentView();
             std::shared_ptr<Stack> getStack() const;
+            void reLayout();
 
           private:
             std::shared_ptr<View> _currentView;
+            std::shared_ptr<FixedView> _container;
         };
     }
 }

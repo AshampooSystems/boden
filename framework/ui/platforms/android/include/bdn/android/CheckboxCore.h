@@ -15,8 +15,7 @@ namespace bdn
         {
           public:
             CheckboxCore(std::shared_ptr<Checkbox> outer)
-                : ViewCore(outer, ViewCore::createAndroidViewClass<JCheckBox>(outer)),
-                  _jCheckBox(getJViewAS<JCheckBox>())
+                : ViewCore(outer, createAndroidViewClass<JCheckBox>(outer)), _jCheckBox(getJViewAS<JCheckBox>())
             {
                 _jCheckBox.setSingleLine(true);
 

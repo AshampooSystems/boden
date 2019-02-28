@@ -41,7 +41,6 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/AppControllerBase.h>
 #include <bdn/AppRunnerBase.h>
-#include <bdn/ColumnView.h>
 #include <bdn/IDispatcher.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/TestAppController.h>
@@ -5955,40 +5954,6 @@ namespace bdn
     {
         return "(" + toStringForTest(margin.top) + ", " + toStringForTest(margin.right) + ", " +
                toStringForTest(margin.bottom) + ", " + toStringForTest(margin.left) + ")";
-    }
-
-    std::string toStringForTest(const UILength &length)
-    {
-        std::string unit;
-        switch (length.unit) {
-        case UILength::Unit::none:
-            return "none";
-            break;
-        case UILength::Unit::em:
-            unit = "em";
-            break;
-        case UILength::Unit::sem:
-            unit = "sem";
-            break;
-        case UILength::Unit::dip:
-            unit = "dip";
-            break;
-        default:
-            unit = "unit" + std::to_string((int)length.unit);
-            break;
-        }
-        return toStringForTest(length.value) + " " + unit;
-    }
-
-    std::string toStringForTest(const UIMargin &margin)
-    {
-        return "(" + toStringForTest(margin.top) + ", " + toStringForTest(margin.right) + ", " +
-               toStringForTest(margin.bottom) + ", " + toStringForTest(margin.left) + ")";
-    }
-
-    std::string toStringForTest(const UISize &size)
-    {
-        return "(" + toStringForTest(size.width) + " x " + toStringForTest(size.height) + ")";
     }
 
 } // end namespace bdn

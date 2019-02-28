@@ -15,7 +15,6 @@ namespace bdn
           public:
             using JBaseAdapterView<kListViewClassName>::JBaseAdapterView;
 
-            java::Method<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
             java::Method<void(int)> setChoiceMode{this, "setChoiceMode"};
             java::Method<void(bool)> setStackFromBottom{this, "setStackFromBottom"};
         };

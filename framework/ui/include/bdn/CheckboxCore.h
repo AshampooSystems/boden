@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bdn/IViewCore.h>
 #include <bdn/TriState.h>
+#include <bdn/ViewCore.h>
 
 namespace bdn
 {
     /** Generic interface for toggle-like control cores */
-    class CheckboxCore : virtual public IViewCore
+    class CheckboxCore : virtual public ViewCore
     {
       public:
         /** Changes the controls's state. */

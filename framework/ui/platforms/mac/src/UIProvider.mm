@@ -46,8 +46,6 @@ namespace bdn
             // mac uses DIPs natively. So no conversion necessary
             _semDips = NSFont.systemFontSize;
 
-            _layoutCoordinator = std::make_shared<LayoutCoordinator>();
-
             registerCoreType<ButtonCore, Button>();
             registerCoreType<ContainerViewCore, ContainerView>();
             registerCoreType<CheckboxCore, Checkbox>();

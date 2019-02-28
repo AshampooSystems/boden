@@ -56,11 +56,10 @@ namespace bdn
 
             java::Method<void(bool)> setHorizontallyScrolling{this, "setHorizontallyScrolling"};
 
-            java::Method<void(int)> setMaxLines{this, "setMaxLines"};
-
             java::Method<void(int)> setWidth{this, "setWidth"};
             java::Method<void(int)> setMaxWidth{this, "setMaxWidth"};
             java::Method<void(int)> setMaxHeight{this, "setMaxHeight"};
+            java::Method<void(int)> setMaxLines{this, "setMaxLines"};
 
             java::Method<float()> getTextSize{this, "getTextSize"};
             java::Method<void(int)> setTextAppearance{this, "setTextAppearance"};

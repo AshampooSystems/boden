@@ -19,8 +19,7 @@ namespace bdn
         {
             _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
 
-            label.onChange() += View::CorePropertyUpdater<String, IButtonCore>{
-                this, &IButtonCore::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
+            label.onChange() += View::CorePropertyUpdater<String, IButtonCore>{this, &IButtonCore::setLabel};
         }
 
         ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }

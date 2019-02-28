@@ -3,6 +3,8 @@ package io.boden.android;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.ListView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -32,17 +34,12 @@ public class NativeListAdapter extends BaseAdapter
 
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
-        if (convertView == null) {
-            convertView = new TextView(container.getContext());
-        }
-
-        ((TextView)convertView).setText(nativeLabelTextForRowIndex(_view, position));
-
-        return convertView;
+        return nativeViewForRowIndex(_view, position, convertView, container);
     }
 
     public native int nativeGetCount(View view);
     public native String nativeLabelTextForRowIndex(View view, int rowIndex);
+    public native View nativeViewForRowIndex(View view, int rowIndex, View reusableView, ViewGroup container);
 
     private View _view;
 }

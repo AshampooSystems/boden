@@ -17,7 +17,7 @@ namespace bdn
           private:
             static NSButton *_createNsButton(std::shared_ptr<Button> outerButton)
             {
-                NSButton *button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                NSButton *button = [[NSButton alloc] initWithFrame:rectToMacRect(outerButton->geometry, -1)];
 
                 [button setButtonType:NSButtonTypeMomentaryLight];
                 [button setBezelStyle:NSBezelStyleRounded];
@@ -30,23 +30,7 @@ namespace bdn
 
             void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
 
-            Rect adjustAndSetBounds(const Rect &requestedBounds) override
-            {
-                Rect adjustedBounds = ChildViewCore::adjustAndSetBounds(requestedBounds);
-
-                _updateBezelStyle();
-
-                return adjustedBounds;
-            }
-
-            void setPadding(const std::optional<UIMargin> &padding) override
-            {
-                ChildViewCore::setPadding(padding);
-
-                // we may need to update the bezel style.
-            }
-
-            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
+            Size sizeForSpace(Size availableSpace) const override
             {
                 // the bezel style influences the fitting size. To get
                 // consistent values here we have to ensure that we use the same
@@ -56,7 +40,7 @@ namespace bdn
                 if (bezelStyle != NSBezelStyleRounded)
                     _nsButton.bezelStyle = NSBezelStyleRounded;
 
-                Size size = ButtonCoreBase::calcPreferredSize(availableSpace);
+                Size size = ButtonCoreBase::sizeForSpace(availableSpace);
 
                 if (bezelStyle != NSBezelStyleRounded)
                     _nsButton.bezelStyle = bezelStyle;
@@ -65,15 +49,6 @@ namespace bdn
             }
 
             void generateClick();
-
-          protected:
-            Margin getPaddingIncludedInFittingSize() const override
-            {
-                // the button automatically includes some padding in the fitting
-                // size. This is rougly this:
-
-                return uiMarginToDipMargin(UIMargin(UILength::sem(0.5), UILength::sem(1)));
-            }
 
           private:
             void _updateBezelStyle();

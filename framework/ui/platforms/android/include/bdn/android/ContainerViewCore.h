@@ -3,6 +3,7 @@
 #include <bdn/ContainerView.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JNativeViewGroup.h>
+#include <bdn/android/JView.h>
 #include <bdn/android/ViewCore.h>
 
 namespace bdn
@@ -17,18 +18,20 @@ namespace bdn
 
           public:
             ContainerViewCore(std::shared_ptr<ContainerView> outer);
+            ContainerViewCore(std::shared_ptr<ContainerView> outer, JView jView) : ViewCore(outer, jView) {}
 
-            Size calcPreferredSize(const Size &availableSpace) const override;
+            virtual ~ContainerViewCore();
 
-            void layout() override;
+            void dispose() override;
 
-            Rect adjustAndSetBounds(const Rect &requestedBounds) override;
-
+          public:
             double getUIScaleFactor() const override;
 
             void addChildJView(JView childJView) override;
-
             void removeChildJView(JView childJView) override;
+
+          public:
+            std::shared_ptr<View> _keepMeAlive;
         };
     }
 }

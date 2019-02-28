@@ -42,5 +42,13 @@ namespace bdn
 
     template <typename RETURN_TYPE>
     RETURN_TYPE nonVoidPlatformEntryWrapper(std::function<RETURN_TYPE()> function, bool canKeepRunningAfterException,
-                                            void *platformSpecific = nullptr);
+                                            void *platformSpecific = nullptr)
+    {
+        RETURN_TYPE returnValue;
+
+        platformEntryWrapper([&returnValue, &function]() { returnValue = function(); }, canKeepRunningAfterException,
+                             platformSpecific);
+
+        return returnValue;
+    }
 }

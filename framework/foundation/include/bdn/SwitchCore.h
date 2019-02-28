@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bdn/IViewCore.h>
+#include <bdn/ViewCore.h>
 
 namespace bdn
 {
-    class SwitchCore : virtual public IViewCore
+    class SwitchCore : virtual public ViewCore
     {
       public:
         /** Changes the control's label text.*/

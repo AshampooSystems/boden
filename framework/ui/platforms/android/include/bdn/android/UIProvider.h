@@ -9,7 +9,6 @@ namespace bdn
     }
 }
 
-#include <bdn/LayoutCoordinator.h>
 #include <bdn/UIProvider.h>
 
 #include <bdn/android/JTextView.h>
@@ -31,20 +30,19 @@ namespace bdn
 
             double getSemSizeDips(ViewCore &viewCore);
 
-            /** Returns the layout coordinator that is used by view cores
-             * created by this UI provider.*/
-            std::shared_ptr<LayoutCoordinator> getLayoutCoordinator() { return _layoutCoordinator; }
-
             static std::shared_ptr<UIProvider> get();
 
           private:
             template <class CoreType, class ViewType>
-            static std::shared_ptr<IViewCore> makeAndroidCore(std::shared_ptr<View> view)
+            static std::shared_ptr<ViewCore> makeAndroidCore(std::shared_ptr<View> view)
             {
                 auto realView = std::dynamic_pointer_cast<ViewType>(view);
                 auto p = std::make_shared<CoreType>(realView);
 
-                p->getJView().setTag(bdn::java::NativeWeakPointer(p));
+                p->initTag();
+
+                p->_addToParent(view->getParentView());
+
                 return p;
             }
 
@@ -55,7 +53,6 @@ namespace bdn
 
           private:
             double _semDips;
-            std::shared_ptr<LayoutCoordinator> _layoutCoordinator;
         };
     }
 }

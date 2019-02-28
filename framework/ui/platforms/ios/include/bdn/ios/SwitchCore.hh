@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BdnIosSwitchComposite : UIControl
+@interface BdnIosSwitchComposite : UIControl <UIViewWithFrameNotification>
 
 @property(strong) UISwitch *uiSwitch;
 @property(strong) UILabel *uiLabel;
-
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
 @end
 
 @interface BdnIosSwitchClickManager : NSObject
@@ -38,8 +38,6 @@ namespace bdn
 
             void setOn(const bool &on) override;
             void setLabel(const String &label) override;
-
-            void layout() override;
 
           private:
             BdnIosSwitchComposite *_composite;

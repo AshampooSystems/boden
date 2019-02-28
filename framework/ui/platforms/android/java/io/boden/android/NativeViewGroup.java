@@ -53,6 +53,8 @@ public class NativeViewGroup extends ViewGroup
     {
         mWidth = width;
         mHeight = height;
+
+        setMeasuredDimension(mWidth,mHeight);
     }
 
     public void setChildBounds(View child, int x, int y, int width, int height)
@@ -103,6 +105,8 @@ public class NativeViewGroup extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom)
     {
+        doLayout(changed, left, top, right, bottom);
+
         final int childCount = getChildCount();
 
         String myParams = Integer.toString(left)+", "+Integer.toString(top)+", "+Integer.toString(right)+", "+Integer.toString(bottom);
@@ -194,5 +198,7 @@ public class NativeViewGroup extends ViewGroup
     }
 
     private Object mNativeObject;
+
+    public native void doLayout(boolean changed, int left, int top, int right, int bottom);
 
 }

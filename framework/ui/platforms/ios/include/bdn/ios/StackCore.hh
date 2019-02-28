@@ -4,35 +4,36 @@
 #include <bdn/StackCore.h>
 #import <bdn/ios/ViewCore.hh>
 
+@interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property UINavigationController *navController;
+@end
+
 namespace bdn
 {
     namespace ios
     {
         class StackCore : public ViewCore, virtual public bdn::StackCore
         {
-          private:
-            StackCore(std::shared_ptr<Stack> outerStack, UINavigationController *navigationController);
-
           public:
             StackCore(std::shared_ptr<Stack> outerStack);
 
           public:
-            virtual void layout() override;
-            virtual Size calcPreferredSize(const Size &availableSpace) const override;
+            virtual void frameChanged() override;
+            virtual void onGeometryChanged(Rect newGeometry) override;
 
-          public:
             virtual void pushView(std::shared_ptr<View> view, String title) override;
             virtual void popView() override;
 
-          private:
-            std::shared_ptr<bdn::Stack> stack()
-            {
-                return std::static_pointer_cast<bdn::Stack>(getOuterViewIfStillAttached());
-            }
+            std::list<std::shared_ptr<View>> getChildViews() override;
 
           private:
-            UINavigationController *_navigationController;
-            std::shared_ptr<View> _currentView;
+            std::shared_ptr<bdn::Stack> stack();
+
+            UINavigationController *getNavigationController();
+
+            std::shared_ptr<FixedView> getCurrentContainer();
+            std::shared_ptr<View> getCurrentUserView();
         };
     }
 }

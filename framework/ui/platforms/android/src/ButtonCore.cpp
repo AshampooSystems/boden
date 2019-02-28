@@ -7,8 +7,7 @@ namespace bdn
     namespace android
     {
         ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
-            : ViewCore(outerButton, ViewCore::createAndroidViewClass<JButton>(outerButton)),
-              _jButton(getJViewAS<JButton>())
+            : ViewCore(outerButton, createAndroidViewClass<JButton>(outerButton)), _jButton(getJViewAS<JButton>())
         {
             _jButton.setSingleLine(true);
 

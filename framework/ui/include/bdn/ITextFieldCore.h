@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bdn/IViewCore.h>
+#include <bdn/ViewCore.h>
 
 namespace bdn
 {
 
-    class ITextFieldCore : virtual public IViewCore
+    class ITextFieldCore : virtual public ViewCore
     {
       public:
         // Implement setter functions for property observers here

@@ -53,7 +53,6 @@ namespace bdn
         UIProvider::UIProvider()
         {
             _semDips = -1;
-            _layoutCoordinator = std::make_shared<LayoutCoordinator>();
 
             registerAndroidCoreType<ButtonCore, Button>();
             registerAndroidCoreType<ContainerViewCore, ContainerView>();

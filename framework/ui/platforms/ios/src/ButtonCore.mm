@@ -19,14 +19,28 @@
 
 @end
 
+@interface BodenUIButton : UIButton <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@end
+
+@implementation BodenUIButton
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
+@end
+
 namespace bdn
 {
     namespace ios
     {
 
-        UIButton *ButtonCore::_createUIButton(std::shared_ptr<Button> outer)
+        BodenUIButton *_createUIButton(std::shared_ptr<Button> outer)
         {
-            return [UIButton buttonWithType:UIButtonTypeSystem];
+            return [BodenUIButton buttonWithType:UIButtonTypeSystem];
         }
 
         ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ViewCore(outer, _createUIButton(outer))

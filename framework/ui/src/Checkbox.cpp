@@ -8,8 +8,7 @@ namespace bdn
     {
         _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
 
-        label.onChange() += View::CorePropertyUpdater<String, CheckboxCore>{
-            this, &CheckboxCore::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
+        label.onChange() += View::CorePropertyUpdater<String, CheckboxCore>{this, &CheckboxCore::setLabel};
 
         state.onChange() += View::CorePropertyUpdater<TriState, CheckboxCore>{this, &CheckboxCore::setState};
     }

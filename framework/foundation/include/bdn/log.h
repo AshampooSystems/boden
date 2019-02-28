@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/String.h>
+#include <sstream>
 
 namespace bdn
 {
@@ -25,6 +26,13 @@ namespace bdn
 
     /** Logs an info message to the global logging facility.*/
     void logInfo(const String &message) noexcept;
+
+    class logstream : public std::ostringstream
+    {
+      public:
+        logstream() {}
+        ~logstream() { logInfo(str()); }
+    };
 
 /** \def BDN_LOG_AND_IGNORE_EXCEPTION( call, errorContextMessage )
 

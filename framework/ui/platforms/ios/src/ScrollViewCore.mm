@@ -1,12 +1,8 @@
 
 #import <bdn/ios/ScrollViewCore.hh>
 
-#include <bdn/ScrollViewLayoutHelper.h>
-
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
-
 @property(nonatomic, assign) std::weak_ptr<bdn::ScrollView> outer;
-
 @end
 
 @implementation BdnIosScrollViewDelegate_
@@ -19,6 +15,21 @@
         }
     }
 }
+@end
+
+@interface BodenUIScrollView : UIScrollView <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@end
+
+@implementation BodenUIScrollView
+
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
 
 @end
 
@@ -26,42 +37,40 @@ namespace bdn
 {
     namespace ios
     {
-        UIScrollView *ScrollViewCore::_createScrollView(std::shared_ptr<ScrollView> outer)
+        BodenUIScrollView *_createScrollView(std::shared_ptr<ScrollView> outer)
         {
-            return [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         }
 
         ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer) : ViewCore(outer, _createScrollView(outer))
         {
             _uiScrollView = (UIScrollView *)getUIView();
 
-            // We add a custom view as the document view so that we have better
-            // control over the positioning of the content view
-            _uiContentViewParent = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-
-            [_uiScrollView addSubview:_uiContentViewParent];
-
-            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
-            setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
-
-            setPadding(outer->padding);
+            setHorizontalScrollingEnabled(true); // outer->horizontalScrollingEnabled);
+            setVerticalScrollingEnabled(true);
 
             _delegate = [[BdnIosScrollViewDelegate_ alloc] init];
             _delegate.outer = outer;
             _uiScrollView.delegate = _delegate;
         }
 
-        void ScrollViewCore::addChildUIView(UIView *childView)
+        void ScrollViewCore::addChildViewCore(ViewCore *viewCore)
         {
-            for (id subView in _uiContentViewParent.subviews)
+            for (id subView in _uiScrollView.subviews)
                 [((UIView *)subView)removeFromSuperview];
 
-            [_uiContentViewParent addSubview:childView];
-        }
+            _childGeometry = std::make_shared<Property<Rect>>();
 
-        void ScrollViewCore::setPadding(const std::optional<UIMargin> &padding)
-        {
-            // nothing to do
+            _childGeometry->bind(viewCore->geometry, BindMode::unidirectional);
+
+            _childGeometry->onChange() += [=](auto va) {
+                CGSize s;
+                s.width = va->get().width;
+                s.height = va->get().height;
+                _uiScrollView.contentSize = s;
+            };
+
+            [_uiScrollView addSubview:viewCore->getUIView()];
         }
 
         void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
@@ -80,76 +89,6 @@ namespace bdn
             _vertScrollEnabled = enabled;
 
             _uiScrollView.scrollEnabled = _horzScrollEnabled || _vertScrollEnabled;
-        }
-
-        Size ScrollViewCore::calcPreferredSize(const Size &availableSpace) const
-        {
-            Size preferredSize;
-
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-            if (outerView != nullptr) {
-                ScrollViewLayoutHelper helper(0, 0);
-
-                preferredSize = helper.calcPreferredSize(outerView, availableSpace);
-            }
-
-            return preferredSize;
-        }
-
-        void ScrollViewCore::layout()
-        {
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-            if (outerView != nullptr) {
-                ScrollViewLayoutHelper helper(0, 0);
-
-                Size viewPortSizeWithoutScrollbars = outerView->size;
-
-                helper.calcLayout(outerView, viewPortSizeWithoutScrollbars);
-
-                CGSize iosScrolledAreaSize{0, 0};
-
-                std::shared_ptr<View> contentView = outerView->getContentView();
-                if (contentView != nullptr) {
-                    Rect contentBounds = helper.getContentViewBounds();
-
-                    contentView->adjustAndSetBounds(contentBounds);
-
-                    // we must also resize our content view parent accordingly.
-                    Size scrolledAreaSize = helper.getScrolledAreaSize();
-
-                    iosScrolledAreaSize = sizeToIosSize(scrolledAreaSize);
-                }
-
-                _uiContentViewParent.frame =
-                    CGRectMake(_uiContentViewParent.frame.origin.x, _uiContentViewParent.frame.origin.y,
-                               iosScrolledAreaSize.width, iosScrolledAreaSize.height);
-
-                // we must set the contentSize property of the scroll view. IOS
-                // uses it to determine whether to scroll and by how much
-                CGSize iosScrollContentSize = iosScrolledAreaSize;
-
-                // one important aspect here: if scrolling is disabled in a
-                // direction then we should set the scrollContentSize to some
-                // value <= the viewport size to ensure that no scrolling
-                // actually happens. That is important, since UIScrollView can
-                // only disable scrolling in both directions at once, not
-                // individually. So if we want one direction enabled and the
-                // other disabled then we must ensure that the content size in
-                // the disabled direction does not exceed the viewport size.
-                CGSize iosViewPortSize = _uiScrollView.frame.size;
-
-                if (!outerView->horizontalScrollingEnabled && iosScrollContentSize.width > iosViewPortSize.width)
-                    iosScrollContentSize.width = iosViewPortSize.width;
-
-                if (!outerView->verticalScrollingEnabled && iosScrollContentSize.height > iosViewPortSize.height)
-                    iosScrollContentSize.height = iosViewPortSize.height;
-
-                _uiScrollView.contentSize = iosScrollContentSize;
-
-                updateVisibleClientRect();
-            }
         }
 
         void ScrollViewCore::scrollClientRectToVisible(const Rect &targetRect)

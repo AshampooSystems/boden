@@ -6,8 +6,8 @@ namespace bdn
 }
 
 #include <bdn/Factory.h>
-#include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/ViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
@@ -30,7 +30,7 @@ namespace bdn
        the testing of a user interface and make it easier to automate such
        tests.
     */
-    class UIProvider : public bdn::Factory<std::shared_ptr<IViewCore>, std::shared_ptr<View>>
+    class UIProvider : public bdn::Factory<std::shared_ptr<ViewCore>, std::shared_ptr<View>>
     {
       public:
         /** Returns the name of the UI provider. This is intended for logging
@@ -81,7 +81,7 @@ namespace bdn
            necessary. So you should not store the view pointer in a smart
            pointer (like std::shared_ptr<View>). Use weak pointers (like WeakP<View>) instead.
                 */
-        std::shared_ptr<IViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
+        std::shared_ptr<ViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
         {
             auto viewCore = create(coreTypeName, view);
 
@@ -93,7 +93,7 @@ namespace bdn
         }
 
       protected:
-        template <class CoreType, class ViewType> static std::shared_ptr<IViewCore> makeCore(std::shared_ptr<View> view)
+        template <class CoreType, class ViewType> static std::shared_ptr<ViewCore> makeCore(std::shared_ptr<View> view)
         {
             return std::make_shared<CoreType>(std::dynamic_pointer_cast<ViewType>(view));
         }

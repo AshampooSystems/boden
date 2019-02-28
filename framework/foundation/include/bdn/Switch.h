@@ -25,8 +25,7 @@ namespace bdn
         Switch()
         {
             _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
-            label.onChange() += View::CorePropertyUpdater<String, SwitchCore>{
-                this, &SwitchCore::setLabel, [](auto &inf) { inf.influencesPreferredSize(); }};
+            label.onChange() += View::CorePropertyUpdater<String, SwitchCore>{this, &SwitchCore::setLabel};
 
             on.onChange() += View::CorePropertyUpdater<bool, SwitchCore>{this, &SwitchCore::setOn};
         }

@@ -4,22 +4,21 @@
 
 #import <bdn/ios/ViewCore.hh>
 
+@interface BodenUIView : UIView <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+
+- (void)layoutSubviews;
+@end
+
 namespace bdn
 {
     namespace ios
     {
-
         class ContainerViewCore : public ViewCore
         {
-          private:
-            static UIView *_createContainer(std::shared_ptr<ContainerView> outer);
-
           public:
             ContainerViewCore(std::shared_ptr<ContainerView> outer);
-
-            Size calcPreferredSize(const Size &availableSpace) const override;
-
-            void layout() override;
+            ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view);
 
           protected:
             bool canAdjustToAvailableWidth() const override;

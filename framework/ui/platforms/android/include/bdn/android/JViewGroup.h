@@ -23,6 +23,7 @@ namespace bdn
 
             java::Method<int()> getChildCount{this, "getChildCount"};
             java::Method<JView(int)> getChildAt{this, "getChildAt"};
+            java::Method<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
 
           public:
             using JLayoutParams = JViewGroup__JLayoutParams;

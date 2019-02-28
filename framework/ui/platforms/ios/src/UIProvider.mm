@@ -42,8 +42,6 @@ namespace bdn
 
             _semDips = UIFont.systemFontSize;
 
-            _layoutCoordinator = std::make_shared<LayoutCoordinator>();
-
             registerCoreType<ButtonCore, Button>();
             registerCoreType<ContainerViewCore, ContainerView>();
             registerCoreType<CheckboxCore, Checkbox>();

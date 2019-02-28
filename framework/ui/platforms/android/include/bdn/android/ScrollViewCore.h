@@ -2,7 +2,6 @@
 
 #include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
-#include <bdn/ScrollViewLayoutHelper.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JNativeScrollView.h>
 #include <bdn/android/JViewGroup.h>
@@ -18,8 +17,7 @@ namespace bdn
         {
           public:
             ScrollViewCore(std::shared_ptr<ScrollView> outer)
-                : ScrollViewCore(outer,
-                                 ViewCore::createAndroidViewClass<JNativeScrollView>(outer).cast<JNativeScrollView>())
+                : ScrollViewCore(outer, createAndroidViewClass<JNativeScrollView>(outer).cast<JNativeScrollView>())
             {}
 
           private:
@@ -47,59 +45,6 @@ namespace bdn
             void setVerticalScrollingEnabled(const bool &enabled) override
             {
                 // nothing to do - we get this directly from the outer window
-            }
-
-            Size calcPreferredSize(const Size &availableSpace = Size::none()) const override
-            {
-                std::shared_ptr<ScrollView> outer =
-                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-                if (outer != nullptr) {
-                    // note that the scroll bars are overlays and do not take up
-                    // any layout space.
-                    ScrollViewLayoutHelper helper(0, 0);
-
-                    return helper.calcPreferredSize(outer, availableSpace);
-                } else
-                    return Size(0, 0);
-            }
-
-            void layout() override
-            {
-                std::shared_ptr<ScrollView> outerView =
-                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-                if (outerView != nullptr) {
-                    // note that the scroll bars are overlays and do not take up
-                    // any layout space.
-                    ScrollViewLayoutHelper helper(0, 0);
-
-                    Size scrollViewSize = outerView->size;
-
-                    helper.calcLayout(outerView, scrollViewSize);
-
-                    Size scrolledAreaSize = helper.getScrolledAreaSize();
-
-                    double uiScaleFactor = getUIScaleFactor();
-
-                    // resize the content parent to the scrolled area size.
-                    // That causes the content parent to get that size the next
-                    // time and android layout happens.
-                    _jContentParent.setSize(std::lround(scrolledAreaSize.width * uiScaleFactor),
-                                            std::lround(scrolledAreaSize.height * uiScaleFactor));
-
-                    // now arrange the content view inside the content parent
-                    Rect contentBounds = helper.getContentViewBounds();
-
-                    std::shared_ptr<View> contentView = outerView->getContentView();
-                    if (contentView != nullptr)
-                        contentView->adjustAndSetBounds(contentBounds);
-
-                    // we must call _contentParent.requestLayout because we
-                    // have to clear its measure cache. Otherwise the changes
-                    // might not take effect.
-                    _jContentParent.requestLayout();
-
-                    updateVisibleClientRect();
-                }
             }
 
             void scrollClientRectToVisible(const Rect &clientRect) override
@@ -252,13 +197,26 @@ namespace bdn
 
             void addChildJView(JView childJView) override
             {
+                _childGeometry.reset();
                 _jContentParent.removeAllViews();
-                _jContentParent.addView(childJView);
+
+                if (auto viewCore = bdn::android::getViewCoreFromJavaViewRef(childJView.getRef_())) {
+                    _jContentParent.addView(childJView);
+                    _childGeometry = std::make_unique<Property<Rect>>();
+                    _childGeometry->bind(viewCore->geometry, BindMode::unidirectional);
+                    _childGeometry->onChange() += [=](auto va) {
+                        _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
+                                                std::lround(va->get().height * getUIScaleFactor()));
+                    };
+                }
             }
 
-            void removeChildJView(JView childJView) override { _jContentParent.removeView(childJView); }
+            void removeChildJView(JView childJView) override
+            {
+                _childGeometry.reset();
+                _jContentParent.removeView(childJView);
+            }
 
-            /** Used internally - do not call.*/
             void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY) { updateVisibleClientRect(); }
 
           private:
@@ -280,6 +238,8 @@ namespace bdn
 
             JNativeScrollView _jNativeScrollView;
             JNativeViewGroup _jContentParent;
+
+            std::unique_ptr<Property<Rect>> _childGeometry;
         };
     }
 }

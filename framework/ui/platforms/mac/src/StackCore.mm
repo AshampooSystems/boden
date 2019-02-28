@@ -50,68 +50,33 @@ namespace bdn
             [_navigationBar addSubview:_title];
             [_navigationBar addSubview:_backButton];
 
-            _contentView = [[NSView alloc] init];
-            [getNSView() addSubview:_contentView];
+            geometry.onChange() += [=](auto va) { this->reLayout(); };
         }
 
         void StackCore::pushView(std::shared_ptr<bdn::View> view, bdn::String title) { updateCurrentView(); }
 
         void StackCore::popView() { updateCurrentView(); }
 
-        void StackCore::layout()
+        std::list<std::shared_ptr<View>> StackCore::getChildViews()
         {
-            ChildViewCore::layout();
-
-            Size outerSize{getNSView().frame.size.width, getNSView().frame.size.height};
-
-            _navigationBar.frame = NSMakeRect(0, outerSize.height - 50, outerSize.width, 50);
-            [_navigationBar translateOriginToPoint:NSMakePoint(0, 0)];
-            //_backButton.frame = NSMakeRect(0, 0, outerSize.width / 2, 50);
-
-            NSSize titleSize = _title.intrinsicContentSize;
-            NSSize buttonSize = _backButton.intrinsicContentSize;
-            NSSize navBarSize = _navigationBar.frame.size;
-
-            _backButton.frame =
-                NSMakeRect(5, navBarSize.height / 2 - buttonSize.height / 2, buttonSize.width, buttonSize.height);
-
-            _title.frame = NSMakeRect(navBarSize.width / 2 - titleSize.width / 2,
-                                      navBarSize.height / 2 - titleSize.height / 2, titleSize.width, titleSize.height);
-
-            _contentView.frame = NSMakeRect(0, 0, outerSize.width, outerSize.height - _navigationBar.frame.size.height);
-
-            auto outerStack = getStack();
-            if (!outerStack->stack().empty()) {
-                Rect rChild = outerStack->stack().back().view->adjustAndSetBounds(
-                    Rect{0, 0, _contentView.frame.size.width, _contentView.frame.size.height});
+            if (_container) {
+                return {_container};
             }
-        }
-
-        Size StackCore::calcPreferredSize(const Size &availableSpace) const
-        {
-            int width = _title.intrinsicContentSize.width + _backButton.intrinsicContentSize.width * 2 + 10;
-            int height = 200;
-
-            auto outerStack = getStack();
-            if (!outerStack->stack().empty()) {
-                Size childPreferredSize = outerStack->stack().back().view->calcPreferredSize(availableSpace);
-                height = 50 + childPreferredSize.height;
-                width = std::max((int)childPreferredSize.width, width);
-            }
-
-            return Size(width, height);
+            return {};
         }
 
         void StackCore::updateCurrentView()
         {
+            if (!_container) {
+                _container = std::make_shared<FixedView>();
+                _container->_setParentView(getOuterViewIfStillAttached());
+            }
+
             auto outerStack = getStack();
 
             _backButton.hidden = outerStack->stack().size() < 2;
 
-            for (id oldViewObject in _contentView.subviews) {
-                NSView *oldView = (NSView *)oldViewObject;
-                [oldView removeFromSuperview];
-            }
+            _container->removeAllChildViews();
 
             if (_currentView) {
                 _currentView->_setParentView(nullptr);
@@ -124,21 +89,39 @@ namespace bdn
 
                 auto newView = outerStack->stack().back().view;
 
-                newView->_setParentView(getOuterViewIfStillAttached());
+                _container->addChildView(newView);
 
                 _currentView = newView;
-
-                if (auto childCore = std::dynamic_pointer_cast<ChildViewCore>(newView->getViewCore())) {
-                    if (auto nsView = childCore->getNSView()) {
-                        [_contentView addSubview:nsView];
-                    }
-                }
             }
+
+            reLayout();
         }
 
         std::shared_ptr<Stack> StackCore::getStack() const
         {
             return std::static_pointer_cast<Stack>(getOuterViewIfStillAttached());
+        }
+
+        void StackCore::reLayout()
+        {
+            Size outerSize{getNSView().frame.size.width, getNSView().frame.size.height};
+
+            _navigationBar.frame = NSMakeRect(0, outerSize.height - 50, outerSize.width, 50);
+            [_navigationBar translateOriginToPoint:NSMakePoint(0, 0)];
+
+            NSSize titleSize = _title.intrinsicContentSize;
+            NSSize buttonSize = _backButton.intrinsicContentSize;
+            NSSize navBarSize = _navigationBar.frame.size;
+
+            _backButton.frame =
+                NSMakeRect(5, navBarSize.height / 2 - buttonSize.height / 2, buttonSize.width, buttonSize.height);
+
+            _title.frame = NSMakeRect(navBarSize.width / 2 - titleSize.width / 2,
+                                      navBarSize.height / 2 - titleSize.height / 2, titleSize.width, titleSize.height);
+
+            if (_container) {
+                _container->geometry = Rect{0, 0, outerSize.width, outerSize.height - _navigationBar.frame.size.height};
+            }
         }
     }
 }

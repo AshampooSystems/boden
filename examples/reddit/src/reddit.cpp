@@ -2,6 +2,7 @@
 #include <bdn/log.h>
 #include <bdn/net.h>
 #include <bdn/ui.h>
+#include <bdn/yogalayout.h>
 
 #include <nlohmann/json.hpp>
 
@@ -34,16 +35,21 @@ class RedditStore
     {
         auto response = net::http::request(
             {bdn::net::http::Method::GET, "https://www.reddit.com/hot.json?limit=100", [this, doneHandler](auto r) {
-                 json j = json::parse(r->data);
+                 try {
+                     json j = json::parse(r->data);
 
-                 for (auto child : j["data"]["children"]) {
-                     auto post = std::make_shared<RedditPost>();
-                     post->title = child["data"]["title"];
-                     post->url = child["data"]["url"];
-                     posts.push_back(post);
+                     for (auto child : j["data"]["children"]) {
+                         auto post = std::make_shared<RedditPost>();
+                         post->title = child["data"]["title"];
+                         post->url = child["data"]["url"];
+                         posts.push_back(post);
+                     }
+
+                     doneHandler();
                  }
-
-                 doneHandler();
+                 catch (const json::parse_error &parseError) {
+                     bdn::logstream() << "Error parsing json: " << parseError.what();
+                 }
              }});
     }
 
@@ -52,12 +58,58 @@ class RedditStore
 
 class RedditListViewDataSource : public ListViewDataSource
 {
+    class Delegate : public ContainerView
+    {
+      public:
+        Property<String> text;
+
+      public:
+        using ContainerView::ContainerView;
+        void build()
+        {
+            setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Row,
+                                               .justifyContent = FlexStylesheet::Justify::SpaceBetween,
+                                               .alignItems = FlexStylesheet::Align::Center});
+
+            auto textView = std::make_shared<TextView>();
+            textView->setLayoutStylesheet(FlexStylesheet{.flexGrow = 1, .flexShrink = 1.0, .margin.left = 0.0f});
+
+            addChildView(textView);
+
+            textView->text.bind(text);
+            textView->wrap = false;
+
+            auto button = std::make_shared<Button>();
+            button->label = "Hello";
+            button->setLayoutStylesheet(FlexStylesheet{.flexGrow = 0, .flexShrink = 0.0, .margin.all = 5.0});
+
+            addChildView(button);
+        }
+    };
+
   public:
     RedditListViewDataSource(std::shared_ptr<RedditStore> store) { _store = store; }
 
     size_t numberOfRows() override { return _store->posts.size(); }
 
     String labelTextForRowIndex(size_t rowIndex) override { return _store->posts.at(rowIndex)->title; }
+
+    std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+    {
+        std::shared_ptr<Delegate> delegate;
+
+        if (reusableView) {
+            delegate = std::dynamic_pointer_cast<Delegate>(reusableView);
+        } else {
+            delegate = std::make_shared<Delegate>();
+            delegate->build();
+        }
+
+        String text = labelTextForRowIndex(rowIndex);
+
+        delegate->text = text;
+        return delegate;
+    }
 
   private:
     std::shared_ptr<RedditStore> _store;
@@ -70,17 +122,17 @@ class PostListViewController : public Base
 
     PostListViewController() : _listView(std::make_shared<ListView>())
     {
+        _listView->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
+                                                      .flexGrow = 1.0f,
+                                                      .flexShrink = 1.0f,
+                                                      .margin.all = 10.0f});
+
         auto store = std::make_shared<RedditStore>();
         _dataSource = std::make_shared<RedditListViewDataSource>(store);
 
         _listView->dataSource = _dataSource;
 
         store->fetchPosts([this]() { _listView->reloadData(); });
-
-        _listView->horizontalAlignment = View::HorizontalAlignment::expand;
-        _listView->verticalAlignment = View::VerticalAlignment::expand;
-        _listView->preferredSizeMinimum = Size(100, 200);
-        _listView->margin = UIMargin(15, 15, 15, 15);
 
         _listView->selectedRowIndex.onChange() += [store, this](auto indexAccessor) {
             auto post = store->posts.at(*indexAccessor->get());
@@ -103,7 +155,7 @@ class PostListViewController : public Base
 class PostDetailController : public Base
 {
   public:
-    PostDetailController(String title, String url) : _mainColumn(std::make_shared<ColumnView>())
+    PostDetailController(String title, String url) : _mainColumn(std::make_shared<ContainerView>())
     {
         auto titleField = std::make_shared<TextView>();
         auto urlField = std::make_shared<TextView>();
@@ -123,7 +175,7 @@ class PostDetailController : public Base
     std::shared_ptr<View> view() { return _mainColumn; }
 
   private:
-    std::shared_ptr<ColumnView> _mainColumn;
+    std::shared_ptr<ContainerView> _mainColumn;
 };
 
 class MainViewController : public Base
@@ -133,9 +185,16 @@ class MainViewController : public Base
     {
         _window = std::make_shared<Window>();
         _window->title = "UI Demo";
+        _window->geometry = Rect{0, 0, 1024, 768};
+        _window->setLayout(std::make_shared<yogalayout::Layout>());
 
         auto stack = std::make_shared<Stack>();
-        stack->preferredSizeMinimum = Size(250, 0);
+        stack->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
+                                                  .flexGrow = 1.0f,
+                                                  .flexShrink = 1.0f,
+                                                  .alignItems = FlexStylesheet::Align::Stretch,
+                                                  .padding.all = 20,
+                                                  .margin.all = 0});
 
         stack->pushView(_listViewController->view(), "Reddit");
 
@@ -144,11 +203,7 @@ class MainViewController : public Base
             stack->pushView(post->view(), "Details");
         };
 
-        _window->setContentView(stack);
-
-        _window->requestAutoSize();
-        _window->requestCenter();
-
+        _window->content = stack;
         _window->visible = true;
     }
 

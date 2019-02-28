@@ -1,7 +1,6 @@
 
 #import <bdn/mac/ScrollViewCore.hh>
 
-#include <bdn/ScrollViewLayoutHelper.h>
 #import <bdn/mac/util.hh>
 
 #import <Cocoa/Cocoa.h>
@@ -74,8 +73,6 @@ namespace bdn
 
             setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
             setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
-
-            setPadding(outer->padding);
         }
 
         ScrollViewCore::~ScrollViewCore()
@@ -94,20 +91,12 @@ namespace bdn
 
         void ScrollViewCore::addChildNsView(NSView *childView)
         {
-            // replace any previous subview
-
             for (id oldViewObject in _nsScrollView.documentView.subviews) {
                 NSView *oldView = (NSView *)oldViewObject;
-
                 [oldView removeFromSuperview];
             }
 
-            [_nsScrollView.documentView addSubview:childView];
-        }
-
-        void ScrollViewCore::setPadding(const std::optional<UIMargin> &padding)
-        {
-            // nothing to do
+            _nsScrollView.documentView = childView;
         }
 
         void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
@@ -118,99 +107,6 @@ namespace bdn
         void ScrollViewCore::setVerticalScrollingEnabled(const bool &enabled)
         {
             _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
-        }
-
-        std::shared_ptr<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size *pBorderSize) const
-        {
-            // first we need to find out the size of the border around the
-            // scroll view and the space needed for scrollbars.
-            double vertBarWidth = 0;
-            double horzBarHeight = 0;
-            Size borderSize;
-
-            // first we need to find out the size of the border around the
-            // scroll view and the space needed for scrollbars.
-
-            // Note that the "content size" for NSScrollView is the size of the
-            // visible content inside the scroll view, not the whole content
-            // size. NSScrollView calls the whole content size the document
-            // size.
-            Size frameSize(500, 500);
-            NSSize macFrameSize = sizeToMacSize(frameSize);
-
-            NSSize macSizeWithScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
-                                                        horizontalScrollerClass:[NSScroller class]
-                                                          verticalScrollerClass:[NSScroller class]
-                                                                     borderType:_nsScrollView.borderType
-                                                                    controlSize:NSControlSizeRegular
-                                                                  scrollerStyle:_nsScrollView.scrollerStyle];
-
-            NSSize macSizeWithoutScrollers = [NSScrollView contentSizeForFrameSize:macFrameSize
-                                                           horizontalScrollerClass:nil
-                                                             verticalScrollerClass:nil
-                                                                        borderType:_nsScrollView.borderType
-                                                                       controlSize:NSControlSizeRegular
-                                                                     scrollerStyle:_nsScrollView.scrollerStyle];
-
-            Size sizeWithScrollers = macSizeToSize(macSizeWithScrollers);
-            Size sizeWithoutScrollers = macSizeToSize(macSizeWithoutScrollers);
-
-            borderSize = frameSize - sizeWithoutScrollers;
-
-            Size scrollerOverhead = sizeWithoutScrollers - sizeWithScrollers;
-            vertBarWidth = scrollerOverhead.width;
-            horzBarHeight = scrollerOverhead.height;
-
-            if (pBorderSize != nullptr)
-                *pBorderSize = borderSize;
-
-            return std::make_shared<ScrollViewLayoutHelper>(vertBarWidth, horzBarHeight);
-        }
-
-        Size ScrollViewCore::calcPreferredSize(const Size &availableSpace) const
-        {
-            Size preferredSize;
-
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-            if (outerView != nullptr) {
-                std::shared_ptr<ScrollViewLayoutHelper> helper = createLayoutHelper();
-
-                preferredSize = helper->calcPreferredSize(outerView, availableSpace);
-            }
-
-            return preferredSize;
-        }
-
-        void ScrollViewCore::layout()
-        {
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-
-            if (outerView != nullptr) {
-                Size borderSize;
-                std::shared_ptr<ScrollViewLayoutHelper> helper = createLayoutHelper(&borderSize);
-
-                Size viewPortSizeWithoutScrollbars = outerView->size - borderSize;
-
-                helper->calcLayout(outerView, viewPortSizeWithoutScrollbars);
-
-                std::shared_ptr<View> contentView = outerView->getContentView();
-                if (contentView != nullptr) {
-                    Rect contentBounds = helper->getContentViewBounds();
-
-                    contentView->adjustAndSetBounds(contentBounds);
-
-                    // we must also resize our content view parent accordingly.
-                    Size scrolledAreaSize = helper->getScrolledAreaSize();
-
-                    NSSize wrapperSize = sizeToMacSize(scrolledAreaSize);
-
-                    [_nsScrollView.documentView setFrameSize:wrapperSize];
-                }
-
-                updateVisibleClientRect();
-            }
         }
 
         void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)

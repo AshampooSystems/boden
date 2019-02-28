@@ -1,82 +1,184 @@
 #import <UIKit/UIKit.h>
+#include <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/StackCore.hh>
 #import <bdn/ios/util.hh>
 
-#include <iostream>
+@implementation BodenUINavigationControllerContainerView
+
+- (BodenUINavigationControllerContainerView *)initWithNavigationController:
+    (UINavigationController *)navigationController
+{
+    if (self = [super init]) {
+        self.navController = navigationController;
+    }
+    return self;
+}
+
+- (CGRect)frame { return [super frame]; }
+
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
+@end
+
+@interface BodenStackUIViewController : UIViewController
+@property(nonatomic) std::weak_ptr<bdn::ios::StackCore> stackCore;
+@property(nonatomic) std::shared_ptr<bdn::FixedView> fixedView;
+@property(nonatomic) std::shared_ptr<bdn::View> userContent;
+@property(nonatomic) std::shared_ptr<bdn::FixedView> safeContent;
+@end
+
+@implementation BodenStackUIViewController
+- (bool)isViewLoaded { return [super isViewLoaded]; }
+- (void)loadViewIfNeeded { [super loadViewIfNeeded]; }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+    [super viewSafeAreaInsetsDidChange];
+
+    UINavigationController *navCtrl = (UINavigationController *)[self parentViewController];
+
+    UINavigationBar *navigationBar = navCtrl.navigationBar;
+    CGRect navBarFrame = navigationBar.frame;
+    double navigationBarHeight = navBarFrame.size.height;
+
+    _safeContent->geometry = bdn::Rect{
+        self.view.safeAreaInsets.left,
+        self.view.safeAreaInsets.top - navigationBarHeight,
+        self.view.frame.size.width - (self.view.safeAreaInsets.left + self.view.safeAreaInsets.right),
+        self.view.frame.size.height - (self.view.safeAreaInsets.top + self.view.safeAreaInsets.bottom),
+    };
+}
+
+- (void)loadView
+{
+    if (auto stack = _stackCore.lock()) {
+        _fixedView = std::make_shared<bdn::FixedView>();
+        _safeContent = std::make_shared<bdn::FixedView>();
+
+        _fixedView->_setParentView(stack->getOuterViewIfStillAttached());
+
+        self.view = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_fixedView->getViewCore())->getUIView();
+
+        _safeContent->addChildView(_userContent);
+
+        _fixedView->addChildView(_safeContent);
+
+        self.view.backgroundColor = UIColor.whiteColor;
+    }
+}
+
+- (void)willMoveToParentViewController:(UIViewController *)parent { [super willMoveToParentViewController:parent]; }
+
+- (void)didMoveToParentViewController:(UIViewController *)parent { [super didMoveToParentViewController:parent]; }
+
+@end
 
 namespace bdn
 {
     namespace ios
     {
-        UINavigationController *createNavigationController(std::shared_ptr<Stack> outerStack)
+        BodenUINavigationControllerContainerView *createNavigationControllerView(std::shared_ptr<Stack> outerStack)
         {
             UINavigationController *navigationController = [[UINavigationController alloc] init];
 
-            return navigationController;
-        }
+            BodenUINavigationControllerContainerView *view =
+                [[BodenUINavigationControllerContainerView alloc] initWithNavigationController:navigationController];
 
-        StackCore::StackCore(std::shared_ptr<Stack> outerStack, UINavigationController *navigationController)
-            : ViewCore(outerStack, navigationController.view), _navigationController(navigationController)
-        {}
+            return view;
+        }
 
         StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-            : StackCore(outerStack, createNavigationController(outerStack))
-        {}
-
-        Size StackCore::calcPreferredSize(const Size &availableSpace) const
+            : ViewCore(outerStack, createNavigationControllerView(outerStack))
         {
-            Size result;
-            UINavigationBar *navigationBar = _navigationController.navigationBar;
-            double navigationBarHeight = navigationBar.frame.size.height;
-
-            result.width = navigationBar.frame.size.width;
-            result.height = navigationBarHeight;
-
-            if (_currentView) {
-                Size viewSize = _currentView->calcPreferredSize(availableSpace);
-                result.height += viewSize.height;
-                result.width = std::max(viewSize.width, result.width);
-            }
-
-            return result;
+            UIViewController *rootViewController = getUIView().window.rootViewController;
+            [rootViewController addChildViewController:getNavigationController()];
+            [rootViewController.view addSubview:getNavigationController().view];
         }
 
-        void StackCore::layout()
+        UINavigationController *StackCore::getNavigationController()
         {
-            UINavigationBar *navigationBar = _navigationController.navigationBar;
-            UIViewController *topViewController = _navigationController.topViewController;
-
-            double navigationBarHeight = navigationBar.frame.size.height;
-
-            if (topViewController && _currentView) {
-                Rect r(0, navigationBarHeight, _navigationController.view.frame.size.width,
-                       _navigationController.view.frame.size.height);
-                _currentView->adjustAndSetBounds(r);
+            if (auto navView = (BodenUINavigationControllerContainerView *)getUIView()) {
+                return navView.navController;
             }
+            return nullptr;
+        }
+
+        void StackCore::frameChanged()
+        {
+            Rect rActual = iosRectToRect(getUIView().frame);
+            geometry = rActual;
+        }
+
+        void StackCore::onGeometryChanged(Rect newGeometry) { getUIView().frame = rectToIosRect(newGeometry); }
+
+        std::shared_ptr<FixedView> StackCore::getCurrentContainer()
+        {
+            if (UIViewController *topViewController = getNavigationController().topViewController) {
+                BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+                return bdnViewController.fixedView;
+            }
+
+            return nullptr;
+        }
+
+        std::shared_ptr<View> StackCore::getCurrentUserView()
+        {
+            if (UIViewController *topViewController = getNavigationController().topViewController) {
+                BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+                return bdnViewController.userContent;
+            }
+
+            return nullptr;
         }
 
         void StackCore::pushView(std::shared_ptr<View> view, String title)
         {
             auto outerStack = stack();
 
-            view->_setParentView(outerStack);
+            BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
+            ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
+            ctrl.userContent = view;
 
-            _currentView = view;
+            [ctrl setTitle:stringToNSString(title)];
 
-            if (auto viewCore = std::dynamic_pointer_cast<ViewCore>(view->getViewCore())) {
+            [getNavigationController() pushViewController:ctrl animated:YES];
 
-                UIViewController *ctrl = [[UIViewController alloc] init];
-                [ctrl setTitle:stringToNSString(title)];
-                UIView *view = [ctrl view];
-                view.backgroundColor = UIColor.whiteColor;
-                [_navigationController pushViewController:ctrl animated:YES];
+            // [ctrl.view setFrame:getNavigationController().view.frame];
 
-                [view addSubview:viewCore->getUIView()];
-                [view setFrame:_navigationController.view.frame];
-                view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            if (auto outer = getOuterViewIfStillAttached()) {
+                if (auto layout = outer->getLayout()) {
+                    layout->markDirty(outer.get());
+                }
             }
         }
 
-        void StackCore::popView() { [_navigationController popViewControllerAnimated:YES]; }
+        void StackCore::popView()
+        {
+            [getNavigationController() popViewControllerAnimated:YES];
+            if (auto outer = getOuterViewIfStillAttached()) {
+                if (auto layout = outer->getLayout()) {
+                    layout->markDirty(outer.get());
+                }
+            }
+        }
+
+        std::list<std::shared_ptr<View>> StackCore::getChildViews()
+        {
+            if (auto container = getCurrentContainer()) {
+                return {container};
+            }
+            return {};
+        }
+
+        std::shared_ptr<Stack> StackCore::stack()
+        {
+            return std::static_pointer_cast<bdn::Stack>(getOuterViewIfStillAttached());
+        }
     }
 }

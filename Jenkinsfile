@@ -211,8 +211,8 @@ pipeline {
                                 sh 'python boden.py run --target testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testboden.xml"
 
-                                sh 'python boden.py run --target testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
-                                junit "testresults/ios_testbodenui.xml"
+                                //sh 'python boden.py run --target testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                //junit "testresults/ios_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
                             }

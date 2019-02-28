@@ -147,8 +147,6 @@ public class NativeScrollView
         private NativeScrollView _scrollView;
     }
 
-
-
     private class VerticalScrollView extends NestedScrollView
     {
         public VerticalScrollView(Context context)
@@ -178,13 +176,13 @@ public class NativeScrollView
                 View child = getChildAt(0);
 
                 // the child view is the horizontal scroll view.
-                // Make it the same width as us, and set its height to itsheight
+                // Make it the same width as us, and set its height to its
                 // desired height
                 child.layout(
                         0,
                         0,
                         right-left,
-                        child.getMeasuredHeight() );
+                        _contentParent.getMeasuredHeight() );
             }
         }
     }

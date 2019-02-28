@@ -23,6 +23,13 @@
     return CGSizeMake(switchSize.width + labelSize.width + minMargin, fmax(switchSize.height, labelSize.height));
 }
 
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
 @end
 
 namespace bdn
@@ -57,6 +64,25 @@ namespace bdn
             // Set initial state
             setLabel(outer->label);
             setOn(outer->on);
+
+            geometry.onChange() += [=](auto va) {
+                BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
+
+                CGRect compositeBounds = switchComposite.bounds;
+                CGRect switchBounds = switchComposite.uiSwitch.bounds;
+                CGRect labelBounds = switchComposite.uiLabel.bounds;
+
+                // Center switch vertically in composite
+                CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
+                                                compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
+                                                switchBounds.size.width, switchBounds.size.height);
+                switchComposite.uiSwitch.frame = switchFrame;
+
+                // Center label vertically in composite
+                CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
+                                               labelBounds.size.width, labelBounds.size.height);
+                switchComposite.uiLabel.frame = labelFrame;
+            };
         }
 
         SwitchCore::~SwitchCore()
@@ -73,27 +99,6 @@ namespace bdn
         {
             _composite.uiLabel.text = stringToNSString(label);
             [_composite.uiLabel sizeToFit];
-            needLayout(View::InvalidateReason::childSizingInfoInvalidated);
-        }
-
-        void SwitchCore::layout()
-        {
-            BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
-
-            CGRect compositeBounds = switchComposite.bounds;
-            CGRect switchBounds = switchComposite.uiSwitch.bounds;
-            CGRect labelBounds = switchComposite.uiLabel.bounds;
-
-            // Center switch vertically in composite
-            CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
-                                            compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
-                                            switchBounds.size.width, switchBounds.size.height);
-            switchComposite.uiSwitch.frame = switchFrame;
-
-            // Center label vertically in composite
-            CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
-                                           labelBounds.size.width, labelBounds.size.height);
-            switchComposite.uiLabel.frame = labelFrame;
         }
     }
 }

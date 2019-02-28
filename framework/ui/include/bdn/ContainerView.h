@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/View.h>
-#include <bdn/ViewLayout.h>
 
 #include <list>
 
@@ -60,32 +59,6 @@ namespace bdn
         std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
         void _childViewStolen(std::shared_ptr<View> childView) override;
-
-        /** Calculates the layout for the container based on the specified total
-           container size. The sizes and positions of the child views are
-           calculated and stored in the returned layout object. The layout can
-           then be applied later by calling ViewLayout::applyTo().
-
-            calcContainerLayout may be called multiple times to create multiple
-           layout objects for different sizes. Any of the created layouts may be
-           applied later with ViewLayout::applyTo(). It is also valid to apply
-           none of them and throw them away.
-
-            \param containerSize the size of the container view to use as the
-           basis for the layout. This does not have to match the current size of
-           the container view.
-            */
-        virtual std::shared_ptr<ViewLayout> calcContainerLayout(const Size &containerSize) const = 0;
-
-        /** Calculates the preferred size for the container. Container
-           implementations must override this to implement their custom size
-           calculation.
-
-            calcContainerPreferredSize is automatically called from
-           View::calcPreferredSize() and has the same behaviour.
-
-            */
-        virtual Size calcContainerPreferredSize(const Size &availableSpace = Size::none()) const = 0;
 
       protected:
         std::list<std::shared_ptr<View>> _childViews;

@@ -107,26 +107,6 @@ namespace bdn
                 }
             }
 
-            void layout() override
-            {
-                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
-
-                CGRect compositeBounds = composite.bounds;
-                CGRect switchBounds = composite.bdnSwitch.bounds;
-                CGRect labelBounds = composite.label.bounds;
-
-                // Center switch vertically in composite
-                CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
-                                                compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
-                                                switchBounds.size.width, switchBounds.size.height);
-                composite.bdnSwitch.frame = switchFrame;
-
-                // Center label vertically in composite
-                CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
-                                               labelBounds.size.width, labelBounds.size.height);
-                composite.label.frame = labelFrame;
-            }
-
           private:
             BdnSwitchClickManager *_clickManager;
         };

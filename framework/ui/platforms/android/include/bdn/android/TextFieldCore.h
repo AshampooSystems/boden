@@ -20,7 +20,7 @@ namespace bdn
         {
           public:
             TextFieldCore(std::shared_ptr<TextField> outerTextField)
-                : ViewCore(outerTextField, ViewCore::createAndroidViewClass<JEditText>(outerTextField)),
+                : ViewCore(outerTextField, createAndroidViewClass<JEditText>(outerTextField)),
                   _jEditText(getJViewAS<JEditText>()), _watcher(_jEditText.cast<JTextView>())
             {
                 _jEditText.setSingleLine(true);

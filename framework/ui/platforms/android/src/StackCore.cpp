@@ -22,19 +22,12 @@ namespace bdn
         }
 
         StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-            : ViewCore(outerStack, ViewCore::createAndroidViewClass<JNativeViewGroup>(outerStack))
-        {}
+            : ViewCore(outerStack, createAndroidViewClass<JNativeViewGroup>(outerStack))
+        {
+            geometry.onChange() += [=](auto va) { this->reLayout(); };
+        }
 
         StackCore::~StackCore() {}
-
-        void StackCore::layout()
-        {
-            auto outerStack = getStack();
-            if (!outerStack->stack().empty()) {
-                Rect rChild = outerStack->stack().back().view->adjustAndSetBounds(
-                    Rect{0, 0, outerStack->size->width, outerStack->size->height});
-            }
-        }
 
         void StackCore::pushView(std::shared_ptr<View> view, String title) { updateCurrentView(); }
 
@@ -45,17 +38,30 @@ namespace bdn
             return std::static_pointer_cast<Stack>(getOuterViewIfStillAttached());
         }
 
+        std::list<std::shared_ptr<View>> StackCore::getChildViews()
+        {
+            if (_container) {
+                return {_container};
+            }
+            return {};
+        }
+
         void StackCore::updateCurrentView()
         {
+            if (!_container) {
+                _container = std::make_shared<FixedView>();
+                _container->_setParentView(getOuterViewIfStillAttached());
+            }
+
             if (auto outerStack = getStack()) {
                 if (_currentView) {
-                    _currentView->_setParentView(nullptr);
+                    _container->removeAllChildViews();
                 }
 
                 if (!outerStack->stack().empty()) {
                     auto newView = outerStack->stack().back().view;
 
-                    newView->_setParentView(outerStack);
+                    _container->addChildView(newView);
 
                     _currentView = newView;
 
@@ -64,11 +70,13 @@ namespace bdn
                     windowCore->setAndroidNavigationButtonHandler(
                         std::dynamic_pointer_cast<WindowCore::IAndroidNavigationButtonHandler>(shared_from_this()));
 
-                    windowCore->setTitle(outerStack->stack().back().title);
+                    windowCore->title = (outerStack->stack().back().title);
 
                     windowCore->enableBackButton(outerStack->stack().size() > 1);
                 }
             }
+
+            reLayout();
         }
 
         void StackCore::addChildJView(JView view) { ViewCore::getJViewAS<JNativeViewGroup>().addView(view); }
@@ -87,6 +95,13 @@ namespace bdn
             }
 
             return false;
+        }
+
+        void StackCore::reLayout()
+        {
+            if (_container) {
+                _container->geometry = Rect{0, 0, geometry->width, geometry->height};
+            }
         }
     }
 }

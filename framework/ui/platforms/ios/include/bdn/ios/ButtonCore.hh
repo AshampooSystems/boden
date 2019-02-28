@@ -15,9 +15,6 @@ namespace bdn
 
         class ButtonCore : public ViewCore, virtual public IButtonCore
         {
-          private:
-            static UIButton *_createUIButton(std::shared_ptr<Button> outerButton);
-
           public:
             ButtonCore(std::shared_ptr<Button> outerButton);
             ~ButtonCore();

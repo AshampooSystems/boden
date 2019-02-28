@@ -15,8 +15,6 @@ namespace bdn
         if (auto core = std::dynamic_pointer_cast<StackCore>(getViewCore())) {
             core->pushView(view, title);
         }
-
-        needLayout(InvalidateReason::childAddedOrRemoved);
     }
 
     void Stack::popView()
@@ -26,12 +24,11 @@ namespace bdn
         if (auto core = std::dynamic_pointer_cast<StackCore>(getViewCore())) {
             core->popView();
         }
-        needLayout(InvalidateReason::childAddedOrRemoved);
     }
 
-    void Stack::_initCore()
+    void Stack::_initCore(std::shared_ptr<UIProvider> uiProvider)
     {
-        View::_initCore();
+        View::_initCore(uiProvider);
 
         if (auto core = std::dynamic_pointer_cast<StackCore>(getViewCore())) {
             for (auto page : _stack) {
@@ -41,4 +38,12 @@ namespace bdn
     }
 
     void Stack::_deinitCore() { View::_deinitCore(); }
+
+    std::list<std::shared_ptr<View>> Stack::getChildViews() const
+    {
+        if (auto core = std::dynamic_pointer_cast<StackCore>(getViewCore())) {
+            return core->getChildViews();
+        }
+        return {};
+    }
 }

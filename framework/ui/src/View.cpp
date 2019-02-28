@@ -1,277 +1,57 @@
-
 #include <bdn/View.h>
 
-#include <bdn/LayoutCoordinator.h>
 #include <bdn/ProgrammingError.h>
+#include <bdn/UIProvider.h>
 #include <bdn/debug.h>
 
 namespace bdn
 {
 
-    View::View()
+    View::View() : _hasLayoutSchedulePending(false)
     {
-        visible.onChange() += CorePropertyUpdater<bool, IViewCore>(this, &IViewCore::setVisible);
-
-        size.onChange() += [this](auto) { Influences_(this).influencesContentLayout(); };
-
-        margin.onChange() += CorePropertyUpdater<UIMargin, IViewCore>(this, &IViewCore::setMargin, [](auto &inf) {
-            inf.influencesParentPreferredSize().influencesParentLayout();
-        });
-
-        padding.onChange() += CorePropertyUpdater<std::optional<UIMargin>, IViewCore>(
-            this, &IViewCore::setPadding, [](auto &inf) { inf.influencesPreferredSize().influencesContentLayout(); });
-
-        verticalAlignment.onChange() += CorePropertyUpdater<VerticalAlignment, IViewCore>(
-            this, &IViewCore::setVerticalAlignment, [](auto &inf) { inf.influencesParentLayout(); });
-
-        horizontalAlignment.onChange() += CorePropertyUpdater<HorizontalAlignment, IViewCore>(
-            this, &IViewCore::setHorizontalAlignment, [](auto &inf) { inf.influencesParentLayout(); });
-
-        preferredSizeHint.onChange() += CorePropertyUpdater<Size, IViewCore>(
-            this, &IViewCore::setPreferredSizeHint, [](auto &inf) { inf.influencesPreferredSize(); });
-
-        preferredSizeMinimum.onChange() += CorePropertyUpdater<Size, IViewCore>(
-            this, &IViewCore::setPreferredSizeMinimum, [](auto &inf) { inf.influencesPreferredSize(); });
-
-        preferredSizeMaximum.onChange() += CorePropertyUpdater<Size, IViewCore>(
-            this, &IViewCore::setPreferredSizeMaximum, [](auto &inf) { inf.influencesPreferredSize(); });
-
         visible = true; // most views are initially visible
-        preferredSizeHint = Size::none();
-        preferredSizeMinimum = Size::none();
-        preferredSizeMaximum = Size::none();
+        layoutStylesheet.onChange() += [=](auto va) {
+            if (auto layout = _layout.get()) {
+                layout->updateStylesheet(this);
+            }
+        };
     }
 
     View::~View()
     {
-        // the core should already be deinitialized at this point (since
-        // deleteThis should have run). But we call it again anyway for safety.
         _deinitCore();
+        setLayout(nullptr);
     }
 
-    /*
-     * TODO
-     * void View::deleteThis()
+    void View::setLayout(std::shared_ptr<Layout> layout)
     {
-        // Note that deleteThis can be called from ANY thread (we allow view
-        // object references to be passed to other threads, even though they are
-        // not allowed to access them directly from the other thread).
+        auto oldLayout = _layout.set(layout);
+        updateLayout(oldLayout, _layout.get());
+    }
 
-        // Also note that when this is called, weak pointers to this view
-        // already consider the View to be gone. I.e. WeakP::toStrong already
-        // returns null, so no new strong references can be created.
+    void View::offerLayout(std::shared_ptr<Layout> layout)
+    {
+        auto oldLayout = _layout.setOffered(layout);
 
-        // For views we have the special case that we allow their last reference
-        // to be released from any thread, even though the view itself can only
-        // be used from the main thread. That allows view objects to be passed
-        // to background threads without having to think about who releases the
-        // last reference.
+        updateLayout(oldLayout, _layout.get());
+    }
 
-        // When a view is destructed then we need to do a lot of things: we need
-        // to remove the child views and ensure that their parent pointer is
-        // null. We also need to remove / reinit their core. Those are all
-        // operations that can only be done from the main thread. So we do not
-        // want the destruction to begin in any other thread.
-        if (!AppRunnerBase::isMainThread()) {
-            // we are not in the main thread. So we need to stop here and
-            // continue the destruction in the main thread.
-
-            // note that the lambda function we post here may be executed
-            // in the main thread immediately. I.e. even before we exit
-            // deleteThis. However, that is OK, since we do not
-            // access our object after the asyncCallFromMainThread call. The
-            // caller of deleteThis also does not access the object, since
-            // deleteThis has the task of deleting the object.
-
-            // Also note that we do not need to increase the reference count
-            // when we pass "this" to the main thread, since the object is
-            // already on track for deletion and no one else can have or obtain
-            // a strong reference to it.
-
-            asyncCallFromMainThread([this]() { deleteThis(); });
-
-            return;
+    void View::updateLayout(std::shared_ptr<Layout> oldLayout, std::shared_ptr<Layout> newLayout)
+    {
+        if (oldLayout) {
+            oldLayout->unregisterView(this);
         }
 
-        // We want to detach our child views before we start to destruct
-        // ourselves. That ensures that the parent is still fully intact at the
-        // time when the child views are destroyed. While the child views cannot
-        // access the parent itself anymore at this point (since their weak
-        // parent pointers already return null), the child views might still
-        // interact with the parent's sub-objects in some way. For example, they
-        // might have references to the parent's properties or event notifiers.
-        // Note that event notifier references often exist implicitly when an
-        // event has been posted but not yet executed. So, to avoid any weird
-        // interactions we make sure that the children are fully detached before
-        // we start destruction (and before our member objects start to
-        // destruct).
+        if (newLayout) {
+            newLayout->registerView(this);
+        }
 
-        removeAllChildViews();
-
-        // also deinit our core before we start destruction (since the core
-        // might still try to access us).
-        _deinitCore();
-
-        RequireNewAlloc<Base, View>::deleteThis();
-    }
-    */
-
-    Rect View::adjustAndSetBounds(const Rect &requestedBounds)
-    {
-        std::shared_ptr<IViewCore> core = getViewCore();
-
-        Rect adjustedBounds;
-        if (core != nullptr) {
-            adjustedBounds = core->adjustAndSetBounds(requestedBounds);
-
-            if (!std::isfinite(adjustedBounds.width) || !std::isfinite(adjustedBounds.height) ||
-                !std::isfinite(adjustedBounds.x) || !std::isfinite(adjustedBounds.y)) {
-                // the preferred size MUST be finite.
-                auto &r = *core.get();
-
-                programmingError(String(typeid(r).name()) + ".adjustAndSetBounds returned a non-finite value: " +
-                                 std::to_string(adjustedBounds.x) + " , " + std::to_string(adjustedBounds.y) + " " +
-                                 std::to_string(adjustedBounds.width) + " x " + std::to_string(adjustedBounds.height));
-            }
-        } else
-            adjustedBounds = requestedBounds;
-
-        // update the position and size properties.
-        // Note that the property changes will automatically cause our
-        // "modification influence" methods to be called, which will schedule
-        // any additional operations that should follow (like re-layout when the
-        // size changes, etc.).
-        position = adjustedBounds.getPosition();
-        size = adjustedBounds.getSize();
-
-        return adjustedBounds;
-    }
-
-    Rect View::adjustBounds(const Rect &requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const
-    {
-        std::shared_ptr<const IViewCore> core = getViewCore();
-
-        if (core != nullptr) {
-            Rect adjustedBounds = core->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
-
-            if (!std::isfinite(adjustedBounds.width) || !std::isfinite(adjustedBounds.height) ||
-                !std::isfinite(adjustedBounds.x) || !std::isfinite(adjustedBounds.y)) {
-                // the adjusted bounds MUST be finite.
-                auto &r = *core.get();
-                programmingError(String(typeid(r).name()) + ".adjustBounds returned a non-finite value: " +
-                                 std::to_string(adjustedBounds.x) + " , " + std::to_string(adjustedBounds.y) + " " +
-                                 std::to_string(adjustedBounds.width) + " x " + std::to_string(adjustedBounds.height));
-            }
-
-            return adjustedBounds;
-        } else
-            return requestedBounds;
-    }
-
-    void View::invalidateSizingInfo(InvalidateReason reason)
-    {
-        AppRunnerBase::assertInMainThread();
-
-        /*
-         * TODO
-        if (isBeingDeletedBecauseReferenceCountReachedZero()) {
-            // this happens when invalidateSizingInfo is called during the
-            // destructor. In this case we do not schedule the invalidation,
-            // since the view will be gone anyway.
-
-            // So, do nothing.
-            return;
-        }*/
-
-        // clear cached sizing data
-        _preferredSizeManager.clear();
-
-        // pass the operation to the core. The core will take care
-        // of invalidating the layout, if necessary
-        std::shared_ptr<IViewCore> core = getViewCore();
-        if (core != nullptr)
-            core->invalidateSizingInfo(reason);
-
-        std::shared_ptr<View> parentView = getParentView();
-        if (parentView != nullptr)
-            parentView->childSizingInfoInvalidated(std::dynamic_pointer_cast<View>(shared_from_this()));
-    }
-
-    void View::needLayout(InvalidateReason reason)
-    {
-        AppRunnerBase::assertInMainThread();
-
-        /*
-         * TODO
-         *  if (isBeingDeletedBecauseReferenceCountReachedZero()) {
-            // this happens when invalidateSizingInfo is called during the
-            // destructor. In this case we do not schedule the invalidation,
-            // since the view will be gone anyway.
-
-            // So, do nothing.
-            return;
-        }*/
-
-        std::shared_ptr<IViewCore> core = getViewCore();
-
-        // forward the request to the core. Depending on the platform
-        // it may be that the UI uses a layout coordinator provided by the
-        // system, rather than our own.
-        if (core != nullptr)
-            core->needLayout(reason);
-    }
-
-    double View::uiLengthToDips(const UILength &length) const
-    {
-        AppRunnerBase::assertInMainThread();
-
-        if (length.isNone())
-            return 0;
-
-        else if (length.unit == UILength::Unit::dip)
-            return length.value;
-
-        else {
-            std::shared_ptr<IViewCore> core = getViewCore();
-
-            if (core != nullptr)
-                return core->uiLengthToDips(length);
-            else
-                return 0;
+        for (auto child : getChildViews()) {
+            child->offerLayout(newLayout);
         }
     }
 
-    Margin View::uiMarginToDipMargin(const UIMargin &uiMargin) const
-    {
-        AppRunnerBase::assertInMainThread();
-
-        std::shared_ptr<IViewCore> core = getViewCore();
-
-        if (core != nullptr)
-            return core->uiMarginToDipMargin(uiMargin);
-        else
-            return Margin();
-    }
-
-    void View::childSizingInfoInvalidated(std::shared_ptr<View> child)
-    {
-        /*
-         * TODO
-         * if (isBeingDeletedBecauseReferenceCountReachedZero()) {
-            // this happens when childSizingInfoInvalidated is called during the
-            // destructor. In this case we do not schedule the invalidation,
-            // since the view will be gone anyway.
-
-            // So, do nothing.
-            return;
-        }
-        */
-
-        std::shared_ptr<IViewCore> core = getViewCore();
-
-        if (core != nullptr)
-            core->childSizingInfoInvalidated(child);
-    }
+    std::shared_ptr<Layout> View::getLayout() { return _layout.get(); }
 
     void View::_setParentView(std::shared_ptr<View> parentView)
     {
@@ -294,6 +74,12 @@ namespace bdn
 
             if (parentView)
                 reinitCore();
+        }
+
+        if (parentView) {
+            offerLayout(parentView->getLayout());
+        } else {
+            offerLayout(nullptr);
         }
     }
 
@@ -321,78 +107,80 @@ namespace bdn
                _core->canMoveToParentView(parentView);
     }
 
-    void View::reinitCore()
+    void View::reinitCore(std::shared_ptr<UIProvider> uiProvider)
     {
         _deinitCore();
-
-        // at this point our core and the core of our child views is null.
-
-        _initCore();
+        _initCore(uiProvider);
     }
 
-    void View::_deinitCore()
+    void View::scheduleLayout()
     {
-        std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
+        if (auto viewCore = getViewCore()) {
+            viewCore->scheduleLayout();
+        } else {
+            _hasLayoutSchedulePending = true;
+        }
+    }
 
-        if (_core != nullptr) {
+    void View::bindViewCore()
+    {
+        if (auto viewCore = getViewCore()) {
+            viewCore->visible.bind(visible);
+            viewCore->geometry.bind(geometry);
+        }
+    }
+
+    void View::_deinitCore() { setViewCore(nullptr, nullptr); }
+
+    void View::_initCore(std::shared_ptr<UIProvider> uiProvider)
+    {
+        uiProvider = uiProvider ? uiProvider : determineUIProvider();
+        if (_core == nullptr) {
+            if (uiProvider != nullptr) {
+                setViewCore(uiProvider, uiProvider->createViewCore(getCoreTypeName(), shared_from_this()));
+            }
+        }
+    }
+
+    void View::setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> viewCore)
+    {
+        if (_core && _core != viewCore) {
             _core->dispose();
         }
 
-        _core = nullptr;
+        if (viewCore) {
+            _core = viewCore;
+            _uiProvider = uiProvider;
 
-        // also release the core of all child views
-        for (auto childView : childViewsCopy)
-            childView->_deinitCore();
-    }
-
-    void View::_initCore()
-    {
-        // initCore might throw an exception in some cases (for example if the
-        // view type is not supported). we want to propagate that exception
-        // upwards.
-
-        // If the core is not null then we already have a core. We do nothing in
-        // that case.
-        if (_core == nullptr) {
-            _uiProvider = determineUIProvider();
-
-            if (_uiProvider != nullptr)
-                _core = _uiProvider->createViewCore(getCoreTypeName(), shared_from_this());
+            bindViewCore();
 
             std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
+            for (auto childView : childViewsCopy) {
+                childView->_setParentView(viewCore ? shared_from_this() : nullptr);
+            }
 
-            for (auto childView : childViewsCopy)
-                childView->_initCore();
+            if (_hasLayoutSchedulePending) {
+                viewCore->scheduleLayout();
+                _hasLayoutSchedulePending = false;
+            }
 
-            // our old sizing info is obsolete when the core has changed.
-            invalidateSizingInfo(View::InvalidateReason::standardPropertyChanged);
+        } else {
+
+            std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
+            for (auto childView : childViewsCopy) {
+                childView->_setParentView(viewCore ? shared_from_this() : nullptr);
+            }
+
+            _core = viewCore;
+            _uiProvider = uiProvider;
         }
     }
 
-    Size View::calcPreferredSize(const Size &availableSpace) const
+    Size View::sizeForSpace(Size availableSpace) const
     {
-        AppRunnerBase::assertInMainThread();
-
-        Size preferredSize;
-        if (!_preferredSizeManager.get(availableSpace, preferredSize)) {
-            std::shared_ptr<IViewCore> core = getViewCore();
-
-            if (core != nullptr) {
-                preferredSize = core->calcPreferredSize(availableSpace);
-
-                if (!std::isfinite(preferredSize.width) || !std::isfinite(preferredSize.height)) {
-                    // the preferred size MUST be finite.
-                    auto &r = *core.get();
-                    programmingError(String(typeid(r).name()) + ".calcPreferredSize returned a non-finite value: " +
-                                     std::to_string(preferredSize.width) + " x " +
-                                     std::to_string(preferredSize.height));
-                }
-
-                _preferredSizeManager.set(availableSpace, preferredSize);
-            } else
-                preferredSize = Size();
+        if (auto viewCore = this->getViewCore()) {
+            return viewCore->sizeForSpace(availableSpace);
         }
-
-        return preferredSize;
+        return Size{0, 0};
     }
 }

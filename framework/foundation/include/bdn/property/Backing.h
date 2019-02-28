@@ -31,6 +31,7 @@ namespace bdn
 
       public:
         Backing() : _pOnChange(std::make_shared<notifier_t>()) {}
+        ~Backing() { unbind(); }
 
         std::shared_ptr<Backing<ValType>> shared_from_this()
         {
@@ -46,8 +47,22 @@ namespace bdn
 
         virtual void bind(std::shared_ptr<Backing<ValType>> sourceBacking)
         {
-            sourceBacking->onChange() += weakMethod(shared_from_this(), &Backing::bindSourceChanged);
+            unbind();
+
+            _binding = sourceBacking;
+
+            _bindingSubscription = sourceBacking->onChange().subscribe(
+                std::bind(&Backing::bindSourceChanged, this, std::placeholders::_1));
+
             bindSourceChanged(sourceBacking);
+        }
+
+        void unbind()
+        {
+            if (auto strongBind = _binding.lock()) {
+                strongBind->onChange().unsubscribe(_bindingSubscription);
+                _binding.reset();
+            }
         }
 
       public:
@@ -55,5 +70,7 @@ namespace bdn
 
       protected:
         mutable notifier_t_ptr _pOnChange;
+        std::shared_ptr<INotifierSubscription> _bindingSubscription;
+        std::weak_ptr<Backing<ValType>> _binding;
     };
 }

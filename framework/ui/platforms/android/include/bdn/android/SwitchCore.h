@@ -15,7 +15,7 @@ namespace bdn
         {
           public:
             SwitchCore(std::shared_ptr<Switch> outer)
-                : ViewCore(outer, ViewCore::createAndroidViewClass<JSwitch>(outer)), _jSwitch(getJViewAS<JSwitch>())
+                : ViewCore(outer, createAndroidViewClass<JSwitch>(outer)), _jSwitch(getJViewAS<JSwitch>())
             {
                 _jSwitch.setSingleLine(true);
 

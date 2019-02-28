@@ -1,4 +1,4 @@
-file(GLOB _UIDEMO_SOURCES ./src/*.cpp)
+file(GLOB _UIDEMO_SOURCES ./src/*.cpp ./src/*.h)
 
 list(APPEND UIDEMO_FILES ${_UIDEMO_SOURCES})
 
@@ -27,7 +27,7 @@ use_boden_template_info_plist(uidemo)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${UIDEMO_FILES})
 
-target_link_libraries(uidemo PRIVATE ui foundation)
+target_link_libraries(uidemo PRIVATE ui foundation yogalayout)
 
 install(TARGETS uidemo
     DESTINATION examples

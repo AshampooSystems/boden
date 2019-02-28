@@ -1,5 +1,7 @@
-
+#import <bdn/mac/ChildViewCore.hh>
 #import <bdn/mac/WindowCore.hh>
+
+#include <iostream>
 
 @interface BdnWindowDelegate : NSObject <NSWindowDelegate>
 
@@ -23,19 +25,11 @@
 
 @end
 
-/** NSView implementation that is used internally by bdn::mac::WindowCore as a
-   content parent.
-
-    Sets the flipped property so that the coordinate system has its origin in
-   the top left, rather than the bottom left.
- */
-@interface BdnMacWindowContentViewParent_ : NSView
-
-@end
-
 @implementation BdnMacWindowContentViewParent_
 
 - (BOOL)isFlipped { return YES; }
+
+- (void)layout { _bdnWindow->getLayout()->layout(_bdnWindow); }
 
 @end
 
@@ -54,7 +48,21 @@ namespace bdn
             // the screen's coordinate system is inverted (origin is bottom
             // left). So we need to pass the screen height so that it will be
             // converted properly.
-            NSRect rect = rectToMacRect(Rect(outer->position, outer->size), screen.frame.size.height);
+            NSRect rect = rectToMacRect(outer->geometry, screen.frame.size.height);
+
+            geometry.onChange() += [&window = this->_nsWindow](auto va) {
+                NSScreen *screen = [NSScreen mainScreen];
+                [window setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
+            };
+
+            visible.onChange() += [&window = this->_nsWindow](auto va) {
+                if (va->get())
+                    [window makeKeyAndOrderFront:NSApp];
+                else
+                    [window orderOut:NSApp];
+            };
+
+            title.onChange() += [&window = this->_nsWindow](auto va) { [window setTitle:stringToNSString(va->get())]; };
 
             _nsWindow = [[NSWindow alloc]
                 initWithContentRect:rect
@@ -71,6 +79,7 @@ namespace bdn
             contentRect.size = rect.size;
 
             _nsContentParent = [[BdnMacWindowContentViewParent_ alloc] initWithFrame:contentRect];
+            _nsContentParent.bdnWindow = std::dynamic_pointer_cast<Window>(outer).get();
 
             _nsWindow.contentView = _nsContentParent;
 
@@ -79,9 +88,6 @@ namespace bdn
 
             _ourDelegate = delegate;
             _nsWindow.delegate = delegate;
-
-            setTitle(outerWindow->title);
-            setVisible(outerWindow->visible);
         }
 
         WindowCore::~WindowCore()
@@ -102,134 +108,97 @@ namespace bdn
             _nsContentParent = nil;
         }
 
-        Rect WindowCore::adjustAndSetBounds(const Rect &requestedBounds)
+        bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const
         {
-            // first adjust the bounds so that they are on pixel boundaries
-            Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
-
-            if (adjustedBounds != _currActualWindowBounds) {
-                // the screen's coordinate system is inverted (from our point of
-                // view). So we need to flip the coordinates.
-                NSScreen *screen = _getNsScreen();
-
-                // the screen's coordinate system is inverted. So we need to
-                // flip the coordinates.
-                NSRect macRect = rectToMacRect(adjustedBounds, screen.frame.size.height);
-
-                [_nsWindow setFrame:macRect display:FALSE];
-
-                NSScreen *screenAfter = _getNsScreen();
-                if (screenAfter != screen) {
-                    // the window's screen has changed due to the position
-                    // change. That means that the position is not correct
-                    // anymore. The reason is that the y position needs to be
-                    // corrected because of the flipped coordinate space for
-                    // Windows and this correction depends on the screen height.
-                    // So if we correct for one screen, but the resulting screen
-                    // is a different one then that can result in an incorrect
-                    // final y position. If this happens then we simply readjust
-                    // and reposition
-                    macRect = rectToMacRect(adjustedBounds, screenAfter.frame.size.height);
-
-                    [_nsWindow setFrame:macRect display:FALSE];
-                }
-
-                _currActualWindowBounds = adjustedBounds;
-            }
-
-            return adjustedBounds;
+            // we don't have a parent. Report that we cannot do this.
+            return false;
         }
 
-        Rect WindowCore::adjustBounds(const Rect &requestedBounds, RoundType positionRoundType,
-                                      RoundType sizeRoundType) const
+        void WindowCore::moveToParentView(std::shared_ptr<View> newParentView)
+        {
+            // do nothing
+        }
+
+        void WindowCore::dispose()
+        {
+            // Window does not need to be removed from view hierarchy – do
+            // nothing
+        }
+
+        void WindowCore::addChildNsView(NSView *childView) { [_nsContentParent addSubview:childView]; }
+
+        void WindowCore::_movedOrResized()
+        {
+            this->geometry = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
+
+            Rect rContent = macRectToRect([_nsWindow contentRectForFrameRect:_nsWindow.frame], -1);
+            rContent.x = 0;
+            rContent.y = 0;
+            this->contentGeometry = rContent;
+        }
+
+        void WindowCore::scheduleLayout() { _nsContentParent.needsLayout = true; }
+
+        Rect WindowCore::getContentArea()
+        {
+            // the content parent is inside the inverted coordinate space of
+            // the window origin is bottom left. So we need to pass the
+            // content height, so that the coordinates can be flipped.
+            return macRectToRect(_nsContentParent.frame, _nsContentParent.frame.size.height);
+        }
+
+        Rect WindowCore::getScreenWorkArea() const
         {
             NSScreen *screen = _getNsScreen();
 
-            // the screen's coordinate system is inverted (from our point of
-            // view). So we need to flip the coordinates.
-            double screenHeight = screen.frame.size.height;
-            NSRect macRect = rectToMacRect(requestedBounds, screenHeight);
+            NSRect workArea = screen.visibleFrame;
+            NSRect fullArea = screen.frame;
 
-            NSAlignmentOptions alignOptions = 0;
-
-            // our "position" indicates the top/left position of the window.
-            // However, in the flipped screen coordinate system the (0,0) is
-            // actually the bottom left cordner of the window. The top/left of
-            // the window is minX/maxY.
-            if (positionRoundType == RoundType::down)
-                alignOptions |= NSAlignMinXOutward | NSAlignMaxYOutward;
-
-            else if (positionRoundType == RoundType::up)
-                alignOptions |= NSAlignMinXInward | NSAlignMaxYInward;
-
-            else
-                alignOptions |= NSAlignMinXNearest | NSAlignMaxYNearest;
-
-            if (sizeRoundType == RoundType::down)
-                alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
-
-            else if (sizeRoundType == RoundType::up)
-                alignOptions |= NSAlignWidthOutward | NSAlignHeightOutward;
-
-            else
-                alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
-
-            NSRect adjustedMacRect = [_nsWindow backingAlignedRect:macRect options:alignOptions];
-
-            Rect adjustedBounds = macRectToRect(adjustedMacRect, screenHeight);
-
-            return adjustedBounds;
+            return macRectToRect(workArea, fullArea.size.height);
         }
 
-        void WindowCore::layout()
+        Size WindowCore::getMinimumSize() const { return macSizeToSize(_nsWindow.minSize); }
+
+        Margin WindowCore::getNonClientMargin() const
         {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr)
-                defaultWindowLayoutImpl(window, getContentArea());
+            Size dummyContentSize = getMinimumSize();
+
+            NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), dummyContentSize), -1);
+            NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
+
+            Rect windowRect = macRectToRect(macWindowRect, -1);
+
+            return Margin(fabs(windowRect.y), fabs(windowRect.x + windowRect.width - dummyContentSize.width),
+                          fabs(windowRect.y + windowRect.height - dummyContentSize.height), fabs(windowRect.x));
         }
 
-        Size WindowCore::calcPreferredSize(const Size &availableSpace) const
+        double WindowCore::getEmSizeDips() const
         {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr) {
-                return defaultWindowCalcPreferredSizeImpl(window, availableSpace, getNonClientMargin(),
-                                                          getMinimumSize());
-            } else
-                return getMinimumSize();
-        }
-
-        void WindowCore::requestAutoSize()
-        {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr) {
-                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
-                if (provider != nullptr)
-                    provider->getLayoutCoordinator()->windowNeedsAutoSizing(window);
+            if (_emDipsIfInitialized == -1) {
+                // windows on mac cannot have their own font attached. So
+                // use the system font size
+                _emDipsIfInitialized = getSemSizeDips();
             }
+
+            return _emDipsIfInitialized;
         }
 
-        void WindowCore::requestCenter()
+        double WindowCore::getSemSizeDips() const
         {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr) {
-                std::shared_ptr<UIProvider> provider = std::dynamic_pointer_cast<UIProvider>(window->getUIProvider());
-                if (provider != nullptr)
-                    provider->getLayoutCoordinator()->windowNeedsCentering(window);
-            }
+            if (_semDipsIfInitialized == -1)
+                _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
+
+            return _semDipsIfInitialized;
         }
 
-        void WindowCore::autoSize()
+        NSScreen *WindowCore::_getNsScreen() const
         {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr)
-                defaultWindowAutoSizeImpl(window, getScreenWorkArea().getSize());
-        }
+            NSScreen *screen = _nsWindow.screen;
 
-        void WindowCore::center()
-        {
-            std::shared_ptr<Window> window = _outerWindowWeak.lock();
-            if (window != nullptr)
-                defaultWindowCenterImpl(window, getScreenWorkArea());
+            if (screen == nil) // happens when window is not visible
+                screen = [NSScreen mainScreen];
+
+            return screen;
         }
     }
 }

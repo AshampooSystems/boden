@@ -40,17 +40,12 @@ namespace bdn
 
             [_nsButton setTarget:_clickManager];
             [_nsButton setAction:@selector(clicked)];
+
+            geometry.onChange() += [=](auto) { _updateBezelStyle(); };
         }
 
         void ButtonCore::_updateBezelStyle()
         {
-            Size size;
-
-            std::shared_ptr<View> view = getOuterViewIfStillAttached();
-            if (view != nullptr)
-                size = view->size;
-            int height = size.height;
-
             // the "normal" button (NSRoundedBezelStyle) has a fixed height.
             // If we want a button that is higher then we have to use another
             // bezel style, which will look somewhat "non-standard" because it
@@ -61,7 +56,7 @@ namespace bdn
             // bezel.
             NSBezelStyle bezelStyle;
 
-            if (height > _heightWithRoundedBezelStyle * 1.1)
+            if (geometry->height > _heightWithRoundedBezelStyle * 1.1)
                 bezelStyle = NSBezelStyleRegularSquare;
             else
                 bezelStyle = NSBezelStyleRounded;

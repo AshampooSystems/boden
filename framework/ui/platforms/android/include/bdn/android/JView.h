@@ -23,11 +23,21 @@ namespace bdn
 
         using OnClickListener = OnClickListenerBase<>;
 
+        constexpr const char kOnLayoutChangeListenerClassName[] = "android/view/View$OnLayoutChangeListener";
+        template <const char *javaClassName = kOnLayoutChangeListenerClassName, class... ConstructorArguments>
+        class OnLayoutChangeListenerBase : public java::JTObject<javaClassName, ConstructorArguments...>
+        {
+          public:
+            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
+
+            template <class Other>
+            OnLayoutChangeListenerBase(Other &other) : OnLayoutChangeListenerBase(other.getRef_())
+            {}
+        };
+        using OnLayoutChangeListener = OnLayoutChangeListenerBase<>;
+
         constexpr const char kOnScrollChangeListenerClassName[] = "android/view/View$OnScrollChangeListener";
         using OnScrollChangeListener = java::JTObject<kOnScrollChangeListenerClassName>;
-
-        constexpr const char kOnLayoutChangeListenerClassName[] = "android/view/View$OnLayoutChangeListener";
-        using OnLayoutChangeListener = java::JTObject<kOnLayoutChangeListenerClassName>;
 
         constexpr const char kViewClassName[] = "android/view/View";
 
@@ -91,6 +101,8 @@ namespace bdn
             java::Method<void(int)> setSystemUiVisibility{this, "setSystemUiVisibility"};
             java::Method<int()> getSystemUiVisibility{this, "getSystemUiVisibility"};
 
+            java::Method<void(int)> setBackgroundColor{this, "setBackgroundColor"};
+
             java::Method<void(int)> setVisibility{this, "setVisibility"};
             java::Method<int()> getVisibility{this, "getVisibility"};
 
@@ -116,6 +128,8 @@ namespace bdn
 
             java::Method<int()> getMeasuredWidth{this, "getMeasuredWidth"};
             java::Method<int()> getMeasuredHeight{this, "getMeasuredHeight"};
+
+            java::Method<void(int, int, int, int)> layout{this, "layout"};
 
             java::Method<void()> requestLayout{this, "requestLayout"};
             java::Method<void()> invalidate{this, "invalidate"};

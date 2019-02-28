@@ -11,8 +11,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeAdapterViewOnItemC
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> viewCore = bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                bdn::java::Reference::convertExternalLocal(rawAdapterView));
+            std::shared_ptr<bdn::android::ViewCore> viewCore =
+                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawAdapterView));
 
             if (viewCore == nullptr) {
                 return;

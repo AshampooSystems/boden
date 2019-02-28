@@ -10,5 +10,7 @@ namespace bdn
       public:
         virtual void pushView(std::shared_ptr<View> view, String title) = 0;
         virtual void popView() = 0;
+
+        virtual std::list<std::shared_ptr<View>> getChildViews() = 0;
     };
 }

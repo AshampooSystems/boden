@@ -8,12 +8,19 @@
  top left, rather than the bottom left.
  */
 @interface BdnMacContainerView_ : NSView
-
+@property bdn::ContainerView *containerView;
 @end
 
 @implementation BdnMacContainerView_
 
 - (BOOL)isFlipped { return YES; }
+
+- (void)layout
+{
+    if (_containerView) {
+        _containerView->getLayout()->layout(_containerView);
+    }
+}
 
 @end
 
@@ -24,7 +31,11 @@ namespace bdn
 
         NSView *ContainerViewCore::_createContainer(std::shared_ptr<ContainerView> outer)
         {
-            return [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+            BdnMacContainerView_ *macContainerView =
+                [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+
+            macContainerView.containerView = outer.get();
+            return macContainerView;
         }
     }
 }

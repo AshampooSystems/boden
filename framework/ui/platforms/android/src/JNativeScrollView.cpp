@@ -14,8 +14,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeScrollView_scrollC
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> viewCore = bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-                bdn::java::Reference::convertExternalLocal(rawWraperView));
+            std::shared_ptr<bdn::android::ViewCore> viewCore =
+                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawWraperView));
 
             if (viewCore == nullptr) {
                 // no view core is associated with the view => ignore the event

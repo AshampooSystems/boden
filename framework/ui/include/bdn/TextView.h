@@ -27,39 +27,14 @@ namespace bdn
     class TextView : public View
     {
       public:
+        Property<String> text;
+        Property<bool> wrap;
+
+      public:
         TextView();
 
       public:
-        Property<String> text;
-
-        /* * Can be used to give the text view a hint as to what the preferred
-        width or height should be.
-
-            If width or height are -1 then it means "unspecified" and the text
-        view will automatically calculate an optimal value for the missing
-        component.
-
-            It is recommended that you set a hint for the preferred width of a
-        text view to give the view a hint at what width it should start to
-        automatically wrap its text into multiple lines. It is usually best to
-        set the height component of the preferred size hint to -1.
-
-        Property<UISize>& preferredSizeHint()
-        {
-            return _preferredSizeHint;
-        }
-
-        const ReadProperty<UISize>& preferredSizeHint() const
-        {
-            return _preferredSizeHint;
-        }*/
-
-        /** Static function that returns the type name for text view core
-         * objects.*/
         static constexpr char coreTypeName[] = "bdn.TextViewCore";
-
         String getCoreTypeName() const override { return coreTypeName; }
-
-      protected:
     };
 }

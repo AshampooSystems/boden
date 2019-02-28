@@ -1,6 +1,8 @@
 #pragma once
 
+#include <bdn/FixedView.h>
 #include <bdn/View.h>
+
 #include <deque>
 
 namespace bdn
@@ -26,8 +28,9 @@ namespace bdn
         const std::deque<StackEntry> &stack() const { return _stack; }
 
       public:
+        virtual std::list<std::shared_ptr<View>> getChildViews() const override;
         String getCoreTypeName() const override { return coreTypeName; }
-        virtual void _initCore() override;
+        virtual void _initCore(std::shared_ptr<UIProvider> uiProvider) override;
         virtual void _deinitCore() override;
 
       private:

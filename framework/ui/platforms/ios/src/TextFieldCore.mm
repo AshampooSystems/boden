@@ -49,6 +49,21 @@
 
     return YES;
 }
+@end
+
+@interface BodenUITextField : UITextField <UIViewWithFrameNotification>
+@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@end
+
+@implementation BodenUITextField
+
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (_viewCore) {
+        _viewCore->frameChanged();
+    }
+}
 
 @end
 
@@ -56,9 +71,9 @@ namespace bdn
 {
     namespace ios
     {
-        UITextField *TextFieldCore::_createUITextField(std::shared_ptr<TextField> outerTextField)
+        BodenUITextField *_createUITextField(std::shared_ptr<TextField> outerTextField)
         {
-            UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            BodenUITextField *textField = [[BodenUITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
             textField.backgroundColor = [UIColor clearColor];
             textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
             textField.layer.borderWidth = 1;
