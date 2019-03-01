@@ -24,7 +24,7 @@ namespace bdn
 
         ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
 
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
 
       public:
         static constexpr char coreTypeName[] = "bdn.ButtonCore";

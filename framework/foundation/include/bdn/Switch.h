@@ -42,7 +42,7 @@ namespace bdn
 
         static constexpr char coreTypeName[] = "bdn.SwitchCore";
 
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

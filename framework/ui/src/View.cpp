@@ -137,7 +137,7 @@ namespace bdn
         uiProvider = uiProvider ? uiProvider : determineUIProvider();
         if (_core == nullptr) {
             if (uiProvider != nullptr) {
-                setViewCore(uiProvider, uiProvider->createViewCore(getCoreTypeName(), shared_from_this()));
+                setViewCore(uiProvider, uiProvider->createViewCore(getViewCoreTypeName(), shared_from_this()));
             }
         }
     }

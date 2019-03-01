@@ -64,12 +64,10 @@ namespace bdn
     {
         auto row = std::make_shared<ContainerView>();
 
-        row->setLayoutStylesheet(FlexStylesheet{.margin.bottom = 5,
-                                                .flexDirection = FlexStylesheet::Direction::Row,
-                                                .flexShrink = 0.0,
-                                                .alignItems = FlexStylesheet::Align::Center,
-                                                .justifyContent = FlexStylesheet::Justify::SpaceBetween,
-                                                .flexWrap = FlexStylesheet::Wrap::Wrap});
+        row->setLayoutStylesheet(FlexMarginBottom(5) << FlexDirection(FlexStylesheet::Direction::Row) << FlexShrink(0.0)
+                                                     << FlexAlignItems(FlexStylesheet::Align::Center)
+                                                     << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
+                                                     << FlexWrap(FlexStylesheet::Wrap::Wrap));
 
         auto textView = std::make_shared<TextView>();
         textView->text = title;
@@ -82,12 +80,10 @@ namespace bdn
     {
         auto container = std::make_shared<ContainerView>();
 
-        container->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
-                                                      .flexGrow = 1.0f,
-                                                      .flexShrink = 1.0f,
-                                                      .alignItems = FlexStylesheet::Align::Stretch,
-                                                      .padding.all = 20,
-                                                      .margin.all = 2});
+        container->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                       << FlexGrow(1.f) << FlexShrink(1.f)
+                                       << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20.f)
+                                       << FlexMarginAll(2.f));
 
         auto switchView = std::make_shared<Switch>();
         switchView->label = "I'm a switch!";
@@ -104,35 +100,34 @@ namespace bdn
 
         auto bigBtn = std::make_shared<Button>();
 
-        bigBtn->setLayoutStylesheet(FlexStylesheet{.minimumSize.height = 50});
+        bigBtn->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeHeight(50));
 
         bigBtn->label = "Big Button";
         container->addChildView(makeRow("Big Button", bigBtn));
 
         auto textFieldCtrl = std::make_shared<TextField>();
         textFieldCtrl->text = "Some text";
-        textFieldCtrl->setLayoutStylesheet(FlexStylesheet{.minimumSize.width = 250});
+        textFieldCtrl->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeWidth(250));
         container->addChildView(makeRow("Text Field", textFieldCtrl));
 
         ////////////////////////////////////////////////////////////////////////
 
         auto header = std::make_shared<TextView>();
         header->text = "Scrolling multiline text";
-        header->setLayoutStylesheet(FlexStylesheet{.margin.bottom = 5, .flexShrink = 0});
+        header->setLayoutStylesheet(FlexMarginBottom(5) << FlexShrink(0));
 
         container->addChildView(header);
 
         auto textScrollView = std::make_shared<ScrollView>();
-        textScrollView->setLayoutStylesheet(
-            FlexStylesheet{.minimumSize.height = 180, .flexGrow = 1, .margin.bottom = 5});
+        textScrollView->setLayoutStylesheet(FlexMinimumSizeHeight(180) << FlexGrow(1) << FlexMarginBottom(5));
 
         auto scrollContainer = std::make_shared<ContainerView>();
-        scrollContainer->setLayoutStylesheet(FlexStylesheet{.flexGrow = 1.0f, .flexShrink = 0.0f, .padding.all = 20});
+        scrollContainer->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(0.0f) << FlexPaddingAll(20));
 
         auto scrolledTextView = std::make_shared<TextView>();
         scrolledTextView->text = testText;
 
-        scrolledTextView->setLayoutStylesheet(FlexStylesheet{.flexGrow = 1.0f, .flexShrink = 0.0f});
+        scrolledTextView->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(0.0f));
 
         scrollContainer->addChildView(scrolledTextView);
         textScrollView->setContentView(scrollContainer);
@@ -153,10 +148,9 @@ namespace bdn
 
         auto buttonRow = std::make_shared<ContainerView>();
 
-        buttonRow->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Row,
-                                                      .flexShrink = 0.0,
-                                                      .alignItems = FlexStylesheet::Align::Center,
-                                                      .justifyContent = FlexStylesheet::Justify::FlexStart});
+        buttonRow->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Row)
+                                       << FlexShrink(0.0) << FlexAlignItems(FlexStylesheet::Align::Center)
+                                       << FlexJustifyContent(FlexStylesheet::Justify::FlexStart));
 
         auto addButton = std::make_shared<Button>();
         addButton->label = "Add";
@@ -186,11 +180,10 @@ namespace bdn
         buttonRow->addChildView(clearButton);
 
         auto listHeader = std::make_shared<ContainerView>();
-        listHeader->setLayoutStylesheet(FlexStylesheet{.margin.bottom = 5,
-                                                       .flexDirection = FlexStylesheet::Direction::Row,
-                                                       .flexShrink = 0.0,
-                                                       .alignItems = FlexStylesheet::Align::Center,
-                                                       .justifyContent = FlexStylesheet::Justify::SpaceBetween});
+        listHeader->setLayoutStylesheet(FlexMarginBottom(5)
+                                        << FlexDirection(FlexStylesheet::Direction::Row) << FlexShrink(0.0)
+                                        << FlexAlignItems(FlexStylesheet::Align::Center)
+                                        << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween));
 
         auto listHeaderLabel = std::make_shared<TextView>();
         listHeaderLabel->text = "Mutable list";

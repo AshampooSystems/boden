@@ -67,12 +67,12 @@ class RedditListViewDataSource : public ListViewDataSource
         using ContainerView::ContainerView;
         void build()
         {
-            setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Row,
-                                               .justifyContent = FlexStylesheet::Justify::SpaceBetween,
-                                               .alignItems = FlexStylesheet::Align::Center});
+            setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Row)
+                                << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
+                                << FlexAlignItems(FlexStylesheet::Align::Center));
 
             auto textView = std::make_shared<TextView>();
-            textView->setLayoutStylesheet(FlexStylesheet{.flexGrow = 1, .flexShrink = 1.0, .margin.left = 0.0f});
+            textView->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
 
             addChildView(textView);
 
@@ -81,7 +81,7 @@ class RedditListViewDataSource : public ListViewDataSource
 
             auto button = std::make_shared<Button>();
             button->label = "Hello";
-            button->setLayoutStylesheet(FlexStylesheet{.flexGrow = 0, .flexShrink = 0.0, .margin.all = 5.0});
+            button->setLayoutStylesheet(FlexGrow(0.0f) << FlexShrink(0.0) << FlexMarginAll(5.0));
 
             addChildView(button);
         }
@@ -122,10 +122,8 @@ class PostListViewController : public Base
 
     PostListViewController() : _listView(std::make_shared<ListView>())
     {
-        _listView->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
-                                                      .flexGrow = 1.0f,
-                                                      .flexShrink = 1.0f,
-                                                      .margin.all = 10.0f});
+        _listView->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                       << FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMarginAll(10.0f));
 
         auto store = std::make_shared<RedditStore>();
         _dataSource = std::make_shared<RedditListViewDataSource>(store);
@@ -189,12 +187,9 @@ class MainViewController : public Base
         _window->setLayout(std::make_shared<yogalayout::Layout>());
 
         auto stack = std::make_shared<Stack>();
-        stack->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
-                                                  .flexGrow = 1.0f,
-                                                  .flexShrink = 1.0f,
-                                                  .alignItems = FlexStylesheet::Align::Stretch,
-                                                  .padding.all = 20,
-                                                  .margin.all = 0});
+        stack->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                   << FlexGrow(1.0f) << FlexShrink(1.0f)
+                                   << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20));
 
         stack->pushView(_listViewController->view(), "Reddit");
 

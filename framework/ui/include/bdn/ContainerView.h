@@ -23,7 +23,7 @@ namespace bdn
 
         static constexpr char coreTypeName[] = "bdn.ContainerViewCore";
 
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
 
         /** Adds a child to the end of the container.
 

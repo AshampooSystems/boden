@@ -14,6 +14,7 @@ from bauerutilities import BauerGlobals
 from generatorinfo import GeneratorInfo
 from coloredlogger import ColorizingStreamHandler
 from templatecreator import TemplateCreator
+from documentation import Documentation
 
 
 def setupLogging(argv):
@@ -46,6 +47,10 @@ def run(argv):
     if args.command == 'new':
         templateCreator = TemplateCreator()
         templateCreator.generate(args)
+        return
+    if args.command == 'doc':
+        doccer = Documentation()
+        doccer.run()
         return
 
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))

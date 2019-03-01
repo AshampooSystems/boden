@@ -26,6 +26,12 @@ class TemplateCreator:
         if os.path.exists(project_folder) and len(os.listdir(project_folder)) > 0:
             raise error.ProgramArgumentError("Selected folder %s is not empty!" % project_folder)
 
+        if args.project_name == 'test':
+            raise error.ProgramArgumentError("'test' is not a valid project name, since cmake regards it as a special target!")
+
+        if "-" in args.project_name:
+            raise error.ProgramArgumentError("You cannot use '-' in the project name, as Android can not handle it")
+
         boden_relative_path = os.path.relpath(boden_folder, project_folder)
 
         vars = {

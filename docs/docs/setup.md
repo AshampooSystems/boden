@@ -27,19 +27,14 @@ Follow these steps to set up Boden for iOS development:
 
 1. Open the Terminal app and clone the git repository: 
 
-		git clone https://github.com/AshampooSystems/boden.git
+		git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 
-3. Run the `boden` build tool to generate an Xcode project:
+2. Run the `boden` build tool to generate an Xcode project:
 
 		cd boden
-		git submodule update --init
-		./boden prepare -p ios
+		./boden open -p ios
 
-4. Open the generated project in Xcode:
-
-		open build/ios/std/Xcode/boden.xcodeproj
-
-5. In Xcode select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
+3. In Xcode select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
 
 Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
@@ -60,17 +55,14 @@ Follow these steps to set up Boden for Android development on the Mac:
 
 1. Open the terminal and clone the git repository:
 
-		git clone https://github.com/AshampooSystems/boden.git
+		git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 
 2. Run the `boden` build tool to prepare an Android Studio project:
 
 		cd boden
-		git submodule update --init
-		./boden prepare -p android
+		./boden open -p android
 
-4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
-
-5. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+3. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
 Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
@@ -92,21 +84,18 @@ Follow these steps to set up Boden for Android development on Windows 10:
 1. Open a Command Prompt: Hit <kbd>Win</kbd>+<kbd>R</kbd>, type `cmd` and then hit Enter.
 2. Clone the git repository:
 
-		git clone https://github.com/AshampooSystems/boden.git
+		git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 
 3. Run the `boden.py` build tool to generate an Android Studio project:
 
 		cd boden
-		git submodule update --init
-		python boden.py prepare
+		python boden.py open -p android
 
-4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
-
-5. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
+4. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
 Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
 
-### Building Boden Apps on Linux
+## Building Boden Apps on Linux
 
 To build Android apps on Linux, the following dependencies need to be installed:
 
@@ -124,16 +113,13 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 1. Open up a terminal and clone the git repository:
 
-		git clone https://github.com/AshampooSystems/boden.git
+		git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 
-3. Run the `boden` build tool to generate an Xcode project:
+2. Run the `boden` build tool to generate an Xcode project:
 
 		cd boden
-		git submodule update --init
-		./boden prepare
+		./boden open -p android
 
-4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
-
-5. Wait for Android Studio to finish its gradle sync and configuration, select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
+3. Wait for Android Studio to finish its gradle sync and configuration, select the `uidemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
 > If Android Studio displays an error stating that permission to `/dev/kvm` is denied, make sure that you have added your user to the `kvm` group.

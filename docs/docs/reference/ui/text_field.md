@@ -4,13 +4,22 @@ A simple single-line editable text field.
 
 ## Example
 
-```
-std::shared_ptr<TextField> textField = std::make_shared<TextField>();
+```C++
+auto textField = std::make_shared<TextField>();
 textField->text = "Hello world!";
-textField->onSubmit() += [](const SubmitEvent &event) {
+textField->onSubmit() += [](auto event) {
   // Do something on submit
 };
 ```
+
+## Header
+```C++
+#include <bdn/TextField.h>
+```
+
+## Relationships
+
+Inherits from [`View`](view.md).
 
 ## Properties
 

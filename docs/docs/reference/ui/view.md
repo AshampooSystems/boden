@@ -12,9 +12,9 @@ Abstract base class for all user interface elements.
 
 	Whether the view is visible.
 
-* **Property<std::shared_ptr<LayoutStyleSheet\>\> layoutStyleSheet**
+* **Property<std::shared_ptr<LayoutStylesheet\>\> layoutStylesheet**
 
-	A [`LayoutStyleSheet`](layout_stylesheet.md) defining the layout of the view. <span style="color: orange">CamelCase</span>
+	A [`LayoutStylesheet`](layout_stylesheet.md) defining the layout of the view.
 
 ## Layout
 
@@ -30,15 +30,15 @@ Abstract base class for all user interface elements.
 
 	Sets the view's [`Layout`](layout.md).
 
-* **template <class T\> void setLayoutStyleSheet(T sheet)**
+* **template <class T\> void setLayoutStylesheet(T sheet)**
 
-	Convenience method for setting the layout stylesheet using a type `T` derived from [`LayoutStyleSheet`](layout_stylesheet.md) without having to use `std::make_shared`.
+	Convenience method for setting the layout stylesheet using a type `T` derived from [`LayoutStylesheet`](layout_stylesheet.md) without having to use `std::make_shared`.
 
 ## View Core
 
-* **virtual String getCoreTypeName() const = 0**
+* **virtual String getViewCoreTypeName() const = 0**
 
-	Super classes should return a [`String`](../string.md) presenting the type name of the view's core. <span style="color: orange">Inconsistent name: getViewCoreTypeName()</span>
+	Super classes should return a [`String`](../string.md) presenting the type name of the view's core.
 
 * **std::shared_ptr<ViewCore> getViewCore() const**
 
@@ -46,7 +46,7 @@ Abstract base class for all user interface elements.
 
 * **void setViewCore(std::shared_ptr<UIProvider\> uiProvider, std::shared_ptr<ViewCore\> viewCore)**
 
-	Sets the view's [`ViewCore`](view_core.md) using the given [`UIProvider`](ui_provider.md).
+	Sets the view's [`ViewCore`](view_core.md) and the given [`UIProvider`](ui_provider.md).
 
 * **void reinitCore(std::shared_ptr<UIProvider\> uiProvider = nullptr)**
 

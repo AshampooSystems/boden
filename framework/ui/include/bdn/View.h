@@ -40,7 +40,7 @@ namespace bdn
         virtual ~View();
 
         std::shared_ptr<View> shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
-        virtual String getCoreTypeName() const = 0;
+        virtual String getViewCoreTypeName() const = 0;
 
       public:
         virtual Size sizeForSpace(Size availableSpace = Size::none()) const;

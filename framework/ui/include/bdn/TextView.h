@@ -35,6 +35,6 @@ namespace bdn
 
       public:
         static constexpr char coreTypeName[] = "bdn.TextViewCore";
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
     };
 }

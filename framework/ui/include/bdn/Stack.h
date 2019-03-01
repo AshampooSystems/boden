@@ -29,7 +29,7 @@ namespace bdn
 
       public:
         virtual std::list<std::shared_ptr<View>> getChildViews() const override;
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
         virtual void _initCore(std::shared_ptr<UIProvider> uiProvider) override;
         virtual void _deinitCore() override;
 

@@ -132,7 +132,8 @@ class BauerArgParser():
           ('copy', "Copy a folder into the build folder", self.getCopyEpilog()),
           ('open', "Open the project files", None),
           ('manual', "Shows futher information", None),
-          ('new', "Builds a template project", self.getNewEpilog())
+          ('new', "Builds a template project", self.getNewEpilog()),
+          ('doc', "Builds and opens the documentation", None)
         ]
 
         if sys.platform == 'darwin':
@@ -158,6 +159,7 @@ class BauerArgParser():
         package = command_map["package"]
         copy = command_map["copy"]
         open_project = command_map["open"]
+        doc = command_map["doc"]
 
         new = command_map["new"]
         new.add_argument('-f', '--project-folder', help="Where to create the project", default=".")
@@ -187,7 +189,7 @@ class BauerArgParser():
 
         info = command_map["manual"]
 
-        self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package, open_project ])
+        self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package, open_project, doc ])
 
     def getPlatformHelp(self):
         platformHelp = "";

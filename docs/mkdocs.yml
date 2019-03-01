@@ -5,6 +5,9 @@ theme:
   palette:
     primary: 'white'
 
+markdown_extensions:
+  - codehilite
+
 nav:
   - Getting Started: 'getting-started.md'
   - Setup: 'setup.md'
@@ -12,7 +15,12 @@ nav:
     - Foundation:
       - Base: 'reference/foundation/base.md'
       - String: 'reference/foundation/string.md'
+    - Layout:
+      - Summary: 'reference/layout/summary.md'
+      - Yoga:
+        - Summary: 'reference/layout/yoga/summary.md'
     - UI:
-      - TextField: 'reference/ui/text_field.md'
       - View: 'reference/ui/view.md'
+      - Button: 'reference/ui/button.md'
+      - TextField: 'reference/ui/text_field.md'
       - ViewCore: 'reference/ui/view_core.md'

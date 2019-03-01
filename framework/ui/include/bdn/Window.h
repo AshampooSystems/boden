@@ -51,7 +51,7 @@ namespace bdn
         /** Static function that returns the type name for #Window objects.*/
         static constexpr char coreTypeName[] = "bdn.WindowCore";
 
-        String getCoreTypeName() const override { return coreTypeName; }
+        String getViewCoreTypeName() const override { return coreTypeName; }
 
         std::list<std::shared_ptr<View>> getChildViews() const override;
 

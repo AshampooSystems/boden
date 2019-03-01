@@ -20,24 +20,18 @@ class MainViewController : public Base
         _window->setLayout(std::make_shared<yogalayout::Layout>());
 
         auto container = std::make_shared<ContainerView>();
-        container->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
-                                                      .flexGrow = 1.0f,
-                                                      .flexShrink = 1.0f,
-                                                      .alignItems = FlexStylesheet::Align::Stretch,
-                                                      .padding.all = 0,
-                                                      .margin.all = 0});
+        container->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                       << FlexGrow(1.0f) << FlexAlignItems(FlexStylesheet::Align::Stretch));
 
         _stack = std::make_shared<Stack>();
 
         container->addChildView(_stack);
 
-        _stack->setLayoutStylesheet(FlexStylesheet{.flexGrow = 1.0f, .flexShrink = 1.0f});
+        _stack->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
 
         auto firstPage = std::make_shared<ContainerView>();
-        firstPage->setLayoutStylesheet(FlexStylesheet{.flexDirection = FlexStylesheet::Direction::Column,
-                                                      .flexGrow = 0.0f,
-                                                      .flexShrink = 0.0f,
-                                                      .padding.all = 20});
+        firstPage->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                       << FlexGrow(0.0f) << FlexShrink(0.0f) << FlexPaddingAll(20.0f));
 
         auto textOnFirstPage = std::make_shared<TextView>();
         textOnFirstPage->text = "Click the button!\nIf you dare!\nIf not\nwell...";
