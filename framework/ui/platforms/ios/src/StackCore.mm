@@ -57,11 +57,11 @@
 
 - (void)loadView
 {
-    if (auto stack = _stackCore.lock()) {
+    if (auto core = _stackCore.lock()) {
         _fixedView = std::make_shared<bdn::FixedView>();
         _safeContent = std::make_shared<bdn::FixedView>();
 
-        _fixedView->_setParentView(stack->getOuterViewIfStillAttached());
+        _fixedView->_setParentView(core->getOuterViewIfStillAttached());
 
         self.view = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_fixedView->getViewCore())->getUIView();
 

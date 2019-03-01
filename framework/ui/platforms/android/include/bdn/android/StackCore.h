@@ -11,6 +11,8 @@ namespace bdn
 {
     namespace android
     {
+        class NavButtonHandler;
+
         class StackCore : public ViewCore,
                           public bdn::StackCore,
                           public IParentViewCore,
@@ -28,8 +30,8 @@ namespace bdn
 
             // IParentViewCore interface
           public:
-            virtual void addChildJView(JView view) override;
-            virtual void removeChildJView(JView view) override;
+            virtual void addChildCore(ViewCore *child) override;
+            virtual void removeChildCore(ViewCore *view) override;
             virtual double getUIScaleFactor() const override;
 
             // IAndroidNavigationButtonHandler interface
@@ -44,6 +46,7 @@ namespace bdn
           private:
             std::shared_ptr<View> _currentView;
             std::shared_ptr<FixedView> _container;
+            std::shared_ptr<NavButtonHandler> _navHandler;
         };
     }
 }

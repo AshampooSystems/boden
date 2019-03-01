@@ -6,6 +6,7 @@ namespace bdn
 {
     namespace android
     {
+        class ViewCore;
 
         /** Interface for view cores that can act as parents for other view
          * cores.*/
@@ -13,10 +14,10 @@ namespace bdn
         {
           public:
             /** Adds a child UI element to the parent.*/
-            virtual void addChildJView(JView view) = 0;
+            virtual void addChildCore(ViewCore *viewCore) = 0;
 
             /** Removes a child UI element from the parent */
-            virtual void removeChildJView(JView view) = 0;
+            virtual void removeChildCore(ViewCore *viewCore) = 0;
 
             /** Returns the current UI scale factor. This depends on the pixel
              *density of the current display. On high DPI displays the scale

@@ -12,13 +12,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreLayoutChan
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> viewCore =
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
-
-            if (viewCore == nullptr) {
-                // no view core is associated with the view => ignore the event
-                // and do nothing.
-            } else {
+            if (auto viewCore =
+                    bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView))) {
                 viewCore->layoutChange(left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom);
             }
         },

@@ -27,11 +27,8 @@ namespace bdn
           public:
             double getUIScaleFactor() const override;
 
-            void addChildJView(JView childJView) override;
-            void removeChildJView(JView childJView) override;
-
-          public:
-            std::shared_ptr<View> _keepMeAlive;
+            void addChildCore(ViewCore *child) override;
+            void removeChildCore(ViewCore *child) override;
         };
     }
 }

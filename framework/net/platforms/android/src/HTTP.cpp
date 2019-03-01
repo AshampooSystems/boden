@@ -4,6 +4,7 @@
 #include <bdn/HTTPResponse.h>
 #include <bdn/config.h>
 #include <bdn/entry.h>
+#include <bdn/java/JNativeStrongPointer.h>
 #include <bdn/log.h>
 #include <ostream>
 

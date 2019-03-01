@@ -23,7 +23,7 @@ namespace bdn
     {
         class UIProvider;
 
-        class ViewCore : public Base, virtual public bdn::ViewCore
+        class ViewCore : virtual public bdn::ViewCore
         {
             friend class bdn::android::UIProvider;
 

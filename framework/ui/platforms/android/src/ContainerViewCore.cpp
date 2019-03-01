@@ -12,25 +12,21 @@ namespace bdn
 
         ContainerViewCore::~ContainerViewCore() {}
 
-        void ContainerViewCore::dispose()
-        {
-            _keepMeAlive.reset();
-            ViewCore::dispose();
-        }
+        void ContainerViewCore::dispose() { ViewCore::dispose(); }
 
         double ContainerViewCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
 
-        void ContainerViewCore::addChildJView(JView childJView)
+        void ContainerViewCore::addChildCore(ViewCore *child)
         {
             JNativeViewGroup parentGroup(getJView().getRef_());
 
-            parentGroup.addView(childJView);
+            parentGroup.addView(child->getJView());
         }
 
-        void ContainerViewCore::removeChildJView(JView childJView)
+        void ContainerViewCore::removeChildCore(ViewCore *child)
         {
             JNativeViewGroup parentGroup(getJView().getRef_());
-            parentGroup.removeView(childJView);
+            parentGroup.removeView(child->getJView());
         }
     }
 }

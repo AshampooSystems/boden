@@ -11,7 +11,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+            auto core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
@@ -31,7 +31,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+            auto core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
@@ -51,7 +51,7 @@ Java_io_boden_android_NativeEditTextTextWatcher_nativeAfterTextChanged(JNIEnv *e
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::TextFieldCore> core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
+            auto core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {

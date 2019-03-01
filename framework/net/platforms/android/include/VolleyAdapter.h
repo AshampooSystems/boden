@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/java/JNativeStrongPointer.h>
 #include <bdn/java/JObject.h>
 #include <bdn/java/JString.h>
 

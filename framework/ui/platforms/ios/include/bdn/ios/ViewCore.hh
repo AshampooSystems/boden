@@ -78,7 +78,7 @@ namespace bdn
 
             std::weak_ptr<View> _outerViewWeak;
 
-            UIView *_view;
+            UIView<UIViewWithFrameNotification> *_view;
 
             mutable double _emDipsIfInitialized = -1;
             mutable double _semDipsIfInitialized = -1;

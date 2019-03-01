@@ -17,6 +17,9 @@ namespace bdn
         Property<bool> visible;
 
       public:
+        virtual ~ViewCore() = default;
+
+      public:
         virtual void scheduleLayout() = 0;
 
         virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }

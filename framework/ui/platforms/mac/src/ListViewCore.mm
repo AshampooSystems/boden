@@ -63,7 +63,7 @@
         fixedView->_setParentView(listView);
 
         fixedView->setViewCore(listView->getUIProvider(),
-                               std::make_shared<bdn::mac::ContainerViewCore>(fixedView, result));
+                               std::make_unique<bdn::mac::ContainerViewCore>(fixedView, result));
 
         result.view = fixedView;
 

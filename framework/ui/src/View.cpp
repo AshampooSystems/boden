@@ -149,18 +149,18 @@ namespace bdn
         }
 
         if (viewCore) {
-            _core = viewCore;
+            _core = std::move(viewCore);
             _uiProvider = uiProvider;
 
             bindViewCore();
 
             std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
             for (auto childView : childViewsCopy) {
-                childView->_setParentView(viewCore ? shared_from_this() : nullptr);
+                childView->_setParentView(_core ? shared_from_this() : nullptr);
             }
 
             if (_hasLayoutSchedulePending) {
-                viewCore->scheduleLayout();
+                _core->scheduleLayout();
                 _hasLayoutSchedulePending = false;
             }
 
@@ -171,7 +171,7 @@ namespace bdn
                 childView->_setParentView(viewCore ? shared_from_this() : nullptr);
             }
 
-            _core = viewCore;
+            _core = std::move(viewCore);
             _uiProvider = uiProvider;
         }
     }

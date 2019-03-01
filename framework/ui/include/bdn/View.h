@@ -18,7 +18,6 @@ namespace bdn
 
 namespace bdn
 {
-
     /** Views are the building blocks of the visible user interface.
         A view presents data or provides some user interface functionality.
         For example, buttons, text fields etc are all view objects.
@@ -52,7 +51,6 @@ namespace bdn
 
         template <class T> void setLayoutStylesheet(T sheet) { layoutStylesheet = std::make_shared<T>(sheet); }
 
-        std::shared_ptr<ViewCore> getViewCore() const { return _core; }
         void setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> viewCore);
         std::shared_ptr<UIProvider> getUIProvider() { return _uiProvider; }
 
@@ -67,6 +65,8 @@ namespace bdn
         void reinitCore(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
         void scheduleLayout();
+
+        std::shared_ptr<ViewCore> getViewCore() const { return _core; }
 
       protected:
         virtual void bindViewCore();

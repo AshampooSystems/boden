@@ -12,7 +12,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> viewCore =
+            auto viewCore =
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
 
             if (viewCore == nullptr) {

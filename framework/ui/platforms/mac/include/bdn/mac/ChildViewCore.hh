@@ -16,7 +16,7 @@ namespace bdn
     namespace mac
     {
 
-        class ChildViewCore : public Base, virtual public ViewCore, virtual public IParentViewCore
+        class ChildViewCore : virtual public ViewCore, virtual public IParentViewCore
         {
           public:
             ChildViewCore(std::shared_ptr<View> outerView, NSView *nsView);

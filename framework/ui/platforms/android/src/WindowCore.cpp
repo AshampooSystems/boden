@@ -69,7 +69,7 @@ namespace bdn
             ViewCore::initTag();
 
             JNativeRootView rootView(getJView().getParent().getRef_());
-            rootView.setTag(bdn::java::NativeWeakPointer(std::dynamic_pointer_cast<ViewCore>(shared_from_this())));
+            rootView.setTag(bdn::java::NativeWeakPointer(getOuterViewIfStillAttached()));
         }
 
         void WindowCore::enableBackButton(bool enable)
@@ -96,40 +96,33 @@ namespace bdn
             // be removed.
             getRootViewRegistryForCurrentThread().remove(javaRef);
 
-            std::list<std::shared_ptr<WindowCore>> windowCoreList;
-            getWindowCoreListFromRootView(javaRef, windowCoreList);
+            auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-            for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
+            for (auto windowCore : windowCoreList)
                 windowCore->rootViewDisposed();
         }
 
         void WindowCore::_rootViewSizeChanged(const java::Reference &javaRef, int width, int height)
         {
-            std::list<std::shared_ptr<WindowCore>> windowCoreList;
+            auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-            getWindowCoreListFromRootView(javaRef, windowCoreList);
-
-            for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
+            for (auto windowCore : windowCoreList)
                 windowCore->rootViewSizeChanged(width, height);
         }
 
         void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, JConfiguration config)
         {
-            std::list<std::shared_ptr<WindowCore>> windowCoreList;
+            auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-            getWindowCoreListFromRootView(javaRef, windowCoreList);
-
-            for (std::shared_ptr<WindowCore> &windowCore : windowCoreList)
+            for (auto windowCore : windowCoreList)
                 windowCore->rootViewConfigurationChanged(config);
         }
 
         bool WindowCore::_handleBackPressed(const java::Reference &javaRef)
         {
-            std::list<std::shared_ptr<WindowCore>> windowCoreList;
+            auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-            getWindowCoreListFromRootView(javaRef, windowCoreList);
-
-            for (std::shared_ptr<WindowCore> &windowCore : windowCoreList) {
+            for (auto windowCore : windowCoreList) {
                 if (windowCore->handleBackPressed()) {
                     return true;
                 }
@@ -138,17 +131,17 @@ namespace bdn
             return false;
         }
 
-        void WindowCore::addChildJView(JView childJView)
+        void WindowCore::addChildCore(ViewCore *child)
         {
             JNativeViewGroup parentGroup(getJView().getRef_());
 
-            parentGroup.addView(childJView);
+            parentGroup.addView(child->getJView());
         }
 
-        void WindowCore::removeChildJView(JView childJView)
+        void WindowCore::removeChildCore(ViewCore *child)
         {
             JNativeViewGroup parentGroup(getJView().getRef_());
-            parentGroup.removeView(childJView);
+            parentGroup.removeView(child->getJView());
         }
 
         void WindowCore::setAndroidNavigationButtonHandler(
@@ -247,9 +240,11 @@ namespace bdn
             setUIScaleFactor(scaleFactor);
         }
 
-        void WindowCore::getWindowCoreListFromRootView(const java::Reference &javaRootViewRef,
-                                                       std::list<std::shared_ptr<WindowCore>> &windowCoreList)
+        std::list<std::shared_ptr<WindowCore>>
+        WindowCore::getWindowCoreListFromRootView(const java::Reference &javaRootViewRef)
         {
+            auto result = std::list<std::shared_ptr<WindowCore>>{};
+
             JNativeRootView rootView(javaRootViewRef);
 
             // enumerate all children of the root view. Those are our
@@ -258,11 +253,13 @@ namespace bdn
             for (int i = 0; i < childCount; i++) {
                 JView child = rootView.getChildAt(i);
 
-                std::shared_ptr<WindowCore> windowCore =
-                    std::dynamic_pointer_cast<WindowCore>(getViewCoreFromJavaViewRef(child.getRef_()));
-                if (windowCore != nullptr)
-                    windowCoreList.push_back(windowCore);
+                if (auto windowCore =
+                        std::dynamic_pointer_cast<WindowCore>(getViewCoreFromJavaViewRef(child.getRef_()))) {
+                    result.push_back(windowCore);
+                }
             }
+
+            return result;
         }
 
         java::Reference WindowCore::tryGetAccessibleRootViewRef() const
@@ -274,8 +271,9 @@ namespace bdn
 
                 accessibleRef = _weakRootViewRef.toStrong();
 
-                if (accessibleRef.isNull())
+                if (accessibleRef.isNull()) {
                     const_cast<WindowCore *>(this)->rootViewDisposed();
+                }
             }
 
             return accessibleRef;

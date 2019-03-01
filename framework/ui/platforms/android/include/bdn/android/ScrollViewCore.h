@@ -195,26 +195,24 @@ namespace bdn
 
             double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
-            void addChildJView(JView childJView) override
+            void addChildCore(ViewCore *child) override
             {
                 _childGeometry.reset();
                 _jContentParent.removeAllViews();
 
-                if (auto viewCore = bdn::android::getViewCoreFromJavaViewRef(childJView.getRef_())) {
-                    _jContentParent.addView(childJView);
-                    _childGeometry = std::make_unique<Property<Rect>>();
-                    _childGeometry->bind(viewCore->geometry, BindMode::unidirectional);
-                    _childGeometry->onChange() += [=](auto va) {
-                        _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
-                                                std::lround(va->get().height * getUIScaleFactor()));
-                    };
-                }
+                _jContentParent.addView(child->getJView());
+                _childGeometry = std::make_unique<Property<Rect>>();
+                _childGeometry->bind(child->geometry, BindMode::unidirectional);
+                _childGeometry->onChange() += [=](auto va) {
+                    _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
+                                            std::lround(va->get().height * getUIScaleFactor()));
+                };
             }
 
-            void removeChildJView(JView childJView) override
+            void removeChildCore(ViewCore *child) override
             {
                 _childGeometry.reset();
-                _jContentParent.removeView(childJView);
+                _jContentParent.removeView(child->getJView());
             }
 
             void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY) { updateVisibleClientRect(); }

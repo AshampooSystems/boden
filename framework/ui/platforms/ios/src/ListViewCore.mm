@@ -107,7 +107,7 @@
         fixedView = std::make_shared<bdn::FixedView>();
 
         fixedView->setViewCore(listView->getUIProvider(),
-                               std::make_shared<bdn::ios::ContainerViewCore>(fixedView, cellContent));
+                               std::make_unique<bdn::ios::ContainerViewCore>(fixedView, cellContent));
 
         fixedView->offerLayout(self.outer.lock()->getLayout());
 

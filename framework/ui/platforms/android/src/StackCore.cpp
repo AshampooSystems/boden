@@ -6,10 +6,28 @@ namespace bdn
 {
     namespace android
     {
+        class NavButtonHandler : public WindowCore::IAndroidNavigationButtonHandler
+        {
+          public:
+            NavButtonHandler(StackCore *core) : _stackCore(core) {}
+            virtual ~NavButtonHandler() = default;
+
+            void unsetCore() { _stackCore = nullptr; }
+
+            virtual bool handleBackButton() override
+            {
+                if (_stackCore) {
+                    return _stackCore->handleBackButton();
+                }
+                return false;
+            }
+
+          private:
+            StackCore *_stackCore;
+        };
 
         std::shared_ptr<WindowCore> findWindow(std::shared_ptr<View> view)
         {
-
             if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(view->getViewCore())) {
                 return windowCore;
             }
@@ -27,7 +45,12 @@ namespace bdn
             geometry.onChange() += [=](auto va) { this->reLayout(); };
         }
 
-        StackCore::~StackCore() {}
+        StackCore::~StackCore()
+        {
+            if (_navHandler) {
+                _navHandler->unsetCore();
+            }
+        }
 
         void StackCore::pushView(std::shared_ptr<View> view, String title) { updateCurrentView(); }
 
@@ -65,23 +88,31 @@ namespace bdn
 
                     _currentView = newView;
 
-                    auto windowCore = findWindow(outerStack);
+                    if (auto windowCore = findWindow(outerStack)) {
 
-                    windowCore->setAndroidNavigationButtonHandler(
-                        std::dynamic_pointer_cast<WindowCore::IAndroidNavigationButtonHandler>(shared_from_this()));
+                        if (!_navHandler) {
+                            _navHandler = std::make_shared<NavButtonHandler>(this);
+                            windowCore->setAndroidNavigationButtonHandler(_navHandler);
+                        }
 
-                    windowCore->title = (outerStack->stack().back().title);
-
-                    windowCore->enableBackButton(outerStack->stack().size() > 1);
+                        windowCore->title = (outerStack->stack().back().title);
+                        windowCore->enableBackButton(outerStack->stack().size() > 1);
+                    }
                 }
             }
 
             reLayout();
         }
 
-        void StackCore::addChildJView(JView view) { ViewCore::getJViewAS<JNativeViewGroup>().addView(view); }
+        void StackCore::addChildCore(ViewCore *child)
+        {
+            ViewCore::getJViewAS<JNativeViewGroup>().addView(child->getJView());
+        }
 
-        void StackCore::removeChildJView(JView view) { ViewCore::getJViewAS<JNativeViewGroup>().removeView(view); }
+        void StackCore::removeChildCore(ViewCore *child)
+        {
+            ViewCore::getJViewAS<JNativeViewGroup>().removeView(child->getJView());
+        }
 
         double StackCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
 

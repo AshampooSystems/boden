@@ -57,7 +57,7 @@ namespace bdn
 
         void ViewCore::initTag()
         {
-            auto tag = bdn::java::NativeWeakPointer(std::dynamic_pointer_cast<ViewCore>(shared_from_this()));
+            auto tag = bdn::java::NativeWeakPointer(getOuterViewIfStillAttached());
             _jView.setTag(tag);
         }
 
@@ -173,7 +173,7 @@ namespace bdn
                 std::list<std::shared_ptr<View>> childList = view->getChildViews();
 
                 for (std::shared_ptr<View> &child : childList) {
-                    std::shared_ptr<ViewCore> childCore = std::dynamic_pointer_cast<ViewCore>(child->getViewCore());
+                    auto childCore = std::dynamic_pointer_cast<ViewCore>(child->getViewCore());
 
                     if (childCore != nullptr)
                         childCore->setUIScaleFactor(scaleFactor);
@@ -207,14 +207,13 @@ namespace bdn
         void ViewCore::_addToParent(std::shared_ptr<View> parent)
         {
             if (parent != nullptr) {
-                std::shared_ptr<IParentViewCore> parentCore =
-                    std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
+                auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
                                            "either does not have a core, or its core does not "
                                            "support child views.");
 
-                parentCore->addChildJView(_jView);
+                parentCore->addChildCore(this);
 
                 setUIScaleFactor(parentCore->getUIScaleFactor());
             }
@@ -230,15 +229,14 @@ namespace bdn
             if (parent == nullptr)
                 return; // no parent – nothing to do
 
-            std::shared_ptr<IParentViewCore> parentCore =
-                std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
+            auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
             if (parentCore != nullptr) {
                 // XXX: Rather unfortunate – removeAllChildViews() is BFS
                 // and so parent core is no longer set when removing
                 // multiple levels of views. Either change
                 // removeAllChildViews()/_deinitCore() to DFS or change the
                 // removal mechanism to use the platform parent.
-                parentCore->removeChildJView(_jView);
+                parentCore->removeChildCore(this);
             }
         }
 
@@ -249,10 +247,15 @@ namespace bdn
                 bdn::java::JObject viewTag(view.getTag());
                 if (viewTag.isInstanceOf_(bdn::java::NativeWeakPointer::getStaticClass_())) {
                     bdn::java::NativeWeakPointer viewTagPtr(viewTag.getRef_());
-                    return std::static_pointer_cast<ViewCore>(viewTagPtr.getPointer().lock());
+
+                    if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer().lock())) {
+                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->getViewCore());
+                    }
                 } else if (viewTag.isInstanceOf_(bdn::java::JNativeStrongPointer::getStaticClass_())) {
                     bdn::java::JNativeStrongPointer viewTagPtr(viewTag.getRef_());
-                    return std::static_pointer_cast<ViewCore>(viewTagPtr.getPointer_());
+                    if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer_())) {
+                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->getViewCore());
+                    }
                 }
             }
 

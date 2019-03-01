@@ -41,9 +41,9 @@ namespace bdn
 
             double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
-            void addChildJView(JView childJView) override;
+            void addChildCore(ViewCore *child) override;
 
-            void removeChildJView(JView childJView) override;
+            void removeChildCore(ViewCore *child) override;
 
             class IAndroidNavigationButtonHandler
             {
@@ -88,8 +88,8 @@ namespace bdn
 
             void updateUIScaleFactor(JConfiguration config);
 
-            static void getWindowCoreListFromRootView(const java::Reference &javaRootViewRef,
-                                                      std::list<std::shared_ptr<WindowCore>> &windowCoreList);
+            static std::list<std::shared_ptr<WindowCore>>
+            getWindowCoreListFromRootView(const java::Reference &javaRootViewRef);
 
             /** Returns an accessible reference to the window's root view.
              *

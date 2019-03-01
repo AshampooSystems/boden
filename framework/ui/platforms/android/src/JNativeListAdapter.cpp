@@ -15,7 +15,7 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
 {
     return bdn::nonVoidPlatformEntryWrapper<jint>(
         [&]() -> jint {
-            std::shared_ptr<bdn::android::ListViewCore> core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
+            auto core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
@@ -47,7 +47,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nat
 {
     return bdn::nonVoidPlatformEntryWrapper<jstring>(
         [&]() -> jstring {
-            std::shared_ptr<bdn::android::ListViewCore> core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
+            auto core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
                 bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
@@ -144,9 +144,8 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
 
             auto containerCore = std::make_shared<bdn::android::ContainerViewCore>(container, containerJView);
             containerCore->setUIScaleFactor(listViewCore->getUIScaleFactor());
-            containerCore->_keepMeAlive = container;
-            containerJView.setTag(bdn::java::JNativeStrongPointer(containerCore)); // hack-a-di-hack, hack hack
-            container->setViewCore(uiProvider, containerCore);
+            containerJView.setTag(bdn::java::JNativeStrongPointer(container));
+            container->setViewCore(uiProvider, std::move(containerCore));
             container->addChildView(delegate);
             container->visible = true;
             delegate->visible = true;

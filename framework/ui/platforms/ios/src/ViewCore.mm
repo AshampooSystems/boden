@@ -12,7 +12,7 @@ namespace bdn
         {
             [uiView setViewCore:this];
             _outerViewWeak = outerView;
-            _view = (UIView *)uiView;
+            _view = (UIView<UIViewWithFrameNotification> *)uiView;
 
             _addToParent(outerView->getParentView());
 
@@ -80,6 +80,7 @@ namespace bdn
 
         void ViewCore::dispose()
         {
+            [_view setViewCore:nullptr];
             removeFromUISuperview();
             _view = nil;
         }
