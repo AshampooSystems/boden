@@ -2,6 +2,12 @@
 
 Abstract base class for all user interface elements.
 
+## Declaration
+
+```C++
+class View : public Base
+```
+
 ## Properties
 
 * **Property<Rect\> geometry**
@@ -14,7 +20,7 @@ Abstract base class for all user interface elements.
 
 * **Property<std::shared_ptr<LayoutStylesheet\>\> layoutStylesheet**
 
-	A [`LayoutStylesheet`](layout_stylesheet.md) defining the layout of the view.
+	A [`LayoutStylesheet`](../layout/stylesheet.md) defining the layout of the view.
 
 ## Layout
 
@@ -24,15 +30,15 @@ Abstract base class for all user interface elements.
 
 * **std::shared_ptr<Layout\> getLayout()**
 
-	Returns the view's [`Layout`](layout.md).
+	Returns the view's [`Layout`](../layout/layout.md).
 
 * **void setLayout(std::shared_ptr<Layout\> layout)**
 
-	Sets the view's [`Layout`](layout.md).
+	Sets the view's [`Layout`](../layout/layout.md).
 
 * **template <class T\> void setLayoutStylesheet(T sheet)**
 
-	Convenience method for setting the layout stylesheet using a type `T` derived from [`LayoutStylesheet`](layout_stylesheet.md) without having to use `std::make_shared`.
+	Convenience method for setting the layout stylesheet using a type `T` derived from [`LayoutStylesheet`](../layout/stylesheet.md) without having to use `std::make_shared`.
 
 ## View Core
 

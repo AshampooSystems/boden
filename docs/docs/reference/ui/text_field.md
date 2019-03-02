@@ -2,9 +2,17 @@
 
 A simple single-line editable text field.
 
+## Declaration
+
+```C++
+class TextField : public View
+```
+
 ## Example
 
 ```C++
+#include <bdn/TextField.h>
+//...
 auto textField = std::make_shared<TextField>();
 textField->text = "Hello world!";
 textField->onSubmit() += [](auto event) {
@@ -12,14 +20,6 @@ textField->onSubmit() += [](auto event) {
 };
 ```
 
-## Header
-```C++
-#include <bdn/TextField.h>
-```
-
-## Relationships
-
-Inherits from [`View`](view.md).
 
 ## Properties
 

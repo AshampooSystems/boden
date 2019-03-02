@@ -17,8 +17,12 @@ nav:
       - String: 'reference/foundation/string.md'
     - Layout:
       - Summary: 'reference/layout/summary.md'
+      - Layout: 'reference/layout/layout.md'
+      - Stylesheet: 'reference/layout/stylesheet.md'
       - Yoga:
         - Summary: 'reference/layout/yoga/summary.md'
+        - Stylesheet: 'reference/layout/yoga/stylesheet.md'
+        - Json Stylesheet: 'reference/layout/yoga/json.md'
     - UI:
       - View: 'reference/ui/view.md'
       - Button: 'reference/ui/button.md'

@@ -2,6 +2,12 @@
 
 Interface representing a platform specific "view core". Classes inheriting from `ViewCore` implement the actual user interface view logic to display user interfaces on screen.
 
+## Declaration
+
+```C++
+class ViewCore
+```
+
 ## Properties
 
 * **Property<Rect\> geometry**

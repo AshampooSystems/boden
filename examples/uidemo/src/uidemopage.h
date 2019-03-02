@@ -82,13 +82,18 @@ namespace bdn
         auto container = std::make_shared<ContainerView>();
 
 #ifdef BDN_HAS_NLOHMANN_JSON
-        container->setLayoutStylesheet(FlexJson({{"direction", FlexStylesheet::Direction::Column},
-                                                 {"flexGrow", 1.0},
-                                                 {"flexShrink", 1.0},
-                                                 {"alignItems", FlexStylesheet::Align::Stretch},
-                                                 {"padding", {{"all", 20.0}}},
-                                                 {"margin", {{"all", 2.0}}}}));
+        nlohmann::json jsonStylesheet = {{"direction", FlexStylesheet::Direction::Column},
+                                         {"flexGrow", 1.0},
+                                         {"flexShrink", 1.0},
+                                         {"alignItems", FlexStylesheet::Align::Stretch},
+                                         {"padding", {{"all", 20.0}}},
+                                         {"margin", {{"all", 2.0}}}};
 
+        FlexStylesheet styleSheet = FlexJson(jsonStylesheet);
+        container->setLayoutStylesheet(styleSheet);
+
+        nlohmann::json serializedStyleSheet = styleSheet;
+        logstream() << serializedStyleSheet.dump(1);
 #else
         container->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
                                        << FlexGrow(1.f) << FlexShrink(1.f)
