@@ -21,7 +21,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UIProvider> getDefaultUIProvider() { return bdn::ios::UIProvider::get(); }
+    std::shared_ptr<UIProvider> defaultUIProvider() { return bdn::ios::UIProvider::get(); }
 }
 
 namespace bdn

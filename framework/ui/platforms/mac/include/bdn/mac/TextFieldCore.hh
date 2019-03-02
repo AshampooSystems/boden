@@ -30,7 +30,7 @@ namespace bdn
 
             void setText(const String &text) override
             {
-                NSTextField *textField = (NSTextField *)getNSView();
+                NSTextField *textField = (NSTextField *)nsView();
                 if (nsStringToString(textField.stringValue) != text) {
                     textField.stringValue = stringToNSString(text);
                 }

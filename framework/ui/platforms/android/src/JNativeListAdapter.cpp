@@ -16,14 +16,13 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
     return bdn::nonVoidPlatformEntryWrapper<jint>(
         [&]() -> jint {
             auto core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
+                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
                 return 0;
             }
 
-            std::shared_ptr<bdn::ListView> listView =
-                std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
+            std::shared_ptr<bdn::ListView> listView = std::dynamic_pointer_cast<bdn::ListView>(core->outerView());
 
             if (listView == nullptr) {
                 return 0;
@@ -48,14 +47,13 @@ extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nat
     return bdn::nonVoidPlatformEntryWrapper<jstring>(
         [&]() -> jstring {
             auto core = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
+                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (core == nullptr) {
                 return env->NewStringUTF("");
             }
 
-            std::shared_ptr<bdn::ListView> listView =
-                std::dynamic_pointer_cast<bdn::ListView>(core->getOuterViewIfStillAttached());
+            std::shared_ptr<bdn::ListView> listView = std::dynamic_pointer_cast<bdn::ListView>(core->outerView());
 
             if (listView == nullptr) {
                 return env->NewStringUTF("");
@@ -82,14 +80,14 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
             ////////////////////////////////////////////////////////////////////////////////////////
             // Get our List View
             auto listViewCore = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
+                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
 
             if (listViewCore == nullptr) {
                 return nullptr;
             }
 
             std::shared_ptr<bdn::ListView> listView =
-                std::dynamic_pointer_cast<bdn::ListView>(listViewCore->getOuterViewIfStillAttached());
+                std::dynamic_pointer_cast<bdn::ListView>(listViewCore->outerView());
 
             if (listView == nullptr) {
                 return nullptr;
@@ -108,11 +106,11 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
             if (rawReusableView != nullptr) {
                 auto ref = bdn::java::Reference::convertExternalLocal(rawReusableView);
                 auto reusableViewCore =
-                    std::dynamic_pointer_cast<bdn::android::ViewCore>(bdn::android::getViewCoreFromJavaViewRef(ref));
+                    std::dynamic_pointer_cast<bdn::android::ViewCore>(bdn::android::viewCoreFromJavaViewRef(ref));
 
-                if (auto outerView = reusableViewCore->getOuterViewIfStillAttached()) {
-                    if (auto container = std::dynamic_pointer_cast<bdn::ContainerView>(outerView)) {
-                        reusableInnerOuterView = container->getChildViews().front();
+                if (auto outer = reusableViewCore->outerView()) {
+                    if (auto container = std::dynamic_pointer_cast<bdn::ContainerView>(outer)) {
+                        reusableInnerOuterView = container->childViews().front();
                     }
                 }
             }
@@ -131,7 +129,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
             ////////////////////////////////////////////////////////////////////////////////////////
             // Create a container to hold the delegate
 
-            auto uiProvider = listView->getUIProvider();
+            auto uiProvider = listView->uiProvider();
 
             auto container = std::make_shared<bdn::FixedView>();
             container->offerLayout(listView->getLayout());

@@ -27,7 +27,7 @@
 - (void)layoutSubviews
 {
     if (_viewCore) {
-        if (auto view = _viewCore->getOuterViewIfStillAttached()) {
+        if (auto view = _viewCore->outerView()) {
             if (auto layout = view->getLayout()) {
                 layout->layout(view.get());
             }
@@ -106,7 +106,7 @@
 
         fixedView = std::make_shared<bdn::FixedView>();
 
-        fixedView->setViewCore(listView->getUIProvider(),
+        fixedView->setViewCore(listView->uiProvider(),
                                std::make_unique<bdn::ios::ContainerViewCore>(fixedView, cellContent));
 
         fixedView->offerLayout(self.outer.lock()->getLayout());
@@ -119,8 +119,8 @@
         cellContent = cell.contentView.subviews.firstObject;
         fixedView = cellContent.fixedView;
 
-        if (!fixedView->getChildViews().empty()) {
-            view = fixedView->getChildViews().front();
+        if (!fixedView->childViews().empty()) {
+            view = fixedView->childViews().front();
         }
     }
 
@@ -178,11 +178,11 @@ namespace bdn
             nativeDelegate.outer = outer;
             _nativeDelegate = nativeDelegate;
 
-            UITableView *uiTableView = (UITableView *)getUIView();
+            UITableView *uiTableView = (UITableView *)uiView();
             uiTableView.dataSource = nativeDelegate;
             uiTableView.delegate = nativeDelegate;
         }
 
-        void ListViewCore::reloadData() { [((UITableView *)getUIView())reloadData]; }
+        void ListViewCore::reloadData() { [((UITableView *)uiView())reloadData]; }
     }
 }

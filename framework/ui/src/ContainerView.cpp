@@ -58,26 +58,11 @@ namespace bdn
             childView->_setParentView(nullptr);
     }
 
-    std::list<std::shared_ptr<View>> ContainerView::getChildViews() const
+    std::list<std::shared_ptr<View>> ContainerView::childViews() const
     {
         AppRunnerBase::assertInMainThread();
 
         return _childViews;
-    }
-
-    std::shared_ptr<View> ContainerView::findPreviousChildView(std::shared_ptr<View> childView)
-    {
-        AppRunnerBase::assertInMainThread();
-
-        std::shared_ptr<View> prevChildView;
-        for (const std::shared_ptr<View> &currView : _childViews) {
-            if (currView == childView)
-                return prevChildView;
-
-            prevChildView = currView;
-        }
-
-        return nullptr;
     }
 
     void ContainerView::_childViewStolen(std::shared_ptr<View> childView)

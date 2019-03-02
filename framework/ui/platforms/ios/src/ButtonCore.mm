@@ -45,7 +45,7 @@ namespace bdn
 
         ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ViewCore(outer, _createUIButton(outer))
         {
-            _button = (UIButton *)getUIView();
+            _button = (UIButton *)uiView();
 
             _clickManager = [BdnIosButtonClickManager alloc];
             _clickManager.outer = outer;

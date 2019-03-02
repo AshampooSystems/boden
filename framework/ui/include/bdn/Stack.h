@@ -28,8 +28,8 @@ namespace bdn
         const std::deque<StackEntry> &stack() const { return _stack; }
 
       public:
-        virtual std::list<std::shared_ptr<View>> getChildViews() const override;
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        virtual std::list<std::shared_ptr<View>> childViews() const override;
+        String viewCoreTypeName() const override { return coreTypeName; }
         virtual void _initCore(std::shared_ptr<UIProvider> uiProvider) override;
         virtual void _deinitCore() override;
 

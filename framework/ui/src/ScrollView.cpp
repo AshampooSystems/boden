@@ -48,12 +48,12 @@ namespace bdn
     {
         AppRunnerBase::assertInMainThread();
 
-        std::shared_ptr<IScrollViewCore> core = std::dynamic_pointer_cast<IScrollViewCore>(getViewCore());
+        std::shared_ptr<IScrollViewCore> core = std::dynamic_pointer_cast<IScrollViewCore>(viewCore());
         if (core != nullptr)
             core->scrollClientRectToVisible(area);
     }
 
-    std::list<std::shared_ptr<View>> ScrollView::getChildViews() const
+    std::list<std::shared_ptr<View>> ScrollView::childViews() const
     {
         AppRunnerBase::assertInMainThread();
 
@@ -62,13 +62,6 @@ namespace bdn
         }
 
         return {};
-    }
-
-    std::shared_ptr<View> ScrollView::findPreviousChildView(std::shared_ptr<View> childView)
-    {
-        // we do not have multiple child views with an order - just a single
-        // content view
-        return nullptr;
     }
 
     void ScrollView::_childViewStolen(std::shared_ptr<View> childView)

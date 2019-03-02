@@ -11,15 +11,14 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeAdapterViewOnItemC
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> viewCore =
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawAdapterView));
+            std::shared_ptr<bdn::android::ViewCore> core =
+                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawAdapterView));
 
-            if (viewCore == nullptr) {
+            if (core == nullptr) {
                 return;
             }
 
-            std::shared_ptr<bdn::ListView> outer =
-                std::dynamic_pointer_cast<bdn::ListView>(viewCore->getOuterViewIfStillAttached());
+            std::shared_ptr<bdn::ListView> outer = std::dynamic_pointer_cast<bdn::ListView>(core->outerView());
             if (outer == nullptr) {
                 return;
             }

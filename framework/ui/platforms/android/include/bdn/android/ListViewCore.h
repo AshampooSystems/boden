@@ -14,7 +14,7 @@ namespace bdn
         class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
         {
           public:
-            ListViewCore(std::shared_ptr<ListView> outerView);
+            ListViewCore(std::shared_ptr<ListView> outer);
 
             virtual void reloadData() override;
 

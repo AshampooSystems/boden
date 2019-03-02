@@ -37,9 +37,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewGroup_doLayout
 {
     bdn::platformEntryWrapper(
         [&]() {
-            if (auto viewCore =
-                    bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                if (auto view = viewCore->getOuterViewIfStillAttached()) {
+            if (auto core =
+                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                if (auto view = core->outerView()) {
                     if (auto layout = view->getLayout()) {
                         layout->layout(view.get());
                     }

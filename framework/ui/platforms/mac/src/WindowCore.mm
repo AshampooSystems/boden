@@ -125,7 +125,7 @@ namespace bdn
             // nothing
         }
 
-        void WindowCore::addChildNsView(NSView *childView) { [_nsContentParent addSubview:childView]; }
+        void WindowCore::addChildNSView(NSView *childView) { [_nsContentParent addSubview:childView]; }
 
         void WindowCore::_movedOrResized()
         {

@@ -220,8 +220,7 @@ namespace bdn
           private:
             void updateVisibleClientRect()
             {
-                std::shared_ptr<ScrollView> outer =
-                    std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
+                std::shared_ptr<ScrollView> outer = std::dynamic_pointer_cast<ScrollView>(outerView());
                 if (outer != nullptr) {
                     double uiScaleFactor = getUIScaleFactor();
 

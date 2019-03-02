@@ -44,7 +44,7 @@ namespace bdn
 
             void clicked() override
             {
-                std::shared_ptr<Checkbox> view = std::dynamic_pointer_cast<Checkbox>(getOuterViewIfStillAttached());
+                std::shared_ptr<Checkbox> view = std::dynamic_pointer_cast<Checkbox>(outerView());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 

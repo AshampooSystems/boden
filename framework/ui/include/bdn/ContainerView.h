@@ -23,7 +23,7 @@ namespace bdn
 
         static constexpr char coreTypeName[] = "bdn.ContainerViewCore";
 
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        String viewCoreTypeName() const override { return coreTypeName; }
 
         /** Adds a child to the end of the container.
 
@@ -54,9 +54,7 @@ namespace bdn
 
         void removeAllChildViews() override;
 
-        std::list<std::shared_ptr<View>> getChildViews() const override;
-
-        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
+        std::list<std::shared_ptr<View>> childViews() const override;
 
         void _childViewStolen(std::shared_ptr<View> childView) override;
 

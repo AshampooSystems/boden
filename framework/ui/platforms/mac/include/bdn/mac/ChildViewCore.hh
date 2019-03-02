@@ -19,7 +19,7 @@ namespace bdn
         class ChildViewCore : virtual public ViewCore, virtual public IParentViewCore
         {
           public:
-            ChildViewCore(std::shared_ptr<View> outerView, NSView *nsView);
+            ChildViewCore(std::shared_ptr<View> outer, NSView *nsView);
             virtual ~ChildViewCore();
 
           public:
@@ -29,11 +29,11 @@ namespace bdn
 
             void dispose() override;
 
-            std::shared_ptr<View> getOuterViewIfStillAttached() const;
+            std::shared_ptr<View> outerView() const;
 
-            NSView *getNSView() const;
+            NSView *nsView() const;
 
-            void addChildNsView(NSView *childView) override;
+            void addChildNSView(NSView *childView) override;
 
             void removeFromNsSuperview();
 
@@ -79,7 +79,7 @@ namespace bdn
                                            "does not have a parent.");
                 }
 
-                std::shared_ptr<ViewCore> parentCore = parentView->getViewCore();
+                std::shared_ptr<ViewCore> parentCore = parentView->viewCore();
                 if (parentCore == nullptr) {
                     // this should not happen. The parent MUST have a core -
                     // otherwise we cannot initialize ourselves.
@@ -87,10 +87,10 @@ namespace bdn
                                            "parent does not have a core.");
                 }
 
-                std::dynamic_pointer_cast<IParentViewCore>(parentCore)->addChildNsView(_nsView);
+                std::dynamic_pointer_cast<IParentViewCore>(parentCore)->addChildNSView(_nsView);
             }
 
-            std::weak_ptr<View> _outerViewWeak;
+            std::weak_ptr<View> _outerView;
             NSView *_nsView;
 
             mutable double _emDipsIfInitialized = -1;

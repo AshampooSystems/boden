@@ -11,7 +11,7 @@ namespace bdn
       public:
         using AppControllerBase::AppControllerBase;
 
-        virtual std::shared_ptr<UIProvider> getUIProvider() { return getDefaultUIProvider(); }
+        virtual std::shared_ptr<UIProvider> uiProvider() { return defaultUIProvider(); }
 
         static std::shared_ptr<UIAppControllerBase> get()
         {

@@ -15,7 +15,7 @@ extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeTextViewOnEditorAc
     bdn::platformEntryWrapper(
         [&]() {
             auto core = std::dynamic_pointer_cast<bdn::android::TextFieldCore>(
-                bdn::android::getViewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
+                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)));
             bdn::android::JKeyEvent keyEvent(bdn::java::Reference::convertExternalLocal(rawEvent));
 
             if (core == nullptr) {

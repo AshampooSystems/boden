@@ -25,7 +25,7 @@ namespace bdn
           public:
             CheckboxCore(std::shared_ptr<Checkbox> outer) : ButtonCoreBase(outer, createNSButton())
             {
-                _nsButton = (NSButton *)getNSView();
+                _nsButton = (NSButton *)nsView();
 
                 if (std::dynamic_pointer_cast<Checkbox>(outer))
                     _nsButton.allowsMixedState = true;
@@ -49,7 +49,7 @@ namespace bdn
 
             void generateClick()
             {
-                std::shared_ptr<Checkbox> outer = std::dynamic_pointer_cast<Checkbox>(getOuterViewIfStillAttached());
+                std::shared_ptr<Checkbox> outer = std::dynamic_pointer_cast<Checkbox>(outerView());
                 if (outer != nullptr) {
                     bdn::ClickEvent evt(outer);
 

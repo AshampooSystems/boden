@@ -57,15 +57,15 @@ namespace bdn
 
         void ViewCore::initTag()
         {
-            auto tag = bdn::java::NativeWeakPointer(getOuterViewIfStillAttached());
+            auto tag = bdn::java::NativeWeakPointer(outerView());
             _jView.setTag(tag);
         }
 
-        std::shared_ptr<View> ViewCore::getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
+        std::shared_ptr<View> ViewCore::outerView() const { return _outerView.lock(); }
 
         std::shared_ptr<ViewCore> ViewCore::getParentViewCore()
         {
-            return getViewCoreFromJavaViewRef(_jView.getParent().getRef_());
+            return viewCoreFromJavaViewRef(_jView.getParent().getRef_());
         }
 
         Size ViewCore::sizeForSpace(Size availableSpace) const
@@ -117,7 +117,7 @@ namespace bdn
 
         void ViewCore::moveToParentView(std::shared_ptr<View> newParentView)
         {
-            std::shared_ptr<View> outer = getOuterViewIfStillAttached();
+            std::shared_ptr<View> outer = outerView();
             if (outer != nullptr) {
                 std::shared_ptr<View> parent = outer->getParentView();
 
@@ -169,11 +169,11 @@ namespace bdn
             if (scaleFactor != _uiScaleFactor) {
                 _uiScaleFactor = scaleFactor;
 
-                std::shared_ptr<View> view = getOuterViewIfStillAttached();
-                std::list<std::shared_ptr<View>> childList = view->getChildViews();
+                std::shared_ptr<View> view = outerView();
+                std::list<std::shared_ptr<View>> childList = view->childViews();
 
                 for (std::shared_ptr<View> &child : childList) {
-                    auto childCore = std::dynamic_pointer_cast<ViewCore>(child->getViewCore());
+                    auto childCore = std::dynamic_pointer_cast<ViewCore>(child->viewCore());
 
                     if (childCore != nullptr)
                         childCore->setUIScaleFactor(scaleFactor);
@@ -207,7 +207,7 @@ namespace bdn
         void ViewCore::_addToParent(std::shared_ptr<View> parent)
         {
             if (parent != nullptr) {
-                auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
+                auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->viewCore());
                 if (parentCore == nullptr)
                     throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
                                            "either does not have a core, or its core does not "
@@ -221,7 +221,7 @@ namespace bdn
 
         void ViewCore::_removeFromParent()
         {
-            std::shared_ptr<View> view = getOuterViewIfStillAttached();
+            std::shared_ptr<View> view = outerView();
             std::shared_ptr<View> parent;
             if (view != nullptr)
                 parent = view->getParentView();
@@ -229,7 +229,7 @@ namespace bdn
             if (parent == nullptr)
                 return; // no parent – nothing to do
 
-            auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->getViewCore());
+            auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->viewCore());
             if (parentCore != nullptr) {
                 // XXX: Rather unfortunate – removeAllChildViews() is BFS
                 // and so parent core is no longer set when removing
@@ -240,7 +240,7 @@ namespace bdn
             }
         }
 
-        std::shared_ptr<ViewCore> getViewCoreFromJavaViewRef(const java::Reference &javaViewRef)
+        std::shared_ptr<ViewCore> viewCoreFromJavaViewRef(const java::Reference &javaViewRef)
         {
             if (!javaViewRef.isNull()) {
                 JView view(javaViewRef);
@@ -249,12 +249,12 @@ namespace bdn
                     bdn::java::NativeWeakPointer viewTagPtr(viewTag.getRef_());
 
                     if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer().lock())) {
-                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->getViewCore());
+                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
                     }
                 } else if (viewTag.isInstanceOf_(bdn::java::JNativeStrongPointer::getStaticClass_())) {
                     bdn::java::JNativeStrongPointer viewTagPtr(viewTag.getRef_());
                     if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer_())) {
-                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->getViewCore());
+                        return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
                     }
                 }
             }

@@ -21,14 +21,14 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _iosViewCore = std::dynamic_pointer_cast<bdn::ios::ViewCore>(BaseClass::_view->getViewCore());
+                _iosViewCore = std::dynamic_pointer_cast<bdn::ios::ViewCore>(BaseClass::_view->viewCore());
                 REQUIRE(_iosViewCore != nullptr);
 
-                _uiView = _iosViewCore->getUIView();
+                _uiView = _iosViewCore->uiView();
                 REQUIRE(_uiView != nullptr);
             }
 
-            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::ios::UIProvider::get(); }
+            std::shared_ptr<UIProvider> uiProvider() override { return bdn::ios::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {

@@ -176,7 +176,7 @@ namespace bdn
         auto removeButton = std::make_shared<Button>();
         removeButton->label = "Remove";
         removeButton->onClick() += [fakeList](auto) {
-            std::list<std::shared_ptr<bdn::View>> children = fakeList->getChildViews();
+            std::list<std::shared_ptr<bdn::View>> children = fakeList->childViews();
             if (children.size() > 0) {
                 fakeList->removeChildView(children.back());
             }

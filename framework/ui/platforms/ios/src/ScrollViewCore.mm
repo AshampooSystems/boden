@@ -10,7 +10,7 @@
 - (void)scrollViewDidScroll:(UIScrollView *)uiScrollView
 {
     if (auto outer = self.outer.lock()) {
-        if (auto core = std::dynamic_pointer_cast<bdn::ios::ScrollViewCore>(outer->getViewCore())) {
+        if (auto core = std::dynamic_pointer_cast<bdn::ios::ScrollViewCore>(outer->viewCore())) {
             core->updateVisibleClientRect();
         }
     }
@@ -44,7 +44,7 @@ namespace bdn
 
         ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer) : ViewCore(outer, _createScrollView(outer))
         {
-            _uiScrollView = (UIScrollView *)getUIView();
+            _uiScrollView = (UIScrollView *)uiView();
 
             setHorizontalScrollingEnabled(true); // outer->horizontalScrollingEnabled);
             setVerticalScrollingEnabled(true);
@@ -54,14 +54,14 @@ namespace bdn
             _uiScrollView.delegate = _delegate;
         }
 
-        void ScrollViewCore::addChildViewCore(ViewCore *viewCore)
+        void ScrollViewCore::addChildViewCore(ViewCore *core)
         {
             for (id subView in _uiScrollView.subviews)
                 [((UIView *)subView)removeFromSuperview];
 
             _childGeometry = std::make_shared<Property<Rect>>();
 
-            _childGeometry->bind(viewCore->geometry, BindMode::unidirectional);
+            _childGeometry->bind(core->geometry, BindMode::unidirectional);
 
             _childGeometry->onChange() += [=](auto va) {
                 CGSize s;
@@ -70,7 +70,7 @@ namespace bdn
                 _uiScrollView.contentSize = s;
             };
 
-            [_uiScrollView addSubview:viewCore->getUIView()];
+            [_uiScrollView addSubview:core->uiView()];
         }
 
         void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
@@ -258,7 +258,7 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            if (auto outer = std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached())) {
+            if (auto outer = std::dynamic_pointer_cast<ScrollView>(outerView())) {
                 Point scrollPosition = iosPointToPoint(_uiScrollView.contentOffset);
 
                 // Not correct if scroll view is zoomed. Zooming is not supported yet.

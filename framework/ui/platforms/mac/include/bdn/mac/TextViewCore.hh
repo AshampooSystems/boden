@@ -59,7 +59,7 @@ namespace bdn
             TextViewCore(std::shared_ptr<TextView> outerTextView)
                 : ChildViewCore(outerTextView, _createNSTextView(outerTextView))
             {
-                _nsTextView = (BdnMacTextView_ *)getNSView();
+                _nsTextView = (BdnMacTextView_ *)nsView();
 
                 setText(outerTextView->text);
                 _wrap = outerTextView->wrap;
@@ -84,8 +84,6 @@ namespace bdn
                     boundingRectWithSize:boundingRect
                                  options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
                                  context:nil];
-
-                NSPoint p = _nsTextView.textContainerOrigin;
 
                 Size insetSize = macSizeToSize(_nsTextView.textContainerInset);
                 insetSize.applyMinimum({0, 0});

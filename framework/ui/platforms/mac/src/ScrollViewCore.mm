@@ -50,7 +50,7 @@ namespace bdn
         ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer)
             : ChildViewCore(outer, _createScrollView(outer))
         {
-            _nsScrollView = (NSScrollView *)getNSView();
+            _nsScrollView = (NSScrollView *)nsView();
 
             // we add a custom view as the document view so that we have better
             // control over the positioning of the content view
@@ -89,7 +89,7 @@ namespace bdn
             return scrollView;
         }
 
-        void ScrollViewCore::addChildNsView(NSView *childView)
+        void ScrollViewCore::addChildNSView(NSView *childView)
         {
             for (id oldViewObject in _nsScrollView.documentView.subviews) {
                 NSView *oldView = (NSView *)oldViewObject;
@@ -125,12 +125,11 @@ namespace bdn
 
         void ScrollViewCore::updateVisibleClientRect()
         {
-            std::shared_ptr<ScrollView> outerView =
-                std::dynamic_pointer_cast<ScrollView>(getOuterViewIfStillAttached());
-            if (outerView != nullptr) {
+            std::shared_ptr<ScrollView> outer = std::dynamic_pointer_cast<ScrollView>(outerView());
+            if (outer != nullptr) {
                 Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
 
-                outerView->visibleClientRect = visibleClientRect;
+                outer->visibleClientRect = visibleClientRect;
             }
         }
     }

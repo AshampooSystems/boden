@@ -16,7 +16,7 @@ namespace bdn
 
         void reloadData();
 
-        String getViewCoreTypeName() const override;
+        String viewCoreTypeName() const override;
 
         Property<std::shared_ptr<ListViewDataSource>> dataSource;
         Property<std::optional<size_t>> selectedRowIndex;

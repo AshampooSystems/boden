@@ -8,13 +8,13 @@ namespace bdn
     namespace ios
     {
 
-        ViewCore::ViewCore(std::shared_ptr<View> outerView, id<UIViewWithFrameNotification> uiView)
+        ViewCore::ViewCore(std::shared_ptr<View> outer, id<UIViewWithFrameNotification> uiView)
         {
             [uiView setViewCore:this];
-            _outerViewWeak = outerView;
+            _outerView = outer;
             _view = (UIView<UIViewWithFrameNotification> *)uiView;
 
-            _addToParent(outerView->getParentView());
+            _addToParent(outer->getParentView());
 
             geometry.onChange() += [=](auto va) { this->onGeometryChanged(va->get()); };
 
@@ -27,9 +27,9 @@ namespace bdn
 
         void ViewCore::onGeometryChanged(Rect newGeometry) { _view.frame = rectToIosRect(newGeometry); }
 
-        std::shared_ptr<View> ViewCore::getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
+        std::shared_ptr<View> ViewCore::outerView() const { return _outerView.lock(); }
 
-        UIView *ViewCore::getUIView() const { return _view; }
+        UIView *ViewCore::uiView() const { return _view; }
 
         Size ViewCore::sizeForSpace(Size availableSpace) const
         {
@@ -65,7 +65,7 @@ namespace bdn
 
         void ViewCore::moveToParentView(std::shared_ptr<View> newParentView)
         {
-            std::shared_ptr<View> outer = getOuterViewIfStillAttached();
+            std::shared_ptr<View> outer = outerView();
             if (outer != nullptr) {
                 std::shared_ptr<View> parent = outer->getParentView();
 
@@ -85,7 +85,7 @@ namespace bdn
             _view = nil;
         }
 
-        void ViewCore::addChildViewCore(ViewCore *viewCore) { [_view addSubview:viewCore->getUIView()]; }
+        void ViewCore::addChildViewCore(ViewCore *core) { [_view addSubview:core->uiView()]; }
 
         void ViewCore::removeFromUISuperview() { [_view removeFromSuperview]; }
 
@@ -100,7 +100,7 @@ namespace bdn
                 return;
             }
 
-            std::shared_ptr<bdn::ViewCore> parentCore = parentView->getViewCore();
+            std::shared_ptr<bdn::ViewCore> parentCore = parentView->viewCore();
             if (parentCore == nullptr) {
                 // this should not happen. The parent MUST have a core -
                 // otherwise we cannot initialize ourselves.

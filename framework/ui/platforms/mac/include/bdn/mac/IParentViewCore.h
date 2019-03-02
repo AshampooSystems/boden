@@ -13,7 +13,7 @@ namespace bdn
         {
           public:
             /** Adds a child UI element to the parent.*/
-            virtual void addChildNsView(NSView *nsView) = 0;
+            virtual void addChildNSView(NSView *nsView) = 0;
         };
     }
 }

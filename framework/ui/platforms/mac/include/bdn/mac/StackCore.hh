@@ -22,7 +22,7 @@ namespace bdn
           public:
             virtual void pushView(std::shared_ptr<View> view, String title) override;
             virtual void popView() override;
-            virtual std::list<std::shared_ptr<View>> getChildViews() override;
+            virtual std::list<std::shared_ptr<View>> childViews() override;
 
           public:
           private:

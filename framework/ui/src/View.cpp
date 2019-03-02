@@ -46,7 +46,7 @@ namespace bdn
             newLayout->registerView(this);
         }
 
-        for (auto child : getChildViews()) {
+        for (auto child : childViews()) {
             child->offerLayout(newLayout);
         }
     }
@@ -115,8 +115,8 @@ namespace bdn
 
     void View::scheduleLayout()
     {
-        if (auto viewCore = getViewCore()) {
-            viewCore->scheduleLayout();
+        if (auto core = viewCore()) {
+            core->scheduleLayout();
         } else {
             _hasLayoutSchedulePending = true;
         }
@@ -124,9 +124,9 @@ namespace bdn
 
     void View::bindViewCore()
     {
-        if (auto viewCore = getViewCore()) {
-            viewCore->visible.bind(visible);
-            viewCore->geometry.bind(geometry);
+        if (auto core = viewCore()) {
+            core->visible.bind(visible);
+            core->geometry.bind(geometry);
         }
     }
 
@@ -137,24 +137,24 @@ namespace bdn
         uiProvider = uiProvider ? uiProvider : determineUIProvider();
         if (_core == nullptr) {
             if (uiProvider != nullptr) {
-                setViewCore(uiProvider, uiProvider->createViewCore(getViewCoreTypeName(), shared_from_this()));
+                setViewCore(uiProvider, uiProvider->createViewCore(viewCoreTypeName(), shared_from_this()));
             }
         }
     }
 
-    void View::setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> viewCore)
+    void View::setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> core)
     {
-        if (_core && _core != viewCore) {
+        if (_core && _core != core) {
             _core->dispose();
         }
 
-        if (viewCore) {
-            _core = std::move(viewCore);
+        if (core) {
+            _core = std::move(core);
             _uiProvider = uiProvider;
 
             bindViewCore();
 
-            std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
+            std::list<std::shared_ptr<View>> childViewsCopy = childViews();
             for (auto childView : childViewsCopy) {
                 childView->_setParentView(_core ? shared_from_this() : nullptr);
             }
@@ -166,20 +166,20 @@ namespace bdn
 
         } else {
 
-            std::list<std::shared_ptr<View>> childViewsCopy = getChildViews();
+            std::list<std::shared_ptr<View>> childViewsCopy = childViews();
             for (auto childView : childViewsCopy) {
-                childView->_setParentView(viewCore ? shared_from_this() : nullptr);
+                childView->_setParentView(core ? shared_from_this() : nullptr);
             }
 
-            _core = std::move(viewCore);
+            _core = std::move(core);
             _uiProvider = uiProvider;
         }
     }
 
     Size View::sizeForSpace(Size availableSpace) const
     {
-        if (auto viewCore = this->getViewCore()) {
-            return viewCore->sizeForSpace(availableSpace);
+        if (auto core = this->viewCore()) {
+            return core->sizeForSpace(availableSpace);
         }
         return Size{0, 0};
     }

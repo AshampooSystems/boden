@@ -30,14 +30,11 @@ namespace bdn
             void init();
 
           public:
-            ViewCore(std::shared_ptr<View> outerView, JView jView) : _outerViewWeak(outerView), _jView(jView)
-            {
-                init();
-            }
+            ViewCore(std::shared_ptr<View> outer, JView jView) : _outerView(outer), _jView(jView) { init(); }
             virtual ~ViewCore();
 
           public:
-            std::shared_ptr<View> getOuterViewIfStillAttached() const;
+            std::shared_ptr<View> outerView() const;
 
             virtual void initTag();
 
@@ -95,7 +92,7 @@ namespace bdn
             void _removeFromParent();
 
           private:
-            std::weak_ptr<View> _outerViewWeak;
+            std::weak_ptr<View> _outerView;
             mutable JView _jView;
             double _uiScaleFactor;
 
@@ -103,19 +100,19 @@ namespace bdn
             mutable double _semDipsIfInitialized = -1;
         };
 
-        std::shared_ptr<ViewCore> getViewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef);
+        std::shared_ptr<ViewCore> viewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef);
 
         template <class T>
-        JView createAndroidViewClass(std::shared_ptr<View> outerView, std::optional<JContext> context = std::nullopt)
+        JView createAndroidViewClass(std::shared_ptr<View> outer, std::optional<JContext> context = std::nullopt)
         {
             if (!context) {
-                std::shared_ptr<View> parent = outerView->getParentView();
+                std::shared_ptr<View> parent = outer->getParentView();
                 if (parent == nullptr) {
                     throw ProgrammingError("ViewCore instance requested for a "s + typeid(T).name() +
                                            " that does not have a parent and no context was given."s);
                 }
 
-                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->getViewCore());
+                std::shared_ptr<ViewCore> parentCore = std::dynamic_pointer_cast<ViewCore>(parent->viewCore());
 
                 if (parentCore == nullptr) {
                     throw ProgrammingError("ViewCore instance requested for a "s + typeid(T).name() +

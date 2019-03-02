@@ -22,14 +22,14 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _macChildViewCore = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(BaseClass::_view->getViewCore());
+                _macChildViewCore = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(BaseClass::_view->viewCore());
                 REQUIRE(_macChildViewCore != nullptr);
 
-                _nsView = _macChildViewCore->getNSView();
+                _nsView = _macChildViewCore->nsView();
                 REQUIRE(_nsView != nullptr);
             }
 
-            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::mac::UIProvider::get(); }
+            std::shared_ptr<UIProvider> uiProvider() override { return bdn::mac::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {

@@ -19,7 +19,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UIProvider> getDefaultUIProvider() { return bdn::android::UIProvider::get(); }
+    std::shared_ptr<UIProvider> defaultUIProvider() { return bdn::android::UIProvider::get(); }
 }
 
 namespace bdn
@@ -33,18 +33,18 @@ namespace bdn
             return uiProvider;
         }
 
-        double UIProvider::getSemSizeDips(ViewCore &viewCore)
+        double UIProvider::getSemSizeDips(ViewCore &core)
         {
             if (_semDips == -1) {
                 // sem size is not yet initialized.
 
-                JTextView textView(viewCore.getJView().getContext());
+                JTextView textView(core.getJView().getContext());
                 JTextPaint paint(textView.getPaint());
 
                 double textSize = paint.getTextSize();
 
                 // getTextSize returns the size in real pixels.
-                _semDips = textSize / viewCore.getUIScaleFactor();
+                _semDips = textSize / core.getUIScaleFactor();
             }
 
             return _semDips;

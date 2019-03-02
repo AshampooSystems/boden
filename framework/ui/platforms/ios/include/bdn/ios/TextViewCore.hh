@@ -39,7 +39,7 @@ namespace bdn
             TextViewCore(std::shared_ptr<TextView> outerTextView)
                 : ViewCore(outerTextView, _createUILabel(outerTextView))
             {
-                _uiLabel = (UILabel *)getUIView();
+                _uiLabel = (UILabel *)uiView();
                 setText(outerTextView->text);
                 setWrap(outerTextView->wrap);
             }

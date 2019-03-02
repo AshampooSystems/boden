@@ -38,7 +38,7 @@ namespace bdn
         /** @param uiProvider the UI provider that the window should use.
                 See the UIProvider documentation for more information.
                 If this is nullptr then the UI provider provided by the
-                app controller is used (see AppControllerBase::getUIProvider() )
+                app controller is used (see AppControllerBase::uiProvider() )
            .*/
         Window(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
@@ -51,13 +51,11 @@ namespace bdn
         /** Static function that returns the type name for #Window objects.*/
         static constexpr char coreTypeName[] = "bdn.WindowCore";
 
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        String viewCoreTypeName() const override { return coreTypeName; }
 
-        std::list<std::shared_ptr<View>> getChildViews() const override;
+        std::list<std::shared_ptr<View>> childViews() const override;
 
         void removeAllChildViews() override;
-
-        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
         void _childViewStolen(std::shared_ptr<View> childView) override;
 

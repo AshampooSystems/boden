@@ -62,15 +62,15 @@
 
         fixedView->_setParentView(listView);
 
-        fixedView->setViewCore(listView->getUIProvider(),
+        fixedView->setViewCore(listView->uiProvider(),
                                std::make_unique<bdn::mac::ContainerViewCore>(fixedView, result));
 
         result.view = fixedView;
 
     } else {
         fixedView = result.view;
-        if (!fixedView->getChildViews().empty()) {
-            view = fixedView->getChildViews().front();
+        if (!fixedView->childViews().empty()) {
+            view = fixedView->childViews().front();
         }
     }
 
@@ -105,7 +105,7 @@ namespace bdn
             ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
             nativeDelegate.outer = outer;
 
-            _nsTableView = ((NSScrollView *)getNSView()).documentView;
+            _nsTableView = ((NSScrollView *)nsView()).documentView;
             _nsTableView.dataSource = nativeDelegate;
             _nsTableView.delegate = nativeDelegate;
             _nsTableView.headerView = nil;

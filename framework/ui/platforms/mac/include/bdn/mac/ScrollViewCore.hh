@@ -23,7 +23,7 @@ namespace bdn
             void setHorizontalScrollingEnabled(const bool &enabled) override;
             void setVerticalScrollingEnabled(const bool &enabled) override;
 
-            void addChildNsView(NSView *childView) override;
+            void addChildNSView(NSView *childView) override;
 
             void scrollClientRectToVisible(const Rect &clientRect) override;
 

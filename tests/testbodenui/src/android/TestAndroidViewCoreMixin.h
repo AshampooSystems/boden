@@ -23,14 +23,14 @@ namespace bdn
             {
                 BaseClass::initCore();
 
-                _androidViewCore = std::dynamic_pointer_cast<bdn::android::ViewCore>(BaseClass::_view->getViewCore());
+                _androidViewCore = std::dynamic_pointer_cast<bdn::android::ViewCore>(BaseClass::_view->viewCore());
                 REQUIRE(_androidViewCore != nullptr);
 
                 _jView = _androidViewCore->getJView();
                 REQUIRE(!_jView.isNull_());
             }
 
-            std::shared_ptr<UIProvider> getUIProvider() override { return bdn::android::UIProvider::get(); }
+            std::shared_ptr<UIProvider> uiProvider() override { return bdn::android::UIProvider::get(); }
 
             void verifyCoreVisibility() override
             {

@@ -101,13 +101,11 @@ namespace bdn
          * objects.*/
         static constexpr char coreTypeName[] = "bdn.ScrollView";
 
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        String viewCoreTypeName() const override { return coreTypeName; }
 
-        std::list<std::shared_ptr<View>> getChildViews() const override;
+        std::list<std::shared_ptr<View>> childViews() const override;
 
         void removeAllChildViews() override { setContentView(nullptr); }
-
-        std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) override;
 
         void _childViewStolen(std::shared_ptr<View> childView) override;
 

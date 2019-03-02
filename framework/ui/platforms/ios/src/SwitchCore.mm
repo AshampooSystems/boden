@@ -52,7 +52,7 @@ namespace bdn
 
         SwitchCore::SwitchCore(std::shared_ptr<Switch> outer) : ViewCore(outer, createSwitchComposite())
         {
-            _composite = (BdnIosSwitchComposite *)getUIView();
+            _composite = (BdnIosSwitchComposite *)uiView();
 
             _clickManager = [[BdnIosSwitchClickManager alloc] init];
             _clickManager.outer = outer; // reference outer instead of core

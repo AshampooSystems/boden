@@ -55,8 +55,7 @@ namespace bdn
             void afterTextChanged()
             {
                 String newText = _jEditText.getText();
-                std::shared_ptr<TextField> outerTextField =
-                    std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
+                std::shared_ptr<TextField> outerTextField = std::dynamic_pointer_cast<TextField>(outerView());
                 if (outerTextField) {
                     outerTextField->text = (newText);
                 }
@@ -69,8 +68,7 @@ namespace bdn
                     _jEditText.getContext().getSystemService(JContext::INPUT_METHOD_SERVICE).getRef_());
                 inputManager.hideSoftInputFromWindow(_jEditText.getWindowToken(), 0);
 
-                std::shared_ptr<TextField> outerTextField =
-                    std::dynamic_pointer_cast<TextField>(getOuterViewIfStillAttached());
+                std::shared_ptr<TextField> outerTextField = std::dynamic_pointer_cast<TextField>(outerView());
                 if (outerTextField) {
                     outerTextField->submit();
                 }

@@ -36,11 +36,11 @@ Abstract base class for all user interface elements.
 
 ## View Core
 
-* **virtual String getViewCoreTypeName() const = 0**
+* **virtual String viewCoreTypeName() const = 0**
 
 	Super classes should return a [`String`](../string.md) presenting the type name of the view's core.
 
-* **std::shared_ptr<ViewCore> getViewCore() const**
+* **std::shared_ptr<ViewCore> viewCore() const**
 
 	Returns the view's [`ViewCore`](view_core.md).
 
@@ -60,23 +60,19 @@ Abstract base class for all user interface elements.
 
 	Initializes the view's [`ViewCore`](view_core.md) using the given [`UIProvider`](ui_provider.md). If the `uiProvider` argument is set to `nullptr`, attempts to obtain a suitable UI provider from its current parent view.
 
-* **std::shared_ptr<UIProvider\> getUIProvider()**
+* **std::shared_ptr<UIProvider\> uiProvider()**
 
 	Returns the view's [`UIProvider`](ui_provider.md).
 
 ## View Hierarchy
 
-* **virtual std::list<std::shared_ptr<View\>\> getChildViews() const**
+* **virtual std::list<std::shared_ptr<View\>\> childViews() const**
 
 	Returns the view's child views.
 
 * **virtual void removeAllChildViews()**
 
 	Removes all child views.
-
-* **virtual std::shared_ptr<View\> findPreviousChildView(std::shared_ptr<View\> childView)**
-
-	<span style="color: red">Deprecated</span>
 
 * **virtual void \_childViewStolen(std::shared_ptr<View\> childView)**
 	
@@ -86,12 +82,6 @@ Abstract base class for all user interface elements.
 * **virtual std::shared_ptr<View\> getParentView()**
 
 * **void \_setParentView(std::shared_ptr<View\> parentView)**
-
-## Length Conversion
-
-* **double uiLengthToDips(const UILength &length) const**
-
-	<span style="color: red">Deprecated</span>
 
 ## Misc
 

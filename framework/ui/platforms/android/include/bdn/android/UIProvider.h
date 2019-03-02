@@ -28,7 +28,7 @@ namespace bdn
 
             String getName() const override;
 
-            double getSemSizeDips(ViewCore &viewCore);
+            double getSemSizeDips(ViewCore &core);
 
             static std::shared_ptr<UIProvider> get();
 

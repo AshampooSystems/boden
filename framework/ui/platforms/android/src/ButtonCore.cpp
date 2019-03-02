@@ -27,7 +27,7 @@ namespace bdn
 
         void ButtonCore::clicked()
         {
-            std::shared_ptr<View> view = getOuterViewIfStillAttached();
+            std::shared_ptr<View> view = outerView();
             if (view != nullptr) {
                 ClickEvent evt(view);
 

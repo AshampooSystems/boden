@@ -31,7 +31,7 @@ namespace bdn
            elements for interacting with the user).
 
             The default implementation calls the global function
-           bdn::getDefaultUIProvider(). Derived app controller classes may
+           bdn::defaultUIProvider(). Derived app controller classes may
            override this to control which UI provider is used.
             */
 

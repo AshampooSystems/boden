@@ -83,13 +83,13 @@ namespace bdn
                 */
         std::shared_ptr<ViewCore> createViewCore(const String &coreTypeName, std::shared_ptr<View> view)
         {
-            auto viewCore = create(coreTypeName, view);
+            auto core = create(coreTypeName, view);
 
-            if (!viewCore) {
+            if (!core) {
                 throw ViewCoreTypeNotSupportedError(coreTypeName);
             }
 
-            return *viewCore;
+            return *core;
         }
 
       protected:
@@ -107,7 +107,7 @@ namespace bdn
     /*!
      * \brief Returns the default UI provider for the current platform.
      * Note that this is not necessarily the active UI
-     * provider that is used by the app. To get that use AppControllerBase::getUIProvider().
+     * provider that is used by the app. To get that use AppControllerBase::uiProvider().
      */
-    std::shared_ptr<UIProvider> getDefaultUIProvider();
+    std::shared_ptr<UIProvider> defaultUIProvider();
 }

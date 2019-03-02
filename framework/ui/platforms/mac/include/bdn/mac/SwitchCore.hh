@@ -66,7 +66,7 @@ namespace bdn
                 _clickManager = [[BdnSwitchClickManager alloc] init];
                 _clickManager.target = this;
 
-                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
                 [composite.bdnSwitch setTarget:_clickManager];
                 [composite.bdnSwitch setAction:@selector(clicked)];
 
@@ -76,14 +76,14 @@ namespace bdn
 
             virtual ~SwitchCore()
             {
-                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
                 [composite.bdnSwitch setTarget:nil];
                 [composite.bdnSwitch setAction:nil];
             }
 
             void setLabel(const String &label) override
             {
-                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
                 composite.label.stringValue = stringToNSString(label);
                 NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
                 [composite.label setFrameSize:cell.cellSize];
@@ -91,17 +91,17 @@ namespace bdn
 
             void setOn(const bool &on) override
             {
-                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
+                BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
                 [composite.bdnSwitch setOn:on animate:NO];
             }
 
             void clicked() override
             {
-                std::shared_ptr<Switch> outer = std::dynamic_pointer_cast<Switch>(getOuterViewIfStillAttached());
+                std::shared_ptr<Switch> outer = std::dynamic_pointer_cast<Switch>(outerView());
                 if (outer != nullptr) {
                     bdn::ClickEvent evt(outer);
 
-                    BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)getNSView();
+                    BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
                     outer->on = composite.bdnSwitch.on;
                     outer->onClick().notify(evt);
                 }

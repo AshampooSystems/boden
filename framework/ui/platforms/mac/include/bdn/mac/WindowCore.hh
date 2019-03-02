@@ -38,7 +38,7 @@ namespace bdn
 
             void dispose() override;
 
-            void addChildNsView(NSView *childView) override;
+            void addChildNSView(NSView *childView) override;
 
             void _movedOrResized();
 

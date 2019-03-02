@@ -36,7 +36,7 @@ namespace bdn
 
             setLabel(outer->label);
 
-            _heightWithRoundedBezelStyle = macSizeToSize(getNSView().fittingSize).height;
+            _heightWithRoundedBezelStyle = macSizeToSize(nsView().fittingSize).height;
 
             [_nsButton setTarget:_clickManager];
             [_nsButton setAction:@selector(clicked)];

@@ -36,7 +36,7 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.CheckboxCore";
 
         /** Returns the core type name */
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        String viewCoreTypeName() const override { return coreTypeName; }
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

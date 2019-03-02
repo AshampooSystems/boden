@@ -55,8 +55,7 @@ namespace bdn
         TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
             : ChildViewCore(outerTextField, _createNsTextView(outerTextField))
         {
-            _delegate =
-                [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)getNSView()];
+            _delegate = [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)nsView()];
 
             setText(outerTextField->text);
         }

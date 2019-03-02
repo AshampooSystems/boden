@@ -24,7 +24,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
             std::shared_ptr<Button> button = std::make_shared<Button>();
             _window->setContentView(button);
 
-            NSView *child = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(button->getViewCore())->getNSView();
+            NSView *child = std::dynamic_pointer_cast<bdn::mac::ChildViewCore>(button->viewCore())->nsView();
 
             REQUIRE(child.superview.flipped);
         }
@@ -34,14 +34,14 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
     {
         TestWindowCore::initCore();
 
-        _macWindowCore = std::dynamic_pointer_cast<bdn::mac::WindowCore>(_view->getViewCore());
+        _macWindowCore = std::dynamic_pointer_cast<bdn::mac::WindowCore>(_view->viewCore());
         REQUIRE(_macWindowCore != nullptr);
 
         _nsWindow = _macWindowCore->getNSWindow();
         REQUIRE(_nsWindow != nullptr);
     }
 
-    std::shared_ptr<UIProvider> getUIProvider() override { return bdn::mac::UIProvider::get(); }
+    std::shared_ptr<UIProvider> uiProvider() override { return bdn::mac::UIProvider::get(); }
 
     void verifyCoreVisibility() override
     {

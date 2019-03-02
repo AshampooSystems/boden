@@ -22,7 +22,7 @@ namespace bdn
 
             void scrollClientRectToVisible(const Rect &clientRect) override;
 
-            void addChildViewCore(ViewCore *viewCore) override;
+            void addChildViewCore(ViewCore *core) override;
 
             void updateVisibleClientRect();
 

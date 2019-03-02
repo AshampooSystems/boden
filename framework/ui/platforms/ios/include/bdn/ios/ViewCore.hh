@@ -30,12 +30,12 @@ namespace bdn
         class ViewCore : public Base, virtual public bdn::ViewCore
         {
           public:
-            ViewCore(std::shared_ptr<View> outerView, id<UIViewWithFrameNotification> uiView);
+            ViewCore(std::shared_ptr<View> outer, id<UIViewWithFrameNotification> uiView);
             ~ViewCore();
 
-            std::shared_ptr<View> getOuterViewIfStillAttached() const;
+            std::shared_ptr<View> outerView() const;
 
-            UIView *getUIView() const;
+            UIView *uiView() const;
 
             Size sizeForSpace(Size availableSpace = Size::none()) const override;
 
@@ -45,7 +45,7 @@ namespace bdn
 
             void dispose() override;
 
-            virtual void addChildViewCore(ViewCore *viewCore);
+            virtual void addChildViewCore(ViewCore *core);
             virtual void removeFromUISuperview();
 
             virtual void frameChanged();
@@ -76,7 +76,7 @@ namespace bdn
 
             double getSemSizeDips() const;
 
-            std::weak_ptr<View> _outerViewWeak;
+            std::weak_ptr<View> _outerView;
 
             UIView<UIViewWithFrameNotification> *_view;
 

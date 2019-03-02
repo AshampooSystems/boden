@@ -93,15 +93,15 @@ namespace bdn
             : ViewCore(outerTextField, _createUITextField(outerTextField))
         {
             setText(outerTextField->text);
-            _delegate = [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)getUIView()
-                                                         outerTextField:outerTextField];
+            _delegate =
+                [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView() outerTextField:outerTextField];
         }
 
         TextFieldCore::~TextFieldCore() { _delegate = nil; }
 
         void TextFieldCore::setText(const String &text)
         {
-            UITextField *textField = (UITextField *)getUIView();
+            UITextField *textField = (UITextField *)uiView();
             if (nsStringToString(textField.text) != text) {
                 textField.text = stringToNSString(text);
             }

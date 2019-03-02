@@ -22,7 +22,7 @@ namespace bdn
          */
         static constexpr char coreTypeName[] = "bdn.TextFieldCore";
 
-        String getViewCoreTypeName() const override { return coreTypeName; }
+        String viewCoreTypeName() const override { return coreTypeName; }
 
         /** Informs observers of the onSubmit() notifier about a submit event.
          */

@@ -40,7 +40,7 @@ namespace bdn
         virtual ~View();
 
         std::shared_ptr<View> shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
-        virtual String getViewCoreTypeName() const = 0;
+        virtual String viewCoreTypeName() const = 0;
 
       public:
         virtual Size sizeForSpace(Size availableSpace = Size::none()) const;
@@ -51,12 +51,11 @@ namespace bdn
 
         template <class T> void setLayoutStylesheet(T sheet) { layoutStylesheet = std::make_shared<T>(sheet); }
 
-        void setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> viewCore);
-        std::shared_ptr<UIProvider> getUIProvider() { return _uiProvider; }
+        void setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> core);
+        std::shared_ptr<UIProvider> uiProvider() { return _uiProvider; }
 
-        virtual std::list<std::shared_ptr<View>> getChildViews() const { return std::list<std::shared_ptr<View>>(); }
+        virtual std::list<std::shared_ptr<View>> childViews() const { return std::list<std::shared_ptr<View>>(); }
         virtual void removeAllChildViews() {}
-        virtual std::shared_ptr<View> findPreviousChildView(std::shared_ptr<View> childView) { return nullptr; }
         virtual void _childViewStolen(std::shared_ptr<View> childView) {}
 
         virtual std::shared_ptr<View> getParentView() { return _parentViewWeak.lock(); }
@@ -66,7 +65,7 @@ namespace bdn
 
         void scheduleLayout();
 
-        std::shared_ptr<ViewCore> getViewCore() const { return _core; }
+        std::shared_ptr<ViewCore> viewCore() const { return _core; }
 
       protected:
         virtual void bindViewCore();
@@ -79,7 +78,7 @@ namespace bdn
 
             void operator()(typename Property<ValType>::value_accessor_t_ptr valueAccessor)
             {
-                if (auto p = std::dynamic_pointer_cast<CoreType>(view->getViewCore())) {
+                if (auto p = std::dynamic_pointer_cast<CoreType>(view->viewCore())) {
                     ((*p).*setter)(valueAccessor->get());
                 }
 
@@ -97,7 +96,7 @@ namespace bdn
             if (parentView == nullptr)
                 parentView = getParentView();
 
-            return (parentView != nullptr) ? parentView->getUIProvider() : nullptr;
+            return (parentView != nullptr) ? parentView->uiProvider() : nullptr;
         }
 
       private:

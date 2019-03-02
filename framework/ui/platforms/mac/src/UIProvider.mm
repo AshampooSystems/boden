@@ -23,7 +23,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UIProvider> getDefaultUIProvider()
+    std::shared_ptr<UIProvider> defaultUIProvider()
     {
         /*if (getAppRunner()->isCommandLineApp()) {
             static std::shared_ptr<StdioUIProvider<char>> provider(

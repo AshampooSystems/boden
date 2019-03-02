@@ -96,7 +96,7 @@ namespace bdn
 
         CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outer) : ViewCore(outer, _createCheckboxComposite())
         {
-            _composite = (BdnIosCheckboxComposite *)getUIView();
+            _composite = (BdnIosCheckboxComposite *)uiView();
 
             _clickManager = [[BdnIosCheckboxClickManager alloc] init];
             _clickManager.outer = outer;

@@ -41,7 +41,7 @@ namespace bdn
 
             void clicked() override
             {
-                std::shared_ptr<Switch> view = std::dynamic_pointer_cast<Switch>(getOuterViewIfStillAttached());
+                std::shared_ptr<Switch> view = std::dynamic_pointer_cast<Switch>(outerView());
                 if (view != nullptr) {
                     ClickEvent evt(view);
 

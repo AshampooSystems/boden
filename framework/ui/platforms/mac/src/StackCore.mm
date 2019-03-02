@@ -33,7 +33,7 @@ namespace bdn
         StackCore::StackCore(std::shared_ptr<Stack> outerStack) : ChildViewCore(outerStack, createStackView(outerStack))
         {
             _navigationBar = [[NSView alloc] init];
-            [getNSView() addSubview:_navigationBar];
+            [nsView() addSubview:_navigationBar];
 
             _backButton = [[NSButton alloc] init];
             [_backButton setTitle:@"Back"];
@@ -57,7 +57,7 @@ namespace bdn
 
         void StackCore::popView() { updateCurrentView(); }
 
-        std::list<std::shared_ptr<View>> StackCore::getChildViews()
+        std::list<std::shared_ptr<View>> StackCore::childViews()
         {
             if (_container) {
                 return {_container};
@@ -69,7 +69,7 @@ namespace bdn
         {
             if (!_container) {
                 _container = std::make_shared<FixedView>();
-                _container->_setParentView(getOuterViewIfStillAttached());
+                _container->_setParentView(outerView());
             }
 
             auto outerStack = getStack();
@@ -97,14 +97,11 @@ namespace bdn
             reLayout();
         }
 
-        std::shared_ptr<Stack> StackCore::getStack() const
-        {
-            return std::static_pointer_cast<Stack>(getOuterViewIfStillAttached());
-        }
+        std::shared_ptr<Stack> StackCore::getStack() const { return std::static_pointer_cast<Stack>(outerView()); }
 
         void StackCore::reLayout()
         {
-            Size outerSize{getNSView().frame.size.width, getNSView().frame.size.height};
+            Size outerSize{nsView().frame.size.width, nsView().frame.size.height};
 
             _navigationBar.frame = NSMakeRect(0, outerSize.height - 50, outerSize.width, 50);
             [_navigationBar translateOriginToPoint:NSMakePoint(0, 0)];

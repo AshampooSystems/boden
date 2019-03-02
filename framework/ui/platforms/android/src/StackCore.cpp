@@ -28,7 +28,7 @@ namespace bdn
 
         std::shared_ptr<WindowCore> findWindow(std::shared_ptr<View> view)
         {
-            if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(view->getViewCore())) {
+            if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(view->viewCore())) {
                 return windowCore;
             }
 
@@ -56,12 +56,9 @@ namespace bdn
 
         void StackCore::popView() { updateCurrentView(); }
 
-        std::shared_ptr<Stack> StackCore::getStack() const
-        {
-            return std::static_pointer_cast<Stack>(getOuterViewIfStillAttached());
-        }
+        std::shared_ptr<Stack> StackCore::getStack() const { return std::static_pointer_cast<Stack>(outerView()); }
 
-        std::list<std::shared_ptr<View>> StackCore::getChildViews()
+        std::list<std::shared_ptr<View>> StackCore::childViews()
         {
             if (_container) {
                 return {_container};
@@ -73,7 +70,7 @@ namespace bdn
         {
             if (!_container) {
                 _container = std::make_shared<FixedView>();
-                _container->_setParentView(getOuterViewIfStillAttached());
+                _container->_setParentView(outerView());
             }
 
             if (auto outerStack = getStack()) {

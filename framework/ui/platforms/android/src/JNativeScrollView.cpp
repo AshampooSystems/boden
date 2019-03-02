@@ -14,9 +14,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeScrollView_scrollC
 {
     bdn::platformEntryWrapper(
         [&]() {
-            if (auto scrollViewCore =
-                    std::dynamic_pointer_cast<bdn::android::ScrollViewCore>(bdn::android::getViewCoreFromJavaViewRef(
-                        bdn::java::Reference::convertExternalLocal(rawWraperView)))) {
+            if (auto scrollViewCore = std::dynamic_pointer_cast<bdn::android::ScrollViewCore>(
+                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawWraperView)))) {
                 if (scrollViewCore != nullptr) {
                     scrollViewCore->_scrollChange(scrollX, scrollY, oldScrollX, oldScrollY);
                 }

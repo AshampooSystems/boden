@@ -14,10 +14,10 @@ namespace bdn
         {
           public:
             /** Adds a child UI element to the parent.*/
-            virtual void addChildCore(ViewCore *viewCore) = 0;
+            virtual void addChildCore(ViewCore *core) = 0;
 
             /** Removes a child UI element from the parent */
-            virtual void removeChildCore(ViewCore *viewCore) = 0;
+            virtual void removeChildCore(ViewCore *core) = 0;
 
             /** Returns the current UI scale factor. This depends on the pixel
              *density of the current display. On high DPI displays the scale

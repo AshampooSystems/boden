@@ -13,7 +13,7 @@
 - (void)layoutSubviews
 {
     if (_viewCore) {
-        if (auto view = _viewCore->getOuterViewIfStillAttached()) {
+        if (auto view = _viewCore->outerView()) {
             if (auto layout = view->getLayout()) {
                 layout->layout(view.get());
             }

@@ -7,7 +7,7 @@ namespace bdn
 
     void ListView::reloadData()
     {
-        std::shared_ptr<ListViewCore> core = std::dynamic_pointer_cast<ListViewCore>(getViewCore());
+        std::shared_ptr<ListViewCore> core = std::dynamic_pointer_cast<ListViewCore>(viewCore());
 
         if (core == nullptr) {
             return;
@@ -16,5 +16,5 @@ namespace bdn
         core->reloadData();
     }
 
-    String ListView::getViewCoreTypeName() const { return coreTypeName; }
+    String ListView::viewCoreTypeName() const { return coreTypeName; }
 }

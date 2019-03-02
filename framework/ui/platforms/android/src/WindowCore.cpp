@@ -69,7 +69,7 @@ namespace bdn
             ViewCore::initTag();
 
             JNativeRootView rootView(getJView().getParent().getRef_());
-            rootView.setTag(bdn::java::NativeWeakPointer(getOuterViewIfStillAttached()));
+            rootView.setTag(bdn::java::NativeWeakPointer(outerView()));
         }
 
         void WindowCore::enableBackButton(bool enable)
@@ -253,8 +253,7 @@ namespace bdn
             for (int i = 0; i < childCount; i++) {
                 JView child = rootView.getChildAt(i);
 
-                if (auto windowCore =
-                        std::dynamic_pointer_cast<WindowCore>(getViewCoreFromJavaViewRef(child.getRef_()))) {
+                if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(viewCoreFromJavaViewRef(child.getRef_()))) {
                     result.push_back(windowCore);
                 }
             }

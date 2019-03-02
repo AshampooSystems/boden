@@ -19,10 +19,10 @@ namespace bdn
             }
         };
 
-        _uiProvider = (uiProvider != nullptr) ? uiProvider : UIAppControllerBase::get()->getUIProvider();
+        _uiProvider = (uiProvider != nullptr) ? uiProvider : UIAppControllerBase::get()->uiProvider();
     }
 
-    std::list<std::shared_ptr<View>> Window::getChildViews() const
+    std::list<std::shared_ptr<View>> Window::childViews() const
     {
         AppRunnerBase::assertInMainThread();
         if (content.get()) {
@@ -32,13 +32,6 @@ namespace bdn
     }
 
     void Window::removeAllChildViews() { content = nullptr; }
-
-    std::shared_ptr<View> Window::findPreviousChildView(std::shared_ptr<View> childView)
-    {
-        // we do not have multiple child views with an order - just a single
-        // content view
-        return nullptr;
-    }
 
     void Window::_childViewStolen(std::shared_ptr<View> childView)
     {
@@ -56,7 +49,7 @@ namespace bdn
 
     void Window::bindViewCore()
     {
-        if (auto windowCore = std::dynamic_pointer_cast<IWindowCore>(getViewCore())) {
+        if (auto windowCore = std::dynamic_pointer_cast<IWindowCore>(viewCore())) {
             windowCore->content.bind(content);
             contentGeometry.bind(windowCore->contentGeometry);
             windowCore->title.bind(title);

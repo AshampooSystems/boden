@@ -19,10 +19,9 @@ namespace bdn
     namespace mac
     {
 
-        ChildViewCore::ChildViewCore(std::shared_ptr<View> outerView, NSView *nsView)
+        ChildViewCore::ChildViewCore(std::shared_ptr<View> outer, NSView *nsView)
         {
-            _outerViewWeak = outerView;
-
+            _outerView = outer;
             _nsView = nsView;
 
             geometry.onChange() += [&view = this->_nsView](auto va) {
@@ -45,14 +44,14 @@ namespace bdn
                                                          name:NSViewFrameDidChangeNotification
                                                        object:_nsView];
 
-            _addToParent(outerView->getParentView());
+            _addToParent(outer->getParentView());
         }
 
         ChildViewCore::~ChildViewCore() { dispose(); }
 
         void ChildViewCore::moveToParentView(std::shared_ptr<View> newParentView)
         {
-            std::shared_ptr<View> outer = getOuterViewIfStillAttached();
+            std::shared_ptr<View> outer = outerView();
             if (outer != nullptr) {
                 std::shared_ptr<View> parent = outer->getParentView();
 
@@ -67,11 +66,11 @@ namespace bdn
 
         void ChildViewCore::dispose() { removeFromNsSuperview(); }
 
-        std::shared_ptr<View> ChildViewCore::getOuterViewIfStillAttached() const { return _outerViewWeak.lock(); }
+        std::shared_ptr<View> ChildViewCore::outerView() const { return _outerView.lock(); }
 
-        NSView *ChildViewCore::getNSView() const { return _nsView; }
+        NSView *ChildViewCore::nsView() const { return _nsView; }
 
-        void ChildViewCore::addChildNsView(NSView *childView) { [_nsView addSubview:childView]; }
+        void ChildViewCore::addChildNSView(NSView *childView) { [_nsView addSubview:childView]; }
 
         void ChildViewCore::removeFromNsSuperview() { [_nsView removeFromSuperview]; }
 
