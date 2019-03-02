@@ -9,6 +9,8 @@ else()
   add_subdirectory(json)
 endif()
 
+target_compile_definitions(nlohmann_json INTERFACE BDN_HAS_NLOHMANN_JSON)
+
 # Yoga
 
 file(GLOB yogacore_SRC yoga/yoga/*.cpp)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/log.h>
 #include <bdn/ui.h>
 #include <bdn/yogalayout.h>
 
@@ -80,10 +81,20 @@ namespace bdn
     {
         auto container = std::make_shared<ContainerView>();
 
+#ifdef BDN_HAS_NLOHMANN_JSON
+        container->setLayoutStylesheet(FlexJson({{"direction", FlexStylesheet::Direction::Column},
+                                                 {"flexGrow", 1.0},
+                                                 {"flexShrink", 1.0},
+                                                 {"alignItems", FlexStylesheet::Align::Stretch},
+                                                 {"padding", {{"all", 20.0}}},
+                                                 {"margin", {{"all", 2.0}}}}));
+
+#else
         container->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
                                        << FlexGrow(1.f) << FlexShrink(1.f)
                                        << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20.f)
                                        << FlexMarginAll(2.f));
+#endif
 
         auto switchView = std::make_shared<Switch>();
         switchView->label = "I'm a switch!";

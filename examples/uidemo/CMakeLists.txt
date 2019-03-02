@@ -27,7 +27,7 @@ use_boden_template_info_plist(uidemo)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${UIDEMO_FILES})
 
-target_link_libraries(uidemo PRIVATE ui foundation yogalayout)
+target_link_libraries(uidemo PRIVATE ui foundation yogalayout nlohmann_json::nlohmann_json)
 
 install(TARGETS uidemo
     DESTINATION examples

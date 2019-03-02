@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Layout.h>
-
 #include <optional>
 
 namespace bdn
@@ -56,6 +55,29 @@ namespace bdn
             WrapReverse
         };
 
+        struct Edges
+        {
+            std::optional<float> all;
+            std::optional<float> left;
+            std::optional<float> top;
+            std::optional<float> right;
+            std::optional<float> bottom;
+
+            bool operator==(const Edges &other) const
+            {
+                return all == other.all && left == other.left && right == other.right && top == other.top &&
+                       bottom == other.bottom;
+            }
+        };
+
+        struct Size
+        {
+            std::optional<float> width;
+            std::optional<float> height;
+
+            bool operator==(const Size &other) const { return width == other.width && height == other.height; }
+        };
+
       public:
         Direction flexDirection = Direction::Column;
         LayoutDirection layoutDirection = LayoutDirection::Inherit;
@@ -74,41 +96,12 @@ namespace bdn
         float flexGrow = 0.0f;
         float flexShrink = 1.0;
 
-        struct
-        {
-            std::optional<float> all;
-            std::optional<float> left;
-            std::optional<float> top;
-            std::optional<float> right;
-            std::optional<float> bottom;
-        } padding;
+        Edges padding;
+        Edges margin;
 
-        struct
-        {
-            std::optional<float> all;
-            std::optional<float> left;
-            std::optional<float> top;
-            std::optional<float> right;
-            std::optional<float> bottom;
-        } margin;
-
-        struct
-        {
-            std::optional<float> width;
-            std::optional<float> height;
-        } size;
-
-        struct
-        {
-            std::optional<float> width;
-            std::optional<float> height;
-        } minimumSize;
-
-        struct
-        {
-            std::optional<float> width;
-            std::optional<float> height;
-        } maximumSize;
+        Size size;
+        Size minimumSize;
+        Size maximumSize;
 
         std::optional<float> aspectRatio;
 
@@ -116,6 +109,17 @@ namespace bdn
         {
             manipulator.apply(this);
             return *this;
+        }
+
+        bool operator==(const FlexStylesheet &other) const
+        {
+            return flexDirection == other.flexDirection && layoutDirection == other.layoutDirection &&
+                   flexWrap == other.flexWrap && alignSelf == other.alignSelf && alignItems == other.alignItems &&
+                   alignContents == other.alignContents && justifyContent == other.justifyContent &&
+                   flexBasis == other.flexBasis && flexBasisPercent == other.flexBasisPercent &&
+                   flexGrow == other.flexGrow && flexShrink == other.flexShrink && padding == other.padding &&
+                   margin == other.margin && size == other.size && minimumSize == other.minimumSize &&
+                   maximumSize == other.maximumSize;
         }
     };
 
@@ -182,6 +186,12 @@ namespace bdn
     DEF_MANIPULATOR(std::optional<float>, Name##Height, member.height)                                                 \
     DEF_ALL_SIZE_MANIPULATOR(std::optional<float>, Name, member)
 
+    struct Flex
+    {
+        void apply(FlexStylesheet *) const {}
+        DEF_MANIPULATOR_OPERATORS()
+    };
+
     DEF_MANIPULATOR(FlexStylesheet::Direction, Direction, flexDirection)
     DEF_MANIPULATOR(FlexStylesheet::LayoutDirection, LayoutDirection, layoutDirection)
 
@@ -206,3 +216,175 @@ namespace bdn
 
     DEF_MANIPULATOR(std::optional<float>, AspectRatio, aspectRatio)
 }
+
+#ifdef BDN_HAS_NLOHMANN_JSON
+
+#include <nlohmann/json.hpp>
+
+namespace nlohmann
+{
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::FlexStylesheet::Direction,
+                                 {
+                                     {bdn::FlexStylesheet::Direction::Column, "Column"},
+                                     {bdn::FlexStylesheet::Direction::ColumnReverse, "ColumnReverse"},
+                                     {bdn::FlexStylesheet::Direction::Row, "Row"},
+                                     {bdn::FlexStylesheet::Direction::RowReverse, "RowReverse"},
+                                 })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::FlexStylesheet::Align,
+                                 {
+                                     {bdn::FlexStylesheet::Align::Auto, "Auto"},
+                                     {bdn::FlexStylesheet::Align::FlexStart, "FlexStart"},
+                                     {bdn::FlexStylesheet::Align::Center, "Center"},
+                                     {bdn::FlexStylesheet::Align::FlexEnd, "FlexEnd"},
+                                     {bdn::FlexStylesheet::Align::Stretch, "Stretch"},
+                                     {bdn::FlexStylesheet::Align::Baseline, "Baseline"},
+                                     {bdn::FlexStylesheet::Align::SpaceBetween, "SpaceBetween"},
+                                     {bdn::FlexStylesheet::Align::SpaceAround, "SpaceAround"},
+                                 })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::FlexStylesheet::LayoutDirection,
+                                 {
+                                     {bdn::FlexStylesheet::LayoutDirection::Inherit, "Inherit"},
+                                     {bdn::FlexStylesheet::LayoutDirection::LTR, "LTR"},
+                                     {bdn::FlexStylesheet::LayoutDirection::RTL, "RTL"},
+                                 })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::FlexStylesheet::Justify,
+                                 {
+                                     {bdn::FlexStylesheet::Justify::FlexStart, "FlexStart"},
+                                     {bdn::FlexStylesheet::Justify::Center, "Center"},
+                                     {bdn::FlexStylesheet::Justify::FlexEnd, "FlexEnd"},
+                                     {bdn::FlexStylesheet::Justify::SpaceBetween, "SpaceBetween"},
+                                     {bdn::FlexStylesheet::Justify::SpaceAround, "SpaceAround"},
+                                     {bdn::FlexStylesheet::Justify::SpaceEvenly, "SpaceEvenly"},
+                                 })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::FlexStylesheet::Wrap, {
+                                                                {bdn::FlexStylesheet::Wrap::NoWrap, "NoWrap"},
+                                                                {bdn::FlexStylesheet::Wrap::Wrap, "Wrap"},
+                                                                {bdn::FlexStylesheet::Wrap::WrapReverse, "WrapReverse"},
+                                                            })
+
+    template <typename T> struct adl_serializer<std::optional<T>>
+    {
+        static void to_json(json &j, const std::optional<T> &opt)
+        {
+            if (opt) {
+                j = *opt;
+            } else {
+                j = nullptr;
+            }
+        }
+
+        static void from_json(const json &j, std::optional<T> &opt)
+        {
+            if (j.is_null()) {
+                opt = std::nullopt;
+            } else {
+                opt = j.get<T>();
+            }
+        }
+    };
+#define ALLOW_NON_EXISTING(x)                                                                                          \
+    try {                                                                                                              \
+        x                                                                                                              \
+    }                                                                                                                  \
+    catch (const json::out_of_range &) {                                                                               \
+    }
+
+    template <> struct adl_serializer<bdn::FlexStylesheet::Edges>
+    {
+        static void to_json(json &j, const bdn::FlexStylesheet::Edges &edge)
+        {
+            j = {{"all", edge.all},
+                 {"left", edge.left},
+                 {"right", edge.right},
+                 {"top", edge.top},
+                 {"bottom", edge.bottom}};
+        }
+
+        static void from_json(const json &j, bdn::FlexStylesheet::Edges &edge)
+        {
+            ALLOW_NON_EXISTING(edge.all = j.at("all").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(edge.left = j.at("left").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(edge.right = j.at("right").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(edge.top = j.at("top").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(edge.bottom = j.at("bottom").get<std::optional<float>>();)
+        }
+    };
+
+    template <> struct adl_serializer<bdn::FlexStylesheet::Size>
+    {
+        static void to_json(json &j, const bdn::FlexStylesheet::Size &size)
+        {
+            j = {{"width", size.width}, {"height", size.height}};
+        }
+
+        static void from_json(const json &j, bdn::FlexStylesheet::Size &size)
+        {
+            ALLOW_NON_EXISTING(size.width = j.at("width").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(size.height = j.at("height").get<std::optional<float>>();)
+        }
+    };
+
+    template <> struct adl_serializer<bdn::FlexStylesheet>
+    {
+        static void to_json(json &j, const bdn::FlexStylesheet &sheet)
+        {
+            j = {
+                {"direction", sheet.flexDirection},
+                {"layoutDirection", sheet.layoutDirection},
+                {"wrap", sheet.flexWrap},
+                {"alignSelf", sheet.alignSelf},
+                {"alignItems", sheet.alignItems},
+                {"alignContents", sheet.alignContents},
+                {"justifyContent", sheet.justifyContent},
+
+                {"flexBasis", sheet.flexBasis},
+                {"flexBasisPercent", sheet.flexBasisPercent},
+
+                {"flexGrow", sheet.flexGrow},
+                {"flexShrink", sheet.flexShrink},
+
+                {"aspectRatio", sheet.aspectRatio},
+
+                {"margin", sheet.margin},
+                {"padding", sheet.padding},
+
+                {"size", sheet.size},
+                {"maximumSize", sheet.maximumSize},
+                {"minimumSize", sheet.minimumSize},
+            };
+        }
+
+        static void from_json(const json &j, bdn::FlexStylesheet &sheet)
+        {
+            ALLOW_NON_EXISTING(sheet.flexDirection = j.at("direction").get<bdn::FlexStylesheet::Direction>();)
+            ALLOW_NON_EXISTING(sheet.layoutDirection = j.at("layoutDirection");)
+            ALLOW_NON_EXISTING(sheet.flexWrap = j.at("wrap");)
+            ALLOW_NON_EXISTING(sheet.alignSelf = j.at("alignSelf");)
+            ALLOW_NON_EXISTING(sheet.alignItems = j.at("alignItems");)
+            ALLOW_NON_EXISTING(sheet.alignContents = j.at("alignContents");)
+            ALLOW_NON_EXISTING(sheet.justifyContent = j.at("justifyContent");)
+            ALLOW_NON_EXISTING(sheet.flexBasis = j.at("flexBasis").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(sheet.flexBasisPercent = j.at("flexBasisPercent").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(sheet.flexGrow = j.at("flexGrow");)
+            ALLOW_NON_EXISTING(sheet.flexShrink = j.at("flexShrink");)
+            ALLOW_NON_EXISTING(sheet.aspectRatio = j.at("aspectRatio").get<std::optional<float>>();)
+            ALLOW_NON_EXISTING(sheet.margin = j.at("margin");)
+            ALLOW_NON_EXISTING(sheet.padding = j.at("padding");)
+            ALLOW_NON_EXISTING(sheet.size = j.at("size");)
+            ALLOW_NON_EXISTING(sheet.maximumSize = j.at("maximumSize");)
+            ALLOW_NON_EXISTING(sheet.minimumSize = j.at("minimumSize");)
+        }
+    };
+}
+
+namespace bdn
+{
+    inline FlexStylesheet FlexJson(const nlohmann::json &json) { return (FlexStylesheet)json; }
+    inline FlexStylesheet FlexJsonString(const String &json) { return (FlexStylesheet)nlohmann::json::parse(json); }
+}
+
+#endif
