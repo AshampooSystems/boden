@@ -12,12 +12,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
 {
     bdn::platformEntryWrapper(
         [&]() {
-            auto core = bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView));
-
-            if (core == nullptr) {
-                // no view core is associated with the view => ignore the event
-                // and do nothing.
-            } else {
+            if (auto core =
+                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView))) {
                 core->clicked();
             }
         },

@@ -13,5 +13,6 @@ namespace bdn
         virtual size_t numberOfRows() = 0;
         virtual String labelTextForRowIndex(size_t rowIndex) = 0;
         virtual std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) = 0;
+        virtual float heightForRowIndex(size_t rowIndex) = 0;
     };
 }

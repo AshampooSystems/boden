@@ -121,6 +121,13 @@ namespace bdn
         bigBtn->label = "Big Button";
         container->addChildView(makeRow("Big Button", bigBtn));
 
+        auto image = std::make_shared<ImageView>();
+
+        image->url = "https://www.vacationizr.com/img/favicons/apple-touch-icon-180x180.png";
+        container->addChildView(makeRow("Image", image));
+
+        image->setLayoutStylesheet((FlexStylesheet)FlexMaximumSizeHeight(50.0f));
+
         auto textFieldCtrl = std::make_shared<TextField>();
         textFieldCtrl->text = "Some text";
         textFieldCtrl->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeWidth(250));

@@ -12,6 +12,7 @@
 #import <bdn/mac/ButtonCore.hh>
 #import <bdn/mac/CheckboxCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
+#import <bdn/mac/ImageViewCore.hh>
 #import <bdn/mac/ListViewCore.hh>
 #import <bdn/mac/ScrollViewCore.hh>
 #import <bdn/mac/StackCore.hh>
@@ -58,6 +59,7 @@ namespace bdn
             registerCoreType<ListViewCore, ListView>();
             registerCoreType<StackCore, Stack>();
             registerCoreType<WebViewCore, WebView>();
+            registerCoreType<ImageViewCore, ImageView>();
         }
 
         String UIProvider::getName() const { return "mac"; }

@@ -4,6 +4,7 @@
 #include <bdn/android/ButtonCore.h>
 #include <bdn/android/CheckboxCore.h>
 #include <bdn/android/ContainerViewCore.h>
+#include <bdn/android/ImageViewCore.h>
 #include <bdn/android/ListViewCore.h>
 #include <bdn/android/ScrollViewCore.h>
 #include <bdn/android/StackCore.h>
@@ -66,6 +67,7 @@ namespace bdn
             registerAndroidCoreType<TextFieldCore, TextField>();
             registerAndroidCoreType<ListViewCore, ListView>();
             registerAndroidCoreType<StackCore, Stack>();
+            registerAndroidCoreType<ImageViewCore, ImageView>();
         }
 
         String UIProvider::getName() const { return "android"; }

@@ -14,19 +14,13 @@ namespace bdn
         class ButtonCoreBase : public ChildViewCore
         {
           public:
-            ButtonCoreBase(std::shared_ptr<View> outer, NSButton *nsButton) : ChildViewCore(outer, nsButton)
-            {
-                _nsButton = nsButton;
-            }
+            ButtonCoreBase(std::shared_ptr<View> outer, NSButton *nsButton);
 
-            void setLabel(const String &label)
-            {
-                NSString *macLabel = stringToNSString(label);
-                [_nsButton setTitle:macLabel];
-            }
+          public:
+            void setLabel(const String &label);
 
           protected:
-            double getFontSize() const override { return _nsButton.font.pointSize; }
+            double getFontSize() const override;
 
             NSButton *_nsButton;
         };

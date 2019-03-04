@@ -45,7 +45,7 @@ namespace bdn
         {
             if (isRootNode) {
                 YGNodeCalculateLayout(ygNode, geometry->width, geometry->height, YGDirectionLTR);
-                yogaVisit(ygNode, &applyLayout, geometry->getPosition());
+                yogaVisit(ygNode, &applyLayout);
 
                 ygNode->setDirty(false);
             }

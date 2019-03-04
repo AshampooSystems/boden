@@ -15,38 +15,14 @@ namespace bdn
         class ButtonCore : public ButtonCoreBase, virtual public IButtonCore
         {
           private:
-            static NSButton *_createNsButton(std::shared_ptr<Button> outerButton)
-            {
-                NSButton *button = [[NSButton alloc] initWithFrame:rectToMacRect(outerButton->geometry, -1)];
-
-                [button setButtonType:NSButtonTypeMomentaryLight];
-                [button setBezelStyle:NSBezelStyleRounded];
-
-                return button;
-            }
+            static NSButton *_createNsButton(std::shared_ptr<Button> outerButton);
 
           public:
             ButtonCore(std::shared_ptr<Button> outerButton);
 
-            void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
+            void setLabel(const String &label) override;
 
-            Size sizeForSpace(Size availableSpace) const override
-            {
-                // the bezel style influences the fitting size. To get
-                // consistent values here we have to ensure that we use the same
-                // bezel style each time we calculate the size.
-
-                NSBezelStyle bezelStyle = _nsButton.bezelStyle;
-                if (bezelStyle != NSBezelStyleRounded)
-                    _nsButton.bezelStyle = NSBezelStyleRounded;
-
-                Size size = ButtonCoreBase::sizeForSpace(availableSpace);
-
-                if (bezelStyle != NSBezelStyleRounded)
-                    _nsButton.bezelStyle = bezelStyle;
-
-                return size;
-            }
+            Size sizeForSpace(Size availableSpace) const override;
 
             void generateClick();
 

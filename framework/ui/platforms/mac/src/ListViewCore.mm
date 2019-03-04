@@ -94,6 +94,14 @@
     outer->selectedRowIndex = (size_t)tableView.selectedRow;
 }
 
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
+{
+    if (self.outerDataSource == nullptr) {
+        return 20.0f;
+    }
+    return self.outerDataSource->heightForRowIndex(row);
+}
+
 @end
 
 namespace bdn

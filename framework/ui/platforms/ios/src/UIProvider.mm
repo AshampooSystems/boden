@@ -4,6 +4,7 @@
 #import <bdn/ios/ButtonCore.hh>
 #import <bdn/ios/CheckboxCore.hh>
 #import <bdn/ios/ContainerViewCore.hh>
+#import <bdn/ios/ImageViewCore.hh>
 #import <bdn/ios/ListViewCore.hh>
 #import <bdn/ios/ScrollViewCore.hh>
 #import <bdn/ios/StackCore.hh>
@@ -54,6 +55,7 @@ namespace bdn
             registerCoreType<ListViewCore, ListView>();
             registerCoreType<StackCore, Stack>();
             registerCoreType<WebViewCore, WebView>();
+            registerCoreType<ImageViewCore, ImageView>();
         }
 
         String UIProvider::getName() const { return "ios"; }

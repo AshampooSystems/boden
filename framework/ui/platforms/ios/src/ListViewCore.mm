@@ -85,6 +85,15 @@
     return (NSInteger)self.outerDataSource->numberOfRows();
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (self.outerDataSource == nullptr) {
+        return 20.0;
+    }
+
+    return self.outerDataSource->heightForRowIndex(indexPath.row);
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.outerDataSource == nullptr) {
@@ -101,6 +110,8 @@
 
     if (cell == nil) {
         cell = [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+        cell.clipsToBounds = YES;
+
         cellContent = [[FixedUITableViewCell alloc] init];
         cellContent.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 

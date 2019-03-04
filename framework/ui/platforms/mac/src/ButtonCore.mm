@@ -1,13 +1,8 @@
-
-
 #import <Cocoa/Cocoa.h>
-
 #import <bdn/mac/ButtonCore.hh>
 
 @interface BdnButtonClickManager : NSObject
-
 @property(nonatomic, assign) std::weak_ptr<bdn::Button> outer;
-
 @end
 
 @implementation BdnButtonClickManager
@@ -22,48 +17,73 @@
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    NSButton *ButtonCore::_createNsButton(std::shared_ptr<Button> outerButton)
     {
+        NSButton *button = [[NSButton alloc] initWithFrame:rectToMacRect(outerButton->geometry, -1)];
 
-        ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ButtonCoreBase(outer, _createNsButton(outer))
-        {
-            _currBezelStyle = NSBezelStyleRounded;
+        [button setButtonType:NSButtonTypeMomentaryLight];
+        [button setBezelStyle:NSBezelStyleRounded];
 
-            _clickManager = [[BdnButtonClickManager alloc] init];
-            _clickManager.outer = outer;
+        return button;
+    }
 
-            setLabel(outer->label);
+    ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ButtonCoreBase(outer, _createNsButton(outer))
+    {
+        _currBezelStyle = NSBezelStyleRounded;
 
-            _heightWithRoundedBezelStyle = macSizeToSize(nsView().fittingSize).height;
+        _clickManager = [[BdnButtonClickManager alloc] init];
+        _clickManager.outer = outer;
+        [_nsButton setTarget:_clickManager];
+        [_nsButton setAction:@selector(clicked)];
 
-            [_nsButton setTarget:_clickManager];
-            [_nsButton setAction:@selector(clicked)];
+        setLabel(outer->label);
 
-            geometry.onChange() += [=](auto) { _updateBezelStyle(); };
-        }
+        _heightWithRoundedBezelStyle = macSizeToSize(nsView().fittingSize).height;
 
-        void ButtonCore::_updateBezelStyle()
-        {
-            // the "normal" button (NSRoundedBezelStyle) has a fixed height.
-            // If we want a button that is higher then we have to use another
-            // bezel style, which will look somewhat "non-standard" because it
-            // has different highlights.
+        geometry.onChange() += [=](auto) { _updateBezelStyle(); };
+    }
 
-            // we switch to the non-standard bezel style when our height
-            // "significantly" exceeds the fixed height we get with the standard
-            // bezel.
-            NSBezelStyle bezelStyle;
+    void ButtonCore::setLabel(const String &label) { ButtonCoreBase::setLabel(label); }
 
-            if (geometry->height > _heightWithRoundedBezelStyle * 1.1)
-                bezelStyle = NSBezelStyleRegularSquare;
-            else
-                bezelStyle = NSBezelStyleRounded;
+    Size ButtonCore::sizeForSpace(Size availableSpace) const
+    {
+        // the bezel style influences the fitting size. To get
+        // consistent values here we have to ensure that we use the same
+        // bezel style each time we calculate the size.
 
-            if (bezelStyle != _currBezelStyle) {
-                [_nsButton setBezelStyle:bezelStyle];
-            }
+        NSBezelStyle bezelStyle = _nsButton.bezelStyle;
+        if (bezelStyle != NSBezelStyleRounded)
+            _nsButton.bezelStyle = NSBezelStyleRounded;
+
+        Size size = ButtonCoreBase::sizeForSpace(availableSpace);
+
+        if (bezelStyle != NSBezelStyleRounded)
+            _nsButton.bezelStyle = bezelStyle;
+
+        return size;
+    }
+
+    void ButtonCore::_updateBezelStyle()
+    {
+        // the "normal" button (NSRoundedBezelStyle) has a fixed height.
+        // If we want a button that is higher then we have to use another
+        // bezel style, which will look somewhat "non-standard" because it
+        // has different highlights.
+
+        // we switch to the non-standard bezel style when our height
+        // "significantly" exceeds the fixed height we get with the standard
+        // bezel.
+        NSBezelStyle bezelStyle;
+
+        if (geometry->height > _heightWithRoundedBezelStyle * 1.1)
+            bezelStyle = NSBezelStyleRegularSquare;
+        else
+            bezelStyle = NSBezelStyleRounded;
+
+        if (bezelStyle != _currBezelStyle) {
+            [_nsButton setBezelStyle:bezelStyle];
         }
     }
 }

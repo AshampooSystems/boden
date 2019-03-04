@@ -37,22 +37,29 @@
 - (bool)isViewLoaded { return [super isViewLoaded]; }
 - (void)loadViewIfNeeded { [super loadViewIfNeeded]; }
 
+- (void)updateSafeContent
+{
+    if (@available(iOS 11.0, *)) {
+        _safeContent->geometry = bdn::Rect{
+            self.view.safeAreaInsets.left,
+            self.view.safeAreaInsets.top,
+            self.view.frame.size.width - (self.view.safeAreaInsets.left + self.view.safeAreaInsets.right),
+            self.view.frame.size.height - (self.view.safeAreaInsets.top + self.view.safeAreaInsets.bottom),
+        };
+    } else {
+        _safeContent->geometry = bdn::Rect{
+            0,
+            0,
+            self.view.frame.size.width,
+            self.view.frame.size.height,
+        };
+    }
+}
+
 - (void)viewSafeAreaInsetsDidChange
 {
     [super viewSafeAreaInsetsDidChange];
-
-    UINavigationController *navCtrl = (UINavigationController *)[self parentViewController];
-
-    UINavigationBar *navigationBar = navCtrl.navigationBar;
-    CGRect navBarFrame = navigationBar.frame;
-    double navigationBarHeight = navBarFrame.size.height;
-
-    _safeContent->geometry = bdn::Rect{
-        self.view.safeAreaInsets.left,
-        self.view.safeAreaInsets.top - navigationBarHeight,
-        self.view.frame.size.width - (self.view.safeAreaInsets.left + self.view.safeAreaInsets.right),
-        self.view.frame.size.height - (self.view.safeAreaInsets.top + self.view.safeAreaInsets.bottom),
-    };
+    [self updateSafeContent];
 }
 
 - (void)loadView
@@ -65,9 +72,19 @@
 
         self.view = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_fixedView->viewCore())->uiView();
 
+        _fixedView->addChildView(_safeContent);
+
         _safeContent->addChildView(_userContent);
 
-        _fixedView->addChildView(_safeContent);
+        _fixedView->geometry.onChange() += [=](auto) { [self updateSafeContent]; };
+
+        /*
+        auto c = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_safeContent->viewCore());
+        if(c) {
+            c->uiView().backgroundColor = [UIColor redColor];
+            c->uiView().clipsToBounds = YES;
+        }
+        */
 
         self.view.backgroundColor = UIColor.whiteColor;
     }

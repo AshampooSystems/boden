@@ -45,6 +45,10 @@ namespace bdn
                                                        object:_nsView];
 
             _addToParent(outer->getParentView());
+
+            /*  _nsView.wantsLayer = YES;
+              _nsView.layer.borderColor = [NSColor blueColor].CGColor;
+              _nsView.layer.borderWidth = 2;*/
         }
 
         ChildViewCore::~ChildViewCore() { dispose(); }
@@ -76,13 +80,7 @@ namespace bdn
 
         void ChildViewCore::frameChanged() { geometry = macRectToRect(_nsView.frame, -1); }
 
-        void ChildViewCore::scheduleLayout()
-        {
-            if ([_nsView conformsToProtocol:@protocol(BdnLayoutable)]) {
-                NSView<BdnLayoutable> *layoutable = (NSView<BdnLayoutable> *)_nsView;
-                layoutable.needsLayout = YES;
-            }
-        }
+        void ChildViewCore::scheduleLayout() { _nsView.needsLayout = YES; }
 
         Size ChildViewCore::sizeForSpace(Size availableSpace) const { return macSizeToSize(_nsView.fittingSize); }
     }

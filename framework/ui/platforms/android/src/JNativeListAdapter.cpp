@@ -148,7 +148,9 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
             container->visible = true;
             delegate->visible = true;
 
-            container->geometry.set(bdn::Rect{0, 0, listView->geometry->width, 40});
+            float height = dataSource->heightForRowIndex(rowIndex);
+
+            container->geometry.set(bdn::Rect{0, 0, listView->geometry->width, height});
 
             return containerJView.getJObject_();
         },
