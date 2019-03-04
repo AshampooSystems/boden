@@ -16,10 +16,10 @@ class Documentation:
         self.logger.info("Installing requirements ...")
         subprocess.call([sys.executable, "-m", "pip", "install", "-r", os.path.join(self.documentation_directory, 'requirements.txt')])
 
-    def run(self):
+    def run(self, args):
         self.install_requirements()
         self.logger.info("Starting server ...")
 
-        subprocess.call(["mkdocs", "serve", "-f", os.path.join(self.documentation_directory, 'mkdocs.yml')])
+        subprocess.call(["mkdocs", "serve", "-a", args.addr,  "-f", os.path.join(self.documentation_directory, 'mkdocs.yml')])
 
         return

@@ -159,7 +159,9 @@ class BauerArgParser():
         package = command_map["package"]
         copy = command_map["copy"]
         open_project = command_map["open"]
+        
         doc = command_map["doc"]
+        doc.add_argument('-a', '--addr', help="Address to serve pages on", default="127.0.0.1:8000")
 
         new = command_map["new"]
         new.add_argument('-f', '--project-folder', help="Where to create the project", default=".")

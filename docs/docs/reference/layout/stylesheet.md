@@ -15,8 +15,10 @@ class LayoutStylesheet
 	As a workaround to allow aggregate initialization this is not implemented as a virtual function, but instead expects the first member of a sub-class 
 	to be a const char* containing the name of its type.
 
-		String type() { return *((const char **)this); }
-
+	```C++
+	String type() { return *((const char **)this); }
+	```
+		
 * **bool isType(String typeName)**
 
 	Checks the type.

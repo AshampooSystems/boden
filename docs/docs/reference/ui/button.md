@@ -15,7 +15,7 @@ class Button : public View
 // ...
 auto button = std::make_shared<Button>();
 button->label = "Click me!";
-textField->onClick() += [](auto event) {
+button->onClick() += [](auto event) {
   // Do something on submit
 };
 ```

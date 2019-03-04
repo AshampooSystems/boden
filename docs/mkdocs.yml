@@ -3,10 +3,27 @@ site_name: Boden X-platform Framework
 theme:
   name: 'material'
   palette:
-    primary: 'white'
+    primary: 'White'
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/AshampooSystems'
+    - type: 'twitter'
+      link: 'https://twitter.com/bodenhq'
+
+repo_url: 'https://github.com/AshampooSystems/boden'
+repo_name: 'boden'
+
 
 markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: 'docs'
+  - admonition
+  - meta
   - codehilite
+  - toc:
+      permalink: true
 
 nav:
   - Getting Started: 'getting-started.md'
@@ -27,4 +44,5 @@ nav:
       - View: 'reference/ui/view.md'
       - Button: 'reference/ui/button.md'
       - TextField: 'reference/ui/text_field.md'
+      - Stack: 'reference/ui/stack.md'
       - ViewCore: 'reference/ui/view_core.md'

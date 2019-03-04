@@ -50,7 +50,7 @@ def run(argv):
         return
     if args.command == 'doc':
         doccer = Documentation()
-        doccer.run()
+        doccer.run(args)
         return
 
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))

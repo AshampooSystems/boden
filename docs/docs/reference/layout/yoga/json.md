@@ -1,3 +1,5 @@
+hero: JSON support for FlexStylesheet
+
 # JSON support
 
 [FlexStylesheet](stylesheet.md) can be easily de-/serialized to/from json using the [nlohmann::json](https://github.com/nlohmann/json) library.
@@ -19,7 +21,7 @@ target_compile_definitions(MyApp PRIVATE BDN_HAS_NLOHMANN_JSON)
 
 ## Serializing
 
-```C++
+```C++ tab="C++"
 FlexStylesheet stylesheet;
 // ... set some options
 
@@ -27,8 +29,7 @@ nlohmann::json serializedStyleSheet = stylesheet;
 std::cout << serializedStyleSheet.dump(1) << std::endl;
 ```
 
-Output:
-```Json
+```Json tab="Output"
 {
  "alignContents": "Stretch",
  "alignItems": "Stretch",

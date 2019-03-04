@@ -4,16 +4,16 @@ Boden provides a Layout implementation based on Facebooks yoga library.
 
 ## Example
 
-First, create a Layout and apply it to the window
+First, create the Layout and apply it to the window
 
-```C++
+```C++ hl_lines="2"
 auto window = std::make_shared<bdn::Window>();
 window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
 ```
 
-Now set a stylesheet. You can either use streaming style to specify the options ...
+Now set a stylesheet.
 
-```C++
+```C++ tab="C++ Streaming"
 window->setLayoutStylesheet(FlexMarginBottom(5)
 	<< FlexDirection(FlexStylesheet::Direction::Row) 
     << FlexAlignItems(FlexStylesheet::Align::Center)
@@ -21,9 +21,20 @@ window->setLayoutStylesheet(FlexMarginBottom(5)
     << FlexWrap(FlexStylesheet::Wrap::Wrap));
 ```
 
-or aggregate initialization ... ( does not work in Visual Studio though! )
+```C++ tab="C++ Json"
+nlohmann::json jsonStylesheet = 
+	{{"direction", FlexStylesheet::Direction::Column},
+     {"flexGrow", 1.0},
+     {"flexShrink", 1.0},
+     {"alignItems", FlexStylesheet::Align::Stretch},
+     {"padding", {{"all", 20.0}}},
+     {"margin", {{"all", 2.0}}}};
 
-```C++
+container->setLayoutStylesheet(FlexJson(jsonStylesheet));
+```
+
+```C++ tab="C++ aggregate"
+// Does not work in Visual Studio !
 window->setLayoutStylesheet(FlexStylesheet { 
 	.flexDirection = FlexStylesheet::Direction::Row, 
     .alignItems = FlexStylesheet::Align::Center,
@@ -33,10 +44,8 @@ window->setLayoutStylesheet(FlexStylesheet {
 });
 ```
 
-( You can also use [Json](json.md) )
-
-View::setLayoutStyleSheet is a convenience function that creates a shared_ptr and assigns it to
-the *layoutStyleSheet* property.
+[View::setLayoutStyleSheet](../../ui/view.md#layout) is a convenience function that creates a *shared_ptr* and assigns it to
+the [View::layoutStyleSheet](../../ui/view.md#Properties) property.
 
 ```C++
 template <class T> 
@@ -47,4 +56,4 @@ void setLayoutStylesheet(T sheet) {
 
 ## Resources
 
-To get familiar with the Flex Box Layout we recommend to have a look at the [Yoga playground](https://yogalayout.com/playground)
+To get familiar with the Flex Box Layout we recommend to have a look at the <a href="https://yogalayout.com/playground" target="_blank">Yoga playground</a>

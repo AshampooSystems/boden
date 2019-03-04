@@ -101,7 +101,7 @@ Defines the border applied on the outside of the View
 
 ## Enums
 
-```C++
+```C++ tab="Direction"
 enum class Direction
 {
     Column,
@@ -109,14 +109,18 @@ enum class Direction
     Row,
     RowReverse
 };
+```
 
+```C++ tab="LayoutDirection"
 enum class LayoutDirection
 {
     Inherit,
     LTR,
     RTL
 };
+```
 
+```C++ tab="Align"
 enum class Align
 {
     Auto,
@@ -128,7 +132,9 @@ enum class Align
     SpaceBetween,
     SpaceAround
 };
+```
 
+```C++ tab="Justify"
 enum class Justify
 {
     FlexStart,
@@ -138,7 +144,9 @@ enum class Justify
     SpaceAround,
     SpaceEvenly
 };
+```
 
+```C++ tab="Wrap"
 enum class Wrap
 {
     NoWrap,
