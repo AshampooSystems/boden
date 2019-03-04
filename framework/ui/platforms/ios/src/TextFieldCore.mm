@@ -67,44 +67,41 @@
 
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BodenUITextField *_createUITextField(std::shared_ptr<TextField> outerTextField)
     {
-        BodenUITextField *_createUITextField(std::shared_ptr<TextField> outerTextField)
-        {
-            BodenUITextField *textField = [[BodenUITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            textField.backgroundColor = [UIColor clearColor];
-            textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
-            textField.layer.borderWidth = 1;
-            textField.layer.cornerRadius = 5;
-            textField.font = [UIFont systemFontOfSize:15];
-            textField.borderStyle = UITextBorderStyleRoundedRect;
-            textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-            textField.keyboardType = UIKeyboardTypeDefault;
-            textField.autocorrectionType = UITextAutocorrectionTypeNo;
-            textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-            textField.returnKeyType = UIReturnKeyDone;
+        BodenUITextField *textField = [[BodenUITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        textField.backgroundColor = [UIColor clearColor];
+        textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
+        textField.layer.borderWidth = 1;
+        textField.layer.cornerRadius = 5;
+        textField.font = [UIFont systemFontOfSize:15];
+        textField.borderStyle = UITextBorderStyleRoundedRect;
+        textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+        textField.keyboardType = UIKeyboardTypeDefault;
+        textField.autocorrectionType = UITextAutocorrectionTypeNo;
+        textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+        textField.returnKeyType = UIReturnKeyDone;
 
-            return textField;
-        }
+        return textField;
+    }
 
-        TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
-            : ViewCore(outerTextField, _createUITextField(outerTextField))
-        {
-            setText(outerTextField->text);
-            _delegate =
-                [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView() outerTextField:outerTextField];
-        }
+    TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
+        : ViewCore(outerTextField, _createUITextField(outerTextField))
+    {
+        setText(outerTextField->text);
+        _delegate =
+            [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView() outerTextField:outerTextField];
+    }
 
-        TextFieldCore::~TextFieldCore() { _delegate = nil; }
+    TextFieldCore::~TextFieldCore() { _delegate = nil; }
 
-        void TextFieldCore::setText(const String &text)
-        {
-            UITextField *textField = (UITextField *)uiView();
-            if (nsStringToString(textField.text) != text) {
-                textField.text = stringToNSString(text);
-            }
+    void TextFieldCore::setText(const String &text)
+    {
+        UITextField *textField = (UITextField *)uiView();
+        if (nsStringToString(textField.text) != text) {
+            textField.text = stringToNSString(text);
         }
     }
 }

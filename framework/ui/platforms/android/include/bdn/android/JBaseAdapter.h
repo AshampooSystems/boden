@@ -2,20 +2,17 @@
 
 #include <bdn/android/JListAdapter.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kBaseAdapterClassName[] = "android/widget/BaseAdapter";
+
+    template <const char *javaClassName = kBaseAdapterClassName, class... ConstructorArguments>
+    class JBaseAdapter : public JListAdapterBase<javaClassName, ConstructorArguments...>
     {
-        constexpr const char kBaseAdapterClassName[] = "android/widget/BaseAdapter";
+      public:
+        using JListAdapterBase<javaClassName, ConstructorArguments...>::JListAdapterBase;
 
-        template <const char *javaClassName = kBaseAdapterClassName, class... ConstructorArguments>
-        class JBaseAdapter : public JListAdapterBase<javaClassName, ConstructorArguments...>
-        {
-          public:
-            using JListAdapterBase<javaClassName, ConstructorArguments...>::JListAdapterBase;
-
-          public:
-            java::Method<void()> notifyDataSetChanged{this, "notifyDataSetChanged"};
-        };
-    }
+      public:
+        java::Method<void()> notifyDataSetChanged{this, "notifyDataSetChanged"};
+    };
 }

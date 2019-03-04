@@ -3,19 +3,16 @@
 #include <bdn/android/JConfiguration.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kResourcesClassName[] = "android/content/res/Resources";
+
+    class JResources : public java::JTObject<kResourcesClassName>
     {
-        constexpr const char kResourcesClassName[] = "android/content/res/Resources";
+      public:
+        using java::JTObject<kResourcesClassName>::JTObject;
 
-        class JResources : public java::JTObject<kResourcesClassName>
-        {
-          public:
-            using java::JTObject<kResourcesClassName>::JTObject;
-
-          public:
-            java::Method<JConfiguration()> getConfiguration{this, "getConfiguration"};
-        };
-    }
+      public:
+        java::Method<JConfiguration()> getConfiguration{this, "getConfiguration"};
+    };
 }

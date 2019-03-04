@@ -7,32 +7,28 @@
 
 @class BdnButtonClickManager;
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    class ButtonCore : public ButtonCoreBase, virtual public IButtonCore
     {
+      private:
+        static NSButton *_createNsButton(std::shared_ptr<Button> outerButton);
 
-        class ButtonCore : public ButtonCoreBase, virtual public IButtonCore
-        {
-          private:
-            static NSButton *_createNsButton(std::shared_ptr<Button> outerButton);
+      public:
+        ButtonCore(std::shared_ptr<Button> outerButton);
 
-          public:
-            ButtonCore(std::shared_ptr<Button> outerButton);
+        void setLabel(const String &label) override;
 
-            void setLabel(const String &label) override;
+        Size sizeForSpace(Size availableSpace) const override;
 
-            Size sizeForSpace(Size availableSpace) const override;
+        void generateClick();
 
-            void generateClick();
+      private:
+        void _updateBezelStyle();
 
-          private:
-            void _updateBezelStyle();
+        BdnButtonClickManager *_clickManager;
 
-            BdnButtonClickManager *_clickManager;
-
-            NSBezelStyle _currBezelStyle;
-            int _heightWithRoundedBezelStyle;
-        };
-    }
+        NSBezelStyle _currBezelStyle;
+        int _heightWithRoundedBezelStyle;
+    };
 }

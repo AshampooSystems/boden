@@ -46,121 +46,116 @@ bdn::mac::UIAppRunner *_runner;
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    AppLaunchInfo UIAppRunner::_makeLaunchInfo(int argCount, char *args[])
     {
+        AppLaunchInfo launchInfo;
 
-        AppLaunchInfo UIAppRunner::_makeLaunchInfo(int argCount, char *args[])
-        {
-            AppLaunchInfo launchInfo;
+        std::vector<String> argStrings;
+        for (int i = 0; i < argCount; i++)
+            argStrings.push_back(args[i]);
+        if (argCount == 0)
+            argStrings.push_back(""); // always add the first entry.
 
-            std::vector<String> argStrings;
-            for (int i = 0; i < argCount; i++)
-                argStrings.push_back(args[i]);
-            if (argCount == 0)
-                argStrings.push_back(""); // always add the first entry.
+        launchInfo.setArguments(argStrings);
 
-            launchInfo.setArguments(argStrings);
+        return launchInfo;
+    }
 
-            return launchInfo;
-        }
+    UIAppRunner::UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+                             char *args[])
+        : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
+    {
+        _mainDispatcher = std::make_shared<bdn::fk::MainDispatcher>();
+    }
 
-        UIAppRunner::UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
-                                 char *args[])
-            : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
-        {
-            _mainDispatcher = std::make_shared<bdn::fk::MainDispatcher>();
-        }
+    static void _globalUnhandledNSException(NSException *exception)
+    {
+        NSObject *cppExceptionWrapper = nil;
 
-        static void _globalUnhandledNSException(NSException *exception)
-        {
-            NSObject *cppExceptionWrapper = nil;
+        if (exception.userInfo != nil)
+            cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
 
-            if (exception.userInfo != nil)
-                cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
+        std::shared_ptr<ExceptionReference> cppExceptionRef;
+        if (cppExceptionWrapper != nil)
+            cppExceptionRef =
+                std::dynamic_pointer_cast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
 
-            std::shared_ptr<ExceptionReference> cppExceptionRef;
-            if (cppExceptionWrapper != nil)
-                cppExceptionRef =
-                    std::dynamic_pointer_cast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
-
-            try {
-                // if the exception is a wrapped C++ exception then we rethrow
-                // the original
-                if (cppExceptionRef != nullptr)
-                    cppExceptionRef->rethrow();
-                else {
-                    // otherwise we throw the NSException pointer.
-                    throw exception;
-                }
-            }
-            catch (...) {
-                // note that exceptions are never recoverable on mac and ios
-                bdn::unhandledException(false);
+        try {
+            // if the exception is a wrapped C++ exception then we rethrow
+            // the original
+            if (cppExceptionRef != nullptr)
+                cppExceptionRef->rethrow();
+            else {
+                // otherwise we throw the NSException pointer.
+                throw exception;
             }
         }
-
-        bool UIAppRunner::isCommandLineApp() const { return false; }
-
-        int UIAppRunner::entry()
-        {
-            NSSetUncaughtExceptionHandler(&_globalUnhandledNSException);
-
-            [NSApplication sharedApplication];
-
-            BdnMacAppDelegate_ *appDelegate = [[BdnMacAppDelegate_ alloc] init];
-            [appDelegate setAppRunner:this];
-            [NSApp setDelegate:appDelegate];
-            [NSApp run];
-
-            return 0;
+        catch (...) {
+            // note that exceptions are never recoverable on mac and ios
+            bdn::unhandledException(false);
         }
+    }
 
-        void UIAppRunner::openURL(const String &url)
-        {
-            [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:stringToNSString(url)]];
-        }
+    bool UIAppRunner::isCommandLineApp() const { return false; }
 
-        void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)
-        {
-            bdn::platformEntryWrapper(
-                [&]() {
-                    prepareLaunch();
-                    beginLaunch();
-                },
-                false);
-        }
+    int UIAppRunner::entry()
+    {
+        NSSetUncaughtExceptionHandler(&_globalUnhandledNSException);
 
-        void UIAppRunner::_applicationDidFinishLaunching(NSNotification *notification)
-        {
-            bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
-        }
+        [NSApplication sharedApplication];
 
-        void UIAppRunner::_applicationDidBecomeActive(NSNotification *notification)
-        {
-            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
-        }
+        BdnMacAppDelegate_ *appDelegate = [[BdnMacAppDelegate_ alloc] init];
+        [appDelegate setAppRunner:this];
+        [NSApp setDelegate:appDelegate];
+        [NSApp run];
 
-        void UIAppRunner::_applicationDidResignActive(NSNotification *notification)
-        {
-            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
-        }
+        return 0;
+    }
 
-        void UIAppRunner::_applicationWillTerminate(NSNotification *notification)
-        {
-            bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
-        }
+    void UIAppRunner::openURL(const String &url)
+    {
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:stringToNSString(url)]];
+    }
 
-        void UIAppRunner::initiateExitIfPossible(int exitCode)
-        {
-            _mainDispatcher->enqueue(
-                []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
-        }
+    void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)
+    {
+        bdn::platformEntryWrapper(
+            [&]() {
+                prepareLaunch();
+                beginLaunch();
+            },
+            false);
+    }
 
-        void UIAppRunner::disposeMainDispatcher()
-        {
-            std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose();
-        }
+    void UIAppRunner::_applicationDidFinishLaunching(NSNotification *notification)
+    {
+        bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
+    }
+
+    void UIAppRunner::_applicationDidBecomeActive(NSNotification *notification)
+    {
+        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
+    }
+
+    void UIAppRunner::_applicationDidResignActive(NSNotification *notification)
+    {
+        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
+    }
+
+    void UIAppRunner::_applicationWillTerminate(NSNotification *notification)
+    {
+        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
+    }
+
+    void UIAppRunner::initiateExitIfPossible(int exitCode)
+    {
+        _mainDispatcher->enqueue([]() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
+    }
+
+    void UIAppRunner::disposeMainDispatcher()
+    {
+        std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(_mainDispatcher)->dispose();
     }
 }

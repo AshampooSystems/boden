@@ -6,21 +6,17 @@
 
 @class BdnTextFieldDelegate;
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class TextFieldCore : public ViewCore, virtual public ITextFieldCore
     {
+      public:
+        TextFieldCore(std::shared_ptr<TextField> outerTextField);
+        ~TextFieldCore();
 
-        class TextFieldCore : public ViewCore, virtual public ITextFieldCore
-        {
-          public:
-            TextFieldCore(std::shared_ptr<TextField> outerTextField);
-            ~TextFieldCore();
+        void setText(const String &text) override;
 
-            void setText(const String &text) override;
-
-          private:
-            BdnTextFieldDelegate *_delegate;
-        };
-    }
+      private:
+        BdnTextFieldDelegate *_delegate;
+    };
 }

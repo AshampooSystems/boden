@@ -15,35 +15,31 @@
 @property BodenUIView *bodenRootView;
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class WindowCore : public ViewCore, virtual public IWindowCore
     {
+      private:
+        WindowCore(std::shared_ptr<Window> outerWindow, BodenRootViewController *viewController);
 
-        class WindowCore : public ViewCore, virtual public IWindowCore
-        {
-          private:
-            WindowCore(std::shared_ptr<Window> outerWindow, BodenRootViewController *viewController);
+      public:
+        WindowCore(std::shared_ptr<Window> outerWindow);
 
-          public:
-            WindowCore(std::shared_ptr<Window> outerWindow);
+        ~WindowCore();
 
-            ~WindowCore();
+        UIWindow *getUIWindow() const;
+        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
+        void moveToParentView(std::shared_ptr<View> newParentView) override;
 
-            UIWindow *getUIWindow() const;
-            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
-            void moveToParentView(std::shared_ptr<View> newParentView) override;
+        virtual void frameChanged() override;
 
-            virtual void frameChanged() override;
+      private:
+        void updateContentGeometry();
+        void updateGeomtry();
 
-          private:
-            void updateContentGeometry();
-            void updateGeomtry();
+        UIScreen *_getUIScreen() const;
+        UIWindow *_window;
 
-            UIScreen *_getUIScreen() const;
-            UIWindow *_window;
-
-            BodenRootViewController *_rootViewController;
-        };
-    }
+        BodenRootViewController *_rootViewController;
+    };
 }

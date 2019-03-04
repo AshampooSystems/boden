@@ -20,42 +20,37 @@
 }
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class TextViewCore : public ViewCore, virtual public ITextViewCore
     {
-
-        class TextViewCore : public ViewCore, virtual public ITextViewCore
+      private:
+        static BodenUILabel *_createUILabel(std::shared_ptr<TextView> outerTextView)
         {
-          private:
-            static BodenUILabel *_createUILabel(std::shared_ptr<TextView> outerTextView)
-            {
-                BodenUILabel *label = [[BodenUILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-                label.numberOfLines = 0;
-                return label;
-            }
+            BodenUILabel *label = [[BodenUILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            label.numberOfLines = 0;
+            return label;
+        }
 
-          public:
-            TextViewCore(std::shared_ptr<TextView> outerTextView)
-                : ViewCore(outerTextView, _createUILabel(outerTextView))
-            {
-                _uiLabel = (UILabel *)uiView();
-                setText(outerTextView->text);
-                setWrap(outerTextView->wrap);
-            }
+      public:
+        TextViewCore(std::shared_ptr<TextView> outerTextView) : ViewCore(outerTextView, _createUILabel(outerTextView))
+        {
+            _uiLabel = (UILabel *)uiView();
+            setText(outerTextView->text);
+            setWrap(outerTextView->wrap);
+        }
 
-            UILabel *getUILabel() { return _uiLabel; }
+        UILabel *getUILabel() { return _uiLabel; }
 
-            void setText(const String &text) override { _uiLabel.text = stringToNSString(text); }
-            virtual void setWrap(const bool &wrap) override { _uiLabel.numberOfLines = wrap ? 0 : 1; }
+        void setText(const String &text) override { _uiLabel.text = stringToNSString(text); }
+        virtual void setWrap(const bool &wrap) override { _uiLabel.numberOfLines = wrap ? 0 : 1; }
 
-          protected:
-            double getFontSize() const override { return _uiLabel.font.pointSize; }
+      protected:
+        double getFontSize() const override { return _uiLabel.font.pointSize; }
 
-            bool canAdjustToAvailableWidth() const override { return true; }
+        bool canAdjustToAvailableWidth() const override { return true; }
 
-          private:
-            UILabel *_uiLabel;
-        };
-    }
+      private:
+        UILabel *_uiLabel;
+    };
 }

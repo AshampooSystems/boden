@@ -5,27 +5,24 @@
 #include <bdn/android/JButton.h>
 #include <bdn/android/ViewCore.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+
+    class ButtonCore : public ViewCore, virtual public IButtonCore
     {
+      public:
+        ButtonCore(std::shared_ptr<Button> outerButton);
 
-        class ButtonCore : public ViewCore, virtual public IButtonCore
-        {
-          public:
-            ButtonCore(std::shared_ptr<Button> outerButton);
+        JButton &getJButton();
 
-            JButton &getJButton();
+        void setLabel(const String &label) override;
 
-            void setLabel(const String &label) override;
+        void clicked() override;
 
-            void clicked() override;
+      protected:
+        double getFontSizeDips() const override;
 
-          protected:
-            double getFontSizeDips() const override;
-
-          private:
-            mutable JButton _jButton;
-        };
-    }
+      private:
+        mutable JButton _jButton;
+    };
 }

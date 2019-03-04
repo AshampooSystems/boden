@@ -21,29 +21,26 @@
 
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BodenWebView *createWKWebView()
     {
-        BodenWebView *createWKWebView()
-        {
-            WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-            return [[BodenWebView alloc] initWithFrame:CGRectZero configuration:configuration];
-        }
+        WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
+        return [[BodenWebView alloc] initWithFrame:CGRectZero configuration:configuration];
+    }
 
-        WebViewCore::WebViewCore(std::shared_ptr<WebView> outer) : ViewCore(outer, createWKWebView())
-        {
-            if (outer->url != "") {
-                loadURL(outer->url);
-            }
+    WebViewCore::WebViewCore(std::shared_ptr<WebView> outer) : ViewCore(outer, createWKWebView())
+    {
+        if (outer->url != "") {
+            loadURL(outer->url);
         }
+    }
 
-        void WebViewCore::loadURL(const String &url)
-        {
-            WKWebView *webView = (WKWebView *)uiView();
-            NSURL *nsURL = [[NSURL alloc] initWithString:bdn::ios::stringToNSString(url)];
-            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nsURL];
-            [webView loadRequest:request];
-        }
+    void WebViewCore::loadURL(const String &url)
+    {
+        WKWebView *webView = (WKWebView *)uiView();
+        NSURL *nsURL = [[NSURL alloc] initWithString:bdn::ios::stringToNSString(url)];
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nsURL];
+        [webView loadRequest:request];
     }
 }

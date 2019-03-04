@@ -7,20 +7,17 @@
 
 #include <bdn/android/JNativeListAdapter.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
-        class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
-        {
-          public:
-            ListViewCore(std::shared_ptr<ListView> outer);
+      public:
+        ListViewCore(std::shared_ptr<ListView> outer);
 
-            virtual void reloadData() override;
+        virtual void reloadData() override;
 
-          private:
-            JListView _jListView;
-            JNativeListAdapter _jNativeListAdapter;
-        };
-    }
+      private:
+        JListView _jListView;
+        JNativeListAdapter _jNativeListAdapter;
+    };
 }

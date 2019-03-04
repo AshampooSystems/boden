@@ -26,38 +26,34 @@ namespace bdn
     std::shared_ptr<UIProvider> defaultUIProvider() { return bdn::ios::UIProvider::get(); }
 }
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    std::shared_ptr<UIProvider> UIProvider::get()
     {
+        static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
+        return globalUIProvider;
+    };
 
-        std::shared_ptr<UIProvider> UIProvider::get()
-        {
-            static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
-            return globalUIProvider;
-        };
+    UIProvider::UIProvider()
+    {
+        // iOS uses DIPs for font sizes (although they call it "points").
+        // So no conversion necessary
 
-        UIProvider::UIProvider()
-        {
-            // iOS uses DIPs for font sizes (although they call it "points").
-            // So no conversion necessary
+        _semDips = UIFont.systemFontSize;
 
-            _semDips = UIFont.systemFontSize;
-
-            registerCoreType<ButtonCore, Button>();
-            registerCoreType<ContainerViewCore, ContainerView>();
-            registerCoreType<CheckboxCore, Checkbox>();
-            registerCoreType<SwitchCore, Switch>();
-            registerCoreType<TextViewCore, TextView>();
-            registerCoreType<ScrollViewCore, ScrollView>();
-            registerCoreType<WindowCore, Window>();
-            registerCoreType<TextFieldCore, TextField>();
-            registerCoreType<ListViewCore, ListView>();
-            registerCoreType<StackCore, Stack>();
-            registerCoreType<WebViewCore, WebView>();
-            registerCoreType<ImageViewCore, ImageView>();
-        }
-
-        String UIProvider::getName() const { return "ios"; }
+        registerCoreType<ButtonCore, Button>();
+        registerCoreType<ContainerViewCore, ContainerView>();
+        registerCoreType<CheckboxCore, Checkbox>();
+        registerCoreType<SwitchCore, Switch>();
+        registerCoreType<TextViewCore, TextView>();
+        registerCoreType<ScrollViewCore, ScrollView>();
+        registerCoreType<WindowCore, Window>();
+        registerCoreType<TextFieldCore, TextField>();
+        registerCoreType<ListViewCore, ListView>();
+        registerCoreType<StackCore, Stack>();
+        registerCoreType<WebViewCore, WebView>();
+        registerCoreType<ImageViewCore, ImageView>();
     }
+
+    String UIProvider::getName() const { return "ios"; }
 }

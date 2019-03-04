@@ -2,16 +2,13 @@
 
 #include <bdn/android/JInputEvent.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kKeyEventClassName[] = "android/view/KeyEvent";
+    constexpr const char kKeyEventClassName[] = "android/view/KeyEvent";
 
-        class JKeyEvent : public JInputEvent<kKeyEventClassName>
-        {
-          public:
-            using JInputEvent<kKeyEventClassName>::JInputEvent;
-        };
-    }
+    class JKeyEvent : public JInputEvent<kKeyEventClassName>
+    {
+      public:
+        using JInputEvent<kKeyEventClassName>::JInputEvent;
+    };
 }

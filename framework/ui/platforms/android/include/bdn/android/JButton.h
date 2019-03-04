@@ -3,11 +3,8 @@
 #include <bdn/android/JTextView.h>
 #include <bdn/java/JString.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kButtonClassName[] = "android/widget/Button";
-        using JButton = JBaseTextView<kButtonClassName>;
-    }
+    constexpr const char kButtonClassName[] = "android/widget/Button";
+    using JButton = JBaseTextView<kButtonClassName>;
 }

@@ -7,39 +7,35 @@
 
 @class BdnIosScrollViewDelegate_;
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class ScrollViewCore : public ViewCore, virtual public IScrollViewCore
     {
+      public:
+        ScrollViewCore(std::shared_ptr<ScrollView> outer);
 
-        class ScrollViewCore : public ViewCore, virtual public IScrollViewCore
-        {
-          public:
-            ScrollViewCore(std::shared_ptr<ScrollView> outer);
+        void setHorizontalScrollingEnabled(const bool &enabled) override;
+        void setVerticalScrollingEnabled(const bool &enabled) override;
 
-            void setHorizontalScrollingEnabled(const bool &enabled) override;
-            void setVerticalScrollingEnabled(const bool &enabled) override;
+        void scrollClientRectToVisible(const Rect &clientRect) override;
 
-            void scrollClientRectToVisible(const Rect &clientRect) override;
+        void addChildViewCore(ViewCore *core) override;
 
-            void addChildViewCore(ViewCore *core) override;
+        void updateVisibleClientRect();
 
-            void updateVisibleClientRect();
+      protected:
+        bool canAdjustToAvailableWidth() const override { return true; }
 
-          protected:
-            bool canAdjustToAvailableWidth() const override { return true; }
+        bool canAdjustToAvailableHeight() const override { return true; }
 
-            bool canAdjustToAvailableHeight() const override { return true; }
+      private:
+        UIScrollView *_uiScrollView;
 
-          private:
-            UIScrollView *_uiScrollView;
+        bool _horzScrollEnabled = false;
+        bool _vertScrollEnabled = false;
 
-            bool _horzScrollEnabled = false;
-            bool _vertScrollEnabled = false;
+        BdnIosScrollViewDelegate_ *_delegate = nil;
 
-            BdnIosScrollViewDelegate_ *_delegate = nil;
-
-            std::shared_ptr<Property<Rect>> _childGeometry;
-        };
-    }
+        std::shared_ptr<Property<Rect>> _childGeometry;
+    };
 }

@@ -2,24 +2,21 @@
 
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kUriClassName[] = "android/net/Uri";
+
+    class JUri : public java::JTObject<kUriClassName>
     {
-        constexpr const char kUriClassName[] = "android/net/Uri";
+      public:
+        using java::JTObject<kUriClassName>::JTObject;
 
-        class JUri : public java::JTObject<kUriClassName>
+      public:
+        static JUri parse(String uriString)
         {
-          public:
-            using java::JTObject<kUriClassName>::JTObject;
+            static bdn::java::MethodId methodId;
 
-          public:
-            static JUri parse(String uriString)
-            {
-                static bdn::java::MethodId methodId;
-
-                return invokeStatic_<JUri, String>(getStaticClass_(), methodId, "parse", uriString);
-            }
-        };
-    }
+            return invokeStatic_<JUri, String>(getStaticClass_(), methodId, "parse", uriString);
+        }
+    };
 }

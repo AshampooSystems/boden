@@ -10,20 +10,17 @@
 - (void)layoutSubviews;
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class ContainerViewCore : public ViewCore
     {
-        class ContainerViewCore : public ViewCore
-        {
-          public:
-            ContainerViewCore(std::shared_ptr<ContainerView> outer);
-            ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view);
+      public:
+        ContainerViewCore(std::shared_ptr<ContainerView> outer);
+        ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view);
 
-          protected:
-            bool canAdjustToAvailableWidth() const override;
+      protected:
+        bool canAdjustToAvailableWidth() const override;
 
-            bool canAdjustToAvailableHeight() const override;
-        };
-    }
+        bool canAdjustToAvailableHeight() const override;
+    };
 }

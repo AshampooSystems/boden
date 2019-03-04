@@ -23,26 +23,22 @@
 
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BodenUIView *_createContainer(std::shared_ptr<ContainerView> outer)
     {
-
-        BodenUIView *_createContainer(std::shared_ptr<ContainerView> outer)
-        {
-            return [[BodenUIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-        }
-
-        ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
-            : ViewCore(outer, _createContainer(outer))
-        {}
-
-        ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view)
-            : ViewCore(outer, view)
-        {}
-
-        bool ContainerViewCore::canAdjustToAvailableWidth() const { return true; }
-
-        bool ContainerViewCore::canAdjustToAvailableHeight() const { return true; }
+        return [[BodenUIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
     }
+
+    ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
+        : ViewCore(outer, _createContainer(outer))
+    {}
+
+    ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view)
+        : ViewCore(outer, view)
+    {}
+
+    bool ContainerViewCore::canAdjustToAvailableWidth() const { return true; }
+
+    bool ContainerViewCore::canAdjustToAvailableHeight() const { return true; }
 }

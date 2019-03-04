@@ -6,29 +6,26 @@
 #include <bdn/android/JView.h>
 #include <bdn/android/ViewCore.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+
+    class ContainerViewCore : public ViewCore, virtual public IParentViewCore
     {
+      private:
+        static JView _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
 
-        class ContainerViewCore : public ViewCore, virtual public IParentViewCore
-        {
-          private:
-            static JView _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
+      public:
+        ContainerViewCore(std::shared_ptr<ContainerView> outer);
+        ContainerViewCore(std::shared_ptr<ContainerView> outer, JView jView) : ViewCore(outer, jView) {}
 
-          public:
-            ContainerViewCore(std::shared_ptr<ContainerView> outer);
-            ContainerViewCore(std::shared_ptr<ContainerView> outer, JView jView) : ViewCore(outer, jView) {}
+        virtual ~ContainerViewCore();
 
-            virtual ~ContainerViewCore();
+        void dispose() override;
 
-            void dispose() override;
+      public:
+        double getUIScaleFactor() const override;
 
-          public:
-            double getUIScaleFactor() const override;
-
-            void addChildCore(ViewCore *child) override;
-            void removeChildCore(ViewCore *child) override;
-        };
-    }
+        void addChildCore(ViewCore *child) override;
+        void removeChildCore(ViewCore *child) override;
+    };
 }

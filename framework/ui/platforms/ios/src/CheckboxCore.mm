@@ -75,82 +75,76 @@
 }
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BdnIosCheckboxComposite *CheckboxCore::_createCheckboxComposite()
     {
+        BdnIosCheckboxComposite *switchComposite =
+            [[BdnIosCheckboxComposite alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
-        BdnIosCheckboxComposite *CheckboxCore::_createCheckboxComposite()
-        {
-            BdnIosCheckboxComposite *switchComposite =
-                [[BdnIosCheckboxComposite alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        switchComposite.checkbox = [[BdnIosCheckbox alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        [switchComposite addSubview:switchComposite.checkbox];
 
-            switchComposite.checkbox = [[BdnIosCheckbox alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            [switchComposite addSubview:switchComposite.checkbox];
+        switchComposite.uiLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        [switchComposite addSubview:switchComposite.uiLabel];
 
-            switchComposite.uiLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            [switchComposite addSubview:switchComposite.uiLabel];
+        return switchComposite;
+    }
 
-            return switchComposite;
-        }
+    CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outer) : ViewCore(outer, _createCheckboxComposite())
+    {
+        _composite = (BdnIosCheckboxComposite *)uiView();
 
-        CheckboxCore::CheckboxCore(std::shared_ptr<Checkbox> outer) : ViewCore(outer, _createCheckboxComposite())
-        {
-            _composite = (BdnIosCheckboxComposite *)uiView();
+        _clickManager = [[BdnIosCheckboxClickManager alloc] init];
+        _clickManager.outer = outer;
+        _clickManager.composite = _composite;
 
-            _clickManager = [[BdnIosCheckboxClickManager alloc] init];
-            _clickManager.outer = outer;
-            _clickManager.composite = _composite;
+        BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
+        [checkboxComposite.checkbox addTarget:_clickManager
+                                       action:@selector(clicked)
+                             forControlEvents:UIControlEventTouchUpInside];
+        [checkboxComposite addTarget:_clickManager
+                              action:@selector(clicked)
+                    forControlEvents:UIControlEventTouchUpInside];
 
-            BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
-            [checkboxComposite.checkbox addTarget:_clickManager
-                                           action:@selector(clicked)
-                                 forControlEvents:UIControlEventTouchUpInside];
-            [checkboxComposite addTarget:_clickManager
-                                  action:@selector(clicked)
-                        forControlEvents:UIControlEventTouchUpInside];
+        geometry.onChange() += [=](auto va) {
+            CGRect compositeBounds = _composite.bounds;
+            CGRect checkboxBounds = ((BdnIosCheckboxComposite *)_composite).checkbox.bounds;
+            CGRect labelBounds = _composite.uiLabel.bounds;
 
-            geometry.onChange() += [=](auto va) {
-                CGRect compositeBounds = _composite.bounds;
-                CGRect checkboxBounds = ((BdnIosCheckboxComposite *)_composite).checkbox.bounds;
-                CGRect labelBounds = _composite.uiLabel.bounds;
+            // Center checkbox vertically, left align horizontally in composite
+            CGRect checkboxFrame = CGRectMake(0, compositeBounds.size.height / 2. - checkboxBounds.size.height / 2.,
+                                              checkboxBounds.size.width, checkboxBounds.size.height);
+            ((BdnIosCheckboxComposite *)_composite).checkbox.frame = checkboxFrame;
 
-                // Center checkbox vertically, left align horizontally in composite
-                CGRect checkboxFrame = CGRectMake(0, compositeBounds.size.height / 2. - checkboxBounds.size.height / 2.,
-                                                  checkboxBounds.size.width, checkboxBounds.size.height);
-                ((BdnIosCheckboxComposite *)_composite).checkbox.frame = checkboxFrame;
+            // Center label vertically, align next to checkbox horizontally in
+            // composite
+            CGRect labelFrame = CGRectMake(checkboxBounds.size.width + BDN_IOS_CHECKBOX_LABEL_MARGIN,
+                                           compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
+                                           labelBounds.size.width, labelBounds.size.height);
+            _composite.uiLabel.frame = labelFrame;
+        };
 
-                // Center label vertically, align next to checkbox horizontally in
-                // composite
-                CGRect labelFrame = CGRectMake(checkboxBounds.size.width + BDN_IOS_CHECKBOX_LABEL_MARGIN,
-                                               compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
-                                               labelBounds.size.width, labelBounds.size.height);
-                _composite.uiLabel.frame = labelFrame;
-            };
+        // Set initial state
+        setLabel(outer->label);
+        setState(outer->state);
+    }
 
-            // Set initial state
-            setLabel(outer->label);
-            setState(outer->state);
-        }
+    CheckboxCore::~CheckboxCore()
+    {
+        BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
+        [checkboxComposite.checkbox removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
+        [checkboxComposite removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
+    }
 
-        CheckboxCore::~CheckboxCore()
-        {
-            BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
-            [checkboxComposite.checkbox removeTarget:_clickManager
-                                              action:nil
-                                    forControlEvents:UIControlEventTouchUpInside];
-            [checkboxComposite removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
-        }
+    void CheckboxCore::setState(const TriState &state)
+    {
+        ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state;
+    }
 
-        void CheckboxCore::setState(const TriState &state)
-        {
-            ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state;
-        }
-
-        void CheckboxCore::setLabel(const String &label)
-        {
-            _composite.uiLabel.text = stringToNSString(label);
-            [_composite.uiLabel sizeToFit];
-        }
+    void CheckboxCore::setLabel(const String &label)
+    {
+        _composite.uiLabel.text = stringToNSString(label);
+        [_composite.uiLabel sizeToFit];
     }
 }

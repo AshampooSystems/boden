@@ -2,17 +2,14 @@
 
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kInputEventClassName[] = "android/view/InputEvent";
+    constexpr const char kInputEventClassName[] = "android/view/InputEvent";
 
-        template <const char *javaClassName = kInputEventClassName, class... ConstructorArguments>
-        class JInputEvent : public java::JTObject<javaClassName, ConstructorArguments...>
-        {
-          public:
-            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
-        };
-    }
+    template <const char *javaClassName = kInputEventClassName, class... ConstructorArguments>
+    class JInputEvent : public java::JTObject<javaClassName, ConstructorArguments...>
+    {
+      public:
+        using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
+    };
 }

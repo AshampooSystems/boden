@@ -104,39 +104,36 @@
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ChildViewCore(outer, createNSTableView(outer))
     {
-        ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ChildViewCore(outer, createNSTableView(outer))
-        {
-            ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
-            nativeDelegate.outer = outer;
+        ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
+        nativeDelegate.outer = outer;
 
-            _nsTableView = ((NSScrollView *)nsView()).documentView;
-            _nsTableView.dataSource = nativeDelegate;
-            _nsTableView.delegate = nativeDelegate;
-            _nsTableView.headerView = nil;
-            _nativeDelegate = nativeDelegate;
-        }
+        _nsTableView = ((NSScrollView *)nsView()).documentView;
+        _nsTableView.dataSource = nativeDelegate;
+        _nsTableView.delegate = nativeDelegate;
+        _nsTableView.headerView = nil;
+        _nativeDelegate = nativeDelegate;
+    }
 
-        void ListViewCore::reloadData() { [_nsTableView reloadData]; }
+    void ListViewCore::reloadData() { [_nsTableView reloadData]; }
 
-        NSScrollView *ListViewCore::createNSTableView(std::shared_ptr<ListView> outer)
-        {
-            NSScrollView *nsScrollView = [[NSScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            NSTableView *nsTableView = [[NSTableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+    NSScrollView *ListViewCore::createNSTableView(std::shared_ptr<ListView> outer)
+    {
+        NSScrollView *nsScrollView = [[NSScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        NSTableView *nsTableView = [[NSTableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
-            NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"Column"];
-            column.resizingMask = NSTableColumnAutoresizingMask;
-            [nsTableView addTableColumn:column];
+        NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"Column"];
+        column.resizingMask = NSTableColumnAutoresizingMask;
+        [nsTableView addTableColumn:column];
 
-            nsTableView.rowSizeStyle = NSTableViewRowSizeStyleDefault;
+        nsTableView.rowSizeStyle = NSTableViewRowSizeStyleDefault;
 
-            [nsScrollView setDocumentView:nsTableView];
-            nsScrollView.hasVerticalScroller = YES;
+        [nsScrollView setDocumentView:nsTableView];
+        nsScrollView.hasVerticalScroller = YES;
 
-            return nsScrollView;
-        }
+        return nsScrollView;
     }
 }

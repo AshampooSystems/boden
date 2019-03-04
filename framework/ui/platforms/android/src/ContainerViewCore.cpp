@@ -2,32 +2,29 @@
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/entry.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
+        : ViewCore(outer, createAndroidViewClass<JNativeViewGroup>(outer))
+    {}
+
+    ContainerViewCore::~ContainerViewCore() {}
+
+    void ContainerViewCore::dispose() { ViewCore::dispose(); }
+
+    double ContainerViewCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
+
+    void ContainerViewCore::addChildCore(ViewCore *child)
     {
-        ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
-            : ViewCore(outer, createAndroidViewClass<JNativeViewGroup>(outer))
-        {}
+        JNativeViewGroup parentGroup(getJView().getRef_());
 
-        ContainerViewCore::~ContainerViewCore() {}
+        parentGroup.addView(child->getJView());
+    }
 
-        void ContainerViewCore::dispose() { ViewCore::dispose(); }
-
-        double ContainerViewCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
-
-        void ContainerViewCore::addChildCore(ViewCore *child)
-        {
-            JNativeViewGroup parentGroup(getJView().getRef_());
-
-            parentGroup.addView(child->getJView());
-        }
-
-        void ContainerViewCore::removeChildCore(ViewCore *child)
-        {
-            JNativeViewGroup parentGroup(getJView().getRef_());
-            parentGroup.removeView(child->getJView());
-        }
+    void ContainerViewCore::removeChildCore(ViewCore *child)
+    {
+        JNativeViewGroup parentGroup(getJView().getRef_());
+        parentGroup.removeView(child->getJView());
     }
 }
 

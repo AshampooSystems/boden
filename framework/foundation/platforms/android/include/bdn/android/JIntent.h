@@ -4,32 +4,29 @@
 #include <bdn/android/JUri.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kIntentClassName[] = "android/content/Intent";
+
+    class JIntent : public java::JTObject<kIntentClassName>
     {
-        constexpr const char kIntentClassName[] = "android/content/Intent";
+      public:
+        constexpr static const char ACTION_MAIN[] = "android.intent.action.MAIN";
+        constexpr static const char ACTION_VIEW[] = "android.intent.action.VIEW";
 
-        class JIntent : public java::JTObject<kIntentClassName>
+      public:
+        static bdn::java::Reference createIntentInstance(String string, JUri uri)
         {
-          public:
-            constexpr static const char ACTION_MAIN[] = "android.intent.action.MAIN";
-            constexpr static const char ACTION_VIEW[] = "android.intent.action.VIEW";
+            static bdn::java::MethodId constructorId;
+            return javaClass().newInstance_(constructorId, string, uri);
+        }
 
-          public:
-            static bdn::java::Reference createIntentInstance(String string, JUri uri)
-            {
-                static bdn::java::MethodId constructorId;
-                return javaClass().newInstance_(constructorId, string, uri);
-            }
+        JIntent(String string, JUri uri) : JTObject<kIntentClassName>(createIntentInstance(string, uri)) {}
 
-            JIntent(String string, JUri uri) : JTObject<kIntentClassName>(createIntentInstance(string, uri)) {}
+      public:
+        using JTObject<kIntentClassName>::JTObject;
 
-          public:
-            using JTObject<kIntentClassName>::JTObject;
-
-            java::Method<String()> getAction{this, "getAction"};
-            java::Method<JBundle()> getExtras{this, "getExtras"};
-        };
-    }
+        java::Method<String()> getAction{this, "getAction"};
+        java::Method<JBundle()> getExtras{this, "getExtras"};
+    };
 }

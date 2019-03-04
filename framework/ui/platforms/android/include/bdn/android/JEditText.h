@@ -3,11 +3,8 @@
 #include <bdn/android/JTextView.h>
 #include <bdn/java/JString.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kEditTextClassName[] = "android/widget/EditText";
-        using JEditText = JBaseTextView<kEditTextClassName>;
-    }
+    constexpr const char kEditTextClassName[] = "android/widget/EditText";
+    using JEditText = JBaseTextView<kEditTextClassName>;
 }

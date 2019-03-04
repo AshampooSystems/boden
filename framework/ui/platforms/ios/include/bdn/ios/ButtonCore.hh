@@ -8,26 +8,22 @@
 
 @class BdnIosButtonClickManager;
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class ButtonCore : public ViewCore, virtual public IButtonCore
     {
+      public:
+        ButtonCore(std::shared_ptr<Button> outerButton);
+        ~ButtonCore();
 
-        class ButtonCore : public ViewCore, virtual public IButtonCore
-        {
-          public:
-            ButtonCore(std::shared_ptr<Button> outerButton);
-            ~ButtonCore();
+        UIButton *getUIButton();
+        void setLabel(const String &label) override;
 
-            UIButton *getUIButton();
-            void setLabel(const String &label) override;
+      protected:
+        double getFontSize() const override;
 
-          protected:
-            double getFontSize() const override;
-
-          private:
-            UIButton *_button;
-            BdnIosButtonClickManager *_clickManager;
-        };
-    }
+      private:
+        UIButton *_button;
+        BdnIosButtonClickManager *_clickManager;
+    };
 }

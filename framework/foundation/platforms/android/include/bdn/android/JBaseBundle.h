@@ -4,21 +4,18 @@
 #include <bdn/java/JObject.h>
 #include <bdn/java/JString.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kBaseBundleClassName[] = "android/os/BaseBundle";
+
+    template <const char *javaClassName = kBaseBundleClassName, class... ConstructorArguments>
+    class JBaseBundle : public java::JTObject<javaClassName, ConstructorArguments...>
     {
-        constexpr const char kBaseBundleClassName[] = "android/os/BaseBundle";
+      public:
+        using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
 
-        template <const char *javaClassName = kBaseBundleClassName, class... ConstructorArguments>
-        class JBaseBundle : public java::JTObject<javaClassName, ConstructorArguments...>
-        {
-          public:
-            using java::JTObject<javaClassName, ConstructorArguments...>::JTObject;
-
-          public:
-            java::Method<java::JString(java::JString)> getString{this, "getString"};
-            java::Method<java::ArrayOfObjects<java::JString>(String)> getStringArray{this, "getStringArray"};
-        };
-    }
+      public:
+        java::Method<java::JString(java::JString)> getString{this, "getString"};
+        java::Method<java::ArrayOfObjects<java::JString>(String)> getStringArray{this, "getStringArray"};
+    };
 }

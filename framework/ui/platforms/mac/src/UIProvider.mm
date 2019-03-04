@@ -39,35 +39,32 @@ namespace bdn
     }
 }
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    UIProvider::UIProvider()
     {
-        UIProvider::UIProvider()
-        {
-            // mac uses DIPs natively. So no conversion necessary
-            _semDips = NSFont.systemFontSize;
+        // mac uses DIPs natively. So no conversion necessary
+        _semDips = NSFont.systemFontSize;
 
-            registerCoreType<ButtonCore, Button>();
-            registerCoreType<ContainerViewCore, ContainerView>();
-            registerCoreType<CheckboxCore, Checkbox>();
-            registerCoreType<SwitchCore, Switch>();
-            registerCoreType<TextViewCore, TextView>();
-            registerCoreType<ScrollViewCore, ScrollView>();
-            registerCoreType<WindowCore, Window>();
-            registerCoreType<TextFieldCore, TextField>();
-            registerCoreType<ListViewCore, ListView>();
-            registerCoreType<StackCore, Stack>();
-            registerCoreType<WebViewCore, WebView>();
-            registerCoreType<ImageViewCore, ImageView>();
-        }
+        registerCoreType<ButtonCore, Button>();
+        registerCoreType<ContainerViewCore, ContainerView>();
+        registerCoreType<CheckboxCore, Checkbox>();
+        registerCoreType<SwitchCore, Switch>();
+        registerCoreType<TextViewCore, TextView>();
+        registerCoreType<ScrollViewCore, ScrollView>();
+        registerCoreType<WindowCore, Window>();
+        registerCoreType<TextFieldCore, TextField>();
+        registerCoreType<ListViewCore, ListView>();
+        registerCoreType<StackCore, Stack>();
+        registerCoreType<WebViewCore, WebView>();
+        registerCoreType<ImageViewCore, ImageView>();
+    }
 
-        String UIProvider::getName() const { return "mac"; }
+    String UIProvider::getName() const { return "mac"; }
 
-        std::shared_ptr<UIProvider> UIProvider::get()
-        {
-            static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
-            return globalUIProvider;
-        }
+    std::shared_ptr<UIProvider> UIProvider::get()
+    {
+        static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();
+        return globalUIProvider;
     }
 }

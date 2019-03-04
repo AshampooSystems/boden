@@ -9,31 +9,28 @@
 @property UINavigationController *navController;
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class StackCore : public ViewCore, virtual public bdn::StackCore
     {
-        class StackCore : public ViewCore, virtual public bdn::StackCore
-        {
-          public:
-            StackCore(std::shared_ptr<Stack> outerStack);
+      public:
+        StackCore(std::shared_ptr<Stack> outerStack);
 
-          public:
-            virtual void frameChanged() override;
-            virtual void onGeometryChanged(Rect newGeometry) override;
+      public:
+        virtual void frameChanged() override;
+        virtual void onGeometryChanged(Rect newGeometry) override;
 
-            virtual void pushView(std::shared_ptr<View> view, String title) override;
-            virtual void popView() override;
+        virtual void pushView(std::shared_ptr<View> view, String title) override;
+        virtual void popView() override;
 
-            std::list<std::shared_ptr<View>> childViews() override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
-          private:
-            std::shared_ptr<bdn::Stack> stack();
+      private:
+        std::shared_ptr<bdn::Stack> stack();
 
-            UINavigationController *getNavigationController();
+        UINavigationController *getNavigationController();
 
-            std::shared_ptr<FixedView> getCurrentContainer();
-            std::shared_ptr<View> getCurrentUserView();
-        };
-    }
+        std::shared_ptr<FixedView> getCurrentContainer();
+        std::shared_ptr<View> getCurrentUserView();
+    };
 }

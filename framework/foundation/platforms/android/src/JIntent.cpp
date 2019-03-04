@@ -1,9 +1,6 @@
 
 #include <bdn/android/JIntent.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-    }
 }

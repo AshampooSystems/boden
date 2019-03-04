@@ -3,12 +3,9 @@
 #include <bdn/android/JView.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kNativeViewCoreClickListenerClassName[] = "io/boden/android/NativeViewCoreClickListener";
+    constexpr const char kNativeViewCoreClickListenerClassName[] = "io/boden/android/NativeViewCoreClickListener";
 
-        using JNativeViewCoreClickListener = OnClickListenerBase<kNativeViewCoreClickListenerClassName>;
-    }
+    using JNativeViewCoreClickListener = OnClickListenerBase<kNativeViewCoreClickListenerClassName>;
 }

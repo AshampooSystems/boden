@@ -6,22 +6,19 @@
 
 @class ListViewDelegateMac;
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    class ListViewCore : public ChildViewCore, virtual public bdn::ListViewCore
     {
-        class ListViewCore : public ChildViewCore, virtual public bdn::ListViewCore
-        {
-          public:
-            ListViewCore(std::shared_ptr<ListView> outerListView);
+      public:
+        ListViewCore(std::shared_ptr<ListView> outerListView);
 
-            virtual void reloadData() override;
+        virtual void reloadData() override;
 
-          private:
-            static NSScrollView *createNSTableView(std::shared_ptr<ListView> outerListView);
+      private:
+        static NSScrollView *createNSTableView(std::shared_ptr<ListView> outerListView);
 
-            ListViewDelegateMac *_nativeDelegate;
-            NSTableView *_nsTableView;
-        };
-    }
+        ListViewDelegateMac *_nativeDelegate;
+        NSTableView *_nsTableView;
+    };
 }

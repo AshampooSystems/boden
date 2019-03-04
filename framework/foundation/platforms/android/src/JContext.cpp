@@ -1,9 +1,6 @@
 
 #include <bdn/android/JContext.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-    }
 }

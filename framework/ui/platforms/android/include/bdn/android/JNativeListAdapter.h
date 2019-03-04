@@ -4,16 +4,13 @@
 #include <bdn/android/JView.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kNativeListAdapterClassName[] = "io/boden/android/NativeListAdapter";
+    constexpr const char kNativeListAdapterClassName[] = "io/boden/android/NativeListAdapter";
 
-        class JNativeListAdapter : public JBaseAdapter<kNativeListAdapterClassName, JView>
-        {
-          public:
-            using JBaseAdapter<kNativeListAdapterClassName, JView>::JBaseAdapter;
-        };
-    }
+    class JNativeListAdapter : public JBaseAdapter<kNativeListAdapterClassName, JView>
+    {
+      public:
+        using JBaseAdapter<kNativeListAdapterClassName, JView>::JBaseAdapter;
+    };
 }

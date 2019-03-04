@@ -8,77 +8,74 @@
 
 #include <limits>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+
+    class TextViewCore : public ViewCore, virtual public ITextViewCore
     {
-
-        class TextViewCore : public ViewCore, virtual public ITextViewCore
+      public:
+        TextViewCore(std::shared_ptr<TextView> outerTextView)
+            : ViewCore(outerTextView, createAndroidViewClass<JTextView>(outerTextView)),
+              _jTextView(getJViewAS<JTextView>())
         {
-          public:
-            TextViewCore(std::shared_ptr<TextView> outerTextView)
-                : ViewCore(outerTextView, createAndroidViewClass<JTextView>(outerTextView)),
-                  _jTextView(getJViewAS<JTextView>())
-            {
-                setText(outerTextView->text);
-                setWrap(outerTextView->wrap.get());
+            setText(outerTextView->text);
+            setWrap(outerTextView->wrap.get());
 
-                geometry.onChange() += [=](auto va) {
-                    int widthPixels = va->get().width * getUIScaleFactor();
-
-                    if (_wrap) {
-                        _jTextView.setMaxWidth(widthPixels);
-                    }
-                };
-            }
-
-            JTextView &getJTextView() { return _jTextView; }
-
-            void setText(const String &text) override
-            {
-                // Remove '\r' as android treats them as a space
-                String textToSet = text;
-                textToSet.erase(
-                    std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
-                    textToSet.end());
-
-                _jTextView.setText(textToSet);
-            }
-
-            virtual void setWrap(const bool &wrap) override
-            {
-                _jTextView.setMaxLines(wrap ? std::numeric_limits<int>::max() : 1);
-                _wrap = wrap;
-            }
-
-            Size sizeForSpace(Size availableSpace = Size::none()) const override
-            {
-                if (_wrap) {
-                    _jTextView.setMaxWidth(availableSpace.width * getUIScaleFactor());
-                }
-
-                Size result = ViewCore::sizeForSpace(availableSpace);
+            geometry.onChange() += [=](auto va) {
+                int widthPixels = va->get().width * getUIScaleFactor();
 
                 if (_wrap) {
-                    _jTextView.setMaxWidth(geometry->width * getUIScaleFactor());
+                    _jTextView.setMaxWidth(widthPixels);
                 }
+            };
+        }
 
-                return result;
+        JTextView &getJTextView() { return _jTextView; }
+
+        void setText(const String &text) override
+        {
+            // Remove '\r' as android treats them as a space
+            String textToSet = text;
+            textToSet.erase(
+                std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
+                textToSet.end());
+
+            _jTextView.setText(textToSet);
+        }
+
+        virtual void setWrap(const bool &wrap) override
+        {
+            _jTextView.setMaxLines(wrap ? std::numeric_limits<int>::max() : 1);
+            _wrap = wrap;
+        }
+
+        Size sizeForSpace(Size availableSpace = Size::none()) const override
+        {
+            if (_wrap) {
+                _jTextView.setMaxWidth(availableSpace.width * getUIScaleFactor());
             }
 
-          protected:
-            bool canAdjustWidthToAvailableSpace() const override { return false; } // return _wrap; }
+            Size result = ViewCore::sizeForSpace(availableSpace);
 
-            double getFontSizeDips() const override
-            {
-                // the text size is in pixels
-                return _jTextView.getTextSize() / getUIScaleFactor();
+            if (_wrap) {
+                _jTextView.setMaxWidth(geometry->width * getUIScaleFactor());
             }
 
-          private:
-            mutable JTextView _jTextView;
+            return result;
+        }
 
-            bool _wrap = true;
-        };
-    }
+      protected:
+        bool canAdjustWidthToAvailableSpace() const override { return false; } // return _wrap; }
+
+        double getFontSizeDips() const override
+        {
+            // the text size is in pixels
+            return _jTextView.getTextSize() / getUIScaleFactor();
+        }
+
+      private:
+        mutable JTextView _jTextView;
+
+        bool _wrap = true;
+    };
 }

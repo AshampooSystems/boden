@@ -11,92 +11,88 @@
 @protocol BdnLayoutable
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    class ChildViewCore : virtual public ViewCore, virtual public IParentViewCore
     {
+      public:
+        ChildViewCore(std::shared_ptr<View> outer, NSView *nsView);
+        virtual ~ChildViewCore();
 
-        class ChildViewCore : virtual public ViewCore, virtual public IParentViewCore
+      public:
+        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
+
+        void moveToParentView(std::shared_ptr<View> newParentView) override;
+
+        void dispose() override;
+
+        std::shared_ptr<View> outerView() const;
+
+        NSView *nsView() const;
+
+        void addChildNSView(NSView *childView) override;
+
+        void removeFromNsSuperview();
+
+        void frameChanged();
+
+        virtual void scheduleLayout() override;
+
+        virtual Size sizeForSpace(Size availableSpace) const override;
+
+      protected:
+        virtual double getFontSize() const
         {
-          public:
-            ChildViewCore(std::shared_ptr<View> outer, NSView *nsView);
-            virtual ~ChildViewCore();
+            // most views do not have a font size attached to them in cocoa.
+            // Those should override this function.
+            // In the default implementation we simply return the system
+            // font size.
+            return getSemSizeDips();
+        }
 
-          public:
-            bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
+        double getEmSizeDips() const
+        {
+            if (_emDipsIfInitialized == -1)
+                _emDipsIfInitialized = getFontSize();
 
-            void moveToParentView(std::shared_ptr<View> newParentView) override;
+            return _emDipsIfInitialized;
+        }
 
-            void dispose() override;
+        double getSemSizeDips() const
+        {
+            if (_semDipsIfInitialized == -1)
+                _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
 
-            std::shared_ptr<View> outerView() const;
+            return _semDipsIfInitialized;
+        }
 
-            NSView *nsView() const;
-
-            void addChildNSView(NSView *childView) override;
-
-            void removeFromNsSuperview();
-
-            void frameChanged();
-
-            virtual void scheduleLayout() override;
-
-            virtual Size sizeForSpace(Size availableSpace) const override;
-
-          protected:
-            virtual double getFontSize() const
-            {
-                // most views do not have a font size attached to them in cocoa.
-                // Those should override this function.
-                // In the default implementation we simply return the system
-                // font size.
-                return getSemSizeDips();
+      private:
+        void _addToParent(std::shared_ptr<View> parentView)
+        {
+            if (parentView == nullptr) {
+                // classes derived from ChildViewCore MUST have a parent.
+                // Top level windows do not derive from ChildViewCore.
+                throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view that "
+                                       "does not have a parent.");
             }
 
-            double getEmSizeDips() const
-            {
-                if (_emDipsIfInitialized == -1)
-                    _emDipsIfInitialized = getFontSize();
-
-                return _emDipsIfInitialized;
+            std::shared_ptr<ViewCore> parentCore = parentView->viewCore();
+            if (parentCore == nullptr) {
+                // this should not happen. The parent MUST have a core -
+                // otherwise we cannot initialize ourselves.
+                throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view whose "
+                                       "parent does not have a core.");
             }
 
-            double getSemSizeDips() const
-            {
-                if (_semDipsIfInitialized == -1)
-                    _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
+            std::dynamic_pointer_cast<IParentViewCore>(parentCore)->addChildNSView(_nsView);
+        }
 
-                return _semDipsIfInitialized;
-            }
+        std::weak_ptr<View> _outerView;
+        NSView *_nsView;
 
-          private:
-            void _addToParent(std::shared_ptr<View> parentView)
-            {
-                if (parentView == nullptr) {
-                    // classes derived from ChildViewCore MUST have a parent.
-                    // Top level windows do not derive from ChildViewCore.
-                    throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view that "
-                                           "does not have a parent.");
-                }
+        mutable double _emDipsIfInitialized = -1;
+        mutable double _semDipsIfInitialized = -1;
 
-                std::shared_ptr<ViewCore> parentCore = parentView->viewCore();
-                if (parentCore == nullptr) {
-                    // this should not happen. The parent MUST have a core -
-                    // otherwise we cannot initialize ourselves.
-                    throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view whose "
-                                           "parent does not have a core.");
-                }
-
-                std::dynamic_pointer_cast<IParentViewCore>(parentCore)->addChildNSView(_nsView);
-            }
-
-            std::weak_ptr<View> _outerView;
-            NSView *_nsView;
-
-            mutable double _emDipsIfInitialized = -1;
-            mutable double _semDipsIfInitialized = -1;
-
-            NSObject *_eventForwarder;
-        };
-    }
+        NSObject *_eventForwarder;
+    };
 }

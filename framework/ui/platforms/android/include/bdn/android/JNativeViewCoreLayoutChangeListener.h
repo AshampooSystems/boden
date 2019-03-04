@@ -3,14 +3,11 @@
 #include <bdn/android/JView.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kNativeViewCoreLayoutChangeListenerClassName[] =
-            "io/boden/android/NativeViewCoreLayoutChangeListener";
+    constexpr const char kNativeViewCoreLayoutChangeListenerClassName[] =
+        "io/boden/android/NativeViewCoreLayoutChangeListener";
 
-        using JNativeViewCoreLayoutChangeListener =
-            OnLayoutChangeListenerBase<kNativeViewCoreLayoutChangeListenerClassName>;
-    }
+    using JNativeViewCoreLayoutChangeListener =
+        OnLayoutChangeListenerBase<kNativeViewCoreLayoutChangeListenerClassName>;
 }

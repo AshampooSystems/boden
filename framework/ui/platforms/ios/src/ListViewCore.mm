@@ -173,27 +173,24 @@
 }
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BodenUITableView *createUITableView(std::shared_ptr<ListView> outer)
     {
-        BodenUITableView *createUITableView(std::shared_ptr<ListView> outer)
-        {
-            BodenUITableView *uiTableView = [[BodenUITableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            return uiTableView;
-        }
-
-        ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createUITableView(outer))
-        {
-            ListViewDelegateIOS *nativeDelegate = [[ListViewDelegateIOS alloc] init];
-            nativeDelegate.outer = outer;
-            _nativeDelegate = nativeDelegate;
-
-            UITableView *uiTableView = (UITableView *)uiView();
-            uiTableView.dataSource = nativeDelegate;
-            uiTableView.delegate = nativeDelegate;
-        }
-
-        void ListViewCore::reloadData() { [((UITableView *)uiView())reloadData]; }
+        BodenUITableView *uiTableView = [[BodenUITableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        return uiTableView;
     }
+
+    ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createUITableView(outer))
+    {
+        ListViewDelegateIOS *nativeDelegate = [[ListViewDelegateIOS alloc] init];
+        nativeDelegate.outer = outer;
+        _nativeDelegate = nativeDelegate;
+
+        UITableView *uiTableView = (UITableView *)uiView();
+        uiTableView.dataSource = nativeDelegate;
+        uiTableView.delegate = nativeDelegate;
+    }
+
+    void ListViewCore::reloadData() { [((UITableView *)uiView())reloadData]; }
 }

@@ -4,11 +4,8 @@
 #include <bdn/java/JCharSequence.h>
 #include <bdn/java/JString.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
-    {
-        constexpr const char kBundleClassName[] = "android/os/Bundle";
-        using JBundle = JBaseBundle<kBundleClassName>;
-    }
+    constexpr const char kBundleClassName[] = "android/os/Bundle";
+    using JBundle = JBaseBundle<kBundleClassName>;
 }

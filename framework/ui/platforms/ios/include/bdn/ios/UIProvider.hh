@@ -2,27 +2,23 @@
 
 #include <bdn/UIProvider.h>
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class UIProvider : public Base, virtual public bdn::UIProvider
     {
+      public:
+        UIProvider();
+        UIProvider(UIProvider const &) = delete;
+        void operator=(UIProvider const &) = delete;
 
-        class UIProvider : public Base, virtual public bdn::UIProvider
-        {
-          public:
-            UIProvider();
-            UIProvider(UIProvider const &) = delete;
-            void operator=(UIProvider const &) = delete;
+        String getName() const override;
 
-            String getName() const override;
+        static std::shared_ptr<UIProvider> get();
 
-            static std::shared_ptr<UIProvider> get();
+        /** Returns the size of 1 sem in DIPs.*/
+        double getSemSizeDips() const { return _semDips; }
 
-            /** Returns the size of 1 sem in DIPs.*/
-            double getSemSizeDips() const { return _semDips; }
-
-          private:
-            double _semDips;
-        };
-    }
+      private:
+        double _semDips;
+    };
 }

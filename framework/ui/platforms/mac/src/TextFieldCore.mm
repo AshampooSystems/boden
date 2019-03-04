@@ -47,19 +47,15 @@
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
+        : ChildViewCore(outerTextField, _createNsTextView(outerTextField))
     {
+        _delegate = [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)nsView()];
 
-        TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
-            : ChildViewCore(outerTextField, _createNsTextView(outerTextField))
-        {
-            _delegate = [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)nsView()];
-
-            setText(outerTextField->text);
-        }
-
-        TextFieldCore::~TextFieldCore() { _delegate = nil; }
+        setText(outerTextField->text);
     }
+
+    TextFieldCore::~TextFieldCore() { _delegate = nil; }
 }

@@ -7,27 +7,23 @@
 
 #include <bdn/entry.h>
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    int appEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argc,
+                 char *argv[])
     {
+        int returnValue = 0;
 
-        int appEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argc,
-                     char *argv[])
-        {
-            int returnValue = 0;
+        bdn::platformEntryWrapper(
+            [&]() {
+                std::shared_ptr<bdn::ios::AppRunner> appRunner =
+                    std::make_shared<bdn::ios::AppRunner>(appControllerCreator, argc, argv);
+                _setAppRunner(appRunner);
 
-            bdn::platformEntryWrapper(
-                [&]() {
-                    std::shared_ptr<bdn::ios::AppRunner> appRunner =
-                        std::make_shared<bdn::ios::AppRunner>(appControllerCreator, argc, argv);
-                    _setAppRunner(appRunner);
+                returnValue = appRunner->entry(argc, argv);
+            },
+            false);
 
-                    returnValue = appRunner->entry(argc, argv);
-                },
-                false);
-
-            return returnValue;
-        }
+        return returnValue;
     }
 }

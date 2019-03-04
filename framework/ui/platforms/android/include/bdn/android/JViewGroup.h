@@ -4,32 +4,29 @@
 #include <bdn/android/JViewGroup__JLayoutParams.h>
 #include <bdn/android/JViewGroup__JMarginLayoutParams.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    /** Wrapper for Java android.view.ViewGroup objects.*/
+    constexpr const char kViewGroupClassName[] = "android/view/ViewGroup";
+
+    template <const char *javaClassName = kViewGroupClassName, class... ConstructorArguments>
+    class JBaseViewGroup : public JBaseView<javaClassName, ConstructorArguments...>
     {
-        /** Wrapper for Java android.view.ViewGroup objects.*/
-        constexpr const char kViewGroupClassName[] = "android/view/ViewGroup";
+      public:
+        using JBaseView<javaClassName, ConstructorArguments...>::JBaseView;
 
-        template <const char *javaClassName = kViewGroupClassName, class... ConstructorArguments>
-        class JBaseViewGroup : public JBaseView<javaClassName, ConstructorArguments...>
-        {
-          public:
-            using JBaseView<javaClassName, ConstructorArguments...>::JBaseView;
+        java::Method<void(JView)> addView{this, "addView"};
+        java::Method<void(JView)> removeView{this, "removeView"};
+        java::Method<void()> removeAllViews{this, "removeAllViews"};
 
-            java::Method<void(JView)> addView{this, "addView"};
-            java::Method<void(JView)> removeView{this, "removeView"};
-            java::Method<void()> removeAllViews{this, "removeAllViews"};
+        java::Method<int()> getChildCount{this, "getChildCount"};
+        java::Method<JView(int)> getChildAt{this, "getChildAt"};
+        java::Method<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
 
-            java::Method<int()> getChildCount{this, "getChildCount"};
-            java::Method<JView(int)> getChildAt{this, "getChildAt"};
-            java::Method<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
+      public:
+        using JLayoutParams = JViewGroup__JLayoutParams;
+        using JMarginLayoutParams = JViewGroup__JMarginLayoutParams;
+    };
 
-          public:
-            using JLayoutParams = JViewGroup__JLayoutParams;
-            using JMarginLayoutParams = JViewGroup__JMarginLayoutParams;
-        };
-
-        using JViewGroup = JBaseViewGroup<>;
-    }
+    using JViewGroup = JBaseViewGroup<>;
 }

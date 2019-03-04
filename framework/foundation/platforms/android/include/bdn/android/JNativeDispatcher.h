@@ -5,48 +5,45 @@
 #include <bdn/android/JLooper.h>
 #include <bdn/java/JNativeOnceRunnable.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kNativeDispatcherClassName[] = "io/boden/android/NativeDispatcher";
+
+    class JNativeDispatcher : public java::JTObject<kNativeDispatcherClassName, JLooper>
     {
-        constexpr const char kNativeDispatcherClassName[] = "io/boden/android/NativeDispatcher";
+      public:
+        using java::JTObject<kNativeDispatcherClassName, JLooper>::JTObject;
 
-        class JNativeDispatcher : public java::JTObject<kNativeDispatcherClassName, JLooper>
+      protected:
+        java::Method<void(double, java::JNativeRunnable, bool)> native_enqueue{this, "enqueue"};
+        java::Method<void(double, java::JNativeStrongPointer)> native_createTimer{this, "createTimer"};
+
+      public:
+        java::Method<void()> dispose{this, "dispose"};
+
+      public:
+        void enqueue(IDispatcher::Duration delay, std::function<void()> func, bool idlePriority)
         {
-          public:
-            using java::JTObject<kNativeDispatcherClassName, JLooper>::JTObject;
+            bdn::java::JNativeOnceRunnable runnable([func]() {
+                try {
+                    func();
+                }
+                catch (DanglingFunctionError &) {
+                    // ignore. This means that func is a weak method and
+                    // that the corresponding object has been destroyed.
+                }
+            });
 
-          protected:
-            java::Method<void(double, java::JNativeRunnable, bool)> native_enqueue{this, "enqueue"};
-            java::Method<void(double, java::JNativeStrongPointer)> native_createTimer{this, "createTimer"};
+            double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
+            return native_enqueue(delayInSeconds, (bdn::java::JNativeRunnable &)runnable, idlePriority);
+        }
 
-          public:
-            java::Method<void()> dispose{this, "dispose"};
+        void createTimer(IDispatcher::Duration interval, std::shared_ptr<Base> timerData)
+        {
+            bdn::java::JNativeStrongPointer nativeTimerData(timerData);
 
-          public:
-            void enqueue(IDispatcher::Duration delay, std::function<void()> func, bool idlePriority)
-            {
-                bdn::java::JNativeOnceRunnable runnable([func]() {
-                    try {
-                        func();
-                    }
-                    catch (DanglingFunctionError &) {
-                        // ignore. This means that func is a weak method and
-                        // that the corresponding object has been destroyed.
-                    }
-                });
-
-                double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
-                return native_enqueue(delayInSeconds, (bdn::java::JNativeRunnable &)runnable, idlePriority);
-            }
-
-            void createTimer(IDispatcher::Duration interval, std::shared_ptr<Base> timerData)
-            {
-                bdn::java::JNativeStrongPointer nativeTimerData(timerData);
-
-                double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
-                return native_createTimer(intervalInSeconds, nativeTimerData);
-            }
-        };
-    }
+            double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
+            return native_createTimer(intervalInSeconds, nativeTimerData);
+        }
+    };
 }

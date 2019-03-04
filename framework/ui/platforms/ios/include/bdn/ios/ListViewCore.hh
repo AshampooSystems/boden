@@ -6,19 +6,16 @@
 
 @class ListViewDelegateIOS;
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
-        class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
-        {
-          public:
-            ListViewCore(std::shared_ptr<ListView> outerListView);
+      public:
+        ListViewCore(std::shared_ptr<ListView> outerListView);
 
-            virtual void reloadData() override;
+        virtual void reloadData() override;
 
-          private:
-            ListViewDelegateIOS *_nativeDelegate;
-        };
-    }
+      private:
+        ListViewDelegateIOS *_nativeDelegate;
+    };
 }

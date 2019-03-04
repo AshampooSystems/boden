@@ -4,27 +4,23 @@
 #include <bdn/android/JResources.h>
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kContextClassName[] = "android/content/Context";
+
+    template <const char *javaClassName = kContextClassName> class JBaseContext : public java::JTObject<javaClassName>
     {
-        constexpr const char kContextClassName[] = "android/content/Context";
+      public:
+        constexpr static const char INPUT_METHOD_SERVICE[]{"input_method"};
 
-        template <const char *javaClassName = kContextClassName>
-        class JBaseContext : public java::JTObject<javaClassName>
-        {
-          public:
-            constexpr static const char INPUT_METHOD_SERVICE[]{"input_method"};
+      public:
+        using java::JTObject<javaClassName>::JTObject;
 
-          public:
-            using java::JTObject<javaClassName>::JTObject;
+      public:
+        java::Method<java::JObject(String)> getSystemService{this, "getSystemService"};
+        java::Method<JResources()> getResources{this, "getResources"};
+        java::Method<void(JIntent)> startActivity{this, "startActivity"};
+    };
 
-          public:
-            java::Method<java::JObject(String)> getSystemService{this, "getSystemService"};
-            java::Method<JResources()> getResources{this, "getResources"};
-            java::Method<void(JIntent)> startActivity{this, "startActivity"};
-        };
-
-        using JContext = JBaseContext<>;
-    }
+    using JContext = JBaseContext<>;
 }

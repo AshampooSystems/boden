@@ -42,95 +42,90 @@
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer) : ChildViewCore(outer, _createScrollView(outer))
     {
+        _nsScrollView = (NSScrollView *)nsView();
 
-        ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer)
-            : ChildViewCore(outer, _createScrollView(outer))
-        {
-            _nsScrollView = (NSScrollView *)nsView();
+        // we add a custom view as the document view so that we have better
+        // control over the positioning of the content view
+        _nsContentViewParent = [[BdnMacScrollViewContentViewParent_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
-            // we add a custom view as the document view so that we have better
-            // control over the positioning of the content view
-            _nsContentViewParent = [[BdnMacScrollViewContentViewParent_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        _nsScrollView.documentView = _nsContentViewParent;
 
-            _nsScrollView.documentView = _nsContentViewParent;
+        _nsScrollView.autohidesScrollers = YES;
 
-            _nsScrollView.autohidesScrollers = YES;
+        _nsScrollView.contentView.postsBoundsChangedNotifications = YES;
 
-            _nsScrollView.contentView.postsBoundsChangedNotifications = YES;
+        BdnMacScrollViewCoreEventForwarder_ *eventForwarder = [BdnMacScrollViewCoreEventForwarder_ alloc];
+        [eventForwarder setScrollViewCore:this];
+        _eventForwarder = eventForwarder;
 
-            BdnMacScrollViewCoreEventForwarder_ *eventForwarder = [BdnMacScrollViewCoreEventForwarder_ alloc];
-            [eventForwarder setScrollViewCore:this];
-            _eventForwarder = eventForwarder;
+        [[NSNotificationCenter defaultCenter] addObserver:eventForwarder
+                                                 selector:@selector(contentViewBoundsDidChange)
+                                                     name:NSViewBoundsDidChangeNotification
+                                                   object:_nsScrollView.contentView];
 
-            [[NSNotificationCenter defaultCenter] addObserver:eventForwarder
-                                                     selector:@selector(contentViewBoundsDidChange)
-                                                         name:NSViewBoundsDidChangeNotification
-                                                       object:_nsScrollView.contentView];
+        setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
+        setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
+    }
 
-            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
-            setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
+    ScrollViewCore::~ScrollViewCore()
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:_eventForwarder
+                                                        name:NSViewBoundsDidChangeNotification
+                                                      object:_nsScrollView.contentView];
+    }
+
+    NSScrollView *ScrollViewCore::_createScrollView(std::shared_ptr<ScrollView> outer)
+    {
+        NSScrollView *scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+
+        return scrollView;
+    }
+
+    void ScrollViewCore::addChildNSView(NSView *childView)
+    {
+        for (id oldViewObject in _nsScrollView.documentView.subviews) {
+            NSView *oldView = (NSView *)oldViewObject;
+            [oldView removeFromSuperview];
         }
 
-        ScrollViewCore::~ScrollViewCore()
-        {
-            [[NSNotificationCenter defaultCenter] removeObserver:_eventForwarder
-                                                            name:NSViewBoundsDidChangeNotification
-                                                          object:_nsScrollView.contentView];
+        _nsScrollView.documentView = childView;
+    }
+
+    void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
+    {
+        _nsScrollView.hasHorizontalScroller = enabled ? YES : NO;
+    }
+
+    void ScrollViewCore::setVerticalScrollingEnabled(const bool &enabled)
+    {
+        _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
+    }
+
+    void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)
+    {
+        if (_nsScrollView.contentView != nil) {
+            [_nsScrollView.contentView scrollRectToVisible:rectToMacRect(clientRect, -1)];
         }
+    }
 
-        NSScrollView *ScrollViewCore::_createScrollView(std::shared_ptr<ScrollView> outer)
-        {
-            NSScrollView *scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    void ScrollViewCore::_contentViewBoundsDidChange()
+    {
+        // when the view scrolls then the bounds of the content view (not
+        // the document view) change.
+        updateVisibleClientRect();
+    }
 
-            return scrollView;
-        }
+    void ScrollViewCore::updateVisibleClientRect()
+    {
+        std::shared_ptr<ScrollView> outer = std::dynamic_pointer_cast<ScrollView>(outerView());
+        if (outer != nullptr) {
+            Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
 
-        void ScrollViewCore::addChildNSView(NSView *childView)
-        {
-            for (id oldViewObject in _nsScrollView.documentView.subviews) {
-                NSView *oldView = (NSView *)oldViewObject;
-                [oldView removeFromSuperview];
-            }
-
-            _nsScrollView.documentView = childView;
-        }
-
-        void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
-        {
-            _nsScrollView.hasHorizontalScroller = enabled ? YES : NO;
-        }
-
-        void ScrollViewCore::setVerticalScrollingEnabled(const bool &enabled)
-        {
-            _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
-        }
-
-        void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)
-        {
-            if (_nsScrollView.contentView != nil) {
-                [_nsScrollView.contentView scrollRectToVisible:rectToMacRect(clientRect, -1)];
-            }
-        }
-
-        void ScrollViewCore::_contentViewBoundsDidChange()
-        {
-            // when the view scrolls then the bounds of the content view (not
-            // the document view) change.
-            updateVisibleClientRect();
-        }
-
-        void ScrollViewCore::updateVisibleClientRect()
-        {
-            std::shared_ptr<ScrollView> outer = std::dynamic_pointer_cast<ScrollView>(outerView());
-            if (outer != nullptr) {
-                Rect visibleClientRect = macRectToRect(_nsScrollView.documentVisibleRect, -1);
-
-                outer->visibleClientRect = visibleClientRect;
-            }
+            outer->visibleClientRect = visibleClientRect;
         }
     }
 }

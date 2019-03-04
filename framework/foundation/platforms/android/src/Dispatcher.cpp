@@ -26,54 +26,51 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
     return returnValue;
 }
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+
+    Dispatcher::Dispatcher(JLooper looper) : _dispatcher(looper) {}
+
+    void Dispatcher::dispose() { _dispatcher.dispose(); }
+
+    void Dispatcher::enqueue(std::function<void()> func, Priority priority) { enqueueDelayed(0s, func, priority); }
+
+    void Dispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func, Priority priority)
     {
+        bool idlePriority = false;
 
-        Dispatcher::Dispatcher(JLooper looper) : _dispatcher(looper) {}
+        if (priority == Priority::normal)
+            idlePriority = false;
+        else if (priority == Priority::idle)
+            idlePriority = true;
+        else
+            throw InvalidArgumentError("Dispatcher::enqueue called with "
+                                       "invalid priority argument: " +
+                                       std::to_string((int)priority));
 
-        void Dispatcher::dispose() { _dispatcher.dispose(); }
+        _dispatcher.enqueue(delay, func, idlePriority);
+    }
 
-        void Dispatcher::enqueue(std::function<void()> func, Priority priority) { enqueueDelayed(0s, func, priority); }
+    void Dispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
+    {
+        std::shared_ptr<Timer_> timer = std::make_shared<Timer_>(func);
 
-        void Dispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func, Priority priority)
-        {
-            bool idlePriority = false;
+        _dispatcher.createTimer(interval, timer);
+    }
 
-            if (priority == Priority::normal)
-                idlePriority = false;
-            else if (priority == Priority::idle)
-                idlePriority = true;
-            else
-                throw InvalidArgumentError("Dispatcher::enqueue called with "
-                                           "invalid priority argument: " +
-                                           std::to_string((int)priority));
-
-            _dispatcher.enqueue(delay, func, idlePriority);
+    bool Dispatcher::Timer_::onEvent()
+    {
+        bool result;
+        try {
+            result = _func();
+        }
+        catch (DanglingFunctionError &) {
+            // ignore. this means that func is a weak method and the
+            // corresponding object was destroyed. We treat this as if func
+            // had returned false (i.e. the timer will be stopped)
+            result = false;
         }
 
-        void Dispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
-        {
-            std::shared_ptr<Timer_> timer = std::make_shared<Timer_>(func);
-
-            _dispatcher.createTimer(interval, timer);
-        }
-
-        bool Dispatcher::Timer_::onEvent()
-        {
-            bool result;
-            try {
-                result = _func();
-            }
-            catch (DanglingFunctionError &) {
-                // ignore. this means that func is a weak method and the
-                // corresponding object was destroyed. We treat this as if func
-                // had returned false (i.e. the timer will be stopped)
-                result = false;
-            }
-
-            return result;
-        }
+        return result;
     }
 }

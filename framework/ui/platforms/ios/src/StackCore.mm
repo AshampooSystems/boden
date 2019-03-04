@@ -96,103 +96,100 @@
 
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    BodenUINavigationControllerContainerView *createNavigationControllerView(std::shared_ptr<Stack> outerStack)
     {
-        BodenUINavigationControllerContainerView *createNavigationControllerView(std::shared_ptr<Stack> outerStack)
-        {
-            UINavigationController *navigationController = [[UINavigationController alloc] init];
+        UINavigationController *navigationController = [[UINavigationController alloc] init];
 
-            BodenUINavigationControllerContainerView *view =
-                [[BodenUINavigationControllerContainerView alloc] initWithNavigationController:navigationController];
+        BodenUINavigationControllerContainerView *view =
+            [[BodenUINavigationControllerContainerView alloc] initWithNavigationController:navigationController];
 
-            return view;
-        }
-
-        StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-            : ViewCore(outerStack, createNavigationControllerView(outerStack))
-        {
-            UIViewController *rootViewController = uiView().window.rootViewController;
-            [rootViewController addChildViewController:getNavigationController()];
-            [rootViewController.view addSubview:getNavigationController().view];
-        }
-
-        UINavigationController *StackCore::getNavigationController()
-        {
-            if (auto navView = (BodenUINavigationControllerContainerView *)uiView()) {
-                return navView.navController;
-            }
-            return nullptr;
-        }
-
-        void StackCore::frameChanged()
-        {
-            Rect rActual = iosRectToRect(uiView().frame);
-            geometry = rActual;
-        }
-
-        void StackCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
-
-        std::shared_ptr<FixedView> StackCore::getCurrentContainer()
-        {
-            if (UIViewController *topViewController = getNavigationController().topViewController) {
-                BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
-                return bdnViewController.fixedView;
-            }
-
-            return nullptr;
-        }
-
-        std::shared_ptr<View> StackCore::getCurrentUserView()
-        {
-            if (UIViewController *topViewController = getNavigationController().topViewController) {
-                BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
-                return bdnViewController.userContent;
-            }
-
-            return nullptr;
-        }
-
-        void StackCore::pushView(std::shared_ptr<View> view, String title)
-        {
-            auto outerStack = stack();
-
-            BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
-            ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
-            ctrl.userContent = view;
-
-            [ctrl setTitle:stringToNSString(title)];
-
-            [getNavigationController() pushViewController:ctrl animated:YES];
-
-            // [ctrl.view setFrame:getNavigationController().view.frame];
-
-            if (auto outer = outerView()) {
-                if (auto layout = outer->getLayout()) {
-                    layout->markDirty(outer.get());
-                }
-            }
-        }
-
-        void StackCore::popView()
-        {
-            [getNavigationController() popViewControllerAnimated:YES];
-            if (auto outer = outerView()) {
-                if (auto layout = outer->getLayout()) {
-                    layout->markDirty(outer.get());
-                }
-            }
-        }
-
-        std::list<std::shared_ptr<View>> StackCore::childViews()
-        {
-            if (auto container = getCurrentContainer()) {
-                return {container};
-            }
-            return {};
-        }
-
-        std::shared_ptr<Stack> StackCore::stack() { return std::static_pointer_cast<bdn::Stack>(outerView()); }
+        return view;
     }
+
+    StackCore::StackCore(std::shared_ptr<Stack> outerStack)
+        : ViewCore(outerStack, createNavigationControllerView(outerStack))
+    {
+        UIViewController *rootViewController = uiView().window.rootViewController;
+        [rootViewController addChildViewController:getNavigationController()];
+        [rootViewController.view addSubview:getNavigationController().view];
+    }
+
+    UINavigationController *StackCore::getNavigationController()
+    {
+        if (auto navView = (BodenUINavigationControllerContainerView *)uiView()) {
+            return navView.navController;
+        }
+        return nullptr;
+    }
+
+    void StackCore::frameChanged()
+    {
+        Rect rActual = iosRectToRect(uiView().frame);
+        geometry = rActual;
+    }
+
+    void StackCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
+
+    std::shared_ptr<FixedView> StackCore::getCurrentContainer()
+    {
+        if (UIViewController *topViewController = getNavigationController().topViewController) {
+            BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+            return bdnViewController.fixedView;
+        }
+
+        return nullptr;
+    }
+
+    std::shared_ptr<View> StackCore::getCurrentUserView()
+    {
+        if (UIViewController *topViewController = getNavigationController().topViewController) {
+            BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+            return bdnViewController.userContent;
+        }
+
+        return nullptr;
+    }
+
+    void StackCore::pushView(std::shared_ptr<View> view, String title)
+    {
+        auto outerStack = stack();
+
+        BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
+        ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
+        ctrl.userContent = view;
+
+        [ctrl setTitle:stringToNSString(title)];
+
+        [getNavigationController() pushViewController:ctrl animated:YES];
+
+        // [ctrl.view setFrame:getNavigationController().view.frame];
+
+        if (auto outer = outerView()) {
+            if (auto layout = outer->getLayout()) {
+                layout->markDirty(outer.get());
+            }
+        }
+    }
+
+    void StackCore::popView()
+    {
+        [getNavigationController() popViewControllerAnimated:YES];
+        if (auto outer = outerView()) {
+            if (auto layout = outer->getLayout()) {
+                layout->markDirty(outer.get());
+            }
+        }
+    }
+
+    std::list<std::shared_ptr<View>> StackCore::childViews()
+    {
+        if (auto container = getCurrentContainer()) {
+            return {container};
+        }
+        return {};
+    }
+
+    std::shared_ptr<Stack> StackCore::stack() { return std::static_pointer_cast<bdn::Stack>(outerView()); }
 }

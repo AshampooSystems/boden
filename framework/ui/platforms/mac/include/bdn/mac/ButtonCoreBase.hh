@@ -6,23 +6,19 @@
 
 #import <bdn/mac/util.hh>
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    class ButtonCoreBase : public ChildViewCore
     {
+      public:
+        ButtonCoreBase(std::shared_ptr<View> outer, NSButton *nsButton);
 
-        class ButtonCoreBase : public ChildViewCore
-        {
-          public:
-            ButtonCoreBase(std::shared_ptr<View> outer, NSButton *nsButton);
+      public:
+        void setLabel(const String &label);
 
-          public:
-            void setLabel(const String &label);
+      protected:
+        double getFontSize() const override;
 
-          protected:
-            double getFontSize() const override;
-
-            NSButton *_nsButton;
-        };
-    }
+        NSButton *_nsButton;
+    };
 }

@@ -2,19 +2,16 @@
 
 #include <bdn/java/JObject.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kPaintClassName[] = "android/graphics/Paint";
+
+    class JPaint : public java::JTObject<kPaintClassName>
     {
-        constexpr const char kPaintClassName[] = "android/graphics/Paint";
+      public:
+        using java::JTObject<kPaintClassName>::JTObject;
 
-        class JPaint : public java::JTObject<kPaintClassName>
-        {
-          public:
-            using java::JTObject<kPaintClassName>::JTObject;
-
-          public:
-            java::Method<float()> getTextSize{this, "getTextSize"};
-        };
-    }
+      public:
+        java::Method<float()> getTextSize{this, "getTextSize"};
+    };
 }

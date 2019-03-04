@@ -21,27 +21,24 @@
 
 @end
 
-namespace bdn
+namespace bdn::ios
 {
-    namespace ios
+    class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
     {
-        class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
-        {
-          private:
-            static BdnIosSwitchComposite *createSwitchComposite();
+      private:
+        static BdnIosSwitchComposite *createSwitchComposite();
 
-          public:
-            static std::shared_ptr<SwitchCore> create(std::shared_ptr<Switch> outer);
+      public:
+        static std::shared_ptr<SwitchCore> create(std::shared_ptr<Switch> outer);
 
-            SwitchCore(std::shared_ptr<Switch> outer);
-            virtual ~SwitchCore();
+        SwitchCore(std::shared_ptr<Switch> outer);
+        virtual ~SwitchCore();
 
-            void setOn(const bool &on) override;
-            void setLabel(const String &label) override;
+        void setOn(const bool &on) override;
+        void setLabel(const String &label) override;
 
-          private:
-            BdnIosSwitchComposite *_composite;
-            BdnIosSwitchClickManager *_clickManager;
-        };
-    }
+      private:
+        BdnIosSwitchComposite *_composite;
+        BdnIosSwitchClickManager *_clickManager;
+    };
 }

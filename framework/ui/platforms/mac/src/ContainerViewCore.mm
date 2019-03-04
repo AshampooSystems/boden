@@ -24,18 +24,13 @@
 
 @end
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    NSView *ContainerViewCore::_createContainer(std::shared_ptr<ContainerView> outer)
     {
+        BdnMacContainerView_ *macContainerView = [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
-        NSView *ContainerViewCore::_createContainer(std::shared_ptr<ContainerView> outer)
-        {
-            BdnMacContainerView_ *macContainerView =
-                [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-
-            macContainerView.containerView = outer.get();
-            return macContainerView;
-        }
+        macContainerView.containerView = outer.get();
+        return macContainerView;
     }
 }

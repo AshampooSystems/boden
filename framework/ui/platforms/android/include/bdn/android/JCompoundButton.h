@@ -3,22 +3,19 @@
 #include <bdn/android/JTextView.h>
 #include <bdn/java/JString.h>
 
-namespace bdn
+namespace bdn::android
 {
-    namespace android
+    constexpr const char kCompoundButtonClassName[] = "android/widget/CompoundButton";
+
+    template <const char *javaClassName = kCompoundButtonClassName, class... ConstructorArguments>
+    class JBaseCompoundButton : public JBaseTextView<javaClassName, ConstructorArguments...>
     {
-        constexpr const char kCompoundButtonClassName[] = "android/widget/CompoundButton";
+      public:
+        using JBaseTextView<javaClassName>::JBaseTextView;
 
-        template <const char *javaClassName = kCompoundButtonClassName, class... ConstructorArguments>
-        class JBaseCompoundButton : public JBaseTextView<javaClassName, ConstructorArguments...>
-        {
-          public:
-            using JBaseTextView<javaClassName>::JBaseTextView;
+      public:
+        java::Method<bool()> isChecked{this, "isChecked"};
+    };
 
-          public:
-            java::Method<bool()> isChecked{this, "isChecked"};
-        };
-
-        using JCompountButton = JBaseCompoundButton<>;
-    }
+    using JCompountButton = JBaseCompoundButton<>;
 }

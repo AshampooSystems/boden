@@ -4,17 +4,14 @@
 
 #import <bdn/mac/ChildViewCore.hh>
 
-namespace bdn
+namespace bdn::mac
 {
-    namespace mac
+    class WebViewCore : public ChildViewCore
     {
-        class WebViewCore : public ChildViewCore
-        {
-          public:
-            WebViewCore(std::shared_ptr<WebView> outer);
-            virtual ~WebViewCore() = default;
+      public:
+        WebViewCore(std::shared_ptr<WebView> outer);
+        virtual ~WebViewCore() = default;
 
-            void loadURL(const String &url);
-        };
-    }
+        void loadURL(const String &url);
+    };
 }
