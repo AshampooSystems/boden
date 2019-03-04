@@ -155,9 +155,15 @@ class PostDetailController : public Base
   public:
     PostDetailController(String title, String url) : _mainColumn(std::make_shared<ContainerView>())
     {
+        _mainColumn->setLayoutStylesheet(Flex() << FlexGrow(1.0f));
+
         auto titleField = std::make_shared<TextView>();
         auto urlField = std::make_shared<TextView>();
+        auto webView = std::make_shared<WebView>();
         auto openButton = std::make_shared<Button>();
+
+        webView->url = url;
+        webView->setLayoutStylesheet(Flex() << FlexGrow(1.));
 
         titleField->text = "Title: " + title;
         urlField->text = "URL: " + url;
@@ -167,6 +173,7 @@ class PostDetailController : public Base
 
         _mainColumn->addChildView(titleField);
         _mainColumn->addChildView(urlField);
+        _mainColumn->addChildView(webView);
         _mainColumn->addChildView(openButton);
     }
 

@@ -18,6 +18,7 @@
 #import <bdn/mac/SwitchCore.hh>
 #import <bdn/mac/TextFieldCore.hh>
 #import <bdn/mac/TextViewCore.hh>
+#import <bdn/mac/WebViewCore.hh>
 #import <bdn/mac/WindowCore.hh>
 
 namespace bdn
@@ -56,6 +57,7 @@ namespace bdn
             registerCoreType<TextFieldCore, TextField>();
             registerCoreType<ListViewCore, ListView>();
             registerCoreType<StackCore, Stack>();
+            registerCoreType<WebViewCore, WebView>();
         }
 
         String UIProvider::getName() const { return "mac"; }

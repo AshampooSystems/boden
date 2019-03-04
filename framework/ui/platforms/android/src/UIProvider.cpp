@@ -10,6 +10,7 @@
 #include <bdn/android/SwitchCore.h>
 #include <bdn/android/TextFieldCore.h>
 #include <bdn/android/TextViewCore.h>
+#include <bdn/android/WebViewCore.h>
 #include <bdn/android/WindowCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -61,6 +62,7 @@ namespace bdn
             registerAndroidCoreType<TextViewCore, TextView>();
             registerAndroidCoreType<ScrollViewCore, ScrollView>();
             registerAndroidCoreType<WindowCore, Window>();
+            registerAndroidCoreType<WebViewCore, WebView>();
             registerAndroidCoreType<TextFieldCore, TextField>();
             registerAndroidCoreType<ListViewCore, ListView>();
             registerAndroidCoreType<StackCore, Stack>();

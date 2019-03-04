@@ -11,6 +11,7 @@
 #import <bdn/ios/TextFieldCore.hh>
 #import <bdn/ios/TextViewCore.hh>
 #import <bdn/ios/UIProvider.hh>
+#import <bdn/ios/WebViewCore.hh>
 #import <bdn/ios/WindowCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -52,6 +53,7 @@ namespace bdn
             registerCoreType<TextFieldCore, TextField>();
             registerCoreType<ListViewCore, ListView>();
             registerCoreType<StackCore, Stack>();
+            registerCoreType<WebViewCore, WebView>();
         }
 
         String UIProvider::getName() const { return "ios"; }
