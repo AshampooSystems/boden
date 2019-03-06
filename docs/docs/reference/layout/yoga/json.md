@@ -2,11 +2,11 @@ hero: JSON support for FlexStylesheet
 
 # JSON support
 
-[FlexStylesheet](stylesheet.md) can be easily de-/serialized to/from json using the [nlohmann::json](https://github.com/nlohmann/json) library.
+[FlexStylesheet](stylesheet.md) can be easily de-/serialized to/from JSON using the [nlohmann::json](https://github.com/nlohmann/json) library.
 
 ## Linking
 
-The json helper functions are only enabled if the C++ define "BDN_HAS_NLOHMANN_JSON" is defined. This happens automatically if you link the Boden provided library:
+The JSON helper functions are only enabled if `BDN_HAS_NLOHMANN_JSON` is defined. This happens automatically if you link the Boden provided library:
 
 ```CMake
 # In you CMakeLists.txt
@@ -75,9 +75,9 @@ std::cout << serializedStyleSheet.dump(1) << std::endl;
 
 ## De-serializing
 
-Applying json to your stylesheet is simple with the build in **FlexJson()** and **FlexJsonString()** functions.
+Applying JSON to your stylesheet is simple with the built-in `FlexJson()`, `FlexJsonString()`, and `FlexJsonStringify()` functions.
 
-You can either use a json object:
+You can either use a JSON object:
 
 ```C++
 nlohmann::json jsonStylesheet = 
@@ -92,6 +92,12 @@ container->setLayoutStylesheet(FlexJson(jsonStylesheet));
 ```
 
 Or you can use a string:
+
+```C++
+container->setLayoutStylesheet(FlexJsonStringify({ "direction": "Row" }));
+```
+
+This is equivalent to writing:
 
 ```C++
 String json = "{ \"direction\" : \"Row\" }";

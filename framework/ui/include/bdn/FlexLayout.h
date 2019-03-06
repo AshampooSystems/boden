@@ -286,12 +286,6 @@ namespace nlohmann
             }
         }
     };
-#define ALLOW_NON_EXISTING(x)                                                                                          \
-    try {                                                                                                              \
-        x                                                                                                              \
-    }                                                                                                                  \
-    catch (const json::out_of_range &) {                                                                               \
-    }
 
     template <> struct adl_serializer<bdn::FlexStylesheet::Edges>
     {
@@ -306,11 +300,16 @@ namespace nlohmann
 
         static void from_json(const json &j, bdn::FlexStylesheet::Edges &edge)
         {
-            ALLOW_NON_EXISTING(edge.all = j.at("all").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(edge.left = j.at("left").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(edge.right = j.at("right").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(edge.top = j.at("top").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(edge.bottom = j.at("bottom").get<std::optional<float>>();)
+            if (j.count("all") != 0)
+                edge.all = j.at("all").get<std::optional<float>>();
+            if (j.count("left") != 0)
+                edge.left = j.at("left").get<std::optional<float>>();
+            if (j.count("right") != 0)
+                edge.right = j.at("right").get<std::optional<float>>();
+            if (j.count("top") != 0)
+                edge.top = j.at("top").get<std::optional<float>>();
+            if (j.count("bottom") != 0)
+                edge.bottom = j.at("bottom").get<std::optional<float>>();
         }
     };
 
@@ -323,8 +322,10 @@ namespace nlohmann
 
         static void from_json(const json &j, bdn::FlexStylesheet::Size &size)
         {
-            ALLOW_NON_EXISTING(size.width = j.at("width").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(size.height = j.at("height").get<std::optional<float>>();)
+            if (j.count("width") != 0)
+                size.width = j.at("width").get<std::optional<float>>();
+            if (j.count("height") != 0)
+                size.height = j.at("height").get<std::optional<float>>();
         }
     };
 
@@ -360,23 +361,40 @@ namespace nlohmann
 
         static void from_json(const json &j, bdn::FlexStylesheet &sheet)
         {
-            ALLOW_NON_EXISTING(sheet.flexDirection = j.at("direction").get<bdn::FlexStylesheet::Direction>();)
-            ALLOW_NON_EXISTING(sheet.layoutDirection = j.at("layoutDirection");)
-            ALLOW_NON_EXISTING(sheet.flexWrap = j.at("wrap");)
-            ALLOW_NON_EXISTING(sheet.alignSelf = j.at("alignSelf");)
-            ALLOW_NON_EXISTING(sheet.alignItems = j.at("alignItems");)
-            ALLOW_NON_EXISTING(sheet.alignContents = j.at("alignContents");)
-            ALLOW_NON_EXISTING(sheet.justifyContent = j.at("justifyContent");)
-            ALLOW_NON_EXISTING(sheet.flexBasis = j.at("flexBasis").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(sheet.flexBasisPercent = j.at("flexBasisPercent").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(sheet.flexGrow = j.at("flexGrow");)
-            ALLOW_NON_EXISTING(sheet.flexShrink = j.at("flexShrink");)
-            ALLOW_NON_EXISTING(sheet.aspectRatio = j.at("aspectRatio").get<std::optional<float>>();)
-            ALLOW_NON_EXISTING(sheet.margin = j.at("margin");)
-            ALLOW_NON_EXISTING(sheet.padding = j.at("padding");)
-            ALLOW_NON_EXISTING(sheet.size = j.at("size");)
-            ALLOW_NON_EXISTING(sheet.maximumSize = j.at("maximumSize");)
-            ALLOW_NON_EXISTING(sheet.minimumSize = j.at("minimumSize");)
+            if (j.count("flexDirection") != 0)
+                sheet.flexDirection = j.at("direction").get<bdn::FlexStylesheet::Direction>();
+            if (j.count("layoutDirection") != 0)
+                sheet.layoutDirection = j.at("layoutDirection");
+            if (j.count("flexWrap") != 0)
+                sheet.flexWrap = j.at("wrap");
+            if (j.count("alignSelf") != 0)
+                sheet.alignSelf = j.at("alignSelf");
+            if (j.count("alignItems") != 0)
+                sheet.alignItems = j.at("alignItems");
+            if (j.count("alignContents") != 0)
+                sheet.alignContents = j.at("alignContents");
+            if (j.count("justifyContent") != 0)
+                sheet.justifyContent = j.at("justifyContent");
+            if (j.count("flexBasis") != 0)
+                sheet.flexBasis = j.at("flexBasis").get<std::optional<float>>();
+            if (j.count("flexBasisPercent") != 0)
+                sheet.flexBasisPercent = j.at("flexBasisPercent").get<std::optional<float>>();
+            if (j.count("flexGrow") != 0)
+                sheet.flexGrow = j.at("flexGrow");
+            if (j.count("flexShrink") != 0)
+                sheet.flexShrink = j.at("flexShrink");
+            if (j.count("aspectRatio") != 0)
+                sheet.aspectRatio = j.at("aspectRatio").get<std::optional<float>>();
+            if (j.count("margin") != 0)
+                sheet.margin = j.at("margin");
+            if (j.count("padding") != 0)
+                sheet.padding = j.at("padding");
+            if (j.count("size") != 0)
+                sheet.size = j.at("size");
+            if (j.count("maximumSize") != 0)
+                sheet.maximumSize = j.at("maximumSize");
+            if (j.count("minimumSize") != 0)
+                sheet.minimumSize = j.at("minimumSize");
         }
     };
 }
@@ -386,5 +404,7 @@ namespace bdn
     inline FlexStylesheet FlexJson(const nlohmann::json &json) { return (FlexStylesheet)json; }
     inline FlexStylesheet FlexJsonString(const String &json) { return (FlexStylesheet)nlohmann::json::parse(json); }
 }
+
+#define FlexJsonStringify(str) bdn::FlexJsonString(#str)
 
 #endif
