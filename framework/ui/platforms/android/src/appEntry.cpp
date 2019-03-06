@@ -2,7 +2,7 @@
 #include <bdn/android/appEntry.h>
 
 #include <bdn/android/AppRunner.h>
-#include <bdn/android/JIntent.h>
+#include <bdn/android/wrapper/Intent.h>
 
 #include <bdn/entry.h>
 
@@ -14,7 +14,7 @@ namespace bdn::android
     {
         bdn::platformEntryWrapper(
             [&]() {
-                bdn::android::JIntent intent(bdn::java::Reference::convertExternalLocal(rawIntent));
+                bdn::android::wrapper::Intent intent(bdn::java::Reference::convertExternalLocal(rawIntent));
 
                 std::shared_ptr<bdn::android::AppRunner> appRunner =
                     std::make_shared<bdn::android::AppRunner>(appControllerCreator, intent);

@@ -4,13 +4,13 @@
 #include <bdn/Window.h>
 
 #include <bdn/android/IParentViewCore.h>
-#include <bdn/android/JActivity.h>
-#include <bdn/android/JConfiguration.h>
-#include <bdn/android/JNativeRootView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/Activity.h>
+#include <bdn/android/wrapper/Configuration.h>
+#include <bdn/android/wrapper/NativeRootView.h>
 #include <bdn/java/WeakReference.h>
 
-#include "JWindow.h"
+#include "wrapper/Window.h"
 #include <bdn/log.h>
 
 namespace bdn::android
@@ -19,7 +19,7 @@ namespace bdn::android
     class WindowCore : public ViewCore, virtual public IWindowCore, virtual public IParentViewCore
     {
       private:
-        JView createJNativeViewGroup(std::shared_ptr<Window> outerWindow);
+        wrapper::View createJNativeViewGroup(std::shared_ptr<Window> outerWindow);
 
       public:
         WindowCore(std::shared_ptr<Window> outerWindow);
@@ -33,7 +33,7 @@ namespace bdn::android
 
         static void _rootViewSizeChanged(const java::Reference &javaRef, int width, int height);
 
-        static void _rootViewConfigurationChanged(const java::Reference &javaRef, JConfiguration config);
+        static void _rootViewConfigurationChanged(const java::Reference &javaRef, wrapper::Configuration config);
 
         static bool _handleBackPressed(const java::Reference &javaRef);
 
@@ -43,13 +43,13 @@ namespace bdn::android
 
         void removeChildCore(ViewCore *child) override;
 
-        class IAndroidNavigationButtonHandler
+        class AndroidNavigationButtonHandler
         {
           public:
             virtual bool handleBackButton() = 0;
         };
 
-        void setAndroidNavigationButtonHandler(std::shared_ptr<IAndroidNavigationButtonHandler> handler);
+        void setAndroidNavigationButtonHandler(std::shared_ptr<AndroidNavigationButtonHandler> handler);
 
         void scheduleLayout() override;
 
@@ -75,7 +75,7 @@ namespace bdn::android
          *  The default implementation updates the Window's size to match
          * the new root dimensions.
          *  */
-        virtual void rootViewConfigurationChanged(JConfiguration config);
+        virtual void rootViewConfigurationChanged(wrapper::Configuration config);
 
         virtual void attachedToNewRootView(const java::Reference &javaRef);
 
@@ -84,7 +84,7 @@ namespace bdn::android
       private:
         Rect getScreenWorkArea() const;
 
-        void updateUIScaleFactor(JConfiguration config);
+        void updateUIScaleFactor(wrapper::Configuration config);
 
         static std::list<std::shared_ptr<WindowCore>>
         getWindowCoreListFromRootView(const java::Reference &javaRootViewRef);
@@ -156,6 +156,6 @@ namespace bdn::android
 
         Rect _currentBounds;
 
-        std::shared_ptr<IAndroidNavigationButtonHandler> _navButtonHandler;
+        std::shared_ptr<AndroidNavigationButtonHandler> _navButtonHandler;
     };
 }

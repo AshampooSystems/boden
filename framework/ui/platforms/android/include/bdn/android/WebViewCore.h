@@ -2,8 +2,8 @@
 
 #include <bdn/WebView.h>
 
-#include <bdn/android/JWebView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/WebView.h>
 
 namespace bdn::android
 {
@@ -16,6 +16,6 @@ namespace bdn::android
         void loadURL(const String &url);
 
       private:
-        JWebView _jWebView;
+        wrapper::WebView _jWebView;
     };
 }

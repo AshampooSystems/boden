@@ -1,7 +1,7 @@
 #include <bdn/InvalidArgumentError.h>
 #include <bdn/android/Dispatcher.h>
 
-#include <bdn/java/JNativeStrongPointer.h>
+#include <bdn/java/wrapper/NativeStrongPointer.h>
 
 #include <bdn/entry.h>
 
@@ -17,7 +17,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
     bdn::platformEntryWrapper(
         [&]() {
             bdn::android::Dispatcher::Timer_ *timer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
-                bdn::java::JNativeStrongPointer::unwrapJObject(rawTimerObject));
+                bdn::java::wrapper::NativeStrongPointer::unwrapJObject(rawTimerObject));
 
             returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;
         },
@@ -29,7 +29,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
 namespace bdn::android
 {
 
-    Dispatcher::Dispatcher(JLooper looper) : _dispatcher(looper) {}
+    Dispatcher::Dispatcher(wrapper::Looper looper) : _dispatcher(looper) {}
 
     void Dispatcher::dispose() { _dispatcher.dispose(); }
 

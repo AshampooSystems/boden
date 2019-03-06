@@ -1,19 +1,19 @@
-#include <bdn/android/JNativeAdapterViewOnItemClickListener.h>
-#include <bdn/android/JNativeListAdapter.h>
 #include <bdn/android/ListViewCore.h>
+#include <bdn/android/wrapper/NativeAdapterViewOnItemClickListener.h>
+#include <bdn/android/wrapper/NativeListAdapter.h>
 
 namespace bdn::android
 {
     ListViewCore::ListViewCore(std::shared_ptr<ListView> outer)
-        : ViewCore(outer, createAndroidViewClass<JListView>(outer)), _jListView(getJViewAS<JListView>()),
-          _jNativeListAdapter(getJView())
+        : ViewCore(outer, createAndroidViewClass<wrapper::ListView>(outer)),
+          _jListView(getJViewAS<wrapper::ListView>()), _jNativeListAdapter(getJView())
     {
         _jListView.setDescendantFocusability(0x00060000);
         _jListView.setChoiceMode(0x00000001);
-        _jListView.setAdapter(JListAdapter(_jNativeListAdapter.getRef_()));
+        _jListView.setAdapter(wrapper::ListAdapter(_jNativeListAdapter.getRef_()));
 
-        bdn::android::JNativeAdapterViewOnItemClickListener listener;
-        _jListView.setOnItemClickListener(listener.cast<OnItemClickListener>());
+        wrapper::NativeAdapterViewOnItemClickListener listener;
+        _jListView.setOnItemClickListener(listener.cast<wrapper::OnItemClickListener>());
     }
 
     void ListViewCore::reloadData() { _jNativeListAdapter.notifyDataSetChanged(); }

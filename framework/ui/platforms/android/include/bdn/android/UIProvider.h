@@ -7,8 +7,8 @@ namespace bdn::android
 }
 #include <bdn/UIProvider.h>
 
-#include <bdn/android/JTextView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/TextView.h>
 
 #include <cmath>
 

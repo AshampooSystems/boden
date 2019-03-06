@@ -2,8 +2,8 @@
 
 #include <bdn/IDispatcher.h>
 
-#include <bdn/android/JLooper.h>
-#include <bdn/android/JNativeDispatcher.h>
+#include <bdn/android/wrapper/Looper.h>
+#include <bdn/android/wrapper/NativeDispatcher.h>
 
 namespace bdn::android
 {
@@ -16,7 +16,7 @@ namespace bdn::android
     class Dispatcher : public Base, virtual public IDispatcher
     {
       public:
-        Dispatcher(JLooper looper);
+        Dispatcher(wrapper::Looper looper);
 
         /** Releases the internal resources of the dispatcher.
          * 	Also releases all pending queued items, timed items and
@@ -45,6 +45,6 @@ namespace bdn::android
         };
 
       private:
-        JNativeDispatcher _dispatcher;
+        wrapper::NativeDispatcher _dispatcher;
     };
 }

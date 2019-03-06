@@ -4,7 +4,7 @@
 #include <bdn/HTTPResponse.h>
 #include <bdn/config.h>
 #include <bdn/entry.h>
-#include <bdn/java/JNativeStrongPointer.h>
+#include <bdn/java/wrapper/NativeStrongPointer.h>
 #include <bdn/log.h>
 #include <ostream>
 
@@ -42,7 +42,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_VolleyAdapter_handleRespons
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::java::JNativeStrongPointer nativeResponse(
+            bdn::java::wrapper::NativeStrongPointer nativeResponse(
                 bdn::java::Reference::convertExternalLocal(rawNativeResponse));
 
             if (std::shared_ptr<bdn::net::HTTPResponse> cResponse =

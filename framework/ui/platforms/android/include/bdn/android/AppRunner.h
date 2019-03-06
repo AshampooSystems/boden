@@ -2,7 +2,7 @@
 
 #include <bdn/AppRunnerBase.h>
 #include <bdn/android/Dispatcher.h>
-#include <bdn/android/JIntent.h>
+#include <bdn/android/wrapper/Intent.h>
 
 namespace bdn::android
 {
@@ -12,10 +12,10 @@ namespace bdn::android
     class AppRunner : public AppRunnerBase
     {
       private:
-        AppLaunchInfo _makeLaunchInfo(JIntent intent);
+        AppLaunchInfo _makeLaunchInfo(wrapper::Intent intent);
 
       public:
-        AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, JIntent intent);
+        AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, wrapper::Intent intent);
 
         bool isCommandLineApp() const override;
 

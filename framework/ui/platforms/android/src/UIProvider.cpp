@@ -38,8 +38,8 @@ namespace bdn::android
         if (_semDips == -1) {
             // sem size is not yet initialized.
 
-            JTextView textView(core.getJView().getContext());
-            JTextPaint paint(textView.getPaint());
+            wrapper::TextView textView(core.getJView().getContext());
+            wrapper::TextPaint paint(textView.getPaint());
 
             double textSize = paint.getTextSize();
 

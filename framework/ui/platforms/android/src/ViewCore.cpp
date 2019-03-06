@@ -13,22 +13,22 @@ namespace bdn::android
         _uiScaleFactor = 1; // will be updated in _addToParent
 
         visible.onChange() += [=](auto va) {
-            _jView.setVisibility(va->get() ? JView::Visibility::visible : JView::Visibility::invisible);
+            _jView.setVisibility(va->get() ? wrapper::View::Visibility::visible : wrapper::View::Visibility::invisible);
         };
 
         geometry.onChange() += [=](auto va) {
-            bdn::java::JObject parent(_jView.getParent());
+            bdn::JavaObject parent(_jView.getParent());
             Rect rGeometry = va->get();
 
             if (parent.isNull_()) {
-                auto thisViewAsNativeGroup = getJViewAS<JNativeViewGroup>();
-                if (thisViewAsNativeGroup.isInstanceOf_(JNativeViewGroup::javaClass())) {
+                auto thisViewAsNativeGroup = getJViewAS<wrapper::NativeViewGroup>();
+                if (thisViewAsNativeGroup.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
                     thisViewAsNativeGroup.setSize(rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
                 }
             } else {
 
-                JNativeViewGroup parentView(parent.getRef_());
-                if (parentView.isInstanceOf_(JNativeViewGroup::javaClass())) {
+                wrapper::NativeViewGroup parentView(parent.getRef_());
+                if (parentView.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
                     parentView.setChildBounds(getJView(), rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
                                               rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
                 } else {
@@ -38,7 +38,7 @@ namespace bdn::android
             }
         };
 
-        JNativeViewCoreLayoutChangeListener layoutChangeListener;
+        wrapper::NativeViewCoreLayoutChangeListener layoutChangeListener;
         getJView().addOnLayoutChangeListener(layoutChangeListener);
     }
 
@@ -48,12 +48,12 @@ namespace bdn::android
         // view object. Note that we hold a strong reference to the
         // java-side object, So we know that the reference to the
         // java-side object is still valid.
-        _jView.setTag(bdn::java::JObject(bdn::java::Reference()));
+        _jView.setTag(bdn::JavaObject(bdn::java::Reference()));
     }
 
     void ViewCore::initTag()
     {
-        auto tag = bdn::java::NativeWeakPointer(outerView());
+        auto tag = bdn::java::wrapper::NativeWeakPointer(outerView());
         _jView.setTag(tag);
     }
 
@@ -70,24 +70,19 @@ namespace bdn::android
         int heightSpec;
 
         if (std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace()) {
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(std::lround(stableScaledRoundDown(availableSpace.width,
-                                                                                              _uiScaleFactor) *
-                                                                        _uiScaleFactor), // round DOWN to the closest
-                                                            // pixel then scale up and
-                                                            // round to the nearest integer
-                                                            JView::MeasureSpec::atMost);
+            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(
+                std::lround(stableScaledRoundDown(availableSpace.width, _uiScaleFactor) * _uiScaleFactor),
+
+                wrapper::View::MeasureSpec::atMost);
         } else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
 
         if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(std::lround(stableScaledRoundDown(availableSpace.height,
-                                                                                               _uiScaleFactor) *
-                                                                         _uiScaleFactor), // round DOWN to the closest
-                                                             // pixel then scale up and
-                                                             // round to the nearest integer
-                                                             JView::MeasureSpec::atMost);
+            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(
+                std::lround(stableScaledRoundDown(availableSpace.height, _uiScaleFactor) * _uiScaleFactor),
+                wrapper::View::MeasureSpec::atMost);
         } else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
 
         _jView.measure(widthSpec, heightSpec);
 
@@ -236,16 +231,16 @@ namespace bdn::android
     std::shared_ptr<ViewCore> viewCoreFromJavaViewRef(const java::Reference &javaViewRef)
     {
         if (!javaViewRef.isNull()) {
-            JView view(javaViewRef);
-            bdn::java::JObject viewTag(view.getTag());
-            if (viewTag.isInstanceOf_(bdn::java::NativeWeakPointer::getStaticClass_())) {
-                bdn::java::NativeWeakPointer viewTagPtr(viewTag.getRef_());
+            wrapper::View view(javaViewRef);
+            bdn::JavaObject viewTag(view.getTag());
+            if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeWeakPointer::getStaticClass_())) {
+                bdn::java::wrapper::NativeWeakPointer viewTagPtr(viewTag.getRef_());
 
                 if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer().lock())) {
                     return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
                 }
-            } else if (viewTag.isInstanceOf_(bdn::java::JNativeStrongPointer::getStaticClass_())) {
-                bdn::java::JNativeStrongPointer viewTagPtr(viewTag.getRef_());
+            } else if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
+                bdn::java::wrapper::NativeStrongPointer viewTagPtr(viewTag.getRef_());
                 if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer_())) {
                     return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
                 }

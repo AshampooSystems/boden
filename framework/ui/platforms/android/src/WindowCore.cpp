@@ -1,11 +1,11 @@
 
-#include "../include/bdn/android/JNativeRootView.h"
+#include "../include/bdn/android/wrapper/NativeRootView.h"
 #include <bdn/android/WindowCore.h>
 
 namespace bdn::android
 {
 
-    JView WindowCore::createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
+    wrapper::View WindowCore::createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
     {
         // we need a context to create our view object.
         // To know the context we first have to determine the root view
@@ -13,16 +13,16 @@ namespace bdn::android
 
         // We connect to the first root view that is available in the
         // root view registry.
-        JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
 
         if (rootView.isNull_())
             throw ProgrammingError("WindowCore being created but there are no native root "
                                    "views available. You must create a NativeRootActivity "
                                    "or NativeRootView instance!");
 
-        JNativeViewGroup viewGroup(rootView.getContext());
+        wrapper::NativeViewGroup viewGroup(rootView.getContext());
 
-        JView view(viewGroup.getRef_());
+        wrapper::View view(viewGroup.getRef_());
 
         // add the view group to the root view. That is important so
         // that the root view we have chosen is fixed to the view group
@@ -36,12 +36,12 @@ namespace bdn::android
         : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
     {
         title.onChange() += [=](auto va) {
-            JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+            wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
 
             rootView.setTitle(va->get());
         };
 
-        JNativeRootView rootView(getJView().getParent().getRef_());
+        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
 
         _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
 
@@ -52,10 +52,10 @@ namespace bdn::android
 
     WindowCore::~WindowCore()
     {
-        JView view(getJView());
+        wrapper::View view(getJView());
         if (!view.isNull_()) {
             // remove the view from its parent.
-            JViewGroup parent(view.getParent().getRef_());
+            wrapper::ViewGroup parent(view.getParent().getRef_());
             if (!parent.isNull_()) {
                 parent.removeView(view);
             }
@@ -66,13 +66,13 @@ namespace bdn::android
     {
         ViewCore::initTag();
 
-        JNativeRootView rootView(getJView().getParent().getRef_());
-        rootView.setTag(bdn::java::NativeWeakPointer(outerView()));
+        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+        rootView.setTag(bdn::java::wrapper::NativeWeakPointer(outerView()));
     }
 
     void WindowCore::enableBackButton(bool enable)
     {
-        JNativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.enableBackButton(enable);
     }
 
@@ -108,7 +108,7 @@ namespace bdn::android
             windowCore->rootViewSizeChanged(width, height);
     }
 
-    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, JConfiguration config)
+    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, wrapper::Configuration config)
     {
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
@@ -131,21 +131,21 @@ namespace bdn::android
 
     void WindowCore::addChildCore(ViewCore *child)
     {
-        JNativeViewGroup parentGroup(getJView().getRef_());
+        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
 
         parentGroup.addView(child->getJView());
     }
 
     void WindowCore::removeChildCore(ViewCore *child)
     {
-        JNativeViewGroup parentGroup(getJView().getRef_());
+        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
         parentGroup.removeView(child->getJView());
     }
 
     void
-    WindowCore::setAndroidNavigationButtonHandler(std::shared_ptr<WindowCore::IAndroidNavigationButtonHandler> handler)
+    WindowCore::setAndroidNavigationButtonHandler(std::shared_ptr<WindowCore::AndroidNavigationButtonHandler> handler)
     {
-        _navButtonHandler = handler;
+        _navButtonHandler = std::move(handler);
     }
 
     Rect WindowCore::getContentArea()
@@ -172,7 +172,7 @@ namespace bdn::android
         // Note that this is necessary because the root view does not
         // have a bdn::View associated with it. So there is not
         // automatic layout happening.
-        JNativeRootView rootView(getJView().getParent().getRef_());
+        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
         rootView.setChildBounds(getJView(), 0, 0, width, height);
         rootView.requestLayout();
 
@@ -184,14 +184,14 @@ namespace bdn::android
         geometry = _currentBounds;
     }
 
-    void WindowCore::rootViewConfigurationChanged(JConfiguration config) { updateUIScaleFactor(config); }
+    void WindowCore::rootViewConfigurationChanged(wrapper::Configuration config) { updateUIScaleFactor(config); }
 
     void WindowCore::attachedToNewRootView(const java::Reference &javaRef)
     {
         // set the window's bounds to fill the root view completely.
-        JNativeRootView rootView(javaRef);
+        wrapper::NativeRootView rootView(javaRef);
 
-        JConfiguration config(rootView.getContext().getResources().getConfiguration());
+        wrapper::Configuration config(rootView.getContext().getResources().getConfiguration());
 
         updateUIScaleFactor(config);
 
@@ -209,7 +209,7 @@ namespace bdn::android
 
     Rect WindowCore::getScreenWorkArea() const
     {
-        JNativeRootView rootView(tryGetAccessibleRootViewRef());
+        wrapper::NativeRootView rootView(tryGetAccessibleRootViewRef());
 
         if (rootView.isNull_()) {
             // don't have a root view => work area size is 0
@@ -225,7 +225,7 @@ namespace bdn::android
         }
     }
 
-    void WindowCore::updateUIScaleFactor(JConfiguration config)
+    void WindowCore::updateUIScaleFactor(wrapper::Configuration config)
     {
         int dpi = config.densityDpi();
 
@@ -243,13 +243,13 @@ namespace bdn::android
     {
         auto result = std::list<std::shared_ptr<WindowCore>>{};
 
-        JNativeRootView rootView(javaRootViewRef);
+        wrapper::NativeRootView rootView(javaRootViewRef);
 
         // enumerate all children of the root view. Those are our
         // "window" views.
         int childCount = rootView.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            JView child = rootView.getChildAt(i);
+            wrapper::View child = rootView.getChildAt(i);
 
             if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(viewCoreFromJavaViewRef(child.getRef_()))) {
                 result.push_back(windowCore);

@@ -1,25 +1,16 @@
 #include <bdn/android/ImageViewCore.h>
+#include <bdn/android/wrapper/NativeImageView.h>
 
 #include <bdn/entry.h>
 
 namespace bdn::android
 {
-    constexpr const char kNativeImageViewClassName[] = "io/boden/android/NativeImageView";
-    class NativeImageView : public JBaseView<kNativeImageViewClassName>
-    {
-      public:
-        using JBaseView<kNativeImageViewClassName>::JBaseView;
-
-      public:
-        java::Method<void(String)> loadUrl{this, "loadUrl"};
-    };
-
     ImageViewCore::ImageViewCore(std::shared_ptr<ImageView> outer)
-        : ViewCore(outer, createAndroidViewClass<NativeImageView>(outer))
+        : ViewCore(outer, createAndroidViewClass<wrapper::NativeImageView>(outer))
     {
         url.onChange() += [=](auto va) {
             _imageSize = Size{0, 0};
-            getJViewAS<NativeImageView>().loadUrl(va->get());
+            getJViewAS<wrapper::NativeImageView>().loadUrl(va->get());
         };
     }
 

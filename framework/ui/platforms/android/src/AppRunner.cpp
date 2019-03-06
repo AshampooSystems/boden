@@ -1,13 +1,13 @@
 #include <bdn/android/AppRunner.h>
-#include <bdn/android/JIntent.h>
-#include <bdn/android/JNativeRootView.h>
-#include <bdn/android/JUri.h>
 #include <bdn/android/WindowCore.h>
+#include <bdn/android/wrapper/Intent.h>
+#include <bdn/android/wrapper/NativeRootView.h>
+#include <bdn/android/wrapper/Uri.h>
 
 namespace bdn::android
 {
 
-    AppLaunchInfo AppRunner::_makeLaunchInfo(JIntent intent)
+    AppLaunchInfo AppRunner::_makeLaunchInfo(wrapper::Intent intent)
     {
         // there are no start parameters for an android app.
         AppLaunchInfo launchInfo;
@@ -17,11 +17,12 @@ namespace bdn::android
         // add a dummy arg for the program name
         args.push_back(String());
 
-        if (intent.getAction() == JIntent::ACTION_MAIN) {
-            JBundle extras = intent.getExtras();
+        if (intent.getAction() == wrapper::Intent::ACTION_MAIN) {
+            wrapper::Bundle extras = intent.getExtras();
 
             if (!extras.isNull_()) {
-                bdn::java::ArrayOfObjects<bdn::java::JString> argArray = extras.getStringArray("commandline-args");
+                bdn::java::wrapper::ArrayOfObjects<bdn::JavaString> argArray =
+                    extras.getStringArray("commandline-args");
 
                 if (!argArray.isNull_()) {
                     size_t len = argArray.getLength();
@@ -40,10 +41,11 @@ namespace bdn::android
         return launchInfo;
     }
 
-    AppRunner::AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, JIntent intent)
+    AppRunner::AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+                         wrapper::Intent intent)
         : AppRunnerBase(appControllerCreator, AppRunner::_makeLaunchInfo(intent))
     {
-        _mainDispatcher = std::make_shared<Dispatcher>(JLooper::getMainLooper());
+        _mainDispatcher = std::make_shared<Dispatcher>(wrapper::Looper::getMainLooper());
     }
 
     bool AppRunner::isCommandLineApp() const
@@ -72,8 +74,8 @@ namespace bdn::android
 
     void AppRunner::openURL(const String &url)
     {
-        JIntent intent(JIntent::ACTION_VIEW, JUri::parse(url));
-        JNativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        wrapper::Intent intent(wrapper::Intent::ACTION_VIEW, wrapper::Uri::parse(url));
+        wrapper::NativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.getContext().startActivity(intent);
     }
 }

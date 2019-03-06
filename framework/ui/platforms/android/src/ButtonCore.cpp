@@ -1,21 +1,22 @@
 
 #include <bdn/android/ButtonCore.h>
-#include <bdn/android/JNativeViewCoreClickListener.h>
+#include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 
 namespace bdn::android
 {
     ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
-        : ViewCore(outerButton, createAndroidViewClass<JButton>(outerButton)), _jButton(getJViewAS<JButton>())
+        : ViewCore(outerButton, createAndroidViewClass<wrapper::Button>(outerButton)),
+          _jButton(getJViewAS<wrapper::Button>())
     {
         _jButton.setSingleLine(true);
 
         setLabel(outerButton->label);
 
-        bdn::android::JNativeViewCoreClickListener listener;
-        _jButton.setOnClickListener(listener.cast<OnClickListener>());
+        wrapper::NativeViewCoreClickListener listener;
+        _jButton.setOnClickListener(listener.cast<wrapper::OnClickListener>());
     }
 
-    JButton &ButtonCore::getJButton() { return _jButton; }
+    wrapper::Button &ButtonCore::getJButton() { return _jButton; }
 
     void ButtonCore::setLabel(const String &label)
     {

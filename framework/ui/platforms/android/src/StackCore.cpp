@@ -1,10 +1,10 @@
 #include <bdn/Stack.h>
-#include <bdn/android/JNativeViewGroup.h>
 #include <bdn/android/StackCore.h>
+#include <bdn/android/wrapper/NativeViewGroup.h>
 
 namespace bdn::android
 {
-    class NavButtonHandler : public WindowCore::IAndroidNavigationButtonHandler
+    class NavButtonHandler : public WindowCore::AndroidNavigationButtonHandler
     {
       public:
         NavButtonHandler(StackCore *core) : _stackCore(core) {}
@@ -38,7 +38,7 @@ namespace bdn::android
     }
 
     StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-        : ViewCore(outerStack, createAndroidViewClass<JNativeViewGroup>(outerStack))
+        : ViewCore(outerStack, createAndroidViewClass<wrapper::NativeViewGroup>(outerStack))
     {
         geometry.onChange() += [=](auto va) { this->reLayout(); };
     }
@@ -101,12 +101,12 @@ namespace bdn::android
 
     void StackCore::addChildCore(ViewCore *child)
     {
-        ViewCore::getJViewAS<JNativeViewGroup>().addView(child->getJView());
+        ViewCore::getJViewAS<wrapper::NativeViewGroup>().addView(child->getJView());
     }
 
     void StackCore::removeChildCore(ViewCore *child)
     {
-        ViewCore::getJViewAS<JNativeViewGroup>().removeView(child->getJView());
+        ViewCore::getJViewAS<wrapper::NativeViewGroup>().removeView(child->getJView());
     }
 
     double StackCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }

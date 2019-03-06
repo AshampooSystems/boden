@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/android/JView.h>
+#include <bdn/android/wrapper/View.h>
 
 namespace bdn::android
 {

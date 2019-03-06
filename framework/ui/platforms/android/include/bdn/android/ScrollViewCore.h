@@ -3,10 +3,10 @@
 #include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
 #include <bdn/android/IParentViewCore.h>
-#include <bdn/android/JNativeScrollView.h>
-#include <bdn/android/JViewGroup.h>
 #include <bdn/android/ViewCore.h>
-#include <bdn/java/NativeWeakPointer.h>
+#include <bdn/android/wrapper/NativeScrollView.h>
+#include <bdn/android/wrapper/ViewGroup.h>
+#include <bdn/java/wrapper/NativeWeakPointer.h>
 
 namespace bdn::android
 {
@@ -15,11 +15,12 @@ namespace bdn::android
     {
       public:
         ScrollViewCore(std::shared_ptr<ScrollView> outer)
-            : ScrollViewCore(outer, createAndroidViewClass<JNativeScrollView>(outer).cast<JNativeScrollView>())
+            : ScrollViewCore(outer,
+                             createAndroidViewClass<wrapper::NativeScrollView>(outer).cast<wrapper::NativeScrollView>())
         {}
 
       private:
-        ScrollViewCore(std::shared_ptr<ScrollView> outer, JNativeScrollView nativeScrollView)
+        ScrollViewCore(std::shared_ptr<ScrollView> outer, wrapper::NativeScrollView nativeScrollView)
             : ViewCore(outer, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
               _jContentParent(_jNativeScrollView.getContentParent())
         {
@@ -230,8 +231,8 @@ namespace bdn::android
             }
         }
 
-        JNativeScrollView _jNativeScrollView;
-        JNativeViewGroup _jContentParent;
+        wrapper::NativeScrollView _jNativeScrollView;
+        wrapper::NativeViewGroup _jContentParent;
 
         std::unique_ptr<Property<Rect>> _childGeometry;
     };

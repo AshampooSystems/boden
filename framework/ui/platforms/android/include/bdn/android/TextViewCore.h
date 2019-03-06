@@ -2,9 +2,9 @@
 
 #include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
-#include <bdn/android/JRStyle.h>
-#include <bdn/android/JTextView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/RStyle.h>
+#include <bdn/android/wrapper/TextView.h>
 
 #include <limits>
 
@@ -15,8 +15,8 @@ namespace bdn::android
     {
       public:
         TextViewCore(std::shared_ptr<TextView> outerTextView)
-            : ViewCore(outerTextView, createAndroidViewClass<JTextView>(outerTextView)),
-              _jTextView(getJViewAS<JTextView>())
+            : ViewCore(outerTextView, createAndroidViewClass<wrapper::TextView>(outerTextView)),
+              _jTextView(getJViewAS<wrapper::TextView>())
         {
             setText(outerTextView->text);
             setWrap(outerTextView->wrap.get());
@@ -30,7 +30,7 @@ namespace bdn::android
             };
         }
 
-        JTextView &getJTextView() { return _jTextView; }
+        wrapper::TextView &getJTextView() { return _jTextView; }
 
         void setText(const String &text) override
         {
@@ -74,7 +74,7 @@ namespace bdn::android
         }
 
       private:
-        mutable JTextView _jTextView;
+        mutable wrapper::TextView _jTextView;
 
         bool _wrap = true;
     };

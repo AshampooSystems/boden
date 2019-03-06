@@ -2,9 +2,9 @@
 
 #include <bdn/Switch.h>
 #include <bdn/SwitchCore.h>
-#include <bdn/android/JNativeViewCoreClickListener.h>
-#include <bdn/android/JSwitch.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/NativeViewCoreClickListener.h>
+#include <bdn/android/wrapper/Switch.h>
 
 namespace bdn::android
 {
@@ -13,18 +13,18 @@ namespace bdn::android
     {
       public:
         SwitchCore(std::shared_ptr<Switch> outer)
-            : ViewCore(outer, createAndroidViewClass<JSwitch>(outer)), _jSwitch(getJViewAS<JSwitch>())
+            : ViewCore(outer, createAndroidViewClass<wrapper::Switch>(outer)), _jSwitch(getJViewAS<wrapper::Switch>())
         {
             _jSwitch.setSingleLine(true);
 
             setLabel(outer->label);
             setOn(outer->on);
 
-            bdn::android::JNativeViewCoreClickListener listener;
-            _jSwitch.setOnClickListener(listener.cast<OnClickListener>());
+            wrapper::NativeViewCoreClickListener listener;
+            _jSwitch.setOnClickListener(listener.cast<wrapper::OnClickListener>());
         }
 
-        JSwitch &getJSwitch() { return _jSwitch; }
+        wrapper::Switch &getJSwitch() { return _jSwitch; }
 
         void setLabel(const String &label) override
         {
@@ -56,6 +56,6 @@ namespace bdn::android
         }
 
       private:
-        mutable JSwitch _jSwitch;
+        mutable wrapper::Switch _jSwitch;
     };
 }

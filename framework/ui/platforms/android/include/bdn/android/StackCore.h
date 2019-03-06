@@ -14,7 +14,7 @@ namespace bdn::android
     class StackCore : public ViewCore,
                       public bdn::StackCore,
                       public IParentViewCore,
-                      public WindowCore::IAndroidNavigationButtonHandler
+                      public WindowCore::AndroidNavigationButtonHandler
     {
       public:
         StackCore(std::shared_ptr<Stack> outerStack);

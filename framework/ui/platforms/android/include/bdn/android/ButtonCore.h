@@ -2,8 +2,8 @@
 
 #include <bdn/Button.h>
 #include <bdn/IButtonCore.h>
-#include <bdn/android/JButton.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/Button.h>
 
 namespace bdn::android
 {
@@ -13,7 +13,7 @@ namespace bdn::android
       public:
         ButtonCore(std::shared_ptr<Button> outerButton);
 
-        JButton &getJButton();
+        wrapper::Button &getJButton();
 
         void setLabel(const String &label) override;
 
@@ -23,6 +23,6 @@ namespace bdn::android
         double getFontSizeDips() const override;
 
       private:
-        mutable JButton _jButton;
+        mutable wrapper::Button _jButton;
     };
 }

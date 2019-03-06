@@ -3,80 +3,75 @@
 #include <bdn/ProgrammingError.h>
 #include <bdn/String.h>
 
-namespace bdn
+namespace bdn::java
 {
-    namespace java
-    {
+    class MethodId;
 
-        class MethodId;
-        class JClass;
+    namespace wrapper
+    {
+        class Class;
     }
 }
 
 #include <jni.h>
 
-namespace bdn
+namespace bdn::java
 {
-    namespace java
+    /** Represents the ID of a Java method.
+     *  These IDs are used to call Java methods from C++ code.
+     *  See JObject::invoke() and JClass::invokeObjectMethod().*/
+    class MethodId
     {
+      public:
+        constexpr MethodId() : _id(nullptr), _initialized(false) {}
 
-        /** Represents the ID of a Java method.
-         *  These IDs are used to call Java methods from C++ code.
-         *  See JObject::invoke() and JClass::invokeObjectMethod().*/
-        class MethodId
+        /** Initializes the Id by looking up the method with the specified
+         * name and signature from the specified class.
+         *
+         *  Throws a corresponding JavaException if the method was not
+         * found.
+         *
+         *  It is usually not necessary to call this directly.
+         *  JObject::invoke_() or JClass::invokeObjectMethod_() provide a
+         * higher level access that automatically initializes the method Id.
+         *  */
+        void init(wrapper::Class &cls, const String &methodName, const String &methodSignature);
+
+        /** Initializes the Id by looking up the static method with the
+         * specified name and signature from the specified class.
+         *
+         *  Throws a corresponding JavaException if the method was not
+         * found.
+         *
+         *  It is usually not necessary to call this directly.
+         *  JObject::invokeStatic_() or JClass::invokeStatictMethod_()
+         * provide a higher level access that automatically initializes the
+         * method Id.
+         *  */
+        void initStatic(wrapper::Class &cls, const String &methodName, const String &methodSignature);
+
+        /** Initializes the method Id object.*/
+        void init(jmethodID id)
         {
-          public:
-            constexpr MethodId() : _id(nullptr), _initialized(false) {}
+            _id = id;
+            _initialized = true;
+        }
 
-            /** Initializes the Id by looking up the method with the specified
-             * name and signature from the specified class.
-             *
-             *  Throws a corresponding JavaException if the method was not
-             * found.
-             *
-             *  It is usually not necessary to call this directly.
-             *  JObject::invoke_() or JClass::invokeObjectMethod_() provide a
-             * higher level access that automatically initializes the method Id.
-             *  */
-            void init(JClass &cls, const String &methodName, const String &methodSignature);
+        bool isInitialized() const { return _initialized; }
 
-            /** Initializes the Id by looking up the static method with the
-             * specified name and signature from the specified class.
-             *
-             *  Throws a corresponding JavaException if the method was not
-             * found.
-             *
-             *  It is usually not necessary to call this directly.
-             *  JObject::invokeStatic_() or JClass::invokeStatictMethod_()
-             * provide a higher level access that automatically initializes the
-             * method Id.
-             *  */
-            void initStatic(JClass &cls, const String &methodName, const String &methodSignature);
+        /** Returns the Id. Throws and exception if the Id has not been
+         * initialized yet.*/
+        jmethodID getId() const
+        {
+            if (!isInitialized())
+                throw ProgrammingError("MethodId::getId called on uninitialized object.");
 
-            /** Initializes the method Id object.*/
-            void init(jmethodID id)
-            {
-                _id = id;
-                _initialized = true;
-            }
+            return _id;
+        }
 
-            bool isInitialized() const { return _initialized; }
-
-            /** Returns the Id. Throws and exception if the Id has not been
-             * initialized yet.*/
-            jmethodID getId() const
-            {
-                if (!isInitialized())
-                    throw ProgrammingError("MethodId::getId called on uninitialized object.");
-
-                return _id;
-            }
-
-          private:
-            jmethodID _id;
-            bool _initialized;
-        };
-    }
+      private:
+        jmethodID _id;
+        bool _initialized;
+    };
 }
-
-#include <bdn/java/JObject.h>
+#include <bdn/java/wrapper/Object.h>

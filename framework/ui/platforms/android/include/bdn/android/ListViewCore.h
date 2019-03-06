@@ -2,10 +2,10 @@
 
 #include <bdn/ListView.h>
 #include <bdn/ListViewCore.h>
-#include <bdn/android/JListView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/ListView.h>
 
-#include <bdn/android/JNativeListAdapter.h>
+#include <bdn/android/wrapper/NativeListAdapter.h>
 
 namespace bdn::android
 {
@@ -17,7 +17,7 @@ namespace bdn::android
         virtual void reloadData() override;
 
       private:
-        JListView _jListView;
-        JNativeListAdapter _jNativeListAdapter;
+        wrapper::ListView _jListView;
+        wrapper::NativeListAdapter _jNativeListAdapter;
     };
 }

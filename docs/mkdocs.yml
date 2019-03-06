@@ -32,6 +32,9 @@ nav:
     - Foundation:
       - Base: 'reference/foundation/base.md'
       - String: 'reference/foundation/string.md'
+      - Android:
+        - Java:
+          - Wrapping Java: 'reference/foundation/android/java/wrap-java-class.md'
     - Layout:
       - Summary: 'reference/layout/summary.md'
       - Layout: 'reference/layout/layout.md'

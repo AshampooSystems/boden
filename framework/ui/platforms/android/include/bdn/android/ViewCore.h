@@ -4,13 +4,13 @@
 #include <bdn/View.h>
 #include <bdn/ViewCore.h>
 
-#include <bdn/java/JNativeStrongPointer.h>
-#include <bdn/java/NativeWeakPointer.h>
+#include <bdn/java/wrapper/NativeStrongPointer.h>
+#include <bdn/java/wrapper/NativeWeakPointer.h>
 
 #include <bdn/android/IParentViewCore.h>
-#include <bdn/android/JNativeViewCoreLayoutChangeListener.h>
-#include <bdn/android/JNativeViewGroup.h>
-#include <bdn/android/JView.h>
+#include <bdn/android/wrapper/NativeViewCoreLayoutChangeListener.h>
+#include <bdn/android/wrapper/NativeViewGroup.h>
+#include <bdn/android/wrapper/View.h>
 
 #include <bdn/log.h>
 #include <cstdlib>
@@ -28,7 +28,7 @@ namespace bdn::android
         void init();
 
       public:
-        ViewCore(std::shared_ptr<View> outer, JView jView) : _outerView(outer), _jView(jView) { init(); }
+        ViewCore(std::shared_ptr<View> outer, wrapper::View jView) : _outerView(outer), _jView(jView) { init(); }
         virtual ~ViewCore();
 
       public:
@@ -36,7 +36,7 @@ namespace bdn::android
 
         virtual void initTag();
 
-        JView &getJView() { return _jView; }
+        wrapper::View &getJView() { return _jView; }
         template <class JSuperType> JSuperType getJViewAS() { return _jView.cast<JSuperType>(); }
 
         std::shared_ptr<ViewCore> getParentViewCore();
@@ -91,7 +91,7 @@ namespace bdn::android
 
       private:
         std::weak_ptr<View> _outerView;
-        mutable JView _jView;
+        mutable wrapper::View _jView;
         double _uiScaleFactor;
 
         mutable double _emDipsIfInitialized = -1;
@@ -101,7 +101,8 @@ namespace bdn::android
     std::shared_ptr<ViewCore> viewCoreFromJavaViewRef(const bdn::java::Reference &javaViewRef);
 
     template <class T>
-    JView createAndroidViewClass(std::shared_ptr<View> outer, std::optional<JContext> context = std::nullopt)
+    wrapper::View createAndroidViewClass(std::shared_ptr<View> outer,
+                                         std::optional<wrapper::Context> context = std::nullopt)
     {
         if (!context) {
             std::shared_ptr<View> parent = outer->getParentView();
@@ -118,10 +119,10 @@ namespace bdn::android
             }
 
             T view(parentCore->getJView().getContext());
-            return JView(view.getRef_());
+            return wrapper::View(view.getRef_());
         }
 
         T view(*context);
-        return JView(view.getRef_());
+        return wrapper::View(view.getRef_());
     }
 }

@@ -5,7 +5,7 @@
 namespace bdn::android
 {
     ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
-        : ViewCore(outer, createAndroidViewClass<JNativeViewGroup>(outer))
+        : ViewCore(outer, createAndroidViewClass<wrapper::NativeViewGroup>(outer))
     {}
 
     ContainerViewCore::~ContainerViewCore() {}
@@ -16,14 +16,14 @@ namespace bdn::android
 
     void ContainerViewCore::addChildCore(ViewCore *child)
     {
-        JNativeViewGroup parentGroup(getJView().getRef_());
+        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
 
         parentGroup.addView(child->getJView());
     }
 
     void ContainerViewCore::removeChildCore(ViewCore *child)
     {
-        JNativeViewGroup parentGroup(getJView().getRef_());
+        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
         parentGroup.removeView(child->getJView());
     }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/java/JObject.h>
-#include <bdn/java/JString.h>
+#include <bdn/java/wrapper/Object.h>
+#include <bdn/java/wrapper/String.h>
 
 #include <bdn/HTTP.h>
 
@@ -17,12 +17,12 @@ namespace bdn
             {
                 constexpr char kVolleyAdapterClassName[] = "io/boden/java/VolleyAdapter";
 
-                class JVolleyAdapter : public java::JTObject<kVolleyAdapterClassName>
+                class JVolleyAdapter : public java::wrapper::JTObject<kVolleyAdapterClassName>
                 {
                   public:
                     using JTObject<kVolleyAdapterClassName>::JTObject;
 
-                    java::Method<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this, "request"};
+                    JavaMethod<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this, "request"};
 
                     static constexpr int toVolleyRequestMethod(bdn::net::http::Method bdnHttpMethod)
                     {

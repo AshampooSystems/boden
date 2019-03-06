@@ -2,9 +2,9 @@
 
 #include <bdn/Checkbox.h>
 #include <bdn/CheckboxCore.h>
-#include <bdn/android/JCheckBox.h>
-#include <bdn/android/JNativeViewCoreClickListener.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/CheckBox.h>
+#include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 
 namespace bdn::android
 {
@@ -13,18 +13,19 @@ namespace bdn::android
     {
       public:
         CheckboxCore(std::shared_ptr<Checkbox> outer)
-            : ViewCore(outer, createAndroidViewClass<JCheckBox>(outer)), _jCheckBox(getJViewAS<JCheckBox>())
+            : ViewCore(outer, createAndroidViewClass<wrapper::CheckBox>(outer)),
+              _jCheckBox(getJViewAS<wrapper::CheckBox>())
         {
             _jCheckBox.setSingleLine(true);
 
             setLabel(outer->label);
             setState(outer->state);
 
-            bdn::android::JNativeViewCoreClickListener listener;
+            bdn::android::wrapper::NativeViewCoreClickListener listener;
             _jCheckBox.setOnClickListener(listener);
         }
 
-        JCheckBox &getJCheckBox() { return _jCheckBox; }
+        wrapper::CheckBox &getJCheckBox() { return _jCheckBox; }
 
         void setLabel(const String &label) override
         {
@@ -66,7 +67,7 @@ namespace bdn::android
         }
 
       private:
-        mutable JCheckBox _jCheckBox;
+        mutable wrapper::CheckBox _jCheckBox;
         TriState _state;
     };
 }
