@@ -46,25 +46,9 @@ class View : public Base
 
 	Super classes should return a [`String`](../string.md) presenting the type name of the view's core.
 
-* **std::shared_ptr<ViewCore> viewCore() const**
+* **std::shared_ptr<ViewCore\> viewCore() const**
 
 	Returns the view's [`ViewCore`](view_core.md).
-
-* **void setViewCore(std::shared_ptr<UIProvider\> uiProvider, std::shared_ptr<ViewCore\> viewCore)**
-
-	Sets the view's [`ViewCore`](view_core.md) and the given [`UIProvider`](ui_provider.md).
-
-* **void reinitCore(std::shared_ptr<UIProvider\> uiProvider = nullptr)**
-
-	Reinitializes the view's [`ViewCore`](view_core.md) using the given [`UIProvider`](ui_provider.md). If the `uiProvider` argument is set to `nullptr`, attempts to obtain a suitable UI provider from its current parent view.
-
-* **virtual void \_deinitCore()**
-
-	Deinitializes the view's currrent [`ViewCore`](view_core.md).
-
-* **virtual void \_initCore(std::shared_ptr<UIProvider\> uiProvider = nullptr)**
-
-	Initializes the view's [`ViewCore`](view_core.md) using the given [`UIProvider`](ui_provider.md). If the `uiProvider` argument is set to `nullptr`, attempts to obtain a suitable UI provider from its current parent view.
 
 * **std::shared_ptr<UIProvider\> uiProvider()**
 
@@ -80,10 +64,7 @@ class View : public Base
 
 	Removes all child views.
 
-* **virtual void \_childViewStolen(std::shared_ptr<View\> childView)**
-	
-	<span style="color: red">Deprecated</span>
-
+* **virtual void \_childViewStolen(std::shared_ptr&lt;View&gt; childView)**
 
 * **virtual std::shared_ptr<View\> getParentView()**
 

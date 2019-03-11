@@ -9,13 +9,13 @@ namespace bdn::ios
     class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
     {
       public:
-        ImageViewCore(std::shared_ptr<ImageView> outer);
+        ImageViewCore();
 
       protected:
         void setUrl(const String &url);
 
       private:
-        static UIView<UIViewWithFrameNotification> *createUIImageView(std::shared_ptr<ImageView> outer);
+        static UIView<UIViewWithFrameNotification> *createUIImageView();
         virtual Size sizeForSpace(Size availableSize) const override;
     };
 }

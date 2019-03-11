@@ -5,26 +5,25 @@
 
 namespace bdn::ios
 {
-    ViewCore::ViewCore(std::shared_ptr<View> outer, id<UIViewWithFrameNotification> uiView)
+    ViewCore::ViewCore(id<UIViewWithFrameNotification> uiView)
     {
-        [uiView setViewCore:this];
-        _outerView = outer;
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
+    }
 
-        _addToParent(outer->getParentView());
+    void ViewCore::init()
+    {
+        [_view setViewCore:std::dynamic_pointer_cast<ViewCore>(shared_from_this())];
 
         geometry.onChange() += [=](auto va) { this->onGeometryChanged(va->get()); };
 
         visible.onChange() += [&view = this->_view](auto va) { view.hidden = !va->get(); };
     }
 
-    ViewCore::~ViewCore() { dispose(); }
+    ViewCore::~ViewCore() { [_view setViewCore:std::weak_ptr<ViewCore>()]; }
 
     void ViewCore::frameChanged() { geometry = iosRectToRect(_view.frame); }
 
     void ViewCore::onGeometryChanged(Rect newGeometry) { _view.frame = rectToIosRect(newGeometry); }
-
-    std::shared_ptr<View> ViewCore::outerView() const { return _outerView.lock(); }
 
     UIView *ViewCore::uiView() const { return _view; }
 
@@ -60,53 +59,13 @@ namespace bdn::ios
 
     bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
 
-    void ViewCore::moveToParentView(std::shared_ptr<View> newParentView)
-    {
-        std::shared_ptr<View> outer = outerView();
-        if (outer != nullptr) {
-            std::shared_ptr<View> parent = outer->getParentView();
-
-            if (newParentView != parent) {
-                // Parent has changed. Remove the view from its current
-                // super view.
-                dispose();
-                _addToParent(newParentView);
-            }
-        }
-    }
-
-    void ViewCore::dispose()
-    {
-        [_view setViewCore:nullptr];
-        removeFromUISuperview();
-        _view = nil;
-    }
-
-    void ViewCore::addChildViewCore(ViewCore *core) { [_view addSubview:core->uiView()]; }
+    void ViewCore::addChildViewCore(const std::shared_ptr<ViewCore> &core) { [_view addSubview:core->uiView()]; }
 
     void ViewCore::removeFromUISuperview() { [_view removeFromSuperview]; }
 
     bool ViewCore::canAdjustToAvailableWidth() const { return false; }
 
     bool ViewCore::canAdjustToAvailableHeight() const { return false; }
-
-    void ViewCore::_addToParent(std::shared_ptr<View> parentView)
-    {
-        if (parentView == nullptr) {
-            // top level window. Nothing to do.
-            return;
-        }
-
-        std::shared_ptr<bdn::ViewCore> parentCore = parentView->viewCore();
-        if (parentCore == nullptr) {
-            // this should not happen. The parent MUST have a core -
-            // otherwise we cannot initialize ourselves.
-            throw ProgrammingError("bdn::ios::ViewCore constructed for a view whose "
-                                   "parent does not have a core.");
-        }
-
-        std::dynamic_pointer_cast<ViewCore>(parentCore)->addChildViewCore(this);
-    }
 
     double ViewCore::getFontSize() const
     {

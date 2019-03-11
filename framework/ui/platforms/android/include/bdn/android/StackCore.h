@@ -11,13 +11,10 @@ namespace bdn::android
 {
     class NavButtonHandler;
 
-    class StackCore : public ViewCore,
-                      public bdn::StackCore,
-                      public IParentViewCore,
-                      public WindowCore::AndroidNavigationButtonHandler
+    class StackCore : public ViewCore, public bdn::StackCore
     {
       public:
-        StackCore(std::shared_ptr<Stack> outerStack);
+        StackCore(const ContextWrapper &ctxt);
         virtual ~StackCore();
 
         // StackCore interface
@@ -26,15 +23,10 @@ namespace bdn::android
         virtual void popView() override;
         virtual std::list<std::shared_ptr<View>> childViews() override;
 
-        // IParentViewCore interface
       public:
-        virtual void addChildCore(ViewCore *child) override;
-        virtual void removeChildCore(ViewCore *view) override;
-        virtual double getUIScaleFactor() const override;
+        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override;
 
-        // IAndroidNavigationButtonHandler interface
-      public:
-        virtual bool handleBackButton() override;
+        bool handleBackButton();
 
       private:
         void updateCurrentView();
@@ -44,6 +36,13 @@ namespace bdn::android
       private:
         std::shared_ptr<View> _currentView;
         std::shared_ptr<FixedView> _container;
-        std::shared_ptr<NavButtonHandler> _navHandler;
+
+        struct StackEntry
+        {
+            std::shared_ptr<View> view;
+            String title;
+        };
+
+        std::deque<StackEntry> _stack;
     };
 }

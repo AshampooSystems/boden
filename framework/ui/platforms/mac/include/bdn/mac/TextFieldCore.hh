@@ -1,37 +1,24 @@
 #pragma once
 
-#include <bdn/ITextFieldCore.h>
 #include <bdn/TextField.h>
-#include <bdn/mac/ChildViewCore.hh>
+#include <bdn/TextFieldCore.h>
+#include <bdn/mac/ViewCore.hh>
 #include <bdn/mac/util.hh>
 
 @class BdnTextFieldDelegate;
 
 namespace bdn::mac
 {
-    class TextFieldCore : public ChildViewCore, virtual public ITextFieldCore
+    class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
     {
       private:
-        static NSTextField *_createNsTextView(std::shared_ptr<TextField> outerTextField)
-        {
-            NSTextField *textField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-            textField.allowsEditingTextAttributes = NO; // plain textfield, no attribution/formatting
-            textField.cell.wraps = NO;                  // no word wrapping
-            textField.cell.scrollable = YES;            // but scroll horizontally instead
-            return textField;
-        }
+        static NSTextField *_createNsTextView();
 
       public:
-        TextFieldCore(std::shared_ptr<TextField> outerTextField);
-        ~TextFieldCore();
+        TextFieldCore();
+        virtual ~TextFieldCore();
 
-        void setText(const String &text) override
-        {
-            NSTextField *textField = (NSTextField *)nsView();
-            if (nsStringToString(textField.stringValue) != text) {
-                textField.stringValue = stringToNSString(text);
-            }
-        }
+        virtual void init() override;
 
       private:
         BdnTextFieldDelegate *_delegate;

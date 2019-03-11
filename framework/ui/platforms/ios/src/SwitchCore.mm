@@ -4,9 +4,8 @@
 
 - (void)clicked
 {
-    if (auto outer = self.outer.lock()) {
-        bdn::ClickEvent clickEvent(outer);
-        outer->onClick().notify(clickEvent);
+    if (auto core = self.core.lock()) {
+        core->handleClick();
     }
 }
 
@@ -26,8 +25,24 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+
+    CGRect compositeBounds = self.bounds;
+    CGRect switchBounds = self.uiSwitch.bounds;
+    CGRect labelBounds = self.uiLabel.bounds;
+
+    // Center switch vertically in composite
+    CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
+                                    compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
+                                    switchBounds.size.width, switchBounds.size.height);
+    self.uiSwitch.frame = switchFrame;
+
+    // Center label vertically in composite
+    CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
+                                   labelBounds.size.width, labelBounds.size.height);
+    self.uiLabel.frame = labelFrame;
+
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 @end
@@ -47,39 +62,26 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    SwitchCore::SwitchCore(std::shared_ptr<Switch> outer) : ViewCore(outer, createSwitchComposite())
+    SwitchCore::SwitchCore() : ViewCore(createSwitchComposite()) {}
+
+    void SwitchCore::init()
     {
+        ViewCore::init();
         _composite = (BdnIosSwitchComposite *)uiView();
 
         _clickManager = [[BdnIosSwitchClickManager alloc] init];
-        _clickManager.outer = outer; // reference outer instead of core
+        _clickManager.core = std::dynamic_pointer_cast<SwitchCore>(shared_from_this());
 
         [_composite.uiSwitch addTarget:_clickManager
                                 action:@selector(clicked)
                       forControlEvents:UIControlEventTouchUpInside];
 
-        // Set initial state
-        setLabel(outer->label);
-        setOn(outer->on);
-
-        geometry.onChange() += [=](auto va) {
-            BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
-
-            CGRect compositeBounds = switchComposite.bounds;
-            CGRect switchBounds = switchComposite.uiSwitch.bounds;
-            CGRect labelBounds = switchComposite.uiLabel.bounds;
-
-            // Center switch vertically in composite
-            CGRect switchFrame = CGRectMake(compositeBounds.size.width - switchBounds.size.width,
-                                            compositeBounds.size.height / 2. - switchBounds.size.height / 2.,
-                                            switchBounds.size.width, switchBounds.size.height);
-            switchComposite.uiSwitch.frame = switchFrame;
-
-            // Center label vertically in composite
-            CGRect labelFrame = CGRectMake(0, compositeBounds.size.height / 2. - labelBounds.size.height / 2.,
-                                           labelBounds.size.width, labelBounds.size.height);
-            switchComposite.uiLabel.frame = labelFrame;
+        label.onChange() += [=](auto va) {
+            _composite.uiLabel.text = stringToNSString(label);
+            [_composite.uiLabel sizeToFit];
         };
+
+        on.onChange() += [=](auto va) { ((BdnIosSwitchComposite *)_composite).uiSwitch.on = on; };
     }
 
     SwitchCore::~SwitchCore()
@@ -88,11 +90,5 @@ namespace bdn::ios
         [switchComposite.uiSwitch removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
     }
 
-    void SwitchCore::setOn(const bool &on) { ((BdnIosSwitchComposite *)_composite).uiSwitch.on = on; }
-
-    void SwitchCore::setLabel(const String &label)
-    {
-        _composite.uiLabel.text = stringToNSString(label);
-        [_composite.uiLabel sizeToFit];
-    }
+    void SwitchCore::handleClick() { _clickCallback.fire(); }
 }

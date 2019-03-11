@@ -4,13 +4,13 @@
 #include <bdn/CheckboxCore.h>
 #include <bdn/SwitchCore.h>
 
-#import <bdn/mac/ButtonCoreBase.hh>
+#import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/ui_util.hh>
 #import <bdn/mac/util.hh>
 
 namespace bdn::mac
 {
-    class CheckboxCore : public ButtonCoreBase, virtual public bdn::CheckboxCore
+    class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
       private:
         static NSButton *createNSButton()
@@ -21,61 +21,34 @@ namespace bdn::mac
         }
 
       public:
-        CheckboxCore(std::shared_ptr<Checkbox> outer) : ButtonCoreBase(outer, createNSButton())
+        CheckboxCore() : ViewCore(createNSButton())
         {
             _nsButton = (NSButton *)nsView();
 
-            if (std::dynamic_pointer_cast<Checkbox>(outer))
-                _nsButton.allowsMixedState = true;
+            _nsButton.allowsMixedState = true;
 
-            setLabel(outer->label);
-            setState(outer->state);
-        }
+            label.onChange() += [=](auto va) {
+                NSString *macLabel = stringToNSString(label);
+                [_nsButton setTitle:macLabel];
+            };
 
-        void setState(const TriState &state) override
-        {
-            if (state == TriState::mixed) {
-                // Explicitly allow for mixed state in NSButton when setting
-                // Checkbox::State::mixed programatically
-                _nsButton.allowsMixedState = true;
-            }
-
-            _nsButton.state = triStateToNSControlStateValue(state);
-        }
-
-        virtual void setLabel(const String &label) override { ButtonCoreBase::setLabel(label); }
-
-        void generateClick()
-        {
-            std::shared_ptr<Checkbox> outer = std::dynamic_pointer_cast<Checkbox>(outerView());
-            if (outer != nullptr) {
-                bdn::ClickEvent evt(outer);
-
-                // Observing NSButton's state via KVO does not work when
-                // the button's state is changed via user interaction. KVO
-                // works though when state is set programatically, which
-                // unfortunately is useless in the case that a user changes
-                // the button's state. This means we have to stick to the
-                // click event to propagate the state change to the
-                // framework. The state will be set before the onClick
-                // notification is posted.
-
-                // Prohibit setting mixed state via user interaction.
-                // When NSButton allows for mixed state, it also allows
-                // users to toggle the checkbox to mixed state by
-                // clicking (Off => Mixed => On). To prevent this
-                // behavior, we deactivate allowsMixedState when
-                // NSButton is switched to off state and reactivate it
-                // when it is set to on state.
-                if (_nsButton.state == NSControlStateValueOff) {
-                    _nsButton.allowsMixedState = false;
-                } else {
+            state.onChange() += [=](auto va) {
+                if (state == TriState::mixed) {
                     _nsButton.allowsMixedState = true;
                 }
+                _nsButton.state = triStateToNSControlStateValue(state);
+            };
+        }
 
-                outer->state = nsControlStateValueToTriState(_nsButton.state);
-                outer->onClick().notify(evt);
+        void handleClick()
+        {
+            if (_nsButton.state == NSControlStateValueOff) {
+                _nsButton.allowsMixedState = false;
+            } else {
+                _nsButton.allowsMixedState = true;
             }
+            state = nsControlStateValueToTriState(_nsButton.state);
+            _clickCallback.fire();
         }
 
       private:

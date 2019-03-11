@@ -13,12 +13,7 @@ namespace bdn::mac
         return [[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration];
     }
 
-    WebViewCore::WebViewCore(std::shared_ptr<WebView> outer) : ChildViewCore(outer, createWKWebView())
-    {
-        if (outer->url != "") {
-            loadURL(outer->url);
-        }
-    }
+    WebViewCore::WebViewCore() : ViewCore(createWKWebView()) {}
 
     void WebViewCore::loadURL(const String &url)
     {

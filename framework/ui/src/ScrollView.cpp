@@ -2,73 +2,51 @@
 #include <bdn/ScrollView.h>
 
 #include <bdn/AppRunnerBase.h>
-#include <bdn/IScrollViewCore.h>
+#include <bdn/ScrollViewCore.h>
 
 namespace bdn
 {
 
-    ScrollView::ScrollView() : verticalScrollingEnabled(true) {}
-
-    void ScrollView::setContentView(std::shared_ptr<View> contentView)
+    ScrollView::ScrollView(std::shared_ptr<UIProvider> uiProvider)
+        : View(std::move(uiProvider)), verticalScrollingEnabled(true)
     {
-        AppRunnerBase::assertInMainThread();
-
-        horizontalScrollingEnabled.onChange() +=
-            CorePropertyUpdater<bool, IScrollViewCore>(this, &IScrollViewCore::setHorizontalScrollingEnabled);
-
-        verticalScrollingEnabled.onChange() +=
-            CorePropertyUpdater<bool, IScrollViewCore>(this, &IScrollViewCore::setVerticalScrollingEnabled);
-
-        if (contentView != _contentView) {
-            if (_contentView != nullptr)
-                _contentView->_setParentView(nullptr);
-
-            _contentView = contentView;
-
-            if (_contentView != nullptr)
-                _contentView->_setParentView(shared_from_this());
-        }
+        content.onChange() += [=](auto va) { _content.update(shared_from_this(), va->get()); };
     }
 
-    std::shared_ptr<View> ScrollView::getContentView()
+    void ScrollView::bindViewCore()
     {
-        AppRunnerBase::assertInMainThread();
+        View::bindViewCore();
 
-        return _contentView;
-    }
-
-    std::shared_ptr<const View> ScrollView::getContentView() const
-    {
-        AppRunnerBase::assertInMainThread();
-
-        return _contentView;
+        auto scrollCore = core<ScrollViewCore>();
+        scrollCore->content.bind(content);
+        scrollCore->horizontalScrollingEnabled.bind(horizontalScrollingEnabled);
+        scrollCore->verticalScrollingEnabled.bind(verticalScrollingEnabled);
     }
 
     void ScrollView::scrollClientRectToVisible(const Rect &area)
     {
         AppRunnerBase::assertInMainThread();
 
-        std::shared_ptr<IScrollViewCore> core = std::dynamic_pointer_cast<IScrollViewCore>(viewCore());
-        if (core != nullptr)
-            core->scrollClientRectToVisible(area);
+        auto scrollCore = core<ScrollViewCore>();
+        scrollCore->scrollClientRectToVisible(area);
     }
 
-    std::list<std::shared_ptr<View>> ScrollView::childViews() const
+    std::list<std::shared_ptr<View>> ScrollView::childViews()
     {
         AppRunnerBase::assertInMainThread();
 
-        if (_contentView != nullptr) {
-            return {_contentView};
+        if (content.get() != nullptr) {
+            return {content.get()};
         }
 
         return {};
     }
 
-    void ScrollView::_childViewStolen(std::shared_ptr<View> childView)
+    void ScrollView::childViewStolen(std::shared_ptr<View> childView)
     {
         AppRunnerBase::assertInMainThread();
 
-        if (childView == _contentView)
-            _contentView = nullptr;
+        if (childView == content.get())
+            content = nullptr;
     }
 }

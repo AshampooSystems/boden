@@ -1,18 +1,29 @@
 #pragma once
 
 #include <bdn/ContainerView.h>
-#import <bdn/mac/ChildViewCore.hh>
-#include <bdn/mac/IParentViewCore.h>
+#include <bdn/ContainerViewCore.h>
+#import <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class ContainerViewCore : public ChildViewCore, virtual public IParentViewCore
+    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerViewCore
     {
       private:
-        static NSView *_createContainer(std::shared_ptr<ContainerView> outer);
+        static NSView *_createContainer();
 
       public:
-        ContainerViewCore(std::shared_ptr<ContainerView> outer) : ChildViewCore(outer, _createContainer(outer)) {}
-        ContainerViewCore(std::shared_ptr<ContainerView> outer, NSView *view) : ChildViewCore(outer, view) {}
+        ContainerViewCore();
+        explicit ContainerViewCore(NSView *view);
+
+      public:
+        virtual void init() override;
+
+        virtual void addChildView(std::shared_ptr<View> child) override;
+        virtual void removeChildView(std::shared_ptr<View> child) override;
+
+        virtual std::list<std::shared_ptr<View>> childViews() override;
+
+      private:
+        std::list<std::shared_ptr<View>> _children;
     };
 }

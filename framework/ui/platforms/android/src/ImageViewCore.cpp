@@ -5,8 +5,8 @@
 
 namespace bdn::android
 {
-    ImageViewCore::ImageViewCore(std::shared_ptr<ImageView> outer)
-        : ViewCore(outer, createAndroidViewClass<wrapper::NativeImageView>(outer))
+    ImageViewCore::ImageViewCore(const ContextWrapper &ctxt)
+        : ViewCore(createAndroidViewClass<wrapper::NativeImageView>(ctxt))
     {
         url.onChange() += [=](auto va) {
             _imageSize = Size{0, 0};

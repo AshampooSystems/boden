@@ -1,31 +1,30 @@
 #pragma once
 
-#include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
+#include <bdn/ScrollViewCore.h>
 
-#import <bdn/mac/ChildViewCore.hh>
-#include <bdn/mac/IParentViewCore.h>
+#import <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class ScrollViewCore : public ChildViewCore, virtual public IParentViewCore, virtual public IScrollViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
     {
       private:
-        static NSScrollView *_createScrollView(std::shared_ptr<ScrollView> outer);
+        static NSScrollView *_createScrollView();
 
       public:
-        ScrollViewCore(std::shared_ptr<ScrollView> outer);
+        ScrollViewCore();
         ~ScrollViewCore();
 
-        void setHorizontalScrollingEnabled(const bool &enabled) override;
-        void setVerticalScrollingEnabled(const bool &enabled) override;
-
-        void addChildNSView(NSView *childView) override;
+        virtual void init() override;
 
         void scrollClientRectToVisible(const Rect &clientRect) override;
 
         /** Used internally. Do not call.*/
         void _contentViewBoundsDidChange();
+
+      private:
+        void updateContent(const std::shared_ptr<View> &content);
 
       private:
         void updateVisibleClientRect();

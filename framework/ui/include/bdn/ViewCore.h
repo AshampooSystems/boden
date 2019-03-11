@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/Layout.h>
 #include <bdn/Rect.h>
 #include <bdn/Size.h>
 #include <bdn/property/Property.h>
@@ -10,8 +11,35 @@ namespace bdn
 {
     class View;
 
-    class ViewCore
+    template <class _Fp> class WeakCallback;
+
+    template <typename ReturnType, typename... Arguments> class WeakCallback<ReturnType(Arguments...)>
     {
+      public:
+        using Receiver = std::shared_ptr<std::function<ReturnType(Arguments...)>>;
+
+        ReturnType fire(Arguments...)
+        {
+            if (auto callback = _callback.lock()) {
+                (*callback)();
+            }
+        }
+
+        auto set(std::function<ReturnType(Arguments...)> &&callback)
+        {
+            auto result = std::make_shared<std::function<ReturnType(Arguments...)>>(std::move(callback));
+            _callback = result;
+            return result;
+        }
+
+      private:
+        std::weak_ptr<std::function<ReturnType(Arguments...)>> _callback;
+    };
+
+    class ViewCore : public Base
+    {
+        friend class View;
+
       public:
         Property<Rect> geometry;
         Property<bool> visible;
@@ -20,36 +48,26 @@ namespace bdn
         virtual ~ViewCore() = default;
 
       public:
-        virtual void scheduleLayout() = 0;
+        virtual void init() = 0;
 
         virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }
 
-        /** Called by the framework when the parent view is being changed to
-           check whether it is possible to move the core to a new parent without
-           reinitializing it.
-
-            Returns true if it is possible to move the core to a new parent or
-           false otherwise.
-            */
         virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
 
-        /** Called when the outer view's parent is being changed and the core
-           needs to move to a new parent.
+        virtual void scheduleLayout() = 0;
 
-            This function moves the core over to the given new parent view
-           without reinitializing it.
+        void startLayout() { _layoutCallback.fire(); }
+        void markDirty() { _dirtyCallback.fire(); }
 
-            On some platforms, it may not be possible to move the core to a new
-           parent view directly. The framework calls canMoveToParentView()
-           before calling this method and it will only call moveToParentView()
-           if a prior call to canMoveToParentView() returned true.
-            */
-        virtual void moveToParentView(std::shared_ptr<View> newParentView) = 0;
+        virtual void setLayout(std::shared_ptr<Layout> layout) { _layout = std::move(layout); }
 
-        /** Called when the outer view's parent has changed and the framework is
-           not able to move the view's core to the new parent, or if the parent
-           is being set to nullptr and the core needs to be disposed.
-            */
-        virtual void dispose() = 0;
+        virtual void visitInternalChildren(std::function<void(std::shared_ptr<ViewCore>)>) {}
+
+      public:
+        std::shared_ptr<Layout> _layout;
+
+      protected:
+        WeakCallback<void()> _layoutCallback;
+        WeakCallback<void()> _dirtyCallback;
     };
 }

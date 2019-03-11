@@ -4,14 +4,12 @@
 namespace bdn
 {
 
-    Stack::Stack() {}
+    Stack::Stack(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
     Stack::~Stack() {}
 
     void Stack::pushView(std::shared_ptr<View> view, String title)
     {
-        _stack.push_back(StackEntry{view, title});
-
         if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
             core->pushView(view, title);
         }
@@ -19,31 +17,24 @@ namespace bdn
 
     void Stack::popView()
     {
-        _stack.pop_back();
-
-        if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
-            core->popView();
+        if (auto stackCore = core<StackCore>()) {
+            stackCore->popView();
         }
     }
 
-    void Stack::_initCore(std::shared_ptr<UIProvider> uiProvider)
+    std::list<std::shared_ptr<View>> Stack::childViews()
     {
-        View::_initCore(uiProvider);
-
-        if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
-            for (auto page : _stack) {
-                core->pushView(page.view, page.title);
-            }
-        }
-    }
-
-    void Stack::_deinitCore() { View::_deinitCore(); }
-
-    std::list<std::shared_ptr<View>> Stack::childViews() const
-    {
-        if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
-            return core->childViews();
+        if (auto stackCore = core<StackCore>()) {
+            return stackCore->childViews();
         }
         return {};
+    }
+
+    void Stack::bindViewCore()
+    {
+        View::bindViewCore();
+        if (auto stackCore = core<StackCore>()) {
+            stackCore->_uiProvider = uiProvider();
+        }
     }
 }

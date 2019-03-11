@@ -3,41 +3,68 @@
 #import <bdn/ios/WindowCore.hh>
 
 @interface BodenUIWindow : UIWindow <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIWindow
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 
 - (void)layoutSubviews
 {
-    if (_viewCore) {
-        if (auto view = _viewCore->outerView()) {
-            if (auto layout = view->getLayout()) {
-                layout->layout(view.get());
-            }
-        }
+    //[super layoutSubviews];
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->fireLayout();
     }
 }
 
 @end
 
 @implementation BodenRootViewController
+- (void)viewSafeAreaInsetsDidChange
+{
+    [super viewSafeAreaInsetsDidChange];
+
+    [_rootView setNeedsLayout];
+
+    [_rootView setFrame:self.view.frame];
+
+    if (@available(iOS 11.0, *)) {
+        CGRect safeRect = CGRectMake(
+            self.myWindow.safeAreaInsets.left, self.myWindow.safeAreaInsets.top,
+            self.myWindow.frame.size.width - (self.myWindow.safeAreaInsets.left + self.myWindow.safeAreaInsets.right),
+            self.myWindow.frame.size.height - (self.myWindow.safeAreaInsets.top + self.myWindow.safeAreaInsets.bottom));
+
+        [_safeRootView setFrame:safeRect];
+    }
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
+    else {
+        CGRect safeRect = CGRectMake(0, self.topLayoutGuide.length, self.myWindow.frame.size.width,
+                                     self.myWindow.frame.size.height - self.bottomLayoutGuide.length);
+
+        [self.safeRootView setFrame:self.view.frame];
+    }
+#endif
+}
+
 - (void)loadView
 {
     [super loadView];
 
     CGRect r = self.view.frame;
 
-    _bodenRootView = [[BodenUIView alloc] initWithFrame:r];
-    [self.view addSubview:_bodenRootView];
-    _bodenRootView.backgroundColor = [UIColor whiteColor];
+    _rootView = [[BodenUIView alloc] initWithFrame:r];
+    [self.view addSubview:_rootView];
+    _rootView.backgroundColor = [UIColor whiteColor];
+
+    _safeRootView = [[BodenUIView alloc] initWithFrame:r];
+    [_rootView addSubview:_safeRootView];
+    //_safeRootView.backgroundColor = [UIColor blueColor];
 }
 @end
 
@@ -46,25 +73,24 @@ namespace bdn::ios
     BodenRootViewController *createRootViewController()
     {
         UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-        [window makeKeyAndVisible];
 
         BodenRootViewController *rootViewCtrl = [[BodenRootViewController alloc] init];
         rootViewCtrl.myWindow = window;
-        [rootViewCtrl loadView];
+
+        window.rootViewController = rootViewCtrl;
+        [window makeKeyAndVisible];
 
         return rootViewCtrl;
     }
 
-    WindowCore::WindowCore(std::shared_ptr<Window> outerWindow, BodenRootViewController *viewController)
-        : ViewCore(outerWindow, viewController.bodenRootView), _rootViewController(viewController)
+    WindowCore::WindowCore(BodenRootViewController *viewController)
+        : ViewCore(viewController.safeRootView), _rootViewController(viewController)
     {}
 
-    WindowCore::WindowCore(std::shared_ptr<Window> outerWindow) : WindowCore(outerWindow, createRootViewController())
+    WindowCore::WindowCore() : WindowCore(createRootViewController())
     {
         _window = _rootViewController.myWindow;
-        _rootViewController.myWindow = nil; // Release ref ?
-
-        _window.rootViewController = _rootViewController;
+        _rootViewController.myWindow = _window;
 
         title.onChange() +=
             [&window = this->_window](auto va) { window.rootViewController.title = stringToNSString(va->get()); };
@@ -73,6 +99,8 @@ namespace bdn::ios
             updateGeomtry();
             updateContentGeometry();
         };
+
+        content.onChange() += [=](auto va) { updateContent(va->get()); };
 
         updateGeomtry();
         updateContentGeometry();
@@ -85,9 +113,7 @@ namespace bdn::ios
         // own reference.
         if (_window != nil) {
             _window.hidden = YES;
-
             _window.rootViewController = nil;
-
             _window = nil;
         }
     }
@@ -100,64 +126,36 @@ namespace bdn::ios
 
     UIWindow *WindowCore::getUIWindow() const { return _window; }
 
-    bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const
-    {
-        // we don't have a parent. Report that we cannot do this.
-        return false;
-    }
-
-    void WindowCore::moveToParentView(std::shared_ptr<View> newParentView)
-    {
-        // do nothing
-    }
+    bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return false; }
 
     void WindowCore::updateContentGeometry()
     {
-        UIScreen *screen = _getUIScreen();
-        Rect rScreen = iosRectToRect(screen.nativeBounds);
-
-        // The status bar (with network indicator, battery
-        // indicator, etc) is in the same coordinate space as our
-        // window. We do need the window itself to extend that far,
-        // otherwise the bar will simply have a black background and
-        // the text will not be visible. But we do not want our
-        // content view to overlap with the bar. So we adjust the
-        // content area accordingly.
-
-        Rect area(0, 0, rScreen.width, rScreen.height);
-
-        double topBarHeight = 0;
-        double bottomBarHeight = 0;
-
-        if (@available(iOS 11.0, *)) {
-            topBarHeight = _window.safeAreaInsets.top;
-            bottomBarHeight = _window.safeAreaInsets.bottom;
-        }
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
-        else {
-            topBarHeight = _window.rootViewController.topLayoutGuide.length;
-            bottomBarHeight = _window.rootViewController.bottomLayoutGuide.length;
-        }
-#endif
-
-        area.y += topBarHeight;
-        area.height -= (topBarHeight + bottomBarHeight) * screen.scale;
-        if (area.height < 0)
-            area.height = 0;
-
-        // area.x /= screen.scale;
-        // area.y /= screen.scale;
-        area.width /= screen.scale;
-        area.height /= screen.scale;
-
-        contentGeometry = area;
+        contentGeometry = iosRectToRect(_rootViewController.safeRootView.frame);
     }
 
-    void WindowCore::updateGeomtry()
+    void WindowCore::onGeometryChanged(Rect newGeometry)
     {
-        UIScreen *screen = _getUIScreen();
-        geometry.set(iosRectToRect(screen.nativeBounds));
+        updateGeomtry();
+        updateContentGeometry();
     }
+
+    void WindowCore::updateGeomtry() { geometry.set(iosRectToRect(_rootViewController.rootView.frame)); }
 
     UIScreen *WindowCore::_getUIScreen() const { return _window.screen; }
+
+    void WindowCore::updateContent(const std::shared_ptr<View> newContent)
+    {
+        UIView *rootView = _rootViewController.safeRootView;
+
+        for (id oldViewObject in rootView.subviews) {
+            UIView *oldView = (UIView *)oldViewObject;
+            [oldView removeFromSuperview];
+        }
+
+        if (auto childCore = newContent->core<ios::ViewCore>()) {
+            [rootView addSubview:childCore->uiView()];
+        } else {
+            throw std::runtime_error("Cannot set this type of View as content");
+        }
+    }
 }

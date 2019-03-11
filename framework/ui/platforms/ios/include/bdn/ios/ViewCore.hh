@@ -16,18 +16,18 @@ namespace bdn::ios
 }
 
 @protocol UIViewWithFrameNotification
-- (void)setViewCore:(bdn::ios::ViewCore *)viewCore;
+- (void)setViewCore:(std::weak_ptr<bdn::ios::ViewCore>)viewCore;
 @end
 
 namespace bdn::ios
 {
-    class ViewCore : public Base, virtual public bdn::ViewCore
+    class ViewCore : virtual public bdn::ViewCore
     {
       public:
-        ViewCore(std::shared_ptr<View> outer, id<UIViewWithFrameNotification> uiView);
+        ViewCore(id<UIViewWithFrameNotification> uiView);
         ~ViewCore();
 
-        std::shared_ptr<View> outerView() const;
+        virtual void init() override;
 
         UIView *uiView() const;
 
@@ -35,11 +35,7 @@ namespace bdn::ios
 
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
-        void moveToParentView(std::shared_ptr<View> newParentView) override;
-
-        void dispose() override;
-
-        virtual void addChildViewCore(ViewCore *core);
+        virtual void addChildViewCore(const std::shared_ptr<ViewCore> &core);
         virtual void removeFromUISuperview();
 
         virtual void frameChanged();
@@ -47,6 +43,8 @@ namespace bdn::ios
         virtual void onGeometryChanged(Rect newGeometry);
 
         virtual void scheduleLayout() override;
+
+        void fireLayout() { _layoutCallback.fire(); }
 
       protected:
         /** Returns true if the view can adjust its size to fit into a given
@@ -62,15 +60,11 @@ namespace bdn::ios
         virtual bool canAdjustToAvailableHeight() const;
 
       private:
-        void _addToParent(std::shared_ptr<View> parentView);
-
         virtual double getFontSize() const;
 
         double getEmSizeDips() const;
 
         double getSemSizeDips() const;
-
-        std::weak_ptr<View> _outerView;
 
         UIView<UIViewWithFrameNotification> *_view;
 

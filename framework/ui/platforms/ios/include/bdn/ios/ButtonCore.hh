@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/Button.h>
+#include <bdn/ButtonCore.h>
 #include <bdn/ClickEvent.h>
-#include <bdn/IButtonCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 
@@ -10,14 +10,14 @@
 
 namespace bdn::ios
 {
-    class ButtonCore : public ViewCore, virtual public IButtonCore
+    class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       public:
-        ButtonCore(std::shared_ptr<Button> outerButton);
+        ButtonCore();
         ~ButtonCore();
 
         UIButton *getUIButton();
-        void setLabel(const String &label) override;
+        void handleClick();
 
       protected:
         double getFontSize() const override;

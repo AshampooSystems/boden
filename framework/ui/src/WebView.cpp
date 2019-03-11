@@ -3,20 +3,17 @@
 
 namespace bdn
 {
-    WebView::WebView()
+    WebView::WebView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
     {
+        registerCoreCreatingProperties(this, &url);
+
         url.onChange() += [this](auto) { loadURL(url); };
     }
 
     void WebView::loadURL(const String &url)
     {
-        auto core = std::dynamic_pointer_cast<WebViewCore>(viewCore());
-
-        if (core == nullptr) {
-            return;
-        }
-
-        core->loadURL(url);
+        auto webCore = core<WebViewCore>();
+        webCore->loadURL(url);
     }
 
     String WebView::viewCoreTypeName() const { return coreTypeName; }

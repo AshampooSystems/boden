@@ -1,27 +1,29 @@
 #pragma once
 
 #include <bdn/Button.h>
-#include <bdn/IButtonCore.h>
+#include <bdn/ButtonCore.h>
 
-#import <bdn/mac/ButtonCoreBase.hh>
+#import <bdn/mac/ViewCore.hh>
 
 @class BdnButtonClickManager;
 
 namespace bdn::mac
 {
-    class ButtonCore : public ButtonCoreBase, virtual public IButtonCore
+    class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       private:
-        static NSButton *_createNsButton(std::shared_ptr<Button> outerButton);
+        static NSButton *_createNsButton();
 
       public:
-        ButtonCore(std::shared_ptr<Button> outerButton);
+        ButtonCore();
+        virtual ~ButtonCore();
 
-        void setLabel(const String &label) override;
+        virtual void init() override;
 
         Size sizeForSpace(Size availableSpace) const override;
 
-        void generateClick();
+      public:
+        void handleClick();
 
       private:
         void _updateBezelStyle();

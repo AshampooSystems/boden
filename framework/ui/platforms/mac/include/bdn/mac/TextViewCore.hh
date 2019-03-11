@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
+#include <bdn/TextViewCore.h>
 
-#import <bdn/mac/ChildViewCore.hh>
+#import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/util.hh>
 
 /** NSTextView subclass that adds some additional capabilities.
@@ -33,10 +33,10 @@
 
 namespace bdn::mac
 {
-    class TextViewCore : public ChildViewCore, virtual public ITextViewCore
+    class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
     {
       private:
-        static BdnMacTextView_ *_createNSTextView(std::shared_ptr<TextView> outerTextView)
+        static BdnMacTextView_ *_createNSTextView()
         {
             BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -53,25 +53,23 @@ namespace bdn::mac
         }
 
       public:
-        TextViewCore(std::shared_ptr<TextView> outerTextView)
-            : ChildViewCore(outerTextView, _createNSTextView(outerTextView))
+        TextViewCore() : ViewCore(_createNSTextView())
         {
             _nsTextView = (BdnMacTextView_ *)nsView();
 
-            setText(outerTextView->text);
-            _wrap = outerTextView->wrap;
+            text.onChange() += [=](auto va) {
+                NSString *macText = stringToNSString(va->get());
+                _nsTextView.string = macText;
+
+                [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
+                scheduleLayout();
+            };
+
+            wrap.onChange() += [=](auto va) {
+                _wrap = wrap;
+                scheduleLayout();
+            };
         }
-
-        void setText(const String &text) override
-        {
-            NSString *macText = stringToNSString(text);
-            _nsTextView.string = macText;
-
-            // force immediate re-layout
-            [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
-        }
-
-        void setWrap(const bool &wrap) override { _wrap = wrap; }
 
         Size sizeForSpace(Size availableSpace) const override
         {

@@ -22,12 +22,9 @@ namespace bdn
         Property<bool> on;
 
       public:
-        Switch()
+        Switch(std::shared_ptr<UIProvider> uiProvider = nullptr) : View(std::move(uiProvider))
         {
             _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
-            label.onChange() += View::CorePropertyUpdater<String, SwitchCore>{this, &SwitchCore::setLabel};
-
-            on.onChange() += View::CorePropertyUpdater<bool, SwitchCore>{this, &SwitchCore::setOn};
         }
 
         /** The switch's state, see TriState */
@@ -43,6 +40,15 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.SwitchCore";
 
         String viewCoreTypeName() const override { return coreTypeName; }
+
+      protected:
+        virtual void bindViewCore() override
+        {
+            View::bindViewCore();
+            auto switchCore = core<SwitchCore>();
+            switchCore->label.bind(label);
+            switchCore->on.bind(on);
+        }
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;

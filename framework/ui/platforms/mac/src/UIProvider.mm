@@ -25,18 +25,7 @@
 namespace bdn
 {
 
-    std::shared_ptr<UIProvider> defaultUIProvider()
-    {
-        /*if (getAppRunner()->isCommandLineApp()) {
-            static std::shared_ptr<StdioUIProvider<char>> provider(
-                std::make_shared<StdioUIProvider<char>>(&std::cin, &std::cout, &std::cerr));
-
-            return provider;
-        } else */
-        {
-            return bdn::mac::UIProvider::get();
-        }
-    }
+    std::shared_ptr<UIProvider> defaultUIProvider() { return bdn::mac::UIProvider::get(); }
 }
 
 namespace bdn::mac

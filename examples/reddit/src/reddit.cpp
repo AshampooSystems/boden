@@ -186,7 +186,7 @@ class PostDetailController : public Base
         image->setLayoutStylesheet(FlexGrow(0.0f) << FlexMaximumSizeWidth(100.0f) << FlexMaximumSizeHeight(100.0f)
                                                   << FlexShrink(0.0f) << FlexMarginRight(5.f));
 
-        titleField->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(1.0f) << FlexSizeHeight(100.));
+        titleField->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMaximumSizeHeight(100.));
         headerColumn->addChildView(image);
         headerColumn->addChildView(titleField);
 

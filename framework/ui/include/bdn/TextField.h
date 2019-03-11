@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/ITextFieldCore.h>
 #include <bdn/SimpleNotifier.h>
 #include <bdn/SubmitEvent.h>
+#include <bdn/TextFieldCore.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -16,7 +16,7 @@ namespace bdn
         Property<String> text;
 
       public:
-        TextField();
+        TextField(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
         /** Static function that returns the type name for #TextField objects.
          */
@@ -35,7 +35,11 @@ namespace bdn
         */
         ISyncNotifier<const SubmitEvent &> &onSubmit();
 
+      protected:
+        virtual void bindViewCore() override;
+
       private:
         std::shared_ptr<SimpleNotifier<const SubmitEvent &>> _onSubmit;
+        WeakCallback<void()>::Receiver _submitCallbackReceiver;
     };
 }

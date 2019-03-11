@@ -4,12 +4,17 @@
 
 namespace bdn::mac
 {
-    NSView *ImageViewCore::createNSImageView(std::shared_ptr<ImageView> outer)
+    NSView *ImageViewCore::createNSImageView()
     {
-        NSImageView *view = [[NSImageView alloc] initWithFrame:rectToMacRect(outer->geometry, -1)];
+        NSImageView *view = [[NSImageView alloc] init];
         view.imageScaling = NSImageScaleAxesIndependently;
 
         return view;
+    }
+
+    ImageViewCore::ImageViewCore() : ViewCore(createNSImageView())
+    {
+        url.onChange() += [=](auto va) { setUrl(va->get()); };
     }
 
     Size ImageViewCore::sizeForSpace(Size availableSize) const
@@ -29,12 +34,7 @@ namespace bdn::mac
             return result;
         }
 
-        return ChildViewCore::sizeForSpace(availableSize);
-    }
-
-    ImageViewCore::ImageViewCore(std::shared_ptr<ImageView> outer) : ChildViewCore(outer, createNSImageView(outer))
-    {
-        url.onChange() += [=](auto va) { setUrl(va->get()); };
+        return ViewCore::sizeForSpace(availableSize);
     }
 
     void ImageViewCore::setUrl(const String &url)
@@ -56,11 +56,7 @@ namespace bdn::mac
                          getMainDispatcher()->enqueue([=]() {
                              ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithData:nsData];
                              this->scheduleLayout();
-                             if (auto outer = outerView()) {
-                                 if (auto layout = outer->getLayout()) {
-                                     layout->markDirty(outer.get());
-                                 }
-                             }
+                             this->markDirty();
                          });
                      }
                    }];

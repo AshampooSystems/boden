@@ -3,7 +3,7 @@
 
 @implementation BdnSwitchClickManager
 
-- (void)clicked { self.target->clicked(); }
+- (void)clicked { self.switchCore.lock()->_clickCallback.fire(); }
 
 @end
 
@@ -38,3 +38,56 @@
 }
 
 @end
+
+namespace bdn::mac
+{
+    BdnMacSwitchComposite *SwitchCore::_createSwitchComposite()
+    {
+        BdnMacSwitchComposite *switchComposite = [[BdnMacSwitchComposite alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+
+        switchComposite.bdnSwitch = [[BdnMacSwitch alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        [switchComposite addSubview:switchComposite.bdnSwitch];
+
+        switchComposite.label = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        switchComposite.label.bezeled = NO;
+        switchComposite.label.drawsBackground = NO;
+        switchComposite.label.editable = NO;
+        switchComposite.label.frame = CGRectMake(0, 0, 100, 20);
+        [switchComposite addSubview:switchComposite.label];
+
+        return switchComposite;
+    }
+
+    SwitchCore::SwitchCore() : ViewCore(_createSwitchComposite()) {}
+
+    SwitchCore::~SwitchCore()
+    {
+        BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
+        [composite.bdnSwitch setTarget:nil];
+        [composite.bdnSwitch setAction:nil];
+    }
+
+    void SwitchCore::init()
+    {
+        ViewCore::init();
+
+        _clickManager = [[BdnSwitchClickManager alloc] init];
+        _clickManager.switchCore = std::dynamic_pointer_cast<SwitchCore>(shared_from_this());
+
+        BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
+        [composite.bdnSwitch setTarget:_clickManager];
+        [composite.bdnSwitch setAction:@selector(clicked)];
+
+        label.onChange() += [=](auto va) {
+            BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
+            composite.label.stringValue = stringToNSString(va->get());
+            NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
+            [composite.label setFrameSize:cell.cellSize];
+        };
+
+        on.onChange() += [=](auto va) {
+            BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
+            [composite.bdnSwitch setOn:va->get() animate:NO];
+        };
+    }
+}

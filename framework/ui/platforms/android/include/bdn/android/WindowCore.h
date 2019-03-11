@@ -1,9 +1,8 @@
 #pragma once
 
-#include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
+#include <bdn/WindowCore.h>
 
-#include <bdn/android/IParentViewCore.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Activity.h>
 #include <bdn/android/wrapper/Configuration.h>
@@ -11,18 +10,17 @@
 #include <bdn/java/WeakReference.h>
 
 #include "wrapper/Window.h"
-#include <bdn/log.h>
 
 namespace bdn::android
 {
 
-    class WindowCore : public ViewCore, virtual public IWindowCore, virtual public IParentViewCore
+    class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       private:
-        wrapper::View createJNativeViewGroup(std::shared_ptr<Window> outerWindow);
+        wrapper::View createJNativeViewGroup(const ContextWrapper &ctxt);
 
       public:
-        WindowCore(std::shared_ptr<Window> outerWindow);
+        WindowCore(const ContextWrapper &ctxt);
         virtual ~WindowCore();
 
         void enableBackButton(bool enable);
@@ -39,19 +37,9 @@ namespace bdn::android
 
         double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
 
-        void addChildCore(ViewCore *child) override;
-
-        void removeChildCore(ViewCore *child) override;
-
-        class AndroidNavigationButtonHandler
-        {
-          public:
-            virtual bool handleBackButton() = 0;
-        };
-
-        void setAndroidNavigationButtonHandler(std::shared_ptr<AndroidNavigationButtonHandler> handler);
-
         void scheduleLayout() override;
+
+        virtual void init() override;
 
         void initTag() override;
 
@@ -81,7 +69,13 @@ namespace bdn::android
 
         virtual bool handleBackPressed();
 
+        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override;
+
+        virtual void updateGeometry() override;
+
       private:
+        void updateContent(std::shared_ptr<View> view);
+
         Rect getScreenWorkArea() const;
 
         void updateUIScaleFactor(wrapper::Configuration config);
@@ -155,7 +149,5 @@ namespace bdn::android
         java::WeakReference _weakRootViewRef;
 
         Rect _currentBounds;
-
-        std::shared_ptr<AndroidNavigationButtonHandler> _navButtonHandler;
     };
 }

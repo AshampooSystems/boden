@@ -2,26 +2,24 @@
 #import <bdn/mac/ButtonCore.hh>
 
 @interface BdnButtonClickManager : NSObject
-@property(nonatomic, assign) std::weak_ptr<bdn::Button> outer;
+@property(nonatomic, assign) std::weak_ptr<bdn::mac::ButtonCore> buttonCore;
 @end
 
 @implementation BdnButtonClickManager
 
 - (void)clicked
 {
-    if (auto outer = self.outer.lock()) {
-        bdn::ClickEvent clickEvent(outer);
-        outer->onClick().notify(clickEvent);
-    }
+    if (auto buttonCore = _buttonCore.lock())
+        buttonCore->handleClick();
 }
 
 @end
 
 namespace bdn::mac
 {
-    NSButton *ButtonCore::_createNsButton(std::shared_ptr<Button> outerButton)
+    NSButton *ButtonCore::_createNsButton()
     {
-        NSButton *button = [[NSButton alloc] initWithFrame:rectToMacRect(outerButton->geometry, -1)];
+        NSButton *button = [[NSButton alloc] init];
 
         [button setButtonType:NSButtonTypeMomentaryLight];
         [button setBezelStyle:NSBezelStyleRounded];
@@ -29,23 +27,29 @@ namespace bdn::mac
         return button;
     }
 
-    ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ButtonCoreBase(outer, _createNsButton(outer))
+    ButtonCore::ButtonCore() : ViewCore(_createNsButton()) {}
+
+    void ButtonCore::init()
     {
+        ViewCore::init();
+
         _currBezelStyle = NSBezelStyleRounded;
 
         _clickManager = [[BdnButtonClickManager alloc] init];
-        _clickManager.outer = outer;
-        [_nsButton setTarget:_clickManager];
-        [_nsButton setAction:@selector(clicked)];
-
-        setLabel(outer->label);
+        _clickManager.buttonCore = std::dynamic_pointer_cast<ButtonCore>(shared_from_this());
+        [(NSButton *)nsView() setTarget:_clickManager];
+        [(NSButton *)nsView() setAction:@selector(clicked)];
 
         _heightWithRoundedBezelStyle = macSizeToSize(nsView().fittingSize).height;
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
+        label.onChange() += [=](auto va) {
+            NSString *macLabel = stringToNSString(label);
+            [(NSButton *)nsView() setTitle:macLabel];
+        };
     }
 
-    void ButtonCore::setLabel(const String &label) { ButtonCoreBase::setLabel(label); }
+    ButtonCore::~ButtonCore() { _clickManager.buttonCore = std::weak_ptr<ButtonCore>(); }
 
     Size ButtonCore::sizeForSpace(Size availableSpace) const
     {
@@ -53,17 +57,19 @@ namespace bdn::mac
         // consistent values here we have to ensure that we use the same
         // bezel style each time we calculate the size.
 
-        NSBezelStyle bezelStyle = _nsButton.bezelStyle;
+        NSBezelStyle bezelStyle = ((NSButton *)nsView()).bezelStyle;
         if (bezelStyle != NSBezelStyleRounded)
-            _nsButton.bezelStyle = NSBezelStyleRounded;
+            ((NSButton *)nsView()).bezelStyle = NSBezelStyleRounded;
 
-        Size size = ButtonCoreBase::sizeForSpace(availableSpace);
+        Size size = ViewCore::sizeForSpace(availableSpace);
 
         if (bezelStyle != NSBezelStyleRounded)
-            _nsButton.bezelStyle = bezelStyle;
+            ((NSButton *)nsView()).bezelStyle = bezelStyle;
 
         return size;
     }
+
+    void ButtonCore::handleClick() { _clickCallback.fire(); }
 
     void ButtonCore::_updateBezelStyle()
     {
@@ -83,7 +89,7 @@ namespace bdn::mac
             bezelStyle = NSBezelStyleRounded;
 
         if (bezelStyle != _currBezelStyle) {
-            [_nsButton setBezelStyle:bezelStyle];
+            [(NSButton *)nsView() setBezelStyle:bezelStyle];
         }
     }
 }

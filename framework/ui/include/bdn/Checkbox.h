@@ -24,7 +24,7 @@ namespace bdn
         Property<TriState> state;
 
       public:
-        Checkbox();
+        Checkbox(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
         /** A notifier for click events. Subscribe to this notifier if you want
            to be notified about click events. Click events are posted when the
@@ -40,5 +40,10 @@ namespace bdn
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
+
+        virtual void bindViewCore() override;
+
+      private:
+        WeakCallback<void()>::Receiver _clickCallbackReceiver;
     };
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
-#include <bdn/android/IParentViewCore.h>
+#include <bdn/ScrollViewCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/NativeScrollView.h>
 #include <bdn/android/wrapper/ViewGroup.h>
@@ -11,41 +11,22 @@
 namespace bdn::android
 {
 
-    class ScrollViewCore : public ViewCore, virtual public IScrollViewCore, virtual public IParentViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
     {
       public:
-        ScrollViewCore(std::shared_ptr<ScrollView> outer)
-            : ScrollViewCore(outer,
-                             createAndroidViewClass<wrapper::NativeScrollView>(outer).cast<wrapper::NativeScrollView>())
+        ScrollViewCore(const ContextWrapper &ctxt)
+            : ScrollViewCore(createAndroidViewClass<wrapper::NativeScrollView>(ctxt).cast<wrapper::NativeScrollView>())
         {}
 
       private:
-        ScrollViewCore(std::shared_ptr<ScrollView> outer, wrapper::NativeScrollView nativeScrollView)
-            : ViewCore(outer, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
+        ScrollViewCore(wrapper::NativeScrollView nativeScrollView)
+            : ViewCore(nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
               _jContentParent(_jNativeScrollView.getContentParent())
         {
-            // inside the scroll view we have a NativeViewGroup object as
-            // the glue between our layout system and that of android. That
-            // allows us to position the content view manually. It also
-            // ensures that the parent of the content view is a
-            // NativeViewGroup, which is important because we assume that
-            // that is the case in some places.
-
-            setVerticalScrollingEnabled(outer->verticalScrollingEnabled);
-            setHorizontalScrollingEnabled(outer->horizontalScrollingEnabled);
+            content.onChange() += [=](auto va) { updateContent(va->get()); };
         }
 
       public:
-        void setHorizontalScrollingEnabled(const bool &enabled) override
-        {
-            // nothing to do - we get this directly from the outer window
-        }
-
-        void setVerticalScrollingEnabled(const bool &enabled) override
-        {
-            // nothing to do - we get this directly from the outer window
-        }
-
         void scrollClientRectToVisible(const Rect &clientRect) override
         {
             int visibleLeft = _jNativeScrollView.getScrollX();
@@ -192,26 +173,37 @@ namespace bdn::android
             _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
         }
 
-        double getUIScaleFactor() const override { return ViewCore::getUIScaleFactor(); }
+        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override
+        {
+            if (content.get()) {
+                function(content->viewCore());
+            }
+        }
 
-        void addChildCore(ViewCore *child) override
+        void updateContent(const std::shared_ptr<View> &content)
         {
             _childGeometry.reset();
             _jContentParent.removeAllViews();
 
-            _jContentParent.addView(child->getJView());
-            _childGeometry = std::make_unique<Property<Rect>>();
-            _childGeometry->bind(child->geometry, BindMode::unidirectional);
-            _childGeometry->onChange() += [=](auto va) {
-                _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
-                                        std::lround(va->get().height * getUIScaleFactor()));
-            };
+            if (auto childCore = content->core<android::ViewCore>()) {
+                _jContentParent.addView(childCore->getJView());
+                _childGeometry = std::make_unique<Property<Rect>>();
+                _childGeometry->bind(childCore->geometry, BindMode::unidirectional);
+                _childGeometry->onChange() += [=](auto va) {
+                    _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
+                                            std::lround(va->get().height * getUIScaleFactor()));
+                };
+            } else {
+                throw std::runtime_error("Cannot add Child with this type of core");
+            }
+
+            updateChildren();
         }
 
-        void removeChildCore(ViewCore *child) override
+        virtual void updateGeometry() override
         {
-            _childGeometry.reset();
-            _jContentParent.removeView(child->getJView());
+            ViewCore::updateGeometry();
+            updateVisibleClientRect();
         }
 
         void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY) { updateVisibleClientRect(); }
@@ -219,16 +211,13 @@ namespace bdn::android
       private:
         void updateVisibleClientRect()
         {
-            std::shared_ptr<ScrollView> outer = std::dynamic_pointer_cast<ScrollView>(outerView());
-            if (outer != nullptr) {
-                double uiScaleFactor = getUIScaleFactor();
+            double uiScaleFactor = getUIScaleFactor();
 
-                Rect visibleRect(
-                    _jNativeScrollView.getScrollX() / uiScaleFactor, _jNativeScrollView.getScrollY() / uiScaleFactor,
-                    _jNativeScrollView.getWidth() / uiScaleFactor, _jNativeScrollView.getHeight() / uiScaleFactor);
+            Rect visibleRect(
+                _jNativeScrollView.getScrollX() / uiScaleFactor, _jNativeScrollView.getScrollY() / uiScaleFactor,
+                _jNativeScrollView.getWidth() / uiScaleFactor, _jNativeScrollView.getHeight() / uiScaleFactor);
 
-                outer->visibleClientRect = (visibleRect);
-            }
+            visibleClientRect = (visibleRect);
         }
 
         wrapper::NativeScrollView _jNativeScrollView;

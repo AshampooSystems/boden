@@ -10,7 +10,7 @@ namespace bdn::ios
     class WebViewCore : public ViewCore, virtual public bdn::WebViewCore
     {
       public:
-        WebViewCore(std::shared_ptr<WebView> outer);
+        WebViewCore();
         virtual ~WebViewCore() = default;
 
         void loadURL(const String &url);

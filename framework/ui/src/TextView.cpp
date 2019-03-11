@@ -4,11 +4,13 @@
 namespace bdn
 {
 
-    TextView::TextView()
-    {
-        wrap = true;
+    TextView::TextView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) { wrap = true; }
 
-        text.onChange() += View::CorePropertyUpdater<String, ITextViewCore>{this, &ITextViewCore::setText};
-        wrap.onChange() += View::CorePropertyUpdater<bool, ITextViewCore>{this, &ITextViewCore::setWrap};
+    void TextView::bindViewCore()
+    {
+        View::bindViewCore();
+        auto textCore = View::core<TextViewCore>();
+        textCore->text.bind(text);
+        textCore->wrap.bind(wrap);
     }
 }

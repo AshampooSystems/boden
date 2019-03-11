@@ -10,36 +10,18 @@ namespace bdn::android
         // int bgColor = 0xFF000000 + (std::rand() % 0x00FFFFFF);
         //_jView.setBackgroundColor(bgColor);
 
-        _uiScaleFactor = 1; // will be updated in _addToParent
+        _uiScaleFactor = 1;
 
         visible.onChange() += [=](auto va) {
             _jView.setVisibility(va->get() ? wrapper::View::Visibility::visible : wrapper::View::Visibility::invisible);
         };
 
-        geometry.onChange() += [=](auto va) {
-            bdn::JavaObject parent(_jView.getParent());
-            Rect rGeometry = va->get();
-
-            if (parent.isNull_()) {
-                auto thisViewAsNativeGroup = getJViewAS<wrapper::NativeViewGroup>();
-                if (thisViewAsNativeGroup.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
-                    thisViewAsNativeGroup.setSize(rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
-                }
-            } else {
-
-                wrapper::NativeViewGroup parentView(parent.getRef_());
-                if (parentView.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
-                    parentView.setChildBounds(getJView(), rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
-                                              rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
-                } else {
-                    _jView.layout(rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
-                                  rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
-                }
-            }
-        };
+        geometry.onChange() += [=](auto) { updateGeometry(); };
 
         wrapper::NativeViewCoreLayoutChangeListener layoutChangeListener;
         getJView().addOnLayoutChangeListener(layoutChangeListener);
+
+        initTag();
     }
 
     ViewCore::~ViewCore()
@@ -53,15 +35,8 @@ namespace bdn::android
 
     void ViewCore::initTag()
     {
-        auto tag = bdn::java::wrapper::NativeWeakPointer(outerView());
+        auto tag = bdn::java::wrapper::NativeWeakPointer(shared_from_this());
         _jView.setTag(tag);
-    }
-
-    std::shared_ptr<View> ViewCore::outerView() const { return _outerView.lock(); }
-
-    std::shared_ptr<ViewCore> ViewCore::getParentViewCore()
-    {
-        return viewCoreFromJavaViewRef(_jView.getParent().getRef_());
     }
 
     Size ViewCore::sizeForSpace(Size availableSpace) const
@@ -104,23 +79,6 @@ namespace bdn::android
 
     bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
 
-    void ViewCore::moveToParentView(std::shared_ptr<View> newParentView)
-    {
-        std::shared_ptr<View> outer = outerView();
-        if (outer != nullptr) {
-            std::shared_ptr<View> parent = outer->getParentView();
-
-            if (newParentView != parent) {
-                // Parent has changed. Remove the view from its current
-                // super view.
-                dispose();
-                _addToParent(newParentView);
-            }
-        }
-    }
-
-    void ViewCore::dispose() { _removeFromParent(); }
-
     void ViewCore::layoutChange(int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
                                 int oldBottom)
     {
@@ -154,18 +112,11 @@ namespace bdn::android
      * */
     void ViewCore::setUIScaleFactor(double scaleFactor)
     {
-        if (scaleFactor != _uiScaleFactor) {
-            _uiScaleFactor = scaleFactor;
-
-            std::shared_ptr<View> view = outerView();
-            std::list<std::shared_ptr<View>> childList = view->childViews();
-
-            for (std::shared_ptr<View> &child : childList) {
-                auto childCore = std::dynamic_pointer_cast<ViewCore>(child->viewCore());
-
-                if (childCore != nullptr)
-                    childCore->setUIScaleFactor(scaleFactor);
-            }
+        bool changed = scaleFactor != _uiScaleFactor;
+        _uiScaleFactor = scaleFactor;
+        if (changed) {
+            updateGeometry();
+            updateChildren();
         }
     }
 
@@ -192,39 +143,26 @@ namespace bdn::android
         return _semDipsIfInitialized;
     }
 
-    void ViewCore::_addToParent(std::shared_ptr<View> parent)
+    void ViewCore::updateGeometry()
     {
-        if (parent != nullptr) {
-            auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->viewCore());
-            if (parentCore == nullptr)
-                throw ProgrammingError("Internal error: parent of bdn::android::ViewCore "
-                                       "either does not have a core, or its core does not "
-                                       "support child views.");
+        bdn::JavaObject parent(_jView.getParent());
+        Rect rGeometry = geometry;
 
-            parentCore->addChildCore(this);
+        if (parent.isNull_()) {
+            auto thisViewAsNativeGroup = getJViewAS<wrapper::NativeViewGroup>();
+            if (thisViewAsNativeGroup.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
+                thisViewAsNativeGroup.setSize(rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+            }
+        } else {
 
-            setUIScaleFactor(parentCore->getUIScaleFactor());
-        }
-    }
-
-    void ViewCore::_removeFromParent()
-    {
-        std::shared_ptr<View> view = outerView();
-        std::shared_ptr<View> parent;
-        if (view != nullptr)
-            parent = view->getParentView();
-
-        if (parent == nullptr)
-            return; // no parent – nothing to do
-
-        auto parentCore = std::dynamic_pointer_cast<IParentViewCore>(parent->viewCore());
-        if (parentCore != nullptr) {
-            // XXX: Rather unfortunate – removeAllChildViews() is BFS
-            // and so parent core is no longer set when removing
-            // multiple levels of views. Either change
-            // removeAllChildViews()/_deinitCore() to DFS or change the
-            // removal mechanism to use the platform parent.
-            parentCore->removeChildCore(this);
+            wrapper::NativeViewGroup parentView(parent.getRef_());
+            if (parentView.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
+                parentView.setChildBounds(getJView(), rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
+                                          rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+            } else {
+                _jView.layout(rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
+                              rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+            }
         }
     }
 
@@ -235,15 +173,10 @@ namespace bdn::android
             bdn::JavaObject viewTag(view.getTag());
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeWeakPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeWeakPointer viewTagPtr(viewTag.getRef_());
-
-                if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer().lock())) {
-                    return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
-                }
+                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer().lock());
             } else if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeStrongPointer viewTagPtr(viewTag.getRef_());
-                if (auto viewPtr = std::static_pointer_cast<View>(viewTagPtr.getPointer_())) {
-                    return std::dynamic_pointer_cast<ViewCore>(viewPtr->viewCore());
-                }
+                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer_());
             }
         }
 
@@ -252,10 +185,20 @@ namespace bdn::android
 
     void ViewCore::scheduleLayout()
     {
-        if (auto view = outerView()) {
-            if (auto layout = view->getLayout()) {
-                layout->markDirty(view.get());
+        getJView().requestLayout();
+        _dirtyCallback.fire();
+    }
+
+    void ViewCore::doLayout() { _layoutCallback.fire(); }
+
+    void ViewCore::updateChildren()
+    {
+        double scaleFactor = getUIScaleFactor();
+
+        visitInternalChildren([scaleFactor](auto child) {
+            if (auto androidCore = std::dynamic_pointer_cast<android::ViewCore>(child)) {
+                androidCore->setUIScaleFactor(scaleFactor);
             }
-        }
+        });
     }
 }

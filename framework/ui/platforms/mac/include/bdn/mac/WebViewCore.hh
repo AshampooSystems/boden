@@ -1,15 +1,16 @@
 #pragma once
 
 #include <bdn/WebView.h>
+#include <bdn/WebViewCore.h>
 
-#import <bdn/mac/ChildViewCore.hh>
+#import <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class WebViewCore : public ChildViewCore
+    class WebViewCore : public ViewCore, virtual public bdn::WebViewCore
     {
       public:
-        WebViewCore(std::shared_ptr<WebView> outer);
+        WebViewCore();
         virtual ~WebViewCore() = default;
 
         void loadURL(const String &url);

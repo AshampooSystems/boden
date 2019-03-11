@@ -5,7 +5,7 @@
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @property UINavigationController *navController;
 @end
 
@@ -14,9 +14,11 @@ namespace bdn::ios
     class StackCore : public ViewCore, virtual public bdn::StackCore
     {
       public:
-        StackCore(std::shared_ptr<Stack> outerStack);
+        StackCore();
 
       public:
+        virtual void init() override;
+
         virtual void frameChanged() override;
         virtual void onGeometryChanged(Rect newGeometry) override;
 
@@ -26,8 +28,6 @@ namespace bdn::ios
         std::list<std::shared_ptr<View>> childViews() override;
 
       private:
-        std::shared_ptr<bdn::Stack> stack();
-
         UINavigationController *getNavigationController();
 
         std::shared_ptr<FixedView> getCurrentContainer();

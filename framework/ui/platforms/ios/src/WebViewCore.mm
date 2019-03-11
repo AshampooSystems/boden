@@ -6,7 +6,7 @@
 #import <WebKit/WebKit.h>
 
 @interface BodenWebView : WKWebView <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenWebView
@@ -14,8 +14,8 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 
@@ -29,12 +29,7 @@ namespace bdn::ios
         return [[BodenWebView alloc] initWithFrame:CGRectZero configuration:configuration];
     }
 
-    WebViewCore::WebViewCore(std::shared_ptr<WebView> outer) : ViewCore(outer, createWKWebView())
-    {
-        if (outer->url != "") {
-            loadURL(outer->url);
-        }
-    }
+    WebViewCore::WebViewCore() : ViewCore(createWKWebView()) {}
 
     void WebViewCore::loadURL(const String &url)
     {

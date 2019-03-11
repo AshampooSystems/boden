@@ -1,76 +1,53 @@
 
 #include <bdn/ContainerView.h>
+#include <bdn/ContainerViewCore.h>
 
 namespace bdn
 {
 
-    void ContainerView::addChildView(std::shared_ptr<View> childView) { insertChildView(nullptr, childView); }
+    ContainerView::ContainerView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
-    void ContainerView::insertChildView(std::shared_ptr<View> insertBeforeChildView, std::shared_ptr<View> childView)
+    void ContainerView::addChildView(std::shared_ptr<View> childView)
     {
-        AppRunnerBase::assertInMainThread();
-
-        std::shared_ptr<View> oldParentView = childView->getParentView();
-        if (oldParentView != nullptr) {
-            // do not use removeChildView on the old parent. Instead we use
-            // childViewStolen. The difference is that with childViewStolen
-            // the old parent will NOT call setParentView on its old child.
-            // That is what we want since we want a single call to
-            // setParentView at the end of the whole operation, so that the
-            // core can potentially be moved directly to its new parent,
-            // without being destroyed and recreated.
-            oldParentView->_childViewStolen(childView);
+        if (auto containerCore = core<ContainerViewCore>()) {
+            containerCore->addChildView(childView);
+            childView->setParentView(shared_from_this());
         }
-
-        std::list<std::shared_ptr<View>>::iterator it;
-        if (insertBeforeChildView == nullptr)
-            it = _childViews.end();
-        else
-            it = std::find(std::begin(_childViews), std::end(_childViews), insertBeforeChildView);
-
-        _childViews.insert(it, childView);
-
-        childView->_setParentView(std::static_pointer_cast<View>(shared_from_this()));
-
-        // the child will schedule a sizing info update for us when it gets
-        // its core.
     }
 
     void ContainerView::removeChildView(std::shared_ptr<View> childView)
     {
-        AppRunnerBase::assertInMainThread();
-
-        auto it = std::find(_childViews.begin(), _childViews.end(), childView);
-        if (it != _childViews.end()) {
-            _childViews.erase(it);
-            childView->_setParentView(nullptr);
+        if (auto containerCore = core<ContainerViewCore>()) {
+            containerCore->removeChildView(childView);
+            childView->setParentView(nullptr);
+        } else {
+            throw std::runtime_error("???");
         }
     }
 
     void ContainerView::removeAllChildViews()
     {
-        AppRunnerBase::assertInMainThread();
-
-        auto copyChildren = _childViews;
-        _childViews.clear();
+        auto copyChildren = childViews();
 
         for (auto &childView : copyChildren)
-            childView->_setParentView(nullptr);
+            removeChildView(childView);
     }
 
-    std::list<std::shared_ptr<View>> ContainerView::childViews() const
+    std::list<std::shared_ptr<View>> ContainerView::childViews()
     {
-        AppRunnerBase::assertInMainThread();
+        if (auto containerCore = core<ContainerViewCore>()) {
+            return containerCore->childViews();
+        }
 
-        return _childViews;
+        throw std::runtime_error("???");
     }
 
-    void ContainerView::_childViewStolen(std::shared_ptr<View> childView)
+    void ContainerView::childViewStolen(std::shared_ptr<View> childView)
     {
-        AppRunnerBase::assertInMainThread();
-
-        auto it = std::find(_childViews.begin(), _childViews.end(), childView);
-        if (it != _childViews.end())
-            _childViews.erase(it);
+        if (auto containerCore = core<ContainerViewCore>()) {
+            containerCore->removeChildView(childView);
+        } else {
+            throw std::runtime_error("???");
+        }
     }
 }

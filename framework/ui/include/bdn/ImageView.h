@@ -10,6 +10,7 @@ namespace bdn
         Property<String> url;
 
       public:
+        ImageView(std::shared_ptr<UIProvider> uiProvider = nullptr);
         virtual ~ImageView() = default;
 
       public:

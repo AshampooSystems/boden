@@ -12,28 +12,18 @@ namespace bdn
       public:
         static constexpr char coreTypeName[] = "bdn.Stack";
 
-        struct StackEntry
-        {
-            std::shared_ptr<View> view;
-            String title;
-        };
-
       public:
-        Stack();
+        Stack(std::shared_ptr<UIProvider> uiProvider = nullptr);
         virtual ~Stack();
 
         void pushView(std::shared_ptr<View> view, String title);
         void popView();
 
-        const std::deque<StackEntry> &stack() const { return _stack; }
-
       public:
-        virtual std::list<std::shared_ptr<View>> childViews() const override;
+        virtual std::list<std::shared_ptr<View>> childViews() override;
         String viewCoreTypeName() const override { return coreTypeName; }
-        virtual void _initCore(std::shared_ptr<UIProvider> uiProvider) override;
-        virtual void _deinitCore() override;
 
-      private:
-        std::deque<StackEntry> _stack;
+      protected:
+        virtual void bindViewCore() override;
     };
 }

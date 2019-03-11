@@ -2,23 +2,21 @@
 #import <bdn/ios/ScrollViewCore.hh>
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
-@property(nonatomic, assign) std::weak_ptr<bdn::ScrollView> outer;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ScrollViewCore> core;
 @end
 
 @implementation BdnIosScrollViewDelegate_
 
 - (void)scrollViewDidScroll:(UIScrollView *)uiScrollView
 {
-    if (auto outer = self.outer.lock()) {
-        if (auto core = std::dynamic_pointer_cast<bdn::ios::ScrollViewCore>(outer->viewCore())) {
-            core->updateVisibleClientRect();
-        }
+    if (auto core = self.core.lock()) {
+        core->updateVisibleClientRect();
     }
 }
 @end
 
 @interface BodenUIScrollView : UIScrollView <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIScrollView
@@ -26,8 +24,8 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 
@@ -35,58 +33,76 @@
 
 namespace bdn::ios
 {
-    BodenUIScrollView *_createScrollView(std::shared_ptr<ScrollView> outer)
-    {
-        return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-    }
+    BodenUIScrollView *_createScrollView() { return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)]; }
 
-    ScrollViewCore::ScrollViewCore(std::shared_ptr<ScrollView> outer) : ViewCore(outer, _createScrollView(outer))
+    ScrollViewCore::ScrollViewCore() : ViewCore(_createScrollView()) {}
+
+    void ScrollViewCore::init()
     {
+        ViewCore::init();
+
         _uiScrollView = (UIScrollView *)uiView();
 
-        setHorizontalScrollingEnabled(true); // outer->horizontalScrollingEnabled);
-        setVerticalScrollingEnabled(true);
-
         _delegate = [[BdnIosScrollViewDelegate_ alloc] init];
-        _delegate.outer = outer;
+        _delegate.core = std::dynamic_pointer_cast<ScrollViewCore>(shared_from_this());
         _uiScrollView.delegate = _delegate;
+
+        horizontalScrollingEnabled.onChange() +=
+            [=](auto va) { _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled; };
+
+        verticalScrollingEnabled.onChange() +=
+            [=](auto va) { _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled; };
+
+        content.onChange() += [=](auto va) { updateContent(va->get()); };
     }
 
-    void ScrollViewCore::addChildViewCore(ViewCore *core)
+    /* void ScrollViewCore::addChildViewCore(const std::shared_ptr<ViewCore> &core)
+     {
+         for (id subView in _uiScrollView.subviews)
+             [((UIView *)subView)removeFromSuperview];
+
+         _childGeometry = std::make_shared<Property<Rect>>();
+
+         _childGeometry->bind(core->geometry, BindMode::unidirectional);
+
+         _childGeometry->onChange() += [=](auto va) {
+             CGSize s;
+             s.width = va->get().width;
+             s.height = va->get().height;
+             _uiScrollView.contentSize = s;
+         };
+
+         [_uiScrollView addSubview:core->uiView()];
+     }*/
+
+    void ScrollViewCore::updateContent(const std::shared_ptr<View> &content)
     {
-        for (id subView in _uiScrollView.subviews)
+        for (id subView in _uiScrollView.subviews) {
             [((UIView *)subView)removeFromSuperview];
+        }
 
-        _childGeometry = std::make_shared<Property<Rect>>();
+        _childGeometry.reset();
 
-        _childGeometry->bind(core->geometry, BindMode::unidirectional);
+        if (content.get()) {
+            if (auto childCore = content->core<ViewCore>()) {
+                _childGeometry = std::make_shared<Property<Rect>>();
 
-        _childGeometry->onChange() += [=](auto va) {
-            CGSize s;
-            s.width = va->get().width;
-            s.height = va->get().height;
-            _uiScrollView.contentSize = s;
-        };
+                _childGeometry->connect(childCore->geometry);
 
-        [_uiScrollView addSubview:core->uiView()];
-    }
+                _childGeometry->onChange() += [=](auto va) {
+                    CGSize s;
+                    s.width = va->get().width;
+                    s.height = va->get().height;
+                    _uiScrollView.contentSize = s;
+                };
 
-    void ScrollViewCore::setHorizontalScrollingEnabled(const bool &enabled)
-    {
-        // we can only enable scrolling for both directions at once.
-        // However, that is not a problem: we will clip the content to make
-        // it fit in directions in which OUR scrollingEnabled is false.
+                [_uiScrollView addSubview:childCore->uiView()];
+            } else {
+                throw std::runtime_error("Cannot add this type of View");
+            }
+        }
 
-        _horzScrollEnabled = enabled;
-
-        _uiScrollView.scrollEnabled = _horzScrollEnabled || _vertScrollEnabled;
-    }
-
-    void ScrollViewCore::setVerticalScrollingEnabled(const bool &enabled)
-    {
-        _vertScrollEnabled = enabled;
-
-        _uiScrollView.scrollEnabled = _horzScrollEnabled || _vertScrollEnabled;
+        _dirtyCallback.fire();
     }
 
     void ScrollViewCore::scrollClientRectToVisible(const Rect &targetRect)
@@ -256,13 +272,10 @@ namespace bdn::ios
 
     void ScrollViewCore::updateVisibleClientRect()
     {
-        if (auto outer = std::dynamic_pointer_cast<ScrollView>(outerView())) {
-            Point scrollPosition = iosPointToPoint(_uiScrollView.contentOffset);
+        Point scrollPosition = iosPointToPoint(_uiScrollView.contentOffset);
 
-            // Not correct if scroll view is zoomed. Zooming is not supported yet.
-            Size visibleSize = iosSizeToSize(_uiScrollView.bounds.size);
-            Rect visibleClientRect(scrollPosition, visibleSize);
-            outer->visibleClientRect = (visibleClientRect);
-        }
+        // Not correct if scroll view is zoomed. Zooming is not supported yet.
+        Size visibleSize = iosSizeToSize(_uiScrollView.bounds.size);
+        this->visibleClientRect = Rect{scrollPosition, visibleSize};
     }
 }

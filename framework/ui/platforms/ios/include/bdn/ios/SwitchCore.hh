@@ -8,17 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BdnIosSwitchComposite : UIControl <UIViewWithFrameNotification>
+namespace bdn::ios
+{
+    class SwitchCore;
+}
 
+@interface BdnIosSwitchComposite : UIControl <UIViewWithFrameNotification>
 @property(strong) UISwitch *uiSwitch;
 @property(strong) UILabel *uiLabel;
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @interface BdnIosSwitchClickManager : NSObject
-
-@property(nonatomic, assign) std::weak_ptr<bdn::Switch> outer;
-
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::SwitchCore> core;
 @end
 
 namespace bdn::ios
@@ -29,13 +31,14 @@ namespace bdn::ios
         static BdnIosSwitchComposite *createSwitchComposite();
 
       public:
-        static std::shared_ptr<SwitchCore> create(std::shared_ptr<Switch> outer);
+        static std::shared_ptr<SwitchCore> create();
 
-        SwitchCore(std::shared_ptr<Switch> outer);
+        SwitchCore();
         virtual ~SwitchCore();
 
-        void setOn(const bool &on) override;
-        void setLabel(const String &label) override;
+        virtual void init() override;
+
+        void handleClick();
 
       private:
         BdnIosSwitchComposite *_composite;

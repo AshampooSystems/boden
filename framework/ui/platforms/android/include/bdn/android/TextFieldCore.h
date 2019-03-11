@@ -6,20 +6,20 @@
 #include <bdn/android/wrapper/NativeEditTextTextWatcher.h>
 #include <bdn/android/wrapper/NativeTextViewOnEditorActionListener.h>
 
-#include <bdn/ITextFieldCore.h>
 #include <bdn/TextField.h>
+#include <bdn/TextFieldCore.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/debug.h>
 
 namespace bdn::android
 {
 
-    class TextFieldCore : public ViewCore, virtual public ITextFieldCore
+    class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
     {
       public:
-        TextFieldCore(std::shared_ptr<TextField> outerTextField)
-            : ViewCore(outerTextField, createAndroidViewClass<wrapper::EditText>(outerTextField)),
-              _jEditText(getJViewAS<wrapper::EditText>()), _watcher(_jEditText.cast<wrapper::TextView>())
+        TextFieldCore(const ContextWrapper &ctxt)
+            : ViewCore(createAndroidViewClass<wrapper::EditText>(ctxt)), _jEditText(getJViewAS<wrapper::EditText>()),
+              _watcher(_jEditText.cast<wrapper::TextView>())
         {
             _jEditText.setSingleLine(true);
 
@@ -27,20 +27,17 @@ namespace bdn::android
 
             _jEditText.setOnEditorActionListener(_onEditorActionListener.cast<wrapper::OnEditorActionListener>());
 
-            setText(outerTextField->text);
+            text.onChange() += [=](auto va) {
+                _jEditText.removeTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
+                String currentText = _jEditText.getText();
+                if (va->get() != currentText) {
+                    _jEditText.setText(va->get());
+                }
+                _jEditText.addTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
+            };
         }
 
         wrapper::EditText &getJEditText() { return _jEditText; }
-
-        void setText(const String &text) override
-        {
-            _jEditText.removeTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
-            String currentText = _jEditText.getText();
-            if (text != currentText) {
-                _jEditText.setText(text);
-            }
-            _jEditText.addTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
-        }
 
       public:
         // Called by Java (via JNativeEditTextTextWatcher)
@@ -53,10 +50,7 @@ namespace bdn::android
         void afterTextChanged()
         {
             String newText = _jEditText.getText();
-            std::shared_ptr<TextField> outerTextField = std::dynamic_pointer_cast<TextField>(outerView());
-            if (outerTextField) {
-                outerTextField->text = (newText);
-            }
+            text = newText;
         }
 
         bool onEditorAction(int actionId, wrapper::KeyEvent keyEvent)
@@ -66,10 +60,8 @@ namespace bdn::android
                 _jEditText.getContext().getSystemService(wrapper::Context::INPUT_METHOD_SERVICE).getRef_());
             inputManager.hideSoftInputFromWindow(_jEditText.getWindowToken(), 0);
 
-            std::shared_ptr<TextField> outerTextField = std::dynamic_pointer_cast<TextField>(outerView());
-            if (outerTextField) {
-                outerTextField->submit();
-            }
+            submitCallback.fire();
+
             return true;
         }
 

@@ -8,7 +8,7 @@
  top left, rather than the bottom left.
  */
 @interface BdnMacContainerView_ : NSView
-@property bdn::ContainerView *containerView;
+@property std::weak_ptr<bdn::ViewCore> viewCore;
 @end
 
 @implementation BdnMacContainerView_
@@ -17,8 +17,8 @@
 
 - (void)layout
 {
-    if (_containerView) {
-        _containerView->getLayout()->layout(_containerView);
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->startLayout();
     }
 }
 
@@ -26,11 +26,45 @@
 
 namespace bdn::mac
 {
-    NSView *ContainerViewCore::_createContainer(std::shared_ptr<ContainerView> outer)
+    NSView *ContainerViewCore::_createContainer()
     {
         BdnMacContainerView_ *macContainerView = [[BdnMacContainerView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-
-        macContainerView.containerView = outer.get();
         return macContainerView;
     }
+
+    ContainerViewCore::ContainerViewCore() : ContainerViewCore(_createContainer()) {}
+
+    ContainerViewCore::ContainerViewCore(NSView *view) : ViewCore(view) {}
+
+    void ContainerViewCore::init()
+    {
+        ViewCore::init();
+
+        ((BdnMacContainerView_ *)nsView()).viewCore = std::dynamic_pointer_cast<ContainerViewCore>(shared_from_this());
+    }
+
+    void ContainerViewCore::addChildView(std::shared_ptr<View> child)
+    {
+        if (auto childCore = child->core<ViewCore>()) {
+            addChildNSView(childCore->nsView());
+            _children.push_back(child);
+        } else {
+            throw std::runtime_error("Cannot add this type of View");
+        }
+
+        scheduleLayout();
+    }
+
+    void ContainerViewCore::removeChildView(std::shared_ptr<View> child)
+    {
+        if (auto childCore = child->core<ViewCore>()) {
+            childCore->removeFromNsSuperview();
+            _children.remove(child);
+        } else {
+            throw std::runtime_error("Cannot remove this type of View");
+        }
+        scheduleLayout();
+    }
+
+    std::list<std::shared_ptr<View>> ContainerViewCore::childViews() { return _children; }
 }

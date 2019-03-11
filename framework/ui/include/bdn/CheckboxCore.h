@@ -5,14 +5,21 @@
 
 namespace bdn
 {
-    /** Generic interface for toggle-like control cores */
     class CheckboxCore : virtual public ViewCore
     {
-      public:
-        /** Changes the controls's state. */
-        virtual void setState(const TriState &state) = 0;
+        friend class Checkbox;
 
-        /** Changes the control's label text.*/
-        virtual void setLabel(const String &label) = 0;
+      public:
+        using ClickCallback = std::function<void()>;
+
+      public:
+        Property<TriState> state;
+        Property<String> label;
+
+      public:
+        virtual ~CheckboxCore() = default;
+
+      protected:
+        WeakCallback<void()> _clickCallback;
     };
 }

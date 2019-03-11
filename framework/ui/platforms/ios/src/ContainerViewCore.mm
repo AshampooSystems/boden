@@ -5,19 +5,15 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 
 - (void)layoutSubviews
 {
-    if (_viewCore) {
-        if (auto view = _viewCore->outerView()) {
-            if (auto layout = view->getLayout()) {
-                layout->layout(view.get());
-            }
-        }
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->fireLayout();
     }
 }
 
@@ -25,20 +21,38 @@
 
 namespace bdn::ios
 {
-    BodenUIView *_createContainer(std::shared_ptr<ContainerView> outer)
-    {
-        return [[BodenUIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-    }
+    BodenUIView *_createContainer() { return [[BodenUIView alloc] initWithFrame:CGRectZero]; }
 
-    ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer)
-        : ViewCore(outer, _createContainer(outer))
-    {}
+    ContainerViewCore::ContainerViewCore() : ViewCore(_createContainer()) {}
 
-    ContainerViewCore::ContainerViewCore(std::shared_ptr<ContainerView> outer, id<UIViewWithFrameNotification> view)
-        : ViewCore(outer, view)
-    {}
+    ContainerViewCore::ContainerViewCore(id<UIViewWithFrameNotification> view) : ViewCore(view) {}
 
     bool ContainerViewCore::canAdjustToAvailableWidth() const { return true; }
 
     bool ContainerViewCore::canAdjustToAvailableHeight() const { return true; }
+
+    void ContainerViewCore::addChildView(std::shared_ptr<View> child)
+    {
+        if (auto childCore = child->core<ViewCore>()) {
+            addChildViewCore(childCore);
+            _children.push_back(child);
+        } else {
+            throw std::runtime_error("Cannot add this type of View");
+        }
+
+        scheduleLayout();
+    }
+
+    void ContainerViewCore::removeChildView(std::shared_ptr<View> child)
+    {
+        if (auto childCore = child->core<ViewCore>()) {
+            childCore->removeFromUISuperview();
+            _children.remove(child);
+        } else {
+            throw std::runtime_error("Cannot remove this type of View");
+        }
+        scheduleLayout();
+    }
+
+    std::list<std::shared_ptr<View>> ContainerViewCore::childViews() { return _children; }
 }

@@ -3,7 +3,7 @@
 #include <bdn/entry.h>
 #include <bdn/java/Env.h>
 
-#include <bdn/ListView.h>
+#include <bdn/ListViewCore.h>
 #include <bdn/android/ViewCore.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeAdapterViewOnItemClickListener_nativeOnItemClick(
@@ -11,19 +11,12 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeAdapterViewOnItemC
 {
     bdn::platformEntryWrapper(
         [&]() {
-            std::shared_ptr<bdn::android::ViewCore> core =
-                bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawAdapterView));
-
-            if (core == nullptr) {
-                return;
+            if (auto core =
+                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawAdapterView))) {
+                if (auto listCore = std::dynamic_pointer_cast<bdn::ListViewCore>(core)) {
+                    listCore->selectedRowIndex.set((size_t)position);
+                }
             }
-
-            std::shared_ptr<bdn::ListView> outer = std::dynamic_pointer_cast<bdn::ListView>(core->outerView());
-            if (outer == nullptr) {
-                return;
-            }
-
-            outer->selectedRowIndex = (size_t)position;
         },
         true, env);
 }

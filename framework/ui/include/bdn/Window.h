@@ -2,8 +2,8 @@
 
 #include <bdn/View.h>
 
-#include <bdn/IWindowCore.h>
 #include <bdn/UIProvider.h>
+#include <bdn/WindowCore.h>
 
 namespace bdn
 {
@@ -53,14 +53,16 @@ namespace bdn
 
         String viewCoreTypeName() const override { return coreTypeName; }
 
-        std::list<std::shared_ptr<View>> childViews() const override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
         void removeAllChildViews() override;
 
-        void _childViewStolen(std::shared_ptr<View> childView) override;
+        void childViewStolen(std::shared_ptr<View> childView) override;
 
       protected:
-        std::shared_ptr<UIProvider> determineUIProvider(std::shared_ptr<View> parentView = nullptr) override;
         virtual void bindViewCore() override;
+
+      private:
+        SingleChildHelper _content;
     };
 }

@@ -2,11 +2,9 @@
 
 namespace bdn::android
 {
-    WebViewCore::WebViewCore(std::shared_ptr<WebView> outer)
-        : ViewCore(outer, createAndroidViewClass<wrapper::WebView>(outer)), _jWebView(getJViewAS<wrapper::WebView>())
-    {
-        loadURL(outer->url);
-    }
+    WebViewCore::WebViewCore(const ContextWrapper &ctxt)
+        : ViewCore(createAndroidViewClass<wrapper::WebView>(ctxt)), _jWebView(getJViewAS<wrapper::WebView>())
+    {}
 
     void WebViewCore::loadURL(const String &url) { _jWebView.loadUrl(url); }
 }

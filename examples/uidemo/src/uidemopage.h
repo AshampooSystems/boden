@@ -153,7 +153,7 @@ namespace bdn
         scrolledTextView->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(0.0f));
 
         scrollContainer->addChildView(scrolledTextView);
-        textScrollView->setContentView(scrollContainer);
+        textScrollView->content = scrollContainer;
 
         container->addChildView(textScrollView);
 

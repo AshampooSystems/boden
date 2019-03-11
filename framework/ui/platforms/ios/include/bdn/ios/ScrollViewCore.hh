@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollView.h>
+#include <bdn/ScrollViewCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 
@@ -9,33 +9,24 @@
 
 namespace bdn::ios
 {
-    class ScrollViewCore : public ViewCore, virtual public IScrollViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
     {
       public:
-        ScrollViewCore(std::shared_ptr<ScrollView> outer);
+        ScrollViewCore();
 
-        void setHorizontalScrollingEnabled(const bool &enabled) override;
-        void setVerticalScrollingEnabled(const bool &enabled) override;
+        virtual void init() override;
 
         void scrollClientRectToVisible(const Rect &clientRect) override;
-
-        void addChildViewCore(ViewCore *core) override;
-
         void updateVisibleClientRect();
 
       protected:
         bool canAdjustToAvailableWidth() const override { return true; }
-
         bool canAdjustToAvailableHeight() const override { return true; }
+        void updateContent(const std::shared_ptr<View> &content);
 
       private:
         UIScrollView *_uiScrollView;
-
-        bool _horzScrollEnabled = false;
-        bool _vertScrollEnabled = false;
-
         BdnIosScrollViewDelegate_ *_delegate = nil;
-
         std::shared_ptr<Property<Rect>> _childGeometry;
     };
 }

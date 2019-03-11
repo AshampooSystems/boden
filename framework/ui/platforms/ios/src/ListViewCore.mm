@@ -7,11 +7,11 @@
 #include <bdn/FixedView.h>
 #include <bdn/ListViewDataSource.h>
 
-#include <iostream>
+#include <bdn/log.h>
 
-@interface FixedUITableViewCell : UIView <UIViewWithFrameNotification>
+/*@interface FixedUITableViewCell : UIView <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::shared_ptr<bdn::FixedView> fixedView;
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation FixedUITableViewCell
@@ -19,25 +19,23 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto core = _viewCore.lock()) {
+        core->frameChanged();
     }
 }
 
 - (void)layoutSubviews
 {
-    if (_viewCore) {
-        if (auto view = _viewCore->outerView()) {
-            if (auto layout = view->getLayout()) {
-                layout->layout(view.get());
-            }
-        }
+    if (auto layout = _fixedView->getLayout()) {
+        layout->layout(_fixedView.get());
     }
 }
 
 @end
+ */
 
 @interface FollowSizeUITableViewCell : UITableViewCell
+@property std::shared_ptr<bdn::FixedView> fixedView;
 @end
 @implementation FollowSizeUITableViewCell
 
@@ -59,133 +57,135 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
-@property(nonatomic, assign) std::weak_ptr<bdn::ListView> outer;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ListViewCore> core;
 @end
 
 @implementation ListViewDelegateIOS
 
 - (std::shared_ptr<bdn::ListViewDataSource>)outerDataSource
 {
-    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
-    if (outer == nullptr) {
+    auto core = self.core.lock();
+    if (core == nullptr) {
         return nullptr;
     }
 
-    return outer->dataSource;
+    return core->dataSource;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 1; }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if (self.outerDataSource == nullptr) {
-        return 0;
+    if (auto dataSource = self.outerDataSource) {
+        return (NSInteger)dataSource->numberOfRows();
     }
-
-    return (NSInteger)self.outerDataSource->numberOfRows();
+    return 0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.outerDataSource == nullptr) {
-        return 20.0;
+    if (auto dataSource = self.outerDataSource) {
+        return dataSource->heightForRowIndex(indexPath.row);
     }
 
-    return self.outerDataSource->heightForRowIndex(indexPath.row);
+    return 20.0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.outerDataSource == nullptr) {
-        return nil;
-    }
+    if (auto dataSource = self.outerDataSource) {
+        FollowSizeUITableViewCell *cell =
+            (FollowSizeUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
 
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    FixedUITableViewCell *cellContent;
+        std::shared_ptr<bdn::FixedView> fixedView;
+        std::shared_ptr<bdn::View> view;
+        bool reuse = false;
 
-    auto listView = self.outer.lock();
-    std::shared_ptr<bdn::FixedView> fixedView;
-    std::shared_ptr<bdn::View> view;
-    bool reuse = false;
+        auto core = self.core.lock();
 
-    if (cell == nil) {
-        cell = [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
-        cell.clipsToBounds = YES;
+        if (cell == nil) {
+            cell =
+                [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+            cell.clipsToBounds = YES;
 
-        cellContent = [[FixedUITableViewCell alloc] init];
-        cellContent.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            // cellContent = [[FixedUITableViewCell alloc] init];
+            // cellContent.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-        fixedView = std::make_shared<bdn::FixedView>();
+            fixedView = std::make_shared<bdn::FixedView>();
+            fixedView->offerLayout(core->_layout);
 
-        fixedView->setViewCore(listView->uiProvider(),
-                               std::make_unique<bdn::ios::ContainerViewCore>(fixedView, cellContent));
+            // cellContent.fixedView = fixedView;
 
-        fixedView->offerLayout(self.outer.lock()->getLayout());
+            [cell.contentView addSubview:fixedView->core<bdn::ios::ViewCore>()->uiView()];
+            cell.fixedView = fixedView;
 
-        cellContent.fixedView = fixedView;
+        } else {
+            reuse = true;
+            fixedView = cell.fixedView;
 
-        [cell.contentView addSubview:cellContent];
-    } else {
-        reuse = true;
-        cellContent = cell.contentView.subviews.firstObject;
-        fixedView = cellContent.fixedView;
-
-        if (!fixedView->childViews().empty()) {
-            view = fixedView->childViews().front();
+            if (!fixedView->childViews().empty()) {
+                view = fixedView->childViews().front();
+            }
         }
-    }
 
-    if (fixedView) {
-        view = self.outerDataSource->viewForRowIndex(indexPath.row, view);
-        if (!reuse) {
-            fixedView->removeAllChildViews();
-            fixedView->addChildView(view);
+        if (fixedView) {
+            view = self.outerDataSource->viewForRowIndex(indexPath.row, view);
+            if (!reuse) {
+                fixedView->removeAllChildViews();
+                fixedView->addChildView(view);
+            }
+            fixedView->scheduleLayout();
         }
-    }
 
-    return cell;
+        return cell;
+    }
+    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    std::shared_ptr<bdn::ListView> outer = self.outer.lock();
+    auto core = self.core.lock();
 
-    if (outer == nullptr) {
+    if (core == nullptr) {
         return;
     }
 
-    outer->selectedRowIndex = (size_t)indexPath.row;
+    core->selectedRowIndex = (size_t)indexPath.row;
 }
 
 @end
 
 @interface BodenUITableView : UITableView <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUITableView
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 @end
 
 namespace bdn::ios
 {
-    BodenUITableView *createUITableView(std::shared_ptr<ListView> outer)
+    BodenUITableView *createUITableView()
     {
         BodenUITableView *uiTableView = [[BodenUITableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         return uiTableView;
     }
 
-    ListViewCore::ListViewCore(std::shared_ptr<ListView> outer) : ViewCore(outer, createUITableView(outer))
+    ListViewCore::ListViewCore() : ViewCore(createUITableView()) {}
+
+    void ListViewCore::init()
     {
+        ViewCore::init();
+
         ListViewDelegateIOS *nativeDelegate = [[ListViewDelegateIOS alloc] init];
-        nativeDelegate.outer = outer;
         _nativeDelegate = nativeDelegate;
+        _nativeDelegate.core = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
 
         UITableView *uiTableView = (UITableView *)uiView();
         uiTableView.dataSource = nativeDelegate;

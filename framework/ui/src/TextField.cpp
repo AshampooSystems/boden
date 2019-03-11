@@ -4,11 +4,9 @@
 namespace bdn
 {
 
-    TextField::TextField()
+    TextField::TextField(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
     {
         _onSubmit = std::make_shared<SimpleNotifier<const SubmitEvent &>>();
-
-        text.onChange() += View::CorePropertyUpdater<String, ITextFieldCore>{this, &ITextFieldCore::setText};
     }
 
     void TextField::submit()
@@ -18,4 +16,16 @@ namespace bdn
     }
 
     ISyncNotifier<const SubmitEvent &> &TextField::onSubmit() { return *_onSubmit; }
+
+    void TextField::bindViewCore()
+    {
+        View::bindViewCore();
+        auto textCore = View::core<TextFieldCore>();
+        textCore->text.bind(text);
+
+        _submitCallbackReceiver = textCore->submitCallback.set([=]() {
+            SubmitEvent evt(shared_from_this());
+            onSubmit().notify(evt);
+        });
+    }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/ITextViewCore.h>
+#include <bdn/TextViewCore.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -31,10 +31,13 @@ namespace bdn
         Property<bool> wrap;
 
       public:
-        TextView();
+        TextView(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
       public:
         static constexpr char coreTypeName[] = "bdn.TextViewCore";
         String viewCoreTypeName() const override { return coreTypeName; }
+
+      protected:
+        virtual void bindViewCore() override;
     };
 }

@@ -1,11 +1,11 @@
 
-#include "../include/bdn/android/wrapper/NativeRootView.h"
 #include <bdn/android/WindowCore.h>
+#include <bdn/android/wrapper/NativeRootView.h>
 
 namespace bdn::android
 {
 
-    wrapper::View WindowCore::createJNativeViewGroup(std::shared_ptr<Window> outerWindow)
+    wrapper::View WindowCore::createJNativeViewGroup(const ContextWrapper &ctxt)
     {
         // we need a context to create our view object.
         // To know the context we first have to determine the root view
@@ -32,23 +32,7 @@ namespace bdn::android
         return view;
     }
 
-    WindowCore::WindowCore(std::shared_ptr<Window> outerWindow)
-        : ViewCore(outerWindow, createJNativeViewGroup(outerWindow))
-    {
-        title.onChange() += [=](auto va) {
-            wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
-
-            rootView.setTitle(va->get());
-        };
-
-        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
-
-        _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
-
-        updateUIScaleFactor(rootView.getContext().getResources().getConfiguration());
-
-        rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
-    }
+    WindowCore::WindowCore(const ContextWrapper &ctxt) : ViewCore(createJNativeViewGroup(ctxt)) {}
 
     WindowCore::~WindowCore()
     {
@@ -62,12 +46,33 @@ namespace bdn::android
         }
     }
 
+    void WindowCore::init()
+    {
+        ViewCore::init();
+
+        title.onChange() += [=](auto va) {
+            wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+
+            rootView.setTitle(va->get());
+        };
+
+        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+
+        _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
+
+        updateUIScaleFactor(rootView.getContext().getResources().getConfiguration());
+
+        rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
+
+        content.onChange() += [=](auto va) { updateContent(va->get()); };
+    }
+
     void WindowCore::initTag()
     {
         ViewCore::initTag();
 
         wrapper::NativeRootView rootView(getJView().getParent().getRef_());
-        rootView.setTag(bdn::java::wrapper::NativeWeakPointer(outerView()));
+        rootView.setTag(bdn::java::wrapper::NativeWeakPointer(shared_from_this()));
     }
 
     void WindowCore::enableBackButton(bool enable)
@@ -129,25 +134,6 @@ namespace bdn::android
         return false;
     }
 
-    void WindowCore::addChildCore(ViewCore *child)
-    {
-        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
-
-        parentGroup.addView(child->getJView());
-    }
-
-    void WindowCore::removeChildCore(ViewCore *child)
-    {
-        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
-        parentGroup.removeView(child->getJView());
-    }
-
-    void
-    WindowCore::setAndroidNavigationButtonHandler(std::shared_ptr<WindowCore::AndroidNavigationButtonHandler> handler)
-    {
-        _navButtonHandler = std::move(handler);
-    }
-
     Rect WindowCore::getContentArea()
     {
         // content area = bounds (there are no borders)
@@ -198,13 +184,21 @@ namespace bdn::android
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
     }
 
-    bool WindowCore::handleBackPressed()
+    bool WindowCore::handleBackPressed() { return false; }
+
+    void WindowCore::updateContent(std::shared_ptr<View> view)
     {
-        if (_navButtonHandler && _navButtonHandler->handleBackButton()) {
-            return true;
+        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
+
+        parentGroup.removeAllViews();
+
+        if (auto childCore = view->core<android::ViewCore>()) {
+            parentGroup.addView(childCore->getJView());
+        } else {
+            throw std::runtime_error("Cannot set this type of View as content");
         }
 
-        return false;
+        updateChildren();
     }
 
     Rect WindowCore::getScreenWorkArea() const
@@ -277,4 +271,13 @@ namespace bdn::android
     }
 
     void WindowCore::scheduleLayout() { getJView().requestLayout(); }
+
+    void WindowCore::visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function)
+    {
+        if (content.get()) {
+            function(content->viewCore());
+        }
+    }
+
+    void WindowCore::updateGeometry() { ViewCore::updateGeometry(); }
 }

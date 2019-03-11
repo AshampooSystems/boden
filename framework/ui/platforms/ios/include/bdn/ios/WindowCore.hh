@@ -2,38 +2,40 @@
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/IWindowCore.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/Window.h>
+#include <bdn/WindowCore.h>
 
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/util.hh>
 
 @interface BodenRootViewController : UIViewController
-@property UIWindow *myWindow;
-@property BodenUIView *bodenRootView;
+@property(weak) UIWindow *myWindow;
+@property BodenUIView *rootView;
+@property BodenUIView *safeRootView;
 @end
 
 namespace bdn::ios
 {
-    class WindowCore : public ViewCore, virtual public IWindowCore
+    class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       private:
-        WindowCore(std::shared_ptr<Window> outerWindow, BodenRootViewController *viewController);
+        WindowCore(BodenRootViewController *viewController);
 
       public:
-        WindowCore(std::shared_ptr<Window> outerWindow);
+        WindowCore();
+        virtual ~WindowCore();
 
-        ~WindowCore();
+        virtual void onGeometryChanged(Rect newGeometry) override;
 
         UIWindow *getUIWindow() const;
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
-        void moveToParentView(std::shared_ptr<View> newParentView) override;
 
         virtual void frameChanged() override;
 
       private:
+        void updateContent(const std::shared_ptr<View> newContent);
         void updateContentGeometry();
         void updateGeomtry();
 

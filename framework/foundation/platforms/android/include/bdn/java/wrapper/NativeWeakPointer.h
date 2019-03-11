@@ -3,6 +3,8 @@
 #include <bdn/java/wrapper/ByteBuffer.h>
 #include <bdn/java/wrapper/Object.h>
 
+#include <bdn/Base.h>
+
 #include <memory>
 
 namespace bdn::java::wrapper
@@ -18,14 +20,14 @@ namespace bdn::java::wrapper
     class NativeWeakPointer : public Object
     {
       private:
-        static Reference newInstance(std::weak_ptr<void> weakPtr)
+        static Reference newInstance(std::weak_ptr<Base> weakPtr)
         {
             if (weakPtr.expired()) {
                 // When the C++ pointer is null then we just return a null
                 // java reference
                 return Reference();
             } else {
-                std::weak_ptr<void> *pPtr = new std::weak_ptr<void>(weakPtr);
+                std::weak_ptr<Base> *pPtr = new std::weak_ptr<Base>(weakPtr);
 
                 // wrap the pointer into a java byte buffer
                 ByteBuffer byteBuffer(pPtr, 1);
@@ -35,7 +37,7 @@ namespace bdn::java::wrapper
         }
 
       public:
-        explicit NativeWeakPointer(std::weak_ptr<void> pPointer) : Object(newInstance(pPointer)) {}
+        explicit NativeWeakPointer(std::weak_ptr<Base> pPointer) : Object(newInstance(pPointer)) {}
 
         /** @param objectRef the reference to the Java object.
          *      The JObject instance will copy this reference and keep its
@@ -48,28 +50,28 @@ namespace bdn::java::wrapper
         /** An optimized function to retrieve the stored pointer directly
          * from the specified jobject. The java-side object must have been
          * created with NativeWeakPointer.*/
-        static std::weak_ptr<void> unwrapJObject(jobject obj)
+        static std::weak_ptr<Base> unwrapJObject(jobject obj)
         {
             Env &env = Env::get();
 
-            std::weak_ptr<void> *pPtr = (std::weak_ptr<void> *)env.getJniEnv()->GetDirectBufferAddress(obj);
+            std::weak_ptr<Base> *pPtr = (std::weak_ptr<Base> *)env.getJniEnv()->GetDirectBufferAddress(obj);
 
             env.throwAndClearExceptionFromLastJavaCall();
 
             return *pPtr;
         }
 
-        std::weak_ptr<void> getPointer()
+        std::weak_ptr<Base> getPointer()
         {
             Reference bufferRef = getRef_();
 
             if (bufferRef.isNull()) {
                 // that means that the C++ pointer is null.
-                return std::weak_ptr<void>();
+                return std::weak_ptr<Base>();
             } else {
                 ByteBuffer buffer(bufferRef);
 
-                return *((std::weak_ptr<void> *)buffer.getBuffer_());
+                return *((std::weak_ptr<Base> *)buffer.getBuffer_());
             }
         }
 

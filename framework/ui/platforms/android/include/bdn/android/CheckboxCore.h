@@ -12,14 +12,20 @@ namespace bdn::android
     class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
       public:
-        CheckboxCore(std::shared_ptr<Checkbox> outer)
-            : ViewCore(outer, createAndroidViewClass<wrapper::CheckBox>(outer)),
-              _jCheckBox(getJViewAS<wrapper::CheckBox>())
+        CheckboxCore(const ContextWrapper &ctxt)
+            : ViewCore(createAndroidViewClass<wrapper::CheckBox>(ctxt)), _jCheckBox(getJViewAS<wrapper::CheckBox>())
         {
             _jCheckBox.setSingleLine(true);
 
-            setLabel(outer->label);
-            setState(outer->state);
+            label.onChange() += [=](auto va) {
+                _jCheckBox.setText(va->get());
+                scheduleLayout();
+            };
+
+            state.onChange() += [=](auto va) {
+                _jCheckBox.setChecked(va->get() == TriState::on);
+                _state = state;
+            };
 
             bdn::android::wrapper::NativeViewCoreClickListener listener;
             _jCheckBox.setOnClickListener(listener);
@@ -27,37 +33,9 @@ namespace bdn::android
 
         wrapper::CheckBox &getJCheckBox() { return _jCheckBox; }
 
-        void setLabel(const String &label) override
-        {
-            _jCheckBox.setText(label);
-            _jCheckBox.requestLayout();
-        }
-
-        void setState(const TriState &state) override
-        {
-            _jCheckBox.setChecked(state == TriState::on);
-            _state = state;
-        }
-
         TriState getState() const { return _state; }
 
-        void clicked() override
-        {
-            std::shared_ptr<Checkbox> view = std::dynamic_pointer_cast<Checkbox>(outerView());
-            if (view != nullptr) {
-                ClickEvent evt(view);
-
-                std::shared_ptr<Checkbox> checkbox = std::dynamic_pointer_cast<Checkbox>(view);
-
-                _state = _jCheckBox.isChecked() ? TriState::on : TriState::off;
-
-                // User interaction cannot set the checkbox into mixed state
-                if (checkbox)
-                    checkbox->state = (_state);
-
-                view->onClick().notify(evt);
-            }
-        }
+        void clicked() override { _clickCallback.fire(); }
 
       protected:
         double getFontSizeDips() const override

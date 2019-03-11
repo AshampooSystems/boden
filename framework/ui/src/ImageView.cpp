@@ -3,14 +3,15 @@
 
 namespace bdn
 {
+    ImageView::ImageView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
+
     String ImageView::viewCoreTypeName() const { return coreTypeName; }
 
     void ImageView::bindViewCore()
     {
         View::bindViewCore();
 
-        if (auto core = std::dynamic_pointer_cast<ImageViewCore>(viewCore())) {
-            core->url.bind(url);
-        }
+        auto imageCore = core<ImageViewCore>();
+        imageCore->url.bind(url);
     }
 }

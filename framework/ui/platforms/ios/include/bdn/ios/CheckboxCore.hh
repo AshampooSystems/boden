@@ -8,7 +8,7 @@
 #import <bdn/ios/ViewCore.hh>
 
 @interface BdnIosCheckboxComposite : UIControl <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @property(strong) BdnIosCheckbox *checkbox;
 @property(strong) UILabel *uiLabel;
 @end
@@ -19,18 +19,16 @@ namespace bdn::ios
 {
     class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
-      private:
-        static BdnIosCheckboxComposite *_createCheckboxComposite();
-
       public:
-        CheckboxCore(std::shared_ptr<Checkbox> outerCheckbox);
+        CheckboxCore();
         virtual ~CheckboxCore();
 
-        void setState(const TriState &state) override;
+        virtual void init() override;
 
-        void setLabel(const String &label) override;
+        void handleClick();
 
-        void _clicked();
+      private:
+        static BdnIosCheckboxComposite *_createCheckboxComposite();
 
       private:
         BdnIosCheckboxComposite *_composite;

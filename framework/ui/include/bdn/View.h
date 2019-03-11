@@ -8,6 +8,7 @@ namespace bdn
 }
 
 #include <bdn/Layout.h>
+#include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
 #include <bdn/ViewCore.h>
 #include <bdn/mainThread.h>
@@ -18,12 +19,6 @@ namespace bdn
 
 namespace bdn
 {
-    /** Views are the building blocks of the visible user interface.
-        A view presents data or provides some user interface functionality.
-        For example, buttons, text fields etc are all view objects.
-
-        View objects must be allocated with newObj or new.
-       */
     class View : public Base
     {
         friend class Window;
@@ -34,12 +29,15 @@ namespace bdn
         Property<std::shared_ptr<LayoutStylesheet>> layoutStylesheet;
 
       public:
-        View();
+        View() = delete;
+        View(std::shared_ptr<UIProvider> uiProvider = nullptr);
         View(const View &o) = delete;
 
         virtual ~View();
 
-        std::shared_ptr<View> shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
+        auto shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
+        auto shared_from_this() const { return std::static_pointer_cast<View const>(Base::shared_from_this()); }
+
         virtual String viewCoreTypeName() const = 0;
 
       public:
@@ -51,99 +49,80 @@ namespace bdn
 
         template <class T> void setLayoutStylesheet(T sheet) { layoutStylesheet = std::make_shared<T>(sheet); }
 
-        void setViewCore(std::shared_ptr<UIProvider> uiProvider, std::shared_ptr<ViewCore> core);
         std::shared_ptr<UIProvider> uiProvider() { return _uiProvider; }
 
-        virtual std::list<std::shared_ptr<View>> childViews() const { return std::list<std::shared_ptr<View>>(); }
+        virtual std::list<std::shared_ptr<View>> childViews() { return std::list<std::shared_ptr<View>>(); }
         virtual void removeAllChildViews() {}
-        virtual void _childViewStolen(std::shared_ptr<View> childView) {}
+        virtual void childViewStolen(std::shared_ptr<View> childView) {}
 
-        virtual std::shared_ptr<View> getParentView() { return _parentViewWeak.lock(); }
-        void _setParentView(std::shared_ptr<View> parentView);
-
-        void reinitCore(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        virtual std::shared_ptr<View> getParentView() { return _parentView.lock(); }
 
         void scheduleLayout();
 
-        std::shared_ptr<ViewCore> viewCore() const { return _core; }
+        template <class T> auto core() { return std::dynamic_pointer_cast<T>(viewCore()); }
+
+        std::shared_ptr<ViewCore> viewCore();
+        std::shared_ptr<ViewCore> viewCore() const;
+
+        void setParentView(std::shared_ptr<View> parentView);
 
       protected:
         virtual void bindViewCore();
 
-        template <class ValType, class CoreType> struct CorePropertyUpdater
+      protected:
+        void onCoreLayout();
+        void onCoreDirty();
+
+      private:
+        bool canMoveToParentView(std::shared_ptr<View> parentView);
+        void updateLayout(std::shared_ptr<Layout> oldLayout, std::shared_ptr<Layout> newLayout);
+
+      private:
+        void lazyInitCore() const;
+
+      protected:
+        OfferedValue<std::shared_ptr<Layout>> _layout;
+
+      private:
+        mutable std::shared_ptr<ViewCore> _core;
+        WeakCallback<void()>::Receiver _layoutCallbackReceiver;
+        WeakCallback<void()>::Receiver _dirtyCallbackReceiver;
+
+        std::shared_ptr<UIProvider> _uiProvider;
+        std::weak_ptr<View> _parentView;
+        bool _hasLayoutSchedulePending;
+    };
+
+    template <typename ViewType, typename P> void registerCoreCreatingProperties(ViewType *view, P p)
+    {
+        p->onChange() += [=](auto) { view->viewCore(); };
+    }
+
+    template <typename ViewType, typename P, typename... Prest>
+    void registerCoreCreatingProperties(ViewType *view, P p, Prest... rest)
+    {
+        registerCoreCreatingProperties(view, p);
+        registerCoreCreatingProperties(view, rest...);
+    }
+
+    class SingleChildHelper
+    {
+      public:
+        void update(std::shared_ptr<View> self, std::shared_ptr<View> newChild)
         {
-            using core_function_ptr_t = void (CoreType::*)(const ValType &);
-
-            CorePropertyUpdater(View *view_, core_function_ptr_t setter_) : view(view_), setter(setter_) {}
-
-            void operator()(typename Property<ValType>::value_accessor_t_ptr valueAccessor)
-            {
-                if (auto p = std::dynamic_pointer_cast<CoreType>(view->viewCore())) {
-                    ((*p).*setter)(valueAccessor->get());
-                }
-
-                if (view->getLayout()) {
-                    view->getLayout()->markDirty(view);
-                }
+            if (_currentChild) {
+                _currentChild->setParentView(nullptr);
+                _currentChild->offerLayout(nullptr);
             }
+            _currentChild = newChild;
 
-            View *view;
-            core_function_ptr_t setter;
-        };
-
-        virtual std::shared_ptr<UIProvider> determineUIProvider(std::shared_ptr<View> parentView = nullptr)
-        {
-            if (parentView == nullptr)
-                parentView = getParentView();
-
-            return (parentView != nullptr) ? parentView->uiProvider() : nullptr;
+            if (newChild) {
+                newChild->setParentView(self);
+                newChild->offerLayout(self->getLayout());
+            }
         }
 
       private:
-        bool _canMoveToParentView(std::shared_ptr<View> parentView);
-        void updateLayout(std::shared_ptr<Layout> oldLayout, std::shared_ptr<Layout> newLayout);
-
-      public:
-        virtual void _deinitCore();
-        virtual void _initCore(std::shared_ptr<UIProvider> uiProvider = nullptr);
-
-      protected:
-        std::shared_ptr<UIProvider> _uiProvider;
-        std::weak_ptr<View> _parentViewWeak;
-        std::shared_ptr<ViewCore> _core;
-
-        template <class T> class OfferedValue
-        {
-          public:
-            T set(T v)
-            {
-                T old = get();
-                _own = v;
-                return old;
-            }
-
-            T setOffered(T v)
-            {
-                T old = get();
-                _offered = v;
-                return old;
-            }
-
-            T get()
-            {
-                if (_own) {
-                    return *_own;
-                }
-                return _offered;
-            }
-
-          private:
-            T _offered;
-            std::optional<T> _own;
-        };
-
-        OfferedValue<std::shared_ptr<Layout>> _layout;
-
-        bool _hasLayoutSchedulePending;
+        std::shared_ptr<View> _currentChild;
     };
 }

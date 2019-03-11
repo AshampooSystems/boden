@@ -3,45 +3,37 @@
 
 @interface BdnTextFieldDelegate : NSObject <NSTextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::TextField> outer;
+@property(nonatomic, assign) std::weak_ptr<bdn::mac::TextFieldCore> textFieldCore;
 @property(nonatomic, weak) NSTextField *nsTextField;
 
-- (id)initWithOuter:(std::weak_ptr<bdn::TextField>)outer nsTextField:(NSTextField *)nsTextField;
 - (void)controlTextDidChange:(NSNotification *)obj;
 - (void)submitted;
+- (void)setNsTextField:(NSTextField *)nsTextField;
 
 @end
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithOuter:(std::weak_ptr<bdn::TextField>)outer nsTextField:(NSTextField *)nsTextField
+- (void)setNsTextField:(NSTextField *)nsTextField
 {
-    if ((self = [super init])) {
-        self.outer = outer;
-        self.nsTextField = nsTextField;
-
-        nsTextField.delegate = self;
-        nsTextField.target = self;
-        nsTextField.action = @selector(submitted);
-
-        return self;
-    }
-
-    return nil;
+    _nsTextField = nsTextField;
+    _nsTextField.delegate = self;
+    _nsTextField.target = self;
+    _nsTextField.action = @selector(submitted);
 }
 
 - (void)controlTextDidChange:(NSNotification *)obj
 {
-    if (auto outer = self.outer.lock()) {
+    if (auto core = self.textFieldCore.lock()) {
         NSTextView *textView = [obj.userInfo objectForKey:@"NSFieldEditor"];
-        outer->text = bdn::mac::nsStringToString(textView.textStorage.string);
+        core->text = bdn::mac::nsStringToString(textView.textStorage.string);
     }
 }
 
 - (void)submitted
 {
-    if (auto outer = self.outer.lock()) {
-        outer->submit();
+    if (auto core = self.textFieldCore.lock()) {
+        core->submitCallback.fire();
     }
 }
 
@@ -49,13 +41,36 @@
 
 namespace bdn::mac
 {
-    TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
-        : ChildViewCore(outerTextField, _createNsTextView(outerTextField))
+    NSTextField *TextFieldCore::_createNsTextView()
     {
-        _delegate = [[BdnTextFieldDelegate alloc] initWithOuter:outerTextField nsTextField:(NSTextField *)nsView()];
-
-        setText(outerTextField->text);
+        NSTextField *textField = [[NSTextField alloc] init];
+        textField.allowsEditingTextAttributes = NO; // plain textfield, no attribution/formatting
+        textField.cell.wraps = NO;                  // no word wrapping
+        textField.cell.scrollable = YES;            // but scroll horizontally instead
+        return textField;
     }
 
-    TextFieldCore::~TextFieldCore() { _delegate = nil; }
+    TextFieldCore::TextFieldCore() : ViewCore(_createNsTextView()) {}
+
+    TextFieldCore::~TextFieldCore()
+    {
+        _delegate.textFieldCore = std::weak_ptr<TextFieldCore>();
+        _delegate = nil;
+    }
+
+    void TextFieldCore::init()
+    {
+        ViewCore::init();
+
+        _delegate = [[BdnTextFieldDelegate alloc] init];
+        _delegate.textFieldCore = std::dynamic_pointer_cast<TextFieldCore>(shared_from_this());
+        _delegate.nsTextField = (NSTextField *)nsView();
+
+        text.onChange() += [=](auto va) {
+            NSTextField *textField = (NSTextField *)nsView();
+            if (nsStringToString(textField.stringValue) != va->get()) {
+                textField.stringValue = stringToNSString(va->get());
+            }
+        };
+    }
 }

@@ -4,13 +4,15 @@
 
 namespace bdn::android
 {
-    ButtonCore::ButtonCore(std::shared_ptr<Button> outerButton)
-        : ViewCore(outerButton, createAndroidViewClass<wrapper::Button>(outerButton)),
-          _jButton(getJViewAS<wrapper::Button>())
+    ButtonCore::ButtonCore(const ContextWrapper &ctxt)
+        : ViewCore(createAndroidViewClass<wrapper::Button>(ctxt)), _jButton(getJViewAS<wrapper::Button>())
     {
         _jButton.setSingleLine(true);
 
-        setLabel(outerButton->label);
+        label.onChange() += [=](auto va) {
+            _jButton.setText(va->get());
+            scheduleLayout();
+        };
 
         wrapper::NativeViewCoreClickListener listener;
         _jButton.setOnClickListener(listener.cast<wrapper::OnClickListener>());
@@ -18,21 +20,7 @@ namespace bdn::android
 
     wrapper::Button &ButtonCore::getJButton() { return _jButton; }
 
-    void ButtonCore::setLabel(const String &label)
-    {
-        _jButton.setText(label);
-        _jButton.requestLayout();
-    }
-
-    void ButtonCore::clicked()
-    {
-        std::shared_ptr<View> view = outerView();
-        if (view != nullptr) {
-            ClickEvent evt(view);
-
-            std::dynamic_pointer_cast<Button>(view)->onClick().notify(evt);
-        }
-    }
+    void ButtonCore::clicked() { _clickCallback.fire(); }
 
     double ButtonCore::getFontSizeDips() const
     {

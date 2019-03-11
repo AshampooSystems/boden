@@ -10,10 +10,16 @@ namespace bdn::ios
 {
     class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
+        friend class bdn::UIProvider;
+
       public:
-        ListViewCore(std::shared_ptr<ListView> outerListView);
+        ListViewCore();
+        virtual ~ListViewCore() = default;
 
         virtual void reloadData() override;
+
+      protected:
+        virtual void init() override;
 
       private:
         ListViewDelegateIOS *_nativeDelegate;

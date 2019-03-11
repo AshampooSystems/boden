@@ -1,11 +1,15 @@
 package io.boden.android;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.EventLog;
 import android.view.MenuItem;
-import android.view.Window;
+
+import java.util.EventListener;
+import java.util.Vector;
 
 /** An activity that is controlled by native code.
  *
@@ -22,6 +26,31 @@ import android.view.Window;
  * */
 public class NativeRootActivity extends android.app.Activity
 {
+    public interface BackButtonListener extends EventListener {
+        public boolean backButtonPressed();
+    }
+
+    public class BackButtonHandlers {
+        protected Vector listener = new Vector();
+
+        public void add(BackButtonListener a) {
+            listener.addElement(a);
+        }
+
+        public void remove(BackButtonListener l) {
+            listener.remove(l);
+        }
+
+        public boolean handleBackButtonPressed() {
+            for(int i=0; i < listener.size(); i++) {
+                if (((BackButtonListener) listener.elementAt(i)).backButtonPressed()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     /** Name of the meta variable that can be used in the manifest to specify the
      *  name of the native code library.
      *
@@ -33,6 +62,9 @@ public class NativeRootActivity extends android.app.Activity
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        _rootActivity = this;
+        _backButtonHandlers = new BackButtonHandlers();
+
         super.onCreate(savedInstanceState);
 
         loadMetaData();
@@ -43,6 +75,8 @@ public class NativeRootActivity extends android.app.Activity
 
         _rootView = new NativeRootView(this );
         setContentView(_rootView);
+
+        nativeRegisterAppContext(getApplicationContext());
 
         NativeInit.launch( getIntent() );
     }
@@ -67,9 +101,21 @@ public class NativeRootActivity extends android.app.Activity
 
     @Override
     public void onBackPressed() {
-        if(!_rootView.handleBackPressed()) {
+        if(!_backButtonHandlers.handleBackButtonPressed()) {
             super.onBackPressed();
         }
+    }
+
+    public void addBackButtonListener(BackButtonListener listener) {
+        _backButtonHandlers.add(listener);
+    }
+
+    public void removeBackButtonListener(BackButtonListener listener) {
+        _backButtonHandlers.remove(listener);
+    }
+
+    public static NativeRootActivity getRootActivity() {
+        return _rootActivity;
     }
 
     private void loadMetaData()
@@ -100,9 +146,14 @@ public class NativeRootActivity extends android.app.Activity
             return defaultValue;
     }
 
+    private static native void nativeRegisterAppContext(Context ctxt);
+
     private NativeRootView _rootView;
     private Bundle _metaData;
     private String _libName;
+    private static NativeRootActivity _rootActivity;
+
+    private BackButtonHandlers _backButtonHandlers;
 }
 
 

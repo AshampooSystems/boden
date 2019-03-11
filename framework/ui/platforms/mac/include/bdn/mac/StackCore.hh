@@ -1,6 +1,6 @@
 #pragma once
 
-#import <bdn/mac/ChildViewCore.hh>
+#import <bdn/mac/ViewCore.hh>
 
 #include <bdn/Stack.h>
 #include <bdn/StackCore.h>
@@ -11,11 +11,13 @@
 
 namespace bdn::mac
 {
-    class StackCore : public ChildViewCore, public bdn::StackCore
+    class StackCore : public ViewCore, public bdn::StackCore
     {
       public:
-        StackCore(std::shared_ptr<bdn::Stack> outerStack);
-        virtual ~StackCore() = default;
+        StackCore();
+        virtual ~StackCore();
+
+        virtual void init() override;
 
       public:
         virtual void pushView(std::shared_ptr<View> view, String title) override;
@@ -23,10 +25,10 @@ namespace bdn::mac
         virtual std::list<std::shared_ptr<View>> childViews() override;
 
       public:
+        virtual void setLayout(std::shared_ptr<Layout> layout) override;
+
       private:
         void updateCurrentView();
-        std::shared_ptr<Stack> getStack() const;
-
         void reLayout();
 
       private:
@@ -35,8 +37,15 @@ namespace bdn::mac
         NSTextField *_title;
 
         std::shared_ptr<View> _currentView;
-
         std::shared_ptr<FixedView> _container;
+
+        struct StackEntry
+        {
+            std::shared_ptr<View> view;
+            String title;
+        };
+
+        std::deque<StackEntry> _stack;
 
         BdnBackButtonClickHandler *_backButtonClickHandler;
     };

@@ -9,7 +9,7 @@ namespace bdn::android
     class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
     {
       public:
-        ImageViewCore(std::shared_ptr<ImageView> outer);
+        ImageViewCore(const ContextWrapper &ctxt);
         virtual ~ImageViewCore() = default;
 
       public:

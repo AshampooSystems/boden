@@ -20,8 +20,8 @@
 {
     [super setFrame:frame];
 
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto core = self.viewCore.lock()) {
+        core->frameChanged();
     }
 }
 @end
@@ -68,23 +68,20 @@
         _fixedView = std::make_shared<bdn::FixedView>();
         _safeContent = std::make_shared<bdn::FixedView>();
 
-        _fixedView->_setParentView(core->outerView());
+        self.view = _fixedView->core<bdn::ios::ViewCore>()->uiView();
 
-        self.view = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_fixedView->viewCore())->uiView();
+        _fixedView->offerLayout(core->_layout);
 
         _fixedView->addChildView(_safeContent);
-
         _safeContent->addChildView(_userContent);
 
         _fixedView->geometry.onChange() += [=](auto) { [self updateSafeContent]; };
 
-        /*
         auto c = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_safeContent->viewCore());
-        if(c) {
-            c->uiView().backgroundColor = [UIColor redColor];
+        if (c) {
+            // c->uiView().backgroundColor = [UIColor redColor];
             c->uiView().clipsToBounds = YES;
         }
-        */
 
         self.view.backgroundColor = UIColor.whiteColor;
     }
@@ -98,7 +95,7 @@
 
 namespace bdn::ios
 {
-    BodenUINavigationControllerContainerView *createNavigationControllerView(std::shared_ptr<Stack> outerStack)
+    BodenUINavigationControllerContainerView *createNavigationControllerView()
     {
         UINavigationController *navigationController = [[UINavigationController alloc] init];
 
@@ -108,10 +105,15 @@ namespace bdn::ios
         return view;
     }
 
-    StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-        : ViewCore(outerStack, createNavigationControllerView(outerStack))
+    StackCore::StackCore() : ViewCore(createNavigationControllerView()) {}
+
+    void StackCore::init()
     {
-        UIViewController *rootViewController = uiView().window.rootViewController;
+        ViewCore::init();
+
+        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+
+        UIViewController *rootViewController = window.rootViewController;
         [rootViewController addChildViewController:getNavigationController()];
         [rootViewController.view addSubview:getNavigationController().view];
     }
@@ -154,8 +156,6 @@ namespace bdn::ios
 
     void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
-        auto outerStack = stack();
-
         BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
         ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
         ctrl.userContent = view;
@@ -164,23 +164,13 @@ namespace bdn::ios
 
         [getNavigationController() pushViewController:ctrl animated:YES];
 
-        // [ctrl.view setFrame:getNavigationController().view.frame];
-
-        if (auto outer = outerView()) {
-            if (auto layout = outer->getLayout()) {
-                layout->markDirty(outer.get());
-            }
-        }
+        _dirtyCallback.fire();
     }
 
     void StackCore::popView()
     {
         [getNavigationController() popViewControllerAnimated:YES];
-        if (auto outer = outerView()) {
-            if (auto layout = outer->getLayout()) {
-                layout->markDirty(outer.get());
-            }
-        }
+        _dirtyCallback.fire();
     }
 
     std::list<std::shared_ptr<View>> StackCore::childViews()
@@ -190,6 +180,4 @@ namespace bdn::ios
         }
         return {};
     }
-
-    std::shared_ptr<Stack> StackCore::stack() { return std::static_pointer_cast<bdn::Stack>(outerView()); }
 }

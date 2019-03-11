@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
+#include <bdn/TextViewCore.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/RStyle.h>
 #include <bdn/android/wrapper/TextView.h>
@@ -10,16 +10,27 @@
 
 namespace bdn::android
 {
-
-    class TextViewCore : public ViewCore, virtual public ITextViewCore
+    class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
     {
       public:
-        TextViewCore(std::shared_ptr<TextView> outerTextView)
-            : ViewCore(outerTextView, createAndroidViewClass<wrapper::TextView>(outerTextView)),
-              _jTextView(getJViewAS<wrapper::TextView>())
+        TextViewCore(const ContextWrapper &ctxt)
+            : ViewCore(createAndroidViewClass<wrapper::TextView>(ctxt)), _jTextView(getJViewAS<wrapper::TextView>())
         {
-            setText(outerTextView->text);
-            setWrap(outerTextView->wrap.get());
+            text.onChange() += [=](auto va) {
+                // Remove '\r' as android treats them as a space
+                String textToSet = va->get();
+                textToSet.erase(
+                    std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
+                    textToSet.end());
+                _jTextView.setText(textToSet);
+                scheduleLayout();
+            };
+
+            wrap.onChange() += [=](auto va) {
+                _jTextView.setMaxLines(va->get() ? std::numeric_limits<int>::max() : 1);
+                _wrap = va->get();
+                scheduleLayout();
+            };
 
             geometry.onChange() += [=](auto va) {
                 int widthPixels = va->get().width * getUIScaleFactor();
@@ -31,23 +42,6 @@ namespace bdn::android
         }
 
         wrapper::TextView &getJTextView() { return _jTextView; }
-
-        void setText(const String &text) override
-        {
-            // Remove '\r' as android treats them as a space
-            String textToSet = text;
-            textToSet.erase(
-                std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
-                textToSet.end());
-
-            _jTextView.setText(textToSet);
-        }
-
-        virtual void setWrap(const bool &wrap) override
-        {
-            _jTextView.setMaxLines(wrap ? std::numeric_limits<int>::max() : 1);
-            _wrap = wrap;
-        }
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override
         {

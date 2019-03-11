@@ -10,7 +10,7 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.WebViewCore";
 
       public:
-        WebView();
+        WebView(std::shared_ptr<UIProvider> uiProvider = nullptr);
         virtual ~WebView() = default;
 
         Property<String> url;

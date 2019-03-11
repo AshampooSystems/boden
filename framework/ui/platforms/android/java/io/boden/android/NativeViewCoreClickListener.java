@@ -17,7 +17,7 @@ public class NativeViewCoreClickListener extends Object implements View.OnClickL
     {
     }
 
-    public void	onClick(View view)
+    public void onClick(View view)
     {
         viewClicked(view);
     }

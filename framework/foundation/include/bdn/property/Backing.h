@@ -3,6 +3,7 @@
 #include <bdn/SimpleNotifier.h>
 #include <bdn/property/IValueAccessor.h>
 #include <memory>
+#include <vector>
 
 namespace bdn
 {
@@ -47,22 +48,23 @@ namespace bdn
 
         virtual void bind(std::shared_ptr<Backing<ValType>> sourceBacking)
         {
-            unbind();
+            Binding binding{sourceBacking->onChange().subscribe(
+                                std::bind(&Backing::bindSourceChanged, this, std::placeholders::_1)),
+                            sourceBacking};
 
-            _binding = sourceBacking;
-
-            _bindingSubscription = sourceBacking->onChange().subscribe(
-                std::bind(&Backing::bindSourceChanged, this, std::placeholders::_1));
+            _bindings.push_back(binding);
 
             bindSourceChanged(sourceBacking);
         }
 
         void unbind()
         {
-            if (auto strongBind = _binding.lock()) {
-                strongBind->onChange().unsubscribe(_bindingSubscription);
-                _binding.reset();
+            for (auto binding : _bindings) {
+                if (auto strongBacking = binding.backing.lock()) {
+                    strongBacking->onChange().unsubscribe(binding.subscription);
+                }
             }
+            _bindings.clear();
         }
 
       public:
@@ -70,7 +72,13 @@ namespace bdn
 
       protected:
         mutable notifier_t_ptr _pOnChange;
-        std::shared_ptr<INotifierSubscription> _bindingSubscription;
-        std::weak_ptr<Backing<ValType>> _binding;
+
+        struct Binding
+        {
+            std::shared_ptr<INotifierSubscription> subscription;
+            std::weak_ptr<Backing<ValType>> backing;
+        };
+
+        std::vector<Binding> _bindings;
     };
 }

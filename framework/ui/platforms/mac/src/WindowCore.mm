@@ -1,11 +1,11 @@
-#import <bdn/mac/ChildViewCore.hh>
+#import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/WindowCore.hh>
 
 #include <iostream>
 
 @interface BdnWindowDelegate : NSObject <NSWindowDelegate>
 
-@property bdn::mac::WindowCore *windowCore;
+@property std::weak_ptr<bdn::mac::WindowCore> windowCore;
 
 @end
 
@@ -13,53 +13,70 @@
 
 - (void)windowDidResize:(NSNotification *)notification
 {
-    if (_windowCore != nullptr)
-        _windowCore->_movedOrResized();
+    auto windowCore = _windowCore.lock();
+    if (windowCore != nullptr)
+        windowCore->_movedOrResized();
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
-    if (_windowCore != nullptr)
-        _windowCore->_movedOrResized();
+    auto windowCore = _windowCore.lock();
+    if (windowCore != nullptr)
+        windowCore->_movedOrResized();
 }
 
+@end
+
+@interface BdnMacWindowContentViewParent_ : NSView <BdnLayoutable>
+@property std::weak_ptr<bdn::mac::WindowCore> windowCore;
 @end
 
 @implementation BdnMacWindowContentViewParent_
 
 - (BOOL)isFlipped { return YES; }
 
-- (void)layout { _bdnWindow->getLayout()->layout(_bdnWindow); }
+- (void)layout
+{
+    if (auto core = self.windowCore.lock()) {
+        core->startLayout();
+    }
+}
 
 @end
 
 namespace bdn::mac
 {
-    WindowCore::WindowCore(std::shared_ptr<View> outer)
+    WindowCore::WindowCore() {}
+
+    WindowCore::~WindowCore()
     {
-        std::shared_ptr<Window> outerWindow = std::dynamic_pointer_cast<Window>(outer);
-        _outerWindowWeak = outerWindow;
+        if (_nsWindow != nil) {
+            if (_ourDelegate != nil) {
+                [((BdnWindowDelegate *)_ourDelegate) setWindowCore:std::weak_ptr<WindowCore>()];
+                _nsWindow.delegate = nil;
+                _ourDelegate = nil;
+            }
+
+            // hide the window before we release our reference (to ensure
+            // that it is actually deleted).
+            [_nsWindow orderOut:NSApp];
+            _nsWindow = nil;
+        }
+
+        _nsContentParent.windowCore = std::weak_ptr<WindowCore>();
+        _nsContentParent = nil;
+    }
+
+    void WindowCore::init()
+    {
+        auto self = std::dynamic_pointer_cast<WindowCore>(shared_from_this());
 
         NSScreen *screen = [NSScreen mainScreen];
 
         // the screen's coordinate system is inverted (origin is bottom
         // left). So we need to pass the screen height so that it will be
         // converted properly.
-        NSRect rect = rectToMacRect(outer->geometry, screen.frame.size.height);
-
-        geometry.onChange() += [&window = this->_nsWindow](auto va) {
-            NSScreen *screen = [NSScreen mainScreen];
-            [window setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
-        };
-
-        visible.onChange() += [&window = this->_nsWindow](auto va) {
-            if (va->get())
-                [window makeKeyAndOrderFront:NSApp];
-            else
-                [window orderOut:NSApp];
-        };
-
-        title.onChange() += [&window = this->_nsWindow](auto va) { [window setTitle:stringToNSString(va->get())]; };
+        NSRect rect = rectToMacRect(Rect{0, 0, 0, 0}, screen.frame.size.height);
 
         _nsWindow = [[NSWindow alloc]
             initWithContentRect:rect
@@ -76,33 +93,31 @@ namespace bdn::mac
         contentRect.size = rect.size;
 
         _nsContentParent = [[BdnMacWindowContentViewParent_ alloc] initWithFrame:contentRect];
-        _nsContentParent.bdnWindow = std::dynamic_pointer_cast<Window>(outer).get();
+        _nsContentParent.windowCore = self;
 
         _nsWindow.contentView = _nsContentParent;
 
         BdnWindowDelegate *delegate = [BdnWindowDelegate alloc];
-        [delegate setWindowCore:this];
+        [delegate setWindowCore:self];
 
         _ourDelegate = delegate;
         _nsWindow.delegate = delegate;
-    }
 
-    WindowCore::~WindowCore()
-    {
-        if (_nsWindow != nil) {
-            if (_ourDelegate != nil) {
-                [((BdnWindowDelegate *)_ourDelegate) setWindowCore:nullptr];
-                _nsWindow.delegate = nil;
-                _ourDelegate = nil;
-            }
+        content.onChange() += [=](auto va) { updateContent(va->get()); };
 
-            // hide the window before we release our reference (to ensure
-            // that it is actually deleted).
-            [_nsWindow orderOut:NSApp];
-            _nsWindow = nil;
-        }
+        geometry.onChange() += [&window = self->_nsWindow](auto va) {
+            NSScreen *screen = [NSScreen mainScreen];
+            [window setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
+        };
 
-        _nsContentParent = nil;
+        visible.onChange() += [&window = self->_nsWindow](auto va) {
+            if (va->get())
+                [window makeKeyAndOrderFront:NSApp];
+            else
+                [window orderOut:NSApp];
+        };
+
+        title.onChange() += [&window = self->_nsWindow](auto va) { [window setTitle:stringToNSString(va->get())]; };
     }
 
     bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const
@@ -110,19 +125,6 @@ namespace bdn::mac
         // we don't have a parent. Report that we cannot do this.
         return false;
     }
-
-    void WindowCore::moveToParentView(std::shared_ptr<View> newParentView)
-    {
-        // do nothing
-    }
-
-    void WindowCore::dispose()
-    {
-        // Window does not need to be removed from view hierarchy – do
-        // nothing
-    }
-
-    void WindowCore::addChildNSView(NSView *childView) { [_nsContentParent addSubview:childView]; }
 
     void WindowCore::_movedOrResized()
     {
@@ -196,5 +198,19 @@ namespace bdn::mac
             screen = [NSScreen mainScreen];
 
         return screen;
+    }
+
+    void WindowCore::updateContent(const std::shared_ptr<View> newContent)
+    {
+        for (id oldViewObject in _nsContentParent.subviews) {
+            NSView *oldView = (NSView *)oldViewObject;
+            [oldView removeFromSuperview];
+        }
+
+        if (auto childCore = newContent->core<mac::ViewCore>()) {
+            [_nsContentParent addSubview:childCore->nsView()];
+        } else {
+            throw std::runtime_error("Cannot set this type of View as content");
+        }
     }
 }

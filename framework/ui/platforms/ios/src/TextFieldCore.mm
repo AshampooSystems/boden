@@ -6,9 +6,9 @@
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::TextField> outerTextField;
+@property(nonatomic, assign) std::weak_ptr<bdn::TextFieldCore> core;
 
-- (id)initWithTextField:(UITextField *)textField outerTextField:(std::shared_ptr<bdn::TextField>)outerTextField;
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextFieldCore>)core;
 - (void)textFieldDidChange:(UITextField *)textField;
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;
 
@@ -16,10 +16,10 @@
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithTextField:(UITextField *)textField outerTextField:(std::shared_ptr<bdn::TextField>)outerTextField
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextFieldCore>)core
 {
     if ((self = [super init])) {
-        self.outerTextField = outerTextField;
+        self.core = core;
         textField.delegate = self;
 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -37,12 +37,16 @@
 
 - (void)textFieldDidChange:(NSNotification *)notification
 {
-    self.outerTextField.lock()->text = (bdn::ios::nsStringToString(((UITextField *)notification.object).text));
+    if (auto core = self.core.lock()) {
+        core->text = (bdn::ios::nsStringToString(((UITextField *)notification.object).text));
+    }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    self.outerTextField.lock()->submit();
+    if (auto core = self.core.lock()) {
+        core->submitCallback.fire();
+    }
 
     // close virtual keyboard
     [textField resignFirstResponder];
@@ -52,7 +56,7 @@
 @end
 
 @interface BodenUITextField : UITextField <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUITextField
@@ -60,8 +64,8 @@
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 
@@ -69,7 +73,7 @@
 
 namespace bdn::ios
 {
-    BodenUITextField *_createUITextField(std::shared_ptr<TextField> outerTextField)
+    BodenUITextField *_createUITextField()
     {
         BodenUITextField *textField = [[BodenUITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         textField.backgroundColor = [UIColor clearColor];
@@ -87,21 +91,22 @@ namespace bdn::ios
         return textField;
     }
 
-    TextFieldCore::TextFieldCore(std::shared_ptr<TextField> outerTextField)
-        : ViewCore(outerTextField, _createUITextField(outerTextField))
+    TextFieldCore::TextFieldCore() : ViewCore(_createUITextField()) {}
+
+    void TextFieldCore::init()
     {
-        setText(outerTextField->text);
-        _delegate =
-            [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView() outerTextField:outerTextField];
+        ViewCore::init();
+        _delegate = [[BdnTextFieldDelegate alloc]
+            initWithTextField:(UITextField *)uiView()
+                         core:std::dynamic_pointer_cast<TextFieldCore>(shared_from_this())];
+
+        text.onChange() += [=](auto va) {
+            UITextField *textField = (UITextField *)uiView();
+            if (nsStringToString(textField.text) != text.get()) {
+                textField.text = stringToNSString(text);
+            }
+        };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
-
-    void TextFieldCore::setText(const String &text)
-    {
-        UITextField *textField = (UITextField *)uiView();
-        if (nsStringToString(textField.text) != text) {
-            textField.text = stringToNSString(text);
-        }
-    }
 }

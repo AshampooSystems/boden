@@ -3,18 +3,22 @@
 
 namespace bdn
 {
-    ListView::ListView() {}
+    ListView::ListView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
     void ListView::reloadData()
     {
-        std::shared_ptr<ListViewCore> core = std::dynamic_pointer_cast<ListViewCore>(viewCore());
-
-        if (core == nullptr) {
-            return;
-        }
-
-        core->reloadData();
+        auto listCore = core<ListViewCore>();
+        listCore->reloadData();
     }
 
     String ListView::viewCoreTypeName() const { return coreTypeName; }
+
+    void ListView::bindViewCore()
+    {
+        View::bindViewCore();
+        auto listCore = core<ListViewCore>();
+        listCore->_uiProvider = uiProvider();
+        listCore->dataSource.bind(dataSource);
+        listCore->selectedRowIndex.bind(selectedRowIndex);
+    }
 }

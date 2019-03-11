@@ -1,60 +1,31 @@
 #include <bdn/Stack.h>
 #include <bdn/android/StackCore.h>
-#include <bdn/android/wrapper/NativeViewGroup.h>
+#include <bdn/android/wrapper/NativeStackView.h>
 
 namespace bdn::android
 {
-    class NavButtonHandler : public WindowCore::AndroidNavigationButtonHandler
+    StackCore::StackCore(const ContextWrapper &ctxt) : ViewCore(createAndroidViewClass<wrapper::NativeStackView>(ctxt))
     {
-      public:
-        NavButtonHandler(StackCore *core) : _stackCore(core) {}
-        virtual ~NavButtonHandler() = default;
+        _container = std::make_shared<FixedView>(_uiProvider);
+        auto containerCore = _container->core<android::ViewCore>();
+        getJViewAS<wrapper::NativeViewGroup>().addView(containerCore->getJView());
 
-        void unsetCore() { _stackCore = nullptr; }
-
-        virtual bool handleBackButton() override
-        {
-            if (_stackCore) {
-                return _stackCore->handleBackButton();
-            }
-            return false;
-        }
-
-      private:
-        StackCore *_stackCore;
-    };
-
-    std::shared_ptr<WindowCore> findWindow(std::shared_ptr<View> view)
-    {
-        if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(view->viewCore())) {
-            return windowCore;
-        }
-
-        if (auto parent = view->getParentView()) {
-            return findWindow(parent);
-        }
-
-        return nullptr;
-    }
-
-    StackCore::StackCore(std::shared_ptr<Stack> outerStack)
-        : ViewCore(outerStack, createAndroidViewClass<wrapper::NativeViewGroup>(outerStack))
-    {
         geometry.onChange() += [=](auto va) { this->reLayout(); };
     }
 
-    StackCore::~StackCore()
+    StackCore::~StackCore() { getJViewAS<wrapper::NativeStackView>().close(); }
+
+    void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
-        if (_navHandler) {
-            _navHandler->unsetCore();
-        }
+        _stack.push_back({view, title});
+        updateCurrentView();
     }
 
-    void StackCore::pushView(std::shared_ptr<View> view, String title) { updateCurrentView(); }
-
-    void StackCore::popView() { updateCurrentView(); }
-
-    std::shared_ptr<Stack> StackCore::getStack() const { return std::static_pointer_cast<Stack>(outerView()); }
+    void StackCore::popView()
+    {
+        _stack.pop_back();
+        updateCurrentView();
+    }
 
     std::list<std::shared_ptr<View>> StackCore::childViews()
     {
@@ -64,69 +35,39 @@ namespace bdn::android
         return {};
     }
 
+    void StackCore::visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function)
+    {
+        function(_container->viewCore());
+    }
+
     void StackCore::updateCurrentView()
     {
-        if (!_container) {
-            _container = std::make_shared<FixedView>();
-            _container->_setParentView(outerView());
+        if (_currentView) {
+            _container->removeAllChildViews();
         }
 
-        if (auto outerStack = getStack()) {
-            if (_currentView) {
-                _container->removeAllChildViews();
-            }
+        if (!_stack.empty()) {
+            auto newView = _stack.back().view;
 
-            if (!outerStack->stack().empty()) {
-                auto newView = outerStack->stack().back().view;
+            _container->addChildView(newView);
 
-                _container->addChildView(newView);
+            _currentView = newView;
 
-                _currentView = newView;
-
-                if (auto windowCore = findWindow(outerStack)) {
-
-                    if (!_navHandler) {
-                        _navHandler = std::make_shared<NavButtonHandler>(this);
-                        windowCore->setAndroidNavigationButtonHandler(_navHandler);
-                    }
-
-                    windowCore->title = (outerStack->stack().back().title);
-                    windowCore->enableBackButton(outerStack->stack().size() > 1);
-                }
-            }
+            getJViewAS<wrapper::NativeStackView>().setWindowTitle(_stack.back().title);
+            getJViewAS<wrapper::NativeStackView>().enableBackButton(_stack.size() > 1);
         }
 
         reLayout();
     }
 
-    void StackCore::addChildCore(ViewCore *child)
-    {
-        ViewCore::getJViewAS<wrapper::NativeViewGroup>().addView(child->getJView());
-    }
-
-    void StackCore::removeChildCore(ViewCore *child)
-    {
-        ViewCore::getJViewAS<wrapper::NativeViewGroup>().removeView(child->getJView());
-    }
-
-    double StackCore::getUIScaleFactor() const { return ViewCore::getUIScaleFactor(); }
-
     bool StackCore::handleBackButton()
     {
-        if (auto outerStack = getStack()) {
-            if (outerStack->stack().size() > 1) {
-                outerStack->popView();
-                return true;
-            }
+        if (_stack.size() > 1) {
+            popView();
+            return true;
         }
-
         return false;
     }
 
-    void StackCore::reLayout()
-    {
-        if (_container) {
-            _container->geometry = Rect{0, 0, geometry->width, geometry->height};
-        }
-    }
+    void StackCore::reLayout() { _container->geometry = Rect{0, 0, geometry->width, geometry->height}; }
 }

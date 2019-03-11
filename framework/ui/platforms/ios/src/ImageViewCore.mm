@@ -5,24 +5,24 @@
 #import <Foundation/Foundation.h>
 
 @interface BodenUIImageView : UIImageView <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIImageView
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
     }
 }
 @end
 
 namespace bdn::ios
 {
-    UIView<UIViewWithFrameNotification> *ImageViewCore::createUIImageView(std::shared_ptr<ImageView> outer)
+    UIView<UIViewWithFrameNotification> *ImageViewCore::createUIImageView()
     {
-        BodenUIImageView *view = [[BodenUIImageView alloc] initWithFrame:rectToIosRect(outer->geometry)];
+        BodenUIImageView *view = [[BodenUIImageView alloc] initWithFrame:CGRectZero];
         view.contentMode = UIViewContentModeScaleToFill;
 
         return view;
@@ -48,7 +48,7 @@ namespace bdn::ios
         return ViewCore::sizeForSpace(availableSize);
     }
 
-    ImageViewCore::ImageViewCore(std::shared_ptr<ImageView> outer) : ViewCore(outer, createUIImageView(outer))
+    ImageViewCore::ImageViewCore() : ViewCore(createUIImageView())
     {
         url.onChange() += [=](auto va) { setUrl(va->get()); };
     }
@@ -72,11 +72,7 @@ namespace bdn::ios
                          getMainDispatcher()->enqueue([=]() {
                              ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
                              this->scheduleLayout();
-                             if (auto outer = outerView()) {
-                                 if (auto layout = outer->getLayout()) {
-                                     layout->markDirty(outer.get());
-                                 }
-                             }
+                             _dirtyCallback.fire();
                          });
                      }
                    }];

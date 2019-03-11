@@ -1,55 +1,44 @@
 
 #import <bdn/ios/ButtonCore.hh>
 
-@interface BdnIosButtonClickManager : NSObject
-
-@property(nonatomic, assign) std::weak_ptr<bdn::Button> outer;
-
-@end
-
-@implementation BdnIosButtonClickManager
-
-- (void)clicked
-{
-    if (auto outer = self.outer.lock()) {
-        bdn::ClickEvent clickEvent(outer);
-        outer->onClick().notify(clickEvent);
-    }
-}
-
-@end
-
 @interface BodenUIButton : UIButton <UIViewWithFrameNotification>
-@property(nonatomic, assign) bdn::ios::ViewCore *viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ios::ButtonCore> core;
 @end
 
 @implementation BodenUIButton
+
+- (void)setViewCore:(std::weak_ptr<bdn::ios::ViewCore>)viewCore
+{
+    self.core = std::dynamic_pointer_cast<bdn::ios::ButtonCore>(viewCore.lock());
+}
+
 - (void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
-    if (_viewCore) {
-        _viewCore->frameChanged();
+    if (auto core = self.core.lock()) {
+        core->frameChanged();
     }
 }
+
+- (void)clicked
+{
+    if (auto core = self.core.lock()) {
+        core->handleClick();
+    }
+}
+
 @end
 
 namespace bdn::ios
 {
-    BodenUIButton *_createUIButton(std::shared_ptr<Button> outer)
-    {
-        return [BodenUIButton buttonWithType:UIButtonTypeSystem];
-    }
+    BodenUIButton *_createUIButton() { return [BodenUIButton buttonWithType:UIButtonTypeSystem]; }
 
-    ButtonCore::ButtonCore(std::shared_ptr<Button> outer) : ViewCore(outer, _createUIButton(outer))
+    ButtonCore::ButtonCore() : ViewCore(_createUIButton())
     {
         _button = (UIButton *)uiView();
+        [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
-        _clickManager = [BdnIosButtonClickManager alloc];
-        _clickManager.outer = outer;
-
-        [_button addTarget:_clickManager action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
-
-        setLabel(outer->label);
+        label.onChange() += [=](auto va) { [_button setTitle:stringToNSString(label) forState:UIControlStateNormal]; };
     }
 
     ButtonCore::~ButtonCore()
@@ -59,10 +48,7 @@ namespace bdn::ios
 
     UIButton *ButtonCore::getUIButton() { return _button; }
 
-    void ButtonCore::setLabel(const String &label)
-    {
-        [_button setTitle:stringToNSString(label) forState:UIControlStateNormal];
-    }
+    void ButtonCore::handleClick() { _clickCallback.fire(); }
 
     double ButtonCore::getFontSize() const { return _button.titleLabel.font.pointSize; }
 }

@@ -7,10 +7,13 @@ namespace bdn
     class SwitchCore : virtual public ViewCore
     {
       public:
-        /** Changes the control's label text.*/
-        virtual void setLabel(const String &label) = 0;
+        Property<String> label;
+        Property<bool> on;
 
-        /** Changes the control's on/off state */
-        virtual void setOn(const bool &on) = 0;
+      public:
+        virtual ~SwitchCore() = default;
+
+      public:
+        WeakCallback<void()> _clickCallback;
     };
 }

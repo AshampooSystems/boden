@@ -1,21 +1,19 @@
 #pragma once
 
 #include <bdn/Button.h>
-#include <bdn/IButtonCore.h>
+#include <bdn/ButtonCore.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Button.h>
 
 namespace bdn::android
 {
 
-    class ButtonCore : public ViewCore, virtual public IButtonCore
+    class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       public:
-        ButtonCore(std::shared_ptr<Button> outerButton);
+        ButtonCore(const ContextWrapper &ctxt);
 
         wrapper::Button &getJButton();
-
-        void setLabel(const String &label) override;
 
         void clicked() override;
 

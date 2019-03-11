@@ -5,7 +5,6 @@
 #include <bdn/config.h>
 #include <bdn/entry.h>
 #include <bdn/java/wrapper/NativeStrongPointer.h>
-#include <bdn/log.h>
 #include <ostream>
 
 #include "../../../include/bdn/HTTPRequest.h"

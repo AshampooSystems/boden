@@ -1,5 +1,6 @@
 package io.boden.android;
 
+import android.content.Context;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.ListView;
@@ -8,8 +9,26 @@ import android.widget.LinearLayout.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 
+import io.boden.java.NativeStrongPointer;
+
 public class NativeListAdapter extends BaseAdapter
 {
+    public class RowContainer extends NativeViewGroup {
+        public RowContainer(Context context) {
+            super(context);
+        }
+
+        public NativeStrongPointer getBdnView() {
+            return _bdnViewPtr;
+        }
+
+        public void setBdnView(NativeStrongPointer bdnViewPtr) {
+            _bdnViewPtr = bdnViewPtr;
+        }
+
+        private NativeStrongPointer _bdnViewPtr;
+    }
+
     public NativeListAdapter(View view) {
         _view = view;
     }
