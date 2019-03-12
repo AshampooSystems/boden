@@ -5,6 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.transition.Transition;
 import android.util.EventLog;
 import android.view.MenuItem;
 
@@ -24,7 +26,7 @@ import java.util.Vector;
  *
  *
  * */
-public class NativeRootActivity extends android.app.Activity
+public class NativeRootActivity extends FragmentActivity
 {
     public interface BackButtonListener extends EventListener {
         public boolean backButtonPressed();

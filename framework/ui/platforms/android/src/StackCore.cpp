@@ -6,10 +6,6 @@ namespace bdn::android
 {
     StackCore::StackCore(const ContextWrapper &ctxt) : ViewCore(createAndroidViewClass<wrapper::NativeStackView>(ctxt))
     {
-        _container = std::make_shared<FixedView>(_uiProvider);
-        auto containerCore = _container->core<android::ViewCore>();
-        getJViewAS<wrapper::NativeViewGroup>().addView(containerCore->getJView());
-
         geometry.onChange() += [=](auto va) { this->reLayout(); };
     }
 
@@ -17,46 +13,50 @@ namespace bdn::android
 
     void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
-        _stack.push_back({view, title});
-        updateCurrentView();
+        auto fixedView = std::make_shared<FixedView>(_uiProvider);
+        fixedView->addChildView(view);
+        fixedView->offerLayout(_layout);
+
+        bool isFirst = _stack.empty();
+
+        _stack.push_back({fixedView, view, title});
+        updateCurrentView(isFirst, true);
     }
 
     void StackCore::popView()
     {
         _stack.pop_back();
-        updateCurrentView();
+        updateCurrentView(false, false);
     }
 
     std::list<std::shared_ptr<View>> StackCore::childViews()
     {
-        if (_container) {
-            return {_container};
+        if (!_stack.empty()) {
+            return {_stack.back().container};
         }
         return {};
     }
 
     void StackCore::visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function)
     {
-        function(_container->viewCore());
+        for (auto entry : _stack) {
+            function(entry.container->viewCore());
+        }
     }
 
-    void StackCore::updateCurrentView()
+    void StackCore::updateCurrentView(bool first, bool enter)
     {
-        if (_currentView) {
-            _container->removeAllChildViews();
-        }
-
         if (!_stack.empty()) {
-            auto newView = _stack.back().view;
+            auto fixedCore = _stack.back().container->core<android::ContainerViewCore>();
 
-            _container->addChildView(newView);
+            auto nativeStackView = getJViewAS<wrapper::NativeStackView>();
 
-            _currentView = newView;
-
-            getJViewAS<wrapper::NativeStackView>().setWindowTitle(_stack.back().title);
-            getJViewAS<wrapper::NativeStackView>().enableBackButton(_stack.size() > 1);
+            nativeStackView.setWindowTitle(_stack.back().title);
+            nativeStackView.enableBackButton(_stack.size() > 1);
+            nativeStackView.changeContent(fixedCore->getJView(), !first, enter);
         }
 
+        updateChildren();
         reLayout();
     }
 
@@ -69,5 +69,10 @@ namespace bdn::android
         return false;
     }
 
-    void StackCore::reLayout() { _container->geometry = Rect{0, 0, geometry->width, geometry->height}; }
+    void StackCore::reLayout()
+    {
+        if (!_stack.empty()) {
+            _stack.back().container->geometry = Rect{0, 0, geometry->width, geometry->height};
+        }
+    }
 }

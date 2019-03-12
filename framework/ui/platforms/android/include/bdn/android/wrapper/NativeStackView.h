@@ -15,5 +15,6 @@ namespace bdn::android::wrapper
 
         JavaMethod<void(String)> setWindowTitle{this, "setWindowTitle"};
         JavaMethod<void(bool)> enableBackButton{this, "enableBackButton"};
+        JavaMethod<void(View, bool, bool)> changeContent{this, "changeContent"};
     };
 }

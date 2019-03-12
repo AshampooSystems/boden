@@ -29,16 +29,13 @@ namespace bdn::android
         bool handleBackButton();
 
       private:
-        void updateCurrentView();
-        std::shared_ptr<Stack> getStack() const;
+        void updateCurrentView(bool first, bool enter);
         void reLayout();
 
       private:
-        std::shared_ptr<View> _currentView;
-        std::shared_ptr<FixedView> _container;
-
         struct StackEntry
         {
+            std::shared_ptr<FixedView> container;
             std::shared_ptr<View> view;
             String title;
         };
