@@ -80,7 +80,7 @@ class AndroidExecutor:
         buildDir = self.buildFolder.getBuildDir(configuration)
 
         if configuration.buildsystem == "AndroidStudio":
-            self.prepareAndroidStudio(platformState, configuration, androidAbi, androidHome, buildDir)
+            self.prepareAndroidStudio(platformState, configuration, androidAbi, androidHome, buildDir, args)
         else:
             self.prepareMake(platformState, configuration, args, androidAbi, androidHome, buildDir)
 
@@ -124,7 +124,7 @@ class AndroidExecutor:
 
         pass
 
-    def prepareAndroidStudio(self, platformState, configuration, androidAbi, androidHome, buildDir):
+    def prepareAndroidStudio(self, platformState, configuration, androidAbi, androidHome, buildDir, args):
         gradlePath = self.gradle.getGradlePath()
 
         self.gradle.stop()
@@ -161,13 +161,12 @@ class AndroidExecutor:
         if len(cmakeConfigurations) != 1:
             raise Exception("Number of configurations is not 1!")
 
-        targetDependencies = self.calculateDependencies(self.cmake.codeModel)
+        target_dependencies = self.calculateDependencies(self.cmake.codeModel)
 
         config = cmakeConfigurations[0]
         project = config["main-project"]
 
         self.logger.debug("Found project: %s", project["name"])
-        #projects += [project]
         targetNames = []
         targets = []
         for target in project["targets"]:
@@ -176,32 +175,13 @@ class AndroidExecutor:
                 targetNames += [target["name"]]
                 targets += [target]
 
-        projects = [{"name" : project["name"], "sourceDirectory" : project["sourceDirectory"],"targetNames" : targetNames, "targets" : targets}]
+        project = {"name" : project["name"], "sourceDirectory" : project["sourceDirectory"],"targetNames" : targetNames, "targets" : targets}
 
         # Use external CMake for building native code (supported as of AndroidStudio 3.2)
         generator = AndroidStudioProjectGenerator(self.gradle, self.cmake, buildDir, self.androidBuildApiVersion)
+
+        generator.generate(project, androidAbi, target_dependencies, args);
        
-        for project in projects:
-            self.logger.debug("Generating project %s with targets: %s", project["name"], project["targetNames"])
-            generator.generateTopLevelProject(project["targetNames"])
-
-            for target in project["targets"]:
-                targetName = target["name"]
-
-                rootCMakeFile = os.path.join(project["sourceDirectory"], "CMakeLists.txt").replace('\\', '/')
-
-                generator.generateModule( 
-                    packageId = "io.boden.android.%s" % (targetName), 
-                    cmakeTargetName = targetName, 
-                    targetSourceDirectory = target["sourceDirectory"], 
-                    userFriendlyTargetName = targetName, 
-                    dependencyList = targetDependencies[targetName], 
-                    isLibrary = target["type"] == "SHARED_LIBRARY", 
-                    android_abi = androidAbi,
-                    rootCMakeFile = rootCMakeFile)
-
-            break
-
         # At the time of this writing, Android Studio will not detect when new source files
         # have been added (even if we do a gradle sync, syncs on the cmake file, etc.).
         # To force re-detection of that we delete the .idea folder.

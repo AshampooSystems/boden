@@ -134,6 +134,9 @@ macro(add_universal_executable TARGET CONSOLE_APP)
         else()
             add_library(${TARGET} SHARED ${ARGN} )
         endif()
+
+        android_manifest(${TARGET})
+
     else()
         add_executable(${TARGET} ${ARGN} )
     endif()

@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion $compile_sdk_version
+    defaultConfig {
+        applicationId = "$application_id"
+        minSdkVersion $min_sdk_version
+        targetSdkVersion $target_sdk_version
+        versionCode $version_code
+        versionName "$version_name"
+        externalNativeBuild {
+            cmake {
+                targets $cmake_target_list
+                arguments $cmake_target_arguments
+                $abi_filter
+                cppFlags "$cpp_flags"                  
+            }
+        }
+    }
+    buildTypes {
+        defaultConfig {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {            
+            path "$cmakelists_path"
+            version "$cmake_version"
+        }
+    }
+
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = $java_src_dir_list
+            }
+            jni {
+                srcDirs = $jni_src_dir_list
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+$android_dependencies
+
+$android_module_dependency_code
+}

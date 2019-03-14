@@ -3,27 +3,25 @@ import tempfile
 import shutil
 import subprocess
 import logging
+import sys
 
+from string import Template
 
 class AndroidStudioProjectGenerator(object):
     def __init__(self, gradle, cmake, platformBuildDir, androidBuildApiVersion):
         self.logger = logging.getLogger(__name__)
-        self._projectDir = platformBuildDir;
+        self.project_dir = platformBuildDir;
         self.gradle = gradle
         self.cmake = cmake
         self.androidBuildApiVersion = androidBuildApiVersion
+        self.android_support_dir = os.path.normpath(os.path.join(os.path.realpath(__file__), "..", "android-support"))
+
+        self.logger.debug("Android support directory: %s" %(self.android_support_dir))
 
     def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle:3.2.0'"
+        return "classpath 'com.android.tools.build:gradle:3.2.1'"
 
-    def generateTopLevelProject(self, moduleNameList):
-        if not os.path.isdir(self._projectDir):
-            os.makedirs(self._projectDir);
-
-        self.dependencies = self.cmake.cache["BAUER_ANDROID_DEPENDENCIES"].split(';')
-
-        self.logger.debug("Dependencies: %s" % self.dependencies)
-
+    def prepare_gradle(self):
         # the underlying commandline build system for android is gradle.
         # Gradle uses a launcher script (called the gradle wrapper)
         # that enforces the use of a specific desired gradle version.
@@ -42,18 +40,16 @@ class AndroidStudioProjectGenerator(object):
 
         gradle_temp_dir = tempfile.mkdtemp();
         try:
-
             gradle_path = self.gradle.getGradlePath()
-        
-            subprocess.check_call(
-                #'"%s" wrapper --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.10-all.zip"' % (gradle_path),
-                '"%s" wrapper --gradle-version=4.10.2' % (gradle_path),
-                shell=True,
-                cwd=gradle_temp_dir);
+
+            subprocess.check_call( '"%s" wrapper --gradle-version=4.10.2' % (gradle_path),
+                                   shell=True,
+                                   cwd=gradle_temp_dir);
 
             for name in os.listdir(gradle_temp_dir):
                 source_path = os.path.join( gradle_temp_dir, name)
-                dest_path = os.path.join( self._projectDir, name)
+                dest_path = os.path.join( self.project_dir, name)
+
                 if os.path.isdir(dest_path):
                     shutil.rmtree(dest_path)
                 elif os.path.exists(dest_path):
@@ -62,265 +58,136 @@ class AndroidStudioProjectGenerator(object):
                 shutil.move( source_path, dest_path )
 
         finally:
-            shutil.rmtree(gradle_temp_dir)        
+            shutil.rmtree(gradle_temp_dir)
 
 
-        with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
-            f.write("""\
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+    def find_applications(self, project, args):
+        result = []
+        for target in project["targets"]:
+            if target["type"] == "EXECUTABLE":
+                if args.target and args.target != target["name"]:
+                    continue
+                result += [target]
 
-buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        $$GradleDependency$$
-        
+        return result;
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+    def find_libraries(self, project):
+        result = []
+        for target in project["targets"]:
+            if not target["type"] == "EXECUTABLE":
+                result += [target]
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+        return result;
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+    def create_top_level_build_gradle(self):
+        gradle_template = Template(open(os.path.join(self.android_support_dir, "top.build.gradle.in"), "r").read())
+        result = gradle_template.substitute(gradle_dependency = self.getGradleDependency())
 
-    """.replace("$$GradleDependency$$", self.getGradleDependency()) )
+        open(os.path.join(self.project_dir, "build.gradle"), "w").write(result)
 
-        includeParams = "";
-        for moduleName in moduleNameList:
-            if includeParams:
-                includeParams += ", ";
-            includeParams += "':%s'" % moduleName
+    def create_settings_gradle(self, apps):
+        module_list = ", ".join(list(("':%s'" % (target["name"]) for target in apps)))
 
-        with open( os.path.join(self._projectDir, "settings.gradle"), "w" ) as f:
-            f.write("""\
-    include $$IncludeParams$$
+        gradle_template = Template(open(os.path.join(self.android_support_dir, "settings.gradle.in"), "r").read())
+        result = gradle_template.substitute(include_list = module_list )
+        open(os.path.join(self.project_dir, "settings.gradle"), "w").write(result)
 
-    """.replace("$$IncludeParams$$", includeParams) )
-
-
-
-
-    def generateModule(self, packageId, cmakeTargetName, targetSourceDirectory, userFriendlyTargetName, dependencyList, isLibrary, android_abi, rootCMakeFile):        
-
-        moduleDir = os.path.join(self._projectDir, cmakeTargetName);
-        if not os.path.isdir(moduleDir):
-            os.makedirs(moduleDir);
-
-        with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-            code = self.getModuleBuildGradleCode(
-                packageId = packageId, 
-                cmakeTargetName = cmakeTargetName, 
-                targetSourceDirectory = targetSourceDirectory, 
-                dependencyList = dependencyList, 
-                isLibrary = isLibrary, 
-                android_abi = android_abi,
-                rootCMakeFile = rootCMakeFile)
-
-            f.write(code)
-  
-        inBuildSourceDir = os.path.join(moduleDir, "src", "main");
-        if not os.path.isdir(inBuildSourceDir):
-            os.makedirs(inBuildSourceDir);
-
-        with open( os.path.join(inBuildSourceDir, "AndroidManifest.xml"), "w" ) as f:
-            f.write( self.getModuleAndroidManifest(packageId, cmakeTargetName, isLibrary ) )
-
-        resDir = os.path.join(inBuildSourceDir, "res");
-        if not os.path.isdir(resDir):
-            os.makedirs(resDir);
-
-        valuesDir = os.path.join(resDir, "values");
-        if not os.path.isdir(valuesDir):
-            os.makedirs(valuesDir);
-
-        with open( os.path.join(valuesDir, "strings.xml"), "w" ) as f:
-            f.write("""\
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">$$UserFriendlyTargetName$$</string>
-</resources>
-""".replace("$$UserFriendlyTargetName$$", userFriendlyTargetName) )
-
-
-
-    def getModuleAndroidManifest(self, packageId, moduleName, isLibrary):
-
-        code = """\
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="$$PackageId$$">
-
-          """;
-
-        if not isLibrary:
-            code += """
-            <!-- project files generated manually with android studio
-                would also have the following <application> attributed:
-                android:icon="@mipmap/ic_launcher"
-                android:roundIcon="@mipmap/ic_launcher_round"
-                android:theme="@style/AppTheme"
-                android:supportsRtl="true" -->
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name" >
-        <activity android:name="io.boden.android.NativeRootActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">
-
-            <meta-data android:name="io.boden.android.lib_name"
-              android:value="$$ModuleName$$" />
-
-          <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-          </intent-filter>
-        </activity>         
-    </application>
-      """;
-
-        code += """    
-    </manifest>
-    """;
-
-        return code.replace("$$PackageId$$", packageId) \
-            .replace("$$ModuleName$$", moduleName)
-
-
-    def getModuleBuildGradleCode(self, packageId, cmakeTargetName, targetSourceDirectory, dependencyList, isLibrary, android_abi, rootCMakeFile):
-
-        if isLibrary:
-            pluginName = "com.android.library";
-            appIdCode = ""; # libraries do not have an application id
+    def de_unicode(self, string):
+        if sys.version_info <= (3,0):
+            return string.encode("utf-8")
         else:
-            pluginName = "com.android.application";
-            appIdCode = "applicationId = '%s'" % packageId
+            return string
 
-        moduleDependencyCode = "";
-        for dep in dependencyList:            
-            moduleDependencyCode += "    implementation project(':%s')\n" % dep;
+    def gather_directories(self, app, project):
+        targets = self.find_libraries(project)
+        targets += [app]
 
-        cmakeTargets = '"%s"' % (cmakeTargetName);
+        source_directories = list( ( self.de_unicode(target["sourceDirectory"] + "/src") for target in targets ))
+        include_directories = list( ( self.de_unicode(target["sourceDirectory"] + "/include") for target in targets ))
+        java_directories = list( ( self.de_unicode(target["sourceDirectory"] + "/java") for target in targets ))
 
+        return (source_directories, include_directories, java_directories)     
+
+    def create_target_build_gradle(self, module_directory, app, project, android_abi, android_dependencies, target_dependencies):
+        self.make_directory(module_directory)
+        directories = self.gather_directories(app, project)
+
+        gradle_template = Template(open(os.path.join(self.android_support_dir, "target.build.gradle.in"), "r").read())
+        
+        cmakelists_path = os.path.join(project["sourceDirectory"], "CMakeLists.txt").replace('\\', '/')
+
+        abi_filter_string = ""
         if android_abi:
-            abiFilterStatement = "abiFilters '%s'" % android_abi
-        else:
-            abiFilterStatement = ""
+            abi_filter_string = "abiFilters '%s'" % android_abi
 
-        cmakeVersion = self.cmake.globalSettings["capabilities"]["version"]["string"]
+        android_dependecy_string = "".join(list( ("    implementation '%s'\n" % (dependency) for dependency in android_dependencies)))
+        target_dependency_string = "" #"".join(list( ("    implementation project(':%s')\n" % dependency for dependency in target_dependencies)))
+        targets = [app["name"]]
+        cmake_target_list = ", ".join( list(('"%s"' % (target) for target in targets)))
 
-        dependencies = ""
-        for dep in self.dependencies:
-            dependencies += "    implementation '%s'\n" % (dep)
-        
-        return """
-apply plugin: '$$PluginName$$'
+        result = gradle_template.substitute(
+            compile_sdk_version = self.androidBuildApiVersion,
+            target_sdk_version = self.androidBuildApiVersion,
+            application_id = "io.boden.android." + app["name"],
+            min_sdk_version = 23,
+            version_code = 1,
+            version_name = "1.0",
+            cmake_target_list = cmake_target_list,
+            cmake_target_arguments = '"-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"',
+            abi_filter = abi_filter_string, 
+            cpp_flags = "-std=c++17 -frtti -fexceptions",
+            cmakelists_path = cmakelists_path,
+            cmake_version = self.cmake.globalSettings["capabilities"]["version"]["string"],
+            jni_src_dir_list = directories[0] + directories[1],
+            java_src_dir_list = directories[2],
+            android_dependencies = android_dependecy_string,
+            android_module_dependency_code = target_dependency_string )
 
-android {
-    compileSdkVersion $$BuildSdkVersion$$
-    defaultConfig {
-        $$AppIdCode$$
-        minSdkVersion 23
-        targetSdkVersion $$BuildSdkVersion$$
-        versionCode 1
-        versionName "1.0"
-        externalNativeBuild {
-            cmake {
-                targets $$CmakeTargets$$
-                arguments "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"
-                $$AbiFilter$$
-                cppFlags "-std=c++17 -frtti -fexceptions"                     
-            }
-        }
-    }
-    buildTypes {
-        defaultConfig {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    externalNativeBuild {
-        cmake {            
-            path "$$RootCMakeFile$$"
-            version "$$CmakeVersion$$"
-        }
-    }
+        open(os.path.join(module_directory, "build.gradle"), "w").write(result)
 
+    def create_target_strings_xml(self, module_directory, app):
+        directory = self.make_directory(os.path.join(module_directory, "src", "main", "res", "values"))
 
-    sourceSets {
-        main {
-            java {
-                srcDir '$$TargetSourceDirectory$$/java'
-            }
-            jni {
-                srcDirs = ['$$TargetSourceDirectory$$/src',
-                           '$$TargetSourceDirectory$$/include' ]
-            }
-        }
-    }
-}
+        strings_template = Template(open(os.path.join(self.android_support_dir, "strings.xml.in"), "r").read())
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+        strings = '<string name="app_name">%s</string>' % (app["name"])
+        result = strings_template.substitute( xml_string_entries = strings )
 
-$$AndroidDependencies$$
+        open(os.path.join(directory, "strings.xml"), "w").write(result)
 
-$$ModuleDependencyCode$$
-}
+    def copy_android_manifest(self, module_directory, app):
+        directory = self.make_directory(os.path.join(module_directory, "src", "main"))
+        build_directory = app['buildDirectory']
 
+        src = os.path.join(build_directory, "AndroidManifest.xml")
+        dest = os.path.join(directory, "AndroidManifest.xml")
 
-""" .replace("$$AppIdCode$$", appIdCode) \
-    .replace("$$BuildSdkVersion$$", self.androidBuildApiVersion) \
-    .replace("$$AbiFilter$$", abiFilterStatement) \
-    .replace("$$PluginName$$", pluginName) \
-    .replace("$$CmakeTargets$$", cmakeTargets) \
-    .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
-    .replace("$$TargetSourceDirectory$$", targetSourceDirectory) \
-    .replace("$$RootCMakeFile$$", rootCMakeFile) \
-    .replace("$$CmakeVersion$$", cmakeVersion) \
-    .replace("$$AndroidDependencies$$", dependencies)
+        shutil.copy(src, dest)
 
+    def generate(self, project, androidAbi, target_dependencies, args):
+        if not os.path.isdir(self.project_dir):
+            os.makedirs(self.project_dir);
 
-    def makeCMakePath(self, path):
-        # we want the path to be relative to the CMakeLists file.
-        # Note that the project dir is one level below the CMakeLists parent
-        # dir, so we add another .. path component
-        return os.path.join(  "..", os.path.relpath(path, self._projectDir) )
+        android_dependencies = self.cmake.cache["BAUER_ANDROID_DEPENDENCIES"].split(';')
+        self.logger.debug("Dependencies: %s" % android_dependencies)
 
+        self.prepare_gradle()
+        self.create_top_level_build_gradle()
 
-    def makeFileListForCMake(self, dirPathList, extensionList):
-        fileList = []
+        apps = self.find_applications(project, args)
 
-        toDoDirPathList = dirPathList[:]
-        while len(toDoDirPathList)!=0:
-            dirPath = toDoDirPathList[0]
-            del toDoDirPathList[0]
+        self.create_settings_gradle(apps)
 
-            if os.path.isdir(dirPath):
+        for app in apps:
+            module_directory = os.path.join(self.project_dir, app["name"]);
 
-                for itemName in os.listdir( dirPath ):                    
+            self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, target_dependencies[app["name"]])
+            self.create_target_strings_xml(module_directory, app)
+            self.copy_android_manifest(module_directory, app)
 
-                    itemPath = os.path.join(dirPath, itemName) 
+    def make_directory(self, path):
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
-                    if not os.path.isdir(itemPath):
-                        ext = os.path.splitext(itemName)[1].lower()
-                        if ext in extensionList:
-                            relItemPath = self.makeCMakePath( itemPath )
-                            fileList.append(relItemPath)
-
-        return fileList
+        return path
 

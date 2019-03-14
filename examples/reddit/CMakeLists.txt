@@ -11,6 +11,8 @@ set(REDDIT_ASSETS
     ./ios-assets/Base.lproj/LaunchScreen.storyboard
     ./ios-assets/Assets.xcassets)
 
+set(ANDROID_PERMISSIONS "<uses-permission android:name=\"android.permission.INTERNET\" />")
+
 add_universal_executable(reddit No ${REDDIT_FILES} ${REDDIT_ASSETS})
 
 set_target_properties( reddit PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER ${MACOSX_BUNDLE_GUI_IDENTIFIER} )

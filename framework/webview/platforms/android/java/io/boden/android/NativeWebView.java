@@ -12,6 +12,7 @@ public class NativeWebView extends WebView {
 
         _nativeClient = new NativeWebViewClient();
         this.setWebViewClient(_nativeClient);
+        getSettings().setJavaScriptEnabled(true);
     }
 
     public void setUserAgent(String userAgent) {

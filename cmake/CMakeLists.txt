@@ -21,6 +21,7 @@ set(_CMAKE_TOOLCHAINS
     toolchains/emscripten.toolchain.cmake)
 
 set(_CMAKE_TEMPLATES
+    templates/App.AndroidManifest.xml.in
     templates/IOSInfo.plist.in
     templates/OSXInfo.plist.in
     templates/combined_header.h.in)

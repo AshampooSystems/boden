@@ -12,6 +12,8 @@ set(WEBVIEWDEMO_ASSETS
     ./ios-assets/Assets.xcassets)
 
 
+set(ANDROID_PERMISSIONS "<uses-permission android:name=\"android.permission.INTERNET\" />")
+
 add_universal_executable(webviewdemo No ${WEBVIEWDEMO_FILES} ${WEBVIEWDEMO_ASSETS})
 
 set_xcode_property(webviewdemo CODE_SIGN_STYLE Automatic)

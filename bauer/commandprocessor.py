@@ -199,7 +199,7 @@ class CommandProcessor:
 
     def run(self, configuration):
         if not self.args.target:
-            raise error.ProgramArgumentError("Please specify a module name with --module MODULE")
+            raise error.ProgramArgumentError("Please specify a module name with --target TARGET")
         
         if not self.args.platform:
             raise error.ProgramArgumentError("Please specify the platform name with --platform PLATFORM")
