@@ -6,12 +6,11 @@ namespace bdn
 {
 
     /** The core for a top level window.*/
-    class WindowCore : virtual public ViewCore
+    class WindowCore
     {
       public:
         Property<std::shared_ptr<View>> content;
         Property<Rect> contentGeometry;
         Property<String> title;
-        Property<bool> visible;
     };
 }

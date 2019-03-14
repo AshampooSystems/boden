@@ -1,4 +1,4 @@
-
+#import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/ios/CheckboxCore.hh>
 
 #define BDN_IOS_CHECKBOX_LABEL_MARGIN 5
@@ -107,7 +107,9 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    CheckboxCore::CheckboxCore() : ViewCore(_createCheckboxComposite()) {}
+    CheckboxCore::CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, _createCheckboxComposite())
+    {}
 
     void CheckboxCore::init()
     {
@@ -130,7 +132,7 @@ namespace bdn::ios
         state.onChange() += [=](auto va) { ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state; };
 
         label.onChange() += [=](auto va) {
-            _composite.uiLabel.text = stringToNSString(label);
+            _composite.uiLabel.text = fk::stringToNSString(label);
             [_composite.uiLabel sizeToFit];
         };
     }

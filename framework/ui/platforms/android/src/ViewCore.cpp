@@ -186,10 +186,8 @@ namespace bdn::android
     void ViewCore::scheduleLayout()
     {
         getJView().requestLayout();
-        _dirtyCallback.fire();
+        markDirty();
     }
-
-    void ViewCore::doLayout() { _layoutCallback.fire(); }
 
     void ViewCore::updateChildren()
     {

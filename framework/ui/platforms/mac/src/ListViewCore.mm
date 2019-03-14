@@ -39,55 +39,53 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    if (self.outerDataSource == nullptr) {
-        return 0;
+    if (auto dataSource = self.outerDataSource) {
+        return (NSInteger)dataSource->numberOfRows();
     }
 
-    return (NSInteger)self.outerDataSource->numberOfRows();
+    return 0;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    if (self.listCore.lock() == nullptr) {
-        return nil;
-    }
+    if (auto listCore = self.listCore.lock()) {
+        if (auto dataSource = listCore->dataSource.get()) {
+            std::shared_ptr<bdn::FixedView> fixedView;
+            std::shared_ptr<bdn::View> view;
 
-    if (self.outerDataSource == nullptr) {
-        return nil;
-    }
+            FixedNSView *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
 
-    std::shared_ptr<bdn::FixedView> fixedView;
-    std::shared_ptr<bdn::View> view;
+            if (result == nil) {
+                result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+                result.identifier = @"Column";
 
-    FixedNSView *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
+                fixedView = std::make_shared<bdn::FixedView>(listCore->uiProvider());
+                fixedView->offerLayout(listCore->layout());
 
-    if (result == nil) {
-        result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-        result.identifier = @"Column";
+                if (auto core = fixedView->core<bdn::mac::ViewCore>()) {
+                    [result addSubview:core->nsView()];
+                } else {
+                    throw std::runtime_error("View did not have the correct core");
+                }
 
-        fixedView = std::make_shared<bdn::FixedView>(self.listCore.lock()->_uiProvider);
-        fixedView->offerLayout(self.listCore.lock()->_layout);
+                result.view = fixedView;
+            } else {
+                fixedView = result.view;
+                if (!fixedView->childViews().empty()) {
+                    view = fixedView->childViews().front();
+                }
+            }
 
-        if (auto core = fixedView->core<bdn::mac::ViewCore>()) {
-            [result addSubview:core->nsView()];
-        } else {
-            throw std::runtime_error("View did not have the correct core");
+            view = dataSource->viewForRowIndex(row, view);
+
+            fixedView->removeAllChildViews();
+            fixedView->addChildView(view);
+
+            return result;
         }
-
-        result.view = fixedView;
-    } else {
-        fixedView = result.view;
-        if (!fixedView->childViews().empty()) {
-            view = fixedView->childViews().front();
-        }
     }
 
-    view = self.outerDataSource->viewForRowIndex(row, view);
-
-    fixedView->removeAllChildViews();
-    fixedView->addChildView(view);
-
-    return result;
+    return nullptr;
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
@@ -110,7 +108,9 @@
 
 namespace bdn::mac
 {
-    ListViewCore::ListViewCore() : ViewCore(createNSTableView()) {}
+    ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createNSTableView())
+    {}
 
     ListViewCore::~ListViewCore() { _nativeDelegate.listCore = std::weak_ptr<ListViewCore>(); }
 

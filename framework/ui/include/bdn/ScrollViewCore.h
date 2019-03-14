@@ -4,7 +4,7 @@
 
 namespace bdn
 {
-    class ScrollViewCore : virtual public ViewCore
+    class ScrollViewCore
     {
       public:
         Property<std::shared_ptr<View>> content;

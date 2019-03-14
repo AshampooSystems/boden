@@ -5,7 +5,7 @@
 namespace bdn
 {
 
-    class TextViewCore : virtual public ViewCore
+    class TextViewCore
     {
       public:
         Property<String> text;

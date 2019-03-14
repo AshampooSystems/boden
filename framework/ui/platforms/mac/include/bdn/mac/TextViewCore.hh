@@ -53,12 +53,13 @@ namespace bdn::mac
         }
 
       public:
-        TextViewCore() : ViewCore(_createNSTextView())
+        TextViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : bdn::mac::ViewCore(uiProvider, _createNSTextView())
         {
             _nsTextView = (BdnMacTextView_ *)nsView();
 
             text.onChange() += [=](auto va) {
-                NSString *macText = stringToNSString(va->get());
+                NSString *macText = fk::stringToNSString(va->get());
                 _nsTextView.string = macText;
 
                 [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];

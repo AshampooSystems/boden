@@ -12,13 +12,9 @@
 #import <bdn/ios/TextFieldCore.hh>
 #import <bdn/ios/TextViewCore.hh>
 #import <bdn/ios/UIProvider.hh>
-#import <bdn/ios/WebViewCore.hh>
 #import <bdn/ios/WindowCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
-
-// TODO: Well, this obviously doesn't belong here. Get rid of it ASAP.
-#include <iostream>
 
 namespace bdn
 {
@@ -51,7 +47,6 @@ namespace bdn::ios
         registerCoreType<TextFieldCore, TextField>();
         registerCoreType<ListViewCore, ListView>();
         registerCoreType<StackCore, Stack>();
-        registerCoreType<WebViewCore, WebView>();
         registerCoreType<ImageViewCore, ImageView>();
     }
 

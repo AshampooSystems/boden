@@ -4,18 +4,21 @@
 
 namespace bdn::ios
 {
-    class UIProvider : public Base, virtual public bdn::UIProvider
+    class UIProvider : virtual public bdn::UIProvider
     {
       public:
         UIProvider();
         UIProvider(UIProvider const &) = delete;
+        virtual ~UIProvider() = default;
+
+      public:
         void operator=(UIProvider const &) = delete;
 
+      public:
         String getName() const override;
 
         static std::shared_ptr<UIProvider> get();
 
-        /** Returns the size of 1 sem in DIPs.*/
         double getSemSizeDips() const { return _semDips; }
 
       private:

@@ -58,7 +58,9 @@ namespace bdn::mac
         return switchComposite;
     }
 
-    SwitchCore::SwitchCore() : ViewCore(_createSwitchComposite()) {}
+    SwitchCore::SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : bdn::mac::ViewCore(uiProvider, _createSwitchComposite())
+    {}
 
     SwitchCore::~SwitchCore()
     {
@@ -69,7 +71,7 @@ namespace bdn::mac
 
     void SwitchCore::init()
     {
-        ViewCore::init();
+        bdn::mac::ViewCore::init();
 
         _clickManager = [[BdnSwitchClickManager alloc] init];
         _clickManager.switchCore = std::dynamic_pointer_cast<SwitchCore>(shared_from_this());
@@ -80,7 +82,7 @@ namespace bdn::mac
 
         label.onChange() += [=](auto va) {
             BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
-            composite.label.stringValue = stringToNSString(va->get());
+            composite.label.stringValue = fk::stringToNSString(va->get());
             NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
             [composite.label setFrameSize:cell.cellSize];
         };

@@ -11,7 +11,7 @@ namespace bdn::ios
     class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
     {
       public:
-        TextFieldCore();
+        TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~TextFieldCore();
 
         virtual void init() override;

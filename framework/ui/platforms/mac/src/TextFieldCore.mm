@@ -26,7 +26,7 @@
 {
     if (auto core = self.textFieldCore.lock()) {
         NSTextView *textView = [obj.userInfo objectForKey:@"NSFieldEditor"];
-        core->text = bdn::mac::nsStringToString(textView.textStorage.string);
+        core->text = bdn::fk::nsStringToString(textView.textStorage.string);
     }
 }
 
@@ -50,7 +50,9 @@ namespace bdn::mac
         return textField;
     }
 
-    TextFieldCore::TextFieldCore() : ViewCore(_createNsTextView()) {}
+    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : bdn::mac::ViewCore(uiProvider, _createNsTextView())
+    {}
 
     TextFieldCore::~TextFieldCore()
     {
@@ -60,7 +62,7 @@ namespace bdn::mac
 
     void TextFieldCore::init()
     {
-        ViewCore::init();
+        bdn::mac::ViewCore::init();
 
         _delegate = [[BdnTextFieldDelegate alloc] init];
         _delegate.textFieldCore = std::dynamic_pointer_cast<TextFieldCore>(shared_from_this());
@@ -68,8 +70,8 @@ namespace bdn::mac
 
         text.onChange() += [=](auto va) {
             NSTextField *textField = (NSTextField *)nsView();
-            if (nsStringToString(textField.stringValue) != va->get()) {
-                textField.stringValue = stringToNSString(va->get());
+            if (fk::nsStringToString(textField.stringValue) != va->get()) {
+                textField.stringValue = fk::stringToNSString(va->get());
             }
         };
     }

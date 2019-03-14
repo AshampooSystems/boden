@@ -34,15 +34,7 @@ set(_BDN_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h ${_c
 ##########################################################################
 # Target
 
-if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-    set(BDN_SHARED_LIB Yes)
-    add_library(foundation SHARED ${_files} ${_BDN_GENERATED_FILES})
-elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-    set(BDN_SHARED_LIB No)
-    add_library(foundation STATIC ${_files} ${_BDN_GENERATED_FILES})
-endif()
-
-add_clangformat(foundation)
+add_universal_library(foundation ${_files} ${_BDN_GENERATED_FILES})
 
 target_include_directories(foundation
     PUBLIC

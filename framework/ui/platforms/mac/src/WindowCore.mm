@@ -46,7 +46,7 @@
 
 namespace bdn::mac
 {
-    WindowCore::WindowCore() {}
+    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, nullptr) {}
 
     WindowCore::~WindowCore()
     {
@@ -117,7 +117,7 @@ namespace bdn::mac
                 [window orderOut:NSApp];
         };
 
-        title.onChange() += [&window = self->_nsWindow](auto va) { [window setTitle:stringToNSString(va->get())]; };
+        title.onChange() += [&window = self->_nsWindow](auto va) { [window setTitle:fk::stringToNSString(va->get())]; };
     }
 
     bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const

@@ -9,7 +9,7 @@ namespace bdn::ios
     class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
     {
       public:
-        ImageViewCore();
+        ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
       protected:
         void setUrl(const String &url);

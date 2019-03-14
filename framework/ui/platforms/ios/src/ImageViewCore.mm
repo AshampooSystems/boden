@@ -1,3 +1,4 @@
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ImageViewCore.hh>
 
 #include <bdn/log.h>
@@ -48,7 +49,8 @@ namespace bdn::ios
         return ViewCore::sizeForSpace(availableSize);
     }
 
-    ImageViewCore::ImageViewCore() : ViewCore(createUIImageView())
+    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createUIImageView())
     {
         url.onChange() += [=](auto va) { setUrl(va->get()); };
     }
@@ -58,21 +60,21 @@ namespace bdn::ios
         ((UIImageView *)this->uiView()).image = nullptr;
 
         NSURLSession *session = [NSURLSession sharedSession];
-        NSURL *nsURL = [NSURL URLWithString:stringToNSString(url)];
+        NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
 
         NSURLSessionDataTask *dataTask =
             [session dataTaskWithURL:nsURL
                    completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
                                        NSError *_Nullable error) {
                      if (auto err = error) {
-                         logstream() << "Failed loading '" << nsStringToString([nsURL absoluteString]) << "' ("
-                                     << nsStringToString([err localizedDescription]) << ")";
+                         logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
+                                     << fk::nsStringToString([err localizedDescription]) << ")";
                      } else {
 
                          getMainDispatcher()->enqueue([=]() {
                              ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
                              this->scheduleLayout();
-                             _dirtyCallback.fire();
+                             markDirty();
                          });
                      }
                    }];

@@ -10,11 +10,7 @@ GenerateTopLevelIncludeFile(_BDN_YOGA_LAYOUT_COMBINED ${CMAKE_CURRENT_BINARY_DIR
 
 set(_BDN_YOGA_LAYOUT_FILES ${_BDN_SOURCES} ${_BDN_HEADERS} ${_BDN_YOGA_LAYOUT_COMBINED})
 
-if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-    add_library(yogalayout SHARED ${_BDN_YOGA_LAYOUT_FILES})
-elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-    add_library(yogalayout STATIC ${_BDN_YOGA_LAYOUT_FILES})
-endif()
+add_universal_library(yogalayout ${_BDN_YOGA_LAYOUT_FILES})
 
 target_link_libraries(yogalayout PUBLIC ui yogacore)
 target_include_directories(yogalayout
@@ -24,7 +20,5 @@ target_include_directories(yogalayout
     )
 
 target_include_directories(yogalayout PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-
-add_clangformat(yogalayout)
 
 #include(install.cmake)

@@ -17,10 +17,10 @@ namespace bdn::android
     class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       private:
-        wrapper::View createJNativeViewGroup(const ContextWrapper &ctxt);
+        wrapper::View createJNativeViewGroup();
 
       public:
-        WindowCore(const ContextWrapper &ctxt);
+        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~WindowCore();
 
         void enableBackButton(bool enable);

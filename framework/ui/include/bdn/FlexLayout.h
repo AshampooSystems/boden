@@ -361,7 +361,7 @@ namespace nlohmann
 
         static void from_json(const json &j, bdn::FlexStylesheet &sheet)
         {
-            if (j.count("flexDirection") != 0)
+            if (j.count("direction") != 0)
                 sheet.flexDirection = j.at("direction").get<bdn::FlexStylesheet::Direction>();
             if (j.count("layoutDirection") != 0)
                 sheet.layoutDirection = j.at("layoutDirection");
@@ -405,6 +405,6 @@ namespace bdn
     inline FlexStylesheet FlexJsonString(const String &json) { return (FlexStylesheet)nlohmann::json::parse(json); }
 }
 
-#define FlexJsonStringify(str) bdn::FlexJsonString(#str)
+#define FlexJsonStringify(str...) bdn::FlexJsonString(#str)
 
 #endif

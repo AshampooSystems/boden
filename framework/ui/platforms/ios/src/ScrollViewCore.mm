@@ -35,7 +35,9 @@ namespace bdn::ios
 {
     BodenUIScrollView *_createScrollView() { return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)]; }
 
-    ScrollViewCore::ScrollViewCore() : ViewCore(_createScrollView()) {}
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, _createScrollView())
+    {}
 
     void ScrollViewCore::init()
     {
@@ -102,7 +104,7 @@ namespace bdn::ios
             }
         }
 
-        _dirtyCallback.fire();
+        markDirty();
     }
 
     void ScrollViewCore::scrollClientRectToVisible(const Rect &targetRect)

@@ -13,7 +13,7 @@ namespace bdn::ios
     class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       public:
-        ButtonCore();
+        ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         ~ButtonCore();
 
         UIButton *getUIButton();

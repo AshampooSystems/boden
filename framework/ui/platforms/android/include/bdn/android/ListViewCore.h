@@ -12,7 +12,7 @@ namespace bdn::android
     class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
       public:
-        ListViewCore(const ContextWrapper &ctxt);
+        ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
         virtual void reloadData() override;
 

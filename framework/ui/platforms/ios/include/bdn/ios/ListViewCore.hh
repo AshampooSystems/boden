@@ -13,7 +13,7 @@ namespace bdn::ios
         friend class bdn::UIProvider;
 
       public:
-        ListViewCore();
+        ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~ListViewCore() = default;
 
         virtual void reloadData() override;

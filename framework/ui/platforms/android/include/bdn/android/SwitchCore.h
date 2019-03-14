@@ -12,8 +12,9 @@ namespace bdn::android
     class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
     {
       public:
-        SwitchCore(const ContextWrapper &ctxt)
-            : ViewCore(createAndroidViewClass<wrapper::Switch>(ctxt)), _jSwitch(getJViewAS<wrapper::Switch>())
+        SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : ViewCore(uiProvider, createAndroidViewClass<wrapper::Switch>(uiProvider)),
+              _jSwitch(getJViewAS<wrapper::Switch>())
         {
             _jSwitch.setSingleLine(true);
 

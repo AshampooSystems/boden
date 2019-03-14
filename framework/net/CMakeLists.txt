@@ -19,11 +19,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_NET_FILES ${_BDN_JAVA_FILES})
 endif()
 
-if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-    add_library(net SHARED ${_BDN_NET_FILES})
-elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-    add_library(net STATIC ${_BDN_NET_FILES})
-endif()
+add_universal_library(net ${_BDN_NET_FILES})
 
 target_link_libraries(net PUBLIC foundation)
 target_include_directories(net
@@ -33,8 +29,6 @@ target_include_directories(net
     )
 
 target_include_directories(net PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-
-add_clangformat(net)
 
 include(install.cmake)
 

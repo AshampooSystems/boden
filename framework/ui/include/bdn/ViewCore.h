@@ -10,30 +10,60 @@
 namespace bdn
 {
     class View;
+    class UIProvider;
 
     template <class _Fp> class WeakCallback;
 
-    template <typename ReturnType, typename... Arguments> class WeakCallback<ReturnType(Arguments...)>
+    template <typename... Arguments> class WeakCallback<void(Arguments...)>
     {
       public:
-        using Receiver = std::shared_ptr<std::function<ReturnType(Arguments...)>>;
+        using FunctionPointer = std::function<void(Arguments...)>;
+        using Receiver = std::shared_ptr<FunctionPointer>;
 
-        ReturnType fire(Arguments...)
+        void fire(Arguments... arguments)
         {
             if (auto callback = _callback.lock()) {
-                (*callback)();
+                (*callback)(arguments...);
             }
         }
 
-        auto set(std::function<ReturnType(Arguments...)> &&callback)
+        auto set(FunctionPointer &&callback)
         {
-            auto result = std::make_shared<std::function<ReturnType(Arguments...)>>(std::move(callback));
+            auto result = std::make_shared<FunctionPointer>(std::move(callback));
             _callback = result;
             return result;
         }
 
       private:
-        std::weak_ptr<std::function<ReturnType(Arguments...)>> _callback;
+        std::weak_ptr<FunctionPointer> _callback;
+    };
+
+    template <typename ReturnType, typename... Arguments> class WeakCallback<ReturnType(Arguments...)>
+    {
+      public:
+        using FunctionPointer = std::function<ReturnType(Arguments...)>;
+        using Receiver = std::shared_ptr<FunctionPointer>;
+
+        WeakCallback(ReturnType defaultReturnValue = ReturnType()) : _defaultReturnValue(defaultReturnValue) {}
+
+        ReturnType fire(Arguments... arguments)
+        {
+            if (auto callback = _callback.lock()) {
+                return (*callback)(arguments...);
+            }
+            return _defaultReturnValue;
+        }
+
+        auto set(FunctionPointer &&callback)
+        {
+            auto result = std::make_shared<FunctionPointer>(std::move(callback));
+            _callback = result;
+            return result;
+        }
+
+      private:
+        std::weak_ptr<FunctionPointer> _callback;
+        const ReturnType _defaultReturnValue;
     };
 
     class ViewCore : public Base
@@ -45,6 +75,8 @@ namespace bdn
         Property<bool> visible;
 
       public:
+        ViewCore() = delete;
+        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : _uiProvider(uiProvider) {}
         virtual ~ViewCore() = default;
 
       public:
@@ -60,13 +92,16 @@ namespace bdn
         void markDirty() { _dirtyCallback.fire(); }
 
         virtual void setLayout(std::shared_ptr<Layout> layout) { _layout = std::move(layout); }
+        std::shared_ptr<Layout> layout() { return _layout; }
 
         virtual void visitInternalChildren(std::function<void(std::shared_ptr<ViewCore>)>) {}
 
-      public:
+        std::shared_ptr<bdn::UIProvider> uiProvider() { return _uiProvider; }
+
+      private:
+        std::shared_ptr<bdn::UIProvider> _uiProvider;
         std::shared_ptr<Layout> _layout;
 
-      protected:
         WeakCallback<void()> _layoutCallback;
         WeakCallback<void()> _dirtyCallback;
     };

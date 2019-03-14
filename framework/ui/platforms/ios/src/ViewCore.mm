@@ -5,9 +5,12 @@
 
 namespace bdn::ios
 {
-    ViewCore::ViewCore(id<UIViewWithFrameNotification> uiView)
+    ViewCore::ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> uiView)
+        : bdn::ViewCore(uiProvider)
     {
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
+
+        //_view.backgroundColor = [UIColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0];
     }
 
     void ViewCore::init()

@@ -4,8 +4,8 @@
 
 namespace bdn::android
 {
-    ContainerViewCore::ContainerViewCore(const ContextWrapper &ctxt)
-        : ViewCore(createAndroidViewClass<wrapper::NativeViewGroup>(ctxt))
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeViewGroup>(uiProvider))
     {}
 
     ContainerViewCore::~ContainerViewCore() {}
@@ -59,7 +59,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewGroup_doLayout
         [&]() {
             if (auto core =
                     bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                core->doLayout();
+                core->startLayout();
             }
         },
         true, env);

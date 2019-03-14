@@ -13,7 +13,7 @@
 - (void)layoutSubviews
 {
     if (auto viewCore = self.viewCore.lock()) {
-        viewCore->fireLayout();
+        viewCore->startLayout();
     }
 }
 
@@ -23,9 +23,14 @@ namespace bdn::ios
 {
     BodenUIView *_createContainer() { return [[BodenUIView alloc] initWithFrame:CGRectZero]; }
 
-    ContainerViewCore::ContainerViewCore() : ViewCore(_createContainer()) {}
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, _createContainer())
+    {}
 
-    ContainerViewCore::ContainerViewCore(id<UIViewWithFrameNotification> view) : ViewCore(view) {}
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider,
+                                         id<UIViewWithFrameNotification> view)
+        : ViewCore(uiProvider, view)
+    {}
 
     bool ContainerViewCore::canAdjustToAvailableWidth() const { return true; }
 

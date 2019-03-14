@@ -11,8 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toolbar;
 
-import io.boden.android.ui_android.R;
-
 /**
  * Root view group that contains user interface components that are controlled by native code.
  * Objects of this class are connected to a "Window" object in native code.

@@ -13,10 +13,11 @@
 
 namespace bdn::mac
 {
-    class ViewCore : virtual public bdn::ViewCore
+    class ViewCore : public bdn::ViewCore
     {
       public:
-        ViewCore(NSView *nsView);
+        ViewCore() = delete;
+        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *nsView);
         virtual ~ViewCore() = default;
 
       public:

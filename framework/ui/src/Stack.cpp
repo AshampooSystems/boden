@@ -30,11 +30,5 @@ namespace bdn
         return {};
     }
 
-    void Stack::bindViewCore()
-    {
-        View::bindViewCore();
-        if (auto stackCore = core<StackCore>()) {
-            stackCore->_uiProvider = uiProvider();
-        }
-    }
+    void Stack::bindViewCore() { View::bindViewCore(); }
 }

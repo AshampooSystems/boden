@@ -1,4 +1,5 @@
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ButtonCore.hh>
 
 @interface BodenUIButton : UIButton <UIViewWithFrameNotification>
@@ -33,12 +34,13 @@ namespace bdn::ios
 {
     BodenUIButton *_createUIButton() { return [BodenUIButton buttonWithType:UIButtonTypeSystem]; }
 
-    ButtonCore::ButtonCore() : ViewCore(_createUIButton())
+    ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, _createUIButton())
     {
         _button = (UIButton *)uiView();
         [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
-        label.onChange() += [=](auto va) { [_button setTitle:stringToNSString(label) forState:UIControlStateNormal]; };
+        label.onChange() +=
+            [=](auto va) { [_button setTitle:fk::stringToNSString(label) forState:UIControlStateNormal]; };
     }
 
     ButtonCore::~ButtonCore()

@@ -17,7 +17,6 @@ namespace bdn
     {
         View::bindViewCore();
         auto listCore = core<ListViewCore>();
-        listCore->_uiProvider = uiProvider();
         listCore->dataSource.bind(dataSource);
         listCore->selectedRowIndex.bind(selectedRowIndex);
     }

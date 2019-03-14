@@ -13,8 +13,9 @@ namespace bdn::android
     class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
     {
       public:
-        TextViewCore(const ContextWrapper &ctxt)
-            : ViewCore(createAndroidViewClass<wrapper::TextView>(ctxt)), _jTextView(getJViewAS<wrapper::TextView>())
+        TextViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : ViewCore(uiProvider, createAndroidViewClass<wrapper::TextView>(uiProvider)),
+              _jTextView(getJViewAS<wrapper::TextView>())
         {
             text.onChange() += [=](auto va) {
                 // Remove '\r' as android treats them as a space

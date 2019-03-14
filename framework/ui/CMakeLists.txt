@@ -19,11 +19,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_UI_FILES ${_BDN_JAVA_FILES})
 endif()
 
-if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-    add_library(ui SHARED ${_BDN_UI_FILES})
-elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-    add_library(ui STATIC ${_BDN_UI_FILES})
-endif()
+add_universal_library(ui ${_BDN_UI_FILES})
 
 target_link_libraries(ui PUBLIC foundation)
 target_include_directories(ui
@@ -33,8 +29,6 @@ target_include_directories(ui
     )
 
 target_include_directories(ui PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-
-add_clangformat(ui)
 
 include(install.cmake)
 

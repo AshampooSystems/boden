@@ -20,11 +20,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_TEST_FILES ${_BDN_JAVA_FILES})
 endif()
 
-if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-    add_library(testing SHARED ${_BDN_TEST_FILES})
-elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-    add_library(testing STATIC ${_BDN_TEST_FILES})
-endif()
+add_universal_library(testing ${_BDN_TEST_FILES})
 
 target_link_libraries(testing PUBLIC foundation ui)
 target_include_directories(testing
@@ -34,7 +30,5 @@ target_include_directories(testing
     )
 
 target_include_directories(testing PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-
-add_clangformat(testing)
 
 include(install.cmake)

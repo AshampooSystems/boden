@@ -48,7 +48,9 @@
 
 namespace bdn::mac
 {
-    ScrollViewCore::ScrollViewCore() : ViewCore(_createScrollView()) {}
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : bdn::mac::ViewCore(uiProvider, _createScrollView())
+    {}
 
     ScrollViewCore::~ScrollViewCore()
     {
@@ -59,7 +61,7 @@ namespace bdn::mac
 
     void ScrollViewCore::init()
     {
-        ViewCore::init();
+        bdn::mac::ViewCore::init();
 
         _nsScrollView = (NSScrollView *)nsView();
 

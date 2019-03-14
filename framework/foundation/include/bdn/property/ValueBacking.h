@@ -10,6 +10,16 @@ namespace bdn
     {
         using value_accessor_t = typename Backing<ValType>::value_accessor_t;
 
+        template <class T> struct Compare
+        {
+            static bool not_equal(const T &left, const T &right) { return left != right; }
+        };
+
+        template <class _fp> struct Compare<std::function<_fp>>
+        {
+            static bool not_equal(const std::function<_fp> &left, const std::function<_fp> &right) { return true; }
+        };
+
       public:
         ValueBacking() : _value() {}
         ValueBacking(ValType value) : _value(value) {}
@@ -22,7 +32,7 @@ namespace bdn
             bool changed = false;
 
             {
-                if (_value != value) {
+                if (Compare<ValType>::not_equal(_value, value)) {
                     _value = value;
                     changed = true;
                 }

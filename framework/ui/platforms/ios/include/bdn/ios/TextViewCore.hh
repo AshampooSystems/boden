@@ -4,6 +4,7 @@
 #include <bdn/TextView.h>
 #include <bdn/TextViewCore.h>
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUILabel : UILabel <UIViewWithFrameNotification>
@@ -33,18 +34,18 @@ namespace bdn::ios
         }
 
       public:
-        TextViewCore() : ViewCore(createUILabel())
+        TextViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, createUILabel())
         {
             _uiLabel = (UILabel *)uiView();
 
             text.onChange() += [=](auto va) {
-                _uiLabel.text = stringToNSString(text);
-                _dirtyCallback.fire();
+                _uiLabel.text = fk::stringToNSString(text);
+                markDirty();
             };
 
             wrap.onChange() += [=](auto va) {
                 _uiLabel.numberOfLines = wrap ? 0 : 1;
-                _dirtyCallback.fire();
+                markDirty();
             };
         }
 

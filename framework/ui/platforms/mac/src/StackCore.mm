@@ -28,7 +28,8 @@ namespace bdn::mac
         return root;
     }
 
-    StackCore::StackCore() : ViewCore(createStackView()) {}
+    StackCore::StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, createStackView())
+    {}
 
     StackCore::~StackCore() { _backButtonClickHandler.stackCore = std::weak_ptr<StackCore>(); }
 
@@ -90,8 +91,8 @@ namespace bdn::mac
     void StackCore::updateCurrentView()
     {
         if (!_container) {
-            _container = std::make_shared<FixedView>(_uiProvider);
-            _container->offerLayout(_layout);
+            _container = std::make_shared<FixedView>(uiProvider());
+            _container->offerLayout(layout());
             if (auto containerCore = _container->core<bdn::mac::ContainerViewCore>()) {
                 addChildNSView(containerCore->nsView());
             } else {
@@ -110,7 +111,7 @@ namespace bdn::mac
         if (_stack.empty()) {
             _title.stringValue = @"--";
         } else {
-            _title.stringValue = stringToNSString(_stack.back().title);
+            _title.stringValue = fk::stringToNSString(_stack.back().title);
 
             auto newView = _stack.back().view;
 

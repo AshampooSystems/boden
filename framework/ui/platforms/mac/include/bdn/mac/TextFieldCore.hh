@@ -15,7 +15,7 @@ namespace bdn::mac
         static NSTextField *_createNsTextView();
 
       public:
-        TextFieldCore();
+        TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~TextFieldCore();
 
         virtual void init() override;

@@ -21,10 +21,10 @@ namespace bdn::ios
     class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       private:
-        WindowCore(BodenRootViewController *viewController);
+        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, BodenRootViewController *viewController);
 
       public:
-        WindowCore();
+        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~WindowCore();
 
         virtual void onGeometryChanged(Rect newGeometry) override;

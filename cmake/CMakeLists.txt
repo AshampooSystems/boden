@@ -22,6 +22,7 @@ set(_CMAKE_TOOLCHAINS
 
 set(_CMAKE_TEMPLATES
     templates/IOSInfo.plist.in
+    templates/OSXInfo.plist.in
     templates/combined_header.h.in)
 
 set(_CLANG_FORMAT

@@ -11,7 +11,7 @@ namespace bdn::mac
     class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
       public:
-        ListViewCore();
+        ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~ListViewCore();
 
         virtual void init() override;

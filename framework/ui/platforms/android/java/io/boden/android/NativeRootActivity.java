@@ -78,7 +78,7 @@ public class NativeRootActivity extends FragmentActivity
         _rootView = new NativeRootView(this );
         setContentView(_rootView);
 
-        nativeRegisterAppContext(getApplicationContext());
+        nativeRegisterAppContext(this);
 
         NativeInit.launch( getIntent() );
     }

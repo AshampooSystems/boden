@@ -5,7 +5,7 @@
 
 namespace bdn
 {
-    class CheckboxCore : virtual public ViewCore
+    class CheckboxCore
     {
         friend class Checkbox;
 

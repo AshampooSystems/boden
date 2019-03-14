@@ -95,8 +95,4 @@ namespace bdn::mac
 
         return macSize;
     }
-
-    inline NSString *stringToNSString(const String &val) { return bdn::fk::stringToNSString(val); }
-
-    inline String nsStringToString(NSString *nsString) { return bdn::fk::nsStringToString(nsString); }
 }

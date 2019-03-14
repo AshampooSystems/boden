@@ -12,7 +12,8 @@ namespace bdn::mac
         return view;
     }
 
-    ImageViewCore::ImageViewCore() : ViewCore(createNSImageView())
+    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : bdn::mac::ViewCore(uiProvider, createNSImageView())
     {
         url.onChange() += [=](auto va) { setUrl(va->get()); };
     }
@@ -42,15 +43,15 @@ namespace bdn::mac
         ((NSImageView *)this->nsView()).image = nullptr;
 
         NSURLSession *session = [NSURLSession sharedSession];
-        NSURL *nsURL = [NSURL URLWithString:stringToNSString(url)];
+        NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
 
         NSURLSessionDataTask *dataTask =
             [session dataTaskWithURL:nsURL
                    completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
                                        NSError *_Nullable error) {
                      if (auto err = error) {
-                         logstream() << "Failed loading '" << nsStringToString([nsURL absoluteString]) << "' ("
-                                     << nsStringToString([err localizedDescription]) << ")";
+                         logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
+                                     << fk::nsStringToString([err localizedDescription]) << ")";
                      } else {
 
                          getMainDispatcher()->enqueue([=]() {

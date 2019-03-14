@@ -11,7 +11,7 @@ namespace bdn::android
     class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       public:
-        ButtonCore(const ContextWrapper &ctxt);
+        ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
         wrapper::Button &getJButton();
 

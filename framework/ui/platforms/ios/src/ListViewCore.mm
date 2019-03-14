@@ -108,13 +108,8 @@
                 [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
             cell.clipsToBounds = YES;
 
-            // cellContent = [[FixedUITableViewCell alloc] init];
-            // cellContent.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-            fixedView = std::make_shared<bdn::FixedView>();
-            fixedView->offerLayout(core->_layout);
-
-            // cellContent.fixedView = fixedView;
+            fixedView = std::make_shared<bdn::FixedView>(core->uiProvider());
+            fixedView->offerLayout(core->layout());
 
             [cell.contentView addSubview:fixedView->core<bdn::ios::ViewCore>()->uiView()];
             cell.fixedView = fixedView;
@@ -177,7 +172,9 @@ namespace bdn::ios
         return uiTableView;
     }
 
-    ListViewCore::ListViewCore() : ViewCore(createUITableView()) {}
+    ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createUITableView())
+    {}
 
     void ListViewCore::init()
     {

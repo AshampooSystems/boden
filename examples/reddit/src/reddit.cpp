@@ -2,6 +2,7 @@
 #include <bdn/log.h>
 #include <bdn/net.h>
 #include <bdn/ui.h>
+#include <bdn/webview-module.h>
 #include <bdn/yogalayout.h>
 
 #include <nlohmann/json.hpp>
@@ -193,6 +194,7 @@ class PostDetailController : public Base
         auto webView = std::make_shared<WebView>();
         auto openButton = std::make_shared<Button>();
 
+        webView->userAgent = "boden-reddit/0.1";
         webView->url = url;
         webView->setLayoutStylesheet(Flex() << FlexGrow(1.));
 

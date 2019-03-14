@@ -14,7 +14,7 @@ namespace bdn::android
     class StackCore : public ViewCore, public bdn::StackCore
     {
       public:
-        StackCore(const ContextWrapper &ctxt);
+        StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~StackCore();
 
         // StackCore interface

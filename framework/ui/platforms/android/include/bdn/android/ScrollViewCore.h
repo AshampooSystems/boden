@@ -14,13 +14,15 @@ namespace bdn::android
     class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
     {
       public:
-        ScrollViewCore(const ContextWrapper &ctxt)
-            : ScrollViewCore(createAndroidViewClass<wrapper::NativeScrollView>(ctxt).cast<wrapper::NativeScrollView>())
+        ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : ScrollViewCore(
+                  uiProvider,
+                  createAndroidViewClass<wrapper::NativeScrollView>(uiProvider).cast<wrapper::NativeScrollView>())
         {}
 
       private:
-        ScrollViewCore(wrapper::NativeScrollView nativeScrollView)
-            : ViewCore(nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
+        ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::NativeScrollView nativeScrollView)
+            : ViewCore(uiProvider, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
               _jContentParent(_jNativeScrollView.getContentParent())
         {
             content.onChange() += [=](auto va) { updateContent(va->get()); };

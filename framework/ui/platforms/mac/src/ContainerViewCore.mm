@@ -32,9 +32,13 @@ namespace bdn::mac
         return macContainerView;
     }
 
-    ContainerViewCore::ContainerViewCore() : ContainerViewCore(_createContainer()) {}
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ContainerViewCore(uiProvider, _createContainer())
+    {}
 
-    ContainerViewCore::ContainerViewCore(NSView *view) : ViewCore(view) {}
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *view)
+        : bdn::mac::ViewCore(uiProvider, view)
+    {}
 
     void ContainerViewCore::init()
     {

@@ -6,18 +6,16 @@
 #include <bdn/Window.h>
 #include <bdn/WindowCore.h>
 
-#import <bdn/mac/UIProvider.hh>
-
 #import <bdn/mac/util.hh>
 
 @class BdnMacWindowContentViewParent_;
 
 namespace bdn::mac
 {
-    class WindowCore : virtual public bdn::WindowCore
+    class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       public:
-        WindowCore();
+        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         ~WindowCore();
 
       public:

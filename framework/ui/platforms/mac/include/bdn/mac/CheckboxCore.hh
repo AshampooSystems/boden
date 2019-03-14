@@ -21,14 +21,15 @@ namespace bdn::mac
         }
 
       public:
-        CheckboxCore() : ViewCore(createNSButton())
+        CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : bdn::mac::ViewCore(uiProvider, createNSButton())
         {
             _nsButton = (NSButton *)nsView();
 
             _nsButton.allowsMixedState = true;
 
             label.onChange() += [=](auto va) {
-                NSString *macLabel = stringToNSString(label);
+                NSString *macLabel = fk::stringToNSString(label);
                 [_nsButton setTitle:macLabel];
             };
 

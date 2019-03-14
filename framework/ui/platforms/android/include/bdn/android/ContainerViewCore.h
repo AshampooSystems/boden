@@ -17,8 +17,10 @@ namespace bdn::android
         static wrapper::View _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
 
       public:
-        ContainerViewCore(const ContextWrapper &ctxt);
-        ContainerViewCore(wrapper::View jView) : ViewCore(jView) {}
+        ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::View jView)
+            : ViewCore(uiProvider, jView)
+        {}
 
         virtual ~ContainerViewCore();
 

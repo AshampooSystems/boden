@@ -116,7 +116,7 @@ namespace bdn::mac
 
     void UIAppRunner::openURL(const String &url)
     {
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:stringToNSString(url)]];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:fk::stringToNSString(url)]];
     }
 
     void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)

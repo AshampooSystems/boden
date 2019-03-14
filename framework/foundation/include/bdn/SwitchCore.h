@@ -4,7 +4,7 @@
 
 namespace bdn
 {
-    class SwitchCore : virtual public ViewCore
+    class SwitchCore
     {
       public:
         Property<String> label;

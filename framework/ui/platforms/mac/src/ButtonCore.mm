@@ -27,11 +27,13 @@ namespace bdn::mac
         return button;
     }
 
-    ButtonCore::ButtonCore() : ViewCore(_createNsButton()) {}
+    ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : bdn::mac::ViewCore(uiProvider, _createNsButton())
+    {}
 
     void ButtonCore::init()
     {
-        ViewCore::init();
+        bdn::mac::ViewCore::init();
 
         _currBezelStyle = NSBezelStyleRounded;
 
@@ -44,7 +46,7 @@ namespace bdn::mac
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
         label.onChange() += [=](auto va) {
-            NSString *macLabel = stringToNSString(label);
+            NSString *macLabel = fk::stringToNSString(label);
             [(NSButton *)nsView() setTitle:macLabel];
         };
     }

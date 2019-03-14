@@ -12,8 +12,5 @@ namespace bdn
 
       public:
         virtual void reloadData() = 0;
-
-      public:
-        std::shared_ptr<UIProvider> _uiProvider;
     };
 }

@@ -21,10 +21,10 @@ namespace bdn::ios
 
 namespace bdn::ios
 {
-    class ViewCore : virtual public bdn::ViewCore
+    class ViewCore : public bdn::ViewCore
     {
       public:
-        ViewCore(id<UIViewWithFrameNotification> uiView);
+        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> uiView);
         ~ViewCore();
 
         virtual void init() override;
@@ -43,8 +43,6 @@ namespace bdn::ios
         virtual void onGeometryChanged(Rect newGeometry);
 
         virtual void scheduleLayout() override;
-
-        void fireLayout() { _layoutCallback.fire(); }
 
       protected:
         /** Returns true if the view can adjust its size to fit into a given

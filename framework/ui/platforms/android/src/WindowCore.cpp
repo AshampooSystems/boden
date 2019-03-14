@@ -5,7 +5,7 @@
 namespace bdn::android
 {
 
-    wrapper::View WindowCore::createJNativeViewGroup(const ContextWrapper &ctxt)
+    wrapper::View WindowCore::createJNativeViewGroup()
     {
         // we need a context to create our view object.
         // To know the context we first have to determine the root view
@@ -32,7 +32,9 @@ namespace bdn::android
         return view;
     }
 
-    WindowCore::WindowCore(const ContextWrapper &ctxt) : ViewCore(createJNativeViewGroup(ctxt)) {}
+    WindowCore::WindowCore(const std::shared_ptr<UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createJNativeViewGroup())
+    {}
 
     WindowCore::~WindowCore()
     {

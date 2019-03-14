@@ -1,6 +1,6 @@
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/AppRunner.hh>
-#import <bdn/ios/util.hh>
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
@@ -142,7 +142,7 @@ namespace bdn::ios
 
     void AppRunner::openURL(const String &url)
     {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:stringToNSString(url)]
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fk::stringToNSString(url)]
                                            options:@{}
                                  completionHandler:nil];
     }

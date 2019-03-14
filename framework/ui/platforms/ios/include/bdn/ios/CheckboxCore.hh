@@ -20,7 +20,7 @@ namespace bdn::ios
     class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
       public:
-        CheckboxCore();
+        CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         virtual ~CheckboxCore();
 
         virtual void init() override;

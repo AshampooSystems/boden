@@ -4,8 +4,9 @@
 
 namespace bdn::android
 {
-    ButtonCore::ButtonCore(const ContextWrapper &ctxt)
-        : ViewCore(createAndroidViewClass<wrapper::Button>(ctxt)), _jButton(getJViewAS<wrapper::Button>())
+    ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createAndroidViewClass<wrapper::Button>(uiProvider)),
+          _jButton(getJViewAS<wrapper::Button>())
     {
         _jButton.setSingleLine(true);
 

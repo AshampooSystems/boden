@@ -12,7 +12,7 @@ namespace bdn::ios
     class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
     {
       public:
-        ScrollViewCore();
+        ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
         virtual void init() override;
 

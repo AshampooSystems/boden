@@ -98,14 +98,25 @@ mark_as_advanced(BDN_PLATFORM_FAMILY_POSIX)
 set_property(CACHE BDN_TARGET PROPERTY STRINGS ${BDN_AVAILABLE_PLATFORMS})
 mark_as_advanced(BDN_AVAILABLE_PLATFORMS)
 
+macro(add_link_type_definitions TARGET)
+
+    if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
+        target_compile_definitions(${TARGET} PRIVATE BDN_SHARED_LIB=1)
+    elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
+        target_compile_definitions(${TARGET} PRIVATE BDN_SHARED_LIB=0)
+    endif()
+
+endmacro()
+
 macro(add_universal_library TARGET)
-    if(BDN_PLATFORM_ANDROID)
+    if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
         # Static libs don't work well on android at the moment due to problems in build.py with dependency generation
         add_library(${TARGET} SHARED ${ARGN})
-    else()
+    elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
         add_library(${TARGET} ${ARGN})
     endif()
     add_clangformat(${TARGET})
+    add_link_type_definitions(${TARGET})
 endmacro()
 
 macro(add_universal_executable TARGET CONSOLE_APP)
@@ -131,10 +142,16 @@ macro(add_universal_executable TARGET CONSOLE_APP)
         target_compile_definitions(${TARGET} PRIVATE "BDN_COMPILING_COMMANDLINE_APP")
     endif()
     add_clangformat(${TARGET})
+    add_link_type_definitions(${TARGET})
 endmacro()
 
 macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PARENT_LIBRARY)
     set(_library_name ${PARENT_LIBRARY}_${PLATFORM_LIBRARY_NAME})
+    set(_link_parent YES)
+
+    if(${ARGC} GREATER 4)
+        set(_link_parent ${ARGV4})
+    endif()
 
     ##########################################################################
     # Files
@@ -150,21 +167,20 @@ macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PA
         ${SOURCE_FOLDER}/include/*.h
         ${SOURCE_FOLDER}/include/*.hh)
 
-
     ##########################################################################
     # Target
-
     if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-        set(BDN_SHARED_LIB Yes)
         add_library(${_library_name} SHARED ${_files} ${_BDN_GENERATED_FILES})
     elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-        set(BDN_SHARED_LIB No)
         add_library(${_library_name} STATIC ${_files} ${_BDN_GENERATED_FILES})
     endif()
 
     add_clangformat(${_library_name})
+    add_link_type_definitions(${_library_name})
 
-    target_link_libraries(${_library_name} PUBLIC ${PARENT_LIBRARY})
+    if(_link_parent)
+        target_link_libraries(${_library_name} PUBLIC ${PARENT_LIBRARY})
+    endif()
 
     ##########################################################################
     # Includes

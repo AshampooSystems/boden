@@ -12,8 +12,9 @@ namespace bdn::android
     class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
       public:
-        CheckboxCore(const ContextWrapper &ctxt)
-            : ViewCore(createAndroidViewClass<wrapper::CheckBox>(ctxt)), _jCheckBox(getJViewAS<wrapper::CheckBox>())
+        CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : ViewCore(uiProvider, createAndroidViewClass<wrapper::CheckBox>(uiProvider)),
+              _jCheckBox(getJViewAS<wrapper::CheckBox>())
         {
             _jCheckBox.setSingleLine(true);
 

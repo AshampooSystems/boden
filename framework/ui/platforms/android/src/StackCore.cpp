@@ -4,7 +4,8 @@
 
 namespace bdn::android
 {
-    StackCore::StackCore(const ContextWrapper &ctxt) : ViewCore(createAndroidViewClass<wrapper::NativeStackView>(ctxt))
+    StackCore::StackCore(const std::shared_ptr<UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeStackView>(uiProvider))
     {
         geometry.onChange() += [=](auto va) { this->reLayout(); };
     }
@@ -13,9 +14,9 @@ namespace bdn::android
 
     void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
-        auto fixedView = std::make_shared<FixedView>(_uiProvider);
+        auto fixedView = std::make_shared<FixedView>(uiProvider());
         fixedView->addChildView(view);
-        fixedView->offerLayout(_layout);
+        fixedView->offerLayout(layout());
 
         bool isFirst = _stack.empty();
 

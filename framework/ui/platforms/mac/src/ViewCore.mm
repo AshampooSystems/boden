@@ -16,24 +16,26 @@
 
 namespace bdn::mac
 {
-    ViewCore::ViewCore(NSView *nsView)
+    ViewCore::ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *nsView)
+        : bdn::ViewCore(uiProvider), _nsView(nsView)
     {
-        _nsView = nsView;
+        if (_nsView) {
 
-        geometry.onChange() += [&view = this->_nsView](auto va) {
-            NSRect r = rectToMacRect(va->get(), -1);
+            geometry.onChange() += [&view = this->_nsView](auto va) {
+                NSRect r = rectToMacRect(va->get(), -1);
 
-            [view setFrameOrigin:r.origin];
-            [view setFrameSize:r.size];
-        };
+                [view setFrameOrigin:r.origin];
+                [view setFrameSize:r.size];
+            };
 
-        visible.onChange() += [&view = this->_nsView](auto va) { view.hidden = !va->get(); };
+            visible.onChange() += [&view = this->_nsView](auto va) { view.hidden = !va->get(); };
 
-        _nsView.postsFrameChangedNotifications = YES;
+            _nsView.postsFrameChangedNotifications = YES;
 
-        /*  _nsView.wantsLayer = YES;
-          _nsView.layer.borderColor = [NSColor blueColor].CGColor;
-          _nsView.layer.borderWidth = 2;*/
+            /*  _nsView.wantsLayer = YES;
+              _nsView.layer.borderColor = [NSColor blueColor].CGColor;
+              _nsView.layer.borderWidth = 2;*/
+        }
     }
 
     void ViewCore::init()

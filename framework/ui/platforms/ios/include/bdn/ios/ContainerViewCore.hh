@@ -16,8 +16,8 @@ namespace bdn::ios
     class ContainerViewCore : public ViewCore, virtual public bdn::ContainerViewCore
     {
       public:
-        ContainerViewCore();
-        ContainerViewCore(id<UIViewWithFrameNotification> view);
+        ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> view);
 
       protected:
         bool canAdjustToAvailableWidth() const override;

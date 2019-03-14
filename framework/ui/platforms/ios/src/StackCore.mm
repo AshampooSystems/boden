@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/StackCore.hh>
 #import <bdn/ios/util.hh>
@@ -65,12 +66,12 @@
 - (void)loadView
 {
     if (auto core = _stackCore.lock()) {
-        _fixedView = std::make_shared<bdn::FixedView>();
-        _safeContent = std::make_shared<bdn::FixedView>();
+        _fixedView = std::make_shared<bdn::FixedView>(core->uiProvider());
+        _safeContent = std::make_shared<bdn::FixedView>(core->uiProvider());
 
         self.view = _fixedView->core<bdn::ios::ViewCore>()->uiView();
 
-        _fixedView->offerLayout(core->_layout);
+        _fixedView->offerLayout(core->layout());
 
         _fixedView->addChildView(_safeContent);
         _safeContent->addChildView(_userContent);
@@ -105,7 +106,9 @@ namespace bdn::ios
         return view;
     }
 
-    StackCore::StackCore() : ViewCore(createNavigationControllerView()) {}
+    StackCore::StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createNavigationControllerView())
+    {}
 
     void StackCore::init()
     {
@@ -160,17 +163,17 @@ namespace bdn::ios
         ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
         ctrl.userContent = view;
 
-        [ctrl setTitle:stringToNSString(title)];
+        [ctrl setTitle:fk::stringToNSString(title)];
 
         [getNavigationController() pushViewController:ctrl animated:YES];
 
-        _dirtyCallback.fire();
+        markDirty();
     }
 
     void StackCore::popView()
     {
         [getNavigationController() popViewControllerAnimated:YES];
-        _dirtyCallback.fire();
+        markDirty();
     }
 
     std::list<std::shared_ptr<View>> StackCore::childViews()

@@ -50,32 +50,6 @@ pipeline {
             }
         }
 
-        stage('Documentation') {
-            agent {
-                dockerfile {
-                    filename 'Dockerfile_documentation'
-                    additionalBuildArgs '-t boden_documentation'
-                    label 'boden'
-                }
-            }
-            steps {
-                sh 'mkdir -p ${WORKSPACE}/build/documentation'
-
-                sh 'cd ${WORKSPACE}/build/documentation && cmake ../../ -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/boden-documentation'
-                sh 'cd ${WORKSPACE}/build/documentation && make boden_documentation'
-                sh 'cd ${WORKSPACE}/build/documentation && cmake -DCOMPONENT=documentation -P cmake_install.cmake'
-
-                sh 'cd ${WORKSPACE}/ && tar -zcvf boden-documentation.tar.gz boden-documentation'
-
-                stash includes: 'build/**/*', name: 'boden_documentation_builddir'
-                archiveArtifacts artifacts: 'boden-*.tar.gz', fingerprint: true
-
-                sh 'cd ${WORKSPACE}/build && mkdir package'
-                sh 'cd ${WORKSPACE} && cp boden-documentation.tar.gz build/package/'
-                stash includes: 'build/package/*', name: 'documentation-packages'
-            }
-        }
-
         stage('Building and testing (parallel)') {
 
             parallel {
@@ -97,7 +71,6 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                unstash 'boden_documentation_builddir'
                                 sh 'python boden.py prepare -b make -a arm64-v8a'
                                 sh 'python boden.py prepare -b make -a x86_64'
 
@@ -180,8 +153,6 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                unstash 'boden_documentation_builddir'
-                                sh 'python boden.py copy -f build/documentation/doxygen'
                                 sh 'python boden.py build'
                             }
                         }
@@ -237,7 +208,6 @@ pipeline {
                 unstash 'ios-packages'
                 unstash 'macos-packages'
                 unstash 'linux-packages'
-                unstash 'documentation-packages'
 
                 script {
                     env.RELEASE_NAME = env.BRANCH_NAME.split('/')[1]

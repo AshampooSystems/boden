@@ -30,9 +30,9 @@ namespace bdn
                 YGNodeSetDirtiedFunc(ygNode, &ViewData::onDirtied);
 
                 if (auto window = dynamic_cast<Window *>(v)) {
-                    geometry.connect(window->contentGeometry);
+                    geometry.bind(window->contentGeometry);
                 } else {
-                    geometry.connect(view->geometry);
+                    geometry.bind(view->geometry);
                 }
 
                 geometry.onChange() += [=](auto va) { ygNode->markDirtyAndPropogate(); };

@@ -1,4 +1,5 @@
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/WindowCore.hh>
 
@@ -17,9 +18,8 @@
 
 - (void)layoutSubviews
 {
-    //[super layoutSubviews];
     if (auto viewCore = self.viewCore.lock()) {
-        viewCore->fireLayout();
+        viewCore->startLayout();
     }
 }
 
@@ -83,17 +83,18 @@ namespace bdn::ios
         return rootViewCtrl;
     }
 
-    WindowCore::WindowCore(BodenRootViewController *viewController)
-        : ViewCore(viewController.safeRootView), _rootViewController(viewController)
+    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, BodenRootViewController *viewController)
+        : ViewCore(uiProvider, viewController.safeRootView), _rootViewController(viewController)
     {}
 
-    WindowCore::WindowCore() : WindowCore(createRootViewController())
+    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : WindowCore(uiProvider, createRootViewController())
     {
         _window = _rootViewController.myWindow;
         _rootViewController.myWindow = _window;
 
         title.onChange() +=
-            [&window = this->_window](auto va) { window.rootViewController.title = stringToNSString(va->get()); };
+            [&window = this->_window](auto va) { window.rootViewController.title = fk::stringToNSString(va->get()); };
 
         geometry.onChange() += [=](auto va) {
             updateGeomtry();

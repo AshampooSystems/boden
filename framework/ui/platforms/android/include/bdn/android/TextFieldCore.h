@@ -17,9 +17,9 @@ namespace bdn::android
     class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
     {
       public:
-        TextFieldCore(const ContextWrapper &ctxt)
-            : ViewCore(createAndroidViewClass<wrapper::EditText>(ctxt)), _jEditText(getJViewAS<wrapper::EditText>()),
-              _watcher(_jEditText.cast<wrapper::TextView>())
+        TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+            : ViewCore(uiProvider, createAndroidViewClass<wrapper::EditText>(uiProvider)),
+              _jEditText(getJViewAS<wrapper::EditText>()), _watcher(_jEditText.cast<wrapper::TextView>())
         {
             _jEditText.setSingleLine(true);
 

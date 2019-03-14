@@ -41,7 +41,6 @@ namespace bdn
 
         auto windowCore = View::core<WindowCore>();
 
-        windowCore->visible.bind(visible);
         windowCore->content.bind(content);
         windowCore->title.bind(title);
 

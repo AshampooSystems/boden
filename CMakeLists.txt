@@ -18,8 +18,6 @@ add_subdirectory(cmake)
 add_subdirectory(bauer)
 
 fix_ios_package()
-# Documentation
-add_subdirectory(doxygen)
 
 # 3rdParty support libraries
 add_subdirectory(3rdparty)

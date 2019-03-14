@@ -12,8 +12,5 @@ namespace bdn
         virtual void popView() = 0;
 
         virtual std::list<std::shared_ptr<View>> childViews() = 0;
-
-      public:
-        std::shared_ptr<UIProvider> _uiProvider;
     };
 }

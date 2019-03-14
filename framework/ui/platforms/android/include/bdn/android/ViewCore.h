@@ -11,20 +11,22 @@
 #include <bdn/android/wrapper/NativeViewGroup.h>
 #include <bdn/android/wrapper/View.h>
 
+#include <bdn/UIContext.h>
+#include <bdn/UIProvider.h>
 #include <bdn/android/ContextWrapper.h>
 
 using namespace std::string_literals;
 
 namespace bdn::android
 {
-    class UIProvider;
-
-    class ViewCore : virtual public bdn::ViewCore
+    class ViewCore : public bdn::ViewCore
     {
-        friend class bdn::android::UIProvider;
+        friend class bdn::UIProvider;
 
       public:
-        ViewCore(wrapper::View jView) : _jView(jView) {}
+        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::View jView)
+            : bdn::ViewCore(uiProvider), _jView(jView)
+        {}
         virtual ~ViewCore();
 
       public:
@@ -44,8 +46,6 @@ namespace bdn::android
         virtual void setUIScaleFactor(double scaleFactor);
 
         void scheduleLayout() override;
-
-        void doLayout();
 
         void updateChildren();
 
@@ -78,9 +78,9 @@ namespace bdn::android
         return std::dynamic_pointer_cast<T>(viewCoreFromJavaViewRef(javaViewRef));
     }
 
-    template <class T> wrapper::View createAndroidViewClass(const ContextWrapper &context)
+    template <class T> wrapper::View createAndroidViewClass(const std::shared_ptr<bdn::UIProvider> &uiProvider)
     {
-        T view(context.getContext());
+        T view(uiProvider->getContextStackTop<bdn::android::UIContext>()->_contextWrapper->getContext());
         return wrapper::View(view.getRef_());
     }
 }

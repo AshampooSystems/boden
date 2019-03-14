@@ -1,3 +1,4 @@
+#import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/ios/SwitchCore.hh>
 
 @implementation BdnIosSwitchClickManager
@@ -62,7 +63,9 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    SwitchCore::SwitchCore() : ViewCore(createSwitchComposite()) {}
+    SwitchCore::SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, createSwitchComposite())
+    {}
 
     void SwitchCore::init()
     {
@@ -77,7 +80,7 @@ namespace bdn::ios
                       forControlEvents:UIControlEventTouchUpInside];
 
         label.onChange() += [=](auto va) {
-            _composite.uiLabel.text = stringToNSString(label);
+            _composite.uiLabel.text = fk::stringToNSString(label);
             [_composite.uiLabel sizeToFit];
         };
 

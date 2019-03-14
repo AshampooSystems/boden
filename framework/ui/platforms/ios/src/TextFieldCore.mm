@@ -1,7 +1,6 @@
-
-
 #import <UIKit/UIKit.h>
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/TextFieldCore.hh>
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
@@ -38,7 +37,7 @@
 - (void)textFieldDidChange:(NSNotification *)notification
 {
     if (auto core = self.core.lock()) {
-        core->text = (bdn::ios::nsStringToString(((UITextField *)notification.object).text));
+        core->text = (bdn::fk::nsStringToString(((UITextField *)notification.object).text));
     }
 }
 
@@ -91,7 +90,9 @@ namespace bdn::ios
         return textField;
     }
 
-    TextFieldCore::TextFieldCore() : ViewCore(_createUITextField()) {}
+    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+        : ViewCore(uiProvider, _createUITextField())
+    {}
 
     void TextFieldCore::init()
     {
@@ -102,8 +103,8 @@ namespace bdn::ios
 
         text.onChange() += [=](auto va) {
             UITextField *textField = (UITextField *)uiView();
-            if (nsStringToString(textField.text) != text.get()) {
-                textField.text = stringToNSString(text);
+            if (fk::nsStringToString(textField.text) != text.get()) {
+                textField.text = fk::stringToNSString(text);
             }
         };
     }

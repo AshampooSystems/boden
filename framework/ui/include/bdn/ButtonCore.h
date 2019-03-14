@@ -4,7 +4,7 @@
 
 namespace bdn
 {
-    class ButtonCore : virtual public ViewCore
+    class ButtonCore
     {
         friend class Button;
 

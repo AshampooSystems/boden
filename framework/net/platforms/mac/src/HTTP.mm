@@ -4,13 +4,7 @@
 #include <bdn/HTTPResponse.h>
 #include <bdn/config.h>
 
-#ifdef BDN_PLATFORM_OSX
-#import <bdn/mac/util.hh>
-using namespace bdn::mac;
-#else
-#import <bdn/ios/util.hh>
-using namespace bdn::ios;
-#endif
+#import <bdn/foundationkit/stringUtil.hh>
 
 #import <Foundation/Foundation.h>
 
@@ -27,7 +21,7 @@ namespace bdn
                 response->originalRequest = request;
 
                 NSURLSession *session = [NSURLSession sharedSession];
-                NSURL *nsURL = [NSURL URLWithString:stringToNSString(request.url)];
+                NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(request.url)];
 
                 NSURLSessionDataTask *dataTask = [session
                       dataTaskWithURL:nsURL
@@ -36,11 +30,11 @@ namespace bdn
                       getMainDispatcher()->enqueue([nsData, nsResponse, response]() {
                           NSHTTPURLResponse *nsHTTPResponse = (NSHTTPURLResponse *)nsResponse;
 
-                          response->url = nsStringToString([nsHTTPResponse.URL absoluteString]);
+                          response->url = fk::nsStringToString([nsHTTPResponse.URL absoluteString]);
                           response->responseCode = (int)nsHTTPResponse.statusCode;
 
                           response->header =
-                              nsStringToString([NSString stringWithFormat:@"%@", nsHTTPResponse.allHeaderFields]);
+                              fk::nsStringToString([NSString stringWithFormat:@"%@", nsHTTPResponse.allHeaderFields]);
 
                           response->data =
                               String((const char *)nsData.bytes, (const char *)nsData.bytes + nsData.length);

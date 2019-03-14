@@ -92,12 +92,12 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                 }
 
                 if (!reusable) {
-                    reusable = std::make_shared<bdn::android::RowContainerView>(listCore->_uiProvider);
+                    reusable = std::make_shared<bdn::android::RowContainerView>(listCore->uiProvider());
                     reusableCore = reusable->core<bdn::android::RowContainerCore>();
                     reusableCore->setRowContainerView(reusable);
                 }
 
-                reusable->offerLayout(listCore->_layout);
+                reusable->offerLayout(listCore->layout());
                 reusableCore->setUIScaleFactor(listCore->getUIScaleFactor());
 
                 if (auto dataSource = dataSourceFromRawView(rawView)) {
