@@ -140,20 +140,30 @@ class PostListViewController : public Base
 
     PostListViewController() : _listView(std::make_shared<ListView>())
     {
+        _listView->enableRefresh = true;
         _listView->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
                                        << FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMarginAll(10.0f));
 
-        auto store = std::make_shared<RedditStore>();
-        _dataSource = std::make_shared<RedditListViewDataSource>(store);
+        _store = std::make_shared<RedditStore>();
+        _dataSource = std::make_shared<RedditListViewDataSource>(_store);
 
         _listView->dataSource = _dataSource;
+        _listView->onRefresh() += [this]() { updatePosts(); };
 
-        store->fetchPosts([this]() { _listView->reloadData(); });
+        updatePosts();
 
-        _listView->selectedRowIndex.onChange() += [store, this](auto indexAccessor) {
-            auto post = store->posts.at(*indexAccessor->get());
+        _listView->selectedRowIndex.onChange() += [this](auto indexAccessor) {
+            auto post = _store->posts.at(*indexAccessor->get());
             _onClicked.notify(post->title, post->url, post->thumbnailUrl);
         };
+    }
+
+    void updatePosts()
+    {
+        _store->fetchPosts([this]() {
+            _listView->reloadData();
+            _listView->refreshDone();
+        });
     }
 
     std::shared_ptr<View> view() { return _listView; }
@@ -164,6 +174,7 @@ class PostListViewController : public Base
     std::shared_ptr<RedditListViewDataSource> _dataSource;
 
     std::shared_ptr<ListView> _listView;
+    std::shared_ptr<RedditStore> _store;
 
     clickNotifier_t _onClicked;
 };

@@ -4,7 +4,6 @@
 
 namespace bdn::android::wrapper
 {
-
     constexpr const char kListViewClassName[] = "android/widget/ListView";
 
     /** Accessor for Java android.widget.ListView objects.*/

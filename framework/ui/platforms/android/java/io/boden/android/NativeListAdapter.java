@@ -21,7 +21,6 @@ public class NativeListAdapter extends BaseAdapter
         public NativeStrongPointer getBdnView() {
             return _bdnViewPtr;
         }
-
         public void setBdnView(NativeStrongPointer bdnViewPtr) {
             _bdnViewPtr = bdnViewPtr;
         }

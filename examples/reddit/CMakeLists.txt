@@ -18,6 +18,7 @@ add_universal_executable(reddit No ${REDDIT_FILES} ${REDDIT_ASSETS})
 set_target_properties( reddit PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER ${MACOSX_BUNDLE_GUI_IDENTIFIER} )
 set(MACOSX_NSAPP_TRANSPORT_SECURITY "<key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>" )
 
+set_xcode_property (reddit TARGETED_DEVICE_FAMILY "iPhone/iPad")
 set_xcode_property(reddit CODE_SIGN_STYLE Automatic)
 set_xcode_property(reddit ASSETCATALOG_COMPILER_APPICON_NAME AppIcon)
 set_xcode_property(reddit CODE_SIGN_IDENTITY "iPhone Developer")

@@ -9,31 +9,6 @@
 
 #include <bdn/log.h>
 
-/*@interface FixedUITableViewCell : UIView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::shared_ptr<bdn::FixedView> fixedView;
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
-@end
-
-@implementation FixedUITableViewCell
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-    if (auto core = _viewCore.lock()) {
-        core->frameChanged();
-    }
-}
-
-- (void)layoutSubviews
-{
-    if (auto layout = _fixedView->getLayout()) {
-        layout->layout(_fixedView.get());
-    }
-}
-
-@end
- */
-
 @interface FollowSizeUITableViewCell : UITableViewCell
 @property std::shared_ptr<bdn::FixedView> fixedView;
 @end
@@ -162,6 +137,31 @@
         viewCore->frameChanged();
     }
 }
+
+- (void)handleRefresh
+{
+    if (auto viewCore = std::dynamic_pointer_cast<bdn::ios::ListViewCore>(self.viewCore.lock())) {
+        viewCore->fireRefresh();
+    }
+}
+
+- (void)updateRefresh:(bool)enable
+{
+    if (enable && !self.refreshControl) {
+        self.refreshControl = [[UIRefreshControl alloc] init];
+        [self.refreshControl addTarget:self
+                                action:@selector(handleRefresh)
+                      forControlEvents:UIControlEventValueChanged];
+    } else if (!enable) {
+        self.refreshControl = nil;
+    }
+}
+- (void)refreshDone
+{
+    if (self.refreshControl) {
+        [self.refreshControl endRefreshing];
+    }
+}
 @end
 
 namespace bdn::ios
@@ -187,7 +187,15 @@ namespace bdn::ios
         UITableView *uiTableView = (UITableView *)uiView();
         uiTableView.dataSource = nativeDelegate;
         uiTableView.delegate = nativeDelegate;
+
+        enableRefresh.onChange() += [=](auto va) { updateRefresh(va->get()); };
     }
 
+    void ListViewCore::updateRefresh(bool enable) { [((BodenUITableView *)uiView()) updateRefresh:enable]; }
+
     void ListViewCore::reloadData() { [((UITableView *)uiView())reloadData]; }
+
+    void ListViewCore::refreshDone() { [((BodenUITableView *)uiView())refreshDone]; }
+
+    void ListViewCore::fireRefresh() { _refreshCallback.fire(); }
 }

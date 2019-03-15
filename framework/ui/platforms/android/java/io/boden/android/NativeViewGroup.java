@@ -65,6 +65,7 @@ public class NativeViewGroup extends ViewGroup
 
         final LayoutParams params = new LayoutParams(x, y, width, height);
         child.setLayoutParams(params);
+        child.measure(MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.EXACTLY));
 
         // and then schedule a re-layout of this container so that the child will be repositioned
         if(isInLayout())
@@ -91,7 +92,9 @@ public class NativeViewGroup extends ViewGroup
         final int childCount = getChildCount();
         for(int i=0; i<childCount; i++) {
             final View child = getChildAt(i);
-            child.measure(0, 0);
+            LayoutParams params = (LayoutParams) child.getLayoutParams();
+
+            child.measure(MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.EXACTLY));
         }
 
         setMeasuredDimension(

@@ -17,6 +17,10 @@ namespace bdn::mac
         virtual void init() override;
 
         virtual void reloadData() override;
+        virtual void refreshDone() override;
+
+      public:
+        void fireRefresh();
 
       private:
         static NSScrollView *createNSTableView();

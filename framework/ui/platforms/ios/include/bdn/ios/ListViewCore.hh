@@ -17,9 +17,14 @@ namespace bdn::ios
         virtual ~ListViewCore() = default;
 
         virtual void reloadData() override;
+        virtual void refreshDone() override;
+
+        void fireRefresh();
 
       protected:
         virtual void init() override;
+
+        void updateRefresh(bool enable);
 
       private:
         ListViewDelegateIOS *_nativeDelegate;

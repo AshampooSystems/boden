@@ -10,6 +10,10 @@ namespace bdn
       public:
         Property<std::shared_ptr<ListViewDataSource>> dataSource;
         Property<std::optional<size_t>> selectedRowIndex;
+        Property<bool> enableRefresh;
+
+      public:
+        SimpleNotifier<> &onRefresh();
 
       public:
         static constexpr char coreTypeName[] = "bdn.ListViewCore";
@@ -20,11 +24,16 @@ namespace bdn
 
       public:
         void reloadData();
+        void refreshDone();
 
       public:
         String viewCoreTypeName() const override;
 
       protected:
         virtual void bindViewCore() override;
+
+      private:
+        SimpleNotifier<> _refreshNotifier;
+        WeakCallback<void()>::Receiver _refreshCallback;
     };
 }

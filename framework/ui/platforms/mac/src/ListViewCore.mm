@@ -1,7 +1,8 @@
-#include <bdn/FixedView.h>
-#include <bdn/mac/ContainerViewCore.hh>
-
 #import <bdn/mac/ListViewCore.hh>
+
+#include <bdn/FixedView.h>
+#include <bdn/log.h>
+#include <bdn/mac/ContainerViewCore.hh>
 
 @interface FixedNSView : NSView <BdnLayoutable>
 @property(nonatomic, assign) std::shared_ptr<bdn::FixedView> view;
@@ -106,6 +107,119 @@
 
 @end
 
+@interface ListScrollView : NSScrollView
+@property NSTextView *refreshLabel;
+@property(nonatomic, assign) std::weak_ptr<bdn::mac::ListViewCore> listCore;
+@property bool isInRefreshStatus;
+@property(nonatomic) bool refreshEnabled;
+@end
+
+@implementation ListScrollView
+- initWithFrame:(CGRect)rect
+{
+    self = [super initWithFrame:rect];
+    if (self) {
+        self.isInRefreshStatus = NO;
+        self.refreshEnabled = NO;
+
+        self.refreshLabel = [[NSTextView alloc] init];
+        [self addFloatingSubview:self.refreshLabel forAxis:NSEventGestureAxisVertical];
+        self.refreshLabel.string = @"Refresh";
+
+        self.refreshLabel.editable = false;
+        self.refreshLabel.selectable = false;
+        self.refreshLabel.richText = false;
+        self.refreshLabel.verticallyResizable = false;
+
+        [self.refreshLabel setWantsLayer:YES];
+        [self.refreshLabel.layer setCornerRadius:10.0f];
+
+        [self.refreshLabel setAlignment:NSTextAlignmentCenter range:NSMakeRange(0, 6)];
+
+        self.refreshLabel.alphaValue = 0.0f;
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didScroll)
+                                                     name:NSScrollViewDidLiveScrollNotification
+                                                   object:self];
+    }
+    return self;
+}
+
+- (void)setRefreshEnabled:(bool)enable
+{
+    _refreshEnabled = enable;
+    if (!_refreshEnabled) {
+        self.refreshLabel.alphaValue = 0.0;
+        self.isInRefreshStatus = NO;
+    }
+}
+
+- (void)didScroll
+{
+    NSRect visibleRect = [[self contentView] documentVisibleRect];
+
+    if (self.refreshEnabled) {
+        if (!self.isInRefreshStatus) {
+            self.refreshLabel.alphaValue = std::max(0.0, std::min(1.0, (-1.0 * (visibleRect.origin.y + 10)) / 25.0));
+        }
+
+        if (self.refreshLabel.alphaValue >= 1.0 && !self.isInRefreshStatus) {
+            self.isInRefreshStatus = YES;
+            self.refreshLabel.string = @"Refreshing";
+
+            if (auto listCore = self.listCore.lock()) {
+                listCore->fireRefresh();
+            }
+        } else {
+            int numDots = self.refreshLabel.alphaValue * 4;
+            switch (numDots) {
+            case 1:
+                self.refreshLabel.string = @"Refresh.";
+                break;
+            case 2:
+                self.refreshLabel.string = @"Refresh..";
+                break;
+            case 3:
+                self.refreshLabel.string = @"Refresh...";
+                break;
+            }
+        }
+    }
+}
+
+- (void)setFrameSize:(NSSize)newSize;
+{
+    [super setFrameSize:newSize];
+
+    CGSize boundingRect = CGSizeMake(newSize.width, 50);
+
+    CGRect r = [[self.refreshLabel textStorage]
+        boundingRectWithSize:boundingRect
+                     options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                     context:nil];
+
+    [self.refreshLabel.layer setCornerRadius:r.size.height / 3];
+
+    self.refreshLabel.textContainerInset = CGSizeMake(0, 10);
+
+    r.size.height += 20;
+
+    [self.refreshLabel
+        setFrame:CGRectMake((newSize.width / 2) - (r.size.width), newSize.height - (25 + (r.size.height / 2)),
+                            (r.size.width) * 2, r.size.height)];
+}
+
+- (void)endRefreshing
+{
+    if (self.isInRefreshStatus) {
+        self.isInRefreshStatus = NO;
+        self.refreshLabel.alphaValue = 0.0;
+        self.refreshLabel.string = @"Refresh";
+    }
+}
+@end
+
 namespace bdn::mac
 {
     ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
@@ -119,7 +233,15 @@ namespace bdn::mac
         ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
         nativeDelegate.listCore = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
 
-        _nsTableView = ((NSScrollView *)nsView()).documentView;
+        ListScrollView *scrollView = (ListScrollView *)nsView();
+        scrollView.listCore = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
+
+        enableRefresh.onChange() += [=](auto va) {
+            ListScrollView *scrollView = (ListScrollView *)nsView();
+            scrollView.refreshEnabled = va->get();
+        };
+
+        _nsTableView = (scrollView).documentView;
         _nsTableView.dataSource = nativeDelegate;
         _nsTableView.delegate = nativeDelegate;
         _nsTableView.headerView = nil;
@@ -128,9 +250,17 @@ namespace bdn::mac
 
     void ListViewCore::reloadData() { [_nsTableView reloadData]; }
 
+    void ListViewCore::refreshDone()
+    {
+        ListScrollView *scrollView = (ListScrollView *)nsView();
+        [scrollView endRefreshing];
+    }
+
+    void ListViewCore::fireRefresh() { _refreshCallback.fire(); }
+
     NSScrollView *ListViewCore::createNSTableView()
     {
-        NSScrollView *nsScrollView = [[NSScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+        ListScrollView *nsScrollView = [[ListScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         NSTableView *nsTableView = [[NSTableView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"Column"];
