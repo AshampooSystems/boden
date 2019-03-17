@@ -54,3 +54,7 @@ add_subdirectory(ui)
 add_subdirectory(testing)
 add_subdirectory(layout)
 add_subdirectory(webview)
+
+if(BDN_INCLUDE_LOTTIE)
+    add_subdirectory(lottieview)
+endif()

@@ -2,6 +2,7 @@
 
 set(BAUER_ANDROID_DEPENDENCIES "" CACHE STRING "The android dependencies" FORCE)
 set(BAUER_ANDROID_MANIFEST_FILE "" CACHE STRING "The android manifest file" FORCE)
+set(BAUER_ANDROID_EXTRA_JAVA_DIRECTORIES "" CACHE STRING "Additional Java Directories" FORCE)
 
 
 macro(android_manifest TARGET_NAME)

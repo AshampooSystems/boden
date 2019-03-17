@@ -4,6 +4,10 @@
 #include <bdn/ui.h>
 #include <bdn/yogalayout.h>
 
+#include <bdn/LottieView.h>
+
+#include <nlohmann/json.hpp>
+
 namespace bdn
 {
 
@@ -127,6 +131,14 @@ namespace bdn
         container->addChildView(makeRow("Image", image));
 
         image->setLayoutStylesheet((FlexStylesheet)FlexMaximumSizeHeight(50.0f));
+
+        auto lottieView = std::make_shared<LottieView>();
+        lottieView->setLayoutStylesheet(FlexJsonStringify({"size" : {"width" : 50, "height" : 50}}));
+        lottieView->url = "https://maddinas.myqnapcloud.com:8989/4964-check-mark-success-animation.json";
+        container->addChildView(makeRow("Lottie", lottieView));
+
+        lottieView->running = true;
+        lottieView->loop = true;
 
         auto textFieldCtrl = std::make_shared<TextField>();
         textFieldCtrl->text = "Some text";

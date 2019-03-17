@@ -51,7 +51,7 @@ namespace bdn
 
             void verifyCorePosition() override
             {
-                Point position = getFrameRect().getPosition();
+                Point position = getFrameRect().position();
                 Point expectedPosition = BaseClass::_view->position;
 
                 REQUIRE(position == expectedPosition);
@@ -59,7 +59,7 @@ namespace bdn
 
             void verifyCoreSize() override
             {
-                Size size = getFrameRect().getSize();
+                Size size = getFrameRect().size();
                 Size expectedSize = BaseClass::_view->size;
 
                 REQUIRE(size == expectedSize);

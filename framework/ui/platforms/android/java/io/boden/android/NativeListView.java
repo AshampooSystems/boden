@@ -1,10 +1,9 @@
 package io.boden.android;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
-import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.widget.ListView;
 
 public class NativeListView extends SwipeRefreshLayout {

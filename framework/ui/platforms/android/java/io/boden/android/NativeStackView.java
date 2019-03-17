@@ -1,22 +1,13 @@
 package io.boden.android;
 
-import android.animation.Animator;
-import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.transition.AutoTransition;
-import android.transition.Explode;
-import android.transition.Fade;
-import android.transition.Scene;
 import android.transition.Slide;
 import android.transition.Transition;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
-import android.transition.TransitionValues;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 
 public class NativeStackView extends NativeViewGroup implements NativeRootActivity.BackButtonListener {
 

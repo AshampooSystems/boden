@@ -41,8 +41,8 @@ TEST_CASE("Rect")
     {
         Rect a(1, 2, 3, 4);
 
-        REQUIRE(a.getPosition() == Point(1, 2));
-        REQUIRE(a.getSize() == Size(3, 4));
+        REQUIRE(a.position() == Point(1, 2));
+        REQUIRE(a.size() == Size(3, 4));
     }
 
     SECTION("equality")

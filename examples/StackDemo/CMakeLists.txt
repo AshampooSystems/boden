@@ -23,7 +23,7 @@ use_boden_template_info_plist(stackdemo)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${STACKDEMO_FILES})
 
-target_link_libraries(stackdemo PRIVATE ui foundation yogalayout)
+target_link_libraries(stackdemo PRIVATE ui foundation yogalayout lottieview nlohmann_json::nlohmann_json)
 
 install(TARGETS stackdemo
     DESTINATION examples

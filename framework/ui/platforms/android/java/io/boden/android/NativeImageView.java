@@ -4,7 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.support.v7.widget.AppCompatImageView;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 import java.io.IOException;
 import java.io.InputStream;

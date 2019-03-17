@@ -29,11 +29,8 @@ namespace bdn
 
         Rect(const Point &pos, const Size &size) : x(pos.x), y(pos.y), width(size.width), height(size.height) {}
 
-        /** Returns the position of the top left corner of the rect.*/
-        Point getPosition() const { return Point(x, y); }
-
-        /** Returns the size of the rect.*/
-        Size getSize() const { return Size(width, height); }
+        Point position() const { return Point(x, y); }
+        Size size() const { return Size(width, height); }
 
         /** Decrease the rect size by subtracting the specified margin.*/
         Rect operator-(const Margin &margin) const { return Rect(*this) -= margin; }

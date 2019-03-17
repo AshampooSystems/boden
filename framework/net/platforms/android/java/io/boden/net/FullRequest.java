@@ -1,7 +1,7 @@
 package io.boden.java;
 
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -10,7 +10,6 @@ import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.HttpHeaderParser;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /** A canned request for retrieving the response body at a given URL as a String. */
 public class FullRequest extends Request<FullData> {

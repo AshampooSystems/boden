@@ -4,3 +4,6 @@
 [submodule "3rdparty/yoga"]
 	path = 3rdparty/yoga
 	url = https://github.com/facebook/yoga.git
+[submodule "3rdparty/lottie/lottie-ios"]
+	path = 3rdparty/lottie/lottie-ios
+	url = https://github.com/airbnb/lottie-ios.git

@@ -28,3 +28,8 @@ if(ANDROID)
     mark_as_advanced(ANDROID_LOG_LIB)
     target_link_libraries(yogacore PUBLIC ${ANDROID_LOG_LIB})
 endif()
+
+# Lottie
+
+add_subdirectory(lottie)
+

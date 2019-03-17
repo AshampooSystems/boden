@@ -28,7 +28,7 @@ use_boden_template_info_plist(reddit)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${REDDIT_FILES})
 
-target_link_libraries(reddit PRIVATE ui foundation net webview yogalayout nlohmann_json::nlohmann_json)
+target_link_libraries(reddit PRIVATE ui foundation net webview lottieview yogalayout nlohmann_json::nlohmann_json)
 
 install(TARGETS reddit
     DESTINATION examples

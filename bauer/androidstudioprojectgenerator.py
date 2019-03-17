@@ -92,6 +92,12 @@ class AndroidStudioProjectGenerator(object):
         result = gradle_template.substitute(include_list = module_list )
         open(os.path.join(self.project_dir, "settings.gradle"), "w").write(result)
 
+    def create_gradle_properties(self):
+        properties_template = Template(open(os.path.join(self.android_support_dir, "gradle.properties.in"), "r").read())
+        result = properties_template.substitute()
+        open(os.path.join(self.project_dir, "gradle.properties"), "w").write(result)
+
+
     def de_unicode(self, string):
         if sys.version_info <= (3,0):
             return string.encode("utf-8")
@@ -108,7 +114,7 @@ class AndroidStudioProjectGenerator(object):
 
         return (source_directories, include_directories, java_directories)     
 
-    def create_target_build_gradle(self, module_directory, app, project, android_abi, android_dependencies, target_dependencies):
+    def create_target_build_gradle(self, module_directory, app, project, android_abi, android_dependencies, android_extra_java_directories, target_dependencies):
         self.make_directory(module_directory)
         directories = self.gather_directories(app, project)
 
@@ -139,7 +145,7 @@ class AndroidStudioProjectGenerator(object):
             cmakelists_path = cmakelists_path,
             cmake_version = self.cmake.globalSettings["capabilities"]["version"]["string"],
             jni_src_dir_list = directories[0] + directories[1],
-            java_src_dir_list = directories[2],
+            java_src_dir_list = directories[2] + android_extra_java_directories,
             android_dependencies = android_dependecy_string,
             android_module_dependency_code = target_dependency_string )
 
@@ -169,7 +175,9 @@ class AndroidStudioProjectGenerator(object):
             os.makedirs(self.project_dir);
 
         android_dependencies = self.cmake.cache["BAUER_ANDROID_DEPENDENCIES"].split(';')
+        android_extra_java_directories = list(filter(None, self.cmake.cache["BAUER_ANDROID_EXTRA_JAVA_DIRECTORIES"].split(';')))
         self.logger.debug("Dependencies: %s" % android_dependencies)
+        self.logger.debug("Extra Java Directories: %s" % android_extra_java_directories)
 
         self.prepare_gradle()
         self.create_top_level_build_gradle()
@@ -177,11 +185,12 @@ class AndroidStudioProjectGenerator(object):
         apps = self.find_applications(project, args)
 
         self.create_settings_gradle(apps)
+        self.create_gradle_properties()
 
         for app in apps:
             module_directory = os.path.join(self.project_dir, app["name"]);
 
-            self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, target_dependencies[app["name"]])
+            self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, android_extra_java_directories, target_dependencies[app["name"]])
             self.create_target_strings_xml(module_directory, app)
             self.copy_android_manifest(module_directory, app)
 

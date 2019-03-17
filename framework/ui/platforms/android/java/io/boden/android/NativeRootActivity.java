@@ -5,9 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.transition.Transition;
-import android.util.EventLog;
+import androidx.fragment.app.FragmentActivity;
+
 import android.view.MenuItem;
 
 import java.util.EventListener;
