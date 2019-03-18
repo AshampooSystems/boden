@@ -2221,10 +2221,7 @@ namespace bdn
 // and/or an exception thrown and takes appropriate action.
 // This needs to be done as a macro so the debugger will stop in the user
 // source code rather than in bdn library code
-#define INTERNAL_BDN_REACT(resultBuilder)                                                                              \
-    if (resultBuilder.shouldDebugBreak())                                                                              \
-        bdn::debugBreak();                                                                                             \
-    resultBuilder.react();
+#define INTERNAL_BDN_REACT(resultBuilder) resultBuilder.react();
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_TEST(expr, resultDisposition, macroName)                                                          \

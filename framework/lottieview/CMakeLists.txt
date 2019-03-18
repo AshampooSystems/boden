@@ -21,7 +21,7 @@ endif()
 
 list(APPEND _BDN_LOTTIEVIEW_FILES)
 
-add_universal_library(lottieview ${_BDN_LOTTIEVIEW_FILES})
+add_universal_library(lottieview TIDY SOURCES ${_BDN_LOTTIEVIEW_FILES})
 
 target_link_libraries(lottieview PUBLIC foundation ui)
 target_include_directories(lottieview

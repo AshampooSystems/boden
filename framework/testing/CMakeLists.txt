@@ -20,7 +20,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_TEST_FILES ${_BDN_JAVA_FILES})
 endif()
 
-add_universal_library(testing ${_BDN_TEST_FILES})
+add_universal_library(testing SOURCES ${_BDN_TEST_FILES})
 
 target_link_libraries(testing PUBLIC foundation ui)
 target_include_directories(testing

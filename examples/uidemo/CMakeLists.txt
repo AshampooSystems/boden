@@ -8,11 +8,10 @@ SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.uidemo")
 ios_configure_asset(UIDEMO_ASSETS ../IOS_DemoIcons.xcassets)
 ios_configure_asset(UIDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
-
-add_universal_executable(uidemo No ${UIDEMO_FILES} ${UIDEMO_ASSETS})
-
-
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
+
+add_universal_executable(uidemo TIDY SOURCES ${UIDEMO_FILES} ${UIDEMO_ASSETS})
+
 ios_setup_code_signing(uidemo)
 ios_set_appicon_asset_file(uidemo "AppIcon")
 ios_set_launchboard_file("LaunchScreen")

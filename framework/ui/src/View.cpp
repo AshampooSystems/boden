@@ -6,12 +6,14 @@
 
 #include <bdn/UIAppControllerBase.h>
 
+#include <utility>
+
 namespace bdn
 {
 
     View::View(std::shared_ptr<UIProvider> uiProvider)
-        : _uiProvider(uiProvider ? std::move(uiProvider) : UIAppControllerBase::get()->uiProvider()),
-          _hasLayoutSchedulePending(false)
+        : _uiProvider(uiProvider ? std::move(uiProvider) : UIAppControllerBase::get()->uiProvider())
+
     {
         if (!_uiProvider) {
             throw std::runtime_error("Couldn't get UI Provider!");
@@ -28,11 +30,16 @@ namespace bdn
         registerCoreCreatingProperties(this, &visible, &geometry, &layoutStylesheet);
     }
 
-    View::~View() { setLayout(nullptr); }
+    View::~View()
+    {
+        if (auto layout = _layout.get()) {
+            layout->unregisterView(this);
+        }
+    }
 
     void View::setLayout(std::shared_ptr<Layout> layout)
     {
-        auto oldLayout = _layout.set(layout);
+        auto oldLayout = _layout.set(std::move(layout));
         updateLayout(oldLayout, _layout.get());
     }
 
@@ -43,7 +50,7 @@ namespace bdn
         updateLayout(oldLayout, _layout.get());
     }
 
-    void View::updateLayout(std::shared_ptr<Layout> oldLayout, std::shared_ptr<Layout> newLayout)
+    void View::updateLayout(const std::shared_ptr<Layout> &oldLayout, const std::shared_ptr<Layout> &newLayout)
     {
         if (oldLayout) {
             oldLayout->unregisterView(this);
@@ -57,14 +64,14 @@ namespace bdn
             viewCore()->setLayout(newLayout);
         }
 
-        for (auto child : childViews()) {
+        for (const auto &child : childViews()) {
             child->offerLayout(newLayout);
         }
     }
 
     std::shared_ptr<Layout> View::getLayout() { return _layout.get(); }
 
-    void View::setParentView(std::shared_ptr<View> parentView)
+    void View::setParentView(const std::shared_ptr<View> &parentView)
     {
         if (!canMoveToParentView(parentView)) {
             throw std::runtime_error("Cannot move to parent View!");
@@ -83,10 +90,11 @@ namespace bdn
         }
     }
 
-    bool View::canMoveToParentView(std::shared_ptr<View> parentView)
+    bool View::canMoveToParentView(const std::shared_ptr<View> &parentView)
     {
-        if (!parentView)
+        if (!parentView) {
             return true;
+        }
 
         return _uiProvider == parentView->uiProvider() && viewCore()->canMoveToParentView(parentView);
     }
@@ -102,9 +110,11 @@ namespace bdn
 
     void View::lazyInitCore() const
     {
-        if (_core)
+        if (_core) {
             return;
+        }
 
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         auto un_const_this = const_cast<View *>(this);
 
         _core = _uiProvider->createViewCore(viewCoreTypeName());
@@ -117,7 +127,11 @@ namespace bdn
         return _core;
     }
 
-    std::shared_ptr<ViewCore> View::viewCore() const { return const_cast<View *>(this)->viewCore(); }
+    std::shared_ptr<ViewCore> View::viewCore() const
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        return const_cast<View *>(this)->viewCore();
+    }
 
     void View::bindViewCore()
     {

@@ -6,6 +6,7 @@
 #include <bdn/Base.h>
 
 #include <memory>
+#include <utility>
 
 namespace bdn::java::wrapper
 {
@@ -20,24 +21,25 @@ namespace bdn::java::wrapper
     class NativeWeakPointer : public Object
     {
       private:
-        static Reference newInstance(std::weak_ptr<Base> weakPtr)
+        static Reference newInstance(const std::weak_ptr<Base> &weakPtr)
         {
             if (weakPtr.expired()) {
                 // When the C++ pointer is null then we just return a null
                 // java reference
                 return Reference();
-            } else {
-                std::weak_ptr<Base> *pPtr = new std::weak_ptr<Base>(weakPtr);
-
-                // wrap the pointer into a java byte buffer
-                ByteBuffer byteBuffer(pPtr, 1);
-
-                return byteBuffer.getRef_();
             }
+
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+            auto *pPtr = new std::weak_ptr<Base>(weakPtr);
+
+            // wrap the pointer into a java byte buffer
+            ByteBuffer byteBuffer(pPtr, 1);
+
+            return byteBuffer.getRef_();
         }
 
       public:
-        explicit NativeWeakPointer(std::weak_ptr<Base> pPointer) : Object(newInstance(pPointer)) {}
+        explicit NativeWeakPointer(const std::weak_ptr<Base> &pPointer) : Object(newInstance(pPointer)) {}
 
         /** @param objectRef the reference to the Java object.
          *      The JObject instance will copy this reference and keep its
@@ -54,10 +56,8 @@ namespace bdn::java::wrapper
         {
             Env &env = Env::get();
 
-            std::weak_ptr<Base> *pPtr = (std::weak_ptr<Base> *)env.getJniEnv()->GetDirectBufferAddress(obj);
-
-            env.throwAndClearExceptionFromLastJavaCall();
-
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory, cppcoreguidelines-pro-type-cstyle-cast)
+            auto *pPtr = (std::weak_ptr<Base> *)env.getJniEnv()->GetDirectBufferAddress(obj);
             return *pPtr;
         }
 
@@ -68,11 +68,11 @@ namespace bdn::java::wrapper
             if (bufferRef.isNull()) {
                 // that means that the C++ pointer is null.
                 return std::weak_ptr<Base>();
-            } else {
-                ByteBuffer buffer(bufferRef);
-
-                return *((std::weak_ptr<Base> *)buffer.getBuffer_());
             }
+            ByteBuffer buffer(bufferRef);
+
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            return *((std::weak_ptr<Base> *)buffer.getBuffer_());
         }
 
         /** Returns the JClass object for this class.

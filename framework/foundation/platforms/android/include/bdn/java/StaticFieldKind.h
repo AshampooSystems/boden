@@ -8,7 +8,7 @@ namespace bdn::java
     class StaticFieldKind
     {
       public:
-        typedef jclass ContextJType;
+        using ContextJType = jclass;
 
         /** Represents the ID of a Java static class field.
          *  These IDs are used to call access an object's java-side fields
@@ -20,10 +20,9 @@ namespace bdn::java
             {
                 Env &env = Env::get();
 
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
                 _id = env.getJniEnv()->GetStaticFieldID((jclass)cls.getJObject_(), fieldName,
                                                         TypeConversion<NativeType>::getJavaSignature().asUtf8Ptr());
-
-                env.throwAndClearExceptionFromLastJavaCall();
             }
 
             /** Returns the Id. Throws and exception if the Id has not been

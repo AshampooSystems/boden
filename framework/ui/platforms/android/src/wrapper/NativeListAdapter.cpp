@@ -51,8 +51,8 @@ extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nat
 
 namespace bdn::android
 {
-    jobject viewForRowIndex(std::shared_ptr<bdn::ListViewDataSource> dataSource, int rowIndex,
-                            std::shared_ptr<RowContainerView> reusable)
+    jobject viewForRowIndex(const std::shared_ptr<bdn::ListViewDataSource> &dataSource, int rowIndex,
+                            const std::shared_ptr<RowContainerView> &reusable)
     {
 
         if (dataSource) {

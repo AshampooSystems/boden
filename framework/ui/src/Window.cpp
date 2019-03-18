@@ -27,12 +27,13 @@ namespace bdn
 
     void Window::removeAllChildViews() { content = nullptr; }
 
-    void Window::childViewStolen(std::shared_ptr<View> childView)
+    void Window::childViewStolen(const std::shared_ptr<View> &childView)
     {
         AppRunnerBase::assertInMainThread();
 
-        if (childView == content.get())
+        if (childView == content.get()) {
             content = nullptr;
+        }
     }
 
     void Window::bindViewCore()

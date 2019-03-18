@@ -11,13 +11,13 @@ namespace bdn
 
       public:
         ImageView(std::shared_ptr<UIProvider> uiProvider = nullptr);
-        virtual ~ImageView() = default;
+        ~ImageView() override = default;
 
       public:
         static constexpr char coreTypeName[] = "bdn.ImageViewCore";
-        virtual String viewCoreTypeName() const override;
+        String viewCoreTypeName() const override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
     };
 }

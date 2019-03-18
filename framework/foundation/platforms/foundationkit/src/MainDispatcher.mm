@@ -245,10 +245,11 @@ namespace bdn
                     },
 
                     delay);
-            } else
+            } else {
                 throw InvalidArgumentError("MainDispatcher::enqueueIn"
                                            "called with invalid priority: " +
                                            std::to_string((int)priority));
+            }
         }
 
         void MainDispatcher::callNextNormalItem()
@@ -258,8 +259,9 @@ namespace bdn
             {
                 std::unique_lock lock(_queueMutex);
 
-                if (_normalQueue.empty())
+                if (_normalQueue.empty()) {
                     return;
+                }
 
                 // make a copy so that exceptions in the destructor do not
                 // cause an invalid list state. Also because we need to hold the
@@ -325,11 +327,12 @@ namespace bdn
                 std::shared_ptr<IdleQueue> queue = _idleQueue;
 
                 id handler = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
-                  if (activity == kCFRunLoopBeforeWaiting)
+                  if (activity == kCFRunLoopBeforeWaiting) {
                       queue->activateNext();
+                  }
                 };
 
-                _idleObserver = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, kCFRunLoopAllActivities, true,
+                _idleObserver = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, kCFRunLoopAllActivities, 1u,
                                                                    0 /* order */, handler);
                 CFRunLoopAddObserver([NSRunLoop mainRunLoop].getCFRunLoop, _idleObserver, kCFRunLoopCommonModes);
                 CFRelease(_idleObserver);

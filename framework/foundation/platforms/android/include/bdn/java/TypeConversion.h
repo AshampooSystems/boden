@@ -10,7 +10,7 @@ namespace bdn::java
     {
       public:
       protected:
-        static jobject _createJString(const String &s, std::list<Reference> &createdObjects);
+        static jobject _createJString(const String &s, std::list<Reference> &createdJavaObjects);
         static String _getStringFromJava(const Reference &ref);
     };
 
@@ -36,8 +36,8 @@ namespace bdn::java
     template <typename NATIVE_TYPE> class TypeConversion : public TypeConversionBase_
     {
       public:
-        typedef jobject JavaType;
-        typedef NATIVE_TYPE NativeType;
+        using JavaType = jobject;
+        using NativeType = NATIVE_TYPE;
 
         /** Returns the signature string of the java type.
          *  This is the string that is used in JNI method signature strings.
@@ -85,8 +85,8 @@ namespace bdn::java
     template <> class TypeConversion<String> : public TypeConversionBase_
     {
       public:
-        typedef jobject JavaType;
-        typedef String NativeType;
+        using JavaType = jobject;
+        using NativeType = String;
 
         static String getJavaSignature()
         {
@@ -108,8 +108,8 @@ namespace bdn::java
     template <> class TypeConversion<jobject> : public TypeConversionBase_
     {
       public:
-        typedef jobject JavaType;
-        typedef jobject NativeType;
+        using JavaType = jobject;
+        using NativeType = jobject;
 
         static String getJavaSignature()
         {
@@ -125,8 +125,8 @@ namespace bdn::java
     template <> class TypeConversion<int> : public TypeConversionBase_
     {
       public:
-        typedef jint JavaType;
-        typedef int NativeType;
+        using JavaType = jint;
+        using NativeType = int;
 
         static String getJavaSignature()
         {
@@ -142,8 +142,8 @@ namespace bdn::java
     template <> class TypeConversion<short> : public TypeConversionBase_
     {
       public:
-        typedef jshort JavaType;
-        typedef short NativeType;
+        using JavaType = jshort;
+        using NativeType = short;
 
         static String getJavaSignature()
         {
@@ -159,8 +159,8 @@ namespace bdn::java
     template <> class TypeConversion<double> : public TypeConversionBase_
     {
       public:
-        typedef jdouble JavaType;
-        typedef double NativeType;
+        using JavaType = jdouble;
+        using NativeType = double;
 
         static String getJavaSignature()
         {
@@ -176,8 +176,8 @@ namespace bdn::java
     template <> class TypeConversion<float> : public TypeConversionBase_
     {
       public:
-        typedef jfloat JavaType;
-        typedef float NativeType;
+        using JavaType = jfloat;
+        using NativeType = float;
 
         static String getJavaSignature()
         {
@@ -193,8 +193,8 @@ namespace bdn::java
     template <> class TypeConversion<int64_t> : public TypeConversionBase_
     {
       public:
-        typedef jlong JavaType;
-        typedef int64_t NativeType;
+        using JavaType = jlong;
+        using NativeType = int64_t;
 
         static String getJavaSignature()
         {
@@ -210,8 +210,8 @@ namespace bdn::java
     template <> class TypeConversion<char32_t> : public TypeConversionBase_
     {
       public:
-        typedef jchar JavaType;
-        typedef char32_t NativeType;
+        using JavaType = jchar;
+        using NativeType = char32_t;
 
         static String getJavaSignature()
         {
@@ -227,8 +227,8 @@ namespace bdn::java
     template <> class TypeConversion<int8_t> : public TypeConversionBase_
     {
       public:
-        typedef jbyte JavaType;
-        typedef int8_t NativeType;
+        using JavaType = jbyte;
+        using NativeType = int8_t;
 
         static String getJavaSignature()
         {
@@ -244,8 +244,8 @@ namespace bdn::java
     template <> class TypeConversion<bool> : public TypeConversionBase_
     {
       public:
-        typedef jboolean JavaType;
-        typedef bool NativeType;
+        using JavaType = jboolean;
+        using NativeType = bool;
 
         static String getJavaSignature()
         {
@@ -264,8 +264,8 @@ namespace bdn::java
     template <> class TypeConversion<void> : public TypeConversionBase_
     {
       public:
-        typedef void JavaType;
-        typedef void NativeType;
+        using JavaType = void;
+        using NativeType = void;
 
         static String getJavaSignature()
         {

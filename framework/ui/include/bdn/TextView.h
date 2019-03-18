@@ -38,6 +38,6 @@ namespace bdn
         String viewCoreTypeName() const override { return coreTypeName; }
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
     };
 }

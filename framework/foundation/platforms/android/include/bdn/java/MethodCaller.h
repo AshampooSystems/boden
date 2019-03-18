@@ -14,8 +14,6 @@ namespace bdn::java
     jfloat callJavaFloatMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
     jdouble callJavaDoubleMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
 
-    void throwAndClearExceptionFromLastJavaCall();
-
     template <typename JavaReturnType>
     inline JavaReturnType callJavaMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
 
@@ -87,8 +85,6 @@ namespace bdn::java
 
         va_end(argList);
 
-        throwAndClearExceptionFromLastJavaCall();
-
         return result;
     }
 
@@ -100,8 +96,6 @@ namespace bdn::java
         callJavaMethodStoreExceptV<void>(obj, methodId, argList);
 
         va_end(argList);
-
-        throwAndClearExceptionFromLastJavaCall();
     }
 
     /** Calls Java-side functions with the return type specified by the
@@ -126,7 +120,7 @@ namespace bdn::java
     template <typename NativeReturnType> class MethodCaller
     {
       public:
-        typedef typename TypeConversion<NativeReturnType>::JavaType JavaReturnType;
+        using JavaReturnType = typename TypeConversion<NativeReturnType>::JavaType;
 
         template <typename... Arguments>
         static NativeReturnType call(jobject obj, jmethodID methodId, Arguments... args)
@@ -140,7 +134,7 @@ namespace bdn::java
     template <> class MethodCaller<void>
     {
       public:
-        typedef void JavaReturnType;
+        using JavaReturnType = void;
 
         template <typename... Arguments> static void call(jobject obj, jmethodID methodId, Arguments... args)
         {

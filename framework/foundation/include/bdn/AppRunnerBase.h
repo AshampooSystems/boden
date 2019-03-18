@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <thread>
+#include <utility>
 
 namespace bdn
 {
@@ -23,7 +24,7 @@ namespace bdn
         AppRunnerBase(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
                       const AppLaunchInfo &launchInfo)
         {
-            _appControllerCreator = appControllerCreator;
+            _appControllerCreator = std::move(appControllerCreator);
             _launchInfo = launchInfo;
         }
 
@@ -48,24 +49,6 @@ namespace bdn
 
         /** Returns the app's launch information.*/
         const AppLaunchInfo &getLaunchInfo() const { return _launchInfo; }
-
-        /** Notifies the app runner that an unhandled exception was encountered.
-
-            The exception must be the currently active one that is accessible
-           with std::current_exception().
-
-            The canKeepRunning parameter indicates whether or not the exception
-           can be ignored.
-
-            The unhandledException implementation must check if there is an app
-           controller and if there is then it must call the app controller's
-           AppControllerBase::unhandledException.
-
-            \return true if the exception should be ignored and the app should
-           continue (only allowed if canKeepRunning is true). False if the app
-           should terminate.
-            */
-        bool unhandledException(bool canKeepRunning);
 
         virtual bool isCommandLineApp() const = 0;
 

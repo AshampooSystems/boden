@@ -1,2 +1,2 @@
-add_platform_library(applecommon ${CMAKE_CURRENT_LIST_DIR} IOS-MAC webview NO)
+add_platform_library(NAME applecommon SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME IOS-MAC PARENT_LIBRARY webview DONT_LINK_PARENT_LIBRARY)
 target_link_libraries(webview_applecommon PRIVATE ui)

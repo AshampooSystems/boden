@@ -63,7 +63,7 @@ namespace bdn
     template <class... ArgTypes> class OneShotStateNotifier : virtual public IAsyncNotifier<ArgTypes...>
     {
       public:
-        OneShotStateNotifier() {}
+        OneShotStateNotifier() = default;
 
         std::shared_ptr<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)> &func) override
         {
@@ -115,8 +115,9 @@ namespace bdn
 
             _subMap.clear();
 
-            if (_notificationState != nullptr)
+            if (_notificationState != nullptr) {
                 _notificationState->nextItemIt = _subMap.end();
+            }
         }
 
       private:
@@ -188,7 +189,7 @@ namespace bdn
 
         struct Sub_
         {
-            Sub_() {}
+            Sub_() = default;
 
             Sub_(const std::function<void(ArgTypes...)> &func) : func(func) {}
 
@@ -208,8 +209,9 @@ namespace bdn
             if (it != _subMap.end()) {
                 // for us there can only be one notification running because we
                 // only do one notification at all.
-                if (_notificationState != nullptr && _notificationState->nextItemIt == it)
+                if (_notificationState != nullptr && _notificationState->nextItemIt == it) {
                     _notificationState->nextItemIt++;
+                }
 
                 _subMap.erase(it);
             }

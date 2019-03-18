@@ -20,12 +20,13 @@ namespace bdn
             ygNode = YGNodeNew();
             YGNodeSetContext(ygNode, this);
 
-            if (!dynamic_cast<ContainerView *>(v) && !dynamic_cast<Window *>(view) &&
-                !dynamic_cast<ScrollView *>(view) && !dynamic_cast<Stack *>(view) && !dynamic_cast<ListView *>(view)) {
+            if ((dynamic_cast<ContainerView *>(v) == nullptr) && (dynamic_cast<Window *>(view) == nullptr) &&
+                (dynamic_cast<ScrollView *>(view) == nullptr) && (dynamic_cast<Stack *>(view) == nullptr) &&
+                (dynamic_cast<ListView *>(view) == nullptr)) {
                 YGNodeSetMeasureFunc(ygNode, &measureFunc);
             }
 
-            if (!view->getParentView() || dynamic_cast<FixedView *>(v)) {
+            if (!view->getParentView() || (dynamic_cast<FixedView *>(v) != nullptr)) {
                 isRootNode = true;
                 YGNodeSetDirtiedFunc(ygNode, &ViewData::onDirtied);
 
@@ -53,14 +54,14 @@ namespace bdn
 
         void ViewData::onDirtied(YGNodeRef node)
         {
-            ViewData *viewData = (ViewData *)YGNodeGetContext(node);
+            auto *viewData = static_cast<ViewData *>(YGNodeGetContext(node));
             viewData->view->scheduleLayout();
         }
 
         YGSize ViewData::measureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
                                      YGMeasureMode heightMode)
         {
-            auto viewData = (ViewData *)YGNodeGetContext(node);
+            auto viewData = static_cast<ViewData *>(YGNodeGetContext(node));
 
             Size s = viewData->view->sizeForSpace({width, height});
 
@@ -70,7 +71,7 @@ namespace bdn
         void ViewData::applyLayout(YGNodeRef node, Point offset)
         {
             if (auto ctxt = YGNodeGetContext(node)) {
-                auto viewData = (ViewData *)ctxt;
+                auto viewData = static_cast<ViewData *>(ctxt);
 
                 Rect r{YGNodeLayoutGetLeft(node), YGNodeLayoutGetTop(node), YGNodeLayoutGetWidth(node),
                        YGNodeLayoutGetHeight(node)};
@@ -102,9 +103,9 @@ namespace bdn
                 auto child = YGNodeGetChild(node, i);
 
                 if (auto ctxt = YGNodeGetContext(child)) {
-                    auto viewData = (ViewData *)ctxt;
+                    auto viewData = static_cast<ViewData *>(ctxt);
 
-                    if (dynamic_cast<FixedView *>(viewData->view)) {
+                    if (dynamic_cast<FixedView *>(viewData->view) != nullptr) {
                         continue;
                     }
 

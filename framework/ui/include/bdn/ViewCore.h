@@ -6,6 +6,7 @@
 #include <bdn/property/Property.h>
 #include <bdn/round.h>
 #include <optional>
+#include <utility>
 
 namespace bdn
 {
@@ -76,8 +77,8 @@ namespace bdn
 
       public:
         ViewCore() = delete;
-        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : _uiProvider(uiProvider) {}
-        virtual ~ViewCore() = default;
+        ViewCore(std::shared_ptr<bdn::UIProvider> uiProvider) : _uiProvider(std::move(uiProvider)) {}
+        ~ViewCore() override = default;
 
       public:
         virtual void init() = 0;
@@ -94,7 +95,7 @@ namespace bdn
         virtual void setLayout(std::shared_ptr<Layout> layout) { _layout = std::move(layout); }
         std::shared_ptr<Layout> layout() { return _layout; }
 
-        virtual void visitInternalChildren(std::function<void(std::shared_ptr<ViewCore>)>) {}
+        virtual void visitInternalChildren(const std::function<void(std::shared_ptr<ViewCore>)> & /*unused*/) {}
 
         std::shared_ptr<bdn::UIProvider> uiProvider() { return _uiProvider; }
 

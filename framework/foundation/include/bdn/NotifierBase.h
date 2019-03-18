@@ -35,9 +35,9 @@ namespace bdn
         atomicity _atomicity;
 
       public:
-        NotifierBase() {}
+        NotifierBase() = default;
 
-        ~NotifierBase() {}
+        ~NotifierBase() override = default;
 
         std::shared_ptr<INotifierSubscription> subscribe(const std::function<void(ARG_TYPES...)> &func) override
         {
@@ -220,9 +220,9 @@ namespace bdn
       private:
         struct Sub_
         {
-            Sub_() {}
+            Sub_() = default;
 
-            Sub_(const std::function<void(ARG_TYPES...)> &func) : func(func) {}
+            Sub_(std::function<void(ARG_TYPES...)> func) : func(std::move(func)) {}
 
             std::function<void(ARG_TYPES...)> func;
         };
@@ -246,8 +246,9 @@ namespace bdn
                 // dialog that was created by another framwork).
                 NotificationState *state = _firstNotificationState;
                 while (state != nullptr) {
-                    if (state->nextItemIt == it)
+                    if (state->nextItemIt == it) {
                         state->nextItemIt++;
+                    }
 
                     state = state->next;
                 }
@@ -265,9 +266,9 @@ namespace bdn
         void deactivateNotificationState(NotificationState *state)
         {
             // we usually have only one notification state active
-            if (state == _firstNotificationState)
+            if (state == _firstNotificationState) {
                 _firstNotificationState = state->next;
-            else {
+            } else {
                 NotificationState *prev = _firstNotificationState;
                 NotificationState *curr = _firstNotificationState->next;
 

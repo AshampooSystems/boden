@@ -19,7 +19,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_UI_FILES ${_BDN_JAVA_FILES})
 endif()
 
-add_universal_library(ui ${_BDN_UI_FILES})
+add_universal_library(ui TIDY SOURCES ${_BDN_UI_FILES})
 
 target_link_libraries(ui PUBLIC foundation)
 target_include_directories(ui

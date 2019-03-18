@@ -1,1 +1,1 @@
-add_platform_library(android ${CMAKE_CURRENT_LIST_DIR} ANDROID webview )
+add_platform_library(NAME android SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME ANDROID PARENT_LIBRARY webview )

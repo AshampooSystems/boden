@@ -5,7 +5,9 @@
 
 #include <bdn/entry.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
+
+#include <utility>
 
 using namespace std::chrono_literals;
 
@@ -16,7 +18,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
     jboolean returnValue = JNI_TRUE;
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::Dispatcher::Timer_ *timer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
+            auto *timer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
                 bdn::java::wrapper::NativeStrongPointer::unwrapJObject(rawTimerObject));
 
             returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;
@@ -29,7 +31,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
 namespace bdn::android
 {
 
-    Dispatcher::Dispatcher(wrapper::Looper looper) : _dispatcher(looper) {}
+    Dispatcher::Dispatcher(wrapper::Looper looper) : _dispatcher(std::move(looper)) {}
 
     void Dispatcher::dispose() { _dispatcher.dispose(); }
 
@@ -39,14 +41,15 @@ namespace bdn::android
     {
         bool idlePriority = false;
 
-        if (priority == Priority::normal)
+        if (priority == Priority::normal) {
             idlePriority = false;
-        else if (priority == Priority::idle)
+        } else if (priority == Priority::idle) {
             idlePriority = true;
-        else
+        } else {
             throw InvalidArgumentError("Dispatcher::enqueue called with "
                                        "invalid priority argument: " +
                                        std::to_string((int)priority));
+        }
 
         _dispatcher.enqueue(delay, func, idlePriority);
     }

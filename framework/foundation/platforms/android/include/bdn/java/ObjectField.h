@@ -26,7 +26,7 @@ namespace bdn::java
     template <class NativeType> class ObjectField : public Field<NativeType, ObjectFieldKind>
     {
       public:
-        typedef ObjectFieldKind::template Id<NativeType> Id;
+        using Id = ObjectFieldKind::Id<int>;
 
         ObjectField(const Reference &obj, const ObjectFieldKind::Id<NativeType> &fieldId)
             : Field<NativeType, ObjectFieldKind>(obj, fieldId)

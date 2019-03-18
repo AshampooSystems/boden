@@ -3,7 +3,7 @@
 
 #include <bdn/java/Env.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 namespace bdn::java
 {

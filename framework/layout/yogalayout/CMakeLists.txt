@@ -10,7 +10,7 @@ GenerateTopLevelIncludeFile(_BDN_YOGA_LAYOUT_COMBINED ${CMAKE_CURRENT_BINARY_DIR
 
 set(_BDN_YOGA_LAYOUT_FILES ${_BDN_SOURCES} ${_BDN_HEADERS} ${_BDN_YOGA_LAYOUT_COMBINED})
 
-add_universal_library(yogalayout ${_BDN_YOGA_LAYOUT_FILES})
+add_universal_library(yogalayout TIDY SOURCES ${_BDN_YOGA_LAYOUT_FILES})
 
 target_link_libraries(yogalayout PUBLIC ui yogacore)
 target_include_directories(yogalayout

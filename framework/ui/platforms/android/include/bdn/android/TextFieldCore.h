@@ -41,10 +41,10 @@ namespace bdn::android
 
       public:
         // Called by Java (via JNativeEditTextTextWatcher)
-        void beforeTextChanged(String string, int start, int count, int after) {}
+        void beforeTextChanged(const String &string, int start, int count, int after) {}
 
         // Called by Java (via JNativeEditTextTextWatcher)
-        void onTextChanged(String string, int start, int before, int count) {}
+        void onTextChanged(const String &string, int start, int before, int count) {}
 
         // Called by Java (via JNativeEditTextTextWatcher)
         void afterTextChanged()
@@ -53,7 +53,7 @@ namespace bdn::android
             text = newText;
         }
 
-        bool onEditorAction(int actionId, wrapper::KeyEvent keyEvent)
+        bool onEditorAction(int actionId, const wrapper::KeyEvent &keyEvent)
         {
             // hide virtual keyboard
             wrapper::InputMethodManager inputManager(

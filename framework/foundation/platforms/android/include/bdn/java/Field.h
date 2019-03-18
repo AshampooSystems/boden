@@ -5,6 +5,8 @@
 #include <bdn/java/Reference.h>
 #include <bdn/java/StaticFieldKind.h>
 
+#include <utility>
+
 namespace bdn::java
 {
     /** Represents the field of a Java-side object or class and enables
@@ -42,9 +44,8 @@ namespace bdn::java
             : _contextRef(contextRef), _id(fieldId)
         {}
 
-        Field(const Field &o) : _contextRef(o._contextRef), _id(o._id) {}
-
-        Field(Field &&o) : _contextRef(std::move(o._contextRef)), _id(std::move(o._id)) {}
+        Field(const Field &o) = default;
+        Field(Field &&o) noexcept = default;
 
         void set(const NativeType &newValue)
         {

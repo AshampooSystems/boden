@@ -2,7 +2,7 @@
 
 #include <bdn/AppControllerBase.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 namespace bdn::android
 {

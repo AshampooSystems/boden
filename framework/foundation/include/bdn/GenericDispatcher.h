@@ -9,9 +9,11 @@
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/log.h>
 
+#include <array>
 #include <chrono>
 #include <functional>
 #include <list>
+#include <utility>
 
 using namespace std::chrono_literals;
 
@@ -28,7 +30,7 @@ namespace bdn
     class GenericDispatcher : public Base, virtual public IDispatcher
     {
       public:
-        GenericDispatcher() {}
+        GenericDispatcher() = default;
 
         virtual void dispose()
         {
@@ -36,9 +38,7 @@ namespace bdn
             // queue (without executing them).
             std::unique_lock lock(_mutex);
 
-            for (int priorityQueueIndex = 0; priorityQueueIndex < priorityCount; priorityQueueIndex++) {
-                std::list<std::function<void()>> &queue = _queues[priorityQueueIndex];
-
+            for (auto &queue : _queues) {
                 // remove the objects one by one so that we can ignore
                 // exceptions that happen in the destructor.
                 while (!queue.empty()) {
@@ -79,22 +79,22 @@ namespace bdn
         void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
                             Priority priority = Priority::normal) override
         {
-            if (delay <= IDispatcher::Duration::zero())
+            if (delay <= IDispatcher::Duration::zero()) {
                 enqueue(func, priority);
-            else
+            } else {
                 addTimedItem(Clock::now() + delay, func, priority);
+            }
         }
 
         void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override
         {
-            if (interval <= 0s)
+            if (interval <= 0s) {
                 throw InvalidArgumentError("GenericDispatcher::createTimer must be called with "
                                            "interval > 0");
-            else {
-                std::shared_ptr<Timer> timer = std::make_shared<Timer>(this, func, interval);
-
-                timer->scheduleNextEvent();
             }
+            std::shared_ptr<Timer> timer = std::make_shared<Timer>(this, func, interval);
+
+            timer->scheduleNextEvent();
         }
 
         /** Executes the next work item. Returns true if one was executed,
@@ -150,19 +150,11 @@ namespace bdn
             void run() override
             {
                 while (!shouldStop()) {
-                    try {
-                        if (!_dispatcher->executeNext()) {
-                            // we can wait for a long time here because when
-                            // signalStop is called we will get an item posted.
-                            // So we automatically wake up.
-                            _dispatcher->waitForNext(10s);
-                        }
-                    }
-                    catch (...) {
-                        if (!bdn::getAppRunner()->unhandledException(true)) {
-                            // abort the app (= let exception through).
-                            throw;
-                        }
+                    if (!_dispatcher->executeNext()) {
+                        // we can wait for a long time here because when
+                        // signalStop is called we will get an item posted.
+                        // So we automatically wake up.
+                        _dispatcher->waitForNext(10s);
                     }
                 }
             }
@@ -174,26 +166,16 @@ namespace bdn
       private:
         bool getNextReady(std::function<void()> &func, bool remove);
 
-        enum
-        {
-            priorityCount = 2
-        };
-
-        int priorityToQueueIndex(Priority priority) const
+        std::list<std::function<void()>> &getQueue(Priority priority)
         {
             switch (priority) {
             case Priority::idle:
-                return 0;
+                return _queues[0];
             case Priority::normal:
-                return 1;
+                return _queues[1];
             }
 
             throw InvalidArgumentError("Invalid dispatcher item priority: " + std::to_string((int)priority));
-        }
-
-        std::list<std::function<void()>> &getQueue(Priority priority)
-        {
-            return _queues[priorityToQueueIndex(priority)];
         }
 
         void addTimedItem(TimePoint scheduledTime, std::function<void()> func, Priority priority)
@@ -211,7 +193,7 @@ namespace bdn
             _timedItemCounter++;
 
             TimedItem &item = _timedItemMap[key];
-            item.func = func;
+            item.func = std::move(func);
             item.priority = priority;
 
             _somethingChangedSignal.set();
@@ -224,8 +206,9 @@ namespace bdn
 
                 while (true) {
                     auto it = _timedItemMap.begin();
-                    if (it == _timedItemMap.end())
+                    if (it == _timedItemMap.end()) {
                         break;
+                    }
 
                     const TimedItemKey &key(it->first);
                     const TimedItem &val(it->second);
@@ -254,7 +237,7 @@ namespace bdn
                 _dispatcherWeak = dispatcherWeak;
 
                 _nextEventTime = Clock::now() + interval;
-                _func = func;
+                _func = std::move(func);
                 _interval = interval;
             }
 
@@ -338,11 +321,11 @@ namespace bdn
 
             TimePoint _nextEventTime;
             std::function<bool()> _func;
-            Duration _interval;
+            Duration _interval{};
         };
         friend class Timer;
 
-        typedef std::tuple<TimePoint, int64_t> TimedItemKey;
+        using TimedItemKey = std::tuple<TimePoint, int64_t>;
 
         struct TimedItem
         {
@@ -352,7 +335,7 @@ namespace bdn
 
         std::recursive_mutex _mutex;
 
-        std::list<std::function<void()>> _queues[priorityCount];
+        std::array<std::list<std::function<void()>>, IDispatcher::NumberOfPriorities> _queues;
 
         std::map<TimedItemKey, TimedItem> _timedItemMap;
         int64_t _timedItemCounter = 0;

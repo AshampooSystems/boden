@@ -26,7 +26,7 @@ namespace bdn
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
 
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
 
       private:
         WeakCallback<void()>::Receiver _clickCallbackReceiver;

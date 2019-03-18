@@ -26,9 +26,9 @@ namespace bdn::ios
 
         // ContainerViewCore interface
       public:
-        virtual void addChildView(std::shared_ptr<View> child) override;
-        virtual void removeChildView(std::shared_ptr<View> child) override;
-        virtual std::list<std::shared_ptr<View>> childViews() override;
+        void addChildView(std::shared_ptr<View> child) override;
+        void removeChildView(std::shared_ptr<View> child) override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
       private:
         std::list<std::shared_ptr<View>> _children;

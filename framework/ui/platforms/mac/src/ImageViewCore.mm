@@ -45,6 +45,10 @@ namespace bdn::mac
         NSURLSession *session = [NSURLSession sharedSession];
         NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
 
+        if (nsURL == nullptr) {
+            return;
+        }
+
         NSURLSessionDataTask *dataTask =
             [session dataTaskWithURL:nsURL
                    completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,

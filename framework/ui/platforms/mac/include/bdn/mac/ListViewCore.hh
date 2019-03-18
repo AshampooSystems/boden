@@ -12,12 +12,12 @@ namespace bdn::mac
     {
       public:
         ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~ListViewCore();
+        ~ListViewCore() override;
 
-        virtual void init() override;
+        void init() override;
 
-        virtual void reloadData() override;
-        virtual void refreshDone() override;
+        void reloadData() override;
+        void refreshDone() override;
 
       public:
         void fireRefresh();

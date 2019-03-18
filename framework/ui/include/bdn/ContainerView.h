@@ -25,13 +25,13 @@ namespace bdn
 
         String viewCoreTypeName() const override { return coreTypeName; }
 
-        void addChildView(std::shared_ptr<View> childView);
-        void removeChildView(std::shared_ptr<View> childView);
+        void addChildView(const std::shared_ptr<View> &childView);
+        void removeChildView(const std::shared_ptr<View> &childView);
 
         void removeAllChildViews() override;
 
         std::list<std::shared_ptr<View>> childViews() override;
 
-        void childViewStolen(std::shared_ptr<View> childView) override;
+        void childViewStolen(const std::shared_ptr<View> &childView) override;
     };
 }

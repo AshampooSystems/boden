@@ -64,52 +64,12 @@ public class NativeDispatcher
         private NativeDispatcher mDispatcher;
     };
 
-
-    /** Processes exceptions that occur during the processing of a dispatcher item.
-     *
-     *  Such exceptions must be explicitly caught and passed to this function.
-     *  While we also have a global uncaught exception handler that would eventually be called to process
-     *  exceptions we do not catch, at that point it would be too late to decide to ignore the exception
-     *  (since the message loop has already been aborted at that point). So exceptions must be caught
-     *  manually before that point and passed to this function.
-     *
-     *  Returns true if the exception should be ignored and the app should keep running.
-     *
-     *  Return false if the exception should be let through.
-     */
-    private static boolean handleDispatcherException(Throwable e)
-    {
-        if( NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
-        {
-            // app should continue running
-            int x=0;
-            x++;
-            return true;
-        }
-        else
-        {
-            // let the exception through. This will cause the app to terminate.
-            int x=0;
-            x++;
-            return false;
-        }
-    }
-
-
     /** Calls the specified native runnable and processes any exceptions that occur from it
      *  as uncaught dispatcher exceptions (calling the uncaught exception handler, etc.)
      */
     private static void callNativeRunnable(NativeRunnable runnable)
     {
-        try
-        {
-            runnable.run();
-        }
-        catch(Throwable e)
-        {
-            if( !handleDispatcherException(e) )
-                throw e;
-        }
+        runnable.run();
     }
 
 
@@ -118,21 +78,10 @@ public class NativeDispatcher
      */
     private static boolean callNativeTimerEvent(NativeStrongPointer nativeTimerData)
     {
-        try
-        {
-            // note that we pass the wrapped pointer directly to the function, instead of
-            // the NativeStrongPointer object. That allows the native side to be more efficient
-            // since it does not have to call back in to the java side to get the inner wrapper object.
-            return nativeTimerEvent( nativeTimerData.getWrappedPointer() );
-        }
-        catch(Throwable e)
-        {
-            if( !handleDispatcherException(e) )
-                throw e;
-
-            // continue the timer if an exception is ignored
-            return true;
-        }
+        // note that we pass the wrapped pointer directly to the function, instead of
+        // the NativeStrongPointer object. That allows the native side to be more efficient
+        // since it does not have to call back in to the java side to get the inner wrapper object.
+        return nativeTimerEvent( nativeTimerData.getWrappedPointer() );
     }
 
 

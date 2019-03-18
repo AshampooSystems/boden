@@ -2,7 +2,7 @@
 
 #include <bdn/Base.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 namespace bdn::java
 {
@@ -47,14 +47,8 @@ namespace bdn::java
          * simply wrapped - no new actual java-side reference is created.*/
         static Reference wrapStrongGlobal(jobject strongGlobalRef);
 
-        /** Copy constructor.*/
-        Reference(const Reference &o) : _shared(o._shared) {}
-
-        /** Move constructor.*/
-        Reference(Reference &&o) : _shared(std::move(o._shared)) {}
-
         /** Constructs a null-reference*/
-        Reference() {}
+        Reference() = default;
 
         Reference &operator=(const Reference &o)
         {
@@ -65,10 +59,12 @@ namespace bdn::java
 
         jobject getJObject() const
         {
-            if (_shared == nullptr)
-                return NULL;
-            else
+            if (_shared == nullptr) {
+                return nullptr;
+            }
+            {
                 return _shared->getJObject();
+            }
         }
 
         /** Returns true if the reference is null.
@@ -106,7 +102,7 @@ namespace bdn::java
           public:
             Shared(jobject ref) { _ref = ref; }
 
-            ~Shared();
+            ~Shared() override;
 
             jobject getJObject() const { return _ref; }
 

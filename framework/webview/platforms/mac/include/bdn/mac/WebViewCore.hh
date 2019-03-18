@@ -12,14 +12,14 @@ namespace bdn::mac
     {
       public:
         WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~WebViewCore() = default;
+        ~WebViewCore() override = default;
 
         std::shared_ptr<WebViewCore> shared_from_this()
         {
             return std::dynamic_pointer_cast<WebViewCore>(Base::shared_from_this());
         }
 
-        virtual void init() override;
+        void init() override;
 
         void loadURL(const String &url) override;
 

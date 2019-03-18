@@ -48,10 +48,12 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_VolleyAdapter_handleRespons
                     std::dynamic_pointer_cast<bdn::net::HTTPResponse>(nativeResponse.getPointer_())) {
                 jboolean isCopy;
                 cResponse->responseCode = statusCode;
-                if (data) {
+                if (data != nullptr) {
+                    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
                     cResponse->data = env->GetStringUTFChars((jstring)data, &isCopy);
                 }
-                if (headers) {
+                if (headers != nullptr) {
+                    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
                     cResponse->header = env->GetStringUTFChars((jstring)headers, &isCopy);
                 }
                 cResponse->originalRequest.doneHandler(cResponse);

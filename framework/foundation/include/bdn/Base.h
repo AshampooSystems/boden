@@ -8,6 +8,6 @@ namespace bdn
     class Base : public std::enable_shared_from_this<Base>
     {
       public:
-        virtual ~Base();
+        virtual ~Base() = default;
     };
 }

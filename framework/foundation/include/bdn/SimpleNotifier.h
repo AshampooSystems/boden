@@ -20,11 +20,11 @@ namespace bdn
         using BASE = NotifierBase<bdn::nonatomic, ARG_TYPES...>;
 
       public:
-        SimpleNotifier() {}
+        SimpleNotifier() = default;
 
-        ~SimpleNotifier() {}
+        ~SimpleNotifier() override = default;
 
-        void notify(ARG_TYPES... args) { BASE::doNotify(std::forward<ARG_TYPES>(args)...); }
+        void notify(ARG_TYPES... args) override { BASE::doNotify(std::forward<ARG_TYPES>(args)...); }
 
       private:
     };

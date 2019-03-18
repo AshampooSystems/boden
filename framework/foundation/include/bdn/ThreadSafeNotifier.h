@@ -21,9 +21,9 @@ namespace bdn
         using BASE = NotifierBase<bdn::atomic, ARG_TYPES...>;
 
       public:
-        ThreadSafeNotifier() {}
+        ThreadSafeNotifier() = default;
 
-        ~ThreadSafeNotifier() {}
+        ~ThreadSafeNotifier() = default;
 
         std::shared_ptr<ThreadSafeNotifier<ARG_TYPES...>> shared_from_this()
         {

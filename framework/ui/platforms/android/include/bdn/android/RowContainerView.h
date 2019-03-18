@@ -13,7 +13,7 @@ namespace bdn::android
 
       public:
         static constexpr char coreTypeName[] = "bdn.android.RowContainerView";
-        virtual bdn::String viewCoreTypeName() const override { return coreTypeName; }
+        bdn::String viewCoreTypeName() const override { return coreTypeName; }
     };
 
     class RowContainerCore : public bdn::android::ContainerViewCore
@@ -30,7 +30,7 @@ namespace bdn::android
             return std::dynamic_pointer_cast<RowContainerView>(strongPtr.getPointer_());
         }
 
-        void setRowContainerView(std::shared_ptr<RowContainerView> view)
+        void setRowContainerView(const std::shared_ptr<RowContainerView> &view)
         {
             getJViewAS<wrapper::NativeListAdapterRowContainer>().setBdnView(java::wrapper::NativeStrongPointer(view));
         }

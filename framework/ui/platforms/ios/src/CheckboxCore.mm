@@ -16,7 +16,7 @@
 {
     if (auto core = self.core.lock()) {
         // Make sure state is up to date before posting click event
-        if (self.composite) {
+        if (self.composite != nullptr) {
             core->state = self.composite.checkbox.checkboxState;
         }
 
@@ -121,7 +121,7 @@ namespace bdn::ios
         _clickManager.core = std::dynamic_pointer_cast<CheckboxCore>(shared_from_this());
         _clickManager.composite = _composite;
 
-        BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
+        auto checkboxComposite = (BdnIosCheckboxComposite *)_composite;
         [checkboxComposite.checkbox addTarget:_clickManager
                                        action:@selector(clicked)
                              forControlEvents:UIControlEventTouchUpInside];
@@ -139,7 +139,7 @@ namespace bdn::ios
 
     CheckboxCore::~CheckboxCore()
     {
-        BdnIosCheckboxComposite *checkboxComposite = (BdnIosCheckboxComposite *)_composite;
+        auto checkboxComposite = (BdnIosCheckboxComposite *)_composite;
         [checkboxComposite.checkbox removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
         [checkboxComposite removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
     }

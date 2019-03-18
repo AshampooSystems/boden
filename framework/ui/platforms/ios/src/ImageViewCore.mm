@@ -59,26 +59,27 @@ namespace bdn::ios
     {
         ((UIImageView *)this->uiView()).image = nullptr;
 
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
-
-        NSURLSessionDataTask *dataTask =
-            [session dataTaskWithURL:nsURL
-                   completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                       NSError *_Nullable error) {
-                     if (auto err = error) {
-                         logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
-                                     << fk::nsStringToString([err localizedDescription]) << ")";
-                     } else {
-
-                         getMainDispatcher()->enqueue([=]() {
-                             ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
-                             this->scheduleLayout();
-                             markDirty();
-                         });
-                     }
-                   }];
-
-        [dataTask resume];
+        if (auto session = [NSURLSession sharedSession]) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                auto dataTask =
+                    [session dataTaskWithURL:nsURL
+                           completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
+                                               NSError *_Nullable error) {
+                             if (auto err = error) {
+                                 logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString])
+                                             << "' (" << fk::nsStringToString([err localizedDescription]) << ")";
+                             } else {
+                                 getMainDispatcher()->enqueue([=]() {
+                                     ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
+                                     this->scheduleLayout();
+                                     markDirty();
+                                 });
+                             }
+                           }];
+                if (dataTask != nullptr) {
+                    [dataTask resume];
+                }
+            }
+        }
     }
 }

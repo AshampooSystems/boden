@@ -49,10 +49,11 @@ namespace bdn::android
                 targetLeft = std::lround(clientRect.x * uiScaleFactor);
                 targetRight = targetLeft + std::lround(clientRect.width * uiScaleFactor);
             } else {
-                if (clientRect.x > 0)
+                if (clientRect.x > 0) {
                     targetLeft = clientWidth;
-                else
+                } else {
                     targetLeft = 0;
+                }
 
                 targetRight = targetLeft;
             }
@@ -63,10 +64,11 @@ namespace bdn::android
                 targetTop = std::lround(clientRect.y * uiScaleFactor);
                 targetBottom = targetTop + std::lround(clientRect.height * uiScaleFactor);
             } else {
-                if (clientRect.y > 0)
+                if (clientRect.y > 0) {
                     targetTop = clientHeight;
-                else
+                } else {
                     targetTop = 0;
+                }
 
                 targetBottom = targetTop;
             }
@@ -74,23 +76,31 @@ namespace bdn::android
             // first, clip the target rect to the client area.
             // This also automatically gets rid of infinity target positions
             // (which are allowed)
-            if (targetLeft > clientWidth)
+            if (targetLeft > clientWidth) {
                 targetLeft = clientWidth;
-            if (targetRight > clientWidth)
+            }
+            if (targetRight > clientWidth) {
                 targetRight = clientWidth;
-            if (targetTop > clientHeight)
+            }
+            if (targetTop > clientHeight) {
                 targetTop = clientHeight;
-            if (targetBottom > clientHeight)
+            }
+            if (targetBottom > clientHeight) {
                 targetBottom = clientHeight;
+            }
 
-            if (targetLeft < 0)
+            if (targetLeft < 0) {
                 targetLeft = 0;
-            if (targetRight < 0)
+            }
+            if (targetRight < 0) {
                 targetRight = 0;
-            if (targetTop < 0)
+            }
+            if (targetTop < 0) {
                 targetTop = 0;
-            if (targetBottom < 0)
+            }
+            if (targetBottom < 0) {
                 targetBottom = 0;
+            }
 
             // there is a special case if the target rect is bigger than the
             // viewport. In that case the desired end position is ambiguous:
@@ -143,39 +153,48 @@ namespace bdn::android
                     int distanceTop = std::abs(targetTop - visibleTop);
                     int distanceBottom = std::abs(targetBottom - visibleBottom);
 
-                    if (distanceTop < distanceBottom)
+                    if (distanceTop < distanceBottom) {
                         targetBottom = targetTop + visibleHeight;
-                    else
+                    } else {
                         targetTop = targetBottom - visibleHeight;
+                    }
                 }
             }
 
-            if (targetLeft < 0)
+            if (targetLeft < 0) {
                 targetLeft = 0;
-            if (targetRight < 0)
+            }
+            if (targetRight < 0) {
                 targetRight = 0;
-            if (targetTop < 0)
+            }
+            if (targetTop < 0) {
                 targetTop = 0;
-            if (targetBottom < 0)
+            }
+            if (targetBottom < 0) {
                 targetBottom = 0;
+            }
 
             int scrollX = visibleLeft;
             int scrollY = visibleTop;
 
-            if (targetRight > visibleRight)
+            if (targetRight > visibleRight) {
                 scrollX = targetRight - visibleWidth;
-            if (targetLeft < visibleLeft)
+            }
+            if (targetLeft < visibleLeft) {
                 scrollX = targetLeft;
+            }
 
-            if (targetBottom > visibleBottom)
+            if (targetBottom > visibleBottom) {
                 scrollY = targetBottom - visibleHeight;
-            if (targetTop < visibleTop)
+            }
+            if (targetTop < visibleTop) {
                 scrollY = targetTop;
+            }
 
             _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
         }
 
-        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override
         {
             if (content.get()) {
                 function(content->viewCore());
@@ -202,7 +221,7 @@ namespace bdn::android
             updateChildren();
         }
 
-        virtual void updateGeometry() override
+        void updateGeometry() override
         {
             ViewCore::updateGeometry();
             updateVisibleClientRect();

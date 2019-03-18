@@ -11,7 +11,7 @@ namespace bdn
         InternalValueBacking() = default;
         InternalValueBacking(const InternalValueBacking &) = delete;
 
-        virtual InternalValueBacking &operator=(const InternalValueBacking &other)
+        InternalValueBacking &operator=(const InternalValueBacking &other)
         {
             // Preserve own value memory and set value from other backing
             this->set(other.get());

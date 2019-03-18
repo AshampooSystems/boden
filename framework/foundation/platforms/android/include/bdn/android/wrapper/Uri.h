@@ -2,6 +2,8 @@
 
 #include <bdn/java/wrapper/Object.h>
 
+#include <utility>
+
 namespace bdn::android::wrapper
 {
     constexpr const char kUriClassName[] = "android/net/Uri";
@@ -16,7 +18,7 @@ namespace bdn::android::wrapper
         {
             static bdn::java::MethodId methodId;
 
-            return invokeStatic_<Uri, String>(getStaticClass_(), methodId, "parse", uriString);
+            return invokeStatic_<Uri, String>(getStaticClass_(), methodId, "parse", std::move(uriString));
         }
     };
 }

@@ -21,7 +21,7 @@ endif()
 
 list(APPEND _BDN_WEBVIEW_FILES)
 
-add_universal_library(webview ${_BDN_WEBVIEW_FILES})
+add_universal_library(webview TIDY SOURCES ${_BDN_WEBVIEW_FILES})
 
 target_link_libraries(webview PUBLIC foundation ui)
 target_include_directories(webview

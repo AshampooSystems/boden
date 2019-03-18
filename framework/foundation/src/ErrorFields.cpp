@@ -16,24 +16,28 @@ namespace bdn
             auto pos = size_t{2};
             while (true) {
                 auto found = fieldView.find(':', pos);
-                if (found == StringView::npos)
+                if (found == StringView::npos) {
                     break;
+                }
 
                 StringView name = fieldView.substr(pos, found - pos);
                 pos = found;
                 ++pos;
 
-                if (fieldView[pos] == ' ')
+                if (fieldView[pos] == ' ') {
                     ++pos;
+                }
 
-                if (fieldView[pos] != '"')
+                if (fieldView[pos] != '"') {
                     break;
+                }
 
                 ++pos;
 
                 found = fieldView.find('"', pos);
-                if (found == StringView::npos)
+                if (found == StringView::npos) {
                     break;
+                }
 
                 StringView value = fieldView.substr(pos, found - pos);
                 pos = found;
@@ -41,37 +45,39 @@ namespace bdn
 
                 add(unescape(String(name)), unescape(String(value)));
 
-                if (fieldView[pos] != ',')
+                if (fieldView[pos] != ',') {
                     break;
+                }
                 ++pos;
 
-                if (fieldView[pos] == ' ')
+                if (fieldView[pos] == ' ') {
                     ++pos;
+                }
             }
         }
     }
 
     String ErrorFields::toString() const
     {
-        if (empty())
+        if (empty()) {
             return "";
-        else {
-            String result = "[[";
-            bool first = true;
+        }
+        String result = "[[";
+        bool first = true;
 
-            for (auto item : *this) {
-                if (!first)
-                    result += ", ";
-
-                result += escapeName(item.first) + ": \"" + escapeValue(item.second) + "\"";
-
-                first = false;
+        for (const auto &item : *this) {
+            if (!first) {
+                result += ", ";
             }
 
-            result += "]]";
+            result += escapeName(item.first) + ": \"" + escapeValue(item.second) + "\"";
 
-            return result;
+            first = false;
         }
+
+        result += "]]";
+
+        return result;
     }
 
     String ErrorFields::escapeName(const String &name)

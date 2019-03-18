@@ -8,8 +8,6 @@
 #import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>
 
-#include <bdn/Dip.h>
-
 namespace bdn::ios
 {
     class ViewCore;
@@ -25,9 +23,9 @@ namespace bdn::ios
     {
       public:
         ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> uiView);
-        ~ViewCore();
+        ~ViewCore() override;
 
-        virtual void init() override;
+        void init() override;
 
         UIView *uiView() const;
 
@@ -42,7 +40,7 @@ namespace bdn::ios
 
         virtual void onGeometryChanged(Rect newGeometry);
 
-        virtual void scheduleLayout() override;
+        void scheduleLayout() override;
 
       protected:
         /** Returns true if the view can adjust its size to fit into a given

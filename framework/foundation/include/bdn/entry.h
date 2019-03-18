@@ -5,24 +5,6 @@
 namespace bdn
 {
     /**
-     * @brief unhandledException Convenience function that calls
-     * IAppRunner::unhandledException
-     * @param canKeepRunningAfterException
-     * @return The result of getAppRunner()->unhandledException()
-     *
-     * If there is no app runner object yet then this function does nothing.
-     *
-     */
-    inline bool unhandledException(bool canKeepRunningAfterException)
-    {
-        if (auto appRunner = getAppRunner()) {
-            return appRunner->unhandledException(canKeepRunningAfterException);
-        }
-
-        return false;
-    }
-
-    /**
      * @brief Marks the beginning of an entry function, i.e. a place where the
      * operating system passes control to the App.
      * @param function The function to call
@@ -37,7 +19,7 @@ namespace bdn
      * \note On Android the platformSpecific parameter is a pointer to the
      * JNIEnv object that the JNI function received from the Java side.
      */
-    void platformEntryWrapper(std::function<void()> function, bool canKeepRunningAfterException,
+    void platformEntryWrapper(const std::function<void()> &function, bool canKeepRunningAfterException,
                               void *platformSpecific = nullptr);
 
     template <typename RETURN_TYPE>

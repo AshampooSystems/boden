@@ -27,7 +27,6 @@ namespace bdn::java::wrapper
             Env &env = Env::get();
 
             jobject obj = env.getJniEnv()->NewDirectByteBuffer(buffer, capacityBytes);
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return Reference::convertAndDestroyOwnedLocal(obj);
         }
@@ -59,7 +58,6 @@ namespace bdn::java::wrapper
             Env &env = Env::get();
 
             void *buffer = env.getJniEnv()->GetDirectBufferAddress(getJObject_());
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return buffer;
         }
@@ -70,7 +68,6 @@ namespace bdn::java::wrapper
             Env &env = Env::get();
 
             int64_t bytes = env.getJniEnv()->GetDirectBufferCapacity(getJObject_());
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return bytes;
         }

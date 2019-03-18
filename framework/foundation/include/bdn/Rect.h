@@ -23,7 +23,7 @@ namespace bdn
         double width = 0;
         double height = 0;
 
-        Rect() {}
+        Rect() = default;
 
         Rect(double x, double y, double width, double height) : x(x), y(y), width(width), height(height) {}
 

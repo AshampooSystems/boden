@@ -16,15 +16,9 @@ namespace bdn
             return hooks;
         }
 
-        // BDN_SAFE_STATIC_IMPL(std::unique_ptr<Hooks>, Hooks::get);
-
         void Hooks::initializeThread() {}
 
-        void Hooks::debugBreak() { debugBreakDummy(); }
-
         void Hooks::debuggerPrint(const String &text) { std::cerr << text << std::endl; }
-
-        bool Hooks::_isDebuggerActive() { return false; }
 
         bool Hooks::debuggerPrintGoesToStdErr() { return true; }
 

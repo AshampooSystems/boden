@@ -13,7 +13,7 @@ namespace bdn
         auto matchBegin = std::sregex_iterator(s.begin(), s.end(), re);
         auto matchEnd = std::sregex_iterator();
 
-        String result;
+        String result{};
 
         for (std::sregex_iterator i = matchBegin; i != matchEnd;) {
             std::smatch match = *i;
@@ -21,7 +21,7 @@ namespace bdn
             result += match.prefix();
 
             std::istringstream stream(match[1]);
-            int value;
+            int value = 0;
             stream >> std::hex >> value;
 
             result += (char)value;

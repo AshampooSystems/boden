@@ -12,9 +12,9 @@ namespace bdn::ios
     {
       public:
         TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~TextFieldCore();
+        ~TextFieldCore() override;
 
-        virtual void init() override;
+        void init() override;
 
       private:
         BdnTextFieldDelegate *_delegate;

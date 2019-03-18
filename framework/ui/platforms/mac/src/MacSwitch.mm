@@ -42,7 +42,10 @@
 
 - (NSSize)fittingSize { return NSMakeSize(BDN_MAC_SWITCH_WIDTH, BDN_MAC_SWITCH_HEIGHT); }
 
-- (CGPathRef)roundedRectPathWithRect:(CGRect)outerRect radius:(CGFloat)radius
+- (void)drawRoundedRectPathWithRect:(CGRect)outerRect
+                             radius:(CGFloat)radius
+                              color:(CGColorRef)color
+                            context:(CGContextRef)context
 {
     CGRect innerRect = CGRectMake(outerRect.origin.x + radius, outerRect.origin.y + radius,
                                   outerRect.size.width - radius * 2, outerRect.size.height - radius * 2);
@@ -57,23 +60,27 @@
 
     CGMutablePathRef path = CGPathCreateMutable();
 
-    CGPathMoveToPoint(path, NULL, innerRect.origin.x, outsideTop);
+    CGPathMoveToPoint(path, nullptr, innerRect.origin.x, outsideTop);
 
-    CGPathAddLineToPoint(path, NULL, insideRight, outsideTop);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight, insideTop, radius);
+    CGPathAddLineToPoint(path, nullptr, insideRight, outsideTop);
+    CGPathAddArcToPoint(path, nullptr, outsideRight, outsideTop, outsideRight, insideTop, radius);
 
-    CGPathAddLineToPoint(path, NULL, outsideRight, insideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
+    CGPathAddLineToPoint(path, nullptr, outsideRight, insideBottom);
+    CGPathAddArcToPoint(path, nullptr, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
 
-    CGPathAddLineToPoint(path, NULL, innerRect.origin.x, outsideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
+    CGPathAddLineToPoint(path, nullptr, innerRect.origin.x, outsideBottom);
+    CGPathAddArcToPoint(path, nullptr, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
 
-    CGPathAddLineToPoint(path, NULL, outsideLeft, insideTop);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
+    CGPathAddLineToPoint(path, nullptr, outsideLeft, insideTop);
+    CGPathAddArcToPoint(path, nullptr, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
 
     CGPathCloseSubpath(path);
 
-    return path;
+    CGContextSetFillColorWithColor(context, color);
+    CGContextAddPath(context, path);
+    CGContextFillPath(context);
+
+    CGPathRelease(path);
 }
 
 - (CGFloat)handleRadius { return self.bounds.size.height - BDN_MAC_SWITCH_HANDLE_MARGIN * 2; }
@@ -112,12 +119,10 @@
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] CGContext];
 
     // Draw switch body backround
-    CGPathRef roundedRectPath = [self roundedRectPathWithRect:outerRect radius:self.bounds.size.height / 2];
-    CGContextSetFillColorWithColor(context, backgroundColor.CGColor);
-    CGContextAddPath(context, roundedRectPath);
-    CGContextFillPath(context);
-
-    CGPathRelease(roundedRectPath);
+    [self drawRoundedRectPathWithRect:outerRect
+                               radius:self.bounds.size.height / 2
+                                color:backgroundColor.CGColor
+                              context:context];
 
     // Draw handle drop shadow
     CGContextSetFillColorWithColor(context, handleDropShadowColor.CGColor);
@@ -167,7 +172,7 @@
 
 - (void)animate
 {
-    if (self.animation && self.animation.isAnimating) {
+    if ((self.animation != nullptr) && (self.animation.isAnimating != 0)) {
         return;
     }
 

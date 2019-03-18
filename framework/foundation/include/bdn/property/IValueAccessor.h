@@ -11,7 +11,7 @@ namespace bdn
     template <typename ValType> class IValueAccessor : virtual public Base
     {
       public:
-        ~IValueAccessor() = default;
+        ~IValueAccessor() override = default;
 
         /** Returns the property value.*/
         virtual ValType get() const = 0;

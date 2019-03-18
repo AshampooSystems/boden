@@ -37,20 +37,10 @@ namespace bdn::java::wrapper
     class Object : public Base
     {
       public:
-        /** @param javaRef the reference to the Java object.
-         *      The JObject instance will copy this reference and keep its
-         * type. So if you want the JObject instance to hold a strong
-         * reference then you need to call toStrong() on the reference first
-         * and pass the result.
-         *      */
+        Object() = default;
         explicit Object(const Reference &javaRef) : _javaRef(javaRef) {}
 
-        /** copy constructor*/
-        Object(const Object &o) : _javaRef(o._javaRef) {}
-
-        Object() {}
-
-        /** Returns a string representation of the object. */
+      public:
         String toString()
         {
             static MethodId methodId;
@@ -135,6 +125,8 @@ namespace bdn::java::wrapper
 }
 #include <bdn/java/wrapper/Class.h>
 
+#include <utility>
+
 namespace bdn::java::wrapper
 {
     template <typename ReturnType, typename... Arguments>
@@ -158,6 +150,7 @@ namespace bdn::java::wrapper
     template <typename ReturnType, typename... Arguments>
     inline ReturnType Object::invokeStaticWithId_(Class &cls, MethodId &methodId, Arguments... args)
     {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         return StaticMethodCaller<ReturnType>::template call<Arguments...>((jclass)cls.getJObject_(), methodId.getId(),
                                                                            args...);
     }
@@ -178,14 +171,14 @@ namespace bdn::java::wrapper
             return javaClass().newInstance_(constructorId, arguments...);
         }
 
-        virtual Class &getClass_() override { return javaClass(); }
+        Class &getClass_() override { return javaClass(); }
 
         static Class &getStaticClass_() { return javaClass(); }
 
         template <class T> T cast() { return T(getRef_()); }
 
       public:
-        JTObject(const std::nullptr_t &) : Object(Reference()) {}
+        JTObject(const std::nullptr_t & /*unused*/) : Object(Reference()) {}
         JTObject(ConstructorArguments... arguments) : Object(newInstance(arguments...)) {}
         JTObject(const bdn::java::Reference &javaReference) : Object(javaReference) {}
 

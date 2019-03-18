@@ -8,7 +8,7 @@
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:CGRectMake(0, 0, BDN_IOS_CHECKBOX_WIDTH, BDN_IOS_CHECKBOX_HEIGHT)];
-    if (self) {
+    if (self != nullptr) {
         self.opaque = NO;
     }
     return self;
@@ -19,7 +19,11 @@
     return CGSizeMake(BDN_IOS_CHECKBOX_WIDTH, BDN_IOS_CHECKBOX_HEIGHT);
 }
 
-- (CGPathRef)roundedRectPathWithRect:(CGRect)outerRect radius:(CGFloat)radius
+- (void)drawRoundedRectPathWithRect:(CGRect)outerRect
+                             radius:(CGFloat)radius
+                        borderColor:(CGColorRef)borderColor
+                            bgColor:(CGColorRef)bgColor
+                            context:(CGContextRef)context
 {
     CGRect innerRect = CGRectInset(outerRect, radius, radius);
 
@@ -33,23 +37,32 @@
 
     CGMutablePathRef path = CGPathCreateMutable();
 
-    CGPathMoveToPoint(path, NULL, innerRect.origin.x, outsideTop);
+    CGPathMoveToPoint(path, nullptr, innerRect.origin.x, outsideTop);
 
-    CGPathAddLineToPoint(path, NULL, insideRight, outsideTop);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideTop, outsideRight, insideTop, radius);
+    CGPathAddLineToPoint(path, nullptr, insideRight, outsideTop);
+    CGPathAddArcToPoint(path, nullptr, outsideRight, outsideTop, outsideRight, insideTop, radius);
 
-    CGPathAddLineToPoint(path, NULL, outsideRight, insideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
+    CGPathAddLineToPoint(path, nullptr, outsideRight, insideBottom);
+    CGPathAddArcToPoint(path, nullptr, outsideRight, outsideBottom, insideRight, outsideBottom, radius);
 
-    CGPathAddLineToPoint(path, NULL, innerRect.origin.x, outsideBottom);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
+    CGPathAddLineToPoint(path, nullptr, innerRect.origin.x, outsideBottom);
+    CGPathAddArcToPoint(path, nullptr, outsideLeft, outsideBottom, outsideLeft, insideBottom, radius);
 
-    CGPathAddLineToPoint(path, NULL, outsideLeft, insideTop);
-    CGPathAddArcToPoint(path, NULL, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
+    CGPathAddLineToPoint(path, nullptr, outsideLeft, insideTop);
+    CGPathAddArcToPoint(path, nullptr, outsideLeft, outsideTop, innerRect.origin.x, outsideTop, radius);
 
     CGPathCloseSubpath(path);
 
-    return path;
+    CGContextSetFillColorWithColor(context, bgColor);
+    CGContextAddPath(context, path);
+    CGContextFillPath(context);
+
+    // Draw checkbox body outline
+    CGContextSetStrokeColorWithColor(context, borderColor);
+    CGContextAddPath(context, path);
+    CGContextStrokePath(context);
+
+    CGPathRelease(path);
 }
 
 - (void)drawRect:(CGRect)rect
@@ -71,15 +84,11 @@
     CGContextRef context = UIGraphicsGetCurrentContext();
 
     // Draw checkbox body background
-    CGPathRef roundedRectPath = [self roundedRectPathWithRect:outerRect radius:5];
-    CGContextSetFillColorWithColor(context, backgroundColor.CGColor);
-    CGContextAddPath(context, roundedRectPath);
-    CGContextFillPath(context);
-
-    // Draw checkbox body outline
-    CGContextSetStrokeColorWithColor(context, borderColor.CGColor);
-    CGContextAddPath(context, roundedRectPath);
-    CGContextStrokePath(context);
+    [self drawRoundedRectPathWithRect:outerRect
+                               radius:5
+                          borderColor:borderColor.CGColor
+                              bgColor:backgroundColor.CGColor
+                              context:context];
 
     if (self.checkboxState == bdn::TriState::on) {
         // Draw checkmark indicating on state

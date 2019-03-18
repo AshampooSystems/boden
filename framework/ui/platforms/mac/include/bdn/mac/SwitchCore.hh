@@ -30,9 +30,9 @@ namespace bdn::mac
 
       public:
         SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~SwitchCore();
+        ~SwitchCore() override;
 
-        virtual void init() override;
+        void init() override;
 
       private:
         BdnSwitchClickManager *_clickManager;

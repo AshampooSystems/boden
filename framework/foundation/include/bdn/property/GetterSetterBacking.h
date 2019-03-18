@@ -28,7 +28,7 @@ namespace bdn
         GetterSetterBacking() = delete;
         GetterSetterBacking(const GetterSetterBacking &) = delete;
 
-        virtual ValType get() const override
+        ValType get() const override
         {
             if (_getter == nullptr) {
                 // If no getter is specified, the default implementation returns
@@ -38,7 +38,7 @@ namespace bdn
             return _getter();
         }
 
-        virtual void set(const ValType &value, bool notify = true) override
+        void set(const ValType &value, bool notify = true) override
         {
             bool changed = false;
 
@@ -58,8 +58,9 @@ namespace bdn
                 throw std::invalid_argument("Either member or setter must be specified");
             }
 
-            if (changed && notify)
+            if (changed && notify) {
                 this->_pOnChange->postNotification(this);
+            }
         }
 
       protected:

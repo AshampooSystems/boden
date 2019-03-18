@@ -14,9 +14,9 @@ namespace bdn::ios
       public:
         ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
-        virtual void init() override;
+        void init() override;
 
-        void scrollClientRectToVisible(const Rect &clientRect) override;
+        void scrollClientRectToVisible(const Rect &targetRect) override;
         void updateVisibleClientRect();
 
       protected:

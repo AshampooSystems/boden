@@ -1,2 +1,2 @@
 
-add_platform_library(fk ${CMAKE_CURRENT_LIST_DIR} Base foundation)
+add_platform_library(NAME fk SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME Base PARENT_LIBRARY foundation)

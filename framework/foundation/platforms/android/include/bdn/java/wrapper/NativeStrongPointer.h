@@ -22,10 +22,10 @@ namespace bdn::java::wrapper
     class NativeStrongPointer : public Object
     {
       private:
-        static Reference newInstance_(std::shared_ptr<Base> pObject);
+        static Reference newInstance_(const std::shared_ptr<Base> &pObject);
 
       public:
-        explicit NativeStrongPointer(std::shared_ptr<Base> pObject);
+        explicit NativeStrongPointer(const std::shared_ptr<Base> &pObject);
 
         /** @param objectRef the reference to the Java object.
          *      The JObject instance will copy this reference and keep its
@@ -64,8 +64,8 @@ namespace bdn::java
     template <> class TypeConversion<std::shared_ptr<bdn::Base>> : public TypeConversionBase_
     {
       public:
-        typedef jobject JavaType;
-        typedef std::shared_ptr<bdn::Base> NativeType;
+        using JavaType = jobject;
+        using NativeType = std::shared_ptr<bdn::Base>;
 
         static String getJavaSignature()
         {
@@ -92,8 +92,8 @@ namespace bdn::java
     template <class Actual> class TypeConversion<std::shared_ptr<Actual>> : public TypeConversionBase_
     {
       public:
-        typedef jobject JavaType;
-        typedef std::shared_ptr<Actual> NativeType;
+        using JavaType = jobject;
+        using NativeType = std::shared_ptr<Actual>;
 
         static String getJavaSignature()
         {

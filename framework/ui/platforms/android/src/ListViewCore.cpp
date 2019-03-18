@@ -30,7 +30,7 @@ namespace bdn::android
         ViewCore::initTag();
 
         auto tag = bdn::java::wrapper::NativeWeakPointer(shared_from_this());
-        _jListView.setTag(tag);
+        _jListView.setTag(JavaObject(tag.getRef_()));
     }
 
     void ListViewCore::reloadData() { _jNativeListAdapter.notifyDataSetChanged(); }

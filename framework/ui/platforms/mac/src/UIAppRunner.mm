@@ -4,8 +4,8 @@
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/objectUtil.hh>
+#include <utility>
 
-#include <bdn/ExceptionReference.h>
 #include <bdn/entry.h>
 
 #import <Cocoa/Cocoa.h>
@@ -53,10 +53,14 @@ namespace bdn::mac
         AppLaunchInfo launchInfo;
 
         std::vector<String> argStrings;
-        for (int i = 0; i < argCount; i++)
-            argStrings.push_back(args[i]);
-        if (argCount == 0)
-            argStrings.push_back(""); // always add the first entry.
+        argStrings.reserve(argCount);
+        for (int i = 0; i < argCount; i++) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            argStrings.emplace_back(args[i]);
+        }
+        if (argCount == 0) {
+            argStrings.emplace_back(""); // always add the first entry.
+        }
 
         launchInfo.setArguments(argStrings);
 
@@ -65,45 +69,15 @@ namespace bdn::mac
 
     UIAppRunner::UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
                              char *args[])
-        : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
+        : AppRunnerBase(std::move(appControllerCreator), _makeLaunchInfo(argCount, args))
     {
         _mainDispatcher = std::make_shared<bdn::fk::MainDispatcher>();
-    }
-
-    static void _globalUnhandledNSException(NSException *exception)
-    {
-        NSObject *cppExceptionWrapper = nil;
-
-        if (exception.userInfo != nil)
-            cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
-
-        std::shared_ptr<ExceptionReference> cppExceptionRef;
-        if (cppExceptionWrapper != nil)
-            cppExceptionRef =
-                std::dynamic_pointer_cast<ExceptionReference>(bdn::fk::unwrapFromNSObject(cppExceptionWrapper));
-
-        try {
-            // if the exception is a wrapped C++ exception then we rethrow
-            // the original
-            if (cppExceptionRef != nullptr)
-                cppExceptionRef->rethrow();
-            else {
-                // otherwise we throw the NSException pointer.
-                throw exception;
-            }
-        }
-        catch (...) {
-            // note that exceptions are never recoverable on mac and ios
-            bdn::unhandledException(false);
-        }
     }
 
     bool UIAppRunner::isCommandLineApp() const { return false; }
 
     int UIAppRunner::entry()
     {
-        NSSetUncaughtExceptionHandler(&_globalUnhandledNSException);
-
         [NSApplication sharedApplication];
 
         BdnMacAppDelegate_ *appDelegate = [[BdnMacAppDelegate_ alloc] init];
@@ -116,7 +90,10 @@ namespace bdn::mac
 
     void UIAppRunner::openURL(const String &url)
     {
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:fk::stringToNSString(url)]];
+        NSURL *nsUrl = [NSURL URLWithString:fk::stringToNSString(url)];
+        if (nsUrl != nullptr) {
+            [[NSWorkspace sharedWorkspace] openURL:nsUrl];
+        }
     }
 
     void UIAppRunner::_applicationWillFinishLaunching(NSNotification *notification)

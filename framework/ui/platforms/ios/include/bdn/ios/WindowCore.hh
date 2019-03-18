@@ -25,17 +25,17 @@ namespace bdn::ios
 
       public:
         WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~WindowCore();
+        ~WindowCore() override;
 
-        virtual void onGeometryChanged(Rect newGeometry) override;
+        void onGeometryChanged(Rect newGeometry) override;
 
         UIWindow *getUIWindow() const;
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
-        virtual void frameChanged() override;
+        void frameChanged() override;
 
       private:
-        void updateContent(const std::shared_ptr<View> newContent);
+        void updateContent(const std::shared_ptr<View> &newContent);
         void updateContentGeometry();
         void updateGeomtry();
 

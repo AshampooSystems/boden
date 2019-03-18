@@ -2,13 +2,15 @@
 
 #include <bdn/View.h>
 
+#include <utility>
+
 namespace bdn
 {
 
     class ViewEvent : public Base
     {
       public:
-        ViewEvent(std::shared_ptr<View> view) { _view = view; }
+        ViewEvent(std::shared_ptr<View> view) { _view = std::move(view); }
 
         std::shared_ptr<View> getView() { return _view; }
 

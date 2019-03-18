@@ -16,7 +16,7 @@ namespace bdn
             String header;
             String data;
 
-            int responseCode;
+            int responseCode{};
         };
     }
 }

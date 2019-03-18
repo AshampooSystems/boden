@@ -51,7 +51,7 @@ namespace bdn
     {
         _message = errorString;
 
-        std::regex e("(.*)[ ]*(\\[\\[.*\\]\\])[: ]*(.*)");
+        std::regex e(R"((.*)[ ]*(\[\[.*\]\])[: ]*(.*))");
         std::smatch match;
 
         if (std::regex_match(_message, match, e)) {
@@ -64,7 +64,7 @@ namespace bdn
 
                 _message = rtrim_copy(preMsg.str());
                 String postStr = postMsg.str();
-                if (_message.size() > 0 && postStr.size() > 0) {
+                if (!_message.empty() && !postStr.empty()) {
                     _message += " ";
                 }
                 _message += postStr;
@@ -77,8 +77,9 @@ namespace bdn
         String result = _message;
 
         String fieldString = _fields.toString();
-        if (!fieldString.empty())
+        if (!fieldString.empty()) {
             result += " " + fieldString;
+        }
 
         return result;
     }

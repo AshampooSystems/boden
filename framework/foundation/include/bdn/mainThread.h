@@ -6,6 +6,7 @@
 #include <bdn/ISimpleCallable.h>
 
 #include <future>
+#include <utility>
 
 namespace bdn
 {
@@ -34,7 +35,7 @@ namespace bdn
         class Caller
         {
           public:
-            Caller(std::shared_ptr<CallFromMainThreadBase_> callable) { _callable = callable; }
+            Caller(std::shared_ptr<CallFromMainThreadBase_> callable) { _callable = std::move(callable); }
 
             void operator()() { _callable->call(); }
 
@@ -98,10 +99,11 @@ namespace bdn
         // potential for a deadlock here, since no events will be processed
         // while we wait blocking. So if we are on the main thread then we must
         // execute the function immediately.
-        if (AppRunnerBase::isMainThread())
+        if (AppRunnerBase::isMainThread()) {
             call->call();
-        else
+        } else {
             call->dispatchCall();
+        }
 
         return call->getFuture();
     }

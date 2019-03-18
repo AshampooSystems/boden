@@ -39,7 +39,7 @@ namespace bdn
 
 #else
 
-    typedef std::out_of_range OutOfRangeError;
+    using OutOfRangeError = std::out_of_range;
 
 #endif
 }

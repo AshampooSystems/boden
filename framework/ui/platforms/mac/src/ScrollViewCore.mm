@@ -40,8 +40,9 @@
 
 - (void)contentViewBoundsDidChange
 {
-    if (auto scrollViewCore = _scrollViewCore.lock())
+    if (auto scrollViewCore = _scrollViewCore.lock()) {
         scrollViewCore->_contentViewBoundsDidChange();
+    }
 }
 
 @end
@@ -102,7 +103,7 @@ namespace bdn::mac
     void ScrollViewCore::updateContent(const std::shared_ptr<View> &content)
     {
         for (id oldViewObject in _nsScrollView.documentView.subviews) {
-            NSView *oldView = (NSView *)oldViewObject;
+            auto oldView = (NSView *)oldViewObject;
             [oldView removeFromSuperview];
         }
         if (content) {

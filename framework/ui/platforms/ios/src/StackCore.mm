@@ -9,7 +9,8 @@
 - (BodenUINavigationControllerContainerView *)initWithNavigationController:
     (UINavigationController *)navigationController
 {
-    if (self = [super init]) {
+    self = [super init];
+    if (self != nullptr) {
         self.navController = navigationController;
     }
     return self;
@@ -140,7 +141,7 @@ namespace bdn::ios
     std::shared_ptr<FixedView> StackCore::getCurrentContainer()
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
-            BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+            auto bdnViewController = (BodenStackUIViewController *)topViewController;
             return bdnViewController.fixedView;
         }
 
@@ -150,7 +151,7 @@ namespace bdn::ios
     std::shared_ptr<View> StackCore::getCurrentUserView()
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
-            BodenStackUIViewController *bdnViewController = (BodenStackUIViewController *)topViewController;
+            auto bdnViewController = (BodenStackUIViewController *)topViewController;
             return bdnViewController.userContent;
         }
 

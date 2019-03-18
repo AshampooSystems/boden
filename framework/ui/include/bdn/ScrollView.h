@@ -41,7 +41,7 @@ namespace bdn
         Property<Rect> visibleClientRect;
 
       public:
-        virtual void scrollClientRectToVisible(const Rect &clientRect);
+        virtual void scrollClientRectToVisible(const Rect &area);
 
       public:
         ScrollView(std::shared_ptr<UIProvider> uiProvider = nullptr);
@@ -56,10 +56,10 @@ namespace bdn
 
         void removeAllChildViews() override { content = nullptr; }
 
-        void childViewStolen(std::shared_ptr<View> childView) override;
+        void childViewStolen(const std::shared_ptr<View> &childView) override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
 
       private:
         SingleChildHelper _content;

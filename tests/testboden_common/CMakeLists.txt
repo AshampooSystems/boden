@@ -20,7 +20,11 @@ function(add_boden_test TARGET SOURCES PURE_CONSOLE)
         SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.test.${TARGET}" PARENT_SCOPE)
     endif()
     
-    add_universal_executable(${TARGET} ${PURE_CONSOLE} ${SOURCES})
+    if(PURE_CONSOLE)
+        add_universal_executable(${TARGET} CONSOLE SOURCES ${SOURCES})
+    else()
+        add_universal_executable(${TARGET} SOURCES ${SOURCES})
+    endif()
     
     target_link_libraries(${TARGET} PUBLIC testboden_common)
     add_test(NAME ${TARGET} COMMAND ${TARGET})

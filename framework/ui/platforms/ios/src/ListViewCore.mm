@@ -147,7 +147,7 @@
 
 - (void)updateRefresh:(bool)enable
 {
-    if (enable && !self.refreshControl) {
+    if (enable && (self.refreshControl == nullptr)) {
         self.refreshControl = [[UIRefreshControl alloc] init];
         [self.refreshControl addTarget:self
                                 action:@selector(handleRefresh)
@@ -158,7 +158,7 @@
 }
 - (void)refreshDone
 {
-    if (self.refreshControl) {
+    if (self.refreshControl != nullptr) {
         [self.refreshControl endRefreshing];
     }
 }

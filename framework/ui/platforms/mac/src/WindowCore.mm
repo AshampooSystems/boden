@@ -14,15 +14,17 @@
 - (void)windowDidResize:(NSNotification *)notification
 {
     auto windowCore = _windowCore.lock();
-    if (windowCore != nullptr)
+    if (windowCore != nullptr) {
         windowCore->_movedOrResized();
+    }
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
     auto windowCore = _windowCore.lock();
-    if (windowCore != nullptr)
+    if (windowCore != nullptr) {
         windowCore->_movedOrResized();
+    }
 }
 
 @end
@@ -76,7 +78,7 @@ namespace bdn::mac
         // the screen's coordinate system is inverted (origin is bottom
         // left). So we need to pass the screen height so that it will be
         // converted properly.
-        NSRect rect = rectToMacRect(Rect{0, 0, 0, 0}, screen.frame.size.height);
+        NSRect rect = rectToMacRect(Rect(), (int)screen.frame.size.height);
 
         _nsWindow = [[NSWindow alloc]
             initWithContentRect:rect
@@ -111,10 +113,11 @@ namespace bdn::mac
         };
 
         visible.onChange() += [&window = self->_nsWindow](auto va) {
-            if (va->get())
+            if (va->get()) {
                 [window makeKeyAndOrderFront:NSApp];
-            else
+            } else {
                 [window orderOut:NSApp];
+            }
         };
 
         title.onChange() += [&window = self->_nsWindow](auto va) { [window setTitle:fk::stringToNSString(va->get())]; };
@@ -128,7 +131,7 @@ namespace bdn::mac
 
     void WindowCore::_movedOrResized()
     {
-        this->geometry = macRectToRect(_nsWindow.frame, _getNsScreen().frame.size.height);
+        this->geometry = macRectToRect(_nsWindow.frame, (int)_getNsScreen().frame.size.height);
 
         Rect rContent = macRectToRect([_nsWindow contentRectForFrameRect:_nsWindow.frame], -1);
         rContent.x = 0;
@@ -136,14 +139,14 @@ namespace bdn::mac
         this->contentGeometry = rContent;
     }
 
-    void WindowCore::scheduleLayout() { _nsContentParent.needsLayout = true; }
+    void WindowCore::scheduleLayout() { _nsContentParent.needsLayout = static_cast<BOOL>(true); }
 
     Rect WindowCore::getContentArea()
     {
         // the content parent is inside the inverted coordinate space of
         // the window origin is bottom left. So we need to pass the
         // content height, so that the coordinates can be flipped.
-        return macRectToRect(_nsContentParent.frame, _nsContentParent.frame.size.height);
+        return macRectToRect(_nsContentParent.frame, (int)_nsContentParent.frame.size.height);
     }
 
     Rect WindowCore::getScreenWorkArea() const
@@ -153,7 +156,7 @@ namespace bdn::mac
         NSRect workArea = screen.visibleFrame;
         NSRect fullArea = screen.frame;
 
-        return macRectToRect(workArea, fullArea.size.height);
+        return macRectToRect(workArea, (int)fullArea.size.height);
     }
 
     Size WindowCore::getMinimumSize() const { return macSizeToSize(_nsWindow.minSize); }
@@ -184,8 +187,9 @@ namespace bdn::mac
 
     double WindowCore::getSemSizeDips() const
     {
-        if (_semDipsIfInitialized == -1)
+        if (_semDipsIfInitialized == -1) {
             _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
+        }
 
         return _semDipsIfInitialized;
     }
@@ -194,16 +198,17 @@ namespace bdn::mac
     {
         NSScreen *screen = _nsWindow.screen;
 
-        if (screen == nil) // happens when window is not visible
+        if (screen == nil) { // happens when window is not visible
             screen = [NSScreen mainScreen];
+        }
 
         return screen;
     }
 
-    void WindowCore::updateContent(const std::shared_ptr<View> newContent)
+    void WindowCore::updateContent(const std::shared_ptr<View> &newContent)
     {
         for (id oldViewObject in _nsContentParent.subviews) {
-            NSView *oldView = (NSView *)oldViewObject;
+            auto oldView = (NSView *)oldViewObject;
             [oldView removeFromSuperview];
         }
 

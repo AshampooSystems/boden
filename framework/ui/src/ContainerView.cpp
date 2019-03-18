@@ -7,7 +7,7 @@ namespace bdn
 
     ContainerView::ContainerView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
-    void ContainerView::addChildView(std::shared_ptr<View> childView)
+    void ContainerView::addChildView(const std::shared_ptr<View> &childView)
     {
         if (auto containerCore = core<ContainerViewCore>()) {
             containerCore->addChildView(childView);
@@ -15,7 +15,7 @@ namespace bdn
         }
     }
 
-    void ContainerView::removeChildView(std::shared_ptr<View> childView)
+    void ContainerView::removeChildView(const std::shared_ptr<View> &childView)
     {
         if (auto containerCore = core<ContainerViewCore>()) {
             containerCore->removeChildView(childView);
@@ -29,8 +29,9 @@ namespace bdn
     {
         auto copyChildren = childViews();
 
-        for (auto &childView : copyChildren)
+        for (auto &childView : copyChildren) {
             removeChildView(childView);
+        }
     }
 
     std::list<std::shared_ptr<View>> ContainerView::childViews()
@@ -42,7 +43,7 @@ namespace bdn
         throw std::runtime_error("???");
     }
 
-    void ContainerView::childViewStolen(std::shared_ptr<View> childView)
+    void ContainerView::childViewStolen(const std::shared_ptr<View> &childView)
     {
         if (auto containerCore = core<ContainerViewCore>()) {
             containerCore->removeChildView(childView);

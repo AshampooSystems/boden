@@ -16,9 +16,9 @@ namespace bdn::mac
 
       public:
         ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~ButtonCore();
+        ~ButtonCore() override;
 
-        virtual void init() override;
+        void init() override;
 
         Size sizeForSpace(Size availableSpace) const override;
 
@@ -31,6 +31,6 @@ namespace bdn::mac
         BdnButtonClickManager *_clickManager;
 
         NSBezelStyle _currBezelStyle;
-        int _heightWithRoundedBezelStyle;
+        int _heightWithRoundedBezelStyle{};
     };
 }

@@ -16,10 +16,10 @@ namespace bdn::mac
     {
       public:
         WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        ~WindowCore();
+        ~WindowCore() override;
 
       public:
-        virtual void init() override;
+        void init() override;
 
         NSWindow *getNSWindow() { return _nsWindow; }
 
@@ -27,7 +27,7 @@ namespace bdn::mac
 
         void _movedOrResized();
 
-        virtual void scheduleLayout() override;
+        void scheduleLayout() override;
 
       private:
         Rect getContentArea();
@@ -39,7 +39,7 @@ namespace bdn::mac
 
         NSScreen *_getNsScreen() const;
 
-        void updateContent(const std::shared_ptr<View> newContent);
+        void updateContent(const std::shared_ptr<View> &newContent);
 
       private:
         NSWindow *_nsWindow;

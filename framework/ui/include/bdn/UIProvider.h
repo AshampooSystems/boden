@@ -17,7 +17,7 @@ namespace bdn
                        public std::enable_shared_from_this<UIProvider>
     {
       public:
-        UIProvider() {}
+        UIProvider() = default;
 
         using ContextStack = std::vector<std::shared_ptr<UIContext>>;
 

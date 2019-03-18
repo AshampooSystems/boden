@@ -57,7 +57,7 @@ namespace bdn
             */
         static constexpr Size none() { return Size(componentNone(), componentNone()); }
 
-        constexpr Size() {}
+        constexpr Size() = default;
 
         constexpr Size(double width, double height) : width(width), height(height) {}
 
@@ -126,11 +126,13 @@ namespace bdn
             */
         void applyMinimum(const Size &minSize)
         {
-            if (std::isfinite(minSize.width) && (!std::isfinite(width) || width < minSize.width))
+            if (std::isfinite(minSize.width) && (!std::isfinite(width) || width < minSize.width)) {
                 width = minSize.width;
+            }
 
-            if (std::isfinite(minSize.height) && (!std::isfinite(height) || height < minSize.height))
+            if (std::isfinite(minSize.height) && (!std::isfinite(height) || height < minSize.height)) {
                 height = minSize.height;
+            }
         }
 
         /** Applies a maximum size constraint to the Size object.
@@ -150,11 +152,13 @@ namespace bdn
             */
         void applyMaximum(const Size &maxSize)
         {
-            if (std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width))
+            if (std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width)) {
                 width = maxSize.width;
+            }
 
-            if (std::isfinite(maxSize.height) && (!std::isfinite(height) || height > maxSize.height))
+            if (std::isfinite(maxSize.height) && (!std::isfinite(height) || height > maxSize.height)) {
                 height = maxSize.height;
+            }
         }
     };
 

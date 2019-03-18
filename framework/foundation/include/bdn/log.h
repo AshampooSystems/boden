@@ -30,8 +30,8 @@ namespace bdn
     class logstream : public std::ostringstream
     {
       public:
-        logstream() {}
-        ~logstream() { logInfo(str()); }
+        logstream() = default;
+        ~logstream() override { logInfo(str()); }
     };
 
 /** \def BDN_LOG_AND_IGNORE_EXCEPTION( call, errorContextMessage )

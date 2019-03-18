@@ -117,7 +117,7 @@ namespace bdn::android::wrapper
         JavaMethod<ViewParent()> getParent{this, "getParent"};
         JavaMethod<Context()> getContext{this, "getContext"};
 
-        JavaMethod<void(JavaObject)> setTag{this, "setTag"};
+        JavaMethod<void(const JavaObject &)> setTag{this, "setTag"};
         JavaMethod<JavaObject()> getTag{this, "getTag"};
 
         JavaMethod<void(int, int)> measure{this, "measure"};

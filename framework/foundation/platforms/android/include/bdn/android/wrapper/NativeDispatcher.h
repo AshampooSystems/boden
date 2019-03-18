@@ -22,7 +22,7 @@ namespace bdn::android::wrapper
         JavaMethod<void()> dispose{this, "dispose"};
 
       public:
-        void enqueue(IDispatcher::Duration delay, std::function<void()> func, bool idlePriority)
+        void enqueue(IDispatcher::Duration delay, const std::function<void()> &func, bool idlePriority)
         {
             bdn::java::wrapper::NativeOnceRunnable runnable([func]() {
                 try {
@@ -35,10 +35,10 @@ namespace bdn::android::wrapper
             });
 
             double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
-            return native_enqueue(delayInSeconds, (bdn::java::wrapper::NativeRunnable &)runnable, idlePriority);
+            return native_enqueue(delayInSeconds, bdn::java::wrapper::NativeRunnable(runnable.getRef_()), idlePriority);
         }
 
-        void createTimer(IDispatcher::Duration interval, std::shared_ptr<Base> timerData)
+        void createTimer(IDispatcher::Duration interval, const std::shared_ptr<Base> &timerData)
         {
             bdn::java::wrapper::NativeStrongPointer nativeTimerData(timerData);
 

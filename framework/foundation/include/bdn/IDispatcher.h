@@ -54,6 +54,8 @@ namespace bdn
             normal = 0,
         };
 
+        static constexpr const int NumberOfPriorities = 2;
+
         /** Schedules the specified function to be executed
             with the specified priority.
 

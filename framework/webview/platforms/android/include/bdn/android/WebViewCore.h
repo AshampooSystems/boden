@@ -12,7 +12,7 @@ namespace bdn::android
     {
       public:
         WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~WebViewCore() = default;
+        ~WebViewCore() override = default;
 
         void loadURL(const String &url) override;
 

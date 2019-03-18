@@ -36,7 +36,7 @@ namespace bdn::android
     void ViewCore::initTag()
     {
         auto tag = bdn::java::wrapper::NativeWeakPointer(shared_from_this());
-        _jView.setTag(tag);
+        _jView.setTag(JavaObject(tag.getRef_()));
     }
 
     Size ViewCore::sizeForSpace(Size availableSpace) const
@@ -49,15 +49,17 @@ namespace bdn::android
                 std::lround(stableScaledRoundDown(availableSpace.width, _uiScaleFactor) * _uiScaleFactor),
 
                 wrapper::View::MeasureSpec::atMost);
-        } else
+        } else {
             widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
+        }
 
         if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
             heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(
                 std::lround(stableScaledRoundDown(availableSpace.height, _uiScaleFactor) * _uiScaleFactor),
                 wrapper::View::MeasureSpec::atMost);
-        } else
+        } else {
             heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
+        }
 
         _jView.measure(widthSpec, heightSpec);
 
@@ -129,39 +131,43 @@ namespace bdn::android
 
     double ViewCore::getEmSizeDips() const
     {
-        if (_emDipsIfInitialized == -1)
+        if (_emDipsIfInitialized == -1) {
             _emDipsIfInitialized = getFontSizeDips();
+        }
 
         return _emDipsIfInitialized;
     }
 
     double ViewCore::getSemSizeDips() const
     {
-        if (_semDipsIfInitialized == -1)
+        if (_semDipsIfInitialized == -1) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
             _semDipsIfInitialized = UIProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
+        }
 
         return _semDipsIfInitialized;
     }
 
     void ViewCore::updateGeometry()
     {
-        bdn::JavaObject parent(_jView.getParent());
+        bdn::JavaObject parent(_jView.getParent().getRef_());
         Rect rGeometry = geometry;
 
         if (parent.isNull_()) {
             auto thisViewAsNativeGroup = getJViewAS<wrapper::NativeViewGroup>();
             if (thisViewAsNativeGroup.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
-                thisViewAsNativeGroup.setSize(rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+                thisViewAsNativeGroup.setSize((int)(rGeometry.width * _uiScaleFactor),
+                                              (int)(rGeometry.height * _uiScaleFactor));
             }
         } else {
-
             wrapper::NativeViewGroup parentView(parent.getRef_());
             if (parentView.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
-                parentView.setChildBounds(getJView(), rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
-                                          rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+                parentView.setChildBounds(getJView(), (int)(rGeometry.x * _uiScaleFactor),
+                                          (int)(rGeometry.y * _uiScaleFactor), (int)(rGeometry.width * _uiScaleFactor),
+                                          (int)(rGeometry.height * _uiScaleFactor));
             } else {
-                _jView.layout(rGeometry.x * _uiScaleFactor, rGeometry.y * _uiScaleFactor,
-                              rGeometry.width * _uiScaleFactor, rGeometry.height * _uiScaleFactor);
+                _jView.layout((int)(rGeometry.x * _uiScaleFactor), (int)(rGeometry.y * _uiScaleFactor),
+                              (int)(rGeometry.width * _uiScaleFactor), (int)(rGeometry.height * _uiScaleFactor));
             }
         }
     }
@@ -174,7 +180,8 @@ namespace bdn::android
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeWeakPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeWeakPointer viewTagPtr(viewTag.getRef_());
                 return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer().lock());
-            } else if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
+            }
+            if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeStrongPointer viewTagPtr(viewTag.getRef_());
                 return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer_());
             }

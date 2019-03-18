@@ -19,7 +19,7 @@ namespace bdn::mac
     ViewCore::ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *nsView)
         : bdn::ViewCore(uiProvider), _nsView(nsView)
     {
-        if (_nsView) {
+        if (_nsView != nullptr) {
 
             geometry.onChange() += [&view = this->_nsView](auto va) {
                 NSRect r = rectToMacRect(va->get(), -1);

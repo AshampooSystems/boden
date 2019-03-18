@@ -15,17 +15,17 @@ namespace bdn::mac
     {
       public:
         StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~StackCore();
+        ~StackCore() override;
 
-        virtual void init() override;
-
-      public:
-        virtual void pushView(std::shared_ptr<View> view, String title) override;
-        virtual void popView() override;
-        virtual std::list<std::shared_ptr<View>> childViews() override;
+        void init() override;
 
       public:
-        virtual void setLayout(std::shared_ptr<Layout> layout) override;
+        void pushView(std::shared_ptr<View> view, String title) override;
+        void popView() override;
+        std::list<std::shared_ptr<View>> childViews() override;
+
+      public:
+        void setLayout(std::shared_ptr<Layout> layout) override;
 
       private:
         void updateCurrentView();

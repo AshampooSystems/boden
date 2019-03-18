@@ -89,7 +89,7 @@ namespace bdn::ios
 
     SwitchCore::~SwitchCore()
     {
-        BdnIosSwitchComposite *switchComposite = (BdnIosSwitchComposite *)_composite;
+        auto switchComposite = (BdnIosSwitchComposite *)_composite;
         [switchComposite.uiSwitch removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
     }
 

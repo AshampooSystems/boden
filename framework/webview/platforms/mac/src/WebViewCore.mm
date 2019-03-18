@@ -42,7 +42,11 @@ namespace bdn::mac
     {
         WKWebView *webView = (WKWebView *)nsView();
         NSURL *nsURL = [[NSURL alloc] initWithString:bdn::fk::stringToNSString(url)];
-        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nsURL];
-        [webView loadRequest:request];
+        if (nsURL != nullptr) {
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nsURL];
+            if (request != nullptr) {
+                [webView loadRequest:request];
+            }
+        }
     }
 }

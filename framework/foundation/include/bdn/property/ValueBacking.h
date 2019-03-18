@@ -25,9 +25,9 @@ namespace bdn
         ValueBacking(ValType value) : _value(value) {}
         ValueBacking(const ValueBacking &other) : _value(other.get()) {}
 
-        virtual ValType get() const override { return _value; }
+        ValType get() const override { return _value; }
 
-        virtual void set(const ValType &value, bool notify = true) override
+        void set(const ValType &value, bool notify = true) override
         {
             bool changed = false;
 
@@ -38,9 +38,10 @@ namespace bdn
                 }
             }
 
-            if (changed && notify)
+            if (changed && notify) {
                 this->_pOnChange->notify(
                     std::dynamic_pointer_cast<value_accessor_t>(Backing<ValType>::shared_from_this()));
+            }
         }
 
       protected:

@@ -2,8 +2,8 @@
 
 #include <bdn/UIProvider.h>
 
-#define VIEW_CORE_REGISTRY_DECLARATION_STATIC(NANE)                                                                    \
-    void NANE##registerViewCore(const std::shared_ptr<UIProvider> &uiProvider);
+#define VIEW_CORE_REGISTRY_DECLARATION_STATIC(NAME)                                                                    \
+    void NAME##registerViewCore(const std::shared_ptr<UIProvider> &uiProvider);
 
 #define VIEW_CORE_REGISTRY_DECLARATION_SHARED(NAME)                                                                    \
     class NAME##RegisterMe                                                                                             \
@@ -29,7 +29,7 @@
 #define VIEW_CORE_REGISTRY_IMPLEMENTATION_SHARED(NAME)                                                                 \
     NAME##RegisterMe::NAME##RegisterMe(std::function<void(std::shared_ptr<UIProvider>)> callMe)                        \
     {                                                                                                                  \
-        NAME##Registrar::get().setRegisterMe(callMe);                                                                  \
+        NAME##Registrar::get().setRegisterMe(std::move(callMe));                                                       \
     }                                                                                                                  \
     NAME##Registrar &NAME##Registrar::get()                                                                            \
     {                                                                                                                  \
@@ -39,14 +39,14 @@
     void NAME##Registrar::call(std::shared_ptr<UIProvider> uiProvider)                                                 \
     {                                                                                                                  \
         if (_registerFunction) {                                                                                       \
-            _registerFunction(uiProvider);                                                                             \
+            _registerFunction(std::move(uiProvider));                                                                  \
         } else {                                                                                                       \
             throw std::runtime_error("Nothing registered!");                                                           \
         }                                                                                                              \
     }                                                                                                                  \
     void NAME##Registrar::setRegisterMe(std::function<void(std::shared_ptr<UIProvider>)> function)                     \
     {                                                                                                                  \
-        _registerFunction = function;                                                                                  \
+        _registerFunction = std::move(function);                                                                       \
     }
 
 #define VIEW_CORE_REGISTER_STATIC(NAME, UIPROVIDER) NAME##registerViewCore(UIPROVIDER);

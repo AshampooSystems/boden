@@ -47,7 +47,7 @@
         CGRect safeRect = CGRectMake(0, self.topLayoutGuide.length, self.myWindow.frame.size.width,
                                      self.myWindow.frame.size.height - self.bottomLayoutGuide.length);
 
-        [self.safeRootView setFrame:self.view.frame];
+        [self.safeRootView setFrame:safeRect];
     }
 #endif
 }
@@ -144,14 +144,11 @@ namespace bdn::ios
 
     UIScreen *WindowCore::_getUIScreen() const { return _window.screen; }
 
-    void WindowCore::updateContent(const std::shared_ptr<View> newContent)
+    void WindowCore::updateContent(const std::shared_ptr<View> &newContent)
     {
         UIView *rootView = _rootViewController.safeRootView;
 
-        for (id oldViewObject in rootView.subviews) {
-            UIView *oldView = (UIView *)oldViewObject;
-            [oldView removeFromSuperview];
-        }
+        [[rootView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
         if (auto childCore = newContent->core<ios::ViewCore>()) {
             [rootView addSubview:childCore->uiView()];

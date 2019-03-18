@@ -9,10 +9,10 @@ ios_configure_asset(REDDIT_ASSETS ../IOS_DemoIcons.xcassets)
 ios_configure_asset(REDDIT_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
 
-add_universal_executable(reddit No ${REDDIT_FILES} ${REDDIT_ASSETS})
-
-
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
+
+add_universal_executable(reddit TIDY SOURCES ${REDDIT_FILES} ${REDDIT_ASSETS})
+
 ios_setup_code_signing(reddit)
 ios_set_appicon_asset_file(reddit "AppIcon")
 ios_set_launchboard_file("LaunchScreen")

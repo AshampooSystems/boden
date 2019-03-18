@@ -4,6 +4,8 @@
 #include <bdn/android/wrapper/NativeRootView.h>
 #include <bdn/android/wrapper/Uri.h>
 
+#include <utility>
+
 namespace bdn::android
 {
 
@@ -15,9 +17,9 @@ namespace bdn::android
         std::vector<String> args;
 
         // add a dummy arg for the program name
-        args.push_back(String());
+        args.emplace_back();
 
-        if (intent.getAction() == wrapper::Intent::ACTION_MAIN) {
+        if (intent.getAction() == String((const char *)wrapper::Intent::ACTION_MAIN)) {
             wrapper::Bundle extras = intent.getExtras();
 
             if (!extras.isNull_()) {
@@ -43,7 +45,7 @@ namespace bdn::android
 
     AppRunner::AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
                          wrapper::Intent intent)
-        : AppRunnerBase(appControllerCreator, AppRunner::_makeLaunchInfo(intent))
+        : AppRunnerBase(std::move(appControllerCreator), AppRunner::_makeLaunchInfo(std::move(intent)))
     {
         _mainDispatcher = std::make_shared<Dispatcher>(wrapper::Looper::getMainLooper());
     }
@@ -74,7 +76,7 @@ namespace bdn::android
 
     void AppRunner::openURL(const String &url)
     {
-        wrapper::Intent intent(wrapper::Intent::ACTION_VIEW, wrapper::Uri::parse(url));
+        wrapper::Intent intent(String((const char *)wrapper::Intent::ACTION_VIEW), wrapper::Uri::parse(url));
         wrapper::NativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.getContext().startActivity(intent);
     }

@@ -34,8 +34,6 @@ public class NativeInit
         {
             System.loadLibrary(nativeLibName);
 
-            NativeUncaughtExceptionHandler.install();
-
             mBaseInitialized = true;
         }
     }

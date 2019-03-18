@@ -57,10 +57,10 @@ namespace bdn
 
         void removeAllChildViews() override;
 
-        void childViewStolen(std::shared_ptr<View> childView) override;
+        void childViewStolen(const std::shared_ptr<View> &childView) override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
 
       private:
         SingleChildHelper _content;

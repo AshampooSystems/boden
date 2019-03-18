@@ -3,6 +3,7 @@
 #include <bdn/SimpleNotifier.h>
 #include <bdn/property/IValueAccessor.h>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace bdn
@@ -15,7 +16,7 @@ namespace bdn
         class Proxy
         {
           public:
-            Proxy(ValType value) : _value(value) {}
+            Proxy(ValType value) : _value(std::move(value)) {}
 
             const ValType *operator->() const { return &_value; }
 
@@ -32,14 +33,14 @@ namespace bdn
 
       public:
         Backing() : _pOnChange(std::make_shared<notifier_t>()) {}
-        ~Backing() { unbind(); }
+        ~Backing() override { unbind(); }
 
         std::shared_ptr<Backing<ValType>> shared_from_this()
         {
             return std::dynamic_pointer_cast<Backing<ValType>>(IValueAccessor<ValType>::shared_from_this());
         }
 
-        virtual ValType get() const = 0;
+        ValType get() const override = 0;
         virtual void set(const ValType &value, bool notify = true) = 0;
 
         virtual Proxy proxy() const { return Proxy(get()); }
@@ -59,7 +60,7 @@ namespace bdn
 
         void unbind()
         {
-            for (auto binding : _bindings) {
+            for (const auto &binding : _bindings) {
                 if (auto strongBacking = binding.backing.lock()) {
                     strongBacking->onChange().unsubscribe(binding.subscription);
                 }

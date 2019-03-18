@@ -11,8 +11,11 @@ namespace bdn
     {
       public:
         // The first member MUST be a const char* !
-        String type() { return *((const char **)this); }
-        bool isType(String typeName) { return type() == typeName; }
+        String type()
+        {
+            return *((const char **)this); // NOLINT
+        }
+        bool isType(const String &typeName) { return type() == typeName; }
     };
 
     class Layout : public Base

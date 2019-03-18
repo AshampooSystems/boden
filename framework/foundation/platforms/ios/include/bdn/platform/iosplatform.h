@@ -12,9 +12,7 @@ namespace bdn
             static void init();
 
           public:
-            void debugBreak() override;
             void debuggerPrint(const String &text) override;
-            bool _isDebuggerActive() override;
             bool debuggerPrintGoesToStdErr() override;
         };
     }

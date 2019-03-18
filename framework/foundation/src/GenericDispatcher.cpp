@@ -44,7 +44,8 @@ namespace bdn
                 if (getNextReady(func, false)) {
                     // we have items pending that are ready to be executed.
                     return true;
-                } else if (timeout <= 0s) {
+                }
+                if (timeout <= 0s) {
                     // no items ready and the caller does not want us to wait.
                     // So, return false.
                     return false;
@@ -76,16 +77,18 @@ namespace bdn
 
                     auto &scheduledTime = std::get<0>(key);
 
-                    if (scheduledTime < nextCheckTime)
+                    if (scheduledTime < nextCheckTime) {
                         nextCheckTime = scheduledTime;
+                    }
                 }
 
                 Duration currWaitDuration = nextCheckTime - now;
                 currWaitSeconds = currWaitDuration;
 
                 // wait at least a millisecond
-                if (currWaitDuration < 1ms)
+                if (currWaitDuration < 1ms) {
                     currWaitDuration = 1ms;
+                }
 
                 _somethingChangedSignal.clear();
             }
@@ -109,13 +112,14 @@ namespace bdn
         enqueueTimedItemsIfTimeReached();
 
         // go through the queues in priority order and handle one item
-        for (int priorityIndex = priorityCount - 1; priorityIndex >= 0; priorityIndex--) {
-            std::list<std::function<void()>> &queue = _queues[priorityIndex];
+        for (auto it = _queues.rbegin(); it != _queues.rend(); it++) {
+            auto &queue = *it;
 
             if (!queue.empty()) {
                 func = queue.front();
-                if (remove)
+                if (remove) {
                     queue.pop_front();
+                }
                 return true;
             }
         }

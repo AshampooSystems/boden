@@ -40,11 +40,11 @@ namespace bdn::mac
         {
             BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
-            view.editable = false;
-            view.selectable = false;
-            view.richText = false;
+            view.editable = static_cast<BOOL>(false);
+            view.selectable = static_cast<BOOL>(false);
+            view.richText = static_cast<BOOL>(false);
 
-            view.verticallyResizable = false;
+            view.verticallyResizable = static_cast<BOOL>(false);
 
             // do not draw the background by default
             view.drawsBackground = NO;

@@ -20,12 +20,8 @@ namespace bdn
 
         inline bool ends_with(const String &haystack, const String &needle)
         {
-            if (haystack.size() >= needle.size() &&
-                haystack.compare(haystack.size() - needle.size(), needle.size(), needle) == 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return haystack.size() >= needle.size() &&
+                   haystack.compare(haystack.size() - needle.size(), needle.size(), needle) == 0;
         }
     }
 

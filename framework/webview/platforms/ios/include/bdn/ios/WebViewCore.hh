@@ -13,9 +13,9 @@ namespace bdn::ios
     {
       public:
         WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~WebViewCore() = default;
+        ~WebViewCore() override = default;
 
-        virtual void init() override;
+        void init() override;
 
       public:
         void loadURL(const String &url) override;

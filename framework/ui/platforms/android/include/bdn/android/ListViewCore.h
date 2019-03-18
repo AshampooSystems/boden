@@ -15,13 +15,13 @@ namespace bdn::android
       public:
         ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
-        virtual void reloadData() override;
-        virtual void refreshDone() override;
+        void reloadData() override;
+        void refreshDone() override;
 
         void fireRefresh();
 
       protected:
-        virtual void initTag() override;
+        void initTag() override;
 
       private:
         wrapper::NativeListView _jNativeListView;

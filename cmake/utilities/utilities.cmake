@@ -9,7 +9,9 @@ macro(GenerateTopLevelIncludeFile OUTPUT NAME BASEDIR)
 
     foreach(_file ${ARGN})
         file(RELATIVE_PATH _relativePath ${BASEDIR} ${_file})
-        set(_HEADERS_ "${_HEADERS_}#include <${_relativePath}>\n")
+        if(NOT "${_relativePath}" MATCHES "jni.h")
+            set(_HEADERS_ "${_HEADERS_}#include <${_relativePath}>\n")
+        endif()
     endforeach()
 
     configure_file(${BODEN_CMAKE_SOURCE_DIR}/templates/combined_header.h.in ${NAME})

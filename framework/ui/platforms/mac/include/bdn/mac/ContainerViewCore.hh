@@ -16,12 +16,12 @@ namespace bdn::mac
         explicit ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *view);
 
       public:
-        virtual void init() override;
+        void init() override;
 
-        virtual void addChildView(std::shared_ptr<View> child) override;
-        virtual void removeChildView(std::shared_ptr<View> child) override;
+        void addChildView(std::shared_ptr<View> child) override;
+        void removeChildView(std::shared_ptr<View> child) override;
 
-        virtual std::list<std::shared_ptr<View>> childViews() override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
       private:
         std::list<std::shared_ptr<View>> _children;

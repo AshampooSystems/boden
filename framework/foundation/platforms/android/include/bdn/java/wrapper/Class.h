@@ -83,8 +83,9 @@ namespace bdn::java::wrapper
                 _nameInSlashNotation = getCanonicalName();
                 std::transform(_nameInSlashNotation.begin(), _nameInSlashNotation.end(), _nameInSlashNotation.begin(),
                                [](char ch) {
-                                   if (ch == '.')
+                                   if (ch == '.') {
                                        return '/';
+                                   }
                                    return ch;
                                });
                 //_nameInSlashNotation.findAndReplace('.', '/');
@@ -144,6 +145,7 @@ namespace bdn::java::wrapper
         {
             initStaticMethodId<ReturnType, Arguments...>(methodId, name);
 
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
             return StaticMethodCaller<ReturnType>::template call<Arguments...>((jclass)getJObject_(), methodId.getId(),
                                                                                args...);
         }
@@ -168,6 +170,7 @@ namespace bdn::java::wrapper
 
             std::list<Reference> tempObjects;
 
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
             return _newObject((jclass)getJObject_(), constructorId.getId(), nativeToJava(args, tempObjects)...);
         }
 

@@ -23,7 +23,7 @@ namespace bdn
            that returns true then run() should abort its work and return as
            quickly as possible.
          */
-        virtual void run() override = 0;
+        void run() override = 0;
 
         /** Returns true if the thread should stop (i.e. if signalStop() has
          * been called).*/

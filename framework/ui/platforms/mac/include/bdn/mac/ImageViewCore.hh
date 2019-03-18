@@ -16,6 +16,6 @@ namespace bdn::mac
 
       private:
         static NSView *createNSImageView();
-        virtual Size sizeForSpace(Size availableSize) const override;
+        Size sizeForSpace(Size availableSize) const override;
     };
 }

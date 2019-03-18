@@ -17,7 +17,7 @@ namespace bdn
         double x = 0;
         double y = 0;
 
-        Point() {}
+        Point() = default;
 
         Point(double x, double y) : x(x), y(y) {}
 

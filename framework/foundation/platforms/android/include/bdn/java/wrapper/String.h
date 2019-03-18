@@ -14,7 +14,6 @@ namespace bdn::java::wrapper
             Env &env = Env::get();
 
             jstring obj = env.getJniEnv()->NewStringUTF(s.c_str());
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return Reference::convertAndDestroyOwnedLocal((jobject)obj);
         }
@@ -33,7 +32,9 @@ namespace bdn::java::wrapper
         bdn::String getValue_()
         {
             JNIEnv *env = Env::get().getJniEnv();
-            jstring javaRef = (jstring)getJObject_();
+
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            auto javaRef = (jstring)getJObject_();
 
             const char *data = env->GetStringUTFChars(javaRef, nullptr);
 

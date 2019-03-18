@@ -8,7 +8,7 @@ namespace bdn::java
     class ObjectFieldKind
     {
       public:
-        typedef jobject ContextJType;
+        using ContextJType = jobject;
 
         /** Represents the ID of a Java object field.
          *  These IDs are used to call access an object's java-side fields
@@ -20,10 +20,9 @@ namespace bdn::java
             {
                 Env &env = Env::get();
 
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
                 _id = env.getJniEnv()->GetFieldID((jclass)cls.getJObject_(), fieldName,
                                                   TypeConversion<NativeType>::getJavaSignature().c_str());
-
-                env.throwAndClearExceptionFromLastJavaCall();
             }
 
             /** Returns the Id. Throws and exception if the Id has not been

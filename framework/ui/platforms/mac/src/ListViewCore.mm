@@ -118,7 +118,7 @@
 - initWithFrame:(CGRect)rect
 {
     self = [super initWithFrame:rect];
-    if (self) {
+    if (self != nullptr) {
         self.isInRefreshStatus = NO;
         self.refreshEnabled = NO;
 
@@ -126,10 +126,10 @@
         [self addFloatingSubview:self.refreshLabel forAxis:NSEventGestureAxisVertical];
         self.refreshLabel.string = @"Refresh";
 
-        self.refreshLabel.editable = false;
-        self.refreshLabel.selectable = false;
-        self.refreshLabel.richText = false;
-        self.refreshLabel.verticallyResizable = false;
+        self.refreshLabel.editable = static_cast<BOOL>(false);
+        self.refreshLabel.selectable = static_cast<BOOL>(false);
+        self.refreshLabel.richText = static_cast<BOOL>(false);
+        self.refreshLabel.verticallyResizable = static_cast<BOOL>(false);
 
         [self.refreshLabel setWantsLayer:YES];
         [self.refreshLabel.layer setCornerRadius:10.0f];
@@ -172,7 +172,7 @@
                 listCore->fireRefresh();
             }
         } else {
-            int numDots = self.refreshLabel.alphaValue * 4;
+            int numDots = (int)(self.refreshLabel.alphaValue * 4.0);
             switch (numDots) {
             case 1:
                 self.refreshLabel.string = @"Refresh.";
@@ -181,6 +181,9 @@
                 self.refreshLabel.string = @"Refresh..";
                 break;
             case 3:
+                self.refreshLabel.string = @"Refresh...";
+                break;
+            default:
                 self.refreshLabel.string = @"Refresh...";
                 break;
             }

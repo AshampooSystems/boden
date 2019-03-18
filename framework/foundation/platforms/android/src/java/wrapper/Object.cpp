@@ -26,11 +26,12 @@ namespace bdn::java::wrapper
     bool Object::isInstanceOf_(Class &cls)
     {
         // never throws java-side exceptions
-        return Env::get().getJniEnv()->IsInstanceOf(getJObject_(), (jclass)cls.getJObject_());
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+        return Env::get().getJniEnv()->IsInstanceOf(getJObject_(), (jclass)cls.getJObject_()) == JNI_TRUE;
     }
 
     bool Object::isSameObject_(Object &o)
     {
-        return Env::get().getJniEnv()->IsSameObject(getJObject_(), o.getJObject_());
+        return Env::get().getJniEnv()->IsSameObject(getJObject_(), o.getJObject_()) == JNI_TRUE;
     }
 }

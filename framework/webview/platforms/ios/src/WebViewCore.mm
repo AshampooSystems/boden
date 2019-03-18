@@ -54,9 +54,12 @@ namespace bdn::ios
 
     void WebViewCore::loadURL(const String &url)
     {
-        WKWebView *webView = (WKWebView *)uiView();
-        NSURL *nsURL = [[NSURL alloc] initWithString:fk::stringToNSString(url)];
-        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nsURL];
-        [webView loadRequest:request];
+        auto webView = (WKWebView *)uiView();
+        auto nsURL = [[NSURL alloc] initWithString:fk::stringToNSString(url)];
+        if (nsURL != nullptr) {
+            if (auto request = [[NSURLRequest alloc] initWithURL:nsURL]) {
+                [webView loadRequest:request];
+            }
+        }
     }
 }

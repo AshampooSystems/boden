@@ -1,4 +1,4 @@
-add_platform_library(ios ${CMAKE_CURRENT_LIST_DIR} iOS foundation)
+add_platform_library(NAME ios SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME iOS PARENT_LIBRARY foundation)
 
 target_link_libraries(foundation_ios PUBLIC "-framework UIKit" "-framework Foundation" "-framework CoreGraphics" "-framework WebKit")
 target_link_libraries(foundation_ios INTERFACE foundation_fk)

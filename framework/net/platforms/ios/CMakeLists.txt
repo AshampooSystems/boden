@@ -1,5 +1,5 @@
 
-add_platform_library(ios ${CMAKE_CURRENT_LIST_DIR} IOS net )
+add_platform_library(NAME ios SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME IOS PARENT_LIBRARY net )
 
 
 

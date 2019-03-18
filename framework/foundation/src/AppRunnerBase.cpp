@@ -2,8 +2,9 @@
 #include <bdn/AppRunnerBase.h>
 #include <bdn/debug.h>
 
-#include <bdn/UnhandledException.h>
 #include <bdn/log.h>
+
+#include <utility>
 
 namespace bdn
 {
@@ -17,7 +18,7 @@ namespace bdn
 
     std::shared_ptr<AppRunnerBase> getAppRunner() { return _getAppRunnerRef(); }
 
-    void _setAppRunner(std::shared_ptr<AppRunnerBase> pAppRunner) { _getAppRunnerRef() = pAppRunner; }
+    void _setAppRunner(std::shared_ptr<AppRunnerBase> pAppRunner) { _getAppRunnerRef() = std::move(pAppRunner); }
 
     void AppRunnerBase::prepareLaunch()
     {
@@ -56,8 +57,9 @@ namespace bdn
 
     void AppRunnerBase::terminating()
     {
-        if (_appControllerBeginLaunchCalled)
+        if (_appControllerBeginLaunchCalled) {
             AppControllerBase::get()->onTerminate();
+        }
 
         // the main dispatcher may still contain some pending items. However,
         // when we return from terminating then the destruction of global
@@ -71,25 +73,5 @@ namespace bdn
         disposeMainDispatcher();
 
         platformSpecificCleanup();
-    }
-
-    bool AppRunnerBase::unhandledException(bool canKeepRunning)
-    {
-        UnhandledException unhandled(std::current_exception(), canKeepRunning);
-
-        BDN_LOG_AND_IGNORE_EXCEPTION(
-            {
-                std::shared_ptr<AppControllerBase> appController = AppControllerBase::get();
-                if (appController != nullptr)
-                    appController->unhandledProblem(unhandled);
-            },
-            "Exception while notifying app controller of unhandled exception. "
-            "Ignoring the additional exception.");
-
-        if (unhandled.shouldKeepRunning())
-            return true;
-
-        debugBreak();
-        return false;
     }
 }

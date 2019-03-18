@@ -1,17 +1,19 @@
 #include <bdn/Stack.h>
 #include <bdn/StackCore.h>
 
+#include <utility>
+
 namespace bdn
 {
 
     Stack::Stack(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
-    Stack::~Stack() {}
+    Stack::~Stack() = default;
 
     void Stack::pushView(std::shared_ptr<View> view, String title)
     {
         if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
-            core->pushView(view, title);
+            core->pushView(std::move(view), std::move(title));
         }
     }
 

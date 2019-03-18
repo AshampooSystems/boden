@@ -2,7 +2,7 @@
 
 #include <bdn/Base.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 namespace bdn::java
 {
@@ -19,7 +19,7 @@ namespace bdn::java
     class Env : public Base
     {
       public:
-        ~Env();
+        ~Env() override;
 
         /** Static function that returns a reference to the Env instance for
          * the current thread. The instance cannot be used in other threads.
@@ -38,8 +38,9 @@ namespace bdn::java
             // note that it is safe to cache the pointer since the Env
             // objects are all thread local (and the JNIEnv stays the same
             // for the same thread).
-            if (_envIfKnown == nullptr)
+            if (_envIfKnown == nullptr) {
                 setEnv(env, false);
+            }
         }
 
         /** Returns the Jni environment object.
@@ -48,32 +49,11 @@ namespace bdn::java
          **/
         JNIEnv *getJniEnv()
         {
-            if (_envIfKnown == nullptr)
+            if (_envIfKnown == nullptr) {
                 createEnv();
+            }
             return _envIfKnown;
         }
-
-        /** If the last JAVA call produced an exception then this is thrown
-         * as a C++ exception and the exception is cleared from the global
-         * state. Since the exception is cleared, a second call to
-         * throwAndClearExceptionFromLastJavaCall() will return without any
-         * exception.
-         *
-         *  If the Java exception is a wrapped C++ exception then the
-         * original C++ exception is thrown.
-         * */
-        void throwAndClearExceptionFromLastJavaCall();
-
-        /** "Throws" an exception on the java side. A java exception object
-         * is created and stored as the result of the currently active JNI
-         * call. Once the JNI function returns that exception will be thrown
-         * on the java side.
-         *
-         *  If the exception is a wrapped java exception then the original
-         * java exception is thrown on the java side.
-         *
-         *  */
-        void setJavaSideException(const std::exception_ptr &exceptionPtr);
 
         /** Used internally. Do not call.*/
         static void _onLoad(JavaVM *vm);

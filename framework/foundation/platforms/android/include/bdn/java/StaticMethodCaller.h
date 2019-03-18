@@ -88,8 +88,6 @@ namespace bdn::java
 
         va_end(argList);
 
-        throwAndClearExceptionFromLastJavaCall();
-
         return result;
     }
 
@@ -101,8 +99,6 @@ namespace bdn::java
         callJavaStaticMethodStoreExceptV<void>(cls, methodId, argList);
 
         va_end(argList);
-
-        throwAndClearExceptionFromLastJavaCall();
     }
 
     /** Calls Java-side static functions with the return type specified by
@@ -127,7 +123,7 @@ namespace bdn::java
     template <typename NativeReturnType> class StaticMethodCaller
     {
       public:
-        typedef typename TypeConversion<NativeReturnType>::JavaType JavaReturnType;
+        using JavaReturnType = typename TypeConversion<NativeReturnType>::JavaType;
 
         template <typename... Arguments> static NativeReturnType call(jclass cls, jmethodID methodId, Arguments... args)
         {
@@ -140,7 +136,7 @@ namespace bdn::java
     template <> class StaticMethodCaller<void>
     {
       public:
-        typedef void JavaReturnType;
+        using JavaReturnType = void;
 
         template <typename... Arguments> static void call(jclass cls, jmethodID methodId, Arguments... args)
         {

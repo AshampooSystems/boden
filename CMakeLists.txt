@@ -25,6 +25,13 @@ fix_ios_package()
 # 3rdParty support libraries
 add_subdirectory(3rdparty)
 
+# Clang-tidy
+option(BDN_ENABLE_CLANG_TIDY "Enable clang-tidy during build" OFF)
+set(BDN_CLANG_TIDY_EXECUTABLE "/usr/local/opt/llvm/bin/clang-tidy" CACHE STRING "The path to the clang-tidy executable")
+
+set(BDN_CLANG_TIDY_EXTRA_OPTIONS "" CACHE STRING "Extra options for clang-tidy")
+set(BDN_CLANG_TIDY_OPTIONS ${BDN_CLANG_TIDY_EXECUTABLE} ${BDN_CLANG_TIDY_EXTRA_OPTIONS} )
+
 # Main Library
 add_subdirectory(framework)
 

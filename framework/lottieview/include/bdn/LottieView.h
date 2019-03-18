@@ -24,7 +24,7 @@ namespace bdn
 
       public:
         LottieView(std::shared_ptr<UIProvider> uiProvider = nullptr);
-        virtual ~LottieView() = default;
+        ~LottieView() override = default;
 
       public:
         void loadURL(const String &url);
@@ -32,6 +32,6 @@ namespace bdn
         String viewCoreTypeName() const override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
     };
 }

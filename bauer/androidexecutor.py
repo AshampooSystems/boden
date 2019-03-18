@@ -180,15 +180,7 @@ class AndroidExecutor:
         # Use external CMake for building native code (supported as of AndroidStudio 3.2)
         generator = AndroidStudioProjectGenerator(self.gradle, self.cmake, buildDir, self.androidBuildApiVersion)
 
-        generator.generate(project, androidAbi, target_dependencies, args);
-       
-        # At the time of this writing, Android Studio will not detect when new source files
-        # have been added (even if we do a gradle sync, syncs on the cmake file, etc.).
-        # To force re-detection of that we delete the .idea folder.
-        idea_dir = os.path.join( buildDir, ".idea")
-        if os.path.exists(idea_dir):
-            self.logger.info("Deleting .idea folder in build dir to force re-detection of files." )
-            shutil.rmtree( idea_dir )
+        generator.generate(project, androidAbi, target_dependencies, args)
 
     def getToolEnv(self):
         toolEnv = os.environ

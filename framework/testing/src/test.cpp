@@ -5001,12 +5001,6 @@ namespace bdn
 
             bool useColor = (config && config->forceColour()) || isatty(STDOUT_FILENO);
 
-#if BDN_PLATFORM_OSX
-            // the Xcode debugger cannot handle Ansi color codes.
-            if (useColor && bdn::_isDebuggerActive())
-                useColor = false;
-#endif
-
             return useColor ? PosixColourImpl::instance() : NoColourImpl::instance();
         }
 

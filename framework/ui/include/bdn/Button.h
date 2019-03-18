@@ -24,7 +24,7 @@ namespace bdn
 
         String viewCoreTypeName() const override { return coreTypeName; }
 
-        virtual void bindViewCore() override
+        void bindViewCore() override
         {
             View::bindViewCore();
             auto buttonCore = core<ButtonCore>();

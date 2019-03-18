@@ -10,6 +10,7 @@
 #include <bdn/AppRunnerBase.h>
 
 #include <iostream>
+#include <utility>
 
 using namespace bdn;
 
@@ -19,7 +20,7 @@ class RedditPost
 {
   public:
     RedditPost() = default;
-    RedditPost(String title_, String url_, String thumbnailUrl_)
+    RedditPost(const String &title_, const String &url_, const String &thumbnailUrl_)
     {
         title = title_;
         url = url_;
@@ -34,7 +35,7 @@ class RedditPost
 class RedditStore
 {
   public:
-    void fetchPosts(std::function<void()> doneHandler)
+    void fetchPosts(const std::function<void()> &doneHandler)
     {
         auto response = net::http::request(
             {bdn::net::http::Method::GET, "https://www.reddit.com/hot.json?limit=100", [this, doneHandler](auto r) {
@@ -103,7 +104,7 @@ class RedditListViewDataSource : public ListViewDataSource
     };
 
   public:
-    RedditListViewDataSource(std::shared_ptr<RedditStore> store) { _store = store; }
+    explicit RedditListViewDataSource(std::shared_ptr<RedditStore> store) { _store = std::move(store); }
 
     size_t numberOfRows() override { return _store->posts.size(); }
 
@@ -182,7 +183,8 @@ class PostListViewController : public Base
 class PostDetailController : public Base
 {
   public:
-    PostDetailController(String title, String url, String imageUrl) : _mainColumn(std::make_shared<ContainerView>())
+    PostDetailController(const String &title, const String &url, const String &imageUrl)
+        : _mainColumn(std::make_shared<ContainerView>())
     {
         _mainColumn->setLayoutStylesheet(Flex() << FlexGrow(1.0f));
 

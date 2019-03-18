@@ -14,15 +14,15 @@ namespace bdn::ios
 
       public:
         ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~ListViewCore() = default;
+        ~ListViewCore() override = default;
 
-        virtual void reloadData() override;
-        virtual void refreshDone() override;
+        void reloadData() override;
+        void refreshDone() override;
 
         void fireRefresh();
 
       protected:
-        virtual void init() override;
+        void init() override;
 
         void updateRefresh(bool enable);
 

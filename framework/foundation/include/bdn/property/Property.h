@@ -367,7 +367,7 @@ namespace bdn
       private:
         template <typename> struct int_
         {
-            typedef int type;
+            using type = int;
         };
 
         template <typename T> class overloadsArrowOperator
@@ -396,8 +396,7 @@ namespace bdn
 
         Property() : _backing(std::make_shared<internal_backing_t>()) {}
         Property(const Property &) = delete;
-        Property(Property &&) = default;
-        virtual ~Property() = default;
+        ~Property() override = default;
 
         /** Constructs a Property instance from a given value */
         Property(ValType value) : _backing(std::make_shared<internal_backing_t>())
@@ -459,8 +458,9 @@ namespace bdn
         /** Assigns the given property value */
         Property &operator=(const Property &otherProperty)
         {
-            if (&otherProperty == this)
+            if (&otherProperty == this) {
                 return *this;
+            }
 
             _backing->set(otherProperty.backing()->get());
             return *this;
@@ -480,7 +480,7 @@ namespace bdn
         auto &onChange() const { return _backing->onChange(); }
 
         /** Copies and returns the current property value */
-        ValType get() const { return _backing->get(); }
+        ValType get() const override { return _backing->get(); }
 
         /** Connects the property's backing to another property's backing */
         const Property &connect(const Property<ValType> &otherProperty) const

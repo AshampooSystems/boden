@@ -48,19 +48,25 @@ namespace bdn::mac
         if (cpp20::starts_with(url, "file://")) {
             NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
             NSString *localPath = nsurl.relativePath;
-            animationView = [LOTAnimationView animationWithFilePath:localPath];
+            if (localPath != nullptr) {
+                animationView = [LOTAnimationView animationWithFilePath:localPath];
+            }
         } else {
             NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
-            animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsurl];
+            if (nsurl != nullptr) {
+                animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsurl];
+            }
         }
 
-        [nsView() addSubview:animationView];
+        if (animationView != nullptr) {
+            [nsView() addSubview:animationView];
 
-        if (running.get()) {
-            play();
-        }
-        if (loop.get()) {
-            animationView.loopAnimation = YES;
+            if (running.get()) {
+                play();
+            }
+            if (loop.get()) {
+                animationView.loopAnimation = YES;
+            }
         }
     }
 

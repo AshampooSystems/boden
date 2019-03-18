@@ -24,21 +24,8 @@ namespace bdn::java
       public:
         WeakReference(const Reference &o);
 
-        /** Copy constructor.*/
-        WeakReference(const WeakReference &o) : _shared(o._shared) {}
-
-        /** Move constructor.*/
-        WeakReference(WeakReference &&o) : _shared(std::move(o._shared)) {}
-
         /** Constructs a null-reference*/
-        WeakReference() {}
-
-        WeakReference &operator=(const WeakReference &o)
-        {
-            _shared = o._shared;
-
-            return *this;
-        }
+        WeakReference() = default;
 
         /** Returns a strong reference to the Java object. The returned
          * reference may be null if the java-side object was already
@@ -60,7 +47,7 @@ namespace bdn::java
           public:
             Shared(jobject ref) { _ref = ref; }
 
-            ~Shared();
+            ~Shared() override;
 
             jobject getJObject() const { return _ref; }
 

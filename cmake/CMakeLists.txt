@@ -28,7 +28,8 @@ set(_CMAKE_TEMPLATES
     templates/combined_header.h.in)
 
 set(_CLANG_FORMAT
-    ../.clang-format)
+    ../.clang-format
+    ../.clang-tidy)
 
 set(_CMAKE_SCRIPTS )
 

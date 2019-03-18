@@ -100,7 +100,7 @@ namespace bdn::mac
             }
         }
 
-        _backButton.hidden = _stack.size() < 2;
+        _backButton.hidden = static_cast<BOOL>(_stack.size() < 2);
 
         _container->removeAllChildViews();
 

@@ -21,7 +21,7 @@ namespace bdn::android
 
       public:
         WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~WindowCore();
+        ~WindowCore() override;
 
         void enableBackButton(bool enable);
 
@@ -31,7 +31,7 @@ namespace bdn::android
 
         static void _rootViewSizeChanged(const java::Reference &javaRef, int width, int height);
 
-        static void _rootViewConfigurationChanged(const java::Reference &javaRef, wrapper::Configuration config);
+        static void _rootViewConfigurationChanged(const java::Reference &javaRef, const wrapper::Configuration &config);
 
         static bool _handleBackPressed(const java::Reference &javaRef);
 
@@ -39,7 +39,7 @@ namespace bdn::android
 
         void scheduleLayout() override;
 
-        virtual void init() override;
+        void init() override;
 
         void initTag() override;
 
@@ -69,12 +69,12 @@ namespace bdn::android
 
         virtual bool handleBackPressed();
 
-        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
 
-        virtual void updateGeometry() override;
+        void updateGeometry() override;
 
       private:
-        void updateContent(std::shared_ptr<View> view);
+        void updateContent(const std::shared_ptr<View> &view);
 
         Rect getScreenWorkArea() const;
 
@@ -98,8 +98,9 @@ namespace bdn::android
             void remove(const java::Reference &javaRef)
             {
                 auto it = std::find(_rootViewList.begin(), _rootViewList.end(), javaRef);
-                if (it != _rootViewList.end())
+                if (it != _rootViewList.end()) {
                     _rootViewList.erase(it);
+                }
             }
 
             /** Returns the a strong java reference to the most recently
@@ -120,8 +121,9 @@ namespace bdn::android
                 while (!_rootViewList.empty()) {
                     java::Reference javaRef = _rootViewList.back().toStrong();
 
-                    if (!javaRef.isNull())
+                    if (!javaRef.isNull()) {
                         return javaRef;
+                    }
 
                     // java-side object has been disposed or garbage
                     // collected. Remove the entry from the list.

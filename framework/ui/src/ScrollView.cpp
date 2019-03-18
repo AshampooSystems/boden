@@ -42,11 +42,12 @@ namespace bdn
         return {};
     }
 
-    void ScrollView::childViewStolen(std::shared_ptr<View> childView)
+    void ScrollView::childViewStolen(const std::shared_ptr<View> &childView)
     {
         AppRunnerBase::assertInMainThread();
 
-        if (childView == content.get())
+        if (childView == content.get()) {
             content = nullptr;
+        }
     }
 }

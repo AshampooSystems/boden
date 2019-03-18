@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/Dip.h>
 #include <bdn/View.h>
 #include <bdn/ViewCore.h>
 
@@ -15,6 +14,8 @@
 #include <bdn/UIProvider.h>
 #include <bdn/android/ContextWrapper.h>
 
+#include <utility>
+
 using namespace std::string_literals;
 
 namespace bdn::android
@@ -25,9 +26,9 @@ namespace bdn::android
 
       public:
         ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::View jView)
-            : bdn::ViewCore(uiProvider), _jView(jView)
+            : bdn::ViewCore(uiProvider), _jView(std::move(std::move(jView)))
         {}
-        virtual ~ViewCore();
+        ~ViewCore() override;
 
       public:
         wrapper::View &getJView() { return _jView; }
@@ -65,7 +66,7 @@ namespace bdn::android
 
       private:
         mutable wrapper::View _jView;
-        double _uiScaleFactor;
+        double _uiScaleFactor{};
 
         mutable double _emDipsIfInitialized = -1;
         mutable double _semDipsIfInitialized = -1;

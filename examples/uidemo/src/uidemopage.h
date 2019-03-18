@@ -134,7 +134,7 @@ namespace bdn
 
         auto lottieView = std::make_shared<LottieView>();
         lottieView->setLayoutStylesheet(FlexJsonStringify({"size" : {"width" : 50, "height" : 50}}));
-        lottieView->url = "https://maddinas.myqnapcloud.com:8989/4964-check-mark-success-animation.json";
+        lottieView->url = "https://img.ashampoo.com/ashampoo.com_images/img/1/external/Boden/example-animation.json";
         container->addChildView(makeRow("Lottie", lottieView));
 
         lottieView->running = true;

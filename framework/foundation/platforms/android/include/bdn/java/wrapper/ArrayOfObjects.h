@@ -16,9 +16,7 @@ namespace bdn::java::wrapper
 
             Class &elementClass = ELEMENT_TYPE::getStaticClass_();
 
-            jobjectArray result = jniEnv->NewObjectArray(length, (jclass)elementClass.getJObject_(), (jobject)0);
-
-            env.throwAndClearExceptionFromLastJavaCall();
+            jobjectArray result = jniEnv->NewObjectArray(length, (jclass)elementClass.getJObject_(), (jobject) nullptr);
 
             return Reference::convertAndDestroyOwnedLocal(result);
         }
@@ -39,10 +37,8 @@ namespace bdn::java::wrapper
             bdn::java::Env &env = bdn::java::Env::get();
             JNIEnv *jniEnv = env.getJniEnv();
 
-            jarray javaRef = (jarray)getJObject_();
+            auto javaRef = (jarray)getJObject_();
             jsize result = jniEnv->GetArrayLength(javaRef);
-
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return (size_t)result;
         }
@@ -53,10 +49,8 @@ namespace bdn::java::wrapper
             bdn::java::Env &env = bdn::java::Env::get();
             JNIEnv *jniEnv = env.getJniEnv();
 
-            jobjectArray javaRef = (jobjectArray)getJObject_();
+            auto javaRef = (jobjectArray)getJObject_();
             jobject result = jniEnv->GetObjectArrayElement(javaRef, index);
-
-            env.throwAndClearExceptionFromLastJavaCall();
 
             return ELEMENT_TYPE(Reference::convertAndDestroyOwnedLocal(result));
         }
@@ -67,10 +61,8 @@ namespace bdn::java::wrapper
             bdn::java::Env &env = bdn::java::Env::get();
             JNIEnv *jniEnv = env.getJniEnv();
 
-            jobjectArray javaRef = (jobjectArray)getJObject_();
+            auto javaRef = (jobjectArray)getJObject_();
             jniEnv->SetObjectArrayElement(javaRef, index, element.getJObject_());
-
-            env.throwAndClearExceptionFromLastJavaCall();
         }
 
         /** Returns the JClass object for this class.

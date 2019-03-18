@@ -17,13 +17,13 @@ namespace bdn::ios
         StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
 
       public:
-        virtual void init() override;
+        void init() override;
 
-        virtual void frameChanged() override;
-        virtual void onGeometryChanged(Rect newGeometry) override;
+        void frameChanged() override;
+        void onGeometryChanged(Rect newGeometry) override;
 
-        virtual void pushView(std::shared_ptr<View> view, String title) override;
-        virtual void popView() override;
+        void pushView(std::shared_ptr<View> view, String title) override;
+        void popView() override;
 
         std::list<std::shared_ptr<View>> childViews() override;
 

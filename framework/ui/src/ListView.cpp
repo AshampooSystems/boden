@@ -18,7 +18,7 @@ namespace bdn
         listCore->refreshDone();
     }
 
-    String ListView::viewCoreTypeName() const { return coreTypeName; }
+    String ListView::viewCoreTypeName() const { return String((const char *)coreTypeName); }
 
     void ListView::bindViewCore()
     {

@@ -5,7 +5,7 @@ namespace bdn
 {
     ImageView::ImageView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
 
-    String ImageView::viewCoreTypeName() const { return coreTypeName; }
+    String ImageView::viewCoreTypeName() const { return String(static_cast<const char *>(coreTypeName)); }
 
     void ImageView::bindViewCore()
     {

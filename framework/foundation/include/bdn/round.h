@@ -30,8 +30,9 @@ namespace bdn
        information.*/
     inline double stableScaledRoundNearest(double value, double scaleFactor)
     {
-        if (scaleFactor == 0)
+        if (scaleFactor == 0) {
             throw InvalidArgumentError("stableScaledRoundNearest called with zero scaleFactor");
+        }
 
         // rounding to the nearest boundary is always stable. So we can simply
         // round directly.
@@ -100,15 +101,18 @@ namespace bdn
     */
     inline double stableScaledRoundUp(double value, double scaleFactor)
     {
-        if (scaleFactor == 0)
+        if (scaleFactor == 0) {
             throw InvalidArgumentError("stableScaledRoundUp called with zero scaleFactor");
+        }
 
         if (_isOnScaledRoundingBoundary(value, scaleFactor)) {
             // we can consider the number to be "on" the rounding boundary. Do
             // not round again.
             return value;
-        } else
+        }
+        {
             return std::ceil(value * scaleFactor) / scaleFactor;
+        }
     }
 
     /** Performs a stable, scaled rounding operation, down to the next smaller
@@ -118,15 +122,18 @@ namespace bdn
        rounds down, not up. See stableScaledRoundUp() for more information.*/
     inline double stableScaledRoundDown(double value, double scaleFactor)
     {
-        if (scaleFactor == 0)
+        if (scaleFactor == 0) {
             throw InvalidArgumentError("stableScaledRoundDown called with zero scaleFactor");
+        }
 
         if (_isOnScaledRoundingBoundary(value, scaleFactor)) {
             // we can consider the number to be "on" the rounding boundary. Do
             // not round again.
             return value;
-        } else
+        }
+        {
             return std::floor(value * scaleFactor) / scaleFactor;
+        }
     }
 
     /** Performs a stable, scaled rounding operation. The rounding type is
@@ -139,11 +146,12 @@ namespace bdn
         */
     inline double stableScaledRound(RoundType roundType, double value, double scaleFactor)
     {
-        if (roundType == RoundType::down)
+        if (roundType == RoundType::down) {
             return stableScaledRoundDown(value, scaleFactor);
-        else if (roundType == RoundType::up)
+        }
+        if (roundType == RoundType::up) {
             return stableScaledRoundUp(value, scaleFactor);
-        else
-            return stableScaledRoundNearest(value, scaleFactor);
+        }
+        return stableScaledRoundNearest(value, scaleFactor);
     }
 }

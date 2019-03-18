@@ -121,7 +121,7 @@ namespace bdn
             ;
     };
 
-    inline std::ostream &operator<<(std::ostream &os, config const &)
+    inline std::ostream &operator<<(std::ostream &os, config const & /*unused*/)
     {
         os << "target = " << config::target << std::endl;
         os << "platform_family = " << config::platform_family << std::endl;

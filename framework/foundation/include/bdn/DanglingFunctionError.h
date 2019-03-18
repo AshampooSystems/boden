@@ -3,6 +3,7 @@
 #include <bdn/String.h>
 
 #include <stdexcept>
+#include <utility>
 
 namespace bdn
 {
@@ -21,7 +22,7 @@ namespace bdn
     class DanglingFunctionError : public std::bad_function_call
     {
       public:
-        DanglingFunctionError(const String &message) : _message(message) {}
+        DanglingFunctionError(String message) : _message(std::move(message)) {}
 
         DanglingFunctionError() : _message("A function with a dangling target reference was called.") {}
 

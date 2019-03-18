@@ -20,6 +20,7 @@ namespace bdn
 
         template <class ActualType> static ConstructionBaseClass instantiateNew(ConstructionArguments... args)
         {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
             return new ActualType(args...);
         }
 

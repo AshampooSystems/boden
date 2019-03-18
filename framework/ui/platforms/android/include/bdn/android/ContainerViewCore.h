@@ -19,23 +19,23 @@ namespace bdn::android
       public:
         ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
         ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::View jView)
-            : ViewCore(uiProvider, jView)
+            : ViewCore(uiProvider, std::move(jView))
         {}
 
-        virtual ~ContainerViewCore();
+        ~ContainerViewCore() override;
 
       public:
         double getUIScaleFactor() const override;
 
-        virtual void addChildView(std::shared_ptr<View> child) override;
-        virtual void removeChildView(std::shared_ptr<View> child) override;
-        virtual std::list<std::shared_ptr<View>> childViews() override;
+        void addChildView(std::shared_ptr<View> child) override;
+        void removeChildView(std::shared_ptr<View> child) override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
       private:
         std::list<std::shared_ptr<View>> _children;
 
         // ViewCore interface
       public:
-        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
     };
 }

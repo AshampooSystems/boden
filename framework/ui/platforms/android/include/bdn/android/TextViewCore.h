@@ -47,13 +47,13 @@ namespace bdn::android
         Size sizeForSpace(Size availableSpace = Size::none()) const override
         {
             if (_wrap) {
-                _jTextView.setMaxWidth(availableSpace.width * getUIScaleFactor());
+                _jTextView.setMaxWidth((int)(availableSpace.width * getUIScaleFactor()));
             }
 
             Size result = ViewCore::sizeForSpace(availableSpace);
 
             if (_wrap) {
-                _jTextView.setMaxWidth(geometry->width * getUIScaleFactor());
+                _jTextView.setMaxWidth((int)(geometry->width * getUIScaleFactor()));
             }
 
             return result;

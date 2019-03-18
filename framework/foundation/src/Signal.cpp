@@ -62,8 +62,9 @@ namespace bdn
 
             // note that there can be no race conditions here because all
             // waiting threads will lock the mutex after their wait returns.
-            if (_waitingCount > 0)
+            if (_waitingCount > 0) {
                 _pulseOneLeft++;
+            }
 
             _condition.notify_one();
         }
@@ -75,9 +76,9 @@ namespace bdn
 
         // This is similar to the process in pulseOne. See comments there.
 
-        if (_signalled)
+        if (_signalled) {
             _signalled = false;
-        else {
+        } else {
             _pulseAllCounter++;
             _condition.notify_all();
         }
@@ -96,14 +97,16 @@ namespace bdn
 
     bool Signal::wait(IDispatcher::Duration timeout)
     {
-        if (timeout == IDispatcher::Duration::zero())
+        if (timeout == IDispatcher::Duration::zero()) {
             return isSet();
+        }
 
         // we must use steady_clock here, to ensure that clock changes do not
         // mess up our timeout
         IDispatcher::TimePoint absoluteTimeoutTime;
-        if (timeout > IDispatcher::Duration::zero())
+        if (timeout > IDispatcher::Duration::zero()) {
             absoluteTimeoutTime = IDispatcher::Clock::now() + timeout;
+        }
 
         // we must lock the mutex with unique_lock so that the condition
         // variable can unlock it.
@@ -123,9 +126,9 @@ namespace bdn
 
                 // the wait functions will release the lock while we wait and
                 // then reacquire it before they return.
-                if (timeout < IDispatcher::Duration::zero())
+                if (timeout < IDispatcher::Duration::zero()) {
                     _condition.wait(lock);
-                else {
+                } else {
                     std::cv_status waitResult;
 
                     if (waitIteration == 0) {
@@ -162,7 +165,8 @@ namespace bdn
                 // signalled.
                 _pulseOneLeft--;
                 return true;
-            } else if (_pulseAllCounter != pulseAllCounterBefore) {
+            }
+            if (_pulseAllCounter != pulseAllCounterBefore) {
                 // A signalAll or set() has occurred since we started waiting.
                 // So this is a real wakeup.
                 return true;

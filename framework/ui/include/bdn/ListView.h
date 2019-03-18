@@ -20,7 +20,7 @@ namespace bdn
 
       public:
         ListView(std::shared_ptr<UIProvider> uiProvider = nullptr);
-        virtual ~ListView() = default;
+        ~ListView() override = default;
 
       public:
         void reloadData();
@@ -30,7 +30,7 @@ namespace bdn
         String viewCoreTypeName() const override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
 
       private:
         SimpleNotifier<> _refreshNotifier;

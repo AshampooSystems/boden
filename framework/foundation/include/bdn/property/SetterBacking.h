@@ -20,9 +20,9 @@ namespace bdn
         SetterBacking(ValType value) : _value(value) {}
         SetterBacking(SetterFunc setter) : _setter(setter) {}
 
-        virtual ValType get() const override { return _value; }
+        ValType get() const override { return _value; }
 
-        virtual void set(const ValType &value, bool notify = true) override
+        void set(const ValType &value, bool notify = true) override
         {
             if (_setter == nullptr) {
                 _value = value;

@@ -4,6 +4,10 @@
 #include <bdn/String.h>
 #include <bdn/property/Property.h>
 
+#include <utility>
+
+#include <utility>
+
 namespace bdn
 {
     namespace net
@@ -30,7 +34,7 @@ namespace bdn
 
           public:
             //! The http method
-            http::Method method;
+            http::Method method{bdn::net::http::Method::GET};
             //! The http url
             String url;
             //! Additional header fields for PUT requests
@@ -41,10 +45,11 @@ namespace bdn
           public:
             HTTPRequest() = default;
             HTTPRequest(String requestUrl, DoneHandler requestDoneHandler)
-                : method(bdn::net::http::Method::GET), url(requestUrl), doneHandler(requestDoneHandler)
+                : url(std::move(std::move(requestUrl))), doneHandler(std::move(std::move(requestDoneHandler)))
             {}
             HTTPRequest(http::Method requestMethod, String requestUrl, DoneHandler requestDoneHandler)
-                : method(requestMethod), url(requestUrl), doneHandler(requestDoneHandler)
+                : method(requestMethod), url(std::move(std::move(requestUrl))),
+                  doneHandler(std::move(std::move(requestDoneHandler)))
             {}
         };
     }

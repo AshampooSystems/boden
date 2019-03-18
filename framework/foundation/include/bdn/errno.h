@@ -44,9 +44,7 @@ namespace bdn
     {
         if (config::is_family_posix) {
             return SystemError(errnoCode, std::system_category(), fields.toString());
-
-        } else {
-            return SystemError(errnoCode, std::generic_category(), fields.toString());
         }
+        return SystemError(errnoCode, std::generic_category(), fields.toString());
     }
 }

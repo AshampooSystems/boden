@@ -18,10 +18,10 @@ namespace bdn::mac
       public:
         ViewCore() = delete;
         ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *nsView);
-        virtual ~ViewCore() = default;
+        ~ViewCore() override = default;
 
       public:
-        virtual void init() override;
+        void init() override;
 
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
@@ -32,9 +32,9 @@ namespace bdn::mac
 
         void frameChanged();
 
-        virtual void scheduleLayout() override;
+        void scheduleLayout() override;
 
-        virtual Size sizeForSpace(Size availableSpace) const override;
+        Size sizeForSpace(Size availableSpace) const override;
 
       protected:
         virtual double getFontSize() const
@@ -48,16 +48,18 @@ namespace bdn::mac
 
         double getEmSizeDips() const
         {
-            if (_emDipsIfInitialized == -1)
+            if (_emDipsIfInitialized == -1) {
                 _emDipsIfInitialized = getFontSize();
+            }
 
             return _emDipsIfInitialized;
         }
 
         double getSemSizeDips() const
         {
-            if (_semDipsIfInitialized == -1)
+            if (_semDipsIfInitialized == -1) {
                 _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
+            }
 
             return _semDipsIfInitialized;
         }

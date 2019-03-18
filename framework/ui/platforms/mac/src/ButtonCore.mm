@@ -9,8 +9,9 @@
 
 - (void)clicked
 {
-    if (auto buttonCore = _buttonCore.lock())
+    if (auto buttonCore = _buttonCore.lock()) {
         buttonCore->handleClick();
+    }
 }
 
 @end
@@ -28,21 +29,19 @@ namespace bdn::mac
     }
 
     ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, _createNsButton())
+        : bdn::mac::ViewCore(uiProvider, _createNsButton()), _currBezelStyle(NSBezelStyleRounded)
     {}
 
     void ButtonCore::init()
     {
         bdn::mac::ViewCore::init();
 
-        _currBezelStyle = NSBezelStyleRounded;
-
         _clickManager = [[BdnButtonClickManager alloc] init];
         _clickManager.buttonCore = std::dynamic_pointer_cast<ButtonCore>(shared_from_this());
         [(NSButton *)nsView() setTarget:_clickManager];
         [(NSButton *)nsView() setAction:@selector(clicked)];
 
-        _heightWithRoundedBezelStyle = macSizeToSize(nsView().fittingSize).height;
+        _heightWithRoundedBezelStyle = (int)macSizeToSize(nsView().fittingSize).height;
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
         label.onChange() += [=](auto va) {
@@ -60,13 +59,15 @@ namespace bdn::mac
         // bezel style each time we calculate the size.
 
         NSBezelStyle bezelStyle = ((NSButton *)nsView()).bezelStyle;
-        if (bezelStyle != NSBezelStyleRounded)
+        if (bezelStyle != NSBezelStyleRounded) {
             ((NSButton *)nsView()).bezelStyle = NSBezelStyleRounded;
+        }
 
         Size size = ViewCore::sizeForSpace(availableSpace);
 
-        if (bezelStyle != NSBezelStyleRounded)
+        if (bezelStyle != NSBezelStyleRounded) {
             ((NSButton *)nsView()).bezelStyle = bezelStyle;
+        }
 
         return size;
     }
@@ -85,10 +86,11 @@ namespace bdn::mac
         // bezel.
         NSBezelStyle bezelStyle;
 
-        if (geometry->height > _heightWithRoundedBezelStyle * 1.1)
+        if (geometry->height > _heightWithRoundedBezelStyle * 1.1) {
             bezelStyle = NSBezelStyleRegularSquare;
-        else
+        } else {
             bezelStyle = NSBezelStyleRounded;
+        }
 
         if (bezelStyle != _currBezelStyle) {
             [(NSButton *)nsView() setBezelStyle:bezelStyle];

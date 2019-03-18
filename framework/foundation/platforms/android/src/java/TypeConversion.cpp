@@ -21,9 +21,11 @@ namespace bdn::java
 
     String TypeConversionBase_::_getStringFromJava(const Reference &ref)
     {
-        if (ref.isNull())
+        if (ref.isNull()) {
             return "";
-        else
+        }
+        {
             return wrapper::String(ref).getValue_();
+        }
     }
 }

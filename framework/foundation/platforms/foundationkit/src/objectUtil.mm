@@ -1,5 +1,6 @@
 
 #import <bdn/foundationkit/objectUtil.hh>
+#include <utility>
 
 #import <CoreFoundation/CoreFoundation.h>
 
@@ -30,14 +31,14 @@ namespace bdn
         NSObject *wrapIntoNSObject(std::shared_ptr<Base> p)
         {
             BdnFkNSObjectWrapper_ *wrapper = [BdnFkNSObjectWrapper_ alloc];
-            [wrapper setObject:p];
+            [wrapper setObject:std::move(p)];
 
             return wrapper;
         }
 
         std::shared_ptr<bdn::Base> unwrapFromNSObject(NSObject *ns)
         {
-            if (ns != nil && [ns isKindOfClass:[BdnFkNSObjectWrapper_ class]]) {
+            if (ns != nil && (static_cast<int>([ns isKindOfClass:[BdnFkNSObjectWrapper_ class]]) != 0)) {
                 std::shared_ptr<bdn::Base> p([(BdnFkNSObjectWrapper_ *)ns getObject]);
                 return p;
             }

@@ -36,7 +36,7 @@ namespace bdn
 
 #else
 
-    typedef std::invalid_argument InvalidArgumentError;
+    using InvalidArgumentError = std::invalid_argument;
 
 #endif
 }

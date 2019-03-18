@@ -2,6 +2,8 @@
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/wrapper/NativeRootView.h>
 
+#include <utility>
+
 namespace bdn::android
 {
 
@@ -15,10 +17,11 @@ namespace bdn::android
         // root view registry.
         wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
 
-        if (rootView.isNull_())
+        if (rootView.isNull_()) {
             throw ProgrammingError("WindowCore being created but there are no native root "
                                    "views available. You must create a NativeRootActivity "
                                    "or NativeRootView instance!");
+        }
 
         wrapper::NativeViewGroup viewGroup(rootView.getContext());
 
@@ -103,31 +106,34 @@ namespace bdn::android
 
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-        for (auto windowCore : windowCoreList)
+        for (const auto &windowCore : windowCoreList) {
             windowCore->rootViewDisposed();
+        }
     }
 
     void WindowCore::_rootViewSizeChanged(const java::Reference &javaRef, int width, int height)
     {
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-        for (auto windowCore : windowCoreList)
+        for (const auto &windowCore : windowCoreList) {
             windowCore->rootViewSizeChanged(width, height);
+        }
     }
 
-    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, wrapper::Configuration config)
+    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, const wrapper::Configuration &config)
     {
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-        for (auto windowCore : windowCoreList)
+        for (const auto &windowCore : windowCoreList) {
             windowCore->rootViewConfigurationChanged(config);
+        }
     }
 
     bool WindowCore::_handleBackPressed(const java::Reference &javaRef)
     {
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
-        for (auto windowCore : windowCoreList) {
+        for (const auto &windowCore : windowCoreList) {
             if (windowCore->handleBackPressed()) {
                 return true;
             }
@@ -172,7 +178,10 @@ namespace bdn::android
         geometry = _currentBounds;
     }
 
-    void WindowCore::rootViewConfigurationChanged(wrapper::Configuration config) { updateUIScaleFactor(config); }
+    void WindowCore::rootViewConfigurationChanged(wrapper::Configuration config)
+    {
+        updateUIScaleFactor(std::move(config));
+    }
 
     void WindowCore::attachedToNewRootView(const java::Reference &javaRef)
     {
@@ -188,7 +197,7 @@ namespace bdn::android
 
     bool WindowCore::handleBackPressed() { return false; }
 
-    void WindowCore::updateContent(std::shared_ptr<View> view)
+    void WindowCore::updateContent(const std::shared_ptr<View> &view)
     {
         wrapper::NativeViewGroup parentGroup(getJView().getRef_());
 
@@ -210,15 +219,14 @@ namespace bdn::android
         if (rootView.isNull_()) {
             // don't have a root view => work area size is 0
             return Rect();
-        } else {
-            int width = rootView.getWidth();
-            int height = rootView.getHeight();
-
-            // logInfo("screen area:
-            // ("+std::to_string(width)+"x"+std::to_string(height)+")");
-
-            return Rect(0, 0, width, height);
         }
+        int width = rootView.getWidth();
+        int height = rootView.getHeight();
+
+        // logInfo("screen area:
+        // ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
+        return Rect(0, 0, width, height);
     }
 
     void WindowCore::updateUIScaleFactor(wrapper::Configuration config)
@@ -265,6 +273,7 @@ namespace bdn::android
             accessibleRef = _weakRootViewRef.toStrong();
 
             if (accessibleRef.isNull()) {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                 const_cast<WindowCore *>(this)->rootViewDisposed();
             }
         }
@@ -274,7 +283,7 @@ namespace bdn::android
 
     void WindowCore::scheduleLayout() { getJView().requestLayout(); }
 
-    void WindowCore::visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function)
+    void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function)
     {
         if (content.get()) {
             function(content->viewCore());

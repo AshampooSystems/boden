@@ -26,7 +26,7 @@ namespace bdn::mac
         {
             _nsButton = (NSButton *)nsView();
 
-            _nsButton.allowsMixedState = true;
+            _nsButton.allowsMixedState = static_cast<BOOL>(true);
 
             label.onChange() += [=](auto va) {
                 NSString *macLabel = fk::stringToNSString(label);
@@ -35,7 +35,7 @@ namespace bdn::mac
 
             state.onChange() += [=](auto va) {
                 if (state == TriState::mixed) {
-                    _nsButton.allowsMixedState = true;
+                    _nsButton.allowsMixedState = static_cast<BOOL>(true);
                 }
                 _nsButton.state = triStateToNSControlStateValue(state);
             };
@@ -44,9 +44,9 @@ namespace bdn::mac
         void handleClick()
         {
             if (_nsButton.state == NSControlStateValueOff) {
-                _nsButton.allowsMixedState = false;
+                _nsButton.allowsMixedState = static_cast<BOOL>(false);
             } else {
-                _nsButton.allowsMixedState = true;
+                _nsButton.allowsMixedState = static_cast<BOOL>(true);
             }
             state = nsControlStateValueToTriState(_nsButton.state);
             _clickCallback.fire();

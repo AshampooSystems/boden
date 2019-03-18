@@ -58,34 +58,13 @@ namespace bdn::ios
         content.onChange() += [=](auto va) { updateContent(va->get()); };
     }
 
-    /* void ScrollViewCore::addChildViewCore(const std::shared_ptr<ViewCore> &core)
-     {
-         for (id subView in _uiScrollView.subviews)
-             [((UIView *)subView)removeFromSuperview];
-
-         _childGeometry = std::make_shared<Property<Rect>>();
-
-         _childGeometry->bind(core->geometry, BindMode::unidirectional);
-
-         _childGeometry->onChange() += [=](auto va) {
-             CGSize s;
-             s.width = va->get().width;
-             s.height = va->get().height;
-             _uiScrollView.contentSize = s;
-         };
-
-         [_uiScrollView addSubview:core->uiView()];
-     }*/
-
     void ScrollViewCore::updateContent(const std::shared_ptr<View> &content)
     {
-        for (id subView in _uiScrollView.subviews) {
-            [((UIView *)subView)removeFromSuperview];
-        }
+        [[_uiScrollView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
         _childGeometry.reset();
 
-        if (content.get()) {
+        if (content != nullptr) {
             if (auto childCore = content->core<ViewCore>()) {
                 _childGeometry = std::make_shared<Property<Rect>>();
 
@@ -124,28 +103,38 @@ namespace bdn::ios
         // first, clip the target rect to the client area.
         // This also automatically gets rid of infinity target positions
         // (which are allowed)
-        if (left > clientSize.width)
+        if (left > clientSize.width) {
             left = clientSize.width;
-        if (right > clientSize.width)
+        }
+        if (right > clientSize.width) {
             right = clientSize.width;
-        if (top > clientSize.height)
+        }
+        if (top > clientSize.height) {
             top = clientSize.height;
-        if (bottom > clientSize.height)
+        }
+        if (bottom > clientSize.height) {
             bottom = clientSize.height;
+        }
 
-        if (left < 0)
+        if (left < 0) {
             left = 0;
-        if (right < 0)
+        }
+        if (right < 0) {
             right = 0;
-        if (top < 0)
+        }
+        if (top < 0) {
             top = 0;
-        if (bottom < 0)
+        }
+        if (bottom < 0) {
             bottom = 0;
+        }
 
-        if (right < left)
+        if (right < left) {
             right = left;
-        if (bottom < top)
+        }
+        if (bottom < top) {
             bottom = top;
+        }
 
         Point scrollPos = iosPointToPoint(_uiScrollView.contentOffset);
 
@@ -213,21 +202,26 @@ namespace bdn::ios
                 double distanceTop = fabs(top - currVisibleTop);
                 double distanceBottom = fabs(bottom - currVisibleBottom);
 
-                if (distanceTop < distanceBottom)
+                if (distanceTop < distanceBottom) {
                     bottom = top + viewPortSize.height;
-                else
+                } else {
                     top = bottom - viewPortSize.height;
+                }
             }
         }
 
-        if (left < 0)
+        if (left < 0) {
             left = 0;
-        if (right < 0)
+        }
+        if (right < 0) {
             right = 0;
-        if (top < 0)
+        }
+        if (top < 0) {
             top = 0;
-        if (bottom < 0)
+        }
+        if (bottom < 0) {
             bottom = 0;
+        }
 
         // also, the rect must not be zero size. So we must move either the
         // left or right boundaries by one pixel (or top/bottom). We have a
@@ -241,12 +235,14 @@ namespace bdn::ios
 
         if (right == left) {
             if (scrollPos.x < left) {
-                if (right < 1)
+                if (right < 1) {
                     right = 1;
+                }
                 left = right - 1;
             } else {
-                if (left + 1 > clientSize.width)
+                if (left + 1 > clientSize.width) {
                     left = clientSize.width - 1;
+                }
 
                 right = left + 1;
             }
@@ -254,12 +250,14 @@ namespace bdn::ios
 
         if (bottom == top) {
             if (scrollPos.y < top) {
-                if (bottom < 1)
+                if (bottom < 1) {
                     bottom = 1;
+                }
                 top = bottom - 1;
             } else {
-                if (top + 1 > clientSize.height)
+                if (top + 1 > clientSize.height) {
                     top = clientSize.height - 1;
+                }
 
                 bottom = top + 1;
             }

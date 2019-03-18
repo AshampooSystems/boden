@@ -5,8 +5,6 @@
 
 namespace bdn::java
 {
-    void throwAndClearExceptionFromLastJavaCall() { Env::get().throwAndClearExceptionFromLastJavaCall(); }
-
     jobject callJavaObjectMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
     {
         return Env::get().getJniEnv()->CallObjectMethodV(obj, methodId, argList);

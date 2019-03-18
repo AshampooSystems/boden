@@ -15,16 +15,16 @@ namespace bdn::android
     {
       public:
         StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~StackCore();
+        ~StackCore() override;
 
         // StackCore interface
       public:
-        virtual void pushView(std::shared_ptr<View> view, String title) override;
-        virtual void popView() override;
-        virtual std::list<std::shared_ptr<View>> childViews() override;
+        void pushView(std::shared_ptr<View> view, String title) override;
+        void popView() override;
+        std::list<std::shared_ptr<View>> childViews() override;
 
       public:
-        virtual void visitInternalChildren(std::function<void(std::shared_ptr<bdn::ViewCore>)> function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
 
         bool handleBackButton();
 

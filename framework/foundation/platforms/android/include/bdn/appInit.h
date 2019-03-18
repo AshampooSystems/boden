@@ -3,7 +3,7 @@
 #include <bdn/android/appEntry.h>
 #include <bdn/platform/androidplatform.h>
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR(appControllerCreator)                                                     \
     extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch(JNIEnv *env, jclass cls,           \

@@ -17,7 +17,7 @@
 
 - (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextFieldCore>)core
 {
-    if ((self = [super init])) {
+    if ((self = [super init]) != nullptr) {
         self.core = core;
         textField.delegate = self;
 

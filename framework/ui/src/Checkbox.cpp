@@ -1,10 +1,12 @@
 
 #include <bdn/Checkbox.h>
 
+#include <utility>
+
 namespace bdn
 {
 
-    Checkbox::Checkbox(std::shared_ptr<UIProvider> uiProvider) : View(uiProvider)
+    Checkbox::Checkbox(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
     {
         _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
     }

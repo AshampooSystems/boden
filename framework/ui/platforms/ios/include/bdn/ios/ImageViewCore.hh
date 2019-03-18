@@ -16,6 +16,6 @@ namespace bdn::ios
 
       private:
         static UIView<UIViewWithFrameNotification> *createUIImageView();
-        virtual Size sizeForSpace(Size availableSize) const override;
+        Size sizeForSpace(Size availableSize) const override;
     };
 }

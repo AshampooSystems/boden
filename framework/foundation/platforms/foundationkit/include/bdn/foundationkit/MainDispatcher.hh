@@ -24,7 +24,7 @@ namespace bdn
 
           public:
             MainDispatcher();
-            ~MainDispatcher();
+            ~MainDispatcher() override;
 
             void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
@@ -49,7 +49,7 @@ namespace bdn
             class IdleQueue : public Base
             {
               public:
-                void add(std::function<void()> func) { _funcList.push_back(func); }
+                void add(const std::function<void()> &func) { _funcList.push_back(func); }
 
                 void activateNext();
 
@@ -68,7 +68,7 @@ namespace bdn
             void callTimedItem(std::list<std::function<void()>>::iterator it);
 
             bool _idleObserverInstalled = false;
-            CFRunLoopObserverRef _idleObserver;
+            CFRunLoopObserverRef _idleObserver{};
 
             std::recursive_mutex _queueMutex;
 

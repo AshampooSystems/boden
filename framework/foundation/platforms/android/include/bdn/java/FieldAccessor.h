@@ -31,7 +31,7 @@ namespace bdn::java
     template <class FieldKind, typename NATIVE_TYPE> class FieldAccessor
     {
       public:
-        typedef NATIVE_TYPE NativeType;
+        using NativeType = NATIVE_TYPE;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -50,7 +50,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, bool>
     {
       public:
-        typedef bool NativeType;
+        using NativeType = bool;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -69,7 +69,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, int>
     {
       public:
-        typedef int NativeType;
+        using NativeType = int;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -88,7 +88,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, short>
     {
       public:
-        typedef short NativeType;
+        using NativeType = short;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -107,7 +107,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, int64_t>
     {
       public:
-        typedef int64_t NativeType;
+        using NativeType = int64_t;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -126,7 +126,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, char32_t>
     {
       public:
-        typedef char32_t NativeType;
+        using NativeType = char32_t;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -145,7 +145,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, int8_t>
     {
       public:
-        typedef int8_t NativeType;
+        using NativeType = int8_t;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -164,7 +164,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, float>
     {
       public:
-        typedef float NativeType;
+        using NativeType = float;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {
@@ -183,7 +183,7 @@ namespace bdn::java
     template <class FieldKind> class FieldAccessor<FieldKind, double>
     {
       public:
-        typedef float NativeType;
+        using NativeType = float;
 
         static NativeType getValue(typename FieldKind::ContextJType context, jfieldID fieldId)
         {

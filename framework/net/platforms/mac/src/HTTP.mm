@@ -22,13 +22,16 @@ namespace bdn
 
                 NSURLSession *session = [NSURLSession sharedSession];
                 NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(request.url)];
+                if (nsURL == nullptr) {
+                    return nullptr;
+                }
 
                 NSURLSessionDataTask *dataTask = [session
                       dataTaskWithURL:nsURL
                     completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
                                         NSError *_Nullable error) {
                       getMainDispatcher()->enqueue([nsData, nsResponse, response]() {
-                          NSHTTPURLResponse *nsHTTPResponse = (NSHTTPURLResponse *)nsResponse;
+                          auto nsHTTPResponse = (NSHTTPURLResponse *)nsResponse;
 
                           response->url = fk::nsStringToString([nsHTTPResponse.URL absoluteString]);
                           response->responseCode = (int)nsHTTPResponse.statusCode;
@@ -36,8 +39,7 @@ namespace bdn
                           response->header =
                               fk::nsStringToString([NSString stringWithFormat:@"%@", nsHTTPResponse.allHeaderFields]);
 
-                          response->data =
-                              String((const char *)nsData.bytes, (const char *)nsData.bytes + nsData.length);
+                          response->data = String(static_cast<const char *>(nsData.bytes), nsData.length);
 
                           if (response->originalRequest.doneHandler) {
                               response->originalRequest.doneHandler(response);
@@ -45,8 +47,9 @@ namespace bdn
                       });
                     }];
 
-                [dataTask resume];
-
+                if (dataTask != nullptr) {
+                    [dataTask resume];
+                }
                 return response;
             }
         }

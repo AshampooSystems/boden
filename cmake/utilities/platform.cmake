@@ -109,81 +109,112 @@ macro(add_link_type_definitions TARGET)
 endmacro()
 
 macro(add_universal_library TARGET)
+    set(options TIDY)
+    set(oneValueArgs)
+    set(multiValueArgs SOURCES)
+    cmake_parse_arguments(_LIB "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
+
     if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-        # Static libs don't work well on android at the moment due to problems in build.py with dependency generation
-        add_library(${TARGET} SHARED ${ARGN})
+        add_library(${TARGET} SHARED ${_LIB_SOURCES})
     elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-        add_library(${TARGET} ${ARGN})
+        add_library(${TARGET} STATIC ${_LIB_SOURCES})
     endif()
+
+    if(_LIB_TIDY AND BDN_ENABLE_CLANG_TIDY)
+        message("Adding tidy target for ${TARGET} (${BDN_CLANG_TIDY_OPTIONS})")
+        set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "${BDN_CLANG_TIDY_OPTIONS}")
+    endif()
+
     add_clangformat(${TARGET})
     add_link_type_definitions(${TARGET})
 endmacro()
 
-macro(add_universal_executable TARGET CONSOLE_APP)
+macro(add_universal_executable TARGET)
+    set(options TIDY CONSOLE)
+    set(oneValueArgs)
+    set(multiValueArgs SOURCES)
+    cmake_parse_arguments(_APP "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
+
+
     if(BDN_PLATFORM_IOS)
-        add_executable(${TARGET} MACOSX_BUNDLE ${ARGN} )
+        add_executable(${TARGET} MACOSX_BUNDLE ${_APP_SOURCES} )
     elseif(BDN_PLATFORM_OSX)
         if(${CONSOLE_APP})
-            add_executable(${TARGET} ${ARGN} )
+            add_executable(${TARGET} ${_APP_SOURCES} )
         else()
-            add_executable(${TARGET} MACOSX_BUNDLE ${ARGN} )
+            add_executable(${TARGET} MACOSX_BUNDLE ${_APP_SOURCES} )
         endif()
     elseif(BDN_PLATFORM_ANDROID)
         if(${BAUER_RUN})
-            add_executable(${TARGET} ${ARGN} )
+            add_executable(${TARGET} ${_APP_SOURCES} )
         else()
-            add_library(${TARGET} SHARED ${ARGN} )
+            add_library(${TARGET} SHARED ${_APP_SOURCES} )
         endif()
 
         android_manifest(${TARGET})
-
     else()
-        add_executable(${TARGET} ${ARGN} )
+        add_executable(${TARGET} ${_APP_SOURCES} )
     endif()
 
-    if(${CONSOLE_APP})
+    if(CONSOLE)
         target_compile_definitions(${TARGET} PRIVATE "BDN_COMPILING_COMMANDLINE_APP")
     endif()
+
+    if(_APP_TIDY AND BDN_ENABLE_CLANG_TIDY)
+        message("Adding tidy target for ${TARGET} (${BDN_CLANG_TIDY_OPTIONS})")
+        set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "${BDN_CLANG_TIDY_OPTIONS}")
+    endif()
+
     add_clangformat(${TARGET})
     add_link_type_definitions(${TARGET})
 endmacro()
 
-macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PARENT_LIBRARY)
-    set(_library_name ${PARENT_LIBRARY}_${PLATFORM_LIBRARY_NAME})
-    set(_link_parent YES)
+macro(add_platform_library )
+    set(options DONT_LINK_PARENT_LIBRARY NO_LINT)
+    set(oneValueArgs NAME SOURCE_FOLDER COMPONENT_NAME PARENT_LIBRARY)
+    set(multiValueArgs)
+    cmake_parse_arguments(_PLATFORM_LIB "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
 
-    if(${ARGC} GREATER 4)
-        set(_link_parent ${ARGV4})
-    endif()
+
+    set(_library_name ${_PLATFORM_LIB_PARENT_LIBRARY}_${_PLATFORM_LIB_NAME})
 
     ##########################################################################
     # Files
 
     file(GLOB_RECURSE _files
-        ${SOURCE_FOLDER}/java/*.java
-        ${SOURCE_FOLDER}/src/*.cpp
-        ${SOURCE_FOLDER}/src/*.c
-        ${SOURCE_FOLDER}/src/*.m
-        ${SOURCE_FOLDER}/src/*.mm
-        ${SOURCE_FOLDER}/src/*.h
-        ${SOURCE_FOLDER}/src/*.hh
-        ${SOURCE_FOLDER}/include/*.h
-        ${SOURCE_FOLDER}/include/*.hh)
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/java/*.java
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.cpp
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.c
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.m
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.mm
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.h
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/src/*.hh
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/include/*.h
+        ${_PLATFORM_LIB_SOURCE_FOLDER}/include/*.hh)
 
     ##########################################################################
     # Target
     if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
-        add_library(${_library_name} SHARED ${_files} ${_BDN_GENERATED_FILES})
+        add_library(${_library_name} SHARED ${_files})
     elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
-        add_library(${_library_name} STATIC ${_files} ${_BDN_GENERATED_FILES})
+        add_library(${_library_name} STATIC ${_files})
     endif()
 
     add_clangformat(${_library_name})
     add_link_type_definitions(${_library_name})
 
-    if(_link_parent)
-        target_link_libraries(${_library_name} PUBLIC ${PARENT_LIBRARY})
+    if(NOT _PLATFORM_LIB_DONT_LINK_PARENT_LIBRARY)
+        target_link_libraries(${_library_name} PUBLIC ${_PLATFORM_LIB_PARENT_LIBRARY})
     endif()
+
+    if(NOT _PLATFORM_LIB_NO_LINT AND BDN_ENABLE_CLANG_TIDY)
+        message("Adding tidy target for ${_library_name} (${BDN_CLANG_TIDY_OPTIONS})")
+        set_target_properties(${_library_name} PROPERTIES CXX_CLANG_TIDY "${BDN_CLANG_TIDY_OPTIONS}")
+    endif()
+
 
     ##########################################################################
     # Includes
@@ -191,10 +222,10 @@ macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PA
     target_include_directories(${_library_name}
         PUBLIC
         $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${SOURCE_FOLDER}/include>
+        $<BUILD_INTERFACE:${_PLATFORM_LIB_SOURCE_FOLDER}/include>
         )
 
-    group_sources_automatically(${SOURCE_FOLDER} ${_files})
+    group_sources_automatically(${_PLATFORM_LIB_SOURCE_FOLDER} ${_files})
 
     ##########################################################################
     # Install
@@ -204,13 +235,13 @@ macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PA
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT
-          ${COMPONENT_NAME})
+          ${_PLATFORM_LIB_COMPONENT_NAME})
 
-    install(DIRECTORY ${SOURCE_FOLDER}/include/
+    install(DIRECTORY ${_PLATFORM_LIB_SOURCE_FOLDER}/include/
         DESTINATION
             ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT
-          ${COMPONENT_NAME}
+          ${_PLATFORM_LIB_COMPONENT_NAME}
         FILES_MATCHING PATTERN
             "*.h")
 
@@ -222,5 +253,5 @@ macro(add_platform_library PLATFORM_LIBRARY_NAME SOURCE_FOLDER COMPONENT_NAME PA
         DESTINATION
             ${bodenConfigPackageLocation}
         COMPONENT
-          ${COMPONENT_NAME})
+          ${_PLATFORM_LIB_COMPONENT_NAME})
 endmacro()

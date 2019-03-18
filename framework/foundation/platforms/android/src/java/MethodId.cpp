@@ -9,9 +9,9 @@ namespace bdn::java
     {
         Env &env = Env::get();
 
-        jmethodID methodId =
-            env.getJniEnv()->GetMethodID((jclass)cls.getJObject_(), methodName.c_str(), methodSignature.c_str());
-        env.throwAndClearExceptionFromLastJavaCall();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+        auto clsObject = (jclass)cls.getJObject_();
+        jmethodID methodId = env.getJniEnv()->GetMethodID(clsObject, methodName.c_str(), methodSignature.c_str());
 
         init(methodId);
     }
@@ -20,9 +20,9 @@ namespace bdn::java
     {
         Env &env = Env::get();
 
-        jmethodID methodId =
-            env.getJniEnv()->GetStaticMethodID((jclass)cls.getJObject_(), methodName.c_str(), methodSignature.c_str());
-        env.throwAndClearExceptionFromLastJavaCall();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+        auto clsObject = (jclass)cls.getJObject_();
+        jmethodID methodId = env.getJniEnv()->GetStaticMethodID(clsObject, methodName.c_str(), methodSignature.c_str());
 
         init(methodId);
     }

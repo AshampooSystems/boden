@@ -8,11 +8,10 @@ SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.stackdemo")
 ios_configure_asset(STACKDEMO_ASSETS ../IOS_DemoIcons.xcassets)
 ios_configure_asset(STACKDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
-
-add_universal_executable(stackdemo No ${STACKDEMO_FILES} ${STACKDEMO_ASSETS})
-
-
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
+
+add_universal_executable(stackdemo TIDY SOURCES ${STACKDEMO_FILES} ${STACKDEMO_ASSETS})
+
 ios_setup_code_signing(stackdemo)
 ios_set_appicon_asset_file(stackdemo "AppIcon")
 ios_set_launchboard_file("LaunchScreen")

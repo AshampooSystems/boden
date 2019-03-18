@@ -24,7 +24,7 @@ namespace bdn
         webCore->loadURL(url);
     }
 
-    String WebView::viewCoreTypeName() const { return coreTypeName; }
+    String WebView::viewCoreTypeName() const { return String(static_cast<const char *>(coreTypeName)); }
 
     void WebView::bindViewCore()
     {

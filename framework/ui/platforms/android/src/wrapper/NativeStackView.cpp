@@ -12,10 +12,10 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeStackView_hand
         [&]() -> jboolean {
             if (auto stackCore = bdn::android::viewCoreFromJavaReference<bdn::android::StackCore>(
                     bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                return stackCore->handleBackButton();
+                return static_cast<jboolean>(stackCore->handleBackButton());
             }
 
-            return false;
+            return 0u;
         },
         true, env);
 }

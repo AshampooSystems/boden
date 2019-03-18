@@ -19,7 +19,7 @@ if( BDN_USES_JAVA )
     list(APPEND _BDN_NET_FILES ${_BDN_JAVA_FILES})
 endif()
 
-add_universal_library(net ${_BDN_NET_FILES})
+add_universal_library(net TIDY SOURCES ${_BDN_NET_FILES})
 
 target_link_libraries(net PUBLIC foundation)
 target_include_directories(net

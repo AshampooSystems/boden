@@ -28,5 +28,5 @@ namespace bdn
 
         \endcode
     */
-    typedef std::system_error SystemError;
+    using SystemError = std::system_error;
 }

@@ -10,7 +10,7 @@ namespace bdn::android
     {
       public:
         ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        virtual ~ImageViewCore() = default;
+        ~ImageViewCore() override = default;
 
       public:
         void imageLoaded(int width, int height);

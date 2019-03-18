@@ -62,28 +62,30 @@ namespace bdn::ios
 
     void LottieViewCore::loadURL(const String &url)
     {
-        for (UIView *subview in uiView().subviews) {
-            [subview removeFromSuperview];
-        }
+        [[uiView() subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
         if (cpp20::starts_with(url, "file://")) {
-            NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
-            NSString *localPath = nsurl.relativePath;
-            animationView = [LOTAnimationView animationWithFilePath:localPath];
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                if (auto localPath = nsURL.relativePath) {
+                    animationView = [LOTAnimationView animationWithFilePath:localPath];
+                }
+            }
         } else {
-            NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
-            animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsurl];
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsURL];
+            }
         }
 
-        [uiView() addSubview:animationView];
+        if (animationView != nullptr) {
+            [uiView() addSubview:animationView];
 
-        if (running.get()) {
-            play();
+            if (running.get()) {
+                play();
+            }
+            if (loop.get()) {
+                animationView.loopAnimation = YES;
+            }
         }
-        if (loop.get()) {
-            animationView.loopAnimation = YES;
-        }
-
         scheduleLayout();
     }
 

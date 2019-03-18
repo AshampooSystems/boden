@@ -4,26 +4,6 @@
 
 namespace bdn
 {
-    void debugBreak();
-
-    void doNothing();
-
-    /** This is a dummy function that does nothing. It is called by
-       BDN_DEBUG_BREAK when the programs wants to break into the debugger. It is
-       useful when BDN_DEBUG_BREAK cannot actually break into the debugger on
-       the current platform - then one can set a normal breakpoint in this
-       function to achieve something similar.
-
-        Note that debugBreakDummy is actually called on all platforms, even when
-       debug breaking is supported.
-        */
-    inline void debugBreakDummy()
-    {
-        // You can set a debug breakpoint here if you want to stop the debugger
-        // at points when BDN_DEBUG_BREAK is used.
-        bdn::doNothing();
-    }
-
     /** Prints a line of text to an output channel to that it can most easily be
        seen in an active debugger, if the program is being debugged.
 
@@ -59,14 +39,11 @@ namespace bdn
         - android: print to android log
 
         */
-    void debuggerPrint(const String &text);
+    void debuggerPrint(const String &message);
 
     /** Returns true if the debuggerPrint functions forwards the data
         to STDERR.*/
     bool debuggerPrintGoesToStdErr();
-
-    /** Used internally. Do not call.*/
-    bool _isDebuggerActive();
 }
 
 /** \def BDN_DEBUGGER_PRINT

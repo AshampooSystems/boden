@@ -39,23 +39,27 @@ namespace bdn::ios
         // view can actually adjust itself to the available space.
         if (std::isfinite(availableSpace.width) && canAdjustToAvailableWidth()) {
             constraintSize.width = availableSpace.width;
-            if (constraintSize.width < 0)
+            if (constraintSize.width < 0) {
                 constraintSize.width = 0;
+            }
         }
         if (std::isfinite(availableSpace.height) && canAdjustToAvailableHeight()) {
             constraintSize.height = availableSpace.height;
-            if (constraintSize.height < 0)
+            if (constraintSize.height < 0) {
                 constraintSize.height = 0;
+            }
         }
 
         CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
 
         Size size = iosSizeToSize(iosSize);
 
-        if (size.width < 0)
+        if (size.width < 0) {
             size.width = 0;
-        if (size.height < 0)
+        }
+        if (size.height < 0) {
             size.height = 0;
+        }
 
         return size;
     }
@@ -82,16 +86,18 @@ namespace bdn::ios
 
     double ViewCore::getEmSizeDips() const
     {
-        if (_emDipsIfInitialized == -1)
+        if (_emDipsIfInitialized == -1) {
             _emDipsIfInitialized = getFontSize();
+        }
 
         return _emDipsIfInitialized;
     }
 
     double ViewCore::getSemSizeDips() const
     {
-        if (_semDipsIfInitialized == -1)
+        if (_semDipsIfInitialized == -1) {
             _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
+        }
 
         return _semDipsIfInitialized;
     }

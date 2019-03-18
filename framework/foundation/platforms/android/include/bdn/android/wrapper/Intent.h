@@ -4,6 +4,8 @@
 #include <bdn/android/wrapper/Uri.h>
 #include <bdn/java/wrapper/Object.h>
 
+#include <utility>
+
 namespace bdn::android::wrapper
 {
     constexpr const char kIntentClassName[] = "android/content/Intent";
@@ -18,10 +20,12 @@ namespace bdn::android::wrapper
         static bdn::java::Reference createIntentInstance(String string, Uri uri)
         {
             static bdn::java::MethodId constructorId;
-            return javaClass().newInstance_(constructorId, string, uri);
+            return javaClass().newInstance_(constructorId, std::move(string), std::move(uri));
         }
 
-        Intent(String string, Uri uri) : JTObject<kIntentClassName>(createIntentInstance(string, uri)) {}
+        Intent(String string, Uri uri)
+            : JTObject<kIntentClassName>(createIntentInstance(std::move(string), std::move(uri)))
+        {}
 
       public:
         using JTObject<kIntentClassName>::JTObject;

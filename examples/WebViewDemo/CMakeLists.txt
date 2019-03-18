@@ -9,10 +9,10 @@ ios_configure_asset(WEBVIEWDEMO_ASSETS ../IOS_DemoIcons.xcassets)
 ios_configure_asset(WEBVIEWDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
 
-add_universal_executable(webviewdemo No ${WEBVIEWDEMO_FILES} ${WEBVIEWDEMO_ASSETS})
-
-
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
+
+add_universal_executable(webviewdemo TIDY SOURCES ${WEBVIEWDEMO_FILES} ${WEBVIEWDEMO_ASSETS})
+
 ios_setup_code_signing(webviewdemo)
 ios_set_appicon_asset_file(webviewdemo "AppIcon")
 ios_set_launchboard_file("LaunchScreen")

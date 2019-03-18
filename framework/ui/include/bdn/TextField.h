@@ -36,7 +36,7 @@ namespace bdn
         ISyncNotifier<const SubmitEvent &> &onSubmit();
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
 
       private:
         std::shared_ptr<SimpleNotifier<const SubmitEvent &>> _onSubmit;

@@ -24,7 +24,7 @@ namespace bdn
         lottieCore->loadURL(url);
     }
 
-    String LottieView::viewCoreTypeName() const { return coreTypeName; }
+    String LottieView::viewCoreTypeName() const { return String((const char *)coreTypeName); }
 
     void LottieView::bindViewCore()
     {

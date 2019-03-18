@@ -14,7 +14,7 @@ namespace bdn::ios
     {
       public:
         ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        ~ButtonCore();
+        ~ButtonCore() override;
 
         UIButton *getUIButton();
         void handleClick();

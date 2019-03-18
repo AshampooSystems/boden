@@ -34,7 +34,7 @@ set(_BDN_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h ${_c
 ##########################################################################
 # Target
 
-add_universal_library(foundation ${_files} ${_BDN_GENERATED_FILES})
+add_universal_library(foundation TIDY SOURCES ${_files} ${_BDN_GENERATED_FILES})
 
 target_include_directories(foundation
     PUBLIC

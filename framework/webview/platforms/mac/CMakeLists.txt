@@ -1,3 +1,3 @@
-add_platform_library(mac ${CMAKE_CURRENT_LIST_DIR} MacOSX webview )
+add_platform_library(NAME mac SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME MacOSX PARENT_LIBRARY webview )
 
 target_link_libraries(webview_mac PRIVATE webview_applecommon)

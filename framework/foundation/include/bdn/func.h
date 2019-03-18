@@ -20,8 +20,9 @@ namespace bdn
         template <class... ArgTypes>
         typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
         {
-            if (!isValid())
+            if (!isValid()) {
                 throw std::bad_function_call();
+            }
 
             return (*(_object.get()).*_method)(std::forward<ArgTypes>(args)...);
         }
@@ -49,7 +50,7 @@ namespace bdn
     template <class ObjectType, class MethodType> class WeakMethod_
     {
       public:
-        WeakMethod_() : _method(nullptr), _valid(false) {}
+        WeakMethod_() : _method(nullptr) {}
 
         WeakMethod_(std::weak_ptr<ObjectType> object, MethodType method)
             : _objectWeak(object), _method(method), _valid((object.lock() != nullptr) && method != nullptr)
@@ -58,13 +59,15 @@ namespace bdn
         template <class... ArgTypes>
         typename std::result_of<MethodType(ObjectType *, ArgTypes...)>::type operator()(ArgTypes &&... args) const
         {
-            if (!isValid())
+            if (!isValid()) {
                 throw std::bad_function_call();
+            }
 
             std::shared_ptr<ObjectType> object = _objectWeak.lock();
 
-            if (object == nullptr)
+            if (object == nullptr) {
                 throw DanglingFunctionError();
+            }
 
             return ((*object).*_method)(std::forward<ArgTypes>(args)...);
         }
@@ -85,7 +88,7 @@ namespace bdn
       private:
         std::weak_ptr<ObjectType> _objectWeak;
         MethodType _method;
-        bool _valid;
+        bool _valid{false};
     };
 
     /**  Packages a method together with its object pointer and allows it to be
@@ -134,10 +137,12 @@ namespace bdn
     template <class ObjectType, typename FuncType>
     std::function<FuncType> strongMethod(const std::shared_ptr<ObjectType> &object, FuncType ObjectType::*method)
     {
-        if (object == nullptr || method == nullptr)
+        if (object == nullptr || method == nullptr) {
             return std::function<FuncType>();
-        else
+        }
+        {
             return StrongMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
+        }
     }
 
     /** This is similar to strongMethod(), except that the returned callable
@@ -158,18 +163,22 @@ namespace bdn
     template <class ObjectType, typename FuncType>
     std::function<FuncType> weakMethod(std::weak_ptr<ObjectType> object, FuncType ObjectType::*method)
     {
-        if (object == nullptr || method == nullptr)
+        if (object == nullptr || method == nullptr) {
             return std::function<FuncType>();
-        else
+        }
+        {
             return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
+        }
     }
 
     template <class ObjectType, typename FuncType>
     std::function<FuncType> weakMethod(const std::shared_ptr<ObjectType> &object, FuncType ObjectType::*method)
     {
-        if (object == nullptr || method == nullptr)
+        if (object == nullptr || method == nullptr) {
             return std::function<FuncType>();
-        else
+        }
+        {
             return WeakMethod_<ObjectType, FuncType(ObjectType::*)>(object, method);
+        }
     }
 }

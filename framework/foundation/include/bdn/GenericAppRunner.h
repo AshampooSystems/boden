@@ -3,6 +3,8 @@
 #include <bdn/AppRunnerBase.h>
 #include <bdn/GenericDispatcher.h>
 
+#include <utility>
+
 namespace bdn
 {
 
@@ -22,7 +24,7 @@ namespace bdn
             argStrings.assign(args, args + argCount);
 
             if (argCount == 0) {
-                argStrings.push_back(""); // always add the first entry.
+                argStrings.emplace_back(""); // always add the first entry.
             }
             launchInfo.setArguments(argStrings);
 
@@ -38,7 +40,8 @@ namespace bdn
                 more information)*/
         GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
                          char *args[], bool commandLineApp)
-            : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args)), _commandLineApp(commandLineApp)
+            : AppRunnerBase(std::move(appControllerCreator), _makeLaunchInfo(argCount, args)),
+              _commandLineApp(commandLineApp)
         {
             _dispatcher = std::make_shared<GenericDispatcher>();
         }
@@ -50,7 +53,7 @@ namespace bdn
                 more information)*/
         GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
                          const AppLaunchInfo &launchInfo, bool commandLineApp)
-            : AppRunnerBase(appControllerCreator, launchInfo), _commandLineApp(commandLineApp)
+            : AppRunnerBase(std::move(appControllerCreator), launchInfo), _commandLineApp(commandLineApp)
         {
             _dispatcher = std::make_shared<GenericDispatcher>();
         }
@@ -99,17 +102,9 @@ namespace bdn
             // just run the app controller iterations until we need to close.
 
             while (!shouldExit()) {
-                try {
-                    if (!_dispatcher->executeNext()) {
-                        // just wait for the next work item.
-                        _dispatcher->waitForNext(10s);
-                    }
-                }
-                catch (...) {
-                    if (!unhandledException(true)) {
-                        // terminate the app = let error through.
-                        throw;
-                    }
+                if (!_dispatcher->executeNext()) {
+                    // just wait for the next work item.
+                    _dispatcher->waitForNext(10s);
                 }
             }
         }

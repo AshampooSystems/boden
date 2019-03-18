@@ -14,9 +14,9 @@ namespace bdn::mac
 
       public:
         ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        ~ScrollViewCore();
+        ~ScrollViewCore() override;
 
-        virtual void init() override;
+        void init() override;
 
         void scrollClientRectToVisible(const Rect &clientRect) override;
 

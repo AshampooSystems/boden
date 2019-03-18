@@ -29,7 +29,7 @@ namespace bdn
 
       public:
         WebView(std::shared_ptr<UIProvider> uiProvider = nullptr);
-        virtual ~WebView() = default;
+        ~WebView() override = default;
 
       public:
         void loadURL(const String &url);
@@ -37,6 +37,6 @@ namespace bdn
         String viewCoreTypeName() const override;
 
       protected:
-        virtual void bindViewCore() override;
+        void bindViewCore() override;
     };
 }

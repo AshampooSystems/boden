@@ -13,7 +13,7 @@ namespace bdn::java
     }
 }
 
-#include <jni.h>
+#include <bdn/jni.h>
 
 namespace bdn::java
 {
@@ -23,7 +23,7 @@ namespace bdn::java
     class MethodId
     {
       public:
-        constexpr MethodId() : _id(nullptr), _initialized(false) {}
+        constexpr MethodId() = default;
 
         /** Initializes the Id by looking up the method with the specified
          * name and signature from the specified class.
@@ -63,15 +63,16 @@ namespace bdn::java
          * initialized yet.*/
         jmethodID getId() const
         {
-            if (!isInitialized())
+            if (!isInitialized()) {
                 throw ProgrammingError("MethodId::getId called on uninitialized object.");
+            }
 
             return _id;
         }
 
       private:
-        jmethodID _id;
-        bool _initialized;
+        jmethodID _id{nullptr};
+        bool _initialized{false};
     };
 }
 #include <bdn/java/wrapper/Object.h>

@@ -33,7 +33,7 @@ namespace bdn
         View(std::shared_ptr<UIProvider> uiProvider = nullptr);
         View(const View &o) = delete;
 
-        virtual ~View();
+        ~View() override;
 
         auto shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
         auto shared_from_this() const { return std::static_pointer_cast<View const>(Base::shared_from_this()); }
@@ -53,7 +53,7 @@ namespace bdn
 
         virtual std::list<std::shared_ptr<View>> childViews() { return std::list<std::shared_ptr<View>>(); }
         virtual void removeAllChildViews() {}
-        virtual void childViewStolen(std::shared_ptr<View> childView) {}
+        virtual void childViewStolen(const std::shared_ptr<View> &childView) {}
 
         virtual std::shared_ptr<View> getParentView() { return _parentView.lock(); }
 
@@ -64,7 +64,7 @@ namespace bdn
         std::shared_ptr<ViewCore> viewCore();
         std::shared_ptr<ViewCore> viewCore() const;
 
-        void setParentView(std::shared_ptr<View> parentView);
+        void setParentView(const std::shared_ptr<View> &parentView);
 
       protected:
         virtual void bindViewCore();
@@ -74,8 +74,8 @@ namespace bdn
         void onCoreDirty();
 
       private:
-        bool canMoveToParentView(std::shared_ptr<View> parentView);
-        void updateLayout(std::shared_ptr<Layout> oldLayout, std::shared_ptr<Layout> newLayout);
+        bool canMoveToParentView(const std::shared_ptr<View> &parentView);
+        void updateLayout(const std::shared_ptr<Layout> &oldLayout, const std::shared_ptr<Layout> &newLayout);
 
       private:
         void lazyInitCore() const;
@@ -90,7 +90,7 @@ namespace bdn
 
         std::shared_ptr<UIProvider> _uiProvider;
         std::weak_ptr<View> _parentView;
-        bool _hasLayoutSchedulePending;
+        bool _hasLayoutSchedulePending{false};
     };
 
     template <typename ViewType, typename P> void registerCoreCreatingProperties(ViewType *view, P p)
@@ -108,7 +108,7 @@ namespace bdn
     class SingleChildHelper
     {
       public:
-        void update(std::shared_ptr<View> self, std::shared_ptr<View> newChild)
+        void update(const std::shared_ptr<View> &self, const std::shared_ptr<View> &newChild)
         {
             if (_currentChild) {
                 _currentChild->setParentView(nullptr);

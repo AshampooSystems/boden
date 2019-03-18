@@ -23,7 +23,7 @@ namespace bdn::android
         ViewCore::init();
 
         running.onChange() += [=](auto va) {
-            wrapper::LottieAnimationView animationView = getJViewAS<wrapper::LottieAnimationView>();
+            auto animationView = getJViewAS<wrapper::LottieAnimationView>();
             if (va->get()) {
                 animationView.playAnimation();
             } else {
@@ -31,7 +31,7 @@ namespace bdn::android
             }
         };
         loop.onChange() += [=](auto va) {
-            wrapper::LottieAnimationView animationView = getJViewAS<wrapper::LottieAnimationView>();
+            auto animationView = getJViewAS<wrapper::LottieAnimationView>();
             if (va->get()) {
                 animationView.setRepeatCount(0xffffffff);
             } else {
@@ -42,7 +42,7 @@ namespace bdn::android
 
     void LottieViewCore::loadURL(const String &url)
     {
-        wrapper::LottieAnimationView animationView = getJViewAS<wrapper::LottieAnimationView>();
+        auto animationView = getJViewAS<wrapper::LottieAnimationView>();
         animationView.setAnimationFromUrl(url);
     }
 
