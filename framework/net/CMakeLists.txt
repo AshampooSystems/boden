@@ -35,3 +35,5 @@ include(install.cmake)
 add_subdirectory(platforms)
 
 target_link_libraries(net INTERFACE ${BDN_NET_PLATFORM_LIBRARIES})
+add_library(Boden::Net ALIAS net)
+target_link_libraries(Boden_All INTERFACE net)

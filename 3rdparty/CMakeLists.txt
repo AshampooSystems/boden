@@ -1,3 +1,4 @@
+#################################################################################
 # json
 
 option(BODEN_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
@@ -10,7 +11,9 @@ else()
 endif()
 
 target_compile_definitions(nlohmann_json INTERFACE BDN_HAS_NLOHMANN_JSON)
+target_link_libraries(Boden_All INTERFACE nlohmann_json::nlohmann_json)
 
+#################################################################################
 # Yoga
 
 file(GLOB yogacore_SRC yoga/yoga/*.cpp)
@@ -29,6 +32,7 @@ if(ANDROID)
     target_link_libraries(yogacore PUBLIC ${ANDROID_LOG_LIB})
 endif()
 
+#################################################################################
 # Lottie
 
 add_subdirectory(lottie)

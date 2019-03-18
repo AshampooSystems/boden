@@ -37,5 +37,5 @@ include(install.cmake)
 add_subdirectory(platforms)
 
 target_link_libraries(webview INTERFACE ${BDN_WEBVIEW_PLATFORM_LIBRARIES})
-
-#target_link_libraries(webview PRIVATE webview_android)
+add_library(Boden::WebView ALIAS webview)
+target_link_libraries(Boden_All INTERFACE webview)

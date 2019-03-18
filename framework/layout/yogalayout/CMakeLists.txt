@@ -22,3 +22,7 @@ target_include_directories(yogalayout
 target_include_directories(yogalayout PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
 #include(install.cmake)
+
+target_link_libraries(Boden_All INTERFACE yogalayout)
+add_library(Boden::YogaLayout ALIAS yogalayout)
+

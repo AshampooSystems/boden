@@ -35,3 +35,5 @@ include(install.cmake)
 add_subdirectory(platforms)
 
 target_link_libraries(ui INTERFACE ${BDN_UI_PLATFORM_LIBRARIES})
+add_library(Boden::UI ALIAS ui)
+target_link_libraries(Boden_All INTERFACE ui)

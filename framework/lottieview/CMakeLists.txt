@@ -37,5 +37,7 @@ include(install.cmake)
 add_subdirectory(platforms)
 
 target_link_libraries(lottieview INTERFACE ${BDN_LOTTIEVIEW_PLATFORM_LIBRARIES})
+add_library(Boden::LottieView ALIAS lottieview)
+target_link_libraries(Boden_All INTERFACE lottieview)
 
 

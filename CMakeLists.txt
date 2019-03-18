@@ -11,6 +11,9 @@ include(GNUInstallDirs)
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 
+add_library(Boden_All INTERFACE)
+add_library(Boden::All ALIAS Boden_All)
+
 enable_testing()
 
 # cmake utilities
@@ -43,4 +46,6 @@ endif(BDN_BUILD_TESTS)
 add_global_clangformat(FormatSources ${CMAKE_CURRENT_LIST_DIR})
 
 include(package/package.cmake)
+
+
 

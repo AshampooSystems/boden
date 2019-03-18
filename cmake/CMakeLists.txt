@@ -9,7 +9,8 @@ set(_CMAKE_UTILITIES
     utilities/android.cmake
     utilities/utilities.cmake
     utilities/install.cmake
-    utilities/clangformat.cmake)
+    utilities/clangformat.cmake
+    utilities/permissions.cmake)
 
 foreach(_utility ${_CMAKE_UTILITIES})
     include(${_utility})
