@@ -1,6 +1,8 @@
 # Stack
 
-Simple Button control
+<span style="color: red">DOCFIXME: I am not sure if stack (or stack view) is a good term as iOS has [a different concept of a stack](https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/LayoutUsingStackViews.html) (in contrast to a navigation controller)</span>
+
+A view stack manages a number of views where only one view is visible at a time.
 
 ## Declaration
 

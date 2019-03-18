@@ -38,5 +38,5 @@ class ViewCore
 
 * **void markDirty()**
 
-* **virtual void setLayout(std::shared_ptr<Layout> layout)**
+* **virtual void setLayout(std::shared_ptr<Layout\> layout)**
 

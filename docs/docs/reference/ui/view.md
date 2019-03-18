@@ -30,11 +30,11 @@ class View : public Base
 
 * **std::shared_ptr<Layout\> getLayout()**
 
-	Returns the view's [`Layout`](../layout/layout.md).
+	Returns the view's [`Layout`](layout.md).
 
 * **void setLayout(std::shared_ptr<Layout\> layout)**
 
-	Sets the view's [`Layout`](../layout/layout.md).
+	Sets the view's [`Layout`](layout.md).
 
 * **template <class T\> void setLayoutStylesheet(T sheet)**
 

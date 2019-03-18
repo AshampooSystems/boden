@@ -1,6 +1,6 @@
 # Button
 
-Simple Button control
+A simple button with a text label.
 
 ## Declaration
 
@@ -22,15 +22,15 @@ button->onClick() += [](auto event) {
 
 ## Properties
 
-* **Property<String\> label;**
+* **Property<String\> label**
 	
-	The Buttons label
+	The button's label
 
 ## Events
 
 * **ISyncNotifier<const ClickEvent &\> &onClick()**
 
-	A notifier for click events. Subscribe to this notifier if you want to be notified when the user clicks the Button
+	A notifier for click events. Subscribe to this notifier if you want to be notified when the user clicks the Button.
 
 ## Relationships
 
