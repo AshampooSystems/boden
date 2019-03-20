@@ -6,32 +6,22 @@
 
 namespace bdn
 {
-
-    /** Base class for views that contains multiple child views.
-
-        Derived classes must override the calcContainerLayout() and
-       calcContainerPreferredSize() methods.
-
-        */
     class ContainerView : public View
     {
       public:
         ContainerView(std::shared_ptr<UIProvider> uiProvider = nullptr);
 
-        /** Static function that returns the type name for #ContainerView core
-         * objects.*/
-
+    public:
         static constexpr char coreTypeName[] = "bdn.ContainerViewCore";
-
         String viewCoreTypeName() const override { return coreTypeName; }
 
+    public:
         void addChildView(const std::shared_ptr<View> &childView);
         void removeChildView(const std::shared_ptr<View> &childView);
-
         void removeAllChildViews() override;
-
         std::list<std::shared_ptr<View>> childViews() override;
 
+    public:
         void childViewStolen(const std::shared_ptr<View> &childView) override;
     };
 }

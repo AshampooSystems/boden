@@ -41,7 +41,7 @@ namespace bdn
         Property<Rect> visibleClientRect;
 
       public:
-        virtual void scrollClientRectToVisible(const Rect &area);
+        void scrollClientRectToVisible(const Rect &area);
 
       public:
         ScrollView(std::shared_ptr<UIProvider> uiProvider = nullptr);
