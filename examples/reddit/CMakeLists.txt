@@ -13,9 +13,16 @@ configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 
 add_universal_executable(reddit TIDY SOURCES ${REDDIT_FILES} ${REDDIT_ASSETS})
 
-ios_setup_code_signing(reddit)
-ios_set_appicon_asset_file(reddit "AppIcon")
-ios_set_launchboard_file("LaunchScreen")
+ios_configure_app_info(TARGET reddit
+    LAUNCHSCREEN "LaunchScreen"
+    APPICON "AppIcon"
+    TARGETED_DEVICES IPHONE IPAD
+    IPHONE_ORIENTATIONS ALL
+    IPAD_ORIENTATIONS ALL)
+
+get_git_short_revision(GIT_REV)
+set_target_version(TARGET reddit VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
+
 
 use_boden_template_info_plist(reddit)
 

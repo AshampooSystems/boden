@@ -10,7 +10,8 @@ set(_CMAKE_UTILITIES
     utilities/utilities.cmake
     utilities/install.cmake
     utilities/clangformat.cmake
-    utilities/permissions.cmake)
+    utilities/permissions.cmake
+    utilities/git.cmake)
 
 foreach(_utility ${_CMAKE_UTILITIES})
     include(${_utility})

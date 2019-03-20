@@ -13,9 +13,15 @@ configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 
 add_universal_executable(webviewdemo TIDY SOURCES ${WEBVIEWDEMO_FILES} ${WEBVIEWDEMO_ASSETS})
 
-ios_setup_code_signing(webviewdemo)
-ios_set_appicon_asset_file(webviewdemo "AppIcon")
-ios_set_launchboard_file("LaunchScreen")
+ios_configure_app_info(TARGET webviewdemo
+    LAUNCHSCREEN "LaunchScreen"
+    APPICON "AppIcon"
+    TARGETED_DEVICES IPHONE IPAD
+    IPHONE_ORIENTATIONS ALL
+    IPAD_ORIENTATIONS ALL)
+
+get_git_short_revision(GIT_REV)
+set_target_version(TARGET webviewdemo VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
 
 use_boden_template_info_plist(webviewdemo)
 

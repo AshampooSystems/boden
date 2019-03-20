@@ -18,3 +18,20 @@ macro(GenerateTopLevelIncludeFile OUTPUT NAME BASEDIR)
 
     set(${OUTPUT} ${NAME})
 endmacro()
+
+macro(set_target_version )
+    set(options )
+    set(oneValueArgs TARGET VERSION SHORTVERSION LONGVERSION)
+    set(multiValueArgs )
+    cmake_parse_arguments(_ARGUMENTS "${options}" "${oneValueArgs}"
+        "${multiValueArgs}" ${ARGN} )
+
+    if(BDN_PLATFORM_IOS)
+        set_target_properties(${_ARGUMENTS_TARGET} PROPERTIES
+            MACOSX_BUNDLE_LONG_VERSION_STRING "${_ARGUMENTS_LONGVERSION}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${_ARGUMENTS_SHORTVERSION}"
+            MACOSX_BUNDLE_BUNDLE_VERSION "${_ARGUMENTS_VERSION}"
+            VERSION "${_ARGUMENTS_VERSION}")
+    endif()
+
+endmacro()
