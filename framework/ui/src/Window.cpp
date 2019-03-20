@@ -10,6 +10,7 @@ namespace bdn
     Window::Window(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
     {
         visible = false;
+        allowedOrientations = Orientation::All;
 
         registerCoreCreatingProperties(this, &visible, &content, &geometry, &contentGeometry);
 
@@ -44,6 +45,9 @@ namespace bdn
 
         windowCore->content.bind(content);
         windowCore->title.bind(title);
+
+        windowCore->allowedOrientations.bind(allowedOrientations, BindMode::unidirectional);
+        currentOrientation.bind(windowCore->currentOrientation, BindMode::unidirectional);
 
         contentGeometry.bind(windowCore->contentGeometry);
     }

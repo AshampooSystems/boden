@@ -15,6 +15,13 @@ namespace bdn::android::wrapper
             DENSITY_DPI_UNDEFINED = 0
         };
 
+        enum
+        {
+            ORIENTATION_UNDEFINED = 0,
+            ORIENTATION_PORTRAIT = 1,
+            ORIENTATION_LANDSCAPE = 2,
+        };
+
       public:
         using java::wrapper::JTObject<kConfigurationClassName>::JTObject;
 
@@ -22,6 +29,12 @@ namespace bdn::android::wrapper
         bdn::java::ObjectField<int> densityDpi()
         {
             static bdn::java::ObjectField<int>::Id fieldId(javaClass(), "densityDpi");
+            return bdn::java::ObjectField<int>(getRef_(), fieldId);
+        }
+
+        bdn::java::ObjectField<int> orientation()
+        {
+            static bdn::java::ObjectField<int>::Id fieldId(javaClass(), "orientation");
             return bdn::java::ObjectField<int>(getRef_(), fieldId);
         }
     };

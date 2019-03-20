@@ -3,6 +3,8 @@
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/WindowCore.hh>
 
+#include <bdn/log.h>
+
 @interface BodenUIWindow : UIWindow <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
@@ -26,46 +28,146 @@
 @end
 
 @implementation BodenRootViewController
-- (void)viewSafeAreaInsetsDidChange
-{
-    [super viewSafeAreaInsetsDidChange];
-
-    [_rootView setNeedsLayout];
-
-    [_rootView setFrame:self.view.frame];
-
-    if (@available(iOS 11.0, *)) {
-        CGRect safeRect = CGRectMake(
-            self.myWindow.safeAreaInsets.left, self.myWindow.safeAreaInsets.top,
-            self.myWindow.frame.size.width - (self.myWindow.safeAreaInsets.left + self.myWindow.safeAreaInsets.right),
-            self.myWindow.frame.size.height - (self.myWindow.safeAreaInsets.top + self.myWindow.safeAreaInsets.bottom));
-
-        [_safeRootView setFrame:safeRect];
-    }
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
-    else {
-        CGRect safeRect = CGRectMake(0, self.topLayoutGuide.length, self.myWindow.frame.size.width,
-                                     self.myWindow.frame.size.height - self.bottomLayoutGuide.length);
-
-        [self.safeRootView setFrame:safeRect];
-    }
-#endif
-}
 
 - (void)loadView
 {
     [super loadView];
 
-    CGRect r = self.view.frame;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateCurrentOrientation)
+                                                 name:UIApplicationDidChangeStatusBarOrientationNotification
+                                               object:nil];
 
-    _rootView = [[BodenUIView alloc] initWithFrame:r];
+    _rootView = [[BodenUIView alloc] init];
+    _rootView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_rootView];
     _rootView.backgroundColor = [UIColor whiteColor];
 
-    _safeRootView = [[BodenUIView alloc] initWithFrame:r];
+    _safeRootView = [[BodenUIView alloc] init];
+    _safeRootView.translatesAutoresizingMaskIntoConstraints = NO;
     [_rootView addSubview:_safeRootView];
+
+    {
+        NSDictionary *viewsDictionary = @{@"view" : _rootView};
+        NSArray *verticalConstraints =
+            [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|" options:0 metrics:nil views:viewsDictionary];
+        NSArray *horizontalConstraints =
+            [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[view]|" options:0 metrics:nil views:viewsDictionary];
+        [self.view addConstraints:verticalConstraints];
+        [self.view addConstraints:horizontalConstraints];
+    }
+
+    if (@available(iOS 11, *)) {
+        UILayoutGuide *guide = self.view.safeAreaLayoutGuide;
+        [_safeRootView.leadingAnchor constraintEqualToAnchor:guide.leadingAnchor].active = YES;
+        [_safeRootView.trailingAnchor constraintEqualToAnchor:guide.trailingAnchor].active = YES;
+        [_safeRootView.topAnchor constraintEqualToAnchor:guide.topAnchor].active = YES;
+        [_safeRootView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor].active = YES;
+    }
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
+    else {
+        UILayoutGuide *margins = self.view.layoutMarginsGuide;
+        [_safeRootView.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
+        [_safeRootView.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
+        [_safeRootView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor].active = YES;
+        [_safeRootView.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor].active = YES;
+    }
+#endif
     //_safeRootView.backgroundColor = [UIColor blueColor];
 }
+
+- (void)viewWillTransitionToSize:(CGSize)size
+       withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [self updateCurrentOrientation];
+}
+
+- (void)updateCurrentOrientation
+{
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+
+    if (auto core = self.windowCore.lock()) {
+        if (orientation == UIInterfaceOrientationPortrait) {
+            core->currentOrientation = bdn::WindowCore::Orientation::Portrait;
+        } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
+            core->currentOrientation = bdn::WindowCore::Orientation::LandscapeLeft;
+        } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+            core->currentOrientation = bdn::WindowCore::Orientation::LandscapeRight;
+        } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
+            core->currentOrientation = bdn::WindowCore::Orientation::PortraitUpsideDown;
+        }
+    }
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    if (auto core = self.windowCore.lock()) {
+        UIInterfaceOrientationMask newOrientation = 0;
+        auto o = core->allowedOrientations.get();
+        if (o & bdn::WindowCore::Orientation::Portrait) {
+            newOrientation |= UIInterfaceOrientationMaskPortrait;
+        }
+        if (o & bdn::WindowCore::Orientation::LandscapeLeft) {
+            newOrientation |= UIInterfaceOrientationMaskLandscapeLeft;
+        }
+        if (o & bdn::WindowCore::Orientation::LandscapeRight) {
+            newOrientation |= UIInterfaceOrientationMaskLandscapeRight;
+        }
+        if (o & bdn::WindowCore::Orientation::PortraitUpsideDown) {
+            newOrientation |= UIInterfaceOrientationMaskPortraitUpsideDown;
+        }
+
+        return newOrientation;
+    }
+
+    return UIInterfaceOrientationMaskAll;
+}
+
+- (bdn::WindowCore::Orientation)toBdnOrientation:(UIInterfaceOrientation)orientation
+{
+    switch (orientation) {
+    case UIInterfaceOrientationPortrait:
+        return bdn::WindowCore::Orientation::Portrait;
+    case UIInterfaceOrientationLandscapeLeft:
+        return bdn::WindowCore::Orientation::LandscapeLeft;
+    case UIInterfaceOrientationLandscapeRight:
+        return bdn::WindowCore::Orientation::LandscapeRight;
+    case UIInterfaceOrientationPortraitUpsideDown:
+        return bdn::WindowCore::Orientation::PortraitUpsideDown;
+    default:
+        break;
+    }
+    return bdn::WindowCore::Orientation::Portrait;
+}
+
+- (void)changeOrientation
+{
+    if (auto core = self.windowCore.lock()) {
+        auto currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        auto bdnCurrentOrientation = [self toBdnOrientation:currentOrientation];
+        auto targetOrientation = core->allowedOrientations.get();
+
+        if ((bdnCurrentOrientation & targetOrientation) != 0) {
+            [UIViewController attemptRotationToDeviceOrientation];
+            return;
+        }
+
+        if (targetOrientation & bdn::WindowCore::Orientation::Portrait) {
+            NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+            [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+        } else if (targetOrientation & bdn::WindowCore::Orientation::LandscapeLeft) {
+            NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationLandscapeLeft];
+            [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+        } else if (targetOrientation & bdn::WindowCore::Orientation::LandscapeRight) {
+            NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationLandscapeRight];
+            [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+        } else if (targetOrientation & bdn::WindowCore::Orientation::PortraitUpsideDown) {
+            NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortraitUpsideDown];
+            [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+        }
+    }
+}
+
 @end
 
 namespace bdn::ios
@@ -89,23 +191,7 @@ namespace bdn::ios
 
     WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
         : WindowCore(uiProvider, createRootViewController())
-    {
-        _window = _rootViewController.myWindow;
-        _rootViewController.myWindow = _window;
-
-        title.onChange() +=
-            [&window = this->_window](auto va) { window.rootViewController.title = fk::stringToNSString(va->get()); };
-
-        geometry.onChange() += [=](auto va) {
-            updateGeomtry();
-            updateContentGeometry();
-        };
-
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
-
-        updateGeomtry();
-        updateContentGeometry();
-    }
+    {}
 
     WindowCore::~WindowCore()
     {
@@ -117,6 +203,32 @@ namespace bdn::ios
             _window.rootViewController = nil;
             _window = nil;
         }
+    }
+
+    void WindowCore::init()
+    {
+        ViewCore::init();
+
+        _window = _rootViewController.myWindow;
+        _rootViewController.myWindow = _window;
+        _rootViewController.windowCore = std::dynamic_pointer_cast<bdn::ios::WindowCore>(shared_from_this());
+
+        [_rootViewController updateCurrentOrientation];
+
+        title.onChange() +=
+            [&window = this->_window](auto va) { window.rootViewController.title = fk::stringToNSString(va->get()); };
+
+        geometry.onChange() += [=](auto va) {
+            updateGeomtry();
+            updateContentGeometry();
+        };
+
+        content.onChange() += [=](auto va) { updateContent(va->get()); };
+
+        allowedOrientations.onChange() += [=](auto va) { [this->_rootViewController changeOrientation]; };
+
+        updateGeomtry();
+        updateContentGeometry();
     }
 
     void WindowCore::frameChanged()

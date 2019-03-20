@@ -10,16 +10,24 @@
 #import <bdn/ios/ViewCore.hh>
 #import <bdn/ios/util.hh>
 
+namespace bdn::ios
+{
+    class WindowCore;
+}
+
 @interface BodenRootViewController : UIViewController
 @property(weak) UIWindow *myWindow;
 @property BodenUIView *rootView;
 @property BodenUIView *safeRootView;
+@property std::weak_ptr<bdn::ios::WindowCore> windowCore;
 @end
 
 namespace bdn::ios
 {
     class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
+        friend class bdn::UIProvider;
+
       private:
         WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, BodenRootViewController *viewController);
 
@@ -33,6 +41,9 @@ namespace bdn::ios
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
         void frameChanged() override;
+
+      protected:
+        void init() override;
 
       private:
         void updateContent(const std::shared_ptr<View> &newContent);

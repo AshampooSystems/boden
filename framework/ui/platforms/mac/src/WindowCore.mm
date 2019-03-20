@@ -137,6 +137,12 @@ namespace bdn::mac
         rContent.x = 0;
         rContent.y = 0;
         this->contentGeometry = rContent;
+
+        if (rContent.width > rContent.height) {
+            currentOrientation = Orientation::LandscapeLeft;
+        } else {
+            currentOrientation = Orientation::Portrait;
+        }
     }
 
     void WindowCore::scheduleLayout() { _nsContentParent.needsLayout = static_cast<BOOL>(true); }

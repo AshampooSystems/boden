@@ -81,7 +81,7 @@ namespace bdn
         return row;
     }
 
-    auto createUiDemoPage()
+    auto createUiDemoPage(std::shared_ptr<Window> window)
     {
         auto container = std::make_shared<ContainerView>();
 
@@ -104,6 +104,12 @@ namespace bdn
                                        << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20.f)
                                        << FlexMarginAll(2.f));
 #endif
+        auto screenOrientationCtrl = std::make_shared<TextView>();
+        screenOrientationCtrl->text = WindowCore::orientationToString(window->currentOrientation);
+        window->currentOrientation.onChange() += [screenOrientationCtrl](auto va) {
+            screenOrientationCtrl->text = WindowCore::orientationToString(va->get());
+        };
+        container->addChildView(makeRow("Orientation", screenOrientationCtrl));
 
         auto switchView = std::make_shared<Switch>();
         switchView->label = "I'm a switch!";
@@ -119,9 +125,7 @@ namespace bdn
         container->addChildView(makeRow("Button", btn));
 
         auto bigBtn = std::make_shared<Button>();
-
         bigBtn->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeHeight(50));
-
         bigBtn->label = "Big Button";
         container->addChildView(makeRow("Big Button", bigBtn));
 

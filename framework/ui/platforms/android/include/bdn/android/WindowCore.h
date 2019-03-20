@@ -79,6 +79,7 @@ namespace bdn::android
         Rect getScreenWorkArea() const;
 
         void updateUIScaleFactor(wrapper::Configuration config);
+        void updateOrientation(wrapper::Configuration config);
 
         static std::list<std::shared_ptr<WindowCore>>
         getWindowCoreListFromRootView(const java::Reference &javaRootViewRef);

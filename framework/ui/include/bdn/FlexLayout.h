@@ -375,7 +375,7 @@ namespace nlohmann
                 sheet.layoutDirection = j.at("layoutDirection");
             }
             if (j.count("flexWrap") != 0) {
-                sheet.flexWrap = j.at("wrap");
+                sheet.flexWrap = j.at("flexWrap");
             }
             if (j.count("alignSelf") != 0) {
                 sheet.alignSelf = j.at("alignSelf");

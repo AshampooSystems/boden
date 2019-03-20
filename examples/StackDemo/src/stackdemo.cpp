@@ -54,7 +54,7 @@ class MainViewController : public Base
         btn2->label = "UI Demo Page";
 
         btn2->onClick() += [this](auto) {
-            auto hugePage = createUiDemoPage();
+            auto hugePage = createUiDemoPage(_window);
             this->_stack->pushView(hugePage, "HUGE UI Demo Page");
         };
 

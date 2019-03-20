@@ -35,7 +35,6 @@ public class NativeRootView extends NativeViewGroup
     {
         super(context);
 
-
         created();
     }
 

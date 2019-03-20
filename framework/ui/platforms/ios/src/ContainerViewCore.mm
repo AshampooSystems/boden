@@ -2,16 +2,14 @@
 #include <bdn/ios/ContainerViewCore.hh>
 
 @implementation BodenUIView
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-    if (auto viewCore = self.viewCore.lock()) {
-        viewCore->frameChanged();
-    }
-}
+- (void)setFrame:(CGRect)frame { [super setFrame:frame]; }
 
 - (void)layoutSubviews
 {
+    if (auto viewCore = self.viewCore.lock()) {
+        viewCore->frameChanged();
+    }
+
     if (auto viewCore = self.viewCore.lock()) {
         viewCore->startLayout();
     }

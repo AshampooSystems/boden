@@ -2,6 +2,9 @@
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/wrapper/NativeRootView.h>
 
+#include <bdn/WindowCore.h>
+#include <bdn/android/wrapper/Activity.h>
+#include <bdn/android/wrapper/Configuration.h>
 #include <utility>
 
 namespace bdn::android
@@ -56,7 +59,7 @@ namespace bdn::android
         ViewCore::init();
 
         title.onChange() += [=](auto va) {
-            wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+            wrapper::NativeRootView rootView(getJView().getParent().getRef_());
 
             rootView.setTitle(va->get());
         };
@@ -66,10 +69,23 @@ namespace bdn::android
         _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
 
         updateUIScaleFactor(rootView.getContext().getResources().getConfiguration());
+        updateOrientation(rootView.getContext().getResources().getConfiguration());
 
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
 
         content.onChange() += [=](auto va) { updateContent(va->get()); };
+
+        allowedOrientations.onChange() += [=](auto va) {
+            wrapper::Activity activity(getJView().getContext().getRef_());
+
+            if (va->get() == bdn::WindowCore::Orientation::All) {
+                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
+            } else if (va->get() & bdn::WindowCore::Orientation::PortraitMask) {
+                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
+            } else if (va->get() & bdn::WindowCore::Orientation::LandscapeMask) {
+                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
+            }
+        };
     }
 
     void WindowCore::initTag()
@@ -180,7 +196,8 @@ namespace bdn::android
 
     void WindowCore::rootViewConfigurationChanged(wrapper::Configuration config)
     {
-        updateUIScaleFactor(std::move(config));
+        updateUIScaleFactor(config);
+        updateOrientation(config);
     }
 
     void WindowCore::attachedToNewRootView(const java::Reference &javaRef)
@@ -240,6 +257,16 @@ namespace bdn::android
         double scaleFactor = dpi / 160.0;
 
         setUIScaleFactor(scaleFactor);
+    }
+
+    void WindowCore::updateOrientation(wrapper::Configuration config)
+    {
+        int orientation = config.orientation();
+        if (orientation == wrapper::Configuration::ORIENTATION_PORTRAIT) {
+            currentOrientation = WindowCore::Orientation::Portrait;
+        } else if (orientation == wrapper::Configuration::ORIENTATION_LANDSCAPE) {
+            currentOrientation = WindowCore::Orientation::LandscapeLeft;
+        }
     }
 
     std::list<std::shared_ptr<WindowCore>>
