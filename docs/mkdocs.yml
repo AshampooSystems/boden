@@ -61,6 +61,5 @@ nav:
       - reference/ui/tri_state.md
       - reference/ui/view.md
       - reference/ui/view_core.md
-      - reference/ui/view_core_type_not_supported_error.md
       - reference/ui/view_event.md
       - reference/ui/window.md
