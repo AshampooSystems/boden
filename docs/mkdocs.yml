@@ -2,6 +2,7 @@ site_name: Boden X-platform Framework
 
 theme:
   name: 'material'
+  custom_dir: 'theme'
   palette:
     primary: 'White'
 extra:
