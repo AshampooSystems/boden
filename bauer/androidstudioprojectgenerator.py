@@ -170,6 +170,28 @@ class AndroidStudioProjectGenerator(object):
 
         shutil.copy(src, dest)
 
+    def copytree(self, src, dst, symlinks=False, ignore=None):
+        for root, dirs, files in os.walk(src):
+            sub = root.replace(src + "/", "")
+            dir = os.path.join(dst, sub)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+
+            for file in files:
+                srcfile = os.path.join(root, file)
+                destfile = os.path.join(dir, file)
+                shutil.copy2(srcfile, destfile)
+
+    def copy_resources(self, app, module_directory):
+        self.make_directory(os.path.join(module_directory, "src", "main", "res"))
+
+        resource_source_dir = os.path.join(app["buildDirectory"], "android-resources")
+        resource_dest_dir = os.path.join(module_directory, "src", "main", "res")
+
+        if os.path.exists(resource_source_dir):
+            self.logger.debug("Copying resources ( %s => %s )" %(resource_source_dir, resource_dest_dir))
+            self.copytree(resource_source_dir, resource_dest_dir)
+
     def generate(self, project, androidAbi, target_dependencies, args):
         if not os.path.isdir(self.project_dir):
             os.makedirs(self.project_dir);
@@ -190,9 +212,14 @@ class AndroidStudioProjectGenerator(object):
         for app in apps:
             module_directory = os.path.join(self.project_dir, app["name"]);
 
+            resource_directory = os.path.join(module_directory, "src", "main", "res")
+            if os.path.exists(resource_directory):
+                shutil.rmtree(resource_directory)
+
             self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, android_extra_java_directories, target_dependencies[app["name"]])
             self.create_target_strings_xml(module_directory, app)
             self.copy_android_manifest(module_directory, app)
+            self.copy_resources(app, module_directory)
 
     def make_directory(self, path):
         if not os.path.isdir(path):

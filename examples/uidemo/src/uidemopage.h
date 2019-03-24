@@ -131,14 +131,14 @@ namespace bdn
 
         auto image = std::make_shared<ImageView>();
 
-        image->url = "https://www.vacationizr.com/img/favicons/apple-touch-icon-180x180.png";
+        image->url = "resource://main/images/image.png";
         container->addChildView(makeRow("Image", image));
 
         image->setLayoutStylesheet((FlexStylesheet)FlexMaximumSizeHeight(50.0f));
 
         auto lottieView = std::make_shared<LottieView>();
         lottieView->setLayoutStylesheet(FlexJsonStringify({"size" : {"width" : 50, "height" : 50}}));
-        lottieView->url = "https://img.ashampoo.com/ashampoo.com_images/img/1/external/Boden/example-animation.json";
+        lottieView->url = "resource://main/images/animation.json";
         container->addChildView(makeRow("Lottie", lottieView));
 
         lottieView->running = true;

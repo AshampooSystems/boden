@@ -2,8 +2,14 @@ package io.boden.android;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.util.Log;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieListener;
+
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class NativeLottieAnimationView extends LottieAnimationView {
     public NativeLottieAnimationView(Context context) {
@@ -30,6 +36,15 @@ public class NativeLottieAnimationView extends LottieAnimationView {
 
             }
         });
+    }
+
+    public void loadFromResource(String url) {
+        int resId = NativeRootActivity.getRootActivity().getResourceIdFromURI(url, "raw");
+
+        if(resId != -1) {
+            this.setAnimation(resId);
+        }
+
     }
 
     private native void onAnimationEnded();

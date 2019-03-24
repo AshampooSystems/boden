@@ -42,6 +42,7 @@ namespace bdn::mac
         void updateContent(const std::shared_ptr<View> &newContent);
 
       private:
+        bool _isInMoveOrResize = false;
         NSWindow *_nsWindow;
         BdnMacWindowContentViewParent_ *_nsContentParent;
 

@@ -70,6 +70,19 @@ namespace bdn::ios
                     animationView = [LOTAnimationView animationWithFilePath:localPath];
                 }
             }
+        } else if (cpp20::starts_with(url, "resource://")) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                auto server = nsURL.host;
+                NSBundle *bundle = [NSBundle mainBundle];
+                if (server && [server compare:@"main"] != NSOrderedSame) {
+                    bundle = [NSBundle bundleWithIdentifier:server];
+                }
+                if (bundle) {
+                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
+                        animationView = [LOTAnimationView animationNamed:localPath inBundle:bundle];
+                    }
+                }
+            }
         } else {
             if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
                 animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsURL];

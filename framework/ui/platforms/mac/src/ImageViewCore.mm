@@ -2,6 +2,8 @@
 
 #include <bdn/log.h>
 
+using namespace std::string_literals;
+
 namespace bdn::mac
 {
     NSView *ImageViewCore::createNSImageView()
@@ -42,30 +44,62 @@ namespace bdn::mac
     {
         ((NSImageView *)this->nsView()).image = nullptr;
 
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
+        if (bdn::cpp20::starts_with(url, "resource://"s)) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                auto server = nsURL.host;
+                NSBundle *bundle = [NSBundle mainBundle];
+                if (server && [server compare:@"main"] != NSOrderedSame) {
+                    bundle = [NSBundle bundleWithIdentifier:server];
+                }
+                if (bundle) {
+                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
+                        NSString *imageName = [localPath stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+                        imageName = [imageName stringByReplacingOccurrencesOfString:@"." withString:@"_"];
 
-        if (nsURL == nullptr) {
-            return;
+                        NSImage *image = [NSImage imageNamed:imageName];
+
+                        if (image) {
+                            ((NSImageView *)this->nsView()).image = image;
+                        }
+                    }
+                }
+            }
+        } else if (bdn::cpp20::starts_with(url, "file://"s)) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                if (auto localPath = nsURL.relativePath) {
+                    ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithContentsOfFile:localPath];
+                }
+            }
+        } else {
+
+            NSURLSession *session = [NSURLSession sharedSession];
+            NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
+
+            if (nsURL == nullptr) {
+                return;
+            }
+
+            NSURLSessionDataTask *dataTask =
+                [session dataTaskWithURL:nsURL
+                       completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
+                                           NSError *_Nullable error) {
+                         if (auto err = error) {
+                             logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
+                                         << fk::nsStringToString([err localizedDescription]) << ")";
+                         } else {
+
+                             getMainDispatcher()->enqueue([=]() {
+                                 ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithData:nsData];
+                                 this->scheduleLayout();
+                                 this->markDirty();
+                             });
+                         }
+                       }];
+
+            [dataTask resume];
         }
 
-        NSURLSessionDataTask *dataTask =
-            [session dataTaskWithURL:nsURL
-                   completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                       NSError *_Nullable error) {
-                     if (auto err = error) {
-                         logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
-                                     << fk::nsStringToString([err localizedDescription]) << ")";
-                     } else {
-
-                         getMainDispatcher()->enqueue([=]() {
-                             ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithData:nsData];
-                             this->scheduleLayout();
-                             this->markDirty();
-                         });
-                     }
-                   }];
-
-        [dataTask resume];
+        this->scheduleLayout();
+        this->markDirty();
     }
 }

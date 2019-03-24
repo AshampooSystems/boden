@@ -5,6 +5,8 @@
 
 #import <Foundation/Foundation.h>
 
+using namespace std::string_literals;
+
 @interface BodenUIImageView : UIImageView <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
 @end
@@ -59,25 +61,47 @@ namespace bdn::ios
     {
         ((UIImageView *)this->uiView()).image = nullptr;
 
-        if (auto session = [NSURLSession sharedSession]) {
+        if (bdn::cpp20::starts_with(url, "resource://"s)) {
             if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                auto dataTask =
-                    [session dataTaskWithURL:nsURL
-                           completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                               NSError *_Nullable error) {
-                             if (auto err = error) {
-                                 logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString])
-                                             << "' (" << fk::nsStringToString([err localizedDescription]) << ")";
-                             } else {
-                                 getMainDispatcher()->enqueue([=]() {
-                                     ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
-                                     this->scheduleLayout();
-                                     markDirty();
-                                 });
-                             }
-                           }];
-                if (dataTask != nullptr) {
-                    [dataTask resume];
+                auto server = nsURL.host;
+                NSBundle *bundle = [NSBundle mainBundle];
+                if (server && [server compare:@"main"] != NSOrderedSame) {
+                    bundle = [NSBundle bundleWithIdentifier:server];
+                }
+                if (bundle) {
+                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
+                        ((UIImageView *)this->uiView()).image =
+                            [UIImage imageNamed:localPath inBundle:bundle compatibleWithTraitCollection:nil];
+                    }
+                }
+            }
+        } else if (bdn::cpp20::starts_with(url, "file://"s)) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                if (auto localPath = nsURL.relativePath) {
+                    ((UIImageView *)this->uiView()).image = [UIImage imageWithContentsOfFile:localPath];
+                }
+            }
+        } else {
+            if (auto session = [NSURLSession sharedSession]) {
+                if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                    auto dataTask =
+                        [session dataTaskWithURL:nsURL
+                               completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
+                                                   NSError *_Nullable error) {
+                                 if (auto err = error) {
+                                     logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString])
+                                                 << "' (" << fk::nsStringToString([err localizedDescription]) << ")";
+                                 } else {
+                                     getMainDispatcher()->enqueue([=]() {
+                                         ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
+                                         this->scheduleLayout();
+                                         markDirty();
+                                     });
+                                 }
+                               }];
+                    if (dataTask != nullptr) {
+                        [dataTask resume];
+                    }
                 }
             }
         }

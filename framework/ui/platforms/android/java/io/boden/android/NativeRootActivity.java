@@ -6,9 +6,16 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
+import dalvik.system.DexFile;
 
+import android.util.Log;
 import android.view.MenuItem;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Vector;
 
@@ -92,6 +99,37 @@ public class NativeRootActivity extends FragmentActivity
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    public int getResourceIdFromURI(String uri, String type) {
+        URI aUri = null;
+        try {
+            aUri = new URI(uri);
+        } catch (URISyntaxException e) {
+            return -1;
+        }
+
+        String path = aUri.getPath();
+
+        path = path.replace('/', '_');
+        path = path.replace('.', '_');
+
+        path = path.substring(1); // Remove leading
+
+        return getResourceIdFromString(path, type);
+    }
+
+    public int getResourceIdFromString(String resName, String type) {
+        try {
+            Class<?> cls = Class.forName("io.boden.android." + _libName + ".R$" + type);
+
+            Field idField = cls.getDeclaredField(resName);
+            return idField.getInt(idField);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 
     @Override
     public void onConfigurationChanged (Configuration newConfig) {

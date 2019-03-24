@@ -64,11 +64,13 @@ namespace bdn::mac
 
                 [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
                 scheduleLayout();
+                markDirty();
             };
 
             wrap.onChange() += [=](auto va) {
                 _wrap = wrap;
                 scheduleLayout();
+                markDirty();
             };
         }
 

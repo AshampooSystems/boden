@@ -5,7 +5,7 @@ list(APPEND WEBVIEWDEMO_FILES ${_WEBVIEWDEMO_SOURCES})
 SET(MACOSX_BUNDLE_BUNDLE_NAME webviewdemo)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.webviewdemo")
 
-ios_configure_asset(WEBVIEWDEMO_ASSETS ../IOS_DemoIcons.xcassets)
+ios_configure_asset(WEBVIEWDEMO_ASSETS ../DemoAssets/IOS_DemoIcons.xcassets)
 ios_configure_asset(WEBVIEWDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
 

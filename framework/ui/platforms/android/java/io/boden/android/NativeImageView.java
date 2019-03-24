@@ -9,6 +9,8 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class NativeImageView extends AppCompatImageView
@@ -30,9 +32,25 @@ public class NativeImageView extends AppCompatImageView
         @Override
         protected Bitmap doInBackground(String... params) {
             Bitmap bitmap = null;
+
             try {
-                URL url = new URL(params[0]);
-                bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
+                URI aUri = null;
+                try {
+                    aUri = new URI(params[0]);
+                } catch (URISyntaxException e) {
+                    return bitmap;
+                }
+
+                if(aUri.getScheme().equals("resource")) {
+                    int resId = NativeRootActivity.getRootActivity().getResourceIdFromURI(params[0], "drawable");
+                    if(resId != -1) {
+                        bitmap = BitmapFactory.decodeResource(NativeRootActivity.getRootActivity().getResources(), resId );
+                    }
+                }
+                else {
+                    URL url = new URL(params[0]);
+                    bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {

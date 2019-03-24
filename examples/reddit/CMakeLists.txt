@@ -5,7 +5,7 @@ list(APPEND REDDIT_FILES ${_REDDIT_SOURCES})
 SET(MACOSX_BUNDLE_BUNDLE_NAME reddit)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.reddit")
 
-ios_configure_asset(REDDIT_ASSETS ../IOS_DemoIcons.xcassets)
+ios_configure_asset(REDDIT_ASSETS ../DemoAssets/IOS_DemoIcons.xcassets)
 ios_configure_asset(REDDIT_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 
 
@@ -25,8 +25,6 @@ set_target_version(TARGET reddit VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION 
 
 
 use_boden_template_info_plist(reddit)
-
-group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${REDDIT_FILES})
 
 target_link_libraries(reddit PRIVATE Boden::All)
 

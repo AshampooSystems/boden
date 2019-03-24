@@ -107,9 +107,11 @@ namespace bdn::mac
 
         content.onChange() += [=](auto va) { updateContent(va->get()); };
 
-        geometry.onChange() += [&window = self->_nsWindow](auto va) {
-            NSScreen *screen = [NSScreen mainScreen];
-            [window setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
+        geometry.onChange() += [=](auto va) {
+            if (!_isInMoveOrResize) {
+                NSScreen *screen = [NSScreen mainScreen];
+                [_nsWindow setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
+            }
         };
 
         visible.onChange() += [&window = self->_nsWindow](auto va) {
@@ -131,6 +133,8 @@ namespace bdn::mac
 
     void WindowCore::_movedOrResized()
     {
+        _isInMoveOrResize = true;
+
         this->geometry = macRectToRect(_nsWindow.frame, (int)_getNsScreen().frame.size.height);
 
         Rect rContent = macRectToRect([_nsWindow contentRectForFrameRect:_nsWindow.frame], -1);
@@ -143,6 +147,8 @@ namespace bdn::mac
         } else {
             currentOrientation = Orientation::Portrait;
         }
+
+        _isInMoveOrResize = false;
     }
 
     void WindowCore::scheduleLayout() { _nsContentParent.needsLayout = static_cast<BOOL>(true); }

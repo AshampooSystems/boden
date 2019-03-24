@@ -46,15 +46,35 @@ namespace bdn::mac
         }
 
         if (cpp20::starts_with(url, "file://")) {
-            NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
-            NSString *localPath = nsurl.relativePath;
-            if (localPath != nullptr) {
-                animationView = [LOTAnimationView animationWithFilePath:localPath];
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                if (auto localPath = nsURL.relativePath) {
+                    animationView = [LOTAnimationView animationWithFilePath:localPath];
+                }
+            }
+        } else if (cpp20::starts_with(url, "resource://")) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                auto server = nsURL.host;
+                NSBundle *bundle = [NSBundle mainBundle];
+                if (server && [server compare:@"main"] != NSOrderedSame) {
+                    bundle = [NSBundle bundleWithIdentifier:server];
+                }
+                if (bundle) {
+                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
+                        NSRange lastDot = [localPath rangeOfString:@"." options:NSBackwardsSearch];
+                        NSString *ext = [localPath substringFromIndex:lastDot.location];
+
+                        NSString *resourceName = [localPath stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+                        resourceName = [resourceName stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+
+                        resourceName = [NSString stringWithFormat:@"%@%@", resourceName, ext];
+
+                        animationView = [LOTAnimationView animationNamed:resourceName inBundle:bundle];
+                    }
+                }
             }
         } else {
-            NSURL *nsurl = [NSURL URLWithString:fk::stringToNSString(url)];
-            if (nsurl != nullptr) {
-                animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsurl];
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+                animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsURL];
             }
         }
 

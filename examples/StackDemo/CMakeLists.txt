@@ -5,12 +5,18 @@ list(APPEND STACKDEMO_FILES ${_STACKDEMO_SOURCES})
 SET(MACOSX_BUNDLE_BUNDLE_NAME stackdemo)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.stackdemo")
 
-ios_configure_asset(STACKDEMO_ASSETS ../IOS_DemoIcons.xcassets)
 ios_configure_asset(STACKDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
+ios_configure_asset(STACKDEMO_ASSETS ../DemoAssets/IOS_DemoIcons.xcassets)
 
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 
-add_universal_executable(stackdemo TIDY SOURCES ${STACKDEMO_FILES} ${STACKDEMO_ASSETS})
+roger_add(
+    stackdemo
+    UIDEMO_RESOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/../DemoAssets/demo_resources.json
+    "main")
+
+add_universal_executable(stackdemo TIDY SOURCES ${STACKDEMO_FILES} ${STACKDEMO_ASSETS} ${UIDEMO_RESOURCES})
 
 ios_configure_app_info(TARGET stackdemo
     LAUNCHSCREEN "LaunchScreen"
