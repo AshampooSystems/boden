@@ -27,18 +27,22 @@ markdown_extensions:
       permalink: true
 
 nav:
+  - Index: index.md
   - Getting Started: 'getting-started.md'
   - Setup: 'setup.md'
   - Reference:
     - Foundation:
       - Base: 'reference/foundation/base.md'
       - String: 'reference/foundation/string.md'
+      - reference/foundation/size.md
       - Android:
         - Java:
           - Wrapping Java: 'reference/foundation/android/java/wrap-java-class.md'
+          - reference/foundation/android/java/jtobject.md
+          - reference/foundation/android/java/method.md
+          - reference/foundation/android/java/object.md
     - Layout:
       - Summary: 'reference/layout/summary.md'
-      - Layout: 'reference/layout/layout.md'
       - Stylesheet: 'reference/layout/stylesheet.md'
       - Yoga:
         - Summary: 'reference/layout/yoga/summary.md'
@@ -60,6 +64,7 @@ nav:
       - reference/ui/text_field.md
       - reference/ui/text_view.md
       - reference/ui/tri_state.md
+      - reference/ui/ui_provider.md
       - reference/ui/view.md
       - reference/ui/view_core.md
       - reference/ui/view_event.md

@@ -15,8 +15,6 @@ namespace bdn::ios
         void operator=(UIProvider const &) = delete;
 
       public:
-        String getName() const override;
-
         static std::shared_ptr<UIProvider> get();
 
         double getSemSizeDips() const { return _semDips; }

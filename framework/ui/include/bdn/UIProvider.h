@@ -17,22 +17,12 @@ namespace bdn
                        public std::enable_shared_from_this<UIProvider>
     {
       public:
-        UIProvider() = default;
-
         using ContextStack = std::vector<std::shared_ptr<UIContext>>;
 
-        virtual String getName() const = 0;
-
+      public:
         std::shared_ptr<ViewCore> createViewCore(const String &coreTypeName);
 
-        template <class CoreType>
-        static std::shared_ptr<ViewCore> makeCore(const std::shared_ptr<UIProvider> &uiProvider)
-        {
-            auto viewCore = std::make_shared<CoreType>(uiProvider);
-            viewCore->init();
-            return viewCore;
-        }
-
+      public:
         template <class CoreType, class ViewType> void registerCoreType()
         {
             registerConstruction(ViewType::coreTypeName, &makeCore<CoreType>);
@@ -53,6 +43,15 @@ namespace bdn
             }
 
             throw std::runtime_error("Invalid UIContext");
+        }
+
+      private:
+        template <class CoreType>
+        static std::shared_ptr<ViewCore> makeCore(const std::shared_ptr<UIProvider> &uiProvider)
+        {
+            auto viewCore = std::make_shared<CoreType>(uiProvider);
+            viewCore->init();
+            return viewCore;
         }
 
       private:

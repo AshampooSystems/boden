@@ -49,6 +49,4 @@ namespace bdn::ios
         registerCoreType<StackCore, Stack>();
         registerCoreType<ImageViewCore, ImageView>();
     }
-
-    String UIProvider::getName() const { return "ios"; }
 }

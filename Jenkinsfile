@@ -13,47 +13,64 @@ pipeline {
     }
 
     stages {
-        stage('Check formatting') {
-            environment {
-                BAUER_PLATFORM = 'mac'
-                BAUER_BUILD_SYSTEM = 'make'
-                BAUER_CONFIG = 'Release'
-                BAUER_PACKAGE_FOLDER = 'package'
-                BAUER_PACKAGE_GENERATOR = 'TGZ'
-            }
-            agent { label 'macOS' }
-            stages {
-                stage('Run clang-format') {
-                    steps {
-                        sh 'python boden.py build --target FormatSources'
+        stage('Checks') {
+            parallel {
+                stage('Formatting') {
+                    environment {
+                        BAUER_PLATFORM = 'mac'
+                        BAUER_BUILD_SYSTEM = 'make'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
                     }
-                }
-                stage('Check for changes') {
-                    steps {
-                        script {
-                            List<String> sourceChanged = sh(returnStdout: true, script: "git diff --name-only").split()
-                            if(sourceChanged.size() > 0) {
-                                String changedFiles = "Some files were changed by clang-format, make sure to format before committing:\n";
-                                for (int i = 0; i < sourceChanged.size(); i++) {
-                                    changedFiles += sourceChanged[i] + "\n";
-                                    if(i > 10) {
-                                        changedFiles += "...\n";
-                                        break;
-                                    }
-                                }
-                                println changedFiles
-                                error(changedFiles)
+                    agent { label 'macOS' }
+                    stages {
+                        stage('Run clang-format') {
+                            steps {
+                                sh 'python boden.py build --target FormatSources'
                             }
                         }
+                        stage('Check for changes') {
+                            steps {
+                                script {
+                                    List<String> sourceChanged = sh(returnStdout: true, script: "git diff --name-only").split()
+                                    if(sourceChanged.size() > 0) {
+                                        String changedFiles = "Some files were changed by clang-format, make sure to format before committing:\n";
+                                        for (int i = 0; i < sourceChanged.size(); i++) {
+                                            changedFiles += sourceChanged[i] + "\n";
+                                            if(i > 10) {
+                                                changedFiles += "...\n";
+                                                break;
+                                            }
+                                        }
+                                        println changedFiles
+                                        error(changedFiles)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('mkdocs') {
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_mkdocs'
+                            label 'boden'
+                            additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
+                        }
+                    }
+
+                    steps {
+                        sh '/usr/bin/python3 -m pip install -r docs/requirements.txt'
+                        sh 'cd docs && /usr/bin/python3 check-docs.py'
                     }
                 }
             }
         }
 
-        stage('Building and testing (parallel)') {
-
+        stage('Platforms') {
             parallel {
-
                 stage('Android Build') {
                     environment {
                         BAUER_PLATFORM = 'android'
@@ -192,31 +209,60 @@ pipeline {
                 }
             }
         }
-        stage('Release') {
-            when {
-                branch "release/*"
-            }
-            agent {
-                dockerfile {
-                    filename 'Dockerfile_github'
-                    args '--volume ${WORKSPACE}:/boden'
+
+        stage('Deployment') {
+            parallel {
+                stage('mkdocs') {
+                    when {
+                        branch "master"
+                    }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_mkdocs'
+                            label 'boden'
+                            additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
+                        }
+                    }
+
+                    steps {
+                        withCredentials([sshUserPrivateKey(credentialsId: 'deploy-boden', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                            sh 'git remote add documentation git@github.com:AshampooSystems/boden-private.git || true'
+                            sh '/usr/bin/python3 -m pip install -r docs/requirements.txt'
+
+                            withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -o User=${SSH_USER} -i ${SSH_KEY}"]) {
+                                sh 'cd docs && /usr/bin/python3 -m mkdocs gh-deploy --force -c --remote-name documentation'
+                            }
+                        }
+                    }
                 }
-            }
 
-            steps {
-                /*unstash 'android-packages'*/
-                unstash 'ios-packages'
-                unstash 'macos-packages'
-                unstash 'linux-packages'
+                stage('Release') {
+                    when {
+                        branch "release/*"
+                    }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_github'
+                            args '--volume ${WORKSPACE}:/boden'
+                        }
+                    }
 
-                script {
-                    env.RELEASE_NAME = env.BRANCH_NAME.split('/')[1]
+                    steps {
+                        /*unstash 'android-packages'*/
+                        unstash 'ios-packages'
+                        unstash 'macos-packages'
+                        unstash 'linux-packages'
+
+                        script {
+                            env.RELEASE_NAME = env.BRANCH_NAME.split('/')[1]
+                        }
+
+                        sh 'github-release delete --tag $RELEASE_NAME || true'
+                        sh 'github-release release --target $GIT_COMMIT --tag $RELEASE_NAME --name "boden - $RELEASE_NAME"'
+                        sh 'ls /boden/build/package'
+                        sh 'cd build/package && find . -exec sh -c \'github-release upload --tag $RELEASE_NAME --name $(basename $0) --file $0\' {} ";"'
+                    }
                 }
-
-                sh 'github-release delete --tag $RELEASE_NAME || true'
-                sh 'github-release release --target $GIT_COMMIT --tag $RELEASE_NAME --name "boden - $RELEASE_NAME"'
-                sh 'ls /boden/build/package'
-                sh 'cd build/package && find . -exec sh -c \'github-release upload --tag $RELEASE_NAME --name $(basename $0) --file $0\' {} ";"'
             }
         }
     }

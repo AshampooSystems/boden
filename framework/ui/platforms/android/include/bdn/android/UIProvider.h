@@ -16,8 +16,6 @@ namespace bdn::android
         void operator=(UIProvider const &) = delete;
 
       public:
-        String getName() const override;
-
         static std::shared_ptr<UIProvider> get();
 
         double getSemSizeDips(bdn::android::ViewCore &core);

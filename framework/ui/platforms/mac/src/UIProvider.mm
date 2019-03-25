@@ -47,8 +47,6 @@ namespace bdn::mac
         registerCoreType<ImageViewCore, ImageView>();
     }
 
-    String UIProvider::getName() const { return "mac"; }
-
     std::shared_ptr<UIProvider> UIProvider::get()
     {
         static std::shared_ptr<UIProvider> globalUIProvider = std::make_shared<UIProvider>();

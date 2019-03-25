@@ -65,6 +65,4 @@ namespace bdn::android
         registerCoreType<ImageViewCore, ImageView>();
         registerCoreType<RowContainerCore, RowContainerView>();
     }
-
-    String UIProvider::getName() const { return "android"; }
 }
