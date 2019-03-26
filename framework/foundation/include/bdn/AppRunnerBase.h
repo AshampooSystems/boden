@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/AppControllerBase.h>
 #include <bdn/AppLaunchInfo.h>
+#include <bdn/ApplicationController.h>
 #include <bdn/IDispatcher.h>
 
 #include <functional>
@@ -21,7 +21,7 @@ namespace bdn
     class AppRunnerBase : public Base
     {
       public:
-        AppRunnerBase(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+        AppRunnerBase(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator,
                       const AppLaunchInfo &launchInfo)
         {
             _appControllerCreator = std::move(appControllerCreator);
@@ -87,7 +87,7 @@ namespace bdn
 
       private:
         AppLaunchInfo _launchInfo;
-        std::function<std::shared_ptr<AppControllerBase>()> _appControllerCreator;
+        std::function<std::shared_ptr<ApplicationController>()> _appControllerCreator;
         static std::thread::id _mainThreadId;
 
         bool _appControllerBeginLaunchCalled = false;

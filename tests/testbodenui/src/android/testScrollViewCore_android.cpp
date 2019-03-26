@@ -5,7 +5,7 @@
 #include <bdn/Window.h>
 #include <bdn/android/JHorizontalScrollView.h>
 #include <bdn/android/JScrollView.h>
-#include <bdn/android/UIProvider.h>
+#include <bdn/android/ViewCoreFactory.h>
 #include <bdn/test/TestScrollViewCore.h>
 
 using namespace bdn;

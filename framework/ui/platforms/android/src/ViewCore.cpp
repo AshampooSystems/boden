@@ -1,4 +1,3 @@
-#include <bdn/android/UIProvider.h>
 #include <bdn/android/ViewCore.h>
 
 #include <cmath>
@@ -120,32 +119,6 @@ namespace bdn::android
             updateGeometry();
             updateChildren();
         }
-    }
-
-    double ViewCore::getFontSizeDips() const
-    {
-        // most views do not have a font attached on android. So for
-        // most views we return the sem size.
-        return getSemSizeDips();
-    }
-
-    double ViewCore::getEmSizeDips() const
-    {
-        if (_emDipsIfInitialized == -1) {
-            _emDipsIfInitialized = getFontSizeDips();
-        }
-
-        return _emDipsIfInitialized;
-    }
-
-    double ViewCore::getSemSizeDips() const
-    {
-        if (_semDipsIfInitialized == -1) {
-            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-            _semDipsIfInitialized = UIProvider::get()->getSemSizeDips(*const_cast<ViewCore *>(this));
-        }
-
-        return _semDipsIfInitialized;
     }
 
     void ViewCore::updateGeometry()

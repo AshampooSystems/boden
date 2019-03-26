@@ -8,6 +8,11 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(Checkbox)
+    }
+
     class Checkbox : public View
     {
       public:
@@ -15,7 +20,7 @@ namespace bdn
         Property<TriState> state;
 
       public:
-        Checkbox(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        Checkbox(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
         ISyncNotifier<const ClickEvent &> &onClick();
 

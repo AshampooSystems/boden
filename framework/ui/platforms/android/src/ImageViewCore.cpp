@@ -3,10 +3,15 @@
 
 #include <bdn/entry.h>
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ImageView, bdn::android::ImageViewCore, ImageView)
+}
+
 namespace bdn::android
 {
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeImageView>(uiProvider))
+    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeImageView>(viewCoreFactory))
     {
         url.onChange() += [=](auto va) {
             _imageSize = Size{0, 0};

@@ -4,8 +4,15 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(ContainerView)
+    }
 
-    ContainerView::ContainerView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
+    ContainerView::ContainerView(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
+    {
+        detail::VIEW_CORE_REGISTER(ContainerView, View::viewCoreFactory());
+    }
 
     void ContainerView::addChildView(const std::shared_ptr<View> &childView)
     {

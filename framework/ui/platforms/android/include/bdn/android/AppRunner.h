@@ -15,7 +15,7 @@ namespace bdn::android
         AppLaunchInfo _makeLaunchInfo(wrapper::Intent intent);
 
       public:
-        AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, wrapper::Intent intent);
+        AppRunner(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator, wrapper::Intent intent);
 
         bool isCommandLineApp() const override;
 

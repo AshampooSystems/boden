@@ -33,7 +33,7 @@ namespace bdn::ios
       public:
         static std::shared_ptr<SwitchCore> create();
 
-        SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~SwitchCore() override;
 
         void init() override;

@@ -83,7 +83,7 @@
                 [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
             cell.clipsToBounds = YES;
 
-            fixedView = std::make_shared<bdn::FixedView>(core->uiProvider());
+            fixedView = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
             fixedView->offerLayout(core->layout());
 
             [cell.contentView addSubview:fixedView->core<bdn::ios::ViewCore>()->uiView()];
@@ -164,6 +164,11 @@
 }
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ListView, bdn::ios::ListViewCore, ListView)
+}
+
 namespace bdn::ios
 {
     BodenUITableView *createUITableView()
@@ -172,8 +177,8 @@ namespace bdn::ios
         return uiTableView;
     }
 
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createUITableView())
+    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createUITableView())
     {}
 
     void ListViewCore::init()

@@ -15,7 +15,7 @@ namespace bdn::mac
     class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
       public:
-        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~WindowCore() override;
 
       public:
@@ -34,8 +34,6 @@ namespace bdn::mac
         Rect getScreenWorkArea() const;
         Size getMinimumSize() const;
         Margin getNonClientMargin() const;
-        double getEmSizeDips() const;
-        double getSemSizeDips() const;
 
         NSScreen *_getNsScreen() const;
 

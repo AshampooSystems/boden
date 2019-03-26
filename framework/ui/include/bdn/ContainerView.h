@@ -6,10 +6,15 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(ContainerView)
+    }
+
     class ContainerView : public View
     {
       public:
-        ContainerView(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        ContainerView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
         static constexpr char coreTypeName[] = "bdn.ContainerViewCore";

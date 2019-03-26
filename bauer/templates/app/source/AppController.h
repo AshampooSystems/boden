@@ -1,11 +1,11 @@
 #pragma once
 
 #include "MainViewController.h"
-#include <bdn/UIAppControllerBase.h>
+#include <bdn/UIApplicationController.h>
 
 using namespace bdn;
 
-class AppController : public UIAppControllerBase
+class AppController : public UIApplicationController
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override;

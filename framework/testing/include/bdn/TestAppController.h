@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/AppControllerBase.h>
-#include <bdn/UIAppControllerBase.h>
+#include <bdn/ApplicationController.h>
+#include <bdn/UIApplicationController.h>
 
 namespace bdn
 {
@@ -11,7 +11,7 @@ namespace bdn
         Usually you do not need to use this directly. Use the macro
        #BDN_TEST_APP_INIT() instead.
     */
-    class TestAppController : public UIAppControllerBase
+    class TestAppController : public UIApplicationController
     {
       public:
         TestAppController();
@@ -19,8 +19,6 @@ namespace bdn
 
         void beginLaunch(const AppLaunchInfo &launchInfo) override;
         void finishLaunch(const AppLaunchInfo &launchInfo) override;
-
-        void unhandledProblem(IUnhandledProblem &problem) override;
 
       protected:
         class Impl;

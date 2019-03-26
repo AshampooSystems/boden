@@ -26,34 +26,15 @@ namespace bdn::ios
     class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
     {
       private:
-        static BodenUILabel *createUILabel()
-        {
-            BodenUILabel *label = [[BodenUILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-            label.numberOfLines = 0;
-            return label;
-        }
+        static BodenUILabel *createUILabel();
 
       public:
-        TextViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, createUILabel())
-        {
-            _uiLabel = (UILabel *)uiView();
+        TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
-            text.onChange() += [=](auto va) {
-                _uiLabel.text = fk::stringToNSString(text);
-                markDirty();
-            };
-
-            wrap.onChange() += [=](auto va) {
-                _uiLabel.numberOfLines = wrap ? 0 : 1;
-                markDirty();
-            };
-        }
-
-        UILabel *getUILabel() { return _uiLabel; }
+      private:
+        UILabel *getUILabel();
 
       protected:
-        double getFontSize() const override { return _uiLabel.font.pointSize; }
-
         bool canAdjustToAvailableWidth() const override { return true; }
 
       private:

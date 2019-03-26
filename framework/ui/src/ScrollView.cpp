@@ -6,10 +6,15 @@
 
 namespace bdn
 {
-
-    ScrollView::ScrollView(std::shared_ptr<UIProvider> uiProvider)
-        : View(std::move(uiProvider)), verticalScrollingEnabled(true)
+    namespace detail
     {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(ScrollView)
+    }
+
+    ScrollView::ScrollView(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
+        : View(std::move(viewCoreFactory)), verticalScrollingEnabled(true)
+    {
+        detail::VIEW_CORE_REGISTER(ScrollView, View::viewCoreFactory());
         content.onChange() += [=](auto va) { _content.update(shared_from_this(), va->get()); };
     }
 

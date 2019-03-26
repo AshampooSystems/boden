@@ -12,7 +12,7 @@ namespace bdn::ios
         AppLaunchInfo _makeLaunchInfo(int argCount, char *args[]);
 
       public:
-        AppRunner(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argCount,
+        AppRunner(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, int argCount,
                   char *args[]);
 
         bool isCommandLineApp() const override;

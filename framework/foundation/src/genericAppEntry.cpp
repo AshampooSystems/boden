@@ -7,7 +7,7 @@
 namespace bdn
 {
 
-    int genericCommandLineAppEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator,
+    int genericCommandLineAppEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator,
                                    int argc, char *argv[])
     {
         auto appRunner = std::make_shared<GenericAppRunner>(appControllerCreator, argc, argv, true);

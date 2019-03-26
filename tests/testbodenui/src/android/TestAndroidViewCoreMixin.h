@@ -2,8 +2,8 @@
 #define BDN_TEST_TestAndroidViewCore_H_
 
 #include <bdn/View.h>
-#include <bdn/android/UIProvider.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/ViewCoreFactory.h>
 
 namespace bdn
 {
@@ -30,7 +30,7 @@ namespace bdn
                 REQUIRE(!_jView.isNull_());
             }
 
-            std::shared_ptr<UIProvider> uiProvider() override { return bdn::android::UIProvider::get(); }
+            std::shared_ptr<ViewCoreFactory> viewCoreFactory() override { return bdn::android::ViewCoreFactory::get(); }
 
             void verifyCoreVisibility() override
             {

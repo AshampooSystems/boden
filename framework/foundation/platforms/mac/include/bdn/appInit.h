@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/AppControllerBase.h>
+#include <bdn/ApplicationController.h>
 #include <bdn/platform/macplatform.h>
 
 #ifdef BDN_COMPILING_COMMANDLINE_APP

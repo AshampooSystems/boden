@@ -8,8 +8,8 @@ namespace bdn::webview::detail
 
 namespace bdn::android
 {
-    WebViewCore::WebViewCore(const std::shared_ptr<UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeWebView>(uiProvider)),
+    WebViewCore::WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeWebView>(viewCoreFactory)),
           _jWebView(getJViewAS<wrapper::WebView>())
     {
         userAgent.onChange() += [=](auto va) { getJViewAS<wrapper::NativeWebView>().setUserAgent(va->get()); };

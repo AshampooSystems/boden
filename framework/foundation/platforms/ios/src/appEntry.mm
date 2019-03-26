@@ -9,7 +9,7 @@
 
 namespace bdn::ios
 {
-    int appEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argc,
+    int appEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, int argc,
                  char *argv[])
     {
         int returnValue = 0;

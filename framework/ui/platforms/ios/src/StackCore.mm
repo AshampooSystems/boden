@@ -67,8 +67,8 @@
 - (void)loadView
 {
     if (auto core = _stackCore.lock()) {
-        _fixedView = std::make_shared<bdn::FixedView>(core->uiProvider());
-        _safeContent = std::make_shared<bdn::FixedView>(core->uiProvider());
+        _fixedView = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
+        _safeContent = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
 
         self.view = _fixedView->core<bdn::ios::ViewCore>()->uiView();
 
@@ -95,6 +95,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Stack, bdn::ios::StackCore, Stack)
+}
+
 namespace bdn::ios
 {
     BodenUINavigationControllerContainerView *createNavigationControllerView()
@@ -107,8 +112,8 @@ namespace bdn::ios
         return view;
     }
 
-    StackCore::StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createNavigationControllerView())
+    StackCore::StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createNavigationControllerView())
     {}
 
     void StackCore::init()

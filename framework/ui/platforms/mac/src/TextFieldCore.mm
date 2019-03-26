@@ -39,6 +39,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(TextField, bdn::mac::TextFieldCore, TextField)
+}
+
 namespace bdn::mac
 {
     NSTextField *TextFieldCore::_createNsTextView()
@@ -50,8 +55,8 @@ namespace bdn::mac
         return textField;
     }
 
-    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, _createNsTextView())
+    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : bdn::mac::ViewCore(viewCoreFactory, _createNsTextView())
     {}
 
     TextFieldCore::~TextFieldCore()

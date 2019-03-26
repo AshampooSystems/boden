@@ -11,7 +11,7 @@
 namespace bdn
 {
     class View;
-    class UIProvider;
+    class ViewCoreFactory;
 
     template <class _Fp> class WeakCallback;
 
@@ -77,7 +77,8 @@ namespace bdn
 
       public:
         ViewCore() = delete;
-        ViewCore(std::shared_ptr<bdn::UIProvider> uiProvider) : _uiProvider(std::move(uiProvider)) {}
+        ViewCore(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory))
+        {}
         ~ViewCore() override = default;
 
       public:
@@ -97,10 +98,10 @@ namespace bdn
 
         virtual void visitInternalChildren(const std::function<void(std::shared_ptr<ViewCore>)> & /*unused*/) {}
 
-        std::shared_ptr<bdn::UIProvider> uiProvider() { return _uiProvider; }
+        std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
 
       private:
-        std::shared_ptr<bdn::UIProvider> _uiProvider;
+        std::shared_ptr<bdn::ViewCoreFactory> _viewCoreFactory;
         std::shared_ptr<Layout> _layout;
 
         WeakCallback<void()> _layoutCallback;

@@ -70,6 +70,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(TextField, bdn::ios::TextFieldCore, TextField)
+}
+
 namespace bdn::ios
 {
     BodenUITextField *_createUITextField()
@@ -90,8 +95,8 @@ namespace bdn::ios
         return textField;
     }
 
-    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, _createUITextField())
+    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, _createUITextField())
     {}
 
     void TextFieldCore::init()

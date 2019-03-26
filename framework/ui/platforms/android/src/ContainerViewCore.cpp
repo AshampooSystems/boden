@@ -2,10 +2,15 @@
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/entry.h>
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ContainerView, bdn::android::ContainerViewCore, ContainerView)
+}
+
 namespace bdn::android
 {
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeViewGroup>(uiProvider))
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeViewGroup>(viewCoreFactory))
     {}
 
     ContainerViewCore::~ContainerViewCore() = default;

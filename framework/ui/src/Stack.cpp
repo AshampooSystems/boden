@@ -5,8 +5,15 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(Stack)
+    }
 
-    Stack::Stack(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) {}
+    Stack::Stack(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
+    {
+        detail::VIEW_CORE_REGISTER(Stack, View::viewCoreFactory());
+    }
 
     Stack::~Stack() = default;
 

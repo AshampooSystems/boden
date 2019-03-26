@@ -11,14 +11,11 @@ namespace bdn::android
     class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
     {
       public:
-        ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
         wrapper::Button &getJButton();
 
         void clicked() override;
-
-      protected:
-        double getFontSizeDips() const override;
 
       private:
         mutable wrapper::Button _jButton;

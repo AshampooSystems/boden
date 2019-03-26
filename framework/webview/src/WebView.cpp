@@ -1,5 +1,5 @@
-#include <bdn/UIProvider.h>
 #include <bdn/UIUtil.h>
+#include <bdn/ViewCoreFactory.h>
 #include <bdn/WebView.h>
 #include <bdn/WebViewCore.h>
 
@@ -10,9 +10,9 @@ namespace bdn
         VIEW_CORE_REGISTRY_IMPLEMENTATION(WebView)
     }
 
-    WebView::WebView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
+    WebView::WebView(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
-        webview::detail::VIEW_CORE_REGISTER(WebView, View::uiProvider());
+        webview::detail::VIEW_CORE_REGISTER(WebView, View::viewCoreFactory());
 
         registerCoreCreatingProperties(this, &url);
         url.onChange() += [this](auto) { loadURL(url); };

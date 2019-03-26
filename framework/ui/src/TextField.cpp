@@ -3,9 +3,14 @@
 
 namespace bdn
 {
-
-    TextField::TextField(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
+    namespace detail
     {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(TextField)
+    }
+
+    TextField::TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
+    {
+        detail::VIEW_CORE_REGISTER(TextField, View::viewCoreFactory());
         _onSubmit = std::make_shared<SimpleNotifier<const SubmitEvent &>>();
     }
 

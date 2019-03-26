@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -28,7 +27,7 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.WebViewCore";
 
       public:
-        WebView(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        WebView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~WebView() override = default;
 
       public:

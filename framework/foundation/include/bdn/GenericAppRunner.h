@@ -33,12 +33,12 @@ namespace bdn
 
       public:
         /** \param appControllerCreator function that creates the app controller
-           (see AppControllerBase) \param argCount number of commandline
+           (see ApplicationController) \param argCount number of commandline
            arguments \param args array of C-style strings with the commandline
            arguments \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+        GenericAppRunner(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator, int argCount,
                          char *args[], bool commandLineApp)
             : AppRunnerBase(std::move(appControllerCreator), _makeLaunchInfo(argCount, args)),
               _commandLineApp(commandLineApp)
@@ -47,11 +47,11 @@ namespace bdn
         }
 
         /** \param appControllerCreator function that creates the app controller
-           (see AppControllerBase) \param launchInfo application launch
+           (see ApplicationController) \param launchInfo application launch
            information \param commandLineApp indicates whether or not the
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
-        GenericAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+        GenericAppRunner(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator,
                          const AppLaunchInfo &launchInfo, bool commandLineApp)
             : AppRunnerBase(std::move(appControllerCreator), launchInfo), _commandLineApp(commandLineApp)
         {

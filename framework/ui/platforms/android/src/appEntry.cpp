@@ -9,7 +9,7 @@
 namespace bdn::android
 {
 
-    void appEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, JNIEnv *env,
+    void appEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, JNIEnv *env,
                   jobject rawIntent)
     {
         bdn::platformEntryWrapper(

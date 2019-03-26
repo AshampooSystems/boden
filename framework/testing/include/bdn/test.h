@@ -39,8 +39,6 @@
 
 #include <type_traits>
 
-#include <bdn/IUnhandledProblem.h>
-
 #define TWOBLUECUBES_BDN_HPP_INCLUDED
 
 #ifdef __clang__
@@ -4328,8 +4326,6 @@ namespace bdn
     namespace test
     {
 
-        void _setUnhandledProblemHandler(std::function<void(IUnhandledProblem &)> func);
-
         /** You can use this inside test applications (those that use one of
            Boden's default test app controllers) to temporarily intercept
            unhandled problems and redirect their handler to a custom function.
@@ -4364,16 +4360,6 @@ namespace bdn
             \endcode
 
             */
-        class RedirectUnhandledProblem : public Base
-        {
-          public:
-            RedirectUnhandledProblem(std::function<void(IUnhandledProblem &)> func)
-            {
-                _setUnhandledProblemHandler(func);
-            }
-
-            ~RedirectUnhandledProblem() { _setUnhandledProblemHandler(std::function<void(IUnhandledProblem &)>()); }
-        };
     }
 }
 

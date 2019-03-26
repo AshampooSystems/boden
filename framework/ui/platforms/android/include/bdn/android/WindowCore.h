@@ -20,7 +20,7 @@ namespace bdn::android
         wrapper::View createJNativeViewGroup();
 
       public:
-        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~WindowCore() override;
 
         void enableBackButton(bool enable);

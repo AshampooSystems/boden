@@ -3,7 +3,7 @@
 
 #include <bdn/Window.h>
 #import <bdn/mac/ChildViewCore.hh>
-#import <bdn/mac/UIProvider.hh>
+#import <bdn/mac/ViewCoreFactory.hh>
 #import <bdn/mac/WindowCore.hh>
 #include <bdn/test/TestWindowCore.h>
 
@@ -41,7 +41,7 @@ class TestMacWindowCore : public bdn::test::TestWindowCore
         REQUIRE(_nsWindow != nullptr);
     }
 
-    std::shared_ptr<UIProvider> uiProvider() override { return bdn::mac::UIProvider::get(); }
+    std::shared_ptr<ViewCoreFactory> viewCoreFactory() override { return bdn::mac::ViewCoreFactory::get(); }
 
     void verifyCoreVisibility() override
     {

@@ -7,33 +7,27 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(Button)
+    }
 
-    /** A simple button with a text label.*/
     class Button : public View
     {
       public:
         Property<String> label;
 
       public:
-        Button(std::shared_ptr<UIProvider> uiProvider = nullptr) : View(std::move(uiProvider))
-        {
-            _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
-        }
+        Button(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
-        ISyncNotifier<const ClickEvent &> &onClick() { return *_onClick; }
+      public:
+        ISyncNotifier<const ClickEvent &> &onClick();
 
+      public:
         String viewCoreTypeName() const override { return coreTypeName; }
 
-        void bindViewCore() override
-        {
-            View::bindViewCore();
-            auto buttonCore = core<ButtonCore>();
-            buttonCore->label.bind(label);
-            _clickCallbackReceiver = buttonCore->_clickCallback.set([=]() {
-                ClickEvent evt(shared_from_this());
-                _onClick->notify(evt);
-            });
-        }
+      protected:
+        void bindViewCore() override;
 
       public:
         static constexpr char coreTypeName[] = "bdn.ButtonCore";

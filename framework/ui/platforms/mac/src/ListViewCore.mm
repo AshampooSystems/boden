@@ -60,7 +60,7 @@
                 result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 result.identifier = @"Column";
 
-                fixedView = std::make_shared<bdn::FixedView>(listCore->uiProvider());
+                fixedView = std::make_shared<bdn::FixedView>(listCore->viewCoreFactory());
                 fixedView->offerLayout(listCore->layout());
 
                 if (auto core = fixedView->core<bdn::mac::ViewCore>()) {
@@ -223,10 +223,15 @@
 }
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ListView, bdn::mac::ListViewCore, ListView)
+}
+
 namespace bdn::mac
 {
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createNSTableView())
+    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createNSTableView())
     {}
 
     ListViewCore::~ListViewCore() { _nativeDelegate.listCore = std::weak_ptr<ListViewCore>(); }

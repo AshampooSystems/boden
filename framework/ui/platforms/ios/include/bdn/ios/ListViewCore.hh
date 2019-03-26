@@ -10,10 +10,10 @@ namespace bdn::ios
 {
     class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
     {
-        friend class bdn::UIProvider;
+        friend class bdn::ViewCoreFactory;
 
       public:
-        ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~ListViewCore() override = default;
 
         void reloadData() override;

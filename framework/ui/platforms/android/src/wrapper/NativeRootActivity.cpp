@@ -6,7 +6,8 @@
 #include <bdn/android/ContextWrapper.h>
 #include <bdn/android/wrapper/Context.h>
 
-#include <bdn/android/UIProvider.h>
+#include <bdn/UIApplicationController.h>
+#include <bdn/UIContext.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootActivity_nativeRegisterAppContext(JNIEnv *env,
                                                                                                     jclass cls,
@@ -18,7 +19,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootActivity_nativ
                 std::make_shared<bdn::android::UIContext>(std::make_unique<bdn::android::ContextWrapper>(
                     bdn::android::wrapper::Context(bdn::java::Reference::convertExternalLocal(rawContext))));
 
-            bdn::UIProvider::pushContext(uiContext);
+            bdn::UIApplicationController::topViewCoreFactory()->pushContext(uiContext);
         },
         true, env);
 }

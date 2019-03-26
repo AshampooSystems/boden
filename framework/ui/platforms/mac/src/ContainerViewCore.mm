@@ -24,6 +24,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ContainerView, bdn::mac::ContainerViewCore, ContainerView)
+}
+
 namespace bdn::mac
 {
     NSView *ContainerViewCore::_createContainer()
@@ -32,12 +37,12 @@ namespace bdn::mac
         return macContainerView;
     }
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ContainerViewCore(uiProvider, _createContainer())
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ContainerViewCore(viewCoreFactory, _createContainer())
     {}
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *view)
-        : bdn::mac::ViewCore(uiProvider, view)
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *view)
+        : bdn::mac::ViewCore(viewCoreFactory, view)
     {}
 
     void ContainerViewCore::init()

@@ -8,7 +8,7 @@
 
 #import <bdn/mac/util.hh>
 
-#import <bdn/mac/UIProvider.hh>
+#import <bdn/mac/ViewCoreFactory.hh>
 
 #import <bdn/mac/ScrollViewCore.hh>
 

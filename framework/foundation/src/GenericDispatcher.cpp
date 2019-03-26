@@ -8,6 +8,76 @@
 namespace bdn
 {
 
+    void GenericDispatcher::dispose()
+    {
+        // disposes the dispatcher and clears any pending items from the queue (without executing them).
+        std::unique_lock lock(_mutex);
+
+        for (auto &queue : _queues) {
+            // remove the objects one by one so that we can ignore
+            // exceptions that happen in the destructor.
+            while (!queue.empty()) {
+                logAndIgnoreException(
+                    [&]() {
+                        // make a copy so that pop_front is not aborted if the destructor fails.
+                        std::function<void()> item = queue.front();
+                        queue.pop_front();
+                    },
+                    "Error clearing GenericDispatcher item during dispose. "
+                    "Ignoring.");
+            }
+        }
+
+        // also remove timed items
+        while (!_timedItemMap.empty()) {
+            logAndIgnoreException(
+                [=]() {
+                    // make a copy so that pop_front is not aborted if the
+                    // destructor fails.
+                    std::function<void()> func = _timedItemMap.begin()->second.func;
+                    _timedItemMap.erase(_timedItemMap.begin());
+                },
+                "Error clearing GenericDispatcher timed item during "
+                "dispose. Ignoring.");
+        }
+    }
+
+    void GenericDispatcher::enqueue(std::function<void()> func, bdn::IDispatcher::Priority priority)
+    {
+        std::unique_lock lock(_mutex);
+        enqueue(func, priority, lock);
+    }
+
+    void GenericDispatcher::enqueue(std::function<void()> func, IDispatcher::Priority priority,
+                                    std::unique_lock<std::mutex> &lk)
+    {
+        getQueue(priority).push_back(func);
+        _somethingChanged = true;
+        _notify.notify_one();
+    }
+
+    void GenericDispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+                                           IDispatcher::Priority priority)
+    {
+
+        if (delay <= IDispatcher::Duration::zero()) {
+            enqueue(func, priority);
+        } else {
+            addTimedItem(Clock::now() + delay, func, priority);
+        }
+    }
+
+    void GenericDispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
+    {
+        if (interval <= 0s) {
+            throw InvalidArgumentError("GenericDispatcher::createTimer must be called with "
+                                       "interval > 0");
+        }
+        std::shared_ptr<Timer> timer = std::make_shared<Timer>(this, func, interval);
+
+        timer->scheduleNextEvent();
+    }
+
     bool GenericDispatcher::executeNext()
     {
         // go through the queues in priority order and handle one item
@@ -28,88 +98,119 @@ namespace bdn
         return false;
     }
 
+    std::optional<IDispatcher::TimePoint> GenericDispatcher::timePointOfNextScheduledItem()
+    {
+        std::unique_lock lock(_mutex);
+
+        if (!_timedItemMap.empty()) {
+            return std::get<0>(_timedItemMap.begin()->first);
+        }
+
+        return std::nullopt;
+    }
+
     bool GenericDispatcher::waitForNext(IDispatcher::Duration timeout)
     {
-        bool absoluteTimeoutTimeInitialized = false;
-        TimePoint absoluteTimeoutTime;
+        TimePoint absoluteTimeoutTime = Clock::now();
 
-        while (true) {
-            IDispatcher::Duration currWaitSeconds{0s};
+        if (timeout > 0s) {
+            absoluteTimeoutTime += timeout;
+        }
 
-            {
-                std::unique_lock lock(_mutex);
-
-                std::function<void()> func;
-
-                if (getNextReady(func, false)) {
-                    // we have items pending that are ready to be executed.
-                    return true;
-                }
-                if (timeout <= 0s) {
-                    // no items ready and the caller does not want us to wait.
-                    // So, return false.
-                    return false;
-                }
-
-                // we have no items ready to be executed. So we have to wait
-                // until we get new items, or until a timed item becomes active
-
-                TimePoint now = Clock::now();
-
-                // get an absolute timeout time.
-                if (!absoluteTimeoutTimeInitialized) {
-                    absoluteTimeoutTime = now + timeout;
-                    absoluteTimeoutTimeInitialized = true;
-                }
-
-                if (now >= absoluteTimeoutTime) {
-                    // timeout has expired
-                    return false;
-                }
-
-                TimePoint nextCheckTime = absoluteTimeoutTime;
-
-                if (!_timedItemMap.empty()) {
-                    // see when the next timed item will become active
-
-                    auto it = _timedItemMap.begin();
-                    const TimedItemKey &key(it->first);
-
-                    auto &scheduledTime = std::get<0>(key);
-
-                    if (scheduledTime < nextCheckTime) {
-                        nextCheckTime = scheduledTime;
-                    }
-                }
-
-                Duration currWaitDuration = nextCheckTime - now;
-                currWaitSeconds = currWaitDuration;
-
-                // wait at least a millisecond
-                if (currWaitDuration < 1ms) {
-                    currWaitDuration = 1ms;
-                }
-
-                _somethingChangedSignal.clear();
+        do {
+            std::function<void()> func;
+            if (getNextReady(func, false)) {
+                return true;
             }
 
-            // if the signal gets set then something changed in the queue.
-            // So we want to check again.
-            // If the signal does not get set then we have either reached the
-            // timeout, or the first timed item became active. In either case
-            // we also want to check again.
-            // So the return value of the wait does not matter.
-            _somethingChangedSignal.wait(currWaitSeconds);
-        }
+            auto timeLeft = absoluteTimeoutTime - Clock::now();
+            auto nextScheduled = timePointOfNextScheduledItem();
+
+            std::unique_lock lk(_mutex);
+            if (nextScheduled != std::nullopt && nextScheduled < absoluteTimeoutTime) {
+                _notify.wait_until(lk, *nextScheduled);
+            } else {
+                _notify.wait_until(lk, absoluteTimeoutTime);
+            }
+        } while (Clock::now() < absoluteTimeoutTime);
 
         return false;
     }
 
-    bool GenericDispatcher::getNextReady(std::function<void()> &func, bool remove)
+    void GenericDispatcher::enqueueTimedItemsIfTimeReached()
+    {
+        std::unique_lock<std::mutex> lk(_mutex);
+
+        if (!_timedItemMap.empty()) {
+            auto now = std::chrono::steady_clock::now();
+
+            while (true) {
+                auto it = _timedItemMap.begin();
+                if (it == _timedItemMap.end()) {
+                    break;
+                }
+
+                const TimedItemKey &key(it->first);
+                const TimedItem &val(it->second);
+
+                auto &scheduledTime = std::get<0>(key);
+
+                if (scheduledTime > now) {
+                    // the scheduled time is in the future. We can stop
+                    // here. Note that the map entries are sorted by time,
+                    // so we know that all other items are also in the
+                    // future
+                    break;
+                }
+
+                enqueue(val.func, val.priority, lk);
+                _timedItemMap.erase(it);
+            }
+        }
+    }
+
+    void GenericDispatcher::addTimedItem(IDispatcher::TimePoint scheduledTime, std::function<void()> func,
+                                         bdn::IDispatcher::Priority priority)
     {
         std::unique_lock lock(_mutex);
 
+        // we enqueue all timed items in a map, so that the set of scheduled
+        // items remains sorted automatically and we can easily find the
+        // next one. The map key is a tuple of the scheduled time and a
+        // scheduling counter. The job of the counter is to ensure that
+        // items that are scheduled at the same time do not overwrite each
+        // other and are also sorted in the order in which they were
+        // enqueued.
+        TimedItemKey key(scheduledTime, _timedItemCounter);
+        _timedItemCounter++;
+
+        TimedItem &item = _timedItemMap[key];
+        item.func = std::move(func);
+        item.priority = priority;
+
+        _somethingChanged = true;
+
+        _notify.notify_one();
+    }
+
+    std::list<std::function<void()>> &GenericDispatcher::getQueue(IDispatcher::Priority priority)
+    {
+
+        switch (priority) {
+        case Priority::idle:
+            return _queues[0];
+        case Priority::normal:
+            return _queues[1];
+        }
+
+        throw InvalidArgumentError("Invalid dispatcher item priority: " + std::to_string((int)priority));
+    }
+
+    bool GenericDispatcher::getNextReady(std::function<void()> &func, bool remove)
+    {
         enqueueTimedItemsIfTimeReached();
+
+        std::unique_lock lock(_mutex);
 
         // go through the queues in priority order and handle one item
         for (auto it = _queues.rbegin(); it != _queues.rend(); it++) {

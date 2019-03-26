@@ -39,8 +39,8 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/ErrorInfo.h>
 
-#include <bdn/AppControllerBase.h>
 #include <bdn/AppRunnerBase.h>
+#include <bdn/ApplicationController.h>
 #include <bdn/IDispatcher.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/TestAppController.h>
@@ -8315,12 +8315,6 @@ namespace bdn
 
     namespace test
     {
-        std::function<void(IUnhandledProblem &)> _globalUnhandledProblemHandler;
-
-        void _setUnhandledProblemHandler(std::function<void(IUnhandledProblem &)> func)
-        {
-            _globalUnhandledProblemHandler = func;
-        }
     }
 
     static void doTestProcessExit(int exitCode, bool force)
@@ -8395,15 +8389,6 @@ namespace bdn
         {
             // schedule our first test to be called
             scheduleNextTest();
-        }
-
-        bool unhandledProblem(IUnhandledProblem &problem)
-        {
-            if (bdn::test::_globalUnhandledProblemHandler) {
-                bdn::test::_globalUnhandledProblemHandler(problem);
-                return true;
-            } else
-                return false;
         }
 
         void onTestDone() { scheduleNextTest(); }
@@ -8489,10 +8474,4 @@ namespace bdn
     }
 
     void TestAppController::finishLaunch(const AppLaunchInfo &launchInfo) { _impl->finishLaunch(); }
-
-    void TestAppController::unhandledProblem(IUnhandledProblem &problem)
-    {
-        if (!_impl->unhandledProblem(problem))
-            AppControllerBase::unhandledProblem(problem);
-    }
 }

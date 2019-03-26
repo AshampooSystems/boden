@@ -4,7 +4,7 @@
 #include <bdn/test/TestContainerViewCore.h>
 
 #include "TestAndroidViewCoreMixin.h"
-#include <bdn/android/UIProvider.h>
+#include <bdn/android/ViewCoreFactory.h>
 
 using namespace bdn;
 

@@ -1,7 +1,7 @@
 #include <bdn/LottieView.h>
 #include <bdn/LottieViewCore.h>
-#include <bdn/UIProvider.h>
 #include <bdn/UIUtil.h>
+#include <bdn/ViewCoreFactory.h>
 
 namespace bdn
 {
@@ -10,9 +10,9 @@ namespace bdn
         VIEW_CORE_REGISTRY_IMPLEMENTATION(LottieView)
     }
 
-    LottieView::LottieView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
+    LottieView::LottieView(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
-        lottieview::detail::VIEW_CORE_REGISTER(LottieView, View::uiProvider());
+        lottieview::detail::VIEW_CORE_REGISTER(LottieView, View::viewCoreFactory());
 
         registerCoreCreatingProperties(this, &url);
         url.onChange() += [this](auto) { loadURL(url); };

@@ -17,17 +17,22 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ContainerView, bdn::ios::ContainerViewCore, ContainerView)
+}
+
 namespace bdn::ios
 {
     BodenUIView *_createContainer() { return [[BodenUIView alloc] initWithFrame:CGRectZero]; }
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, _createContainer())
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, _createContainer())
     {}
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider,
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
                                          id<UIViewWithFrameNotification> view)
-        : ViewCore(uiProvider, view)
+        : ViewCore(viewCoreFactory, view)
     {}
 
     bool ContainerViewCore::canAdjustToAvailableWidth() const { return true; }

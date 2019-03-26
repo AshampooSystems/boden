@@ -7,9 +7,13 @@
 #include <bdn/android/wrapper/Configuration.h>
 #include <utility>
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Window, bdn::android::WindowCore, Window)
+}
+
 namespace bdn::android
 {
-
     wrapper::View WindowCore::createJNativeViewGroup()
     {
         // we need a context to create our view object.
@@ -38,8 +42,8 @@ namespace bdn::android
         return view;
     }
 
-    WindowCore::WindowCore(const std::shared_ptr<UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createJNativeViewGroup())
+    WindowCore::WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createJNativeViewGroup())
     {}
 
     WindowCore::~WindowCore()

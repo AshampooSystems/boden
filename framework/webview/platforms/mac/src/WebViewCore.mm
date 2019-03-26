@@ -23,8 +23,8 @@ namespace bdn::mac
         return [[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration];
     }
 
-    WebViewCore::WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createWKWebView())
+    WebViewCore::WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createWKWebView())
     {}
 
     void WebViewCore::init()

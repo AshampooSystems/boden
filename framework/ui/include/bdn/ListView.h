@@ -5,6 +5,11 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(ListView)
+    }
+
     class ListView : public View
     {
       public:
@@ -19,7 +24,7 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.ListViewCore";
 
       public:
-        ListView(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        ListView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~ListView() override = default;
 
       public:

@@ -14,8 +14,8 @@ namespace bdn::lottieview::detail
 
 namespace bdn::android
 {
-    LottieViewCore::LottieViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeLottieAnimationView>(uiProvider))
+    LottieViewCore::LottieViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeLottieAnimationView>(viewCoreFactory))
     {}
 
     void LottieViewCore::init()

@@ -39,6 +39,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Switch, bdn::mac::SwitchCore, Switch)
+}
+
 namespace bdn::mac
 {
     BdnMacSwitchComposite *SwitchCore::_createSwitchComposite()
@@ -58,8 +63,8 @@ namespace bdn::mac
         return switchComposite;
     }
 
-    SwitchCore::SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, _createSwitchComposite())
+    SwitchCore::SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : bdn::mac::ViewCore(viewCoreFactory, _createSwitchComposite())
     {}
 
     SwitchCore::~SwitchCore()

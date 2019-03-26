@@ -34,29 +34,16 @@ namespace bdn
         ~logstream() override { logInfo(str()); }
     };
 
-/** \def BDN_LOG_AND_IGNORE_EXCEPTION( call, errorContextMessage )
-
-    Executes the specified code and catches all exceptions. The exceptions
-    are logged (together with the errorContextMessage for additional context
-   information) but otherwise they are ignore.
-
-    Example:
-
-    \code
-
-    BDN_LOG_AND_IGNORE_EXCEPTION( doSomethingThatMightCauseAnException(), "Error
-   while doing X.");
-
-    \endcode
-*/
-#define BDN_LOG_AND_IGNORE_EXCEPTION(code, errorContextMessage)                                                        \
-    try {                                                                                                              \
-        code;                                                                                                          \
-    }                                                                                                                  \
-    catch (std::exception & _bdn_e) {                                                                                  \
-        bdn::logError(_bdn_e, errorContextMessage);                                                                    \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        bdn::logError(errorContextMessage);                                                                            \
+    inline void logAndIgnoreException(std::function<void()> function, String errorContextMessage)
+    {
+        try {
+            function();
+        }
+        catch (std::exception &e) {
+            bdn::logError(e, errorContextMessage);
+        }
+        catch (...) {
+            bdn::logError(errorContextMessage);
+        }
     }
 }

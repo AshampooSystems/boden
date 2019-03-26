@@ -2,8 +2,8 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/ViewCore.hh>
+#import <bdn/ios/ViewCoreFactory.hh>
 #import <bdn/ios/WindowCore.hh>
 #include <bdn/test/TestWindowCore.h>
 
@@ -22,7 +22,7 @@ class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin<bdn::test::Test
         REQUIRE(_uIWindow != nullptr);
     }
 
-    std::shared_ptr<UIProvider> uiProvider() override { return bdn::ios::UIProvider::get(); }
+    std::shared_ptr<ViewCoreFactory> viewCoreFactory() override { return bdn::ios::ViewCoreFactory::get(); }
 
     void verifyCoreTitle() override
     {

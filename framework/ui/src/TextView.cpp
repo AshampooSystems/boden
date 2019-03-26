@@ -3,8 +3,15 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(TextView)
+    }
 
-    TextView::TextView(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider)) { wrap = true; }
+    TextView::TextView(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory)), wrap(true)
+    {
+        detail::VIEW_CORE_REGISTER(TextView, View::viewCoreFactory());
+    }
 
     void TextView::bindViewCore()
     {

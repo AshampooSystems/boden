@@ -7,7 +7,7 @@
 
 #include <bdn/entry.h>
 
-#include <bdn/AppControllerBase.h>
+#include <bdn/ApplicationController.h>
 
 #import <UIKit/UIKit.h>
 
@@ -91,8 +91,8 @@ namespace bdn::ios
         return launchInfo;
     }
 
-    AppRunner::AppRunner(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argCount,
-                         char *args[])
+    AppRunner::AppRunner(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator,
+                         int argCount, char *args[])
         : AppRunnerBase(appControllerCreator, _makeLaunchInfo(argCount, args))
     {
         _mainDispatcher = std::make_shared<bdn::fk::MainDispatcher>();
@@ -143,12 +143,12 @@ namespace bdn::ios
 
     void AppRunner::_applicationDidBecomeActive(UIApplication *application)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onActivate(); }, false);
     }
 
     void AppRunner::_applicationWillResignActive(UIApplication *application)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onDeactivate(); }, false);
     }
 
     void AppRunner::_applicationDidEnterBackground(UIApplication *application) {}
@@ -157,7 +157,7 @@ namespace bdn::ios
 
     void AppRunner::_applicationWillTerminate(UIApplication *application)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onTerminate(); }, false);
     }
 
     void AppRunner::initiateExitIfPossible(int exitCode)

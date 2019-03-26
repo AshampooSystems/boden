@@ -2,7 +2,6 @@
 #include <bdn/test.h>
 
 #include <bdn/OneShotStateNotifier.h>
-#include <bdn/Signal.h>
 
 using namespace bdn;
 
@@ -27,11 +26,11 @@ template <class T1, class T2> static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 class OneShotStateNotifierDestructTest : public Base
 {
   public:
-    OneShotStateNotifierDestructTest(std::shared_ptr<Signal> signal) { _signal = signal; }
+    OneShotStateNotifierDestructTest(std::shared_ptr<bool> signal) { _signal = signal; }
 
-    ~OneShotStateNotifierDestructTest() { _signal->set(); }
+    ~OneShotStateNotifierDestructTest() { *_signal = true; }
 
-    std::shared_ptr<Signal> _signal;
+    std::shared_ptr<bool> _signal;
 };
 
 template <class... ArgTypes>
@@ -99,7 +98,7 @@ void testOneShotStateNotifier(std::shared_ptr<OneShotNotifierTestData> testData,
 
     SECTION("subscriptions are released after notify")
     {
-        std::shared_ptr<Signal> destructedSignal = std::make_shared<Signal>();
+        std::shared_ptr<bool> destructedSignal = std::make_shared<bool>(false);
 
         {
             std::shared_ptr<OneShotStateNotifierDestructTest> destructTest =
@@ -112,7 +111,7 @@ void testOneShotStateNotifier(std::shared_ptr<OneShotNotifierTestData> testData,
             };
         }
 
-        REQUIRE(!destructedSignal->isSet());
+        REQUIRE(*destructedSignal == false);
 
         notifier->postNotification(args...);
 
@@ -122,7 +121,7 @@ void testOneShotStateNotifier(std::shared_ptr<OneShotNotifierTestData> testData,
 
             // the reference held by the lambda function should have been
             // released.
-            REQUIRE(destructedSignal->isSet());
+            REQUIRE(*destructedSignal);
         };
     }
 }

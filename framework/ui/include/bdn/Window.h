@@ -2,18 +2,23 @@
 
 #include <bdn/View.h>
 
-#include <bdn/UIProvider.h>
+#include <bdn/ViewCoreFactory.h>
 #include <bdn/WindowCore.h>
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(Window)
+    }
+
     class Window : public View
     {
       public:
         using Orientation = WindowCore::Orientation;
 
       public:
-        Window(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        Window(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
         Property<Rect> contentGeometry;

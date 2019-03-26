@@ -16,8 +16,8 @@
 
 namespace bdn::mac
 {
-    ViewCore::ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *nsView)
-        : bdn::ViewCore(uiProvider), _nsView(nsView)
+    ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView)
+        : bdn::ViewCore(viewCoreFactory), _nsView(nsView)
     {
         if (_nsView != nullptr) {
 

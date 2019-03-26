@@ -11,7 +11,7 @@ namespace bdn::android
     class WebViewCore : public ViewCore, virtual public bdn::WebViewCore
     {
       public:
-        WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~WebViewCore() override = default;
 
         void loadURL(const String &url) override;

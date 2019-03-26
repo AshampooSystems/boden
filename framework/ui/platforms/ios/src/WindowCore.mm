@@ -170,6 +170,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Window, bdn::ios::WindowCore, Window)
+}
+
 namespace bdn::ios
 {
     BodenRootViewController *createRootViewController()
@@ -185,12 +190,13 @@ namespace bdn::ios
         return rootViewCtrl;
     }
 
-    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, BodenRootViewController *viewController)
-        : ViewCore(uiProvider, viewController.safeRootView), _rootViewController(viewController)
+    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+                           BodenRootViewController *viewController)
+        : ViewCore(viewCoreFactory, viewController.safeRootView), _rootViewController(viewController)
     {}
 
-    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : WindowCore(uiProvider, createRootViewController())
+    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : WindowCore(viewCoreFactory, createRootViewController())
     {}
 
     WindowCore::~WindowCore()

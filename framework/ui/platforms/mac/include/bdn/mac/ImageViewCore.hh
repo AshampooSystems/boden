@@ -9,7 +9,7 @@ namespace bdn::mac
     class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
     {
       public:
-        ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
       protected:
         void setUrl(const String &url);

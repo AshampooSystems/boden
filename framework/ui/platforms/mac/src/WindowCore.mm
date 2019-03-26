@@ -46,9 +46,16 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Window, bdn::mac::WindowCore, Window)
+}
+
 namespace bdn::mac
 {
-    WindowCore::WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, nullptr) {}
+    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, nullptr)
+    {}
 
     WindowCore::~WindowCore()
     {
@@ -184,26 +191,6 @@ namespace bdn::mac
 
         return Margin(fabs(windowRect.y), fabs(windowRect.x + windowRect.width - dummyContentSize.width),
                       fabs(windowRect.y + windowRect.height - dummyContentSize.height), fabs(windowRect.x));
-    }
-
-    double WindowCore::getEmSizeDips() const
-    {
-        if (_emDipsIfInitialized == -1) {
-            // windows on mac cannot have their own font attached. So
-            // use the system font size
-            _emDipsIfInitialized = getSemSizeDips();
-        }
-
-        return _emDipsIfInitialized;
-    }
-
-    double WindowCore::getSemSizeDips() const
-    {
-        if (_semDipsIfInitialized == -1) {
-            _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
-        }
-
-        return _semDipsIfInitialized;
     }
 
     NSScreen *WindowCore::_getNsScreen() const

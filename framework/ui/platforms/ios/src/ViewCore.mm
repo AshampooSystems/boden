@@ -5,8 +5,9 @@
 
 namespace bdn::ios
 {
-    ViewCore::ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> uiView)
-        : bdn::ViewCore(uiProvider)
+    ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+                       id<UIViewWithFrameNotification> uiView)
+        : bdn::ViewCore(viewCoreFactory)
     {
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
 
@@ -73,34 +74,6 @@ namespace bdn::ios
     bool ViewCore::canAdjustToAvailableWidth() const { return false; }
 
     bool ViewCore::canAdjustToAvailableHeight() const { return false; }
-
-    double ViewCore::getFontSize() const
-    {
-        // most views do not have a font size attached to them on ios.
-        // UILabel and UIButton are pretty much the only ones.
-        // Those should override this function.
-        // In the default implementation we simply return the system
-        // font size.
-        return getSemSizeDips();
-    }
-
-    double ViewCore::getEmSizeDips() const
-    {
-        if (_emDipsIfInitialized == -1) {
-            _emDipsIfInitialized = getFontSize();
-        }
-
-        return _emDipsIfInitialized;
-    }
-
-    double ViewCore::getSemSizeDips() const
-    {
-        if (_semDipsIfInitialized == -1) {
-            _semDipsIfInitialized = UIProvider::get()->getSemSizeDips();
-        }
-
-        return _semDipsIfInitialized;
-    }
 
     void ViewCore::scheduleLayout() { [_view setNeedsLayout]; }
 }

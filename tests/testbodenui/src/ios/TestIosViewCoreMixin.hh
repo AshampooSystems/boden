@@ -2,8 +2,8 @@
 #define BDN_TEST_TestIosViewCore_H_
 
 #include <bdn/View.h>
-#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/ViewCore.hh>
+#import <bdn/ios/ViewCoreFactory.hh>
 #import <bdn/ios/util.hh>
 
 namespace bdn
@@ -28,7 +28,7 @@ namespace bdn
                 REQUIRE(_uiView != nullptr);
             }
 
-            std::shared_ptr<UIProvider> uiProvider() override { return bdn::ios::UIProvider::get(); }
+            std::shared_ptr<ViewCoreFactory> viewCoreFactory() override { return bdn::ios::ViewCoreFactory::get(); }
 
             void verifyCoreVisibility() override
             {

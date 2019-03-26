@@ -12,7 +12,7 @@ namespace bdn::ios
     class WebViewCore : public ViewCore, virtual public bdn::WebViewCore
     {
       public:
-        WebViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~WebViewCore() override = default;
 
         void init() override;

@@ -21,6 +21,11 @@ using namespace std::string_literals;
 }
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ImageView, bdn::ios::ImageViewCore, ImageView)
+}
+
 namespace bdn::ios
 {
     UIView<UIViewWithFrameNotification> *ImageViewCore::createUIImageView()
@@ -51,8 +56,8 @@ namespace bdn::ios
         return ViewCore::sizeForSpace(availableSize);
     }
 
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createUIImageView())
+    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createUIImageView())
     {
         url.onChange() += [=](auto va) { setUrl(va->get()); };
     }

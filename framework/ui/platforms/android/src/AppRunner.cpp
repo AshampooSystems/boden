@@ -43,7 +43,7 @@ namespace bdn::android
         return launchInfo;
     }
 
-    AppRunner::AppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator,
+    AppRunner::AppRunner(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator,
                          wrapper::Intent intent)
         : AppRunnerBase(std::move(appControllerCreator), AppRunner::_makeLaunchInfo(std::move(intent)))
     {
@@ -70,8 +70,6 @@ namespace bdn::android
     void AppRunner::initiateExitIfPossible(int exitCode)
     {
         // android apps should never exit on their own. So, do nothing here.
-        int x = 0;
-        x++;
     }
 
     void AppRunner::openURL(const String &url)

@@ -4,12 +4,13 @@ namespace bdn
 {
     class View;
     class ViewCore;
-    class UIProvider;
+    class ViewCoreFactory;
 }
 
 #include <bdn/Layout.h>
 #include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
+#include <bdn/UIUtil.h>
 #include <bdn/ViewCore.h>
 #include <bdn/mainThread.h>
 #include <bdn/property/Property.h>
@@ -30,7 +31,7 @@ namespace bdn
 
       public:
         View() = delete;
-        View(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        View(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         View(const View &o) = delete;
 
         ~View() override;
@@ -49,7 +50,7 @@ namespace bdn
 
         template <class T> void setLayoutStylesheet(T sheet) { layoutStylesheet = std::make_shared<T>(sheet); }
 
-        std::shared_ptr<UIProvider> uiProvider() { return _uiProvider; }
+        std::shared_ptr<ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
 
         virtual std::list<std::shared_ptr<View>> childViews() { return std::list<std::shared_ptr<View>>(); }
         virtual void removeAllChildViews() {}
@@ -88,7 +89,7 @@ namespace bdn
         WeakCallback<void()>::Receiver _layoutCallbackReceiver;
         WeakCallback<void()>::Receiver _dirtyCallbackReceiver;
 
-        std::shared_ptr<UIProvider> _uiProvider;
+        std::shared_ptr<ViewCoreFactory> _viewCoreFactory;
         std::weak_ptr<View> _parentView;
         bool _hasLayoutSchedulePending{false};
     };

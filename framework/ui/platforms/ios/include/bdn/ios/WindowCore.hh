@@ -26,13 +26,14 @@ namespace bdn::ios
 {
     class WindowCore : public ViewCore, virtual public bdn::WindowCore
     {
-        friend class bdn::UIProvider;
+        friend class bdn::ViewCoreFactory;
 
       private:
-        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, BodenRootViewController *viewController);
+        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+                   BodenRootViewController *viewController);
 
       public:
-        WindowCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~WindowCore() override;
 
         void onGeometryChanged(Rect newGeometry) override;

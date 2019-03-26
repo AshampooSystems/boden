@@ -91,6 +91,11 @@
 }
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Checkbox, bdn::ios::CheckboxCore, Checkbox)
+}
+
 namespace bdn::ios
 {
     BdnIosCheckboxComposite *CheckboxCore::_createCheckboxComposite()
@@ -107,8 +112,8 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    CheckboxCore::CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, _createCheckboxComposite())
+    CheckboxCore::CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, _createCheckboxComposite())
     {}
 
     void CheckboxCore::init()

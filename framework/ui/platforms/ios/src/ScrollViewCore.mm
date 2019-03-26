@@ -31,12 +31,17 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ScrollView, bdn::ios::ScrollViewCore, ScrollView)
+}
+
 namespace bdn::ios
 {
     BodenUIScrollView *_createScrollView() { return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)]; }
 
-    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, _createScrollView())
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, _createScrollView())
     {}
 
     void ScrollViewCore::init()

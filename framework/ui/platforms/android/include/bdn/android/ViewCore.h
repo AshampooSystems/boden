@@ -11,7 +11,7 @@
 #include <bdn/android/wrapper/View.h>
 
 #include <bdn/UIContext.h>
-#include <bdn/UIProvider.h>
+#include <bdn/ViewCoreFactory.h>
 #include <bdn/android/ContextWrapper.h>
 
 #include <utility>
@@ -22,11 +22,11 @@ namespace bdn::android
 {
     class ViewCore : public bdn::ViewCore
     {
-        friend class bdn::UIProvider;
+        friend class bdn::ViewCoreFactory;
 
       public:
-        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, wrapper::View jView)
-            : bdn::ViewCore(uiProvider), _jView(std::move(std::move(jView)))
+        ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, wrapper::View jView)
+            : bdn::ViewCore(viewCoreFactory), _jView(std::move(std::move(jView)))
         {}
         ~ViewCore() override;
 
@@ -57,11 +57,6 @@ namespace bdn::android
         virtual bool canAdjustWidthToAvailableSpace() const { return false; }
         virtual bool canAdjustHeightToAvailableSpace() const { return false; }
 
-        virtual double getFontSizeDips() const;
-
-        double getEmSizeDips() const;
-        double getSemSizeDips() const;
-
         virtual void updateGeometry();
 
       private:
@@ -79,9 +74,10 @@ namespace bdn::android
         return std::dynamic_pointer_cast<T>(viewCoreFromJavaViewRef(javaViewRef));
     }
 
-    template <class T> wrapper::View createAndroidViewClass(const std::shared_ptr<bdn::UIProvider> &uiProvider)
+    template <class T>
+    wrapper::View createAndroidViewClass(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
     {
-        T view(uiProvider->getContextStackTop<bdn::android::UIContext>()->_contextWrapper->getContext());
+        T view(viewCoreFactory->getContextStackTop<bdn::android::UIContext>()->_contextWrapper->getContext());
         return wrapper::View(view.getRef_());
     }
 }

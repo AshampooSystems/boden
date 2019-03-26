@@ -1,8 +1,8 @@
-#include <bdn/UIProvider.h>
+#include <bdn/ViewCoreFactory.h>
 
 namespace bdn
 {
-    std::shared_ptr<ViewCore> UIProvider::createViewCore(const String &coreTypeName)
+    std::shared_ptr<ViewCore> ViewCoreFactory::createViewCore(const String &coreTypeName)
     {
         auto core = create(coreTypeName, shared_from_this());
 
@@ -13,19 +13,19 @@ namespace bdn
         return *core;
     }
 
-    UIProvider::ContextStack *UIProvider::contextStack()
+    ViewCoreFactory::ContextStack *ViewCoreFactory::contextStack()
     {
         static ContextStack s_contextStack;
         return &s_contextStack;
     }
 
-    void UIProvider::pushContext(std::shared_ptr<UIContext> &context)
+    void ViewCoreFactory::pushContext(std::shared_ptr<UIContext> &context)
     {
         auto stack = contextStack();
         stack->push_back(context);
     }
 
-    void UIProvider::popContext()
+    void ViewCoreFactory::popContext()
     {
         auto stack = contextStack();
         stack->pop_back();

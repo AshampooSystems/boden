@@ -2,10 +2,15 @@
 #include <bdn/android/StackCore.h>
 #include <bdn/android/wrapper/NativeStackView.h>
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Stack, bdn::android::StackCore, Stack)
+}
+
 namespace bdn::android
 {
-    StackCore::StackCore(const std::shared_ptr<UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeStackView>(uiProvider))
+    StackCore::StackCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeStackView>(viewCoreFactory))
     {
         geometry.onChange() += [=](auto va) { this->reLayout(); };
     }
@@ -14,7 +19,7 @@ namespace bdn::android
 
     void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
-        auto fixedView = std::make_shared<FixedView>(uiProvider());
+        auto fixedView = std::make_shared<FixedView>(viewCoreFactory());
         fixedView->addChildView(view);
         fixedView->offerLayout(layout());
 

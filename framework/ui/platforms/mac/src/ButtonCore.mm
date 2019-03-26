@@ -16,6 +16,11 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Button, bdn::mac::ButtonCore, Button)
+}
+
 namespace bdn::mac
 {
     NSButton *ButtonCore::_createNsButton()
@@ -28,8 +33,8 @@ namespace bdn::mac
         return button;
     }
 
-    ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, _createNsButton()), _currBezelStyle(NSBezelStyleRounded)
+    ButtonCore::ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : bdn::mac::ViewCore(viewCoreFactory, _createNsButton()), _currBezelStyle(NSBezelStyleRounded)
     {}
 
     void ButtonCore::init()

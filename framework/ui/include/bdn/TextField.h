@@ -7,8 +7,11 @@
 
 namespace bdn
 {
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(TextField)
+    }
 
-    /** A simple single line text field */
     class TextField : public View
     {
       public:
@@ -16,7 +19,7 @@ namespace bdn
         Property<String> text;
 
       public:
-        TextField(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
         /** Static function that returns the type name for #TextField objects.
          */

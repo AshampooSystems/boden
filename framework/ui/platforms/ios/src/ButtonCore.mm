@@ -30,11 +30,17 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(Button, bdn::ios::ButtonCore, Button)
+}
+
 namespace bdn::ios
 {
     BodenUIButton *_createUIButton() { return [BodenUIButton buttonWithType:UIButtonTypeSystem]; }
 
-    ButtonCore::ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider) : ViewCore(uiProvider, _createUIButton())
+    ButtonCore::ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, _createUIButton())
     {
         _button = (UIButton *)uiView();
         [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
@@ -51,6 +57,4 @@ namespace bdn::ios
     UIButton *ButtonCore::getUIButton() { return _button; }
 
     void ButtonCore::handleClick() { _clickCallback.fire(); }
-
-    double ButtonCore::getFontSize() const { return _button.titleLabel.font.pointSize; }
 }

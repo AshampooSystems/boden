@@ -3,7 +3,7 @@
 
 #include "TestAndroidViewCoreMixin.h"
 #include <bdn/Window.h>
-#include <bdn/android/UIProvider.h>
+#include <bdn/android/ViewCoreFactory.h>
 #include <bdn/android/WindowCore.h>
 #include <bdn/test/TestWindowCore.h>
 

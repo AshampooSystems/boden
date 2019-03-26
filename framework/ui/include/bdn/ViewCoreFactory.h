@@ -2,7 +2,7 @@
 
 namespace bdn
 {
-    class UIProvider;
+    class ViewCoreFactory;
 }
 
 #include <bdn/Factory.h>
@@ -13,8 +13,8 @@ namespace bdn
 
 namespace bdn
 {
-    class UIProvider : public bdn::Factory<std::shared_ptr<ViewCore>, std::shared_ptr<UIProvider>>,
-                       public std::enable_shared_from_this<UIProvider>
+    class ViewCoreFactory : public bdn::Factory<std::shared_ptr<ViewCore>, std::shared_ptr<ViewCoreFactory>>,
+                            public std::enable_shared_from_this<ViewCoreFactory>
     {
       public:
         using ContextStack = std::vector<std::shared_ptr<UIContext>>;
@@ -47,9 +47,9 @@ namespace bdn
 
       private:
         template <class CoreType>
-        static std::shared_ptr<ViewCore> makeCore(const std::shared_ptr<UIProvider> &uiProvider)
+        static std::shared_ptr<ViewCore> makeCore(const std::shared_ptr<ViewCoreFactory> &ViewCoreFactory)
         {
-            auto viewCore = std::make_shared<CoreType>(uiProvider);
+            auto viewCore = std::make_shared<CoreType>(ViewCoreFactory);
             viewCore->init();
             return viewCore;
         }
@@ -57,6 +57,4 @@ namespace bdn
       private:
         static ContextStack *contextStack();
     };
-
-    std::shared_ptr<UIProvider> defaultUIProvider();
 }

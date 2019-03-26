@@ -136,9 +136,9 @@ namespace bdn
             _idleQueue->dispose();
 
             while (!_normalQueue.empty()) {
-                BDN_LOG_AND_IGNORE_EXCEPTION(
-                    { // make a copy so that pop_front is not aborted if the
-                      // destructor fails.
+                logAndIgnoreException(
+                    [=]() { // make a copy so that pop_front is not aborted if the
+                            // destructor fails.
                         std::function<void()> item = _normalQueue.front();
                         _normalQueue.pop_front();
                     },
@@ -151,10 +151,9 @@ namespace bdn
             // the items.
 
             for (std::function<void()> &item : _timedNormalQueue) {
-                BDN_LOG_AND_IGNORE_EXCEPTION(
-                    {
-                        // make a copy so that pop_front is not aborted if the
-                        // destructor fails.
+                logAndIgnoreException(
+                    [&]() {
+                        // make a copy so that pop_front is not aborted if thedestructor fails.
                         std::function<void()> itemCopy = item;
                         item = std::function<void()>();
                     },
@@ -165,10 +164,9 @@ namespace bdn
             // for timers we also cannot remove the items. So do the same thing
             // that we did for the normal timed items
             for (std::function<bool()> &item : _timerFuncList->funcList) {
-                BDN_LOG_AND_IGNORE_EXCEPTION(
-                    {
-                        // make a copy so that pop_front is not aborted if the
-                        // destructor fails.
+                logAndIgnoreException(
+                    [&]() {
+                        // make a copy so that pop_front is not aborted if the destructor fails.
                         std::function<bool()> itemCopy = item;
                         item = std::function<bool()>();
                     },
@@ -357,9 +355,9 @@ namespace bdn
         void MainDispatcher::IdleQueue::dispose()
         {
             while (!_funcList.empty()) {
-                BDN_LOG_AND_IGNORE_EXCEPTION(
-                    { // make a copy so that pop_front is not aborted if the
-                      // destructor fails.
+                logAndIgnoreException(
+                    [=]() { // make a copy so that pop_front is not aborted if the
+                            // destructor fails.
                         std::function<void()> item = _funcList.front();
                         _funcList.pop_front();
                     },

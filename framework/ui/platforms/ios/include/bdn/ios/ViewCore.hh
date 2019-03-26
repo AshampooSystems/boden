@@ -5,7 +5,6 @@
 #include <bdn/View.h>
 #include <bdn/ViewCore.h>
 
-#import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>
 
 namespace bdn::ios
@@ -22,7 +21,7 @@ namespace bdn::ios
     class ViewCore : public bdn::ViewCore
     {
       public:
-        ViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, id<UIViewWithFrameNotification> uiView);
+        ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView);
         ~ViewCore() override;
 
         void init() override;
@@ -43,28 +42,10 @@ namespace bdn::ios
         void scheduleLayout() override;
 
       protected:
-        /** Returns true if the view can adjust its size to fit into a given
-            width.
-            The default return value is false. Derived view classes can
-           override this to indicate that they can adapt.*/
         virtual bool canAdjustToAvailableWidth() const;
-
-        /** Returns true if the view can adjust its size to fit into a given
-            height.
-            The default return value is false. Derived view classes can
-           override this to indicate that they can adapt.*/
         virtual bool canAdjustToAvailableHeight() const;
 
       private:
-        virtual double getFontSize() const;
-
-        double getEmSizeDips() const;
-
-        double getSemSizeDips() const;
-
         UIView<UIViewWithFrameNotification> *_view;
-
-        mutable double _emDipsIfInitialized = -1;
-        mutable double _semDipsIfInitialized = -1;
     };
 }

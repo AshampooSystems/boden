@@ -35,17 +35,17 @@ namespace bdn
         platformSpecificInit();
 
         // set the app controller as the global one
-        std::shared_ptr<AppControllerBase> pAppController = _appControllerCreator();
-        AppControllerBase::_set(pAppController);
+        std::shared_ptr<ApplicationController> pAppController = _appControllerCreator();
+        ApplicationController::_set(pAppController);
     }
 
     void AppRunnerBase::beginLaunch()
     {
         _appControllerBeginLaunchCalled = true;
-        AppControllerBase::get()->beginLaunch(_launchInfo);
+        ApplicationController::get()->beginLaunch(_launchInfo);
     }
 
-    void AppRunnerBase::finishLaunch() { AppControllerBase::get()->finishLaunch(_launchInfo); }
+    void AppRunnerBase::finishLaunch() { ApplicationController::get()->finishLaunch(_launchInfo); }
 
     void AppRunnerBase::launch()
     {
@@ -58,7 +58,7 @@ namespace bdn
     void AppRunnerBase::terminating()
     {
         if (_appControllerBeginLaunchCalled) {
-            AppControllerBase::get()->onTerminate();
+            ApplicationController::get()->onTerminate();
         }
 
         // the main dispatcher may still contain some pending items. However,

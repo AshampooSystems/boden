@@ -21,8 +21,8 @@ namespace bdn::mac
 {
     NSView *createView() { return [[NSView alloc] initWithFrame:CGRectZero]; }
 
-    LottieViewCore::LottieViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createView())
+    LottieViewCore::LottieViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createView())
     {}
 
     void LottieViewCore::init()

@@ -47,10 +47,15 @@
 
 @end
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ScrollView, bdn::mac::ScrollViewCore, ScrollView)
+}
+
 namespace bdn::mac
 {
-    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, _createScrollView())
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : bdn::mac::ViewCore(viewCoreFactory, _createScrollView())
     {}
 
     ScrollViewCore::~ScrollViewCore()

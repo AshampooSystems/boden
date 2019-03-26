@@ -5,9 +5,14 @@
 
 namespace bdn
 {
-
-    Checkbox::Checkbox(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
+    namespace detail
     {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(Checkbox)
+    }
+
+    Checkbox::Checkbox(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
+    {
+        detail::VIEW_CORE_REGISTER(Checkbox, View::viewCoreFactory());
         _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
     }
 

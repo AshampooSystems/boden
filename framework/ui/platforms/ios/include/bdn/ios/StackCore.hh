@@ -14,7 +14,7 @@ namespace bdn::ios
     class StackCore : public ViewCore, virtual public bdn::StackCore
     {
       public:
-        StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
       public:
         void init() override;

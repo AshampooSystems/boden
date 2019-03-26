@@ -13,7 +13,7 @@ namespace bdn::mac
         static NSScrollView *_createScrollView();
 
       public:
-        ScrollViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~ScrollViewCore() override;
 
         void init() override;

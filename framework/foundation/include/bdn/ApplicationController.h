@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/AppLaunchInfo.h>
-#include <bdn/IUnhandledProblem.h>
 
 namespace bdn
 {
@@ -14,7 +13,7 @@ namespace bdn
 
         During the lifetime of the app, the app controllers lifecycle
        notification functions will be called at various points.
-       AppControllerBase provides a default implementation for these that does
+       ApplicationController provides a default implementation for these that does
        nothing.
 
         You control which app controller class your app uses by passing it to
@@ -22,19 +21,9 @@ namespace bdn
        #BDN_INIT_COMMANDLINE_APP(), ...
 
         */
-    class AppControllerBase : public Base
+    class ApplicationController : public Base
     {
-        friend class UIAppControllerBase;
-
       public:
-        /** Returns the app's UI provider (i.e. the object that provides
-           elements for interacting with the user).
-
-            The default implementation calls the global function
-           bdn::defaultUIProvider(). Derived app controller classes may
-           override this to control which UI provider is used.
-            */
-
         /** Called when the app launch has begun.
 
             beginLaunch should set up your user interface here and prepare the
@@ -149,22 +138,6 @@ namespace bdn
             // do nothing by default
         }
 
-        /** Called when there was an unhandled problem (like an unhandled
-           exception).
-
-            If the implementation of this method does call
-           IUnhandledProblem::keepRunning() then the app will terminate after
-           the method returns. Note that not all problems can be ignored in this
-           way (see IUnhandledProblem::canKeepRunning()).
-
-            The default implementation simply logs the problem and lets the app
-           terminate.
-
-            Note that the normal termination handlers and notifiers are often
-           not called when the app terminates because of such a problem.
-        */
-        virtual void unhandledProblem(IUnhandledProblem &problem);
-
         /** The app is about to be terminated by the operating system (i.e. it
            will be fully unloaded and stop to run).
 
@@ -184,23 +157,19 @@ namespace bdn
         }
 
         /** Returns the global app controller instance.*/
-        static std::shared_ptr<AppControllerBase> get() { return _globalAppController(); }
+        static std::shared_ptr<ApplicationController> get() { return _globalAppController(); }
 
         /** Sets the global app controller instance.
 
             This is used internally by the framework. You should not call it.
          */
-        static void _set(std::shared_ptr<AppControllerBase> pAppController)
+        static void _set(std::shared_ptr<ApplicationController> pAppController)
         {
-            std::shared_ptr<AppControllerBase> &globalAppController = _globalAppController();
+            std::shared_ptr<ApplicationController> &globalAppController = _globalAppController();
             globalAppController = std::move(pAppController);
         }
 
       private:
-        static std::shared_ptr<AppControllerBase> &_globalAppController()
-        {
-            static std::shared_ptr<AppControllerBase> controller;
-            return controller;
-        }
+        static std::shared_ptr<ApplicationController> &_globalAppController();
     };
 }

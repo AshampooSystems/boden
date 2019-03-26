@@ -12,8 +12,8 @@ namespace bdn::mac
         static NSView *_createContainer();
 
       public:
-        ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
-        explicit ContainerViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider, NSView *view);
+        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        explicit ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *view);
 
       public:
         void init() override;

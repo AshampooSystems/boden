@@ -6,7 +6,7 @@
 
 namespace bdn::mac
 {
-    int uiAppEntry(const std::function<std::shared_ptr<AppControllerBase>()> &appControllerCreator, int argc,
+    int uiAppEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, int argc,
                    char *argv[])
     {
         int returnValue = 0;

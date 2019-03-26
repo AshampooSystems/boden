@@ -259,7 +259,7 @@ class MainViewController : public Base
     std::shared_ptr<PostListViewController> _listViewController;
 };
 
-class AppController : public UIAppControllerBase
+class RedditApplicationController : public UIApplicationController
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override
@@ -271,4 +271,4 @@ class AppController : public UIAppControllerBase
     std::shared_ptr<MainViewController> _mainViewController;
 };
 
-BDN_APP_INIT(AppController)
+BDN_APP_INIT(RedditApplicationController)

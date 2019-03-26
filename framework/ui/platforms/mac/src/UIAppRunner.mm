@@ -67,7 +67,7 @@ namespace bdn::mac
         return launchInfo;
     }
 
-    UIAppRunner::UIAppRunner(std::function<std::shared_ptr<AppControllerBase>()> appControllerCreator, int argCount,
+    UIAppRunner::UIAppRunner(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator, int argCount,
                              char *args[])
         : AppRunnerBase(std::move(appControllerCreator), _makeLaunchInfo(argCount, args))
     {
@@ -113,17 +113,17 @@ namespace bdn::mac
 
     void UIAppRunner::_applicationDidBecomeActive(NSNotification *notification)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onActivate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onActivate(); }, false);
     }
 
     void UIAppRunner::_applicationDidResignActive(NSNotification *notification)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onDeactivate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onDeactivate(); }, false);
     }
 
     void UIAppRunner::_applicationWillTerminate(NSNotification *notification)
     {
-        bdn::platformEntryWrapper([&]() { AppControllerBase::get()->onTerminate(); }, false);
+        bdn::platformEntryWrapper([&]() { ApplicationController::get()->onTerminate(); }, false);
     }
 
     void UIAppRunner::initiateExitIfPossible(int exitCode)

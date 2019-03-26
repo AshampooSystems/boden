@@ -19,8 +19,9 @@ namespace bdn::android
     class RowContainerCore : public bdn::android::ContainerViewCore
     {
       public:
-        RowContainerCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-            : ContainerViewCore(uiProvider, createAndroidViewClass<wrapper::NativeListAdapterRowContainer>(uiProvider))
+        RowContainerCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+            : ContainerViewCore(viewCoreFactory,
+                                createAndroidViewClass<wrapper::NativeListAdapterRowContainer>(viewCoreFactory))
         {}
 
         std::shared_ptr<RowContainerView> getRowContainerView()

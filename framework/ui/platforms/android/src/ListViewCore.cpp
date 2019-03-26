@@ -4,10 +4,15 @@
 #include <bdn/android/wrapper/NativeListAdapter.h>
 #include <bdn/android/wrapper/NativeListView.h>
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ListView, bdn::android::ListViewCore, ListView)
+}
+
 namespace bdn::android
 {
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : ViewCore(uiProvider, createAndroidViewClass<wrapper::NativeListView>(uiProvider)),
+    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeListView>(viewCoreFactory)),
           _jNativeListView(getJViewAS<wrapper::NativeListView>()), _jListView(_jNativeListView.getListView()),
           _jNativeListAdapter(_jListView.cast<wrapper::View>())
     {

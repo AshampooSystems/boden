@@ -5,16 +5,11 @@
 namespace bdn
 {
 
-    /** A window with scrollable content.
+    namespace detail
+    {
+        VIEW_CORE_REGISTRY_DECLARATION(ScrollView)
+    }
 
-        ScrollViews have a single child view (the "content view") that displays
-       the scrollable contents. Usually this content view will be a view
-       container object, which can then contain multiple child views.
-
-        Scroll views scroll only vertically by default. See
-       horizontalScrollingEnabled() and verticalScrollingEnabled() to change
-       that.
-    */
     class ScrollView : public View
     {
       public:
@@ -44,7 +39,7 @@ namespace bdn
         void scrollClientRectToVisible(const Rect &area);
 
       public:
-        ScrollView(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        ScrollView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
         /** Static function that returns the type name for #ScrollView

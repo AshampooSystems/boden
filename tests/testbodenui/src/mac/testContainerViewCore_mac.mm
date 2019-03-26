@@ -4,7 +4,7 @@
 #include <bdn/test/TestContainerViewCore.h>
 
 #import "TestMacChildViewCoreMixin.hh"
-#import <bdn/mac/UIProvider.hh>
+#import <bdn/mac/ViewCoreFactory.hh>
 
 using namespace bdn;
 

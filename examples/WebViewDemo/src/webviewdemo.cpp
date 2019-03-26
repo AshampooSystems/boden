@@ -63,7 +63,7 @@ class MainViewController : public Base
     std::shared_ptr<Window> _window;
 };
 
-class AppController : public UIAppControllerBase
+class WebViewDemoApplicationController : public UIApplicationController
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override
@@ -75,4 +75,4 @@ class AppController : public UIAppControllerBase
     std::shared_ptr<MainViewController> _mainViewController;
 };
 
-BDN_APP_INIT(AppController)
+BDN_APP_INIT(WebViewDemoApplicationController)

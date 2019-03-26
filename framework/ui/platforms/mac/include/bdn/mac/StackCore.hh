@@ -14,7 +14,7 @@ namespace bdn::mac
     class StackCore : public ViewCore, public bdn::StackCore
     {
       public:
-        StackCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~StackCore() override;
 
         void init() override;

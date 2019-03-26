@@ -4,6 +4,11 @@
 
 using namespace std::string_literals;
 
+namespace bdn::detail
+{
+    CORE_REGISTER(ImageView, bdn::mac::ImageViewCore, ImageView)
+}
+
 namespace bdn::mac
 {
     NSView *ImageViewCore::createNSImageView()
@@ -14,8 +19,8 @@ namespace bdn::mac
         return view;
     }
 
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-        : bdn::mac::ViewCore(uiProvider, createNSImageView())
+    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : bdn::mac::ViewCore(viewCoreFactory, createNSImageView())
     {
         url.onChange() += [=](auto va) { setUrl(va->get()); };
     }

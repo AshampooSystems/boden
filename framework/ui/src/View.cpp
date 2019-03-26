@@ -1,22 +1,21 @@
 #include <bdn/View.h>
 
 #include <bdn/ProgrammingError.h>
-#include <bdn/UIProvider.h>
+#include <bdn/ViewCoreFactory.h>
 #include <bdn/debug.h>
 
-#include <bdn/UIAppControllerBase.h>
+#include <bdn/UIApplicationController.h>
 
 #include <utility>
 
 namespace bdn
 {
 
-    View::View(std::shared_ptr<UIProvider> uiProvider)
-        : _uiProvider(uiProvider ? std::move(uiProvider) : UIAppControllerBase::get()->uiProvider())
-
+    View::View(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
+        : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory) : UIApplicationController::topViewCoreFactory())
     {
-        if (!_uiProvider) {
-            throw std::runtime_error("Couldn't get UI Provider!");
+        if (!_viewCoreFactory) {
+            throw std::runtime_error("Couldn't get ViewCore Factory!");
         }
 
         visible = true; // most views are initially visible
@@ -96,7 +95,7 @@ namespace bdn
             return true;
         }
 
-        return _uiProvider == parentView->uiProvider() && viewCore()->canMoveToParentView(parentView);
+        return _viewCoreFactory == parentView->viewCoreFactory() && viewCore()->canMoveToParentView(parentView);
     }
 
     void View::scheduleLayout()
@@ -117,7 +116,7 @@ namespace bdn
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         auto un_const_this = const_cast<View *>(this);
 
-        _core = _uiProvider->createViewCore(viewCoreTypeName());
+        _core = _viewCoreFactory->createViewCore(viewCoreTypeName());
         un_const_this->bindViewCore();
     }
 

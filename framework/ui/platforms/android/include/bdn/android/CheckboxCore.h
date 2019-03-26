@@ -12,41 +12,16 @@ namespace bdn::android
     class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
     {
       public:
-        CheckboxCore(const std::shared_ptr<bdn::UIProvider> &uiProvider)
-            : ViewCore(uiProvider, createAndroidViewClass<wrapper::CheckBox>(uiProvider)),
-              _jCheckBox(getJViewAS<wrapper::CheckBox>())
-        {
-            _jCheckBox.setSingleLine(true);
+        CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
-            label.onChange() += [=](auto va) {
-                _jCheckBox.setText(va->get());
-                scheduleLayout();
-            };
+      public:
+        TriState getState() const;
 
-            state.onChange() += [=](auto va) {
-                _jCheckBox.setChecked(va->get() == TriState::on);
-                _state = state;
-            };
-
-            bdn::android::wrapper::NativeViewCoreClickListener listener;
-            _jCheckBox.setOnClickListener(listener);
-        }
-
-        wrapper::CheckBox &getJCheckBox() { return _jCheckBox; }
-
-        TriState getState() const { return _state; }
-
-        void clicked() override { _clickCallback.fire(); }
-
-      protected:
-        double getFontSizeDips() const override
-        {
-            // the text size is in pixels
-            return _jCheckBox.getTextSize() / getUIScaleFactor();
-        }
+      public:
+        void clicked() override;
 
       private:
         mutable wrapper::CheckBox _jCheckBox;
-        TriState _state;
+        TriState _state = TriState::off;
     };
 }

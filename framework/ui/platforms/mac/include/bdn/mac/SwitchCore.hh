@@ -29,7 +29,7 @@ namespace bdn::mac
         static BdnMacSwitchComposite *_createSwitchComposite();
 
       public:
-        SwitchCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~SwitchCore() override;
 
         void init() override;

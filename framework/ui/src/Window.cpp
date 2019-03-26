@@ -1,19 +1,24 @@
 
 #include <bdn/Window.h>
 
-#include <bdn/UIAppControllerBase.h>
+#include <bdn/UIApplicationController.h>
 #include <bdn/debug.h>
 
 namespace bdn
 {
-
-    Window::Window(std::shared_ptr<UIProvider> uiProvider) : View(std::move(uiProvider))
+    namespace detail
     {
+        VIEW_CORE_REGISTRY_IMPLEMENTATION(Window)
+    }
+
+    Window::Window(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
+    {
+        detail::VIEW_CORE_REGISTER(Window, View::viewCoreFactory());
+
         visible = false;
         allowedOrientations = Orientation::All;
 
         registerCoreCreatingProperties(this, &visible, &content, &geometry, &contentGeometry);
-
         content.onChange() += [=](auto va) { _content.update(shared_from_this(), va->get()); };
     }
 

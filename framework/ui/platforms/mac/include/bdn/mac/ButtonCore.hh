@@ -15,7 +15,7 @@ namespace bdn::mac
         static NSButton *_createNsButton();
 
       public:
-        ButtonCore(const std::shared_ptr<bdn::UIProvider> &uiProvider);
+        ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
         ~ButtonCore() override;
 
         void init() override;

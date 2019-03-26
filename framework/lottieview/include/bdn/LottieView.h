@@ -23,7 +23,7 @@ namespace bdn
         static constexpr char coreTypeName[] = "bdn.LottieViewCore";
 
       public:
-        LottieView(std::shared_ptr<UIProvider> uiProvider = nullptr);
+        LottieView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~LottieView() override = default;
 
       public:
