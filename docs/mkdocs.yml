@@ -5,6 +5,8 @@ theme:
   custom_dir: 'theme'
   palette:
     primary: 'White'
+  feature:
+    tabs: true
 extra:
   social:
     - type: 'github'
@@ -15,6 +17,8 @@ extra:
 repo_url: 'https://github.com/AshampooSystems/boden'
 repo_name: 'boden'
 
+extra_css:
+  - 'stylesheets/boden.css'
 
 markdown_extensions:
   - pymdownx.superfences
@@ -27,10 +31,13 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - Index: index.md
-  - Getting Started: 'getting-started.md'
-  - Setup: 'setup.md'
-  - Reference:
+  - Getting Started:
+    - Getting Started: 'getting-started/getting-started.md'
+    - Setup: 'getting-started/setup.md'
+  - Guides:
+    - Guide 1: 'guides/guide-1.md'
+  - API Reference:
+    - Overview: 'reference/index.md'
     - Foundation:
       - Base: 'reference/foundation/base.md'
       - String: 'reference/foundation/string.md'

@@ -1,0 +1,38 @@
+input::placeholder {
+	color: rgba(255,255,255,0.5) !important;
+}
+
+.md-header.boden-hero {
+	background-color: rgb(27,27,27);
+	color: white;
+}
+
+.md-tabs.boden-hero {
+	background-color: rgb(27,27,27);
+	color: white;
+}
+
+.md-grid.boden-hero {
+	color: white;
+	background-color: rgb(27,27,27);
+	margin: 0;
+	max-width: 100%;
+	text-align: center;
+}
+
+.md-grid.boden-hero h1 {
+	font-size: 36px;
+	margin: 0;
+	padding: 20px;
+	padding-bottom: 50px;
+}
+
+.boden-hero-main__inner {
+	height: auto;
+}
+
+@media only screen and (min-width: 76.1875em) {
+	.boden-hero-sidebar__primary {
+		display: none;
+	}
+}
