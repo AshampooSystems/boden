@@ -1,5 +1,4 @@
 #include <bdn/ImageView.h>
-#include <bdn/ImageViewCore.h>
 
 namespace bdn
 {
@@ -13,13 +12,11 @@ namespace bdn
         detail::VIEW_CORE_REGISTER(ImageView, View::viewCoreFactory());
     }
 
-    String ImageView::viewCoreTypeName() const { return String(static_cast<const char *>(coreTypeName)); }
-
     void ImageView::bindViewCore()
     {
         View::bindViewCore();
 
-        auto imageCore = core<ImageViewCore>();
+        auto imageCore = core<ImageView::Core>();
         imageCore->url.bind(url);
     }
 }

@@ -1,17 +1,9 @@
 #pragma once
 
-namespace bdn
-{
-    class View;
-    class ViewCore;
-    class ViewCoreFactory;
-}
-
 #include <bdn/Layout.h>
 #include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
-#include <bdn/UIUtil.h>
-#include <bdn/ViewCore.h>
+#include <bdn/WeakCallback.h>
 #include <bdn/mainThread.h>
 #include <bdn/property/Property.h>
 #include <bdn/round.h>
@@ -20,9 +12,14 @@ namespace bdn
 
 namespace bdn
 {
+    class ViewCoreFactory;
+
     class View : public Base
     {
         friend class Window;
+
+      public:
+        class Core;
 
       public:
         Property<Rect> geometry;
@@ -38,8 +35,6 @@ namespace bdn
 
         auto shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
         auto shared_from_this() const { return std::static_pointer_cast<View const>(Base::shared_from_this()); }
-
-        virtual String viewCoreTypeName() const = 0;
 
       public:
         virtual Size sizeForSpace(Size availableSpace = Size::none()) const;
@@ -62,8 +57,10 @@ namespace bdn
 
         template <class T> auto core() { return std::dynamic_pointer_cast<T>(viewCore()); }
 
-        std::shared_ptr<ViewCore> viewCore();
-        std::shared_ptr<ViewCore> viewCore() const;
+        std::shared_ptr<View::Core> viewCore();
+        std::shared_ptr<View::Core> viewCore() const;
+
+        virtual const std::type_info &typeInfoForCoreCreation() const;
 
         void setParentView(const std::shared_ptr<View> &parentView);
 
@@ -85,13 +82,54 @@ namespace bdn
         OfferedValue<std::shared_ptr<Layout>> _layout;
 
       private:
-        mutable std::shared_ptr<ViewCore> _core;
+        mutable std::shared_ptr<View::Core> _core;
         WeakCallback<void()>::Receiver _layoutCallbackReceiver;
         WeakCallback<void()>::Receiver _dirtyCallbackReceiver;
 
         std::shared_ptr<ViewCoreFactory> _viewCoreFactory;
         std::weak_ptr<View> _parentView;
         bool _hasLayoutSchedulePending{false};
+
+      public:
+        class Core
+        {
+            friend class View;
+
+          public:
+            Property<Rect> geometry;
+            Property<bool> visible;
+
+          public:
+            Core() = delete;
+            Core(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory))
+            {}
+
+          public:
+            virtual void init() = 0;
+
+            virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }
+
+            virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
+
+            virtual void scheduleLayout() = 0;
+
+            void startLayout() { _layoutCallback.fire(); }
+            void markDirty() { _dirtyCallback.fire(); }
+
+            virtual void setLayout(std::shared_ptr<Layout> layout) { _layout = std::move(layout); }
+            std::shared_ptr<Layout> layout() { return _layout; }
+
+            virtual void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> & /*unused*/) {}
+
+            std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
+
+          private:
+            std::shared_ptr<bdn::ViewCoreFactory> _viewCoreFactory;
+            std::shared_ptr<Layout> _layout;
+
+            WeakCallback<void()> _layoutCallback;
+            WeakCallback<void()> _dirtyCallback;
+        };
     };
 
     template <typename ViewType, typename P> void registerCoreCreatingProperties(ViewType *view, P p)

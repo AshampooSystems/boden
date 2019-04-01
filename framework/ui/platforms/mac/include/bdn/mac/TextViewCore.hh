@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/TextView.h>
-#include <bdn/TextViewCore.h>
 
 #import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/util.hh>
@@ -33,7 +32,7 @@
 
 namespace bdn::mac
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
+    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
     {
       private:
         static BdnMacTextView_ *_createNSTextView();

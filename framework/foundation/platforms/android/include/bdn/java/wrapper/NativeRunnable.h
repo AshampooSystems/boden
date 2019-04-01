@@ -3,8 +3,6 @@
 #include <bdn/java/wrapper/NativeStrongPointer.h>
 #include <bdn/java/wrapper/Runnable.h>
 
-#include <bdn/SimpleFunctionCallable.h>
-
 #include <functional>
 #include <utility>
 
@@ -25,10 +23,10 @@ namespace bdn::java::wrapper
     class BaseNativeRunnable : public BaseRunnable<javaClassName>
     {
       private:
-        static Reference newInstance_(const std::shared_ptr<ISimpleCallable> &pCallable)
+        static Reference newInstance_(const std::shared_ptr<std::function<void()>> &pCallable)
         {
             static MethodId constructorId;
-            NativeStrongPointer wrappedCallable(std::dynamic_pointer_cast<Base>(pCallable));
+            NativeStrongPointer wrappedCallable(std::static_pointer_cast<void>(pCallable));
             return BaseRunnable<javaClassName>::javaClass().newInstance_(constructorId, wrappedCallable);
         }
 
@@ -36,9 +34,9 @@ namespace bdn::java::wrapper
         using BaseRunnable<javaClassName>::BaseRunnable;
 
         explicit BaseNativeRunnable(const std::function<void()> &func)
-            : BaseNativeRunnable(std::make_shared<SimpleFunctionCallable>(func))
+            : BaseNativeRunnable(std::make_shared<std::function<void()>>(func))
         {}
-        explicit BaseNativeRunnable(const std::shared_ptr<ISimpleCallable> &pCallable)
+        explicit BaseNativeRunnable(const std::shared_ptr<std::function<void()>> &pCallable)
             : BaseRunnable<javaClassName>(newInstance_(pCallable))
         {}
     };

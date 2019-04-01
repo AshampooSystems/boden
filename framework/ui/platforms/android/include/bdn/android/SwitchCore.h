@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/Switch.h>
-#include <bdn/SwitchCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 #include <bdn/android/wrapper/Switch.h>
@@ -9,7 +9,7 @@
 namespace bdn::android
 {
 
-    class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
+    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
     {
       public:
         SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

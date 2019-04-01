@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: Checkbox.h
+
 # Checkbox
 
 A control providing the user with an on/off choice.

@@ -45,7 +45,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_VolleyAdapter_handleRespons
                 bdn::java::Reference::convertExternalLocal(rawNativeResponse));
 
             if (std::shared_ptr<bdn::net::HTTPResponse> cResponse =
-                    std::dynamic_pointer_cast<bdn::net::HTTPResponse>(nativeResponse.getPointer_())) {
+                    std::dynamic_pointer_cast<bdn::net::HTTPResponse>(nativeResponse.getBdnBasePointer())) {
                 jboolean isCopy;
                 cResponse->responseCode = statusCode;
                 if (data != nullptr) {

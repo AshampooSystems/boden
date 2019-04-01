@@ -1,20 +1,19 @@
 #pragma once
 
 #include <bdn/ScrollView.h>
-#include <bdn/ScrollViewCore.h>
 
 #import <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollView::Core
     {
       private:
         static NSScrollView *_createScrollView();
 
       public:
         ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~ScrollViewCore() override;
+        ~ScrollViewCore();
 
         void init() override;
 

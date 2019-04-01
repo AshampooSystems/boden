@@ -1,13 +1,12 @@
 #pragma once
 
 #include <bdn/LottieView.h>
-#include <bdn/LottieViewCore.h>
 
 #include <bdn/android/ViewCore.h>
 
 namespace bdn::android
 {
-    class LottieViewCore : public ViewCore, virtual public bdn::LottieViewCore
+    class LottieViewCore : public ViewCore, virtual public bdn::LottieView::Core
     {
       public:
         LottieViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

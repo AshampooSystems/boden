@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/Checkbox.h>
-#include <bdn/CheckboxCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/CheckBox.h>
 #include <bdn/android/wrapper/NativeViewCoreClickListener.h>
@@ -9,7 +9,7 @@
 namespace bdn::android
 {
 
-    class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
+    class CheckboxCore : public ViewCore, virtual public bdn::Checkbox::Core
     {
       public:
         CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

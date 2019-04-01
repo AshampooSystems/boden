@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/ContainerView.h>
-#include <bdn/ContainerViewCore.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Context.h>
@@ -11,7 +10,7 @@
 namespace bdn::android
 {
 
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerViewCore
+    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
     {
       private:
         static wrapper::View _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
@@ -36,6 +35,6 @@ namespace bdn::android
 
         // ViewCore interface
       public:
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
     };
 }

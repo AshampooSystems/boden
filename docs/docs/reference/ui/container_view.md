@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: ContainerView.h
+
 # ContainerView
 
 A content-less view that can hold child views. 

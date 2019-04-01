@@ -156,7 +156,7 @@ namespace bdn::android
             }
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeStrongPointer viewTagPtr(viewTag.getRef_());
-                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer_());
+                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getBdnBasePointer());
             }
         }
 

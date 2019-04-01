@@ -10,8 +10,6 @@
 #include <bdn/property/SetterBacking.h>
 #include <bdn/property/property_forward_decl.h>
 
-#include <bdn/func.h>
-
 namespace bdn
 {
     enum class BindMode

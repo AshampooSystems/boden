@@ -101,6 +101,8 @@ class RedditListViewDataSource : public ListViewDataSource
             textView->text.bind(text);
             textView->wrap = true;
         }
+
+        const std::type_info &typeInfoForCoreCreation() const { return typeid(ContainerView); }
     };
 
   public:

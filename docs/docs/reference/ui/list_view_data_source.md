@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: ListViewDataSource.h
+
 # ListViewDataSource
 
 An abstract base class for a [ListView's](list_view.md) data source

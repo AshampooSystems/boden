@@ -1,17 +1,20 @@
-# UI Provider
+path: tree/master/framework/ui/include/bdn/
+source: ViewCoreFactory.h
+
+# ViewCoreFactory
 
 View Core factory
 
 ## Declaration
 
 ```C++
-class UIProvider : public bdn::Factory<std::shared_ptr<ViewCore>, std::shared_ptr<UIProvider>>,
-				   public std::enable_shared_from_this<UIProvider>
+class ViewCoreFactory : public bdn::Factory<std::shared_ptr<View::Core>, std::shared_ptr<ViewCoreFactory>>,
+                        public std::enable_shared_from_this<ViewCoreFactory>
 ```
 
 ## Create
 
-* **std::shared_ptr<ViewCore\> createViewCore(const String &coreTypeName);**
+* **std::shared_ptr<ViewCore\> createViewCore(const std::type_info &viewType);**
 
 ## Register
 

@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: FixedView.h
+
 # FixedView
 
 <span style="color: red">DOCFIXME: Replace with simple **Property&lt;bool&gt; layoutable**</span>

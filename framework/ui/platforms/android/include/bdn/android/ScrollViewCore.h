@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/ScrollView.h>
-#include <bdn/ScrollViewCore.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/NativeScrollView.h>
@@ -10,7 +9,7 @@
 
 namespace bdn::android
 {
-    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollView::Core
     {
       public:
         ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
@@ -22,7 +21,7 @@ namespace bdn::android
       public:
         void scrollClientRectToVisible(const Rect &clientRect) override;
 
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
 
         void updateContent(const std::shared_ptr<View> &content);
 

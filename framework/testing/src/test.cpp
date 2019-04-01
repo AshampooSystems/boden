@@ -42,7 +42,6 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/AppRunnerBase.h>
 #include <bdn/ApplicationController.h>
 #include <bdn/IDispatcher.h>
-#include <bdn/NotImplementedError.h>
 #include <bdn/TestAppController.h>
 #include <bdn/TextView.h>
 #include <bdn/Window.h>
@@ -3479,12 +3478,6 @@ namespace bdn
         // the platform does not support threads. So we hide
         // continueSectionInThread.
       private:
-        void continueSectionInThread(std::function<void()> continuationFunc) override
-        {
-            throw NotImplementedError("continueSectionInThread not implemented because "
-                                      "multi-threading is not supported on the platform.");
-        }
-
       public:
 
 #endif

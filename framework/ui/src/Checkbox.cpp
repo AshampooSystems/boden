@@ -21,7 +21,7 @@ namespace bdn
     void Checkbox::bindViewCore()
     {
         View::bindViewCore();
-        auto checkBoxCore = core<CheckboxCore>();
+        auto checkBoxCore = core<Checkbox::Core>();
         checkBoxCore->label.bind(label);
         checkBoxCore->state.bind(state);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -24,18 +25,26 @@ namespace bdn
         Property<std::function<bool(RedirectRequest)>> redirectHandler;
 
       public:
-        static constexpr char coreTypeName[] = "bdn.WebViewCore";
-
-      public:
         WebView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~WebView() override = default;
 
       public:
         void loadURL(const String &url);
 
-        String viewCoreTypeName() const override;
-
       protected:
         void bindViewCore() override;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> userAgent;
+
+          public:
+            Property<std::function<bool(WebView::RedirectRequest)>> redirectHandler;
+
+          public:
+            virtual void loadURL(const String &url) = 0;
+        };
     };
 }

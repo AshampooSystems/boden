@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Checkbox.h>
-#include <bdn/CheckboxCore.h>
 #include <bdn/ClickEvent.h>
 
 #import <bdn/ios/IosCheckbox.hh>
@@ -17,11 +16,11 @@
 
 namespace bdn::ios
 {
-    class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
+    class CheckboxCore : public ViewCore, virtual public bdn::Checkbox::Core
     {
       public:
         CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~CheckboxCore() override;
+        ~CheckboxCore();
 
         void init() override;
 

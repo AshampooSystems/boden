@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/ScrollView.h>
-#include <bdn/ScrollViewCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 
@@ -9,7 +8,7 @@
 
 namespace bdn::ios
 {
-    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollViewCore
+    class ScrollViewCore : public ViewCore, virtual public bdn::ScrollView::Core
     {
       public:
         ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

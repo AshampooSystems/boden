@@ -187,7 +187,7 @@ namespace bdn::ios
 
         ListViewDelegateIOS *nativeDelegate = [[ListViewDelegateIOS alloc] init];
         _nativeDelegate = nativeDelegate;
-        _nativeDelegate.core = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
+        _nativeDelegate.core = shared_from_this<ListViewCore>();
 
         UITableView *uiTableView = (UITableView *)uiView();
         uiTableView.dataSource = nativeDelegate;

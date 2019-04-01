@@ -3,8 +3,7 @@
 #include <Cocoa/Cocoa.h>
 
 #include <bdn/ProgrammingError.h>
-#include <bdn/ViewCore.h>
-
+#include <bdn/View.h>
 #import <bdn/mac/util.hh>
 
 @protocol BdnLayoutable
@@ -12,15 +11,20 @@
 
 namespace bdn::mac
 {
-    class ViewCore : public bdn::ViewCore
+    class ViewCore : public std::enable_shared_from_this<ViewCore>, public bdn::View::Core
     {
       public:
         ViewCore() = delete;
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView);
-        ~ViewCore() override = default;
+        virtual ~ViewCore() = default;
 
       public:
         void init() override;
+
+        template <class T> std::shared_ptr<T> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<T>(std::enable_shared_from_this<ViewCore>::shared_from_this());
+        }
 
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
@@ -37,10 +41,6 @@ namespace bdn::mac
 
       private:
         NSView *_nsView;
-
-        mutable double _emDipsIfInitialized = -1;
-        mutable double _semDipsIfInitialized = -1;
-
         NSObject *_eventForwarder;
     };
 }

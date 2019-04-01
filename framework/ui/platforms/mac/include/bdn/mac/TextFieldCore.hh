@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/TextField.h>
-#include <bdn/TextFieldCore.h>
 #include <bdn/mac/ViewCore.hh>
 #include <bdn/mac/util.hh>
 
@@ -9,14 +8,14 @@
 
 namespace bdn::mac
 {
-    class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
+    class TextFieldCore : public ViewCore, virtual public bdn::TextField::Core
     {
       private:
         static NSTextField *_createNsTextView();
 
       public:
         TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~TextFieldCore() override;
+        ~TextFieldCore();
 
         void init() override;
 

@@ -46,10 +46,10 @@ namespace bdn::android
 
     std::list<std::shared_ptr<bdn::View>> ContainerViewCore::childViews() { return _children; }
 
-    void ContainerViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function)
+    void ContainerViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
         for (auto &child : _children) {
-            if (auto childCore = child->core<bdn::ViewCore>()) {
+            if (auto childCore = child->core<bdn::View::Core>()) {
                 function(childCore);
             }
         }

@@ -78,7 +78,7 @@ namespace bdn::mac
 
     void WindowCore::init()
     {
-        auto self = std::dynamic_pointer_cast<WindowCore>(shared_from_this());
+        auto self = shared_from_this<WindowCore>();
 
         NSScreen *screen = [NSScreen mainScreen];
 

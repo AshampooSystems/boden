@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/ListView.h>
-#include <bdn/ListViewCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/ListView.h>
 #include <bdn/android/wrapper/NativeListView.h>
@@ -10,7 +10,7 @@
 
 namespace bdn::android
 {
-    class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
+    class ListViewCore : public ViewCore, virtual public bdn::ListView::Core
     {
       public:
         ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

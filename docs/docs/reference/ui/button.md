@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: Button.h
+
 # Button
 
 A simple button with a text label.

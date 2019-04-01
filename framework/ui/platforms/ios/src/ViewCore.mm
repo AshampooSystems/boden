@@ -7,7 +7,7 @@ namespace bdn::ios
 {
     ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
                        id<UIViewWithFrameNotification> uiView)
-        : bdn::ViewCore(viewCoreFactory)
+        : bdn::View::Core(viewCoreFactory)
     {
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
 
@@ -16,7 +16,7 @@ namespace bdn::ios
 
     void ViewCore::init()
     {
-        [_view setViewCore:std::dynamic_pointer_cast<ViewCore>(shared_from_this())];
+        [_view setViewCore:shared_from_this<ViewCore>()];
 
         geometry.onChange() += [=](auto va) { this->onGeometryChanged(va->get()); };
 

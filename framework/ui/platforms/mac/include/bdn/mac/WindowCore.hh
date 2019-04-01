@@ -2,9 +2,7 @@
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/NotImplementedError.h>
 #include <bdn/Window.h>
-#include <bdn/WindowCore.h>
 
 #import <bdn/mac/util.hh>
 
@@ -12,11 +10,11 @@
 
 namespace bdn::mac
 {
-    class WindowCore : public ViewCore, virtual public bdn::WindowCore
+    class WindowCore : public ViewCore, virtual public bdn::Window::Core
     {
       public:
         WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~WindowCore() override;
+        ~WindowCore();
 
       public:
         void init() override;
@@ -45,8 +43,5 @@ namespace bdn::mac
         BdnMacWindowContentViewParent_ *_nsContentParent;
 
         NSObject *_ourDelegate;
-
-        mutable double _emDipsIfInitialized = -1;
-        mutable double _semDipsIfInitialized = -1;
     };
 }

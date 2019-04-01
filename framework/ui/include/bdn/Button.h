@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/ButtonCore.h>
 #include <bdn/ClickEvent.h>
 #include <bdn/SimpleNotifier.h>
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -23,17 +23,21 @@ namespace bdn
       public:
         ISyncNotifier<const ClickEvent &> &onClick();
 
-      public:
-        String viewCoreTypeName() const override { return coreTypeName; }
-
       protected:
         void bindViewCore() override;
-
-      public:
-        static constexpr char coreTypeName[] = "bdn.ButtonCore";
 
       private:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
         WeakCallback<void()>::Receiver _clickCallbackReceiver;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> label;
+
+          public:
+            WeakCallback<void()> _clickCallback;
+        };
     };
 }

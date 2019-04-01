@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: View.h
+
 # View
 
 Abstract base class for all user interface elements.
@@ -48,11 +51,21 @@ class View : public Base
 
 * **std::shared_ptr<ViewCore\> viewCore() const**
 
-	Returns the view's [`ViewCore`](view_core.md).
+	Returns the view's [`ViewCore`](cores/view_core.md).
 
-* **std::shared_ptr<UIProvider\> uiProvider()**
+* **sstd::shared_ptr<ViewCoreFactory\> viewCoreFactory()**
 
-	Returns the view's [`UIProvider`](ui_provider.md).
+	Returns the view's [`ViewCoreFactory`](view_core_factory.md).
+
+* **virtual void bindViewCore()**
+
+	Called after a new View Core is created to connect it to the Views properties and notifiers
+
+* **virtual const std::type_info &typeInfoForCoreCreation() const**
+
+	Returns the **std::type_info** that should be used to determine the ViewCore type.
+	The default implementation returns **typeid(\*this)**. Override if you want to 
+	use a different ViewCore.
 
 ## View Hierarchy
 

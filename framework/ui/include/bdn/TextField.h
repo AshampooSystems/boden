@@ -2,7 +2,7 @@
 
 #include <bdn/SimpleNotifier.h>
 #include <bdn/SubmitEvent.h>
-#include <bdn/TextFieldCore.h>
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -21,12 +21,6 @@ namespace bdn
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
-        /** Static function that returns the type name for #TextField objects.
-         */
-        static constexpr char coreTypeName[] = "bdn.TextFieldCore";
-
-        String viewCoreTypeName() const override { return coreTypeName; }
-
         /** Informs observers of the onSubmit() notifier about a submit event.
          */
         void submit();
@@ -44,5 +38,15 @@ namespace bdn
       private:
         std::shared_ptr<SimpleNotifier<const SubmitEvent &>> _onSubmit;
         WeakCallback<void()>::Receiver _submitCallbackReceiver;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> text;
+
+          public:
+            WeakCallback<void()> submitCallback;
+        };
     };
 }

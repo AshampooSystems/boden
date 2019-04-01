@@ -13,5 +13,3 @@ for line in output.stderr.decode("utf-8").split('\n'):
 	if line.startswith("WARNING"):
 		print("Failed due to: %s" % line)
 		exit(1)
-	if "The following pages exist in the docs directory, but are not included" in line:
-		print("Failed due to non-referenced pages")

@@ -107,6 +107,8 @@ namespace bdn
         }
     }
 
+    const std::type_info &View::typeInfoForCoreCreation() const { return typeid(*this); }
+
     void View::lazyInitCore() const
     {
         if (_core) {
@@ -116,17 +118,17 @@ namespace bdn
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         auto un_const_this = const_cast<View *>(this);
 
-        _core = _viewCoreFactory->createViewCore(viewCoreTypeName());
+        _core = _viewCoreFactory->createViewCore(typeInfoForCoreCreation());
         un_const_this->bindViewCore();
     }
 
-    std::shared_ptr<ViewCore> View::viewCore()
+    std::shared_ptr<View::Core> View::viewCore()
     {
         lazyInitCore();
         return _core;
     }
 
-    std::shared_ptr<ViewCore> View::viewCore() const
+    std::shared_ptr<View::Core> View::viewCore() const
     {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         return const_cast<View *>(this)->viewCore();

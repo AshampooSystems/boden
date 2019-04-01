@@ -105,10 +105,9 @@ namespace bdn
                                        << FlexMarginAll(2.f));
 #endif
         auto screenOrientationCtrl = std::make_shared<TextView>();
-        screenOrientationCtrl->text = WindowCore::orientationToString(window->currentOrientation);
-        window->currentOrientation.onChange() += [screenOrientationCtrl](auto va) {
-            screenOrientationCtrl->text = WindowCore::orientationToString(va->get());
-        };
+        screenOrientationCtrl->text = Window::orientationToString(window->currentOrientation);
+        window->currentOrientation.onChange() +=
+            [screenOrientationCtrl](auto va) { screenOrientationCtrl->text = Window::orientationToString(va->get()); };
         container->addChildView(makeRow("Orientation", screenOrientationCtrl));
 
         auto switchView = std::make_shared<Switch>();

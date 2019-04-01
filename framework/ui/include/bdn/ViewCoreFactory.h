@@ -8,24 +8,23 @@ namespace bdn
 #include <bdn/Factory.h>
 #include <bdn/UIContext.h>
 #include <bdn/View.h>
-#include <bdn/ViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
 {
-    class ViewCoreFactory : public bdn::Factory<std::shared_ptr<ViewCore>, std::shared_ptr<ViewCoreFactory>>,
+    class ViewCoreFactory : public bdn::Factory<std::shared_ptr<View::Core>, std::shared_ptr<ViewCoreFactory>>,
                             public std::enable_shared_from_this<ViewCoreFactory>
     {
       public:
         using ContextStack = std::vector<std::shared_ptr<UIContext>>;
 
       public:
-        std::shared_ptr<ViewCore> createViewCore(const String &coreTypeName);
+        std::shared_ptr<View::Core> createViewCore(const std::type_info &viewType);
 
       public:
         template <class CoreType, class ViewType> void registerCoreType()
         {
-            registerConstruction(ViewType::coreTypeName, &makeCore<CoreType>);
+            registerConstruction(typeid(ViewType).name(), &makeCore<CoreType>);
         }
 
       public:
@@ -47,7 +46,7 @@ namespace bdn
 
       private:
         template <class CoreType>
-        static std::shared_ptr<ViewCore> makeCore(const std::shared_ptr<ViewCoreFactory> &ViewCoreFactory)
+        static std::shared_ptr<View::Core> makeCore(const std::shared_ptr<ViewCoreFactory> &ViewCoreFactory)
         {
             auto viewCore = std::make_shared<CoreType>(ViewCoreFactory);
             viewCore->init();

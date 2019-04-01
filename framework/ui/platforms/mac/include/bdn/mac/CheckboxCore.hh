@@ -1,8 +1,6 @@
 #pragma once
 
 #include <bdn/Checkbox.h>
-#include <bdn/CheckboxCore.h>
-#include <bdn/SwitchCore.h>
 
 #import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/ui_util.hh>
@@ -10,7 +8,7 @@
 
 namespace bdn::mac
 {
-    class CheckboxCore : public ViewCore, virtual public bdn::CheckboxCore
+    class CheckboxCore : public ViewCore, virtual public bdn::Checkbox::Core
     {
       private:
         static NSButton *createNSButton();

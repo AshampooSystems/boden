@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -42,11 +43,6 @@ namespace bdn
         ScrollView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        /** Static function that returns the type name for #ScrollView
-         * objects.*/
-        static constexpr char coreTypeName[] = "bdn.ScrollView";
-        String viewCoreTypeName() const override { return coreTypeName; }
-
         std::list<std::shared_ptr<View>> childViews() override;
 
         void removeAllChildViews() override { content = nullptr; }
@@ -58,5 +54,19 @@ namespace bdn
 
       private:
         SingleChildHelper _content;
+
+      public:
+        class Core
+        {
+          public:
+            Property<std::shared_ptr<View>> content;
+            Property<bool> horizontalScrollingEnabled;
+            Property<bool> verticalScrollingEnabled;
+
+            Property<Rect> visibleClientRect;
+
+          public:
+            virtual void scrollClientRectToVisible(const Rect &clientRect) = 0;
+        };
     };
 }

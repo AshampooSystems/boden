@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: TextView.h
+
 # TextView
 
 A display only text view 

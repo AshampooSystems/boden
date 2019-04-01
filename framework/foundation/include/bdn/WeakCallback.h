@@ -1,18 +1,10 @@
 #pragma once
 
-#include <bdn/Layout.h>
-#include <bdn/Rect.h>
-#include <bdn/Size.h>
-#include <bdn/property/Property.h>
-#include <bdn/round.h>
-#include <optional>
-#include <utility>
+#include <functional>
+#include <memory>
 
 namespace bdn
 {
-    class View;
-    class ViewCoreFactory;
-
     template <class _Fp> class WeakCallback;
 
     template <typename... Arguments> class WeakCallback<void(Arguments...)>
@@ -65,46 +57,5 @@ namespace bdn
       private:
         std::weak_ptr<FunctionPointer> _callback;
         const ReturnType _defaultReturnValue;
-    };
-
-    class ViewCore : public Base
-    {
-        friend class View;
-
-      public:
-        Property<Rect> geometry;
-        Property<bool> visible;
-
-      public:
-        ViewCore() = delete;
-        ViewCore(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory))
-        {}
-        ~ViewCore() override = default;
-
-      public:
-        virtual void init() = 0;
-
-        virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }
-
-        virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
-
-        virtual void scheduleLayout() = 0;
-
-        void startLayout() { _layoutCallback.fire(); }
-        void markDirty() { _dirtyCallback.fire(); }
-
-        virtual void setLayout(std::shared_ptr<Layout> layout) { _layout = std::move(layout); }
-        std::shared_ptr<Layout> layout() { return _layout; }
-
-        virtual void visitInternalChildren(const std::function<void(std::shared_ptr<ViewCore>)> & /*unused*/) {}
-
-        std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
-
-      private:
-        std::shared_ptr<bdn::ViewCoreFactory> _viewCoreFactory;
-        std::shared_ptr<Layout> _layout;
-
-        WeakCallback<void()> _layoutCallback;
-        WeakCallback<void()> _dirtyCallback;
     };
 }

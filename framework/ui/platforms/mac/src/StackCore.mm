@@ -43,7 +43,7 @@ namespace bdn::mac
     {
         ViewCore::init();
 
-        auto self = std::dynamic_pointer_cast<StackCore>(shared_from_this());
+        auto self = shared_from_this<StackCore>();
 
         _navigationBar = [[NSView alloc] init];
         [nsView() addSubview:_navigationBar];

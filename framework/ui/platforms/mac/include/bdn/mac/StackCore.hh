@@ -3,7 +3,6 @@
 #import <bdn/mac/ViewCore.hh>
 
 #include <bdn/Stack.h>
-#include <bdn/StackCore.h>
 
 #include <deque>
 
@@ -11,11 +10,11 @@
 
 namespace bdn::mac
 {
-    class StackCore : public ViewCore, public bdn::StackCore
+    class StackCore : public ViewCore, public bdn::Stack::Core
     {
       public:
         StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~StackCore() override;
+        ~StackCore();
 
         void init() override;
 

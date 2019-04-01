@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/TextView.h>
-#include <bdn/TextViewCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/RStyle.h>
 #include <bdn/android/wrapper/TextView.h>
@@ -10,7 +10,7 @@
 
 namespace bdn::android
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
+    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
     {
       public:
         TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

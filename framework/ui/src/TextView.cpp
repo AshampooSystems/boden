@@ -16,7 +16,7 @@ namespace bdn
     void TextView::bindViewCore()
     {
         View::bindViewCore();
-        auto textCore = View::core<TextViewCore>();
+        auto textCore = View::core<TextView::Core>();
         textCore->text.bind(text);
         textCore->wrap.bind(wrap);
     }

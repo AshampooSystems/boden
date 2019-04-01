@@ -1,11 +1,10 @@
 #pragma once
 
 #include <bdn/ClickEvent.h>
-#include <bdn/SwitchCore.h>
-#include <bdn/TriState.h>
-#include <bdn/View.h>
-
 #include <bdn/SimpleNotifier.h>
+#include <bdn/TriState.h>
+#include <bdn/UIUtil.h>
+#include <bdn/View.h>
 
 namespace bdn
 {
@@ -29,14 +28,21 @@ namespace bdn
       public:
         ISyncNotifier<const ClickEvent &> &onClick();
 
-      public:
-        static constexpr char coreTypeName[] = "bdn.SwitchCore";
-        String viewCoreTypeName() const override { return coreTypeName; }
-
       protected:
         void bindViewCore() override;
 
       protected:
         std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> label;
+            Property<bool> on;
+
+          public:
+            WeakCallback<void()> _clickCallback;
+        };
     };
 }

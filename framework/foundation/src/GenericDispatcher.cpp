@@ -123,7 +123,6 @@ namespace bdn
                 return true;
             }
 
-            auto timeLeft = absoluteTimeoutTime - Clock::now();
             auto nextScheduled = timePointOfNextScheduledItem();
 
             std::unique_lock lk(_mutex);

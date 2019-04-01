@@ -2,7 +2,6 @@
 #include <bdn/ScrollView.h>
 
 #include <bdn/AppRunnerBase.h>
-#include <bdn/ScrollViewCore.h>
 
 namespace bdn
 {
@@ -22,7 +21,7 @@ namespace bdn
     {
         View::bindViewCore();
 
-        auto scrollCore = core<ScrollViewCore>();
+        auto scrollCore = core<ScrollView::Core>();
         scrollCore->content.bind(content);
         scrollCore->horizontalScrollingEnabled.bind(horizontalScrollingEnabled);
         scrollCore->verticalScrollingEnabled.bind(verticalScrollingEnabled);
@@ -32,7 +31,7 @@ namespace bdn
     {
         AppRunnerBase::assertInMainThread();
 
-        auto scrollCore = core<ScrollViewCore>();
+        auto scrollCore = core<ScrollView::Core>();
         scrollCore->scrollClientRectToVisible(area);
     }
 

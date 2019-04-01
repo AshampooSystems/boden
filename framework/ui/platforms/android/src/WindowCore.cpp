@@ -2,7 +2,6 @@
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/wrapper/NativeRootView.h>
 
-#include <bdn/WindowCore.h>
 #include <bdn/android/wrapper/Activity.h>
 #include <bdn/android/wrapper/Configuration.h>
 #include <utility>
@@ -82,11 +81,11 @@ namespace bdn::android
         allowedOrientations.onChange() += [=](auto va) {
             wrapper::Activity activity(getJView().getContext().getRef_());
 
-            if (va->get() == bdn::WindowCore::Orientation::All) {
+            if (va->get() == bdn::Window::Core::Orientation::All) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
-            } else if (va->get() & bdn::WindowCore::Orientation::PortraitMask) {
+            } else if (va->get() & bdn::Window::Core::Orientation::PortraitMask) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
-            } else if (va->get() & bdn::WindowCore::Orientation::LandscapeMask) {
+            } else if (va->get() & bdn::Window::Core::Orientation::LandscapeMask) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
             }
         };
@@ -314,7 +313,7 @@ namespace bdn::android
 
     void WindowCore::scheduleLayout() { getJView().requestLayout(); }
 
-    void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function)
+    void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
         if (content.get()) {
             function(content->viewCore());

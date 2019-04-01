@@ -1,8 +1,6 @@
 #pragma once
 
 #include <bdn/ContainerView.h>
-#include <bdn/ContainerViewCore.h>
-
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUIView : UIView <UIViewWithFrameNotification>
@@ -13,7 +11,7 @@
 
 namespace bdn::ios
 {
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerViewCore
+    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
     {
       public:
         ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

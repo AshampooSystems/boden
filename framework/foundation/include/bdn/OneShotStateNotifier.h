@@ -90,8 +90,8 @@ namespace bdn
 
             if (_postNotificationCalled) {
                 // should not happen
-                programmingError("OneShotStateNotifier notification was triggered multiple "
-                                 "times. It should only be done once.");
+                throw std::logic_error("OneShotStateNotifier notification was triggered multiple "
+                                       "times. It should only be done once.");
             }
 
             _postNotificationCalled = true;

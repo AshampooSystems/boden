@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/TextViewCore.h>
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -20,11 +20,18 @@ namespace bdn
       public:
         TextView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
-      public:
-        static constexpr char coreTypeName[] = "bdn.TextViewCore";
-        String viewCoreTypeName() const override { return coreTypeName; }
-
       protected:
         void bindViewCore() override;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> text;
+            Property<bool> wrap;
+
+          public:
+            virtual ~Core() = default;
+        };
     };
 }

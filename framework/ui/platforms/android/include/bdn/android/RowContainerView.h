@@ -9,31 +9,35 @@ namespace bdn::android
     class RowContainerView : public FixedView
     {
       public:
-        using FixedView::FixedView;
+        class Core;
 
       public:
-        static constexpr char coreTypeName[] = "bdn.android.RowContainerView";
-        bdn::String viewCoreTypeName() const override { return coreTypeName; }
-    };
+        RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : FixedView(factory)
+        {
+            viewCoreFactory()->registerCoreType<Core, RowContainerView>();
+        }
 
-    class RowContainerCore : public bdn::android::ContainerViewCore
-    {
       public:
-        RowContainerCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-            : ContainerViewCore(viewCoreFactory,
-                                createAndroidViewClass<wrapper::NativeListAdapterRowContainer>(viewCoreFactory))
-        {}
-
-        std::shared_ptr<RowContainerView> getRowContainerView()
+        class Core : public bdn::android::ContainerViewCore
         {
-            java::wrapper::NativeStrongPointer strongPtr =
-                getJViewAS<wrapper::NativeListAdapterRowContainer>().getBdnView();
-            return std::dynamic_pointer_cast<RowContainerView>(strongPtr.getPointer_());
-        }
+          public:
+            Core(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+                : ContainerViewCore(viewCoreFactory,
+                                    createAndroidViewClass<wrapper::NativeListAdapterRowContainer>(viewCoreFactory))
+            {}
 
-        void setRowContainerView(const std::shared_ptr<RowContainerView> &view)
-        {
-            getJViewAS<wrapper::NativeListAdapterRowContainer>().setBdnView(java::wrapper::NativeStrongPointer(view));
-        }
+            std::shared_ptr<RowContainerView> getRowContainerView()
+            {
+                java::wrapper::NativeStrongPointer strongPtr =
+                    getJViewAS<wrapper::NativeListAdapterRowContainer>().getBdnView();
+                return std::dynamic_pointer_cast<RowContainerView>(strongPtr.getBdnBasePointer());
+            }
+
+            void setRowContainerView(const std::shared_ptr<RowContainerView> &view)
+            {
+                getJViewAS<wrapper::NativeListAdapterRowContainer>().setBdnView(
+                    java::wrapper::NativeStrongPointer(view));
+            }
+        };
     };
 }

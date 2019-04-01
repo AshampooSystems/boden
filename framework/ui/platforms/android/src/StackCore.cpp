@@ -43,7 +43,7 @@ namespace bdn::android
         return {};
     }
 
-    void StackCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function)
+    void StackCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
         for (const auto &entry : _stack) {
             function(entry.container->viewCore());

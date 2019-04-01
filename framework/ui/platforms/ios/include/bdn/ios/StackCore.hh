@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Stack.h>
-#include <bdn/StackCore.h>
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
@@ -11,7 +10,7 @@
 
 namespace bdn::ios
 {
-    class StackCore : public ViewCore, virtual public bdn::StackCore
+    class StackCore : public ViewCore, public bdn::Stack::Core
     {
       public:
         StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

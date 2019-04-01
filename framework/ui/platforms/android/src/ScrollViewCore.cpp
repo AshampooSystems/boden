@@ -187,7 +187,7 @@ namespace bdn::android
         _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
     }
 
-    void ScrollViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function)
+    void ScrollViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
         if (content.get()) {
             function(content->viewCore());

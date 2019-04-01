@@ -1,12 +1,12 @@
 #pragma once
 
 #include <bdn/ImageView.h>
-#include <bdn/ImageViewCore.h>
+
 #include <bdn/android/ViewCore.h>
 
 namespace bdn::android
 {
-    class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
+    class ImageViewCore : public ViewCore, virtual public bdn::ImageView::Core
     {
       public:
         ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

@@ -68,7 +68,7 @@ namespace bdn::android
             }
         }
 
-        return reusable->core<RowContainerCore>()->getJView().getJObject_();
+        return reusable->core<RowContainerView::Core>()->getJView().getJObject_();
     }
 }
 
@@ -82,10 +82,10 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                     bdn::java::Reference::convertExternalLocal(rawView))) {
 
                 std::shared_ptr<bdn::android::RowContainerView> reusable;
-                std::shared_ptr<bdn::android::RowContainerCore> reusableCore;
+                std::shared_ptr<bdn::android::RowContainerView::Core> reusableCore;
 
                 if (rawReusableView != nullptr) {
-                    if ((reusableCore = bdn::android::viewCoreFromJavaReference<bdn::android::RowContainerCore>(
+                    if ((reusableCore = bdn::android::viewCoreFromJavaReference<bdn::android::RowContainerView::Core>(
                              bdn::java::Reference::convertExternalLocal(rawReusableView)))) {
                         reusable = reusableCore->getRowContainerView();
                     }
@@ -93,7 +93,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
 
                 if (!reusable) {
                     reusable = std::make_shared<bdn::android::RowContainerView>(listCore->viewCoreFactory());
-                    reusableCore = reusable->core<bdn::android::RowContainerCore>();
+                    reusableCore = reusable->core<bdn::android::RowContainerView::Core>();
                     reusableCore->setRowContainerView(reusable);
                 }
 

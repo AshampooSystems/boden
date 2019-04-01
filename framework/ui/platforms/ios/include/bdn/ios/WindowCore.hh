@@ -2,9 +2,7 @@
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/NotImplementedError.h>
 #include <bdn/Window.h>
-#include <bdn/WindowCore.h>
 
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ViewCore.hh>
@@ -24,7 +22,7 @@ namespace bdn::ios
 
 namespace bdn::ios
 {
-    class WindowCore : public ViewCore, virtual public bdn::WindowCore
+    class WindowCore : public ViewCore, virtual public bdn::Window::Core
     {
         friend class bdn::ViewCoreFactory;
 
@@ -34,7 +32,7 @@ namespace bdn::ios
 
       public:
         WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~WindowCore() override;
+        ~WindowCore();
 
         void onGeometryChanged(Rect newGeometry) override;
 

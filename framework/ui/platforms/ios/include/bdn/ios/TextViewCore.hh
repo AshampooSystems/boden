@@ -2,7 +2,6 @@
 
 #include <bdn/ClickEvent.h>
 #include <bdn/TextView.h>
-#include <bdn/TextViewCore.h>
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ViewCore.hh>
@@ -23,7 +22,7 @@
 
 namespace bdn::ios
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextViewCore
+    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
     {
       private:
         static BodenUILabel *createUILabel();

@@ -123,7 +123,7 @@ namespace bdn::ios
         _composite = (BdnIosCheckboxComposite *)uiView();
 
         _clickManager = [[BdnIosCheckboxClickManager alloc] init];
-        _clickManager.core = std::dynamic_pointer_cast<CheckboxCore>(shared_from_this());
+        _clickManager.core = shared_from_this<CheckboxCore>();
         _clickManager.composite = _composite;
 
         auto checkboxComposite = (BdnIosCheckboxComposite *)_composite;

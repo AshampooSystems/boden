@@ -22,10 +22,10 @@ namespace bdn::java::wrapper
     class NativeStrongPointer : public Object
     {
       private:
-        static Reference newInstance_(const std::shared_ptr<Base> &pObject);
+        static Reference newInstance_(const std::shared_ptr<void> &pObject);
 
       public:
-        explicit NativeStrongPointer(const std::shared_ptr<Base> &pObject);
+        explicit NativeStrongPointer(const std::shared_ptr<void> &pObject);
 
         /** @param objectRef the reference to the Java object.
          *      The JObject instance will copy this reference and keep its
@@ -37,12 +37,12 @@ namespace bdn::java::wrapper
 
         ByteBuffer getWrappedPointer();
 
-        std::shared_ptr<Base> getPointer_();
+        std::shared_ptr<void> getPointer();
+        std::shared_ptr<bdn::Base> getBdnBasePointer();
 
-        /** An optimized function to retrieve the stored pointer directly
-         * from the specified jobject. The java-side object must be a
-         * ByteBuffer as returned by getWrappedPointer().*/
+        /*
         static Base *unwrapJObject(jobject obj);
+        */
 
         /** Returns the JClass object for this class.
          *
@@ -85,7 +85,7 @@ namespace bdn::java
         static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
         {
             wrapper::NativeStrongPointer native(bdn::java::Reference::convertExternalLocal(arg));
-            return native.getPointer_();
+            return std::static_pointer_cast<bdn::Base>(native.getPointer());
         }
     };
 
@@ -112,7 +112,7 @@ namespace bdn::java
         static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
         {
             wrapper::NativeStrongPointer native(bdn::java::Reference::convertExternalLocal(arg));
-            return std::dynamic_pointer_cast<Actual>(native.getPointer_());
+            return std::dynamic_pointer_cast<Actual>(native.getPointer());
         }
     };
 }

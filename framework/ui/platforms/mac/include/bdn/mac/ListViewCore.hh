@@ -1,19 +1,19 @@
 #pragma once
 
 #include <bdn/ListView.h>
-#include <bdn/ListViewCore.h>
 #include <bdn/mac/ViewCore.hh>
 
 @class ListViewDelegateMac;
 
 namespace bdn::mac
 {
-    class ListViewCore : public ViewCore, virtual public bdn::ListViewCore
+    class ListViewCore : public ViewCore, virtual public bdn::ListView::Core
     {
       public:
         ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~ListViewCore() override;
+        ~ListViewCore();
 
+      public:
         void init() override;
 
         void reloadData() override;

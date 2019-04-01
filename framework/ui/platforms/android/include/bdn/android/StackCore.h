@@ -3,7 +3,6 @@
 #include <bdn/FixedView.h>
 #include <bdn/Stack.h>
 
-#include <bdn/StackCore.h>
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/WindowCore.h>
 
@@ -11,7 +10,7 @@ namespace bdn::android
 {
     class NavButtonHandler;
 
-    class StackCore : public ViewCore, public bdn::StackCore
+    class StackCore : public ViewCore, public bdn::Stack::Core
     {
       public:
         StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
@@ -24,7 +23,7 @@ namespace bdn::android
         std::list<std::shared_ptr<View>> childViews() override;
 
       public:
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
 
         bool handleBackButton();
 

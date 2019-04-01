@@ -3,7 +3,6 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/View.h>
-#include <bdn/ViewCore.h>
 
 #import <bdn/ios/util.hh>
 
@@ -18,11 +17,16 @@ namespace bdn::ios
 
 namespace bdn::ios
 {
-    class ViewCore : public bdn::ViewCore
+    class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
     {
       public:
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView);
-        ~ViewCore() override;
+        virtual ~ViewCore();
+
+        template <class T> std::shared_ptr<T> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<T>(std::enable_shared_from_this<ViewCore>::shared_from_this());
+        }
 
         void init() override;
 

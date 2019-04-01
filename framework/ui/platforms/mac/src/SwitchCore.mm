@@ -79,7 +79,7 @@ namespace bdn::mac
         bdn::mac::ViewCore::init();
 
         _clickManager = [[BdnSwitchClickManager alloc] init];
-        _clickManager.switchCore = std::dynamic_pointer_cast<SwitchCore>(shared_from_this());
+        _clickManager.switchCore = shared_from_this<SwitchCore>();
 
         BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
         [composite.bdnSwitch setTarget:_clickManager];

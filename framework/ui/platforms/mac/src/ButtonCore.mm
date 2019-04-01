@@ -42,7 +42,7 @@ namespace bdn::mac
         bdn::mac::ViewCore::init();
 
         _clickManager = [[BdnButtonClickManager alloc] init];
-        _clickManager.buttonCore = std::dynamic_pointer_cast<ButtonCore>(shared_from_this());
+        _clickManager.buttonCore = shared_from_this<ButtonCore>();
         [(NSButton *)nsView() setTarget:_clickManager];
         [(NSButton *)nsView() setAction:@selector(clicked)];
 

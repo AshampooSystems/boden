@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 #include <list>
@@ -17,10 +18,6 @@ namespace bdn
         ContainerView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        static constexpr char coreTypeName[] = "bdn.ContainerViewCore";
-        String viewCoreTypeName() const override { return coreTypeName; }
-
-      public:
         void addChildView(const std::shared_ptr<View> &childView);
         void removeChildView(const std::shared_ptr<View> &childView);
         void removeAllChildViews() override;
@@ -28,5 +25,18 @@ namespace bdn
 
       public:
         void childViewStolen(const std::shared_ptr<View> &childView) override;
+
+      public:
+        class Core
+        {
+          public:
+            virtual ~Core() = default;
+
+          public:
+            virtual void addChildView(std::shared_ptr<View> child) = 0;
+            virtual void removeChildView(std::shared_ptr<View> child) = 0;
+
+            virtual std::list<std::shared_ptr<View>> childViews() = 0;
+        };
     };
 }

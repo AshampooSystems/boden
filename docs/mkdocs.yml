@@ -22,6 +22,7 @@ extra_css:
 
 markdown_extensions:
   - pymdownx.superfences
+  - pymdownx.details
   - pymdownx.snippets:
       base_path: 'docs'
   - admonition
@@ -29,22 +30,31 @@ markdown_extensions:
   - codehilite
   - toc:
       permalink: true
+  - markdown_include.include:
+        base_path: docs
 
 nav:
   - Getting Started:
     - Getting Started: 'getting-started/getting-started.md'
     - Setup: 'getting-started/setup.md'
   - Guides:
-    - Guide 1: 'guides/guide-1.md'
+    - guides/index.md
+    - UI:
+      - guides/ui/writing_view.md
+      - guides/ui/writing_view_modules.md
   - API Reference:
     - Overview: 'reference/index.md'
     - Foundation:
-      - Base: 'reference/foundation/base.md'
-      - String: 'reference/foundation/string.md'
+      - reference/foundation/base.md
+      - reference/foundation/i_sync_notifier.md
       - reference/foundation/size.md
+      - reference/foundation/string.md
+      - reference/foundation/weak_callback.md
+      - Properties:
+        - reference/foundation/property/property.md
       - Android:
         - Java:
-          - Wrapping Java: 'reference/foundation/android/java/wrap-java-class.md'
+          - reference/foundation/android/java/wrap-java-class.md
           - reference/foundation/android/java/jtobject.md
           - reference/foundation/android/java/method.md
           - reference/foundation/android/java/object.md
@@ -71,8 +81,12 @@ nav:
       - reference/ui/text_field.md
       - reference/ui/text_view.md
       - reference/ui/tri_state.md
-      - reference/ui/ui_provider.md
       - reference/ui/view.md
-      - reference/ui/view_core.md
       - reference/ui/view_event.md
+      - reference/ui/view_core_factory.md
       - reference/ui/window.md
+      - Cores:
+        - reference/ui/cores/view_core.md
+        - IOS:
+          - reference/ui/cores/ios/view_core.md
+

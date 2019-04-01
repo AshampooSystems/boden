@@ -7,14 +7,14 @@
 #include <bdn/android/wrapper/NativeTextViewOnEditorActionListener.h>
 
 #include <bdn/TextField.h>
-#include <bdn/TextFieldCore.h>
+
 #include <bdn/android/ViewCore.h>
 #include <bdn/debug.h>
 
 namespace bdn::android
 {
 
-    class TextFieldCore : public ViewCore, virtual public bdn::TextFieldCore
+    class TextFieldCore : public ViewCore, virtual public bdn::TextField::Core
     {
       public:
         TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

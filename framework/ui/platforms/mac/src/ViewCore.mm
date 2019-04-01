@@ -17,7 +17,7 @@
 namespace bdn::mac
 {
     ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView)
-        : bdn::ViewCore(viewCoreFactory), _nsView(nsView)
+        : bdn::View::Core(viewCoreFactory), _nsView(nsView)
     {
         if (_nsView != nullptr) {
 
@@ -41,7 +41,7 @@ namespace bdn::mac
     void ViewCore::init()
     {
         BdnMacViewCoreEventForwarder_ *eventForwarder = [[BdnMacViewCoreEventForwarder_ alloc] init];
-        eventForwarder.viewCore = std::dynamic_pointer_cast<ViewCore>(shared_from_this());
+        eventForwarder.viewCore = shared_from_this<ViewCore>();
         _eventForwarder = eventForwarder;
 
         [[NSNotificationCenter defaultCenter] addObserver:eventForwarder

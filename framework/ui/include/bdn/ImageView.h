@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -18,11 +19,14 @@ namespace bdn
         ImageView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~ImageView() override = default;
 
-      public:
-        static constexpr char coreTypeName[] = "bdn.ImageViewCore";
-        String viewCoreTypeName() const override;
-
       protected:
         void bindViewCore() override;
+
+      public:
+        class Core
+        {
+          public:
+            Property<String> url;
+        };
     };
 }

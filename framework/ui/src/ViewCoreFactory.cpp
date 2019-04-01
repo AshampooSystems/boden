@@ -2,12 +2,12 @@
 
 namespace bdn
 {
-    std::shared_ptr<ViewCore> ViewCoreFactory::createViewCore(const String &coreTypeName)
+    std::shared_ptr<View::Core> ViewCoreFactory::createViewCore(const std::type_info &viewType)
     {
-        auto core = create(coreTypeName, shared_from_this());
+        auto core = create(viewType.name(), shared_from_this());
 
         if (!core) {
-            throw ViewCoreTypeNotSupportedError(coreTypeName);
+            throw ViewCoreTypeNotSupportedError(viewType.name());
         }
 
         return *core;

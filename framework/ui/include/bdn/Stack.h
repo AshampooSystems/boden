@@ -15,9 +15,6 @@ namespace bdn
     class Stack : public View
     {
       public:
-        static constexpr char coreTypeName[] = "bdn.Stack";
-
-      public:
         Stack(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~Stack() override;
 
@@ -26,9 +23,18 @@ namespace bdn
 
       public:
         std::list<std::shared_ptr<View>> childViews() override;
-        String viewCoreTypeName() const override { return coreTypeName; }
 
       protected:
         void bindViewCore() override;
+
+      public:
+        class Core
+        {
+          public:
+            virtual void pushView(std::shared_ptr<View> view, String title) = 0;
+            virtual void popView() = 0;
+
+            virtual std::list<std::shared_ptr<View>> childViews() = 0;
+        };
     };
 }

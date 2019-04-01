@@ -70,7 +70,7 @@ namespace bdn::mac
         bdn::mac::ViewCore::init();
 
         _delegate = [[BdnTextFieldDelegate alloc] init];
-        _delegate.textFieldCore = std::dynamic_pointer_cast<TextFieldCore>(shared_from_this());
+        _delegate.textFieldCore = shared_from_this<TextFieldCore>();
         _delegate.nsTextField = (NSTextField *)nsView();
 
         text.onChange() += [=](auto va) {

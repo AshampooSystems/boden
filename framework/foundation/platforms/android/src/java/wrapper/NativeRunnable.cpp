@@ -12,11 +12,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JN
             bdn::java::wrapper::NativeStrongPointer nativePointer(
                 (bdn::java::Reference::convertExternalLocal(rawNativeObject)));
 
-            std::shared_ptr<bdn::Base> p = nativePointer.getPointer_();
+            auto pCallable = std::static_pointer_cast<std::function<void()>>(nativePointer.getPointer());
 
-            std::shared_ptr<bdn::ISimpleCallable> pCallable = std::dynamic_pointer_cast<bdn::ISimpleCallable>(p);
-
-            pCallable->call();
+            (*pCallable)();
         },
         true, pEnv);
 }

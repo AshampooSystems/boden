@@ -1,5 +1,5 @@
-
 #include <bdn/TextField.h>
+#include <bdn/UIUtil.h>
 
 namespace bdn
 {
@@ -25,7 +25,7 @@ namespace bdn
     void TextField::bindViewCore()
     {
         View::bindViewCore();
-        auto textCore = View::core<TextFieldCore>();
+        auto textCore = View::core<TextField::Core>();
         textCore->text.bind(text);
 
         _submitCallbackReceiver = textCore->submitCallback.set([=]() {

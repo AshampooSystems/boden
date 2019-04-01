@@ -18,7 +18,7 @@ namespace bdn
     void Button::bindViewCore()
     {
         View::bindViewCore();
-        auto buttonCore = core<ButtonCore>();
+        auto buttonCore = core<Button::Core>();
         buttonCore->label.bind(label);
         _clickCallbackReceiver = buttonCore->_clickCallback.set([=]() {
             ClickEvent evt(shared_from_this());

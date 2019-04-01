@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/View.h>
-#include <bdn/ViewCore.h>
 
 #include <bdn/java/wrapper/NativeStrongPointer.h>
 #include <bdn/java/wrapper/NativeWeakPointer.h>
@@ -20,15 +19,15 @@ using namespace std::string_literals;
 
 namespace bdn::android
 {
-    class ViewCore : public bdn::ViewCore
+    class ViewCore : public bdn::View::Core, public bdn::Base
     {
         friend class bdn::ViewCoreFactory;
 
       public:
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, wrapper::View jView)
-            : bdn::ViewCore(viewCoreFactory), _jView(std::move(std::move(jView)))
+            : bdn::View::Core(viewCoreFactory), _jView(std::move(std::move(jView)))
         {}
-        ~ViewCore() override;
+        virtual ~ViewCore();
 
       public:
         wrapper::View &getJView() { return _jView; }

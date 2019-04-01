@@ -1,5 +1,4 @@
 #include <bdn/ListView.h>
-#include <bdn/ListViewCore.h>
 
 namespace bdn
 {
@@ -15,22 +14,20 @@ namespace bdn
 
     void ListView::reloadData()
     {
-        auto listCore = core<ListViewCore>();
+        auto listCore = core<ListView::Core>();
         listCore->reloadData();
     }
 
     void ListView::refreshDone()
     {
-        auto listCore = core<ListViewCore>();
+        auto listCore = core<ListView::Core>();
         listCore->refreshDone();
     }
-
-    String ListView::viewCoreTypeName() const { return String((const char *)coreTypeName); }
 
     void ListView::bindViewCore()
     {
         View::bindViewCore();
-        auto listCore = core<ListViewCore>();
+        auto listCore = core<ListView::Core>();
         listCore->dataSource.bind(dataSource);
         listCore->selectedRowIndex.bind(selectedRowIndex);
         listCore->enableRefresh.bind(enableRefresh, BindMode::unidirectional);

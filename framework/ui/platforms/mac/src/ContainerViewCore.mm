@@ -8,7 +8,7 @@
  top left, rather than the bottom left.
  */
 @interface BdnMacContainerView_ : NSView
-@property std::weak_ptr<bdn::ViewCore> viewCore;
+@property std::weak_ptr<bdn::View::Core> viewCore;
 @end
 
 @implementation BdnMacContainerView_
@@ -49,7 +49,7 @@ namespace bdn::mac
     {
         ViewCore::init();
 
-        ((BdnMacContainerView_ *)nsView()).viewCore = std::dynamic_pointer_cast<ContainerViewCore>(shared_from_this());
+        ((BdnMacContainerView_ *)nsView()).viewCore = shared_from_this<ContainerViewCore>();
     }
 
     void ContainerViewCore::addChildView(std::shared_ptr<View> child)

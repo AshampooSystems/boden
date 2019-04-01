@@ -51,7 +51,7 @@ namespace bdn::ios
         _uiScrollView = (UIScrollView *)uiView();
 
         _delegate = [[BdnIosScrollViewDelegate_ alloc] init];
-        _delegate.core = std::dynamic_pointer_cast<ScrollViewCore>(shared_from_this());
+        _delegate.core = shared_from_this<ScrollViewCore>();
         _uiScrollView.delegate = _delegate;
 
         horizontalScrollingEnabled.onChange() +=

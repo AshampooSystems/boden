@@ -1,12 +1,11 @@
 #pragma once
 
 #include <bdn/ImageView.h>
-#include <bdn/ImageViewCore.h>
 #include <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class ImageViewCore : public ViewCore, virtual public bdn::ImageViewCore
+    class ImageViewCore : public ViewCore, virtual public bdn::ImageView::Core
     {
       public:
         ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);

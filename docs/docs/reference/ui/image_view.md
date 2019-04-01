@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: ImageView.h
+
 # ImageView
 
 Displays an image on the user interface.

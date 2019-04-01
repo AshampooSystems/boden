@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: Window.h
+
 # Window
 
 A Window

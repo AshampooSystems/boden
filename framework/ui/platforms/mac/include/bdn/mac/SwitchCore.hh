@@ -1,8 +1,6 @@
 #pragma once
 
-#include <bdn/CheckboxCore.h>
 #include <bdn/Switch.h>
-#include <bdn/SwitchCore.h>
 
 #import <bdn/mac/MacSwitch.hh>
 #import <bdn/mac/ViewCore.hh>
@@ -23,14 +21,14 @@ namespace bdn::mac
 
 namespace bdn::mac
 {
-    class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
+    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
     {
       private:
         static BdnMacSwitchComposite *_createSwitchComposite();
 
       public:
         SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~SwitchCore() override;
+        ~SwitchCore();
 
         void init() override;
 

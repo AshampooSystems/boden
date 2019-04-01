@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: TriState.h
+
 # TriState
 
 Represents the on, off, or mixed state of a [Checkbox](checkbox.md).

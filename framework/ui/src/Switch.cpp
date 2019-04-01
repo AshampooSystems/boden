@@ -20,7 +20,7 @@ namespace bdn
     void Switch::bindViewCore()
     {
         View::bindViewCore();
-        auto switchCore = core<SwitchCore>();
+        auto switchCore = core<Switch::Core>();
         switchCore->label.bind(label);
         switchCore->on.bind(on);
     }

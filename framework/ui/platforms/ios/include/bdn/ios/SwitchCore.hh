@@ -2,7 +2,6 @@
 
 #include <bdn/ClickEvent.h>
 #include <bdn/Switch.h>
-#include <bdn/SwitchCore.h>
 
 #import <bdn/ios/ViewCore.hh>
 
@@ -25,7 +24,7 @@ namespace bdn::ios
 
 namespace bdn::ios
 {
-    class SwitchCore : public ViewCore, virtual public bdn::SwitchCore
+    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
     {
       private:
         static BdnIosSwitchComposite *createSwitchComposite();
@@ -34,7 +33,7 @@ namespace bdn::ios
         static std::shared_ptr<SwitchCore> create();
 
         SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~SwitchCore() override;
+        ~SwitchCore();
 
         void init() override;
 

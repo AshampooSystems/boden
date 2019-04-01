@@ -239,10 +239,10 @@ namespace bdn::mac
     void ListViewCore::init()
     {
         ListViewDelegateMac *nativeDelegate = [[ListViewDelegateMac alloc] init];
-        nativeDelegate.listCore = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
+        nativeDelegate.listCore = shared_from_this<ListViewCore>();
 
         ListScrollView *scrollView = (ListScrollView *)nsView();
-        scrollView.listCore = std::dynamic_pointer_cast<ListViewCore>(shared_from_this());
+        scrollView.listCore = nativeDelegate.listCore;
 
         enableRefresh.onChange() += [=](auto va) {
             ListScrollView *scrollView = (ListScrollView *)nsView();

@@ -5,9 +5,9 @@
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::TextFieldCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::TextField::Core> core;
 
-- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextFieldCore>)core;
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextField::Core>)core;
 - (void)textFieldDidChange:(UITextField *)textField;
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;
 
@@ -15,7 +15,7 @@
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextFieldCore>)core
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextField::Core>)core
 {
     if ((self = [super init]) != nullptr) {
         self.core = core;
@@ -102,9 +102,8 @@ namespace bdn::ios
     void TextFieldCore::init()
     {
         ViewCore::init();
-        _delegate = [[BdnTextFieldDelegate alloc]
-            initWithTextField:(UITextField *)uiView()
-                         core:std::dynamic_pointer_cast<TextFieldCore>(shared_from_this())];
+        _delegate = [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView()
+                                                               core:shared_from_this<TextFieldCore>()];
 
         text.onChange() += [=](auto va) {
             UITextField *textField = (UITextField *)uiView();

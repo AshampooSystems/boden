@@ -18,10 +18,14 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
     jboolean returnValue = JNI_TRUE;
     bdn::platformEntryWrapper(
         [&]() {
-            auto *timer = dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
-                bdn::java::wrapper::NativeStrongPointer::unwrapJObject(rawTimerObject));
+            bdn::java::wrapper::NativeStrongPointer nativePointer(
+                bdn::java::Reference::convertExternalLocal(rawTimerObject));
 
-            returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;
+            auto timer = std::dynamic_pointer_cast<bdn::android::Dispatcher::Timer_>(nativePointer.getBdnBasePointer());
+
+            if (timer) {
+                returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;
+            }
         },
         true, env);
 
@@ -30,7 +34,6 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
 
 namespace bdn::android
 {
-
     Dispatcher::Dispatcher(wrapper::Looper looper) : _dispatcher(std::move(looper)) {}
 
     void Dispatcher::dispose() { _dispatcher.dispose(); }

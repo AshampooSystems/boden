@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/ListViewDataSource.h>
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
 namespace bdn
@@ -21,9 +22,6 @@ namespace bdn
         SimpleNotifier<> &onRefresh();
 
       public:
-        static constexpr char coreTypeName[] = "bdn.ListViewCore";
-
-      public:
         ListView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~ListView() override = default;
 
@@ -31,14 +29,29 @@ namespace bdn
         void reloadData();
         void refreshDone();
 
-      public:
-        String viewCoreTypeName() const override;
-
       protected:
         void bindViewCore() override;
 
       private:
         SimpleNotifier<> _refreshNotifier;
         WeakCallback<void()>::Receiver _refreshCallback;
+
+      public:
+        class Core
+        {
+            friend class ListView;
+
+          public:
+            Property<bool> enableRefresh;
+            Property<std::shared_ptr<ListViewDataSource>> dataSource;
+            Property<std::optional<size_t>> selectedRowIndex;
+
+          public:
+            virtual void reloadData() = 0;
+            virtual void refreshDone() = 0;
+
+          protected:
+            WeakCallback<void()> _refreshCallback;
+        };
     };
 }

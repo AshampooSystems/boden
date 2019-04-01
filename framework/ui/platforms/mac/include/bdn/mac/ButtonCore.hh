@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Button.h>
-#include <bdn/ButtonCore.h>
 
 #import <bdn/mac/ViewCore.hh>
 
@@ -9,14 +8,14 @@
 
 namespace bdn::mac
 {
-    class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
+    class ButtonCore : public ViewCore, virtual public bdn::Button::Core
     {
       private:
         static NSButton *_createNsButton();
 
       public:
         ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~ButtonCore() override;
+        ~ButtonCore();
 
         void init() override;
 

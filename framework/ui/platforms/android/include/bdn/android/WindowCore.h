@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Window.h>
-#include <bdn/WindowCore.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Activity.h>
@@ -14,7 +13,7 @@
 namespace bdn::android
 {
 
-    class WindowCore : public ViewCore, virtual public bdn::WindowCore
+    class WindowCore : public ViewCore, virtual public bdn::Window::Core
     {
       private:
         wrapper::View createJNativeViewGroup();
@@ -69,7 +68,7 @@ namespace bdn::android
 
         virtual bool handleBackPressed();
 
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::ViewCore>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
 
         void updateGeometry() override;
 

@@ -82,7 +82,7 @@ namespace bdn::mac
         _nsScrollView.contentView.postsBoundsChangedNotifications = YES;
 
         BdnMacScrollViewCoreEventForwarder_ *eventForwarder = [BdnMacScrollViewCoreEventForwarder_ alloc];
-        [eventForwarder setScrollViewCore:std::dynamic_pointer_cast<ScrollViewCore>(shared_from_this())];
+        [eventForwarder setScrollViewCore:shared_from_this<ScrollViewCore>()];
         _eventForwarder = eventForwarder;
 
         [[NSNotificationCenter defaultCenter] addObserver:eventForwarder

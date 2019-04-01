@@ -1,5 +1,4 @@
 #include <bdn/Stack.h>
-#include <bdn/StackCore.h>
 
 #include <utility>
 
@@ -19,21 +18,21 @@ namespace bdn
 
     void Stack::pushView(std::shared_ptr<View> view, String title)
     {
-        if (auto core = std::dynamic_pointer_cast<StackCore>(viewCore())) {
+        if (auto core = std::dynamic_pointer_cast<Stack::Core>(viewCore())) {
             core->pushView(std::move(view), std::move(title));
         }
     }
 
     void Stack::popView()
     {
-        if (auto stackCore = core<StackCore>()) {
+        if (auto stackCore = core<Stack::Core>()) {
             stackCore->popView();
         }
     }
 
     std::list<std::shared_ptr<View>> Stack::childViews()
     {
-        if (auto stackCore = core<StackCore>()) {
+        if (auto stackCore = core<Stack::Core>()) {
             return stackCore->childViews();
         }
         return {};

@@ -1,2 +1,3 @@
 mkdocs==1.0.4
 mkdocs-material==3.3.0
+markdown-include==0.5.1

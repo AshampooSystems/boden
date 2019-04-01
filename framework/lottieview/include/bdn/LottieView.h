@@ -20,18 +20,24 @@ namespace bdn
         Property<bool> loop;
 
       public:
-        static constexpr char coreTypeName[] = "bdn.LottieViewCore";
-
-      public:
         LottieView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~LottieView() override = default;
 
       public:
         void loadURL(const String &url);
 
-        String viewCoreTypeName() const override;
-
       protected:
         void bindViewCore() override;
+
+      public:
+        class Core
+        {
+          public:
+            Property<bool> running;
+            Property<bool> loop;
+
+          public:
+            virtual void loadURL(const String &url) = 0;
+        };
     };
 }

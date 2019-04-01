@@ -1,7 +1,6 @@
 #include <bdn/UIUtil.h>
 #include <bdn/ViewCoreFactory.h>
 #include <bdn/WebView.h>
-#include <bdn/WebViewCore.h>
 
 namespace bdn
 {
@@ -20,17 +19,15 @@ namespace bdn
 
     void WebView::loadURL(const String &url)
     {
-        auto webCore = core<WebViewCore>();
+        auto webCore = core<WebView::Core>();
         webCore->loadURL(url);
     }
-
-    String WebView::viewCoreTypeName() const { return String(static_cast<const char *>(coreTypeName)); }
 
     void WebView::bindViewCore()
     {
         View::bindViewCore();
 
-        auto webViewCore = core<WebViewCore>();
+        auto webViewCore = core<WebView::Core>();
         webViewCore->redirectHandler.bind(redirectHandler, BindMode::unidirectional);
         webViewCore->userAgent.bind(userAgent, BindMode::unidirectional);
     }

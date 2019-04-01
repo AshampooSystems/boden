@@ -1,9 +1,8 @@
 #pragma once
 
+#include <bdn/UIUtil.h>
 #include <bdn/View.h>
-
 #include <bdn/ViewCoreFactory.h>
-#include <bdn/WindowCore.h>
 
 namespace bdn
 {
@@ -15,7 +14,19 @@ namespace bdn
     class Window : public View
     {
       public:
-        using Orientation = WindowCore::Orientation;
+      public:
+        enum Orientation : int
+        {
+            Portrait = 0x1,
+            LandscapeLeft = 0x2,
+            LandscapeRight = 0x4,
+            PortraitUpsideDown = 0x8,
+            LandscapeMask = (LandscapeLeft | LandscapeRight),
+            PortraitMask = (Portrait | PortraitUpsideDown),
+            All = (LandscapeMask | PortraitMask)
+        };
+
+        static String orientationToString(Orientation orientation);
 
       public:
         Window(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -29,10 +40,6 @@ namespace bdn
         Property<Orientation> currentOrientation;
 
       public:
-        static constexpr char coreTypeName[] = "bdn.WindowCore";
-        String viewCoreTypeName() const override { return coreTypeName; }
-
-      public:
         std::list<std::shared_ptr<View>> childViews() override;
         void removeAllChildViews() override;
 
@@ -43,5 +50,20 @@ namespace bdn
 
       private:
         SingleChildHelper _content;
+
+      public:
+        class Core
+        {
+          public:
+            using Orientation = Window::Orientation;
+
+          public:
+            Property<std::shared_ptr<View>> content;
+            Property<Rect> contentGeometry;
+            Property<String> title;
+
+            Property<Orientation> allowedOrientations;
+            Property<Orientation> currentOrientation;
+        };
     };
 }

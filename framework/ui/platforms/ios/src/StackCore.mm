@@ -166,7 +166,7 @@ namespace bdn::ios
     void StackCore::pushView(std::shared_ptr<View> view, String title)
     {
         BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
-        ctrl.stackCore = std::dynamic_pointer_cast<StackCore>(shared_from_this());
+        ctrl.stackCore = shared_from_this<StackCore>();
         ctrl.userContent = view;
 
         [ctrl setTitle:fk::stringToNSString(title)];

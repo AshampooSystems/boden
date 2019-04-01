@@ -1,12 +1,11 @@
 #pragma once
 
 #include <bdn/ContainerView.h>
-#include <bdn/ContainerViewCore.h>
 #import <bdn/mac/ViewCore.hh>
 
 namespace bdn::mac
 {
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerViewCore
+    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
     {
       private:
         static NSView *_createContainer();

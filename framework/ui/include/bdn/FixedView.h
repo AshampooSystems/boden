@@ -8,5 +8,8 @@ namespace bdn
     {
       public:
         using ContainerView::ContainerView;
+
+      public:
+        const std::type_info &typeInfoForCoreCreation() const override { return typeid(ContainerView); }
     };
 }

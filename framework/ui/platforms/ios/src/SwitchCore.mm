@@ -78,7 +78,7 @@ namespace bdn::ios
         _composite = (BdnIosSwitchComposite *)uiView();
 
         _clickManager = [[BdnIosSwitchClickManager alloc] init];
-        _clickManager.core = std::dynamic_pointer_cast<SwitchCore>(shared_from_this());
+        _clickManager.core = shared_from_this<SwitchCore>();
 
         [_composite.uiSwitch addTarget:_clickManager
                                 action:@selector(clicked)

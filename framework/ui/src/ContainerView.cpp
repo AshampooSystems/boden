@@ -1,6 +1,4 @@
-
 #include <bdn/ContainerView.h>
-#include <bdn/ContainerViewCore.h>
 
 namespace bdn
 {
@@ -16,7 +14,7 @@ namespace bdn
 
     void ContainerView::addChildView(const std::shared_ptr<View> &childView)
     {
-        if (auto containerCore = core<ContainerViewCore>()) {
+        if (auto containerCore = core<ContainerView::Core>()) {
             containerCore->addChildView(childView);
             childView->setParentView(shared_from_this());
         }
@@ -24,7 +22,7 @@ namespace bdn
 
     void ContainerView::removeChildView(const std::shared_ptr<View> &childView)
     {
-        if (auto containerCore = core<ContainerViewCore>()) {
+        if (auto containerCore = core<ContainerView::Core>()) {
             containerCore->removeChildView(childView);
             childView->setParentView(nullptr);
         } else {
@@ -43,7 +41,7 @@ namespace bdn
 
     std::list<std::shared_ptr<View>> ContainerView::childViews()
     {
-        if (auto containerCore = core<ContainerViewCore>()) {
+        if (auto containerCore = core<ContainerView::Core>()) {
             return containerCore->childViews();
         }
 
@@ -52,7 +50,7 @@ namespace bdn
 
     void ContainerView::childViewStolen(const std::shared_ptr<View> &childView)
     {
-        if (auto containerCore = core<ContainerViewCore>()) {
+        if (auto containerCore = core<ContainerView::Core>()) {
             containerCore->removeChildView(childView);
         } else {
             throw std::runtime_error("???");

@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/
+source: Stack.h
+
 # Stack
 
 <span style="color: red">DOCFIXME: I am not sure if stack (or stack view) is a good term as iOS has [a different concept of a stack](https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/LayoutUsingStackViews.html) (in contrast to a navigation controller)</span>

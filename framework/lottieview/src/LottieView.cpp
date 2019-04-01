@@ -1,5 +1,4 @@
 #include <bdn/LottieView.h>
-#include <bdn/LottieViewCore.h>
 #include <bdn/UIUtil.h>
 #include <bdn/ViewCoreFactory.h>
 
@@ -20,16 +19,14 @@ namespace bdn
 
     void LottieView::loadURL(const String &url)
     {
-        auto lottieCore = core<LottieViewCore>();
+        auto lottieCore = core<LottieView::Core>();
         lottieCore->loadURL(url);
     }
-
-    String LottieView::viewCoreTypeName() const { return String((const char *)coreTypeName); }
 
     void LottieView::bindViewCore()
     {
         View::bindViewCore();
-        auto lottieCore = core<LottieViewCore>();
+        auto lottieCore = core<LottieView::Core>();
         lottieCore->running.bind(running);
         lottieCore->loop.bind(loop);
     }

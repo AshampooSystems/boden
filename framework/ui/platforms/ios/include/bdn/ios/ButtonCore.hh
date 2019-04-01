@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Button.h>
-#include <bdn/ButtonCore.h>
 #include <bdn/ClickEvent.h>
 
 #import <bdn/ios/ViewCore.hh>
@@ -10,11 +9,11 @@
 
 namespace bdn::ios
 {
-    class ButtonCore : public ViewCore, virtual public bdn::ButtonCore
+    class ButtonCore : public ViewCore, virtual public bdn::Button::Core
     {
       public:
         ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~ButtonCore() override;
+        ~ButtonCore();
 
         UIButton *getUIButton();
         void handleClick();
