@@ -391,6 +391,10 @@ Android Studio needs several minutes for its initial preparation (gradle sync, e
 
 We are happy about your feedback!
 
-If you find something that is missing or doesn't work, please consider opening a [GitHub issue](https://github.com/AshampooSystems/boden/issues).
+Get in touch with us and stay up to date about Boden:
 
-If you want to talk to us directly, please send us an email to boden-team@ashampoo-systems.com.
+* Find us on Twitter: [@bodenhq](https://twitter.com/bodenhq)
+* Join the [Boden Google Group](https://groups.google.com/forum/#!forum/boden-cross-platform-framework)
+* Email us: boden-team@ashampoo-systems.com
+
+If you find something that is missing or doesn't work, please consider opening a [GitHub issue](https://github.com/AshampooSystems/boden/issues).
