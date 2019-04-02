@@ -1,6 +1,6 @@
 [submodule "3rdparty/json"]
 	path = 3rdparty/json
-	url = https://github.com/nlohmann/json.git
+	url = https://github.com/AshampooSystems/json-releases.git
 [submodule "3rdparty/yoga"]
 	path = 3rdparty/yoga
 	url = https://github.com/facebook/yoga.git
