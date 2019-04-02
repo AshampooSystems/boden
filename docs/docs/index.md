@@ -8,7 +8,6 @@ With Boden you can write your mobile apps in modern C++17 and compile 100% nativ
 // MainViewController.cpp
 
 #include <bdn/Button.h>
-#include <bdn/yogalayout.h>
 #include "MainViewController.h"
 
 MainViewController::MainViewController()
@@ -19,6 +18,7 @@ MainViewController::MainViewController()
 
     std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
     button->label = "Hello World";
+    button->geometry = bdn::Rect{150, 129, 100, 22};
 
     _window->content = button;
     _window->visible = true;
@@ -48,10 +48,16 @@ MainViewController::MainViewController()
     _window = std::make_shared<bdn::Window>();
     _window->title = "AwesomeApp";
     _window->geometry = bdn::Rect{0, 0, 400, 300};
-
+    _window->setLayout(std::make_shared<yogalayout::Layout>());
+    _window->setLayoutStylesheet(
+                FlexJsonStringify({
+                                      "justifyContent" : "Center", 
+                                      "alignItems" : "Center"
+                                  }));
+    
     std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
     button->label = "Hello World";
-
+    
     _window->content = button;
     _window->visible = true;
 }
