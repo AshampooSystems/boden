@@ -18,7 +18,11 @@ repo_url: 'https://github.com/AshampooSystems/boden'
 repo_name: 'boden'
 
 extra_css:
+  - 'stylesheets/cookieconsent.min.css'
   - 'stylesheets/boden.css'
+
+extra_javascript:
+  - 'javascripts/cookieconsent.min.js'
 
 markdown_extensions:
   - pymdownx.superfences

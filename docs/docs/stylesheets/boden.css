@@ -39,7 +39,7 @@ input::placeholder {
 
 .md-legal {
 	margin-top: 1.5em;
-	margin-bottom: 1.5em;
+	margin-bottom: 5em;
 }
 
 .md-legal ul {
@@ -53,4 +53,9 @@ input::placeholder {
 	padding: 0;
 	margin-right: 10px;
 	display: inline-block;
+}
+
+.cc-banner {
+	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 1.4rem;
 }
