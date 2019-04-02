@@ -11,7 +11,6 @@ namespace bdn
     TextField::TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
         detail::VIEW_CORE_REGISTER(TextField, View::viewCoreFactory());
-        _onSubmit = std::make_shared<SimpleNotifier<const SubmitEvent &>>();
     }
 
     void TextField::submit()
@@ -20,7 +19,7 @@ namespace bdn
         onSubmit().notify(event);
     }
 
-    ISyncNotifier<const SubmitEvent &> &TextField::onSubmit() { return *_onSubmit; }
+    Notifier<const SubmitEvent &> &TextField::onSubmit() { return _onSubmit; }
 
     void TextField::bindViewCore()
     {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/DanglingFunctionError.h>
 #include <bdn/IDispatcher.h>
 #include <bdn/InvalidArgumentError.h>
 

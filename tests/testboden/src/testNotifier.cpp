@@ -1,7 +1,7 @@
 
 #include <bdn/test.h>
 
-#include <bdn/SimpleNotifier.h>
+#include <bdn/Notifier.h>
 
 using namespace bdn;
 
@@ -16,14 +16,17 @@ class SimpleNotifierTestSubscriptionData : public Base
     bool *_deleted;
 };
 
-TEST_CASE("SimpleNotifier")
+TEST_CASE("Notifier")
 {
-    std::shared_ptr<SimpleNotifier<String>> notifier = std::make_shared<SimpleNotifier<String>>();
+    using notifier_t = Notifier<String>;
+    using notifier_subscription_t = typename Notifier<String>::Subscription;
+
+    notifier_t notifier = notifier_t();
 
     SECTION("empty")
     {
         // here we simply verify that no crash happens
-        notifier->notify("bla");
+        notifier.notify("bla");
     }
 
     SECTION("one subscriber")
@@ -34,8 +37,8 @@ TEST_CASE("SimpleNotifier")
         std::shared_ptr<SimpleNotifierTestSubscriptionData> testSubscriptionData =
             std::make_shared<SimpleNotifierTestSubscriptionData>(&subscriptionDataDeleted);
 
-        std::shared_ptr<INotifierSubscription> sub =
-            notifier->subscribe([&gotParam, testSubscriptionData](String param) { gotParam.push_back(param); });
+        notifier_subscription_t sub =
+            notifier.subscribe([&gotParam, testSubscriptionData](String param) { gotParam.push_back(param); });
 
         testSubscriptionData = nullptr;
         // the subscription data should still be alive because it was
@@ -44,94 +47,40 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("single notify")
         {
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam == std::vector<String>{"hello"});
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("double notify")
         {
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam == std::vector<String>{"hello"});
-            notifier->notify("world");
+            notifier.notify("world");
             REQUIRE((gotParam == std::vector<String>{"hello", "world"}));
             REQUIRE(!subscriptionDataDeleted);
         }
 
         SECTION("unsubscribe")
         {
-            notifier->unsubscribe(sub);
+            notifier.unsubscribe(sub);
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam == std::vector<String>{});
         }
 
         SECTION("unsubscribeAll")
         {
-            notifier->unsubscribeAll();
+            notifier.unsubscribeAll();
 
             // subscription data should have been deleted
             REQUIRE(subscriptionDataDeleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam == std::vector<String>{});
-        }
-    }
-
-    SECTION("subscribeParamless")
-    {
-        int callCount = 0;
-
-        bool subscriptionDataDeleted = false;
-        std::shared_ptr<SimpleNotifierTestSubscriptionData> testSubscriptionData =
-            std::make_shared<SimpleNotifierTestSubscriptionData>(&subscriptionDataDeleted);
-
-        std::shared_ptr<INotifierSubscription> sub =
-            notifier->subscribeParamless([&callCount, testSubscriptionData]() { callCount++; });
-
-        testSubscriptionData = nullptr;
-        // the subscription data should still be alive because it was
-        // captured
-        REQUIRE(!subscriptionDataDeleted);
-
-        SECTION("single notify")
-        {
-            notifier->notify("hello");
-            REQUIRE(callCount == 1);
-            REQUIRE(!subscriptionDataDeleted);
-        }
-
-        SECTION("double notify")
-        {
-            notifier->notify("hello");
-            notifier->notify("world");
-            REQUIRE(callCount == 2);
-            REQUIRE(!subscriptionDataDeleted);
-        }
-
-        SECTION("unsubscribe")
-        {
-            notifier->unsubscribe(sub);
-
-            // subscription data should have been deleted
-            REQUIRE(subscriptionDataDeleted);
-
-            notifier->notify("hello");
-            REQUIRE(callCount == 0);
-        }
-
-        SECTION("unsubscribeAll")
-        {
-            notifier->unsubscribeAll();
-
-            // subscription data should have been deleted
-            REQUIRE(subscriptionDataDeleted);
-
-            notifier->notify("hello");
-            REQUIRE(callCount == 0);
         }
     }
 
@@ -153,14 +102,14 @@ TEST_CASE("SimpleNotifier")
         std::shared_ptr<SimpleNotifierTestSubscriptionData> testSubscriptionData3 =
             std::make_shared<SimpleNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
-        std::shared_ptr<INotifierSubscription> sub1 =
-            notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
+        notifier_subscription_t sub1 =
+            notifier.subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
 
-        std::shared_ptr<INotifierSubscription> sub2 =
-            notifier->subscribe([&gotParam2, testSubscriptionData2](String param) { gotParam2.push_back(param); });
+        notifier_subscription_t sub2 =
+            notifier.subscribe([&gotParam2, testSubscriptionData2](String param) { gotParam2.push_back(param); });
 
-        std::shared_ptr<INotifierSubscription> sub3 =
-            notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
+        notifier_subscription_t sub3 =
+            notifier.subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
 
         testSubscriptionData1 = nullptr;
         testSubscriptionData2 = nullptr;
@@ -173,7 +122,7 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("single notify")
         {
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam1 == std::vector<String>{"hello"});
             REQUIRE(gotParam2 == std::vector<String>{"hello"});
             REQUIRE(gotParam3 == std::vector<String>{"hello"});
@@ -184,12 +133,12 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("double notify")
         {
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam1 == std::vector<String>{"hello"});
             REQUIRE(gotParam2 == std::vector<String>{"hello"});
             REQUIRE(gotParam3 == std::vector<String>{"hello"});
 
-            notifier->notify("world");
+            notifier.notify("world");
             REQUIRE((gotParam1 == std::vector<String>{"hello", "world"}));
             REQUIRE((gotParam2 == std::vector<String>{"hello", "world"}));
             REQUIRE((gotParam3 == std::vector<String>{"hello", "world"}));
@@ -201,7 +150,7 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsubscribe")
         {
-            notifier->unsubscribe(sub2);
+            notifier.unsubscribe(sub2);
 
             // subscription data should have been deleted
             REQUIRE(subscriptionData2Deleted);
@@ -209,7 +158,7 @@ TEST_CASE("SimpleNotifier")
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE((gotParam1 == std::vector<String>{"hello"}));
             REQUIRE((gotParam2 == std::vector<String>{}));
             REQUIRE((gotParam3 == std::vector<String>{"hello"}));
@@ -217,14 +166,14 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsubscribeAll")
         {
-            notifier->unsubscribeAll();
+            notifier.unsubscribeAll();
 
             // subscription data should have been deleted
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(gotParam1.empty());
             REQUIRE(gotParam2.empty());
             REQUIRE(gotParam3.empty());
@@ -249,19 +198,18 @@ TEST_CASE("SimpleNotifier")
         std::shared_ptr<SimpleNotifierTestSubscriptionData> testSubscriptionData3 =
             std::make_shared<SimpleNotifierTestSubscriptionData>(&subscriptionData3Deleted);
 
-        std::shared_ptr<INotifierSubscription> sub1 =
-            notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
+        notifier_subscription_t sub1 =
+            notifier.subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
 
-        std::shared_ptr<INotifierSubscription> sub2 =
-            notifier->subscribe([&gotParam2, testSubscriptionData2, notifier](String param) {
-                gotParam2.push_back(param);
+        notifier_subscription_t sub2 = notifier.subscribe([&gotParam2, testSubscriptionData2, &notifier](String param) {
+            gotParam2.push_back(param);
 
-                if (gotParam2.size() == 1)
-                    notifier->notify("world");
-            });
+            if (gotParam2.size() == 1)
+                notifier.notify("world");
+        });
 
-        std::shared_ptr<INotifierSubscription> sub3 =
-            notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
+        notifier_subscription_t sub3 =
+            notifier.subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
 
         testSubscriptionData1 = nullptr;
         testSubscriptionData2 = nullptr;
@@ -272,7 +220,7 @@ TEST_CASE("SimpleNotifier")
         REQUIRE(!subscriptionData2Deleted);
         REQUIRE(!subscriptionData3Deleted);
 
-        notifier->notify("hello");
+        notifier.notify("hello");
         REQUIRE(!subscriptionData1Deleted);
         REQUIRE(!subscriptionData2Deleted);
         REQUIRE(!subscriptionData3Deleted);
@@ -304,20 +252,20 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsub following")
         {
-            std::shared_ptr<INotifierSubscription> sub1 =
-                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
+            notifier_subscription_t sub1 =
+                notifier.subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
 
-            std::shared_ptr<INotifierSubscription> sub3;
+            notifier_subscription_t sub3;
 
-            std::shared_ptr<INotifierSubscription> sub2 =
-                notifier->subscribe([&gotParam2, testSubscriptionData2, &sub3, &notifier](String param) {
+            notifier_subscription_t sub2 =
+                notifier.subscribe([&gotParam2, testSubscriptionData2, &sub3, &notifier](String param) {
                     gotParam2.push_back(param);
 
-                    notifier->unsubscribe(sub3);
+                    notifier.unsubscribe(sub3);
                 });
 
             sub3 =
-                notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
+                notifier.subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
 
             testSubscriptionData1 = nullptr;
             testSubscriptionData2 = nullptr;
@@ -328,13 +276,13 @@ TEST_CASE("SimpleNotifier")
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             // 3 has been unsubscribed
             REQUIRE(subscriptionData3Deleted);
 
-            notifier->notify("world");
+            notifier.notify("world");
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
@@ -347,19 +295,19 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsub current")
         {
-            std::shared_ptr<INotifierSubscription> sub1 =
-                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
+            notifier_subscription_t sub1 =
+                notifier.subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
 
-            std::shared_ptr<INotifierSubscription> sub2;
+            notifier_subscription_t sub2;
 
-            sub2 = notifier->subscribe([&gotParam2, testSubscriptionData2, &sub2, &notifier](String param) {
+            sub2 = notifier.subscribe([&gotParam2, testSubscriptionData2, &sub2, &notifier](String param) {
                 gotParam2.push_back(param);
 
-                notifier->unsubscribe(sub2);
+                notifier.unsubscribe(sub2);
             });
 
-            std::shared_ptr<INotifierSubscription> sub3 =
-                notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
+            notifier_subscription_t sub3 =
+                notifier.subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
 
             testSubscriptionData1 = nullptr;
             testSubscriptionData2 = nullptr;
@@ -370,13 +318,13 @@ TEST_CASE("SimpleNotifier")
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(!subscriptionData1Deleted);
             // 3 should have been unsubscribed
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            notifier->notify("world");
+            notifier.notify("world");
             REQUIRE(!subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
@@ -390,18 +338,18 @@ TEST_CASE("SimpleNotifier")
 
         SECTION("unsub all")
         {
-            std::shared_ptr<INotifierSubscription> sub1 =
-                notifier->subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
+            notifier_subscription_t sub1 =
+                notifier.subscribe([&gotParam1, testSubscriptionData1](String param) { gotParam1.push_back(param); });
 
-            std::shared_ptr<INotifierSubscription> sub2 =
-                notifier->subscribe([&gotParam2, testSubscriptionData2, notifier](String param) {
+            notifier_subscription_t sub2 =
+                notifier.subscribe([&gotParam2, testSubscriptionData2, &notifier](String param) {
                     gotParam2.push_back(param);
 
-                    notifier->unsubscribeAll();
+                    notifier.unsubscribeAll();
                 });
 
-            std::shared_ptr<INotifierSubscription> sub3 =
-                notifier->subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
+            notifier_subscription_t sub3 =
+                notifier.subscribe([&gotParam3, testSubscriptionData3](String param) { gotParam3.push_back(param); });
 
             testSubscriptionData1 = nullptr;
             testSubscriptionData2 = nullptr;
@@ -412,12 +360,12 @@ TEST_CASE("SimpleNotifier")
             REQUIRE(!subscriptionData2Deleted);
             REQUIRE(!subscriptionData3Deleted);
 
-            notifier->notify("hello");
+            notifier.notify("hello");
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);
 
-            notifier->notify("world");
+            notifier.notify("world");
             REQUIRE(subscriptionData1Deleted);
             REQUIRE(subscriptionData2Deleted);
             REQUIRE(subscriptionData3Deleted);

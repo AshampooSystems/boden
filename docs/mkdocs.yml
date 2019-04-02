@@ -50,7 +50,7 @@ nav:
     - Overview: 'reference/index.md'
     - Foundation:
       - reference/foundation/base.md
-      - reference/foundation/i_sync_notifier.md
+      - reference/foundation/notifier.md
       - reference/foundation/size.md
       - reference/foundation/string.md
       - reference/foundation/weak_callback.md

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/ClickEvent.h>
-#include <bdn/SimpleNotifier.h>
 #include <bdn/TriState.h>
 #include <bdn/UIUtil.h>
 #include <bdn/View.h>
@@ -23,13 +22,13 @@ namespace bdn
         Checkbox(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        ISyncNotifier<const ClickEvent &> &onClick();
+        Notifier<const ClickEvent &> &onClick();
 
       protected:
         void bindViewCore() override;
 
       protected:
-        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
+        Notifier<const ClickEvent &> _onClick;
 
       private:
         WeakCallback<void()>::Receiver _clickCallbackReceiver;

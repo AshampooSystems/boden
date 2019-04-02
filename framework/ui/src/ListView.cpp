@@ -35,5 +35,5 @@ namespace bdn
         _refreshCallback = listCore->_refreshCallback.set([=]() { onRefresh().notify(); });
     }
 
-    SimpleNotifier<> &ListView::onRefresh() { return _refreshNotifier; }
+    Notifier<> &ListView::onRefresh() { return _refreshNotifier; }
 }

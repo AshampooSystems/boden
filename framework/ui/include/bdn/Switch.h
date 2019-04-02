@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/ClickEvent.h>
-#include <bdn/SimpleNotifier.h>
+#include <bdn/Notifier.h>
 #include <bdn/TriState.h>
 #include <bdn/UIUtil.h>
 #include <bdn/View.h>
@@ -26,13 +26,13 @@ namespace bdn
         TriState state() const;
 
       public:
-        ISyncNotifier<const ClickEvent &> &onClick();
+        Notifier<const ClickEvent &> &onClick();
 
       protected:
         void bindViewCore() override;
 
       protected:
-        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
+        Notifier<const ClickEvent &> _onClick;
 
       public:
         class Core

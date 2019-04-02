@@ -10,12 +10,11 @@ namespace bdn
     Switch::Switch(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
         detail::VIEW_CORE_REGISTER(Switch, View::viewCoreFactory());
-        _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
     }
 
     TriState Switch::state() const { return on ? TriState::on : TriState::off; }
 
-    ISyncNotifier<const ClickEvent &> &Switch::onClick() { return *_onClick; }
+    Notifier<const ClickEvent &> &Switch::onClick() { return _onClick; }
 
     void Switch::bindViewCore()
     {

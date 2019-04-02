@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/SimpleNotifier.h>
+#include <bdn/Notifier.h>
 #include <bdn/property/IValueAccessor.h>
 #include <memory>
 #include <utility>
@@ -26,8 +26,9 @@ namespace bdn
 
         using value_accessor_t = IValueAccessor<ValType>;
         using value_accessor_t_ptr = std::shared_ptr<value_accessor_t>;
-        using notifier_t = SimpleNotifier<std::shared_ptr<value_accessor_t>>;
+        using notifier_t = Notifier<std::shared_ptr<value_accessor_t>>;
         using notifier_t_ptr = std::shared_ptr<notifier_t>;
+        using notifier_subscription_t = typename notifier_t::Subscription;
         using property_t = Property<ValType>;
         using property_t_ptr = std::shared_ptr<property_t>;
 
@@ -76,7 +77,7 @@ namespace bdn
 
         struct Binding
         {
-            std::shared_ptr<INotifierSubscription> subscription;
+            notifier_subscription_t subscription;
             std::weak_ptr<Backing<ValType>> backing;
         };
 

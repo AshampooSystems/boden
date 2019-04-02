@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/SimpleNotifier.h>
+#include <bdn/Notifier.h>
 #include <bdn/SubmitEvent.h>
 #include <bdn/UIUtil.h>
 #include <bdn/View.h>
@@ -30,13 +30,13 @@ namespace bdn
            events are posted when the user presses the Enter key or when
            submit() is called programmatically.
         */
-        ISyncNotifier<const SubmitEvent &> &onSubmit();
+        Notifier<const SubmitEvent &> &onSubmit();
 
       protected:
         void bindViewCore() override;
 
       private:
-        std::shared_ptr<SimpleNotifier<const SubmitEvent &>> _onSubmit;
+        Notifier<const SubmitEvent &> _onSubmit;
         WeakCallback<void()>::Receiver _submitCallbackReceiver;
 
       public:

@@ -13,10 +13,9 @@ namespace bdn
     Checkbox::Checkbox(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
         detail::VIEW_CORE_REGISTER(Checkbox, View::viewCoreFactory());
-        _onClick = std::make_shared<SimpleNotifier<const ClickEvent &>>();
     }
 
-    ISyncNotifier<const ClickEvent &> &Checkbox::onClick() { return *_onClick; }
+    Notifier<const ClickEvent &> &Checkbox::onClick() { return _onClick; }
 
     void Checkbox::bindViewCore()
     {
@@ -27,7 +26,6 @@ namespace bdn
 
         _clickCallbackReceiver = checkBoxCore->_clickCallback.set([=]() {
             ClickEvent evt(shared_from_this());
-
             onClick().notify(evt);
         });
     }

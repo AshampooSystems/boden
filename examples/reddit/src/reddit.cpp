@@ -139,7 +139,7 @@ class RedditListViewDataSource : public ListViewDataSource
 class PostListViewController : public Base
 {
   public:
-    using clickNotifier_t = SimpleNotifier<String, String, String>;
+    using clickNotifier_t = Notifier<String, String, String>;
 
     PostListViewController() : _listView(std::make_shared<ListView>())
     {

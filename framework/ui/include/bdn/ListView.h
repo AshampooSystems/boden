@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/ListViewDataSource.h>
+#include <bdn/Notifier.h>
 #include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
@@ -19,7 +20,7 @@ namespace bdn
         Property<bool> enableRefresh;
 
       public:
-        SimpleNotifier<> &onRefresh();
+        Notifier<> &onRefresh();
 
       public:
         ListView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -33,7 +34,7 @@ namespace bdn
         void bindViewCore() override;
 
       private:
-        SimpleNotifier<> _refreshNotifier;
+        Notifier<> _refreshNotifier;
         WeakCallback<void()>::Receiver _refreshCallback;
 
       public:

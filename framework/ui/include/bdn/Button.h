@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/ClickEvent.h>
-#include <bdn/SimpleNotifier.h>
+#include <bdn/Notifier.h>
 #include <bdn/UIUtil.h>
 #include <bdn/View.h>
 
@@ -21,13 +21,13 @@ namespace bdn
         Button(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        ISyncNotifier<const ClickEvent &> &onClick();
+        Notifier<const ClickEvent &> &onClick();
 
       protected:
         void bindViewCore() override;
 
       private:
-        std::shared_ptr<SimpleNotifier<const ClickEvent &>> _onClick;
+        Notifier<const ClickEvent &> _onClick;
         WeakCallback<void()>::Receiver _clickCallbackReceiver;
 
       public:

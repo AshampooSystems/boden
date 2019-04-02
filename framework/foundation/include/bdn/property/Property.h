@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/NotifierBase.h>
+#include <bdn/String.h>
 #include <bdn/property/IValueAccessor.h>
 
 #include <bdn/property/GetterSetter.h>
