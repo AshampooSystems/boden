@@ -36,3 +36,21 @@ input::placeholder {
 		display: none;
 	}
 }
+
+.md-legal {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+
+.md-legal ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.md-legal ul li {
+	margin: 0;
+	padding: 0;
+	margin-right: 10px;
+	display: inline-block;
+}

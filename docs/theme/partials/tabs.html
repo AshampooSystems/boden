@@ -6,7 +6,9 @@
   <div class="md-tabs__inner md-grid">
     <ul class="md-tabs__list">
       {% for nav_item in nav %}
-        {% include "partials/tabs-item.html" %}
+      	{% if nav_item.title != 'Legal' %}
+        	{% include "partials/tabs-item.html" %}
+        {% endif %}
       {% endfor %}
     </ul>
   </div>
