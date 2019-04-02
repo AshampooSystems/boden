@@ -93,7 +93,7 @@ class RedditListViewDataSource : public ListViewDataSource
 
             addChildView(image);
 
-            auto textView = std::make_shared<TextView>();
+            auto textView = std::make_shared<Label>();
             textView->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
 
             addChildView(textView);
@@ -197,7 +197,7 @@ class PostDetailController : public Base
                                           << FlexWrap(FlexStylesheet::Wrap::Wrap));
 
         auto image = std::make_shared<ImageView>();
-        auto titleField = std::make_shared<TextView>();
+        auto titleField = std::make_shared<Label>();
 
         image->setLayoutStylesheet(FlexGrow(0.0f) << FlexMaximumSizeWidth(100.0f) << FlexMaximumSizeHeight(100.0f)
                                                   << FlexShrink(0.0f) << FlexMarginRight(5.f));

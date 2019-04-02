@@ -8,17 +8,17 @@ namespace bdn
 
     namespace detail
     {
-        VIEW_CORE_REGISTRY_DECLARATION(TextView)
+        VIEW_CORE_REGISTRY_DECLARATION(Label)
     }
 
-    class TextView : public View
+    class Label : public View
     {
       public:
         Property<String> text;
         Property<bool> wrap;
 
       public:
-        TextView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
+        Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       protected:
         void bindViewCore() override;

@@ -1,13 +1,13 @@
-#include <bdn/android/TextViewCore.h>
+#include <bdn/android/LabelCore.h>
 
 namespace bdn::detail
 {
-    CORE_REGISTER(TextView, bdn::android::TextViewCore, TextView)
+    CORE_REGISTER(Label, bdn::android::LabelCore, Label)
 }
 
 namespace bdn::android
 {
-    TextViewCore::TextViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+    LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::TextView>(viewCoreFactory)),
           _jTextView(getJViewAS<wrapper::TextView>())
     {
@@ -36,7 +36,7 @@ namespace bdn::android
         };
     }
 
-    Size TextViewCore::sizeForSpace(Size availableSpace) const
+    Size LabelCore::sizeForSpace(Size availableSpace) const
     {
         if (_wrap) {
             _jTextView.setMaxWidth((int)(availableSpace.width * getUIScaleFactor()));

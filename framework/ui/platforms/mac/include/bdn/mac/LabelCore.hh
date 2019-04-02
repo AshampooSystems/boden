@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/TextView.h>
+#include <bdn/Label.h>
 
 #import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/util.hh>
@@ -32,13 +32,13 @@
 
 namespace bdn::mac
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
+    class LabelCore : public ViewCore, virtual public bdn::Label::Core
     {
       private:
         static BdnMacTextView_ *_createNSTextView();
 
       public:
-        TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
       public:
         Size sizeForSpace(Size availableSpace) const override;

@@ -33,14 +33,14 @@ class MainViewController : public Base
         firstPage->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
                                        << FlexGrow(0.0f) << FlexShrink(0.0f) << FlexPaddingAll(20.0f));
 
-        auto textOnFirstPage = std::make_shared<TextView>();
+        auto textOnFirstPage = std::make_shared<Label>();
         textOnFirstPage->text = "Click the button!\nIf you dare!\nIf not\nwell...";
         auto btn = std::make_shared<Button>();
         btn->label = "Click me!";
 
         btn->onClick() += [=](auto) {
             auto secondPage = std::make_shared<ContainerView>();
-            auto textOnSecondPage = std::make_shared<TextView>();
+            auto textOnSecondPage = std::make_shared<Label>();
             textOnSecondPage->text = "This is the second page!";
             secondPage->addChildView(textOnSecondPage);
 

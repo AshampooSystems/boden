@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/ClickEvent.h>
-#include <bdn/TextView.h>
+#include <bdn/Label.h>
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ViewCore.hh>
@@ -22,13 +22,13 @@
 
 namespace bdn::ios
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
+    class LabelCore : public ViewCore, virtual public bdn::Label::Core
     {
       private:
         static BodenUILabel *createUILabel();
 
       public:
-        TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
       private:
         UILabel *getUILabel();

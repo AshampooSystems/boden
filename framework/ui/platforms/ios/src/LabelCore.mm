@@ -1,20 +1,20 @@
-#include <bdn/ios/TextViewCore.hh>
+#include <bdn/ios/LabelCore.hh>
 
 namespace bdn::detail
 {
-    CORE_REGISTER(TextView, bdn::ios::TextViewCore, TextView)
+    CORE_REGISTER(Label, bdn::ios::LabelCore, Label)
 }
 
 namespace bdn::ios
 {
-    BodenUILabel *TextViewCore::createUILabel()
+    BodenUILabel *LabelCore::createUILabel()
     {
         BodenUILabel *label = [[BodenUILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         label.numberOfLines = 0;
         return label;
     }
 
-    TextViewCore::TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    LabelCore::LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUILabel())
     {
         _uiLabel = (UILabel *)uiView();
@@ -30,5 +30,5 @@ namespace bdn::ios
         };
     }
 
-    UILabel *TextViewCore::getUILabel() { return _uiLabel; }
+    UILabel *LabelCore::getUILabel() { return _uiLabel; }
 }

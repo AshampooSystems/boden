@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/TextView.h>
+#include <bdn/Label.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/RStyle.h>
@@ -10,10 +10,10 @@
 
 namespace bdn::android
 {
-    class TextViewCore : public ViewCore, virtual public bdn::TextView::Core
+    class LabelCore : public ViewCore, virtual public bdn::Label::Core
     {
       public:
-        TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
 

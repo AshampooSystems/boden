@@ -1,13 +1,13 @@
-#include <bdn/mac/TextViewCore.hh>
+#include <bdn/mac/LabelCore.hh>
 
 namespace bdn::detail
 {
-    CORE_REGISTER(TextView, bdn::mac::TextViewCore, TextView)
+    CORE_REGISTER(Label, bdn::mac::LabelCore, Label)
 }
 
 namespace bdn::mac
 {
-    BdnMacTextView_ *TextViewCore::_createNSTextView()
+    BdnMacTextView_ *LabelCore::_createNSTextView()
     {
         BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
@@ -23,7 +23,7 @@ namespace bdn::mac
         return view;
     }
 
-    TextViewCore::TextViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    LabelCore::LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : bdn::mac::ViewCore(viewCoreFactory, _createNSTextView())
     {
         _nsTextView = (BdnMacTextView_ *)nsView();
@@ -44,7 +44,7 @@ namespace bdn::mac
         };
     }
 
-    Size TextViewCore::sizeForSpace(Size availableSpace) const
+    Size LabelCore::sizeForSpace(Size availableSpace) const
     {
         CGSize boundingRect = CGSizeMake(_wrap ? availableSpace.width : CGFLOAT_MAX, CGFLOAT_MAX);
 

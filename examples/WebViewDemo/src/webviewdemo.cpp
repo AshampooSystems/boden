@@ -22,7 +22,7 @@ class MainViewController : public Base
         navigationBar->setLayoutStylesheet(
             FlexJsonStringify({"direction" : "Row", "padding" : {"all" : 5}, "alignItems" : "Center"}));
 
-        auto label = std::make_shared<TextView>();
+        auto label = std::make_shared<Label>();
         label->text = "URL:";
         label->setLayoutStylesheet(FlexJsonStringify({"margin" : {"right" : 5}}));
 

@@ -6,16 +6,11 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
-import dalvik.system.DexFile;
-
-import android.util.Log;
 import android.view.MenuItem;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Vector;
 
@@ -35,23 +30,23 @@ import java.util.Vector;
 public class NativeRootActivity extends FragmentActivity
 {
     public interface BackButtonListener extends EventListener {
-        public boolean backButtonPressed();
+        boolean backButtonPressed();
     }
 
-    public class BackButtonHandlers {
-        protected Vector listener = new Vector();
+    class BackButtonHandlers {
+        final Vector<BackButtonListener> listener = new Vector<>();
 
-        public void add(BackButtonListener a) {
+        void add(BackButtonListener a) {
             listener.addElement(a);
         }
 
-        public void remove(BackButtonListener l) {
+        void remove(BackButtonListener l) {
             listener.remove(l);
         }
 
-        public boolean handleBackButtonPressed() {
+        boolean handleBackButtonPressed() {
             for(int i=0; i < listener.size(); i++) {
-                if (((BackButtonListener) listener.elementAt(i)).backButtonPressed()) {
+                if ((listener.elementAt(i)).backButtonPressed()) {
                     return true;
                 }
             }
@@ -64,7 +59,7 @@ public class NativeRootActivity extends FragmentActivity
      *
      *  If this is not specified then "main" is used.
      */
-    public static final String META_DATA_LIB_NAME = "io.boden.android.lib_name";
+    private static final String META_DATA_LIB_NAME = "io.boden.android.lib_name";
 
     /** Called when the activity is first created. */
     @Override
@@ -101,24 +96,23 @@ public class NativeRootActivity extends FragmentActivity
     }
 
     public int getResourceIdFromURI(String uri, String type) {
-        URI aUri = null;
         try {
-            aUri = new URI(uri);
+            URI aUri = new URI(uri);
+
+            String path = aUri.getPath();
+
+            path = path.replace('/', '_');
+            path = path.replace('.', '_');
+
+            path = path.substring(1); // Remove leading
+
+            return getResourceIdFromString(path, type);
         } catch (URISyntaxException e) {
             return -1;
         }
-
-        String path = aUri.getPath();
-
-        path = path.replace('/', '_');
-        path = path.replace('.', '_');
-
-        path = path.substring(1); // Remove leading
-
-        return getResourceIdFromString(path, type);
     }
 
-    public int getResourceIdFromString(String resName, String type) {
+    private int getResourceIdFromString(String resName, String type) {
         try {
             Class<?> cls = Class.forName("io.boden.android." + _libName + ".R$" + type);
 
@@ -178,8 +172,8 @@ public class NativeRootActivity extends FragmentActivity
 
     private String getMetaString(String valueName, String defaultValue)
     {
-        Object val = _metaData.get( META_DATA_LIB_NAME );
-        if( val!=null && val instanceof String)
+        Object val = _metaData.get( valueName );
+        if( val instanceof String)
             return (String)val;
         else
             return defaultValue;

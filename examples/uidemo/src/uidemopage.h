@@ -74,7 +74,7 @@ namespace bdn
                                                      << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
                                                      << FlexWrap(FlexStylesheet::Wrap::Wrap));
 
-        auto textView = std::make_shared<TextView>();
+        auto textView = std::make_shared<Label>();
         textView->text = title;
         row->addChildView(textView);
         row->addChildView(ctrl);
@@ -104,7 +104,7 @@ namespace bdn
                                        << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20.f)
                                        << FlexMarginAll(2.f));
 #endif
-        auto screenOrientationCtrl = std::make_shared<TextView>();
+        auto screenOrientationCtrl = std::make_shared<Label>();
         screenOrientationCtrl->text = Window::orientationToString(window->currentOrientation);
         window->currentOrientation.onChange() +=
             [screenOrientationCtrl](auto va) { screenOrientationCtrl->text = Window::orientationToString(va->get()); };
@@ -150,7 +150,7 @@ namespace bdn
 
         ////////////////////////////////////////////////////////////////////////
 
-        auto header = std::make_shared<TextView>();
+        auto header = std::make_shared<Label>();
         header->text = "Scrolling multiline text";
         header->setLayoutStylesheet(FlexMarginBottom(5) << FlexShrink(0));
 
@@ -162,7 +162,7 @@ namespace bdn
         auto scrollContainer = std::make_shared<ContainerView>();
         scrollContainer->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(0.0f) << FlexPaddingAll(20));
 
-        auto scrolledTextView = std::make_shared<TextView>();
+        auto scrolledTextView = std::make_shared<Label>();
         scrolledTextView->text = testText;
 
         scrolledTextView->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(0.0f));
@@ -179,7 +179,7 @@ namespace bdn
         String demoEntries[] = {"List Item 1", "List Item 2"};
 
         for (auto entry : demoEntries) {
-            auto newEntry = std::make_shared<TextView>();
+            auto newEntry = std::make_shared<Label>();
             newEntry->text = entry;
             fakeList->addChildView(newEntry);
         }
@@ -194,7 +194,7 @@ namespace bdn
         addButton->label = "Add";
 
         addButton->onClick() += [fakeList, textFieldCtrl](auto) {
-            auto newEntry = std::make_shared<TextView>();
+            auto newEntry = std::make_shared<Label>();
             newEntry->text = textFieldCtrl->text.get().empty() ? "New Item" : textFieldCtrl->text.get();
             fakeList->addChildView(newEntry);
             // applyLayout(newEntry, fakeList->getLayout());
@@ -223,7 +223,7 @@ namespace bdn
                                         << FlexAlignItems(FlexStylesheet::Align::Center)
                                         << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween));
 
-        auto listHeaderLabel = std::make_shared<TextView>();
+        auto listHeaderLabel = std::make_shared<Label>();
         listHeaderLabel->text = "Mutable list";
 
         listHeader->addChildView(listHeaderLabel);

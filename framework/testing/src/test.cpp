@@ -42,8 +42,8 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/AppRunnerBase.h>
 #include <bdn/ApplicationController.h>
 #include <bdn/IDispatcher.h>
+#include <bdn/Label.h>
 #include <bdn/TestAppController.h>
-#include <bdn/TextView.h>
 #include <bdn/Window.h>
 #include <bdn/config.h>
 #include <bdn/debug.h>
