@@ -4,11 +4,11 @@
 
 namespace bdn::android::wrapper
 {
-    constexpr const char kNativeStackViewClassName[] = "io/boden/android/NativeStackView";
-    class NativeStackView : public BaseNativeViewGroup<kNativeStackViewClassName>
+    constexpr const char kNativeNavigationViewClassName[] = "io/boden/android/NativeNavigationView";
+    class NativeNavigationView : public BaseNativeViewGroup<kNativeNavigationViewClassName>
     {
       public:
-        using BaseNativeViewGroup<kNativeStackViewClassName>::BaseNativeViewGroup;
+        using BaseNativeViewGroup<kNativeNavigationViewClassName>::BaseNativeViewGroup;
 
       public:
         JavaMethod<void()> close{this, "close"};

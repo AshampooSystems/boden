@@ -17,6 +17,7 @@ namespace bdn
             if (std::shared_ptr<View> parent = view->getParentView()) {
                 auto it = _views.find(parent.get());
                 if (it != _views.end()) {
+                    it->second->childrenChanged(true);
                     YGNodeInsertChild(it->second->ygNode, _views[view]->ygNode,
                                       YGNodeGetChildCount(it->second->ygNode));
                 }
@@ -29,7 +30,17 @@ namespace bdn
             if (it != _views.end()) {
 
                 if (auto owner = YGNodeGetOwner(it->second->ygNode)) {
+
+                    auto parentData = std::find_if(_views.begin(), _views.end(), [&owner](auto &viewData) {
+                        if (viewData.second->ygNode == owner) {
+                            return true;
+                        }
+                        return false;
+                    });
                     YGNodeRemoveChild(owner, it->second->ygNode);
+                    if (parentData != _views.end()) {
+                        parentData->second->childrenChanged();
+                    }
                 }
 
                 _views.erase(it);

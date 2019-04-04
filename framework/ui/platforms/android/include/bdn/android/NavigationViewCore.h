@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/FixedView.h>
-#include <bdn/Stack.h>
+#include <bdn/NavigationView.h>
 
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/WindowCore.h>
@@ -10,13 +10,12 @@ namespace bdn::android
 {
     class NavButtonHandler;
 
-    class StackCore : public ViewCore, public bdn::Stack::Core
+    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
     {
       public:
-        StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~StackCore() override;
+        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ~NavigationViewCore() override;
 
-        // StackCore interface
       public:
         void pushView(std::shared_ptr<View> view, String title) override;
         void popView() override;

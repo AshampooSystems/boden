@@ -30,6 +30,8 @@ namespace bdn
             static void yogaVisit(YGNodeRef node, const std::function<void(YGNodeRef, Point)> &function,
                                   Point initialOffset = {0, 0});
 
+            void childrenChanged(bool adding = false);
+
           public:
             Property<Rect> geometry;
 

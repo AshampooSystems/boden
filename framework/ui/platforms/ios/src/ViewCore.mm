@@ -1,7 +1,5 @@
-
-#import <bdn/ios/ViewCore.hh>
-
 #include <bdn/ProgrammingError.h>
+#import <bdn/ios/ViewCore.hh>
 
 namespace bdn::ios
 {

@@ -23,11 +23,11 @@ class MainViewController : public Base
         container->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
                                        << FlexGrow(1.0f) << FlexAlignItems(FlexStylesheet::Align::Stretch));
 
-        _stack = std::make_shared<Stack>();
+        _navigationView = std::make_shared<NavigationView>();
 
-        container->addChildView(_stack);
+        container->addChildView(_navigationView);
 
-        _stack->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
+        _navigationView->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
 
         auto firstPage = std::make_shared<ContainerView>();
         firstPage->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
@@ -44,7 +44,7 @@ class MainViewController : public Base
             textOnSecondPage->text = "This is the second page!";
             secondPage->addChildView(textOnSecondPage);
 
-            _stack->pushView(secondPage, "Second page");
+            _navigationView->pushView(secondPage, "Second page");
         };
 
         firstPage->addChildView(textOnFirstPage);
@@ -55,20 +55,20 @@ class MainViewController : public Base
 
         btn2->onClick() += [this](auto) {
             auto hugePage = createUiDemoPage(_window);
-            this->_stack->pushView(hugePage, "HUGE UI Demo Page");
+            this->_navigationView->pushView(hugePage, "HUGE UI Demo Page");
         };
 
         firstPage->addChildView(btn2);
 
         _window->content = container;
 
-        _stack->pushView(firstPage, "Stack Demo");
+        _navigationView->pushView(firstPage, "Stack Demo");
 
         _window->visible = true;
     }
 
   protected:
-    std::shared_ptr<Stack> _stack;
+    std::shared_ptr<NavigationView> _navigationView;
     std::shared_ptr<Window> _window;
 };
 

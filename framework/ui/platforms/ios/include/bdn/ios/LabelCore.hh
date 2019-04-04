@@ -2,6 +2,7 @@
 
 #include <bdn/ClickEvent.h>
 #include <bdn/Label.h>
+#include <bdn/log.h>
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ViewCore.hh>
@@ -34,7 +35,7 @@ namespace bdn::ios
         UILabel *getUILabel();
 
       protected:
-        bool canAdjustToAvailableWidth() const override { return true; }
+        bool canAdjustToAvailableWidth() const override { return wrap.get(); }
 
       private:
         UILabel *_uiLabel;

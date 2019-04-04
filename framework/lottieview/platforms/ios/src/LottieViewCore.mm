@@ -47,6 +47,12 @@ namespace bdn::ios
         : ViewCore(viewCoreFactory, createView())
     {}
 
+    LottieViewCore::~LottieViewCore()
+    {
+        [animationView stop];
+        animationView = nullptr;
+    }
+
     void LottieViewCore::init()
     {
         ViewCore::init();

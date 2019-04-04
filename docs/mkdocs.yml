@@ -80,14 +80,14 @@ nav:
       - reference/ui/layout.md
       - reference/ui/list_view.md
       - reference/ui/list_view_data_source.md
+      - reference/ui/navigation_view.md
       - reference/ui/scroll_view.md
-      - reference/ui/stack.md
       - reference/ui/text_field.md
       - reference/ui/text_view.md
       - reference/ui/tri_state.md
       - reference/ui/view.md
-      - reference/ui/view_event.md
       - reference/ui/view_core_factory.md
+      - reference/ui/view_event.md
       - reference/ui/window.md
       - Cores:
         - reference/ui/cores/view_core.md

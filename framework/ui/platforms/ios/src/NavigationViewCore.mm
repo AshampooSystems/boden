@@ -1,8 +1,9 @@
 #import <UIKit/UIKit.h>
 #import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/ios/ContainerViewCore.hh>
-#import <bdn/ios/StackCore.hh>
+#import <bdn/ios/NavigationViewCore.hh>
 #import <bdn/ios/util.hh>
+#include <bdn/log.h>
 
 @implementation BodenUINavigationControllerContainerView
 
@@ -29,7 +30,7 @@
 @end
 
 @interface BodenStackUIViewController : UIViewController
-@property(nonatomic) std::weak_ptr<bdn::ios::StackCore> stackCore;
+@property(nonatomic) std::weak_ptr<bdn::ios::NavigationViewCore> stackCore;
 @property(nonatomic) std::shared_ptr<bdn::FixedView> fixedView;
 @property(nonatomic) std::shared_ptr<bdn::View> userContent;
 @property(nonatomic) std::shared_ptr<bdn::FixedView> safeContent;
@@ -77,7 +78,9 @@
         _fixedView->addChildView(_safeContent);
         _safeContent->addChildView(_userContent);
 
-        _fixedView->geometry.onChange() += [=](auto) { [self updateSafeContent]; };
+        __weak auto weakSelf = self;
+
+        _fixedView->geometry.onChange() += [weakSelf](auto) { [weakSelf updateSafeContent]; };
 
         auto c = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_safeContent->viewCore());
         if (c) {
@@ -97,7 +100,7 @@
 
 namespace bdn::detail
 {
-    CORE_REGISTER(Stack, bdn::ios::StackCore, Stack)
+    CORE_REGISTER(NavigationView, bdn::ios::NavigationViewCore, NavigationView)
 }
 
 namespace bdn::ios
@@ -112,11 +115,11 @@ namespace bdn::ios
         return view;
     }
 
-    StackCore::StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    NavigationViewCore::NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createNavigationControllerView())
     {}
 
-    void StackCore::init()
+    void NavigationViewCore::init()
     {
         ViewCore::init();
 
@@ -127,7 +130,7 @@ namespace bdn::ios
         [rootViewController.view addSubview:getNavigationController().view];
     }
 
-    UINavigationController *StackCore::getNavigationController()
+    UINavigationController *NavigationViewCore::getNavigationController()
     {
         if (auto navView = (BodenUINavigationControllerContainerView *)uiView()) {
             return navView.navController;
@@ -135,15 +138,15 @@ namespace bdn::ios
         return nullptr;
     }
 
-    void StackCore::frameChanged()
+    void NavigationViewCore::frameChanged()
     {
         Rect rActual = iosRectToRect(uiView().frame);
         geometry = rActual;
     }
 
-    void StackCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
+    void NavigationViewCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
 
-    std::shared_ptr<FixedView> StackCore::getCurrentContainer()
+    std::shared_ptr<FixedView> NavigationViewCore::getCurrentContainer()
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
             auto bdnViewController = (BodenStackUIViewController *)topViewController;
@@ -153,7 +156,7 @@ namespace bdn::ios
         return nullptr;
     }
 
-    std::shared_ptr<View> StackCore::getCurrentUserView()
+    std::shared_ptr<View> NavigationViewCore::getCurrentUserView()
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
             auto bdnViewController = (BodenStackUIViewController *)topViewController;
@@ -163,10 +166,10 @@ namespace bdn::ios
         return nullptr;
     }
 
-    void StackCore::pushView(std::shared_ptr<View> view, String title)
+    void NavigationViewCore::pushView(std::shared_ptr<View> view, String title)
     {
         BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
-        ctrl.stackCore = shared_from_this<StackCore>();
+        ctrl.stackCore = shared_from_this<NavigationViewCore>();
         ctrl.userContent = view;
 
         [ctrl setTitle:fk::stringToNSString(title)];
@@ -176,13 +179,13 @@ namespace bdn::ios
         markDirty();
     }
 
-    void StackCore::popView()
+    void NavigationViewCore::popView()
     {
         [getNavigationController() popViewControllerAnimated:YES];
         markDirty();
     }
 
-    std::list<std::shared_ptr<View>> StackCore::childViews()
+    std::list<std::shared_ptr<View>> NavigationViewCore::childViews()
     {
         if (auto container = getCurrentContainer()) {
             return {container};

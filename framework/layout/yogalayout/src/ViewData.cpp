@@ -1,13 +1,6 @@
-#include <bdn/yogalayout/ViewData.h>
-
-#include <bdn/ContainerView.h>
 #include <bdn/FixedView.h>
-#include <bdn/ListView.h>
-#include <bdn/ScrollView.h>
-#include <bdn/Stack.h>
-#include <bdn/View.h>
 #include <bdn/Window.h>
-
+#include <bdn/yogalayout/ViewData.h>
 #include <yoga/YGNode.h>
 
 namespace bdn
@@ -20,11 +13,7 @@ namespace bdn
             ygNode = YGNodeNew();
             YGNodeSetContext(ygNode, this);
 
-            if ((dynamic_cast<ContainerView *>(v) == nullptr) && (dynamic_cast<Window *>(view) == nullptr) &&
-                (dynamic_cast<ScrollView *>(view) == nullptr) && (dynamic_cast<Stack *>(view) == nullptr) &&
-                (dynamic_cast<ListView *>(view) == nullptr)) {
-                YGNodeSetMeasureFunc(ygNode, &measureFunc);
-            }
+            childrenChanged();
 
             if (!view->getParentView() || (dynamic_cast<FixedView *>(v) != nullptr)) {
                 isRootNode = true;
@@ -58,14 +47,34 @@ namespace bdn
             viewData->view->scheduleLayout();
         }
 
+        static float YGSanitizeMeasurement(float constrainedSize, float measuredSize, YGMeasureMode measureMode)
+        {
+            float result;
+            if (measureMode == YGMeasureModeExactly) {
+                result = constrainedSize;
+            } else if (measureMode == YGMeasureModeAtMost) {
+                result = std::min(constrainedSize, measuredSize);
+            } else {
+                result = measuredSize;
+            }
+
+            return result;
+        }
+
         YGSize ViewData::measureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
                                      YGMeasureMode heightMode)
         {
             auto viewData = static_cast<ViewData *>(YGNodeGetContext(node));
 
-            Size s = viewData->view->sizeForSpace({width, height});
+            Size constraintSize = Size(widthMode == YGMeasureModeUndefined ? Size::componentNone() : width,
+                                       heightMode == YGMeasureModeUndefined ? Size::componentNone() : height);
 
-            return YGSize{(float)s.width, (float)s.height};
+            Size s = viewData->view->sizeForSpace(constraintSize);
+
+            return (YGSize){
+                .width = YGSanitizeMeasurement(constraintSize.width, s.width, widthMode),
+                .height = YGSanitizeMeasurement(constraintSize.height, s.height, heightMode),
+            };
         }
 
         void ViewData::applyLayout(YGNodeRef node, Point offset)
@@ -112,6 +121,15 @@ namespace bdn
                     function(child, initialOffset);
                     yogaVisit(child, function);
                 }
+            }
+        }
+
+        void ViewData::childrenChanged(bool adding)
+        {
+            if (YGNodeGetChildCount(ygNode) > 0 || adding) {
+                YGNodeSetMeasureFunc(ygNode, nullptr);
+            } else {
+                YGNodeSetMeasureFunc(ygNode, &measureFunc);
             }
         }
     }

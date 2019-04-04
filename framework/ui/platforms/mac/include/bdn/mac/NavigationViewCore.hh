@@ -2,7 +2,7 @@
 
 #import <bdn/mac/ViewCore.hh>
 
-#include <bdn/Stack.h>
+#include <bdn/NavigationView.h>
 
 #include <deque>
 
@@ -10,11 +10,11 @@
 
 namespace bdn::mac
 {
-    class StackCore : public ViewCore, public bdn::Stack::Core
+    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
     {
       public:
-        StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ~StackCore();
+        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ~NavigationViewCore();
 
         void init() override;
 

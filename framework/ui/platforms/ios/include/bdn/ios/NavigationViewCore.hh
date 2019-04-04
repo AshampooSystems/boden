@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Stack.h>
+#include <bdn/NavigationView.h>
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
@@ -10,10 +10,10 @@
 
 namespace bdn::ios
 {
-    class StackCore : public ViewCore, public bdn::Stack::Core
+    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
     {
       public:
-        StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
 
       public:
         void init() override;

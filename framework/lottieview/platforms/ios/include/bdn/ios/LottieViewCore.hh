@@ -12,6 +12,7 @@ namespace bdn::ios
     {
       public:
         LottieViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ~LottieViewCore() override;
 
       public:
         void init() override;

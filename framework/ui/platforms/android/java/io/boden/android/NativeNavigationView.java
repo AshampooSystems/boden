@@ -9,9 +9,9 @@ import android.transition.Transition;
 import android.view.Gravity;
 import android.view.View;
 
-public class NativeStackView extends NativeViewGroup implements NativeRootActivity.BackButtonListener {
+public class NativeNavigationView extends NativeViewGroup implements NativeRootActivity.BackButtonListener {
 
-    public NativeStackView(Context context) {
+    public NativeNavigationView(Context context) {
         super(context);
 
         int id = View.generateViewId();

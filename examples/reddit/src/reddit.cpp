@@ -236,19 +236,19 @@ class MainViewController : public Base
         _window->geometry = Rect{0, 0, 1024, 768};
         _window->setLayout(std::make_shared<yogalayout::Layout>());
 
-        auto stack = std::make_shared<Stack>();
-        stack->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
-                                   << FlexGrow(1.0f) << FlexShrink(1.0f)
-                                   << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20));
+        auto navigationView = std::make_shared<NavigationView>();
+        navigationView->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
+                                            << FlexGrow(1.0f) << FlexShrink(1.0f)
+                                            << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20));
 
-        stack->pushView(_listViewController->view(), "Reddit");
+        navigationView->pushView(_listViewController->view(), "Reddit");
 
-        _listViewController->onClicked() += [stack](auto title, auto url, auto imageUrl) {
+        _listViewController->onClicked() += [navigationView](auto title, auto url, auto imageUrl) {
             auto post = std::make_shared<PostDetailController>(title, url, imageUrl);
-            stack->pushView(post->view(), "Details");
+            navigationView->pushView(post->view(), "Details");
         };
 
-        _window->content = stack;
+        _window->content = navigationView;
         _window->visible = true;
     }
 

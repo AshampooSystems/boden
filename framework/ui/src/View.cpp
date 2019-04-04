@@ -2,7 +2,6 @@
 
 #include <bdn/ProgrammingError.h>
 #include <bdn/ViewCoreFactory.h>
-#include <bdn/debug.h>
 
 #include <bdn/UIApplicationController.h>
 

@@ -24,11 +24,12 @@ class MainViewController : public Base
 
         auto label = std::make_shared<Label>();
         label->text = "URL:";
-        label->setLayoutStylesheet(FlexJsonStringify({"margin" : {"right" : 5}}));
+        label->wrap = false;
+        label->setLayoutStylesheet(FlexJsonStringify({"margin" : {"right" : 5}, "flexShrink" : 0.0}));
 
         auto urlInput = std::make_shared<TextField>();
         urlInput->setLayoutStylesheet(FlexJsonStringify({"flexGrow" : 1.0, "margin" : {"right" : 5}}));
-        urlInput->text = "https://www.google.de";
+        urlInput->text = "https://ashampoosystems.github.io/boden";
 
         auto reloadButton = std::make_shared<Button>();
         reloadButton->label = "Reload";

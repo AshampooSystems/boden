@@ -9,14 +9,14 @@ namespace bdn
 {
     namespace detail
     {
-        VIEW_CORE_REGISTRY_DECLARATION(Stack)
+        VIEW_CORE_REGISTRY_DECLARATION(NavigationView)
     }
 
-    class Stack : public View
+    class NavigationView : public View
     {
       public:
-        Stack(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
-        ~Stack() override;
+        NavigationView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
+        ~NavigationView() override = default;
 
         void pushView(std::shared_ptr<View> view, String title);
         void popView();

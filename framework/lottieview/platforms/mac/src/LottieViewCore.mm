@@ -25,6 +25,12 @@ namespace bdn::mac
         : ViewCore(viewCoreFactory, createView())
     {}
 
+    LottieViewCore::~LottieViewCore()
+    {
+        [animationView stop];
+        animationView = nullptr;
+    }
+
     void LottieViewCore::init()
     {
         ViewCore::init();
@@ -102,8 +108,11 @@ namespace bdn::mac
 
     void LottieViewCore::play()
     {
+        std::weak_ptr<LottieViewCore> pThis = shared_from_this<LottieViewCore>();
         [animationView playWithCompletion:^(BOOL completed) {
-          running = false;
+          if (auto lottieViewCore = pThis.lock()) {
+              lottieViewCore->running = false;
+          }
         }];
     }
 }

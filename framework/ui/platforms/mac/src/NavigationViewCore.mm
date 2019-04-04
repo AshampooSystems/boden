@@ -1,10 +1,10 @@
 #import <bdn/mac/ContainerViewCore.hh>
-#import <bdn/mac/StackCore.hh>
+#import <bdn/mac/NavigationViewCore.hh>
 #include <iostream>
 
 @interface BdnBackButtonClickHandler : NSObject
 
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::StackCore> stackCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::mac::NavigationViewCore> stackCore;
 
 @end
 
@@ -21,29 +21,32 @@
 
 namespace bdn::detail
 {
-    CORE_REGISTER(Stack, bdn::mac::StackCore, Stack)
+    CORE_REGISTER(NavigationView, bdn::mac::NavigationViewCore, NavigationView)
 }
 
 namespace bdn::mac
 {
-    NSView *createStackView()
+    NSView *createNavigationView()
     {
         NSView *root = [[NSView alloc] init];
 
         return root;
     }
 
-    StackCore::StackCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createStackView())
+    NavigationViewCore::NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createNavigationView())
     {}
 
-    StackCore::~StackCore() { _backButtonClickHandler.stackCore = std::weak_ptr<StackCore>(); }
+    NavigationViewCore::~NavigationViewCore()
+    {
+        _backButtonClickHandler.stackCore = std::weak_ptr<NavigationViewCore>();
+    }
 
-    void StackCore::init()
+    void NavigationViewCore::init()
     {
         ViewCore::init();
 
-        auto self = shared_from_this<StackCore>();
+        auto self = shared_from_this<NavigationViewCore>();
 
         _navigationBar = [[NSView alloc] init];
         [nsView() addSubview:_navigationBar];
@@ -66,19 +69,19 @@ namespace bdn::mac
         geometry.onChange() += [self](auto va) { self->reLayout(); };
     }
 
-    void StackCore::pushView(std::shared_ptr<bdn::View> view, bdn::String title)
+    void NavigationViewCore::pushView(std::shared_ptr<bdn::View> view, bdn::String title)
     {
         _stack.push_back({view, title});
         updateCurrentView();
     }
 
-    void StackCore::popView()
+    void NavigationViewCore::popView()
     {
         _stack.pop_back();
         updateCurrentView();
     }
 
-    std::list<std::shared_ptr<View>> StackCore::childViews()
+    std::list<std::shared_ptr<View>> NavigationViewCore::childViews()
     {
         if (_container) {
             return {_container};
@@ -86,7 +89,7 @@ namespace bdn::mac
         return {};
     }
 
-    void StackCore::setLayout(std::shared_ptr<Layout> layout)
+    void NavigationViewCore::setLayout(std::shared_ptr<Layout> layout)
     {
         if (_container) {
             _container->offerLayout(layout);
@@ -94,7 +97,7 @@ namespace bdn::mac
         ViewCore::setLayout(std::move(layout));
     }
 
-    void StackCore::updateCurrentView()
+    void NavigationViewCore::updateCurrentView()
     {
         if (!_container) {
             _container = std::make_shared<FixedView>(viewCoreFactory());
@@ -129,7 +132,7 @@ namespace bdn::mac
         reLayout();
     }
 
-    void StackCore::reLayout()
+    void NavigationViewCore::reLayout()
     {
         Size outerSize{nsView().frame.size.width, nsView().frame.size.height};
 
