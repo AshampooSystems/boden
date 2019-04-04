@@ -1,0 +1,2 @@
+add_platform_library(NAME applecommon SOURCE_FOLDER ${CMAKE_CURRENT_LIST_DIR} COMPONENT_NAME IOS-MAC PARENT_LIBRARY ui DONT_LINK_PARENT_LIBRARY)
+target_link_libraries(ui_applecommon PRIVATE ui)

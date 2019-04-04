@@ -2,7 +2,6 @@
 #include <bdn/log.h>
 #include <bdn/net.h>
 #include <bdn/ui.h>
-#include <bdn/webview-module.h>
 #include <bdn/yogalayout.h>
 
 #include <nlohmann/json.hpp>
@@ -21,11 +20,8 @@ class RedditPost
   public:
     RedditPost() = default;
     RedditPost(const String &title_, const String &url_, const String &thumbnailUrl_)
-    {
-        title = title_;
-        url = url_;
-        thumbnailUrl = thumbnailUrl_;
-    }
+        : title(title_), url(url_), thumbnailUrl(thumbnailUrl_)
+    {}
 
     Property<String> title;
     Property<String> url;
