@@ -15,7 +15,6 @@ namespace bdn::mac
       public:
         ViewCore() = delete;
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView);
-        virtual ~ViewCore() = default;
 
       public:
         void init() override;

@@ -46,8 +46,6 @@ namespace bdn
               _commandLineApp(commandLineApp)
         {}
 
-        virtual ~GenericApplication() = default;
-
         void initiateExitIfPossible(int exitCode) override
         {
             std::unique_lock lock(_exitMutex);

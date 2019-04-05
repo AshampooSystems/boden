@@ -27,7 +27,7 @@ namespace bdn::android
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, wrapper::View jView)
             : bdn::View::Core(viewCoreFactory), _jView(std::move(std::move(jView)))
         {}
-        virtual ~ViewCore();
+        ~ViewCore() override;
 
       public:
         wrapper::View &getJView() { return _jView; }

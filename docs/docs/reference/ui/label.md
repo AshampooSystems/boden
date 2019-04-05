@@ -1,22 +1,22 @@
 path: tree/master/framework/ui/include/bdn/
-source: TextView.h
+source: Label.h
 
-# TextView
+# Label
 
-A display only text view 
+Displays read-only text 
 
 ## Declaration
 
 ```C++
-class TextView : public View
+class Label : public View
 ```
 
 ## Example
 
 ```C++
-#include <bdn/TextView.h>
+#include <bdn/Label.h>
 // ...
-auto label = std::make_shared<TextView>();
+auto label = std::make_shared<Label>();
 label->text = "Hello World";
 ```
 

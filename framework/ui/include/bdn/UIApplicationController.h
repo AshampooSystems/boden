@@ -12,6 +12,9 @@ namespace bdn
     class UIApplicationController : public ApplicationController
     {
       public:
+        ~UIApplicationController() override = default;
+
+      public:
         using ViewCoreFactoryPtr = std::shared_ptr<ViewCoreFactory>;
         using ViewCoreFactoryStack = std::vector<ViewCoreFactoryPtr>;
 

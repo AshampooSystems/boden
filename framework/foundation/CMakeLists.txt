@@ -50,6 +50,7 @@ group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${_BDN_FILES})
 # Options
 
 enable_warnings_as_errors(foundation PUBLIC)
+enable_most_warnings(foundation PUBLIC)
 enable_automatic_reference_counting(foundation PUBLIC)
 enable_big_object_files(foundation PUBLIC)
 enable_unicode(foundation PUBLIC)

@@ -100,6 +100,7 @@ namespace bdn
           public:
             Core() = delete;
             Core(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory);
+            virtual ~Core() = default;
 
           public:
             virtual void init() = 0;

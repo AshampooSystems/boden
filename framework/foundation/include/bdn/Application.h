@@ -26,6 +26,8 @@ namespace bdn
       public:
         Application(Application::ApplicationControllerFactory applicationControllerFactory,
                     std::shared_ptr<Dispatcher> dispatcher);
+        virtual ~Application() = default;
+
         void init();
 
         virtual void initiateExitIfPossible(int exitCode) = 0;

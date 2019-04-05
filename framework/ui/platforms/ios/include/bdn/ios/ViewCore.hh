@@ -21,7 +21,7 @@ namespace bdn::ios
     {
       public:
         ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView);
-        virtual ~ViewCore();
+        ~ViewCore() override;
 
         template <class T> std::shared_ptr<T> shared_from_this()
         {

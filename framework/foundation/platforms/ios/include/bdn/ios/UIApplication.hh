@@ -12,8 +12,6 @@ namespace bdn::ios
         UIApplication(const Application::ApplicationControllerFactory &appControllerCreator, int argCount,
                       char *args[]);
 
-        virtual ~UIApplication() = default;
-
         int entry(int argCount, char *args[]);
 
         void initiateExitIfPossible(int exitCode) override;

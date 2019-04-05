@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 class TestApplicationController : public bdn::ApplicationController, public testing::EmptyTestEventListener
 {
   public:
-    virtual ~TestApplicationController()
+    ~TestApplicationController() override
     {
         _testThread->join();
         _testThread.reset();

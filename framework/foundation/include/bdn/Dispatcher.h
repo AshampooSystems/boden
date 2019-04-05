@@ -8,6 +8,9 @@ namespace bdn
     class Dispatcher
     {
       public:
+        virtual ~Dispatcher() = default;
+
+      public:
         using Clock = std::chrono::steady_clock;
         using TimePoint = Clock::time_point;
         using Duration = Clock::duration;
