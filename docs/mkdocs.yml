@@ -43,6 +43,8 @@ nav:
     - Setup: 'getting-started/setup.md'
   - Guides:
     - guides/index.md
+    - Foundation:
+      - guides/foundation/properties.md
     - UI:
       - guides/ui/writing_view.md
       - guides/ui/writing_view_modules.md
