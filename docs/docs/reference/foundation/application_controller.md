@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/foundation/include/bdn/
 source: ApplicationController.h
 
 # ApplicationController
