@@ -393,7 +393,7 @@ We are happy about your feedback!
 
 Get in touch with us and stay up to date about Boden:
 
-* Find us on Twitter: [@bodenhq](https://twitter.com/bodenhq)
+* Follow us on Twitter: [@bodenhq](https://twitter.com/bodenhq)
 * Join the [Boden Google Group](https://groups.google.com/forum/#!forum/boden-cross-platform-framework)
 * Email us: boden-team@ashampoo-systems.com
 
