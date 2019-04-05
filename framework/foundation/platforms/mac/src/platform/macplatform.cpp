@@ -2,7 +2,7 @@
 #include <bdn/debug.h>
 #include <bdn/platform/macplatform.h>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 #include <cassert>
 #include <sys/sysctl.h>
@@ -17,17 +17,8 @@ namespace bdn
     {
         void MacHooks::init() { Hooks::get() = std::make_unique<MacHooks>(); }
 
-        void MacHooks::debuggerPrint(const bdn::String &text)
-        {
-            // If we have a UI app then we can output the debug text to stderr.
-            // The debugger will usually pick that up.
-            // For commandline apps we must not do that, since stderr may
-            // actually be used for user interaction there.
-            if (!getAppRunner()->isCommandLineApp()) {
-                std::cerr << text << std::endl;
-            }
-        }
+        void MacHooks::debuggerPrint(const bdn::String &text) { std::cerr << text << std::endl; }
 
-        bool MacHooks::debuggerPrintGoesToStdErr() { return !getAppRunner()->isCommandLineApp(); }
+        bool MacHooks::debuggerPrintGoesToStdErr() { return true; }
     }
 }

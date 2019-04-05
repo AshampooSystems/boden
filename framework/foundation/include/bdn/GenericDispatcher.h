@@ -1,11 +1,8 @@
 #pragma once
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 #include <bdn/Base.h>
-#include <bdn/DanglingFunctionError.h>
-#include <bdn/IDispatcher.h>
-#include <bdn/InvalidArgumentError.h>
-#include <bdn/ThreadRunnableBase.h>
+#include <bdn/Dispatcher.h>
 #include <bdn/log.h>
 
 #include <array>
@@ -27,7 +24,7 @@ namespace bdn
        secondary work thread.
 
         */
-    class GenericDispatcher : public Base, virtual public IDispatcher
+    class GenericDispatcher : public Base, virtual public Dispatcher
     {
       public:
         GenericDispatcher() = default;
@@ -36,10 +33,10 @@ namespace bdn
 
         void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-        void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+        void enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func,
                             Priority priority = Priority::normal) override;
 
-        void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override;
+        void createTimer(Dispatcher::Duration interval, std::function<bool()> func) override;
 
         /** Executes the next work item. Returns true if one was executed,
             false when there are currently no items ready to be executed.
@@ -56,61 +53,12 @@ namespace bdn
 
             \return true if a work item is ready, false if the timeout has
            elapsed.*/
-        bool waitForNext(IDispatcher::Duration timeout);
-
-        /** Convenience implementation of a IThreadRunnable for a thread that
-           has a GenericDispatcher at its core.
-
-            Example:
-
-            \code
-
-            std::shared_ptr<GenericDispatcher> dispatcher = std::make_shared<GenericDispatcher>();
-            std::shared_ptr<Thread>            thread = std::make_shared<Thread>(
-            std::make_shared<GenericDispatcher::Runnable>( dispatcher) );
-
-            // the thread will now execute the items from the dispatcher.
-
-            // to stop the thread:
-            thread->stop( Thread::ExceptionIgnore );
-
-            \endcode
-
-            */
-        class ThreadRunnable : public ThreadRunnableBase
-        {
-          public:
-            ThreadRunnable(std::shared_ptr<GenericDispatcher> dispatcher) : _dispatcher(std::move(dispatcher)) {}
-
-            void signalStop() override
-            {
-                ThreadRunnableBase::signalStop();
-
-                // post a dummy item so that we will wake up if we are currently
-                // waiting.
-                _dispatcher->enqueue([]() {});
-            }
-
-            void run() override
-            {
-                while (!shouldStop()) {
-                    if (!_dispatcher->executeNext()) {
-                        // we can wait for a long time here because when
-                        // signalStop is called we will get an item posted.
-                        // So we automatically wake up.
-                        _dispatcher->waitForNext(1000s);
-                    }
-                }
-            }
-
-          private:
-            std::shared_ptr<GenericDispatcher> _dispatcher;
-        };
+        bool waitForNext(Dispatcher::Duration timeout);
 
       private:
         bool getNextReady(std::function<void()> &func, bool remove);
 
-        std::optional<IDispatcher::TimePoint> timePointOfNextScheduledItem();
+        std::optional<Dispatcher::TimePoint> timePointOfNextScheduledItem();
 
         std::list<std::function<void()>> &getQueue(Priority priority);
 
@@ -159,8 +107,8 @@ namespace bdn
                     try {
                         continueTimer = _func();
                     }
-                    catch (DanglingFunctionError &) {
-                        // DanglingFunctionError exceptions are ignored. They
+                    catch (std::bad_function_call &) {
+                        // std::bad_function_call exceptions are ignored. They
                         // indicate that the function was a weak method and the
                         // corresponding object has been destroyed. We treat
                         // this case as if func had returned false.
@@ -225,7 +173,7 @@ namespace bdn
 
         std::mutex _mutex;
 
-        std::array<std::list<std::function<void()>>, IDispatcher::NumberOfPriorities> _queues;
+        std::array<std::list<std::function<void()>>, Dispatcher::NumberOfPriorities> _queues;
 
         std::map<TimedItemKey, TimedItem> _timedItemMap;
         int64_t _timedItemCounter = 0;

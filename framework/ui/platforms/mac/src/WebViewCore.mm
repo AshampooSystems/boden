@@ -8,7 +8,7 @@
 
 #include <bdn/log.h>
 
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn::webview::detail
 {

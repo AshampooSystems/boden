@@ -51,7 +51,6 @@ install(
 add_subdirectory(foundation)
 add_subdirectory(net)
 add_subdirectory(ui)
-add_subdirectory(testing)
 add_subdirectory(layout)
 
 if(BDN_INCLUDE_LOTTIE)

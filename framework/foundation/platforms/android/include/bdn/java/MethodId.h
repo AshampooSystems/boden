@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/ProgrammingError.h>
 #include <bdn/String.h>
 
 namespace bdn::java
@@ -64,7 +63,7 @@ namespace bdn::java
         jmethodID getId() const
         {
             if (!isInitialized()) {
-                throw ProgrammingError("MethodId::getId called on uninitialized object.");
+                throw std::logic_error("MethodId::getId called on uninitialized object.");
             }
 
             return _id;

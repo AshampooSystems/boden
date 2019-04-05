@@ -1,7 +1,6 @@
 #pragma once
 
-#include <bdn/ApplicationController.h>
-
+#include <bdn/Application.h>
 #include <bdn/jni.h>
 
 namespace bdn::android
@@ -10,6 +9,6 @@ namespace bdn::android
     /** Entry point function for android apps.
         This is automatically called by the BDN_APP_INIT macro and it
        usually does not need to be called manually.*/
-    void appEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, JNIEnv *env,
+    void appEntry(const Application::ApplicationControllerFactory &appControllerCreator, JNIEnv *env,
                   jobject rawIntent);
 }

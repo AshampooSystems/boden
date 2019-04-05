@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/UIUtil.h>
 #include <bdn/View.h>
 #include <bdn/ViewCoreFactory.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn
 {

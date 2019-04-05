@@ -26,7 +26,7 @@ class CommandProcessor:
         self.rootPath = rootPath
         self.sourceFolder = sourceFolder
         self.buildExecutor = BuildExecutor(generatorInfo, rootPath, sourceFolder, buildFolder)
-        self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder)
+        self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder, rootPath)
 
         self.defaultLadder = {
             ('android', None) : ('android', 'AndroidStudio'),

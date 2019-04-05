@@ -5,7 +5,7 @@
 #include <bdn/log.h>
 
 #include "../include/bdn/android/wrapper/LottieAnimationView.h"
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn::lottieview::detail
 {

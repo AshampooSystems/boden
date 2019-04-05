@@ -37,3 +37,10 @@ endif()
 
 add_subdirectory(lottie)
 
+#################################################################################
+# Google test
+
+if(BDN_BUILD_TESTS)
+    add_subdirectory(googletest)
+endif()
+

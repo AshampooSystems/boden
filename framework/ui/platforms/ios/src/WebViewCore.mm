@@ -1,4 +1,4 @@
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 #include <bdn/WebView.h>
 
 #import <bdn/foundationkit/stringUtil.hh>

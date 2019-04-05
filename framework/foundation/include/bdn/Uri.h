@@ -5,14 +5,9 @@
 
 namespace bdn
 {
-
-    class Uri : public Base
+    class Uri
     {
       public:
-        /** Unescapes all URI escape sequences (%XY sequences) in the specified
-           string and returns the result.
-
-            */
         static String unescape(const String &s);
     };
 }

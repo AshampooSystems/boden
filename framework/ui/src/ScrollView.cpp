@@ -1,7 +1,7 @@
 
 #include <bdn/ScrollView.h>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 namespace bdn
 {
@@ -29,7 +29,7 @@ namespace bdn
 
     void ScrollView::scrollClientRectToVisible(const Rect &area)
     {
-        AppRunnerBase::assertInMainThread();
+        Application::assertInMainThread();
 
         auto scrollCore = core<ScrollView::Core>();
         scrollCore->scrollClientRectToVisible(area);
@@ -37,7 +37,7 @@ namespace bdn
 
     std::list<std::shared_ptr<View>> ScrollView::childViews()
     {
-        AppRunnerBase::assertInMainThread();
+        Application::assertInMainThread();
 
         if (content.get() != nullptr) {
             return {content.get()};
@@ -48,7 +48,7 @@ namespace bdn
 
     void ScrollView::childViewStolen(const std::shared_ptr<View> &childView)
     {
-        AppRunnerBase::assertInMainThread();
+        Application::assertInMainThread();
 
         if (childView == content.get()) {
             content = nullptr;

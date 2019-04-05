@@ -1,18 +1,17 @@
 
 #include <bdn/genericAppEntry.h>
 
-#include <bdn/GenericAppRunner.h>
+#include <bdn/GenericApplication.h>
 #include <bdn/entry.h>
 
 namespace bdn
 {
 
-    int genericCommandLineAppEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator,
-                                   int argc, char *argv[])
+    int genericCommandLineAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc,
+                                   char *argv[])
     {
-        auto appRunner = std::make_shared<GenericAppRunner>(appControllerCreator, argc, argv, true);
-        _setAppRunner(appRunner);
-
-        return appRunner->entry();
+        auto application = std::make_shared<GenericApplication>(appControllerCreator, argc, argv, true);
+        application->init();
+        return application->entry();
     }
 }

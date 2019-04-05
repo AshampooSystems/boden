@@ -24,7 +24,7 @@ namespace bdn::android
         wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
 
         if (rootView.isNull_()) {
-            throw ProgrammingError("WindowCore being created but there are no native root "
+            throw std::logic_error("WindowCore being created but there are no native root "
                                    "views available. You must create a NativeRootActivity "
                                    "or NativeRootView instance!");
         }

@@ -1,6 +1,6 @@
 #include <bdn/LottieView.h>
-#include <bdn/UIUtil.h>
 #include <bdn/ViewCoreFactory.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn
 {

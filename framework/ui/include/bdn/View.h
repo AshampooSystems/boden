@@ -4,9 +4,7 @@
 #include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
 #include <bdn/WeakCallback.h>
-#include <bdn/mainThread.h>
 #include <bdn/property/Property.h>
-#include <bdn/round.h>
 
 #include <list>
 
@@ -101,8 +99,7 @@ namespace bdn
 
           public:
             Core() = delete;
-            Core(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory))
-            {}
+            Core(std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory);
 
           public:
             virtual void init() = 0;

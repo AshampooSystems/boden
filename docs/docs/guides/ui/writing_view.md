@@ -157,7 +157,7 @@ Boden uses the [ViewCoreFactory](../../reference/ui/view_core_factory.md) to cre
 Add the following code to `ExampleButtonView.h`:
 
 ```c++
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn::detail
 {
@@ -169,7 +169,7 @@ namespace bdn::detail
 	```c++ hl_lines="3 7 8 9 10"
 	#pragma once
 	#include <bdn/View.h>
-	#include <bdn/UIUtil.h>
+	#include <bdn/ViewUtilities.h>
 
 	namespace bdn
 	{
@@ -401,9 +401,9 @@ namespace bdn::ios {
 	void ExampleButtonViewCore::init()
 	{
 		ViewCore::init();
-		label.onChange() += [=](auto va) {
+		label.onChange() += [=](auto newValue) {
 			auto uiButton = (UIButton*)uiView();
-			[uiButton setTitle:bdn::fk::stringToNSString(label) forState:UIControlStateNormal]];
+			[uiButton setTitle:bdn::fk::stringToNSString(value) forState:UIControlStateNormal]];
 		};
 	}
 }
@@ -451,9 +451,9 @@ namespace bdn::ios {
 		void ExampleButtonViewCore::init()
 		{
 			ViewCore::init();
-			label.onChange() += [=](auto va) {
+			label.onChange() += [=](auto newValue) {
 				auto uiButton = (UIButton*)uiView();
-				[uiButton setTitle:bdn::fk::stringToNSString(label) forState:UIControlStateNormal]];
+				[uiButton setTitle:bdn::fk::stringToNSString(value) forState:UIControlStateNormal]];
 			};
 		}
 	}
@@ -569,9 +569,9 @@ Now we can fire the callback from our UIButton derived class:
 		void ExampleButtonViewCore::init()
 		{
 			ViewCore::init();
-			label.onChange() += [=](auto va) {
+			label.onChange() += [=](auto newValue) {
 				auto uiButton = (UIButton*)uiView();
-				[uiButton setTitle:bdn::fk::stringToNSString(label) forState:UIControlStateNormal]];
+				[uiButton setTitle:bdn::fk::stringToNSString(value) forState:UIControlStateNormal]];
 			};
 		}
 	}

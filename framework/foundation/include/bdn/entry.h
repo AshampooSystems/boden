@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 namespace bdn
 {

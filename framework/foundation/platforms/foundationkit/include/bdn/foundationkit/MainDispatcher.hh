@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/Base.h>
-#include <bdn/IDispatcher.h>
+#include <bdn/Dispatcher.h>
 
 #include <list>
 #include <mutex>
@@ -15,7 +15,7 @@ namespace bdn
     {
 
         /** A helper class that runs tasks when the app is idle.*/
-        class MainDispatcher : public Base, virtual public IDispatcher
+        class MainDispatcher : public Base, virtual public Dispatcher
         {
             std::shared_ptr<MainDispatcher> shared_from_this()
             {
@@ -28,10 +28,10 @@ namespace bdn
 
             void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
 
-            void enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
+            void enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func,
                                 Priority priority = Priority::normal) override;
 
-            void createTimer(IDispatcher::Duration interval, std::function<bool()> func) override;
+            void createTimer(Dispatcher::Duration interval, std::function<bool()> func) override;
 
             void dispose();
 
@@ -60,7 +60,7 @@ namespace bdn
             };
 
             static void _scheduleMainThreadCall(const std::function<void()> &func,
-                                                IDispatcher::Duration delay = IDispatcher::Duration::zero());
+                                                Dispatcher::Duration delay = Dispatcher::Duration::zero());
 
             void ensureIdleObserverInstalled();
 

@@ -2,8 +2,8 @@
 
 #include <bdn/ListViewDataSource.h>
 #include <bdn/Notifier.h>
-#include <bdn/UIUtil.h>
 #include <bdn/View.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn
 {

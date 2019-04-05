@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 #include <iostream>
 #include <utility>
@@ -151,8 +151,8 @@ class PostListViewController : public Base
 
         updatePosts();
 
-        _listView->selectedRowIndex.onChange() += [this](auto indexAccessor) {
-            auto post = _store->posts.at(*indexAccessor->get());
+        _listView->selectedRowIndex.onChange() += [this](auto va) {
+            auto post = _store->posts.at(*va->get());
             _onClicked.notify(post->title, post->url, post->thumbnailUrl);
         };
     }
@@ -213,7 +213,7 @@ class PostDetailController : public Base
         titleField->text = title;
 
         openButton->label = "Open in Browser";
-        openButton->onClick() += [url](auto) { getAppRunner()->openURL(url); };
+        openButton->onClick() += [url](auto) { App()->openURL(url); };
 
         _mainColumn->addChildView(headerColumn);
         _mainColumn->addChildView(webView);
@@ -260,10 +260,7 @@ class MainViewController : public Base
 class RedditApplicationController : public UIApplicationController
 {
   public:
-    void beginLaunch(const AppLaunchInfo &launchInfo) override
-    {
-        _mainViewController = std::make_shared<MainViewController>();
-    }
+    void beginLaunch() override { _mainViewController = std::make_shared<MainViewController>(); }
 
   protected:
     std::shared_ptr<MainViewController> _mainViewController;

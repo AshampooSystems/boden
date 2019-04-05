@@ -1,5 +1,5 @@
-#include <bdn/UIUtil.h>
 #include <bdn/ViewCoreFactory.h>
+#include <bdn/ViewUtilities.h>
 #include <bdn/WebView.h>
 
 namespace bdn

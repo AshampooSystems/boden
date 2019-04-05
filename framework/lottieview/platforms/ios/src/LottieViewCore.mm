@@ -4,7 +4,7 @@
 
 #include <LOTAnimationView.h>
 
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 #import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/log.h>
 

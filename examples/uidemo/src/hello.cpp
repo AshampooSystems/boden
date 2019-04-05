@@ -27,10 +27,7 @@ class MainViewController : public Base
 class UIDemoApplicationController : public UIApplicationController
 {
   public:
-    void beginLaunch(const AppLaunchInfo &launchInfo) override
-    {
-        _mainViewController = std::make_shared<MainViewController>();
-    }
+    void beginLaunch() override { _mainViewController = std::make_shared<MainViewController>(); }
 
   protected:
     std::shared_ptr<MainViewController> _mainViewController;

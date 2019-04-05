@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./ )
 
+option(BDN_BUILD_TESTS "Build boden tests" ON)
+option(BDN_BUILD_EXAMPLES "Build boden examples" ON)
 
 if(POLICY CMP0079)
     cmake_policy(SET CMP0079 NEW) # Remove when minimum reaches 3.13
@@ -39,19 +41,16 @@ set(BDN_CLANG_TIDY_OPTIONS ${BDN_CLANG_TIDY_EXECUTABLE} ${BDN_CLANG_TIDY_EXTRA_O
 add_subdirectory(framework)
 
 # Examples
-option(BDN_BUILD_EXAMPLES "Build boden examples" ON)
 
 if(BDN_BUILD_EXAMPLES)
-	add_subdirectory(examples)
+    add_subdirectory(examples)
 endif(BDN_BUILD_EXAMPLES)
 
 # Tests
-option(BDN_BUILD_TESTS "Build boden tests" ON)
 
 if(BDN_BUILD_TESTS)
-	add_subdirectory(tests)
-endif(BDN_BUILD_TESTS)
-
+    add_subdirectory(tests)
+endif()
 
 add_global_clangformat(FormatSources ${CMAKE_CURRENT_LIST_DIR})
 

@@ -1,7 +1,7 @@
 
 #include <bdn/GenericDispatcher.h>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 #include <bdn/log.h>
 #include <iostream>
 
@@ -42,13 +42,13 @@ namespace bdn
         }
     }
 
-    void GenericDispatcher::enqueue(std::function<void()> func, bdn::IDispatcher::Priority priority)
+    void GenericDispatcher::enqueue(std::function<void()> func, bdn::Dispatcher::Priority priority)
     {
         std::unique_lock lock(_mutex);
         enqueue(func, priority, lock);
     }
 
-    void GenericDispatcher::enqueue(std::function<void()> func, IDispatcher::Priority priority,
+    void GenericDispatcher::enqueue(std::function<void()> func, Dispatcher::Priority priority,
                                     std::unique_lock<std::mutex> &lk)
     {
         getQueue(priority).push_back(func);
@@ -56,22 +56,22 @@ namespace bdn
         _notify.notify_one();
     }
 
-    void GenericDispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func,
-                                           IDispatcher::Priority priority)
+    void GenericDispatcher::enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func,
+                                           Dispatcher::Priority priority)
     {
 
-        if (delay <= IDispatcher::Duration::zero()) {
+        if (delay <= Dispatcher::Duration::zero()) {
             enqueue(func, priority);
         } else {
             addTimedItem(Clock::now() + delay, func, priority);
         }
     }
 
-    void GenericDispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
+    void GenericDispatcher::createTimer(Dispatcher::Duration interval, std::function<bool()> func)
     {
         if (interval <= 0s) {
-            throw InvalidArgumentError("GenericDispatcher::createTimer must be called with "
-                                       "interval > 0");
+            throw std::invalid_argument("GenericDispatcher::createTimer must be called with "
+                                        "interval > 0");
         }
         std::shared_ptr<Timer> timer = std::make_shared<Timer>(this, func, interval);
 
@@ -86,8 +86,8 @@ namespace bdn
             try {
                 func();
             }
-            catch (DanglingFunctionError &) {
-                // DanglingFunctionError exceptions are ignored. They indicate
+            catch (std::bad_function_call &) {
+                // std::bad_function_call exceptions are ignored. They indicate
                 // that the function was a weak method and the corresponding
                 // object has been destroyed. We treat such functions as no-ops.
             }
@@ -98,7 +98,7 @@ namespace bdn
         return false;
     }
 
-    std::optional<IDispatcher::TimePoint> GenericDispatcher::timePointOfNextScheduledItem()
+    std::optional<Dispatcher::TimePoint> GenericDispatcher::timePointOfNextScheduledItem()
     {
         std::unique_lock lock(_mutex);
 
@@ -109,7 +109,7 @@ namespace bdn
         return std::nullopt;
     }
 
-    bool GenericDispatcher::waitForNext(IDispatcher::Duration timeout)
+    bool GenericDispatcher::waitForNext(Dispatcher::Duration timeout)
     {
         TimePoint absoluteTimeoutTime = Clock::now();
 
@@ -168,8 +168,8 @@ namespace bdn
         }
     }
 
-    void GenericDispatcher::addTimedItem(IDispatcher::TimePoint scheduledTime, std::function<void()> func,
-                                         bdn::IDispatcher::Priority priority)
+    void GenericDispatcher::addTimedItem(Dispatcher::TimePoint scheduledTime, std::function<void()> func,
+                                         bdn::Dispatcher::Priority priority)
     {
         std::unique_lock lock(_mutex);
 
@@ -192,7 +192,7 @@ namespace bdn
         _notify.notify_one();
     }
 
-    std::list<std::function<void()>> &GenericDispatcher::getQueue(IDispatcher::Priority priority)
+    std::list<std::function<void()>> &GenericDispatcher::getQueue(Dispatcher::Priority priority)
     {
 
         switch (priority) {
@@ -202,7 +202,7 @@ namespace bdn
             return _queues[1];
         }
 
-        throw InvalidArgumentError("Invalid dispatcher item priority: " + std::to_string((int)priority));
+        throw std::invalid_argument("Invalid dispatcher item priority: " + std::to_string((int)priority));
     }
 
     bool GenericDispatcher::getNextReady(std::function<void()> &func, bool remove)

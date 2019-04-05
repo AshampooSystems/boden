@@ -1,27 +1,10 @@
 #pragma once
 
-#include <bdn/AppLaunchInfo.h>
+#include <memory>
 
 namespace bdn
 {
-
-    /** Base class for app controllers.
-
-        An app controller manages the lifecycle of the app. It performs
-       initialization on startup, handles operating system requests to exit,
-       performs app shutdown, etc.
-
-        During the lifetime of the app, the app controllers lifecycle
-       notification functions will be called at various points.
-       ApplicationController provides a default implementation for these that does
-       nothing.
-
-        You control which app controller class your app uses by passing it to
-       the app initialization macros #BDN_INIT_UI_APP(),
-       #BDN_INIT_COMMANDLINE_APP(), ...
-
-        */
-    class ApplicationController : public Base
+    class ApplicationController : public std::enable_shared_from_this<ApplicationController>
     {
       public:
         /** Called when the app launch has begun.
@@ -37,10 +20,7 @@ namespace bdn
            (including the commandline arguments) is available in the launchInfo
            parameter.
             */
-        virtual void beginLaunch(const AppLaunchInfo &launchInfo)
-        {
-            // do nothing by default
-        }
+        virtual void beginLaunch() {}
 
         /** Called when the app has finished launching, just before it becomes
            active.
@@ -56,10 +36,7 @@ namespace bdn
            (including the commandline arguments) is available in the launchInfo
            parameter.
          */
-        virtual void finishLaunch(const AppLaunchInfo &launchInfo)
-        {
-            // do nothing by default
-        }
+        virtual void finishLaunch() {}
 
         /** The app has become active and ready for the user to interact with
            it.
@@ -68,10 +45,7 @@ namespace bdn
            in the foreground) or one of the active apps (if the system supports
            multiple apps on the screen at the same time).
             */
-        virtual void onActivate()
-        {
-            // do nothing by default
-        }
+        virtual void onActivate() {}
 
         /** The app will be deactivated or was just deactivated. The user does
            not interact with this app anymore and it is going into the
@@ -89,10 +63,7 @@ namespace bdn
            shortly afterwards (see onEnterBackgroundMode() )
 
             */
-        virtual void onDeactivate()
-        {
-            // do nothing by default
-        }
+        virtual void onDeactivate() {}
 
         /** The application is about to be suspended / frozen.
 
@@ -122,10 +93,7 @@ namespace bdn
             operations during the suspension. See LimitedBackgroundTask for more
             information.
             */
-        virtual void onSuspend()
-        {
-            // do nothing by default
-        }
+        virtual void onSuspend() {}
 
         /** Called when an app is about to exit suspended state
             (see onSuspend() ).
@@ -133,10 +101,7 @@ namespace bdn
             The app will usually be activated shortly afterwards.
 
             */
-        virtual void onResume()
-        {
-            // do nothing by default
-        }
+        virtual void onResume() {}
 
         /** The app is about to be terminated by the operating system (i.e. it
            will be fully unloaded and stop to run).
@@ -151,25 +116,6 @@ namespace bdn
            be killed without completing the onTerminate handler if this time is
            exceeded.
             */
-        virtual void onTerminate()
-        {
-            // do nothing by default
-        }
-
-        /** Returns the global app controller instance.*/
-        static std::shared_ptr<ApplicationController> get() { return _globalAppController(); }
-
-        /** Sets the global app controller instance.
-
-            This is used internally by the framework. You should not call it.
-         */
-        static void _set(std::shared_ptr<ApplicationController> pAppController)
-        {
-            std::shared_ptr<ApplicationController> &globalAppController = _globalAppController();
-            globalAppController = std::move(pAppController);
-        }
-
-      private:
-        static std::shared_ptr<ApplicationController> &_globalAppController();
+        virtual void onTerminate() {}
     };
 }

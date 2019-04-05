@@ -2,8 +2,8 @@
 
 #include <bdn/ClickEvent.h>
 #include <bdn/TriState.h>
-#include <bdn/UIUtil.h>
 #include <bdn/View.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn
 {

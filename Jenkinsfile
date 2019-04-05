@@ -196,11 +196,8 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'python boden.py run --target testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
-                                junit "testresults/ios_testboden.xml"
-
-                                //sh 'python boden.py run --target testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
-                                //junit "testresults/ios_testbodenui.xml"
+                                sh 'python boden.py run --target testFoundation -- --gtest_output=xml:$PWD/testresults/ios_testFoundation.xml || true'
+                                junit "testresults/ios_testFoundation.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
                             }

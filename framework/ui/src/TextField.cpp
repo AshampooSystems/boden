@@ -1,5 +1,5 @@
 #include <bdn/TextField.h>
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 
 namespace bdn
 {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bdn/DanglingFunctionError.h>
-
 #include <bdn/android/wrapper/Looper.h>
 #include <bdn/java/wrapper/NativeOnceRunnable.h>
 
@@ -22,13 +20,13 @@ namespace bdn::android::wrapper
         JavaMethod<void()> dispose{this, "dispose"};
 
       public:
-        void enqueue(IDispatcher::Duration delay, const std::function<void()> &func, bool idlePriority)
+        void enqueue(Dispatcher::Duration delay, const std::function<void()> &func, bool idlePriority)
         {
             bdn::java::wrapper::NativeOnceRunnable runnable([func]() {
                 try {
                     func();
                 }
-                catch (DanglingFunctionError &) {
+                catch (std::bad_function_call &) {
                     // ignore. This means that func is a weak method and
                     // that the corresponding object has been destroyed.
                 }
@@ -38,7 +36,7 @@ namespace bdn::android::wrapper
             return native_enqueue(delayInSeconds, bdn::java::wrapper::NativeRunnable(runnable.getRef_()), idlePriority);
         }
 
-        void createTimer(IDispatcher::Duration interval, const std::shared_ptr<Base> &timerData)
+        void createTimer(Dispatcher::Duration interval, const std::shared_ptr<Base> &timerData)
         {
             bdn::java::wrapper::NativeStrongPointer nativeTimerData(timerData);
 

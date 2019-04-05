@@ -2,22 +2,20 @@
 #include <bdn/mac/appEntry.h>
 
 #include <bdn/entry.h>
-#import <bdn/mac/UIAppRunner.hh>
+#import <bdn/mac/UIApplication.hh>
 
 namespace bdn::mac
 {
-    int uiAppEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, int argc,
-                   char *argv[])
+    int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[])
     {
         int returnValue = 0;
 
         bdn::platformEntryWrapper(
             [&]() {
-                std::shared_ptr<bdn::mac::UIAppRunner> appRunner =
-                    std::make_shared<bdn::mac::UIAppRunner>(appControllerCreator, argc, argv);
-                _setAppRunner(appRunner);
+                auto application = std::make_shared<bdn::mac::UIApplication>(appControllerCreator, argc, argv);
 
-                returnValue = appRunner->entry();
+                application->init();
+                returnValue = application->entry();
             },
             false);
 

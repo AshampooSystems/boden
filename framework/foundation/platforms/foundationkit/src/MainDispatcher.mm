@@ -1,10 +1,8 @@
 
 #import <bdn/foundationkit/MainDispatcher.hh>
 
-#include <bdn/InvalidArgumentError.h>
 #include <bdn/entry.h>
 #include <bdn/log.h>
-#include <bdn/mainThread.h>
 #include <iostream>
 
 #import <Foundation/Foundation.h>
@@ -13,7 +11,7 @@
 }
 
 @property std::function<void()> func;
-@property bdn::IDispatcher::Duration delay;
+@property bdn::Dispatcher::Duration delay;
 
 - (void)invoke;
 
@@ -28,11 +26,11 @@
 {
     bdn::platformEntryWrapper(
         [=]() {
-            if (delay <= bdn::IDispatcher::Duration::zero()) {
+            if (delay <= bdn::Dispatcher::Duration::zero()) {
                 try {
                     func();
                 }
-                catch (bdn::DanglingFunctionError &) {
+                catch (std::bad_function_call &) {
                     // ignore. This means that the function is a weak method
                     // whose object has been deleted. This is treated like a
                     // no-op.
@@ -41,7 +39,7 @@
 
                 double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
 
-                delay = bdn::IDispatcher::Duration::zero();
+                delay = bdn::Dispatcher::Duration::zero();
 
                 [self performSelector:@selector(invoke) withObject:nil afterDelay:delayInSeconds];
             }
@@ -79,7 +77,7 @@
                 try {
                     result = timerFunc();
                 }
-                catch (bdn::DanglingFunctionError &) {
+                catch (std::bad_function_call &) {
                     // ignore. This means that the function is a weak method
                     // whose object has been deleted. This is treated as if the
                     // function had returned false (i.e. the timer is stopped)
@@ -103,7 +101,6 @@ namespace bdn
 {
     namespace fk
     {
-
         MainDispatcher::MainDispatcher()
         {
             _idleQueue = std::make_shared<IdleQueue>();
@@ -175,7 +172,7 @@ namespace bdn
             }
         }
 
-        void MainDispatcher::_scheduleMainThreadCall(const std::function<void()> &func, IDispatcher::Duration delay)
+        void MainDispatcher::_scheduleMainThreadCall(const std::function<void()> &func, Dispatcher::Duration delay)
         {
             // if delay is >0 then we also simply schedule an immediate
             // call, because there is no performSelectorOnMainThread function
@@ -193,10 +190,10 @@ namespace bdn
 
         void MainDispatcher::enqueue(std::function<void()> func, Priority priority)
         {
-            enqueueDelayed(IDispatcher::Duration::zero(), func, priority);
+            enqueueDelayed(Dispatcher::Duration::zero(), func, priority);
         }
 
-        void MainDispatcher::enqueueDelayed(IDispatcher::Duration delay, std::function<void()> func, Priority priority)
+        void MainDispatcher::enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func, Priority priority)
         {
             if (priority == Priority::normal) {
                 std::shared_ptr<MainDispatcher> self(shared_from_this());
@@ -206,7 +203,7 @@ namespace bdn
                 // callNextQueued. That enables us to dipose all queued items
                 // when dipose() is called.
 
-                if (delay <= IDispatcher::Duration::zero()) {
+                if (delay <= Dispatcher::Duration::zero()) {
                     {
                         std::unique_lock lock(_queueMutex);
                         _normalQueue.push_back(func);
@@ -244,9 +241,9 @@ namespace bdn
 
                     delay);
             } else {
-                throw InvalidArgumentError("MainDispatcher::enqueueIn"
-                                           "called with invalid priority: " +
-                                           std::to_string((int)priority));
+                throw std::invalid_argument("MainDispatcher::enqueueIn"
+                                            "called with invalid priority: " +
+                                            std::to_string((int)priority));
             }
         }
 
@@ -271,7 +268,7 @@ namespace bdn
             try {
                 func();
             }
-            catch (DanglingFunctionError &) {
+            catch (std::bad_function_call &) {
                 // ignore. This means that the function is a weak method
                 // whose object has been deleted. This is treated like a no-op.
             }
@@ -290,13 +287,13 @@ namespace bdn
             try {
                 func();
             }
-            catch (DanglingFunctionError &) {
+            catch (std::bad_function_call &) {
                 // ignore. This means that the function is a weak method
                 // whose object has been deleted. This is treated like a no-op.
             }
         }
 
-        void MainDispatcher::createTimer(IDispatcher::Duration interval, std::function<bool()> func)
+        void MainDispatcher::createTimer(Dispatcher::Duration interval, std::function<bool()> func)
         {
             std::list<std::function<bool()>>::iterator it;
             {

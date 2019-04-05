@@ -2,7 +2,6 @@
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/ProgrammingError.h>
 #include <bdn/View.h>
 #import <bdn/mac/util.hh>
 

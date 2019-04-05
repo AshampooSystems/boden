@@ -11,13 +11,14 @@ from gradle import Gradle
 import error
 
 class AndroidExecutor:
-    def __init__(self, buildExecutor, generatorInfo, sourceDirectory, buildFolder):
+    def __init__(self, buildExecutor, generatorInfo, sourceDirectory, buildFolder, rootPath):
         self.logger = logging.getLogger(__name__)
         self.generatorInfo = generatorInfo
         self.sourceDirectory = sourceDirectory
         self.buildFolder = buildFolder
         self.buildExecutor = buildExecutor
         self.gradle = Gradle(sourceDirectory)
+        self.rootPath = rootPath
         self.cmake = CMake()
 
         self.androidBuildApiVersion = "28"
@@ -35,7 +36,7 @@ class AndroidExecutor:
             self.buildTargetMake(configuration, args, target)
 
     def buildTargetMake(self, configuration, args, target):
-        buildExecutor = BuildExecutor(self.generatorInfo, self.sourceDirectory, self.buildFolder)
+        buildExecutor = BuildExecutor(self.generatorInfo, self.rootPath, self.sourceDirectory, self.buildFolder)
         buildExecutor.buildTarget(configuration, args, target)
 
     def buildTargetAndroidStudio(self, configuration, args, target, androidAbi, androidHome, buildDir):

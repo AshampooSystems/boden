@@ -29,6 +29,8 @@ namespace bdn
             return _offered;
         }
 
+        void unset() { _own = std::nullopt; }
+
       private:
         T _offered;
         std::optional<T> _own;

@@ -1,9 +1,9 @@
 
 #include <bdn/ios/appEntry.h>
 
-#import <bdn/ios/AppRunner.hh>
+#import <bdn/ios/UIApplication.hh>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 #include <bdn/entry.h>
 
@@ -16,11 +16,11 @@ namespace bdn::ios
 
         bdn::platformEntryWrapper(
             [&]() {
-                std::shared_ptr<bdn::ios::AppRunner> appRunner =
-                    std::make_shared<bdn::ios::AppRunner>(appControllerCreator, argc, argv);
-                _setAppRunner(appRunner);
+                std::shared_ptr<bdn::ios::UIApplication> app =
+                    std::make_shared<bdn::ios::UIApplication>(appControllerCreator, argc, argv);
+                app->init();
 
-                returnValue = appRunner->entry(argc, argv);
+                returnValue = app->entry(argc, argv);
             },
             false);
 

@@ -1,6 +1,7 @@
 
 #include <bdn/Window.h>
 
+#include <bdn/Application.h>
 #include <bdn/UIApplicationController.h>
 #include <bdn/debug.h>
 
@@ -54,7 +55,7 @@ namespace bdn
 
     std::list<std::shared_ptr<View>> Window::childViews()
     {
-        AppRunnerBase::assertInMainThread();
+        Application::assertInMainThread();
         if (content.get()) {
             return {content.get()};
         }
@@ -65,7 +66,7 @@ namespace bdn
 
     void Window::childViewStolen(const std::shared_ptr<View> &childView)
     {
-        AppRunnerBase::assertInMainThread();
+        Application::assertInMainThread();
 
         if (childView == content.get()) {
             content = nullptr;

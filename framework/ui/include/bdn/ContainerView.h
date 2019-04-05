@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/UIUtil.h>
 #include <bdn/View.h>
+#include <bdn/ViewUtilities.h>
 
 #include <list>
 

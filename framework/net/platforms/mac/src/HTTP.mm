@@ -1,4 +1,4 @@
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 #include <bdn/HTTP.h>
 #include <bdn/HTTPRequest.h>
 #include <bdn/HTTPResponse.h>
@@ -30,7 +30,7 @@ namespace bdn
                       dataTaskWithURL:nsURL
                     completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
                                         NSError *_Nullable error) {
-                      getMainDispatcher()->enqueue([nsData, nsResponse, response]() {
+                      App()->dispatcher()->enqueue([nsData, nsResponse, response]() {
                           auto nsHTTPResponse = (NSHTTPURLResponse *)nsResponse;
 
                           response->url = fk::nsStringToString([nsHTTPResponse.URL absoluteString]);

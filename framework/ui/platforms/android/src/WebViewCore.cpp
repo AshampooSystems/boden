@@ -1,4 +1,4 @@
-#include <bdn/UIUtil.h>
+#include <bdn/ViewUtilities.h>
 #include <bdn/android/WebViewCore.h>
 
 namespace bdn::webview::detail

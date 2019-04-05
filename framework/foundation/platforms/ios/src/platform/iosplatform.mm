@@ -2,7 +2,7 @@
 #include <bdn/debug.h>
 #include <bdn/platform/iosplatform.h>
 
-#include <bdn/AppRunnerBase.h>
+#include <bdn/Application.h>
 
 #include <cassert>
 #include <iostream>

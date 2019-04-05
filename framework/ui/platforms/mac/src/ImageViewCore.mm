@@ -1,6 +1,6 @@
-#import <bdn/mac/ImageViewCore.hh>
-
+#include <bdn/Application.h>
 #include <bdn/log.h>
+#import <bdn/mac/ImageViewCore.hh>
 
 using namespace std::string_literals;
 
@@ -93,7 +93,7 @@ namespace bdn::mac
                                          << fk::nsStringToString([err localizedDescription]) << ")";
                          } else {
 
-                             getMainDispatcher()->enqueue([=]() {
+                             App()->dispatcher()->enqueue([=]() {
                                  ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithData:nsData];
                                  this->scheduleLayout();
                                  this->markDirty();

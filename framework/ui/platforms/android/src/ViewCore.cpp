@@ -44,18 +44,15 @@ namespace bdn::android
         int heightSpec;
 
         if (std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace()) {
-            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(
-                std::lround(stableScaledRoundDown(availableSpace.width, _uiScaleFactor) * _uiScaleFactor),
-
-                wrapper::View::MeasureSpec::atMost);
+            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(availableSpace.width * _uiScaleFactor,
+                                                                    wrapper::View::MeasureSpec::atMost);
         } else {
             widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
         }
 
         if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
-            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(
-                std::lround(stableScaledRoundDown(availableSpace.height, _uiScaleFactor) * _uiScaleFactor),
-                wrapper::View::MeasureSpec::atMost);
+            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(availableSpace.height * _uiScaleFactor,
+                                                                     wrapper::View::MeasureSpec::atMost);
         } else {
             heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
         }
@@ -65,14 +62,6 @@ namespace bdn::android
         int width = _jView.getMeasuredWidth();
         int height = _jView.getMeasuredHeight();
 
-        // logInfo("Preferred size of "+std::to_string((int64_t)this)+"
-        // "+String(typeid(*this).name())+" :
-        // ("+std::to_string(width)+"x"+std::to_string(height)+");
-        // available:
-        // ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+")
-        // ");
-
-        // android uses physical pixels. So we must convert to DIPs.
         Size prefSize(width / _uiScaleFactor, height / _uiScaleFactor);
 
         return prefSize;

@@ -1,6 +1,5 @@
 #include <bdn/View.h>
 
-#include <bdn/ProgrammingError.h>
 #include <bdn/ViewCoreFactory.h>
 
 #include <bdn/UIApplicationController.h>
@@ -157,4 +156,6 @@ namespace bdn
     }
 
     Size View::sizeForSpace(Size availableSpace) const { return viewCore()->sizeForSpace(availableSpace); }
+
+    View::Core::Core(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory)) {}
 }

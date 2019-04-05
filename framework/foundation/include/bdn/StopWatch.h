@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/IDispatcher.h>
+#include <bdn/Dispatcher.h>
 #include <chrono>
 
 namespace bdn
@@ -24,15 +24,15 @@ namespace bdn
 
             If the stopwatch is already running then this resets the start time
            to the current time.*/
-        void start() { _startTime = IDispatcher::Clock::now(); }
+        void start() { _startTime = Dispatcher::Clock::now(); }
 
         /** Returns the number of seconds that have elapsed since the last
            start() call.
             getMillis does not stop the watch and it also does not reset the
            saved start time.*/
-        IDispatcher::Duration elapsed() { return IDispatcher::Clock::now() - _startTime; }
+        Dispatcher::Duration elapsed() { return Dispatcher::Clock::now() - _startTime; }
 
       protected:
-        IDispatcher::TimePoint _startTime;
+        Dispatcher::TimePoint _startTime;
     };
 }
