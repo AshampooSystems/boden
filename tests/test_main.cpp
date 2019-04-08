@@ -69,6 +69,12 @@ class TestApplicationController : public bdn::ApplicationController, public test
 
     void beginLaunch() override
     {
+        bdn::logstream() << "Arguments:";
+        for (auto &s : bdn::App()->commandLineArguments.get()) {
+            bdn::logstream() << s;
+        }
+        bdn::logstream() << "---------------";
+
         int argc = bdn::App()->argc();
         testing::InitGoogleTest(&argc, bdn::App()->argv());
 

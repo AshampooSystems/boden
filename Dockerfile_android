@@ -27,7 +27,8 @@ RUN apt-get update \
     lib32z1 \
     libbz2-1.0:i386 \
     cmake \
-    ninja-build
+    ninja-build \
+    git
 
 
 RUN curl --url "https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" --output /tmp/androidtools.zip

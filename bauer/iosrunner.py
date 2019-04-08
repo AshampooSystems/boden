@@ -6,6 +6,7 @@ import subprocess
 import random
 import time
 import plistlib
+import tempfile
 
 import error
 import bauer
@@ -65,7 +66,6 @@ class IOSRunner:
             self.bootSimulator(simulatorId)
             self.installApp(simulatorId, bundlePath)
             processId = self.startApp(simulatorId, bundleId, args)
-            self.waitForAppToExit(simulatorId, processId, bundleId)
         finally:
             if simulatorId:
                 self.shutdownSimulator(simulatorId)
@@ -100,74 +100,70 @@ class IOSRunner:
 
     def installApp(self, simulatorId, bundlePath):
         self.logger.info("Installing Application in simulator ...")
-        subprocess.check_output('xcrun simctl install "%s" "%s"' % (simulatorId, bundlePath), shell=True)
+        cmdLine = 'xcrun simctl install "%s" "%s"' % (simulatorId, bundlePath)
+        self.logger.debug("Starting: %s" %(cmdLine))
+        subprocess.check_output(cmdLine, shell=True)
 
     def startApp(self, simulatorId, bundleId, args):
         self.logger.info("Starting Application ...")
 
         # --console connects the app's stdout and stderr to ours and blocks indefinitely
         stdoutOptions = []
+        self.stdOutFileName = ""
         if args.run_output_file:
-            abs_stdout_path = os.path.abspath(args.run_output_file);
-            if os.path.exists(abs_stdout_path):
-                os.remove(abs_stdout_path)
+            self.stdOutFileName = os.path.abspath(args.run_output_file);
+            if os.path.exists(self.stdOutFileName):
+                os.remove(self.stdOutFileName)
             
-            self.logger.debug("Redirecting Applications stdout to: %s", abs_stdout_path)
+            self.logger.debug("Redirecting Applications stdout to: %s", self.stdOutFileName)
+        else:
+            tf = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+            self.stdOutFileName = tf.name
 
-            stdoutOptions = [ '"--stdout=%s"' % abs_stdout_path ]
-            stdoutOptions += [ '"--stderr=%s.err"' % abs_stdout_path ]
 
-
-        arguments = ["xcrun",  "simctl", "launch" ] + stdoutOptions + [simulatorId, bundleId] + args.params
+        arguments = ["xcrun",  "simctl", "launch", "--console-pty" ] + [simulatorId, bundleId] + args.params
 
         commandLine = ' '.join('"{0}"'.format(arg) for arg in arguments)
+        commandLine += " > %s 2>&1 " % (self.stdOutFileName);
 
-        resultLine = subprocess.check_output(commandLine, shell=True).decode(encoding='utf-8').strip()
+        self.logger.debug("Starting: %s" % commandLine)
 
-        before, sep, processId = resultLine.rpartition(":")                    
-        if not sep:
-            raise Exception("Got an unexpected response from launch command: "+result_line)
-        processId = processId.strip()
+        result = subprocess.check_call( commandLine , shell=True)
 
-        self.logger.debug("Process id inside simulator is: %s", processId);
+        if result != 0:
+            self.logger.warning("There was an issue running the app")
 
-        return processId
+        try:
+            with open(self.stdOutFileName) as fp:
+                self.logger.info("Application output:\n\n%s" % (fp.read()))
+        except:
+            pass
 
-    def waitForAppToExit(self, simulatorId, processId, bundleId):
-        self.logger.info("Waiting for simulated process %s to exit ...", processId)
+        if not args.run_output_file:
+            os.remove(self.stdOutFileName)
 
-        while True:
-            processListOutput = subprocess.check_output('xcrun simctl spawn "%s" launchctl list' % simulatorId, shell=True).decode(encoding='utf-8')
 
-            foundProcess = False
-            for line in processListOutput.splitlines():
+    #def waitForAppToExit(self, simulatorId, processId, bundleId):
+    #    self.logger.info("Waiting for simulated process %s to exit ...", processId)
 
-                words = line.split()
+    #    while True:
+    #        processListOutput = subprocess.check_output('xcrun simctl spawn "%s" launchctl list' % simulatorId, shell=True).decode(encoding='utf-8')
 
-                if words[0]==processId and bundleId in str(line):
-                    foundProcess = True
-                    break
+    #        foundProcess = False
+    #        for line in processListOutput.splitlines():
 
-            if not foundProcess:
-                self.logger.info("Process inside simulator has exited.")
-                break
+    #            words = line.split()
 
-            time.sleep(2)
+    #            if words[0]==processId and bundleId in str(line):
+    #                foundProcess = True
+    #                break
 
-        # note that we could also poll the process list and wait for the app's process
-        # to terminate. However, that does not happen automatically, unless the app crashes
-        # or is terminated because of user interaction. So right now there is no good use for that.
-        # Note that we could get the process info with:
-        # xcrun simctl spawn SIM_ID launchctl list
-        # we would get output like this: 11538  0   UIKitApplication:BUNDLE_ID[0x8cd3][PROCESS_ID]
-        # If the process is gone then the entry is not in the list.
+    #        if not foundProcess:
+    #            self.logger.info("Process inside simulator has exited.")
+    #            break
 
-        #predicate = "'processID == %s'" % process_id
-        #predicate = "'processImagePath contains %s'" % bundle_id
-        #log_stream_commandline = "xcrun simctl spawn '%s' log stream --level=debug --predicate %s" % (sim_id, predicate)
-        #log_stream_process = subprocess.Popen(log_stream_commandline, shell=True)
+    #        time.sleep(2)
 
-        #log_stream_process.wait()
 
     def shutdownSimulator(self, simulatorId):
         self.logger.info("Shutting down simulator");

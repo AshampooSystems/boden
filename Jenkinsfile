@@ -2,7 +2,8 @@ pipeline {
     agent none
 
     options {
-      timeout(time: 4, unit: 'HOURS')
+        timeout(time: 4, unit: 'HOURS')
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
     }
 
     environment {
@@ -17,17 +18,23 @@ pipeline {
             parallel {
                 stage('Formatting') {
                     environment {
-                        BAUER_PLATFORM = 'mac'
+                        BAUER_PLATFORM = 'android'
                         BAUER_BUILD_SYSTEM = 'make'
                         BAUER_CONFIG = 'Release'
                         BAUER_PACKAGE_FOLDER = 'package'
                         BAUER_PACKAGE_GENERATOR = 'TGZ'
                     }
-                    agent { label 'macOS' }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_android'
+                            additionalBuildArgs  '-t boden_android'
+                            label 'boden-general'
+                        }
+                    }
                     stages {
                         stage('Run clang-format') {
                             steps {
-                                sh 'python boden.py build --target FormatSources'
+                                sh 'python boden.py build -a x86_64 --target FormatSources'
                             }
                         }
                         stage('Check for changes') {
@@ -56,7 +63,7 @@ pipeline {
                     agent {
                         dockerfile {
                             filename 'Dockerfile_mkdocs'
-                            label 'boden'
+                            label 'boden-general'
                             additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
                         }
                     }
@@ -196,10 +203,11 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'python boden.py run --target testFoundation -- --gtest_output=xml:$PWD/testresults/ios_testFoundation.xml || true'
+                                sh 'python boden.py run --target testFoundation -- --gtest_output=xml:$PWD/testresults/ios_testFoundation.xml'
+                                sh 'cat $PWD/testresults/ios_testFoundation.xml'
                                 junit "testresults/ios_testFoundation.xml"
 
-                                archiveArtifacts artifacts: 'testresults/*.xml'
+                                archiveArtifacts artifacts: 'testresults/ios_testFoundation.xml'
                             }
                         }
                     }
@@ -216,7 +224,7 @@ pipeline {
                     agent {
                         dockerfile {
                             filename 'Dockerfile_mkdocs'
-                            label 'boden'
+                            label 'boden-general'
                             additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
                         }
                     }
@@ -241,6 +249,7 @@ pipeline {
                         dockerfile {
                             filename 'Dockerfile_github'
                             args '--volume ${WORKSPACE}:/boden'
+                            label 'boden-general'
                         }
                     }
 
