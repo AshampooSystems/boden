@@ -268,10 +268,12 @@ namespace bdn::ios
 
         [[rootView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
-        if (auto childCore = newContent->core<ios::ViewCore>()) {
-            [rootView addSubview:childCore->uiView()];
-        } else {
-            throw std::runtime_error("Cannot set this type of View as content");
+        if (newContent) {
+            if (auto childCore = newContent->core<ios::ViewCore>()) {
+                [rootView addSubview:childCore->uiView()];
+            } else {
+                throw std::runtime_error("Cannot set this type of View as content");
+            }
         }
     }
 }

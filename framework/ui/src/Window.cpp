@@ -82,9 +82,8 @@ namespace bdn
         windowCore->content.bind(content);
         windowCore->title.bind(title);
 
-        windowCore->allowedOrientations.bind(allowedOrientations, BindMode::unidirectional);
-        currentOrientation.bind(windowCore->currentOrientation, BindMode::unidirectional);
-
-        contentGeometry.bind(windowCore->contentGeometry);
+        windowCore->allowedOrientations.bind(allowedOrientations); //, BindMode::unidirectional);
+        windowCore->currentOrientation.bind(currentOrientation);   //, BindMode::unidirectional);
+        windowCore->contentGeometry.bind(contentGeometry);
     }
 }

@@ -3,6 +3,8 @@
 #include <bdn/yogalayout/Stylesheet.h>
 #include <bdn/yogalayout/ViewData.h>
 
+#include <map>
+
 namespace bdn
 {
     namespace yogalayout

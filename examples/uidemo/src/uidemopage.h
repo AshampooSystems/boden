@@ -1,16 +1,18 @@
 #pragma once
 
+#include <bdn/LottieView.h>
+#include <bdn/StopWatch.h>
+#include <bdn/Timer.h>
 #include <bdn/log.h>
 #include <bdn/ui.h>
 #include <bdn/yogalayout.h>
-
-#include <bdn/LottieView.h>
-
 #include <nlohmann/json.hpp>
+
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 namespace bdn
 {
-
     static constexpr const char testText[] = "The user interface (UI), in the industrial design field of "
                                              "human–computer interaction, is the space where interactions "
                                              "between humans and machines occur. The goal of this interaction "

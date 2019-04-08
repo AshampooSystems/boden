@@ -11,6 +11,10 @@ namespace bdn
         using GetterFunc = std::function<ValType()>;
         using SetterFunc = std::function<bool(const ValType &)>;
 
+        template <typename GetterType, typename SetterType>
+        GetterSetter(GetterType getter, SetterType setter) : _member(nullptr), _getter(getter), _setter(setter)
+        {}
+
         template <typename OwnerType, typename GetterType, typename SetterType>
         GetterSetter(OwnerType owner, GetterType getter, SetterType setter, ValType *member = nullptr)
             : _member(member), _getter(bindOptionalGetter(owner, getter)), _setter(bindOptionalSetter(owner, setter))

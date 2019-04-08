@@ -39,6 +39,14 @@ class Property : virtual public IValueAccessor<ValType>
 
 	Constructs a Property instance with the given Setter object 
 
+* **Property(Streaming &stream)**
+
+	Constructs a Property instance with the given Streaming object
+
+* **template <class U> Property(const Transform<ValType, U> &transform)**
+
+	Constructs a Property instance with the given Transform object
+
 
 ## Value
 
@@ -79,11 +87,10 @@ class Property : virtual public IValueAccessor<ValType>
 
 * **void bind(Property<ValType\> &sourceProperty, BindMode bindMode = BindMode::bidirectional)**
 
-	Binds to the given property
+	Binds to the given property. Internally it adds a subscription on the `sourceProperty's onChange
+	notification in which it calls set() on itself.
 
-* **const Property &connect(const Property<ValType> &otherProperty) const**
-
-	Connects the property's backing to another property's backing
+	When `bindMode` is `BindMode::bidirectional` it also add the inverse notification to the `sourceProperty`
 
 ## Notification
 

@@ -63,45 +63,6 @@ private:
 }
 ```
 
-Sometimes it is infeasible to reference a `Property` instance at compile
-time. In those situations, use the `connect()` method to connect the
-`ReadProperty` instance at runtime. Consider the following example:
-
-```c++
-class Model
-{
-public:
-    Property<String> text = "Hello world";
-};
-
-class ViewModel
-{
-public:
-    ViewModel()
-    {
-        // Instantiate a Model
-        _model = std::make_shared<Model>();
-
-        // Connect read-only property text of ViewModel to read-write
-        // text property of Model
-        text.connect(_model.text);
-    }
-
-    // This property should be connected to a Model instance's 
-    // text property to provide read access only 
-    // in the ViewModel class
-    const Property<String> text;
-
-private:
-    std::shared_ptr<Model> _model;
-};
-```
-
-Here, the read-write Property of the `Model` class is not available for
-initialization until the constructor of the `ViewModel` class gets
-called. Hence, the `ViewModel`'s `const Property` member `text` can only
-be connected as soon as the `Model` instance has been created.
-
 ## Getters and Setters
 
 Properties allow for custom getter and/or setter functions. You may
@@ -177,7 +138,8 @@ public:
         _button = std::make_shared<Button>();
 
         // Update the button's label when the buttonText property of
-		ViewModel changes button.label.bind(viewModle.buttonText);
+		// ViewModel changes 
+        button.label.bind(viewModle.buttonText);
 
         // [...]
     }

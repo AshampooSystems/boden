@@ -4,6 +4,8 @@
 #include <bdn/yogalayout.h>
 
 #include "../../uidemo/src/uidemopage.h"
+#include "propertiespage.h"
+#include "timerspage.h"
 
 #include <sstream>
 
@@ -34,35 +36,45 @@ class MainViewController : public Base
                                        << FlexGrow(0.0f) << FlexShrink(0.0f) << FlexPaddingAll(20.0f));
 
         auto textOnFirstPage = std::make_shared<Label>();
-        textOnFirstPage->text = "Click the button!\nIf you dare!\nIf not\nwell...";
+        textOnFirstPage->text = "Choose a demo ...";
+        firstPage->addChildView(textOnFirstPage);
+
+        // Property demo page
         auto btn = std::make_shared<Button>();
-        btn->label = "Click me!";
+        btn->label = "Property test page";
 
         btn->onClick() += [=](auto) {
-            auto secondPage = std::make_shared<ContainerView>();
-            auto textOnSecondPage = std::make_shared<Label>();
-            textOnSecondPage->text = "This is the second page!";
-            secondPage->addChildView(textOnSecondPage);
-
-            _navigationView->pushView(secondPage, "Second page");
+            auto propertyTestPage = createPropertyDemoPage();
+            _navigationView->pushView(propertyTestPage, "Property test");
         };
 
-        firstPage->addChildView(textOnFirstPage);
         firstPage->addChildView(btn);
 
+        // View demo page
         auto btn2 = std::make_shared<Button>();
         btn2->label = "UI Demo Page";
 
         btn2->onClick() += [this](auto) {
             auto hugePage = createUiDemoPage(_window);
-            this->_navigationView->pushView(hugePage, "HUGE UI Demo Page");
+            this->_navigationView->pushView(hugePage, "UI Demo");
         };
 
         firstPage->addChildView(btn2);
 
+        // Timer demo page
+        auto btn3 = std::make_shared<Button>();
+        btn3->label = "Timer Demo Page";
+
+        btn3->onClick() += [this](auto) {
+            auto timerPage = createTimerDemoPage();
+            this->_navigationView->pushView(timerPage, "Timer demo");
+        };
+
+        firstPage->addChildView(btn3);
+
         _window->content = container;
 
-        _navigationView->pushView(firstPage, "Stack Demo");
+        _navigationView->pushView(firstPage, "NavigationView Demo");
 
         _window->visible = true;
     }

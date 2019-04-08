@@ -81,7 +81,7 @@ public class NativeDispatcher
         // note that we pass the wrapped pointer directly to the function, instead of
         // the NativeStrongPointer object. That allows the native side to be more efficient
         // since it does not have to call back in to the java side to get the inner wrapper object.
-        return nativeTimerEvent( nativeTimerData.getWrappedPointer() );
+        return nativeTimerEvent( nativeTimerData );
     }
 
 
@@ -377,7 +377,7 @@ public class NativeDispatcher
 
 
 
-    private native static boolean nativeTimerEvent(java.nio.ByteBuffer timerData);
+    private native static boolean nativeTimerEvent(NativeStrongPointer timerData);
 }
 
 

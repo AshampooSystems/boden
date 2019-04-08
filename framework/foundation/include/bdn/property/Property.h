@@ -8,7 +8,11 @@
 #include <bdn/property/InternalValueBacking.h>
 #include <bdn/property/Setter.h>
 #include <bdn/property/SetterBacking.h>
+#include <bdn/property/Streaming.h>
+#include <bdn/property/Transform.h>
 #include <bdn/property/property_forward_decl.h>
+
+using namespace std::string_literals;
 
 namespace bdn
 {
@@ -37,12 +41,12 @@ namespace bdn
             };
         };
 
-        using backing_t = Backing<ValType>;
         using internal_backing_t = InternalValueBacking<ValType>;
         using gs_backing_t = GetterSetterBacking<ValType>;
         using setter_backing_t = SetterBacking<ValType>;
 
       public:
+        using backing_t = Backing<ValType>;
         using value_accessor_t_ptr = typename Backing<ValType>::value_accessor_t_ptr;
 
         Property() : _backing(std::make_shared<internal_backing_t>()) {}
@@ -62,6 +66,22 @@ namespace bdn
 
         Property(const Setter<ValType> &setter) { _backing = std::make_shared<setter_backing_t>(setter.setter()); }
 
+        Property(Streaming &stream) { _backing = std::make_shared<Streaming::Backing>(stream); }
+
+        template <class U> Property(const Transform<ValType, U> &transform)
+        {
+            _backing = std::make_shared<typename Transform<ValType, U>::Backing>(transform);
+        }
+
+        Property(std::shared_ptr<Backing<ValType>> backing) { _backing = backing; }
+
+        template <class _Rep, class _Period>
+        Property(const std::chrono::duration<_Rep, _Period> &duration)
+            : _backing(std::make_shared<internal_backing_t>())
+        {
+            set(std::chrono::duration_cast<ValType>(duration), false);
+        }
+
       public:
         ValType get() const override { return _backing->get(); }
         void set(ValType value, bool notify = true) { _backing->set(value, notify); }
@@ -75,12 +95,6 @@ namespace bdn
             if (bindMode == BindMode::bidirectional) {
                 sourceProperty.backing()->bind(_backing);
             }
-        }
-
-        const Property &connect(const Property<ValType> &otherProperty) const
-        {
-            _backing = otherProperty._backing;
-            return *this;
         }
 
       public:
@@ -102,6 +116,12 @@ namespace bdn
         Property &operator=(const ValType &value)
         {
             set(value);
+            return *this;
+        }
+
+        template <class _Rep, class _Period> Property &operator=(const std::chrono::duration<_Rep, _Period> &duration)
+        {
+            set(std::chrono::duration_cast<ValType>(duration));
             return *this;
         }
 
@@ -128,7 +148,6 @@ namespace bdn
         }
 
         Property operator+() const { return +this->get(); }
-
         Property operator-() const { return -this->get(); }
 
         Property operator+(const Property &otherProperty) const { return this->get() + ValType(otherProperty); }
@@ -172,6 +191,17 @@ namespace bdn
         ValType operator<<(const ValType &other) const { return this->get() << other; }
 
         ValType operator>>(const ValType &other) const { return this->get() >> other; }
+
+        Property<ValType> &operator++()
+        {
+            set((ValType)this->get() + 1);
+            return *this;
+        }
+        Property<ValType> &operator--()
+        {
+            set((ValType)this->get() - 1);
+            return *this;
+        }
 
         Property &operator+=(const Property &otherProperty)
         {
@@ -235,6 +265,7 @@ namespace bdn
 
       private:
         mutable std::shared_ptr<backing_t> _backing;
+        mutable bool _isConnected = false;
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS, typename PROP_VALUE>

@@ -211,10 +211,12 @@ namespace bdn::mac
             [oldView removeFromSuperview];
         }
 
-        if (auto childCore = newContent->core<mac::ViewCore>()) {
-            [_nsContentParent addSubview:childCore->nsView()];
-        } else {
-            throw std::runtime_error("Cannot set this type of View as content");
+        if (newContent) {
+            if (auto childCore = newContent->core<mac::ViewCore>()) {
+                [_nsContentParent addSubview:childCore->nsView()];
+            } else {
+                throw std::runtime_error("Cannot set this type of View as content");
+            }
         }
     }
 }

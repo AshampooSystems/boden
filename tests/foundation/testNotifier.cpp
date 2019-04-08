@@ -95,4 +95,52 @@ namespace bdn
 
         EXPECT_EQ(cc.callCount, 2);
     }
+
+    TEST(Notifier, Swap)
+    {
+        Notifier<String> notifier1;
+        Notifier<String> notifier2;
+
+        CallCounter<String> cc1;
+        notifier1 += std::ref(cc1);
+
+        CallCounter<String> cc2;
+        notifier2 += std::ref(cc2);
+
+        notifier1.notify("");
+        EXPECT_EQ(cc1.callCount, 1);
+        EXPECT_EQ(cc2.callCount, 0);
+
+        notifier2.swap(notifier1);
+
+        notifier2.notify("");
+        EXPECT_EQ(cc1.callCount, 2);
+        EXPECT_EQ(cc2.callCount, 0);
+    }
+
+    TEST(Notifier, TakeOverSubs)
+    {
+        Notifier<String> notifier1;
+        Notifier<String> notifier2;
+
+        CallCounter<String> cc1;
+        notifier1 += std::ref(cc1);
+
+        CallCounter<String> cc2;
+        Notifier<String>::Subscription sub = notifier2.subscribe(std::ref(cc2));
+
+        notifier1.takeOverSubscriptions(notifier2);
+        notifier2.notify("");
+        EXPECT_EQ(cc1.callCount, 0);
+        EXPECT_EQ(cc2.callCount, 0);
+
+        notifier1.notify("");
+        EXPECT_EQ(cc1.callCount, 1);
+        EXPECT_EQ(cc2.callCount, 1);
+
+        notifier1.unsubscribe(sub);
+        notifier1.notify("");
+        EXPECT_EQ(cc1.callCount, 2);
+        EXPECT_EQ(cc2.callCount, 1);
+    }
 }

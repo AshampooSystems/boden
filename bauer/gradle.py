@@ -38,7 +38,7 @@ class Gradle:
                 # no system gradle
                 gradle_base_dir = os.path.join(self.rootPath, "3rdparty_build", "gradle")
 
-                gradle_version_name = "gradle-4.1"
+                gradle_version_name = "gradle-5.3.1"
 
                 gradle_path = os.path.join(gradle_base_dir, gradle_version_name, "bin", "gradle");
                 if sys.platform == "win32":

@@ -73,7 +73,7 @@ namespace bdn::ios
             if (auto childCore = content->core<ViewCore>()) {
                 _childGeometry = std::make_shared<Property<Rect>>();
 
-                _childGeometry->connect(childCore->geometry);
+                _childGeometry->bind(childCore->geometry);
 
                 _childGeometry->onChange() += [=](auto va) {
                     CGSize s;

@@ -32,6 +32,8 @@ namespace bdn::mac
 
         void init() override;
 
+        void updateOn();
+
       private:
         BdnSwitchClickManager *_clickManager;
     };

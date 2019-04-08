@@ -223,10 +223,12 @@ namespace bdn::android
 
         parentGroup.removeAllViews();
 
-        if (auto childCore = view->core<android::ViewCore>()) {
-            parentGroup.addView(childCore->getJView());
-        } else {
-            throw std::runtime_error("Cannot set this type of View as content");
+        if (view) {
+            if (auto childCore = view->core<android::ViewCore>()) {
+                parentGroup.addView(childCore->getJView());
+            } else {
+                throw std::runtime_error("Cannot set this type of View as content");
+            }
         }
 
         updateChildren();

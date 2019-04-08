@@ -295,25 +295,29 @@ namespace bdn
 
         void MainDispatcher::createTimer(Dispatcher::Duration interval, std::function<bool()> func)
         {
-            std::list<std::function<bool()>>::iterator it;
-            {
-                std::unique_lock lock(_queueMutex);
-                _timerFuncList->funcList.push_back(func);
-                it = _timerFuncList->funcList.end();
-                --it;
+            if ([NSRunLoop mainRunLoop] == [NSRunLoop currentRunLoop]) {
+                std::list<std::function<bool()>>::iterator it;
+                {
+                    std::unique_lock lock(_queueMutex);
+                    _timerFuncList->funcList.push_back(func);
+                    it = _timerFuncList->funcList.end();
+                    --it;
+                }
+
+                BdnFkTimerFuncWrapper_ *wrapper = [[BdnFkTimerFuncWrapper_ alloc] init];
+                wrapper.timerFuncList = _timerFuncList;
+                wrapper.timerFuncIt = it;
+
+                double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
+
+                [NSTimer scheduledTimerWithTimeInterval:intervalInSeconds
+                                                 target:wrapper
+                                               selector:@selector(targetMethod:)
+                                               userInfo:nil
+                                                repeats:YES];
+            } else {
+                enqueue([=] { createTimer(interval, func); });
             }
-
-            BdnFkTimerFuncWrapper_ *wrapper = [[BdnFkTimerFuncWrapper_ alloc] init];
-            wrapper.timerFuncList = _timerFuncList;
-            wrapper.timerFuncIt = it;
-
-            double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
-
-            [NSTimer scheduledTimerWithTimeInterval:intervalInSeconds
-                                             target:wrapper
-                                           selector:@selector(targetMethod:)
-                                           userInfo:nil
-                                            repeats:YES];
         }
 
         void MainDispatcher::ensureIdleObserverInstalled()

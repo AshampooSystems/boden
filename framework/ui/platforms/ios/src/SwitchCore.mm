@@ -98,5 +98,10 @@ namespace bdn::ios
         [switchComposite.uiSwitch removeTarget:_clickManager action:nil forControlEvents:UIControlEventTouchUpInside];
     }
 
-    void SwitchCore::handleClick() { _clickCallback.fire(); }
+    void SwitchCore::handleClick()
+    {
+        _composite = (BdnIosSwitchComposite *)uiView();
+        on = _composite.uiSwitch.on;
+        _clickCallback.fire();
+    }
 }

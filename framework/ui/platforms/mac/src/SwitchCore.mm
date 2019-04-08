@@ -3,7 +3,13 @@
 
 @implementation BdnSwitchClickManager
 
-- (void)clicked { self.switchCore.lock()->_clickCallback.fire(); }
+- (void)clicked
+{
+    if (auto core = self.switchCore.lock()) {
+        core->updateOn();
+        core->_clickCallback.fire();
+    }
+}
 
 @end
 
@@ -96,5 +102,11 @@ namespace bdn::mac
             BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
             [composite.bdnSwitch setOn:va->get() animate:NO];
         };
+    }
+
+    void SwitchCore::updateOn()
+    {
+        BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
+        on = composite.bdnSwitch.on;
     }
 }

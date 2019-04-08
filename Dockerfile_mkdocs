@@ -7,13 +7,6 @@ RUN apt-get update && apt-get install -y \
     locales \
     git
 
-
-ADD https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2 /tmp/github-release.tar.bz2
-
-RUN tar -xjf /tmp/github-release.tar.bz2 \
-    && cp ./bin/linux/amd64/* /bin
-
-
 # Set the locale
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8 

@@ -30,7 +30,7 @@ namespace bdn
         auto listCore = core<ListView::Core>();
         listCore->dataSource.bind(dataSource);
         listCore->selectedRowIndex.bind(selectedRowIndex);
-        listCore->enableRefresh.bind(enableRefresh, BindMode::unidirectional);
+        listCore->enableRefresh.bind(enableRefresh);
 
         _refreshCallback = listCore->_refreshCallback.set([=]() { onRefresh().notify(); });
     }
