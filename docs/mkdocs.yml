@@ -39,10 +39,18 @@ markdown_extensions:
 
 nav:
   - Getting Started:
-    - Getting Started: 'getting-started/getting-started.md'
-    - Setup: 'getting-started/setup.md'
+    - getting-started/index.md
+    - Setup:
+      - getting-started/setup/mac.md
+      - getting-started/setup/win.md
+      - getting-started/setup/linux.md
+    - getting-started/first_app.md
+    - Dependencies:
+      - getting-started/dependency_installation/mac.md
+      - getting-started/dependency_installation/win.md
+      - getting-started/dependency_installation/linux.md
+    - getting-started/troubleshooting/index.md
   - Guides:
-    - guides/index.md
     - Foundation:
       - guides/foundation/properties.md
     - UI:

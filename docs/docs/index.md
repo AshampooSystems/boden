@@ -8,6 +8,7 @@ With Boden you can write your mobile apps in modern C++17 and compile 100% nativ
 // MainViewController.cpp
 
 #include <bdn/Button.h>
+#include <bdn/Window.h>
 #include "MainViewController.h"
 
 MainViewController::MainViewController()
@@ -40,6 +41,7 @@ With Boden laying out your UI is a breeze. Just define your layouts using Flex s
 // MainViewController.cpp
 
 #include <bdn/Button.h>
+#include <bdn/Window.h>
 #include <bdn/yogalayout.h>
 #include "MainViewController.h"
 

@@ -1,4 +1,4 @@
-# Getting Started
+# Your first application
 
 To create your first Boden project, open up a terminal (or command prompt), change to your local `boden` directory, and execute the following commands:
 
