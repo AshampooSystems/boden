@@ -17,13 +17,18 @@ class View : public Base
 
 	Current geometry of the view on screen.
 
-* **Property<bool\> visible**
+* **Property<bool\> visible = true**
 
 	Whether the view is visible.
 
 * **Property<std::shared_ptr<LayoutStylesheet\>\> layoutStylesheet**
 
 	A [`LayoutStylesheet`](../layout/layout_stylesheet.md) defining the layout of the view.
+
+* **Property<bool\> isLayoutRoot = false**
+
+	If true, this views geometry will not be changed by the layouting system. 
+	Children will still be layouted, as if this view is the root in the layout hierarchy.
 
 ## Layout
 

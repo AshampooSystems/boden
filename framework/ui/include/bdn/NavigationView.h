@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/FixedView.h>
 #include <bdn/View.h>
+#include <bdn/ViewUtilities.h>
 
 #include <deque>
 

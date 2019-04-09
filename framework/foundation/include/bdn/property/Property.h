@@ -3,6 +3,7 @@
 #include <bdn/String.h>
 #include <bdn/property/IValueAccessor.h>
 
+#include <bdn/property/Compare.h>
 #include <bdn/property/GetterSetter.h>
 #include <bdn/property/GetterSetterBacking.h>
 #include <bdn/property/InternalValueBacking.h>
@@ -91,6 +92,11 @@ namespace bdn
       public:
         void bind(Property<ValType> &sourceProperty, BindMode bindMode = BindMode::bidirectional)
         {
+            if (Compare<ValType>::is_faked && bindMode == BindMode::bidirectional) {
+                throw std::logic_error("You cannot bind this type of Property bidirectional, its == operator is faked "
+                                       "and therefor would end up in an endless loop.");
+            }
+
             _backing->bind(sourceProperty.backing());
             if (bindMode == BindMode::bidirectional) {
                 sourceProperty.backing()->bind(_backing);

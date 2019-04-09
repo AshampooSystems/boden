@@ -1,10 +1,9 @@
 #pragma once
 
-#import <bdn/mac/ViewCore.hh>
-
 #include <bdn/NavigationView.h>
-
+#import <bdn/mac/ViewCore.hh>
 #include <deque>
+#include <memory>
 
 @class BdnBackButtonClickHandler;
 
@@ -36,7 +35,7 @@ namespace bdn::mac
         NSTextField *_title;
 
         std::shared_ptr<View> _currentView;
-        std::shared_ptr<FixedView> _container;
+        std::shared_ptr<ContainerView> _container;
 
         struct StackEntry
         {

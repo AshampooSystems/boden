@@ -29,7 +29,7 @@ namespace bdn::ios
       private:
         UINavigationController *getNavigationController();
 
-        std::shared_ptr<FixedView> getCurrentContainer();
+        std::shared_ptr<ContainerView> getCurrentContainer();
         std::shared_ptr<View> getCurrentUserView();
     };
 }

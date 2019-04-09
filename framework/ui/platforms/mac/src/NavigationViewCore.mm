@@ -100,7 +100,8 @@ namespace bdn::mac
     void NavigationViewCore::updateCurrentView()
     {
         if (!_container) {
-            _container = std::make_shared<FixedView>(viewCoreFactory());
+            _container = std::make_shared<ContainerView>(viewCoreFactory());
+            _container->isLayoutRoot = true;
             _container->offerLayout(layout());
             if (auto containerCore = _container->core<bdn::mac::ContainerViewCore>()) {
                 addChildNSView(containerCore->nsView());

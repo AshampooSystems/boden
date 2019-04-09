@@ -28,7 +28,7 @@ namespace bdn
         View::bindViewCore();
 
         auto webViewCore = core<WebView::Core>();
-        webViewCore->redirectHandler.bind(redirectHandler);
+        webViewCore->redirectHandler.bind(redirectHandler, BindMode::unidirectional);
         webViewCore->userAgent.bind(userAgent);
     }
 }

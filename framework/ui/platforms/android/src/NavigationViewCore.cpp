@@ -19,13 +19,14 @@ namespace bdn::android
 
     void NavigationViewCore::pushView(std::shared_ptr<View> view, String title)
     {
-        auto fixedView = std::make_shared<FixedView>(viewCoreFactory());
-        fixedView->addChildView(view);
-        fixedView->offerLayout(layout());
+        auto containerView = std::make_shared<ContainerView>(viewCoreFactory());
+        containerView->isLayoutRoot = true;
+        containerView->addChildView(view);
+        containerView->offerLayout(layout());
 
         bool isFirst = _stack.empty();
 
-        _stack.push_back({fixedView, view, title});
+        _stack.push_back({containerView, view, title});
         updateCurrentView(isFirst, true);
     }
 

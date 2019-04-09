@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/property/Backing.h>
+#include <bdn/property/Compare.h>
 #include <optional>
 
 namespace bdn
@@ -9,16 +10,6 @@ namespace bdn
     template <class ValType> class ValueBacking : public Backing<ValType>
     {
         using value_accessor_t = typename Backing<ValType>::value_accessor_t;
-
-        template <class T> struct Compare
-        {
-            static bool not_equal(const T &left, const T &right) { return left != right; }
-        };
-
-        template <class _fp> struct Compare<std::function<_fp>>
-        {
-            static bool not_equal(const std::function<_fp> &left, const std::function<_fp> &right) { return true; }
-        };
 
       public:
         ValueBacking() : _value() {}

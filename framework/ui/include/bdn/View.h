@@ -21,8 +21,9 @@ namespace bdn
 
       public:
         Property<Rect> geometry;
-        Property<bool> visible;
+        Property<bool> visible = true;
         Property<std::shared_ptr<LayoutStylesheet>> layoutStylesheet;
+        Property<bool> isLayoutRoot = false;
 
       public:
         View() = delete;

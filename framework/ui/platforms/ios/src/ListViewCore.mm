@@ -4,13 +4,13 @@
 
 #import <bdn/ios/ContainerViewCore.hh>
 
-#include <bdn/FixedView.h>
+#include <bdn/ContainerView.h>
 #include <bdn/ListViewDataSource.h>
 
 #include <bdn/log.h>
 
 @interface FollowSizeUITableViewCell : UITableViewCell
-@property std::shared_ptr<bdn::FixedView> fixedView;
+@property std::shared_ptr<bdn::ContainerView> containerView;
 @end
 @implementation FollowSizeUITableViewCell
 
@@ -72,7 +72,7 @@
         FollowSizeUITableViewCell *cell =
             (FollowSizeUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
 
-        std::shared_ptr<bdn::FixedView> fixedView;
+        std::shared_ptr<bdn::ContainerView> containerView;
         std::shared_ptr<bdn::View> view;
         bool reuse = false;
 
@@ -83,28 +83,29 @@
                 [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
             cell.clipsToBounds = YES;
 
-            fixedView = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
-            fixedView->offerLayout(core->layout());
+            containerView = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
+            containerView->isLayoutRoot = true;
+            containerView->offerLayout(core->layout());
 
-            [cell.contentView addSubview:fixedView->core<bdn::ios::ViewCore>()->uiView()];
-            cell.fixedView = fixedView;
+            [cell.contentView addSubview:containerView->core<bdn::ios::ViewCore>()->uiView()];
+            cell.containerView = containerView;
 
         } else {
             reuse = true;
-            fixedView = cell.fixedView;
+            containerView = cell.containerView;
 
-            if (!fixedView->childViews().empty()) {
-                view = fixedView->childViews().front();
+            if (!containerView->childViews().empty()) {
+                view = containerView->childViews().front();
             }
         }
 
-        if (fixedView) {
+        if (containerView) {
             view = self.outerDataSource->viewForRowIndex(indexPath.row, view);
             if (!reuse) {
-                fixedView->removeAllChildViews();
-                fixedView->addChildView(view);
+                containerView->removeAllChildViews();
+                containerView->addChildView(view);
             }
-            fixedView->scheduleLayout();
+            containerView->scheduleLayout();
         }
 
         return cell;

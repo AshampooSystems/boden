@@ -1,11 +1,11 @@
 #import <bdn/mac/ListViewCore.hh>
 
-#include <bdn/FixedView.h>
+#include <bdn/ContainerView.h>
 #include <bdn/log.h>
 #include <bdn/mac/ContainerViewCore.hh>
 
 @interface FixedNSView : NSView <BdnLayoutable>
-@property(nonatomic, assign) std::shared_ptr<bdn::FixedView> view;
+@property(nonatomic, assign) std::shared_ptr<bdn::ContainerView> view;
 @end
 
 @implementation FixedNSView
@@ -51,7 +51,7 @@
 {
     if (auto listCore = self.listCore.lock()) {
         if (auto dataSource = listCore->dataSource.get()) {
-            std::shared_ptr<bdn::FixedView> fixedView;
+            std::shared_ptr<bdn::ContainerView> container;
             std::shared_ptr<bdn::View> view;
 
             FixedNSView *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
@@ -60,27 +60,28 @@
                 result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 result.identifier = @"Column";
 
-                fixedView = std::make_shared<bdn::FixedView>(listCore->viewCoreFactory());
-                fixedView->offerLayout(listCore->layout());
+                container = std::make_shared<bdn::ContainerView>(listCore->viewCoreFactory());
+                container->isLayoutRoot = true;
+                container->offerLayout(listCore->layout());
 
-                if (auto core = fixedView->core<bdn::mac::ViewCore>()) {
+                if (auto core = container->core<bdn::mac::ViewCore>()) {
                     [result addSubview:core->nsView()];
                 } else {
                     throw std::runtime_error("View did not have the correct core");
                 }
 
-                result.view = fixedView;
+                result.view = container;
             } else {
-                fixedView = result.view;
-                if (!fixedView->childViews().empty()) {
-                    view = fixedView->childViews().front();
+                container = result.view;
+                if (!container->childViews().empty()) {
+                    view = container->childViews().front();
                 }
             }
 
             view = dataSource->viewForRowIndex(row, view);
 
-            fixedView->removeAllChildViews();
-            fixedView->addChildView(view);
+            container->removeAllChildViews();
+            container->addChildView(view);
 
             return result;
         }

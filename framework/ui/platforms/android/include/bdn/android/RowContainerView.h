@@ -1,19 +1,20 @@
 #pragma once
 
-#include <bdn/FixedView.h>
+#include <bdn/ContainerView.h>
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/wrapper/NativeListAdapter.h>
 
 namespace bdn::android
 {
-    class RowContainerView : public FixedView
+    class RowContainerView : public ContainerView
     {
       public:
         class Core;
 
       public:
-        RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : FixedView(std::move(factory))
+        RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : ContainerView(std::move(factory))
         {
+            isLayoutRoot = true;
             viewCoreFactory()->registerCoreType<Core, RowContainerView>();
         }
 

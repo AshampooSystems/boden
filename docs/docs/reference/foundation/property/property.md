@@ -92,6 +92,8 @@ class Property : virtual public IValueAccessor<ValType>
 
 	When `bindMode` is `BindMode::bidirectional` it also add the inverse notification to the `sourceProperty`
 
+	If [Compare<ValType\>::is_faked](compare.md) is true a std::logic_error is thrown if the user tries to create a bidirectional binding.
+
 ## Notification
 
 * **auto &onChange() const**

@@ -119,46 +119,6 @@ namespace bdn
             _timer.interval.bind(interval);
 
             _watch.start();
-
-            /*            auto stringField = std::make_shared<TextField>();
-                            stringField->text.bind(_stringProperty);
-                            stringField->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeWidth(250));
-                            addChildView(makeRow("String", stringField));
-
-                            auto intField = std::make_shared<TextField>();
-                            intField->text.bind(_stringToIntProperty);
-                            intField->setLayoutStylesheet((FlexStylesheet)FlexMinimumSizeWidth(250));
-                            addChildView(makeRow("Int", intField));
-
-                            auto btnContainer = std::make_shared<ContainerView>();
-                            btnContainer->setLayoutStylesheet(FlexJson({{"direction", FlexStylesheet::Direction::Row},
-                                                                        {"flexGrow", 0.0},
-                                                                        {"flexShrink", 0.0},
-                                                                        {"justifyContent",
-                   FlexStylesheet::Align::FlexEnd}}));
-
-                            auto plusBtn = std::make_shared<Button>();
-                            plusBtn->label = "+";
-                            auto minusBtn = std::make_shared<Button>();
-                            minusBtn->label = "-";
-
-                            plusBtn->onClick() += [=](auto) { ++_intProperty; };
-                            minusBtn->onClick() += [=](auto) { --_intProperty; };
-
-                            btnContainer->addChildView(plusBtn);
-                            btnContainer->addChildView(minusBtn);
-
-                            addChildView(btnContainer);
-
-                            auto header = std::make_shared<Label>();
-                            header->text = "Streaming property:";
-                            header->setLayoutStylesheet(FlexMarginBottom(5) << FlexShrink(0));
-                            addChildView(header);
-
-                            auto streamLabel = std::make_shared<Label>();
-                            streamLabel->text.bind(_streamProperty);
-                            addChildView(streamLabel);
-                */
         }
 
       private:

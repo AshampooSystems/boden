@@ -1,5 +1,4 @@
 
-#include <bdn/FixedView.h>
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ListViewCore.h>
 #include <bdn/android/RowContainerView.h>

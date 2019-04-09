@@ -31,9 +31,9 @@
 
 @interface BodenStackUIViewController : UIViewController
 @property(nonatomic) std::weak_ptr<bdn::ios::NavigationViewCore> stackCore;
-@property(nonatomic) std::shared_ptr<bdn::FixedView> fixedView;
+@property(nonatomic) std::shared_ptr<bdn::ContainerView> containerView;
 @property(nonatomic) std::shared_ptr<bdn::View> userContent;
-@property(nonatomic) std::shared_ptr<bdn::FixedView> safeContent;
+@property(nonatomic) std::shared_ptr<bdn::ContainerView> safeContent;
 @end
 
 @implementation BodenStackUIViewController
@@ -68,19 +68,21 @@
 - (void)loadView
 {
     if (auto core = _stackCore.lock()) {
-        _fixedView = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
-        _safeContent = std::make_shared<bdn::FixedView>(core->viewCoreFactory());
+        _containerView = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
+        _safeContent = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
+        _containerView->isLayoutRoot = true;
+        _safeContent->isLayoutRoot = true;
 
-        self.view = _fixedView->core<bdn::ios::ViewCore>()->uiView();
+        self.view = _containerView->core<bdn::ios::ViewCore>()->uiView();
 
-        _fixedView->offerLayout(core->layout());
+        _containerView->offerLayout(core->layout());
 
-        _fixedView->addChildView(_safeContent);
+        _containerView->addChildView(_safeContent);
         _safeContent->addChildView(_userContent);
 
         __weak auto weakSelf = self;
 
-        _fixedView->geometry.onChange() += [weakSelf](auto) { [weakSelf updateSafeContent]; };
+        _containerView->geometry.onChange() += [weakSelf](auto) { [weakSelf updateSafeContent]; };
 
         auto c = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_safeContent->viewCore());
         if (c) {
@@ -146,11 +148,11 @@ namespace bdn::ios
 
     void NavigationViewCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
 
-    std::shared_ptr<FixedView> NavigationViewCore::getCurrentContainer()
+    std::shared_ptr<ContainerView> NavigationViewCore::getCurrentContainer()
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
             auto bdnViewController = (BodenStackUIViewController *)topViewController;
-            return bdnViewController.fixedView;
+            return bdnViewController.containerView;
         }
 
         return nullptr;

@@ -85,6 +85,14 @@ class TestApplicationController : public bdn::ApplicationController, public test
         _testThread = std::make_unique<std::thread>(&RUN_ALL_TESTS);
     }
 
+    void exit(int code)
+    {
+        _testThread->join();
+        _testThread.reset();
+
+        std::exit(code);
+    }
+
   public:
     void OnTestSuiteStart(const testing::TestSuite &suite) override { updateProgressLabel(); }
     void OnTestStart(const testing::TestInfo &info) override
@@ -97,8 +105,10 @@ class TestApplicationController : public bdn::ApplicationController, public test
     {
         testing::UnitTest::GetInstance()->listeners().Release(this);
 
-        bdn::App()->dispatcher()->enqueue(
-            []() { std::exit(testing::UnitTest::GetInstance()->failed_test_count() > 0 ? 1 : 0); });
+        bdn::App()->dispatcher()->enqueue([]() {
+            ((TestApplicationController *)bdn::App()->applicationController().get())
+                ->exit(testing::UnitTest::GetInstance()->failed_test_count() > 0 ? 1 : 0);
+        });
     }
 
   private:

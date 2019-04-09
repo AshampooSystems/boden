@@ -8,16 +8,24 @@ namespace bdn
       public:
         TimerImpl(Timer *timer) : _timer(timer) {}
 
-        size_t currentId()
+        bool notify(int id)
         {
-            if (_timer) {
-                return _timer->currentId();
+            std::unique_lock<std::mutex> lk(_mutex);
+            if (_timer && _timer->currentId() == id) {
+                _timer->onTriggered().notify();
+                return true;
             }
-            return 0;
+            return false;
         }
 
-        Notifier<> &onTriggered() { return _timer->onTriggered(); }
+        void clear()
+        {
+            std::unique_lock<std::mutex> lk(_mutex);
+            _timer = nullptr;
+        }
 
+      private:
+        std::mutex _mutex;
         Timer *_timer;
     };
 
@@ -29,10 +37,7 @@ namespace bdn
         bool operator()() const
         {
             if (auto timer = _timer.lock()) {
-                if (_id == timer->currentId()) {
-                    timer->onTriggered().notify();
-                    return true;
-                }
+                return timer->notify(_id);
             }
             return false;
         }
@@ -84,7 +89,7 @@ namespace bdn
     Timer::~Timer()
     {
         stop();
-        _impl->_timer = nullptr;
+        _impl->clear();
     }
 
     Notifier<> &Timer::onTriggered() { return _triggered; }

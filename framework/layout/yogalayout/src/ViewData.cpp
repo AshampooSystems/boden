@@ -1,4 +1,3 @@
-#include <bdn/FixedView.h>
 #include <bdn/Window.h>
 #include <bdn/yogalayout/ViewData.h>
 #include <yoga/YGNode.h>
@@ -15,7 +14,7 @@ namespace bdn
 
             childrenChanged();
 
-            if (!view->getParentView() || (dynamic_cast<FixedView *>(v) != nullptr)) {
+            if (!view->getParentView() || view->isLayoutRoot) {
                 isRootNode = true;
                 YGNodeSetDirtiedFunc(ygNode, &ViewData::onDirtied);
 
@@ -114,7 +113,7 @@ namespace bdn
                 if (auto ctxt = YGNodeGetContext(child)) {
                     auto viewData = static_cast<ViewData *>(ctxt);
 
-                    if (dynamic_cast<FixedView *>(viewData->view) != nullptr) {
+                    if (viewData->view->isLayoutRoot) {
                         continue;
                     }
 

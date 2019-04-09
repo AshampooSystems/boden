@@ -32,6 +32,11 @@ namespace bdn
         EXPECT_EQ(cc.changeCount, 1);
         p1 = lmbd;
         EXPECT_EQ(cc.changeCount, 2);
+
+        Property<std::function<void()>> p2;
+
+        EXPECT_THROW(p1.bind(p2), std::logic_error);
+        EXPECT_NO_THROW(p1.bind(p2, BindMode::unidirectional));
     }
 
     TEST(Property, onChange)

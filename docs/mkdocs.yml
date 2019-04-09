@@ -73,6 +73,7 @@ nav:
       - reference/foundation/string.md
       - reference/foundation/weak_callback.md
       - Properties:
+        - reference/foundation/property/compare.md
         - reference/foundation/property/property.md
         - reference/foundation/property/streaming.md
         - reference/foundation/property/transform.md

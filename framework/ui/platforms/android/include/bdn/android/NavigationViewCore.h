@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/FixedView.h>
 #include <bdn/NavigationView.h>
 
 #include <bdn/android/ContainerViewCore.h>
@@ -33,7 +32,7 @@ namespace bdn::android
       private:
         struct StackEntry
         {
-            std::shared_ptr<FixedView> container;
+            std::shared_ptr<ContainerView> container;
             std::shared_ptr<View> view;
             String title;
         };

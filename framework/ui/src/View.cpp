@@ -16,13 +16,13 @@ namespace bdn
             throw std::runtime_error("Couldn't get ViewCore Factory!");
         }
 
-        visible = true; // most views are initially visible
-
         layoutStylesheet.onChange() += [=](auto va) {
             if (auto layout = _layout.get()) {
                 layout->updateStylesheet(this);
             }
         };
+
+        isLayoutRoot.onChange() += [=](auto) { updateLayout(_layout.get(), _layout.get()); };
 
         registerCoreCreatingProperties(this, &visible, &geometry, &layoutStylesheet);
     }
