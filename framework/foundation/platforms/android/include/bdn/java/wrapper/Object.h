@@ -52,7 +52,7 @@ namespace bdn::java::wrapper
          *
          *  Note that the returned reference can be a null Reference object.
          * */
-        Reference getRef_() { return _javaRef; }
+        Reference getRef_() const { return _javaRef; }
 
         /** Returns the JNI jobject value that is associated
          *  with this JObject instance. Same as getRef_().getJObject()

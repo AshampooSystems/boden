@@ -78,16 +78,18 @@ namespace bdn
 
         void takeOverSubscriptions(Notifier<Arguments...> &other)
         {
-            if (other._subscriptions.empty())
+            if (other._subscriptions.empty()) {
                 return;
+            }
 
             _takeOverSubscriptions(other);
         }
 
         void takeOverSubscriptionsAndNotify(Notifier<Arguments...> &other, Arguments... arguments)
         {
-            if (other._subscriptions.empty())
+            if (other._subscriptions.empty()) {
                 return;
+            }
 
             auto firstNew = _takeOverSubscriptions(other);
 

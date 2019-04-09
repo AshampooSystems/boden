@@ -1,8 +1,3 @@
-##########################################################################
-# Files
-
-#add_sources(_BDN_YOGA_LAYOUT_FILES _BDN_HEADERS ./)
-
 file(GLOB_RECURSE _BDN_HEADERS ./include/*.h)
 file(GLOB_RECURSE _BDN_SOURCES ./src/*.cpp)
 
@@ -12,7 +7,7 @@ set(_BDN_YOGA_LAYOUT_FILES ${_BDN_SOURCES} ${_BDN_HEADERS} ${_BDN_YOGA_LAYOUT_CO
 
 add_universal_library(yogalayout TIDY SOURCES ${_BDN_YOGA_LAYOUT_FILES})
 
-target_link_libraries(yogalayout PUBLIC ui yogacore)
+target_link_libraries(yogalayout PUBLIC ui layout yogacore)
 target_include_directories(yogalayout
     PUBLIC
     $<INSTALL_INTERFACE:include>
@@ -20,8 +15,6 @@ target_include_directories(yogalayout
     )
 
 target_include_directories(yogalayout PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-
-#include(install.cmake)
 
 target_link_libraries(Boden_All INTERFACE yogalayout)
 add_library(Boden::YogaLayout ALIAS yogalayout)

@@ -12,7 +12,7 @@ namespace bdn::android
         class Core;
 
       public:
-        RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : FixedView(factory)
+        RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : FixedView(std::move(factory))
         {
             viewCoreFactory()->registerCoreType<Core, RowContainerView>();
         }

@@ -16,7 +16,6 @@ namespace bdn
             void unregisterView(View *view) override;
 
             void markDirty(View *view) override;
-
             void updateStylesheet(View *view) override;
 
             void layout(View *view) override;

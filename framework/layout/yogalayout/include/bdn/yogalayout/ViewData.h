@@ -2,8 +2,8 @@
 
 #include <bdn/Point.h>
 #include <bdn/Rect.h>
+#include <bdn/View.h>
 #include <bdn/property/Property.h>
-
 #include <bdn/yogalayout/Stylesheet.h>
 
 struct YGNode;

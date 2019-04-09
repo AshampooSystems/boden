@@ -1,7 +1,9 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/layout/include/bdn
 source: Layout.h
 
 # Layout
+
+Base class for Layout implementations
 
 ## Declaration
 

@@ -62,7 +62,7 @@ namespace bdn::android
          *  The default implementation updates the Window's size to match
          * the new root dimensions.
          *  */
-        virtual void rootViewConfigurationChanged(wrapper::Configuration config);
+        virtual void rootViewConfigurationChanged(const wrapper::Configuration &config);
 
         virtual void attachedToNewRootView(const java::Reference &javaRef);
 
@@ -77,8 +77,8 @@ namespace bdn::android
 
         Rect getScreenWorkArea() const;
 
-        void updateUIScaleFactor(wrapper::Configuration config);
-        void updateOrientation(wrapper::Configuration config);
+        void updateUIScaleFactor(const wrapper::Configuration &config);
+        void updateOrientation(const wrapper::Configuration &config);
 
         static std::list<std::shared_ptr<WindowCore>>
         getWindowCoreListFromRootView(const java::Reference &javaRootViewRef);

@@ -51,7 +51,7 @@ namespace bdn
     void GenericDispatcher::enqueue(std::function<void()> func, Dispatcher::Priority priority,
                                     std::unique_lock<std::mutex> &lk)
     {
-        getQueue(priority).push_back(func);
+        getQueue(priority).emplace_back(std::move(func));
         _somethingChanged = true;
         _notify.notify_one();
     }
@@ -61,9 +61,9 @@ namespace bdn
     {
 
         if (delay <= Dispatcher::Duration::zero()) {
-            enqueue(func, priority);
+            enqueue(std::move(func), priority);
         } else {
-            addTimedItem(Clock::now() + delay, func, priority);
+            addTimedItem(Clock::now() + delay, std::move(func), priority);
         }
     }
 

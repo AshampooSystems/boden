@@ -12,7 +12,9 @@ namespace bdn
         using FromFunc = std::function<U(T)>;
 
       public:
-        Transform(const Property<U> &p, ToFunc to, FromFunc from) : property(p), toFunc(to), fromFunc(from) {}
+        Transform(const Property<U> &p, ToFunc to, FromFunc from)
+            : property(p), toFunc(std::move(to)), fromFunc(std::move(from))
+        {}
 
       public:
         class Backing : public bdn::Backing<T>

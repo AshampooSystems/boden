@@ -1,8 +1,6 @@
-hero: JSON support for FlexStylesheet
-
 # JSON support
 
-[FlexStylesheet](stylesheet.md) can be easily de-/serialized to/from JSON using the [nlohmann::json](https://github.com/nlohmann/json) library.
+[FlexStylesheet](../../reference/layout/flex_stylesheet.md) can be easily de-/serialized to/from JSON using the [nlohmann::json](https://github.com/nlohmann/json) library.
 
 ## Linking
 

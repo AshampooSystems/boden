@@ -24,7 +24,7 @@ namespace bdn
     class TimerCallback
     {
       public:
-        TimerCallback(std::weak_ptr<TimerImpl> timer, size_t id) : _timer(timer), _id(id) {}
+        TimerCallback(std::weak_ptr<TimerImpl> timer, size_t id) : _timer(std::move(timer)), _id(id) {}
 
         bool operator()() const
         {

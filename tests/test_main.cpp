@@ -92,7 +92,7 @@ class TestApplicationController : public bdn::ApplicationController, public test
         nCasesRun++;
         updateProgressLabel();
     }
-    void OnTestEnd(const testing::TestInfo &) override { updateProgressLabel(); }
+    void OnTestEnd(const testing::TestInfo & /*testInfo*/) override { updateProgressLabel(); }
     void OnTestProgramEnd(const testing::UnitTest &unit_test) override
     {
         testing::UnitTest::GetInstance()->listeners().Release(this);

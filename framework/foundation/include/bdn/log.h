@@ -34,7 +34,7 @@ namespace bdn
         ~logstream() override { logInfo(str()); }
     };
 
-    inline void logAndIgnoreException(std::function<void()> function, String errorContextMessage)
+    inline void logAndIgnoreException(const std::function<void()> &function, const String &errorContextMessage)
     {
         try {
             function();

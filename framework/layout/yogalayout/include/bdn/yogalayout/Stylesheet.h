@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/FlexLayout.h>
+#include <bdn/FlexStylesheet.h>
 #include <yoga/Yoga.h>
 
 namespace bdn

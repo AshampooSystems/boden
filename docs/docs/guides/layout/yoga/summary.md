@@ -6,7 +6,7 @@ Boden provides a Layout implementation based on Facebooks yoga library.
 
 First, create the Layout and apply it to the window
 
-```C++ hl_lines="2"
+```C++
 auto window = std::make_shared<bdn::Window>();
 window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
 ```
@@ -44,8 +44,8 @@ window->setLayoutStylesheet(FlexStylesheet {
 });
 ```
 
-[View::setLayoutStyleSheet](../../ui/view.md#layout) is a convenience function that creates a *shared_ptr* and assigns it to
-the [View::layoutStyleSheet](../../ui/view.md#Properties) property.
+[View::setLayoutStyleSheet](../../../reference/ui/view.md#layout) is a convenience function that creates a *shared_ptr* and assigns it to
+the [View::layoutStyleSheet](../../../reference/ui/view.md#Properties) property.
 
 ```C++
 template <class T> 

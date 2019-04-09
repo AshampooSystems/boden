@@ -26,13 +26,13 @@ namespace bdn::android::wrapper
         using java::wrapper::JTObject<kConfigurationClassName>::JTObject;
 
       public:
-        bdn::java::ObjectField<int> densityDpi()
+        bdn::java::ObjectField<int> densityDpi() const
         {
             static bdn::java::ObjectField<int>::Id fieldId(javaClass(), "densityDpi");
             return bdn::java::ObjectField<int>(getRef_(), fieldId);
         }
 
-        bdn::java::ObjectField<int> orientation()
+        bdn::java::ObjectField<int> orientation() const
         {
             static bdn::java::ObjectField<int>::Id fieldId(javaClass(), "orientation");
             return bdn::java::ObjectField<int>(getRef_(), fieldId);

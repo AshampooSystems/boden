@@ -24,7 +24,7 @@ namespace bdn
 
     Application::Application(Application::ApplicationControllerFactory applicationControllerFactory,
                              std::shared_ptr<Dispatcher> dispatcher)
-        : _applicationControllerFactory(applicationControllerFactory), _mainDispatcher(dispatcher)
+        : _applicationControllerFactory(std::move(applicationControllerFactory)), _mainDispatcher(std::move(dispatcher))
     {}
 
     void Application::prepareLaunch()

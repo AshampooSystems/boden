@@ -1,4 +1,9 @@
+path: tree/master/framework/layout/include/bdn
+source: LayoutStylesheet.h
+
 # LayoutStylesheet
+
+Base class for layout stylesheets
 
 ## Declaration
 

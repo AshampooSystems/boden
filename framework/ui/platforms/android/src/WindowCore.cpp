@@ -197,7 +197,7 @@ namespace bdn::android
         geometry = _currentBounds;
     }
 
-    void WindowCore::rootViewConfigurationChanged(wrapper::Configuration config)
+    void WindowCore::rootViewConfigurationChanged(const wrapper::Configuration &config)
     {
         updateUIScaleFactor(config);
         updateOrientation(config);
@@ -251,7 +251,7 @@ namespace bdn::android
         return Rect(0, 0, width, height);
     }
 
-    void WindowCore::updateUIScaleFactor(wrapper::Configuration config)
+    void WindowCore::updateUIScaleFactor(const wrapper::Configuration &config)
     {
         int dpi = config.densityDpi();
 
@@ -264,7 +264,7 @@ namespace bdn::android
         setUIScaleFactor(scaleFactor);
     }
 
-    void WindowCore::updateOrientation(wrapper::Configuration config)
+    void WindowCore::updateOrientation(const wrapper::Configuration &config)
     {
         int orientation = config.orientation();
         if (orientation == wrapper::Configuration::ORIENTATION_PORTRAIT) {

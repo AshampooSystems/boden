@@ -32,10 +32,7 @@ namespace bdn
                 if (auto owner = YGNodeGetOwner(it->second->ygNode)) {
 
                     auto parentData = std::find_if(_views.begin(), _views.end(), [&owner](auto &viewData) {
-                        if (viewData.second->ygNode == owner) {
-                            return true;
-                        }
-                        return false;
+                        return viewData.second->ygNode == owner;
                     });
                     YGNodeRemoveChild(owner, it->second->ygNode);
                     if (parentData != _views.end()) {

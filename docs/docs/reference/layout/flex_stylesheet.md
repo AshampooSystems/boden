@@ -1,7 +1,15 @@
-path: tree/master/framework/ui/include/bdn/
-source: FlexLayout.h
+path: tree/master/framework/layout/include/bdn
+source: FlexStylesheet.h
 
 # FlexStylesheet
+
+Stylesheet for Flex based Layouts.
+
+## Declaration
+
+```C++
+class FlexStylesheet : public layoutStylesheet
+```
 
 ## Example
 
@@ -14,19 +22,19 @@ window->layoutStylesheet = styleSheet;
 
 ## Flex
 
-* **Direction flexDirection** 
+* **[Direction](#enums) flexDirection** 
 	
 	Defines the direction ( Row vs. Column ) of the View children
 
 	Defaults to: *Direction::Column*
 
-* **LayoutDirection layoutDirection**
+* **[LayoutDirection](#enums) layoutDirection**
 
 	Defines the layout direction ( left to right, or right to left )
 
 	Defaults to: *LayoutDirection::Inherit*
 
-* **Wrap flexWrap**
+* **[Wrap](#enums) flexWrap**
 
 	Defines whether the contained Items should wrap if the available space
 	is not sufficient
@@ -48,19 +56,19 @@ window->layoutStylesheet = styleSheet;
 
 ## Alignment
 
-* **Align alignSelf**
+* **[Align](#enums) alignSelf**
 
 	Defaults to: *Align::Auto*
 
-* **Align alignItems**
+* **[Align](#enums) alignItems**
 
 	Defaults to: *Align::Stretch*
 
-* **Align alignContents**
+* **[Align](#enums) alignContents**
 
 	Defaults to: *Align::Stretch*
 
-* **Justify justifyContent**
+* **[Justify](#enums) justifyContent**
 
 	Defaults to: *Justify::FlexStart*
 
