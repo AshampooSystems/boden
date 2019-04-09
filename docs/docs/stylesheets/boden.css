@@ -7,6 +7,36 @@ input::placeholder {
 	color: white;
 }
 
+.boden-logo {
+	margin-top: 20px;
+	width: 150px;
+}
+
+@media only screen and (max-width: 76.1875em) {
+	.boden-logo {
+		width: 75px;
+	}
+}
+
+div.boden-call-to-action-bottom {
+	text-align: center;
+}
+
+button.boden-call-to-action {
+	color: white;
+	background-color: rgb(109, 190, 47);
+	/*background-image: linear-gradient(to right, rgb(32, 179, 248), rgb(0, 97, 122));*/
+	padding: 10px 20px 10px 20px;
+	border-radius: 5px;
+	font-size: 1.6rem;
+	margin-bottom: 3.6rem;
+	cursor: pointer;
+}
+
+button.boden-call-to-action:hover {
+	background-color: #00aa	00;
+}
+
 .md-tabs.boden-hero {
 	background-color: rgb(27,27,27);
 	color: white;
@@ -23,8 +53,14 @@ input::placeholder {
 .md-grid.boden-hero h1 {
 	font-size: 36px;
 	margin: 0;
-	padding: 20px;
-	padding-bottom: 50px;
+	padding-top: 1.6rem;
+	padding-bottom: 3.6rem;
+}
+
+@media only screen and (max-width: 76.1875em) {
+	.md-grid.boden-hero h1 {
+		font-size: 24px;
+	}
 }
 
 .boden-hero-main__inner {

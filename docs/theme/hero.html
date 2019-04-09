@@ -134,8 +134,11 @@
       {% endif %}
       <main class="md-main">
         <div class="md-grid boden-hero">
-          <img src="{{ 'logo.png' | url }}" style="margin-top: 20px;"/>
-          <h1>Boden Cross-platform Framework</h1>
+          <img class="boden-logo" src="{{ 'logo.png' | url }}"/>
+          <h1>Boden Cross-Platform Framework</h1>
+          <a href="{{ 'getting-started' | url }}">
+            <button class="boden-call-to-action">Get Started</button>
+          </a>
         </div>
         <div class="md-main__inner md-grid boden-hero-main__inner" data-md-component="container">
           {% block site_nav %}
@@ -164,6 +167,11 @@
                 {{ page.content }}
               {% endblock %}
             </article>
+          </div>
+          <div class="boden-call-to-action-bottom">
+            <a href="{{ 'getting-started' | url }}">
+              <button class="boden-call-to-action">Get Started</button>
+            </a>
           </div>
         </div>
       </main>
