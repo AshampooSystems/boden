@@ -76,6 +76,7 @@
               font.text | replace(' ', '+')  + ':300,400,400i,700|' +
               font.code | replace(' ', '+')
             }}">
+        <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600,700,800,900" rel="stylesheet">
         <style>body,input{font-family:"{{ font.text }}","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"{{ font.code }}","Courier New",Courier,monospace}</style>
       {% endif %}
     {% endblock %}
@@ -135,7 +136,8 @@
       <main class="md-main">
         <div class="md-grid boden-hero">
           <img class="boden-logo" src="{{ 'boden-logo-colored.png' | url }}"/>
-          <h1>Boden Cross-Platform Framework</h1>
+          <h1>Boden X-Platform</h1>
+          <!--h2>Cross-Platform Framework</h2-->
           <a href="{{ 'getting-started' | url }}">
             <button class="boden-call-to-action">Get Started</button>
           </a>
@@ -170,7 +172,7 @@
           </div>
           <div class="boden-call-to-action-bottom">
             <a href="{{ 'getting-started' | url }}">
-              <button class="boden-call-to-action">Get Started</button>
+              <button class="boden-call-to-action secondary">Get Started</button>
             </a>
           </div>
         </div>

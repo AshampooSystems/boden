@@ -7,7 +7,7 @@ theme:
     primary: 'White'
   feature:
     tabs: true
-  logo: 'boden-logo-header.svg'
+  logo: 'boden-logo-header-dark.png'
 extra:
   social:
     - type: 'github'

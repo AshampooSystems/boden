@@ -10,7 +10,7 @@ input::placeholder {
 .boden-logo {
 	margin-top: 20px;
 	margin-bottom: 15px;
-	width: 175px;
+	width: 125px;
 }
 
 @media only screen and (max-width: 76.1875em) {
@@ -32,18 +32,35 @@ div.boden-call-to-action-bottom {
 }
 
 button.boden-call-to-action {
-	color: white;
-	background-color: rgb(112, 170, 68);
+	background-color: rgb(27,27,27);
+	color: rgb(255,255,255);
+	border: 2px solid white;
+	/*background-color: rgb(112, 170, 68);*/
 	/*background-image: linear-gradient(to right, rgb(32, 179, 248), rgb(0, 97, 122));*/
 	padding: 10px 30px 10px 30px;
 	border-radius: 5px;
-	font-size: 1.6rem;
-	margin-bottom: 4.6rem;
+	font-size: 1.2rem;
+	font-weight: 600;
+	margin-top: 4rem;
+	margin-bottom: 3rem;
 	cursor: pointer;
+	text-transform: uppercase;
 }
 
 button.boden-call-to-action:hover {
-	background-color: #00aa	00;
+	background-color: rgb(255,255,255);
+	color: rgb(27,27,27);
+}
+
+button.boden-call-to-action.secondary {
+	background-color: rgb(255,255,255);
+	color: rgb(27,27,27);
+	border: solid 2px rgb(27,27,27);
+}
+
+button.boden-call-to-action.secondary:hover {
+	background-color: rgb(27,27,27);
+	color: rgb(255,255,255);
 }
 
 .md-tabs.boden-hero {
@@ -60,12 +77,31 @@ button.boden-call-to-action:hover {
 }
 
 .md-grid.boden-hero h1 {
-	font-size: 36px;
+	font-size: 40px;
+	font-family: Nunito Sans;
+	font-weight: 700;
 	margin: 0;
-	padding-top: 1.6rem;
-	padding-bottom: 3.6rem;
+	padding-top: 0rem;
+	padding-bottom: 0;
 	padding-right: 1rem;
 	padding-left: 1rem;
+	color: white;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	line-height: 5rem;
+}
+
+.md-grid.boden-hero h2 {
+	font-size: 18px;
+	font-family: Nunito Sans;
+	font-weight: 900;
+	margin: 0;
+	padding-top: 1.6rem;
+	padding-right: 1rem;
+	padding-left: 1rem;
+	color: white;
+	text-transform: uppercase;
+	letter-spacing: 1px;
 }
 
 @media only screen and (max-width: 76.1875em) {
@@ -102,7 +138,16 @@ button.boden-call-to-action:hover {
 	display: inline-block;
 }
 
-.cc-banner {
-	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 1.4rem;
+/* rgb(112, 170, 68) */
+.cc-bottom {
+	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-size: 1.4rem !important;
+	/*background-color: #fff !important;*/
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
+	color: rgb(27,27,27) !important;
+}
+
+.cc-dismiss {
+	background-color: rgb(27,27,27) !important;
+	color: #fff !important;
 }
