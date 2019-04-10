@@ -4,12 +4,13 @@ SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testFoundation")
 file(GLOB property_tests ./properties/*.cpp)
 
 
-add_universal_executable(testFoundation SOURCES ../test_main.cpp
+add_universal_executable(testFoundation TIDY SOURCES ../test_main.cpp
     testNotifier.cpp
     testProperties.cpp
     testPropertyStreaming.cpp
     testPropertyTransform.cpp
     testOfferedValue.cpp
+    testDispatchQueue.cpp
     testTimer.cpp
     testURI.cpp
     ${property_tests}

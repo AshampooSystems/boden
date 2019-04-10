@@ -26,9 +26,9 @@ class Application
 
 	A list of the command-line arguments
 
-* **std::shared_ptr<Dispatcher> dispatcher()**
+* **std::shared_ptr<[DispatchQueue](dispatch_queue.md)> dispatchQueue()**
 
-	A dispatcher for the main thread
+	The main thread [DispatchQueue](dispatch_queue.md)
 
 * **std::shared_ptr<ApplicationController> applicationController()**
 

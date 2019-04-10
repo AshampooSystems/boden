@@ -115,12 +115,13 @@ namespace bdn::mac
 
     void UIApplication::initiateExitIfPossible(int exitCode)
     {
-        dispatcher()->enqueue([]() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
+        dispatchQueue()->dispatchAsync(
+            []() { [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0]; });
     }
 
     void UIApplication::disposeMainDispatcher()
     {
-        std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(dispatcher())->dispose();
+        std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(dispatchQueue())->dispose();
     }
 
     void UIApplication::buildCommandlineArguments(int argCount, char *args[])

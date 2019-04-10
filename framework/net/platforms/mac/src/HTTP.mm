@@ -30,7 +30,7 @@ namespace bdn
                       dataTaskWithURL:nsURL
                     completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
                                         NSError *_Nullable error) {
-                      App()->dispatcher()->enqueue([nsData, nsResponse, response]() {
+                      App()->dispatchQueue()->dispatchAsync([nsData, nsResponse, response]() {
                           auto nsHTTPResponse = (NSHTTPURLResponse *)nsResponse;
 
                           response->url = fk::nsStringToString([nsHTTPResponse.URL absoluteString]);

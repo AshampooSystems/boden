@@ -23,8 +23,9 @@ namespace bdn
     }
 
     Application::Application(Application::ApplicationControllerFactory applicationControllerFactory,
-                             std::shared_ptr<Dispatcher> dispatcher)
-        : _applicationControllerFactory(std::move(applicationControllerFactory)), _mainDispatcher(std::move(dispatcher))
+                             std::shared_ptr<DispatchQueue> dispatcher)
+        : _applicationControllerFactory(std::move(applicationControllerFactory)),
+          _mainDispatchQueue(std::move(dispatcher))
     {}
 
     void Application::prepareLaunch()
@@ -46,7 +47,7 @@ namespace bdn
 
     void Application::finishLaunch() { _applicationController->finishLaunch(); }
 
-    std::shared_ptr<Dispatcher> Application::dispatcher() { return _mainDispatcher; }
+    std::shared_ptr<DispatchQueue> Application::dispatchQueue() { return _mainDispatchQueue; }
 
     std::shared_ptr<ApplicationController> Application::applicationController() { return _applicationController; }
 

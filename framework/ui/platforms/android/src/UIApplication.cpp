@@ -48,7 +48,10 @@ namespace bdn::android
 
     void UIApplication::entry() { launch(); }
 
-    void UIApplication::disposeMainDispatcher() { std::dynamic_pointer_cast<MainDispatcher>(dispatcher())->dispose(); }
+    void UIApplication::disposeMainDispatcher()
+    {
+        std::dynamic_pointer_cast<MainDispatcher>(dispatchQueue())->dispose();
+    }
 
     void UIApplication::initiateExitIfPossible(int exitCode) {}
 

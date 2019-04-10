@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bdn/ApplicationController.h>
-#include <bdn/Dispatcher.h>
+#include <bdn/DispatchQueue.h>
 
 #include <functional>
 #include <memory>
@@ -25,7 +25,7 @@ namespace bdn
 
       public:
         Application(Application::ApplicationControllerFactory applicationControllerFactory,
-                    std::shared_ptr<Dispatcher> dispatcher);
+                    std::shared_ptr<DispatchQueue> dispatchQueue);
         virtual ~Application() = default;
 
         void init();
@@ -43,7 +43,7 @@ namespace bdn
         char **argv() { return _argv; }
 
       public:
-        std::shared_ptr<Dispatcher> dispatcher();
+        std::shared_ptr<DispatchQueue> dispatchQueue();
         std::shared_ptr<ApplicationController> applicationController();
 
       public:
@@ -67,7 +67,7 @@ namespace bdn
       private:
         ApplicationControllerFactory _applicationControllerFactory;
         std::shared_ptr<ApplicationController> _applicationController;
-        std::shared_ptr<Dispatcher> _mainDispatcher;
+        std::shared_ptr<DispatchQueue> _mainDispatchQueue;
 
         static std::thread::id _mainThreadId;
 

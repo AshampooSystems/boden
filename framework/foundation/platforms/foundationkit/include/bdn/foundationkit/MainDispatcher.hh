@@ -1,82 +1,44 @@
 #pragma once
 
 #include <bdn/Base.h>
-#include <bdn/Dispatcher.h>
+#include <bdn/DispatchQueue.h>
 
 #include <list>
 #include <mutex>
 
 #import <CoreFoundation/CoreFoundation.h>
 
-namespace bdn
+namespace bdn::fk
 {
+    class DispatchTimer;
 
-    namespace fk
+    class MainDispatcher : public Base, virtual public DispatchQueue
     {
-
-        /** A helper class that runs tasks when the app is idle.*/
-        class MainDispatcher : public Base, virtual public Dispatcher
+        std::shared_ptr<MainDispatcher> shared_from_this()
         {
-            std::shared_ptr<MainDispatcher> shared_from_this()
-            {
-                return std::static_pointer_cast<MainDispatcher>(Base::shared_from_this());
-            }
+            return std::static_pointer_cast<MainDispatcher>(Base::shared_from_this());
+        }
 
-          public:
-            MainDispatcher();
-            ~MainDispatcher() override;
+      public:
+        MainDispatcher();
+        ~MainDispatcher() override;
 
-            void enqueue(std::function<void()> func, Priority priority = Priority::normal) override;
+        void dispose();
 
-            void enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func,
-                                Priority priority = Priority::normal) override;
+        void process();
 
-            void createTimer(Dispatcher::Duration interval, std::function<bool()> func) override;
+        void timerFinished(DispatchTimer *timer);
 
-            void dispose();
+      protected:
+        void notifyWorker(LockType &lk) override;
+        void newTimed(LockType &lk) override;
+        void createTimerInternal(std::chrono::duration<double> interval, std::function<bool()> timer) override;
 
-            struct TimerFuncList_ : public Base
-            {
-                std::list<std::function<bool()>> funcList;
-            };
+      private:
+        void scheduleCall();
+        void scheduleCallAt(DispatchQueue::TimePoint at);
 
-          private:
-            // we need to uninstall the observer asynchronously, because our
-            // destructor might be called from another thread. Because of this
-            // we have to put everything that the observer uses in a separate
-            // object that remains valid even after our destructor has been
-            // called.
-            class IdleQueue : public Base
-            {
-              public:
-                void add(const std::function<void()> &func) { _funcList.push_back(func); }
-
-                void activateNext();
-
-                void dispose();
-
-              private:
-                std::list<std::function<void()>> _funcList;
-            };
-
-            static void _scheduleMainThreadCall(const std::function<void()> &func,
-                                                Dispatcher::Duration delay = Dispatcher::Duration::zero());
-
-            void ensureIdleObserverInstalled();
-
-            void callNextNormalItem();
-            void callTimedItem(std::list<std::function<void()>>::iterator it);
-
-            bool _idleObserverInstalled = false;
-            CFRunLoopObserverRef _idleObserver{};
-
-            std::recursive_mutex _queueMutex;
-
-            std::shared_ptr<IdleQueue> _idleQueue;
-            std::list<std::function<void()>> _normalQueue;
-            std::list<std::function<void()>> _timedNormalQueue;
-
-            std::shared_ptr<TimerFuncList_> _timerFuncList;
-        };
-    }
+      private:
+        std::list<std::unique_ptr<DispatchTimer>> _timers;
+    };
 }

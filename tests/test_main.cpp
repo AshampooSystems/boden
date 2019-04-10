@@ -61,7 +61,7 @@ class TestApplicationController : public bdn::ApplicationController, public test
 
         bdn::String sProgress = ssProgress.str();
         bdn::String sTestInfo = ssTestInfo.str();
-        bdn::App()->dispatcher()->enqueue([this, sProgress, sTestInfo]() {
+        bdn::App()->dispatchQueue()->dispatchAsync([this, sProgress, sTestInfo]() {
             _progressLabel->text = sProgress;
             _testNameLabel->text = sTestInfo;
         });
@@ -105,7 +105,7 @@ class TestApplicationController : public bdn::ApplicationController, public test
     {
         testing::UnitTest::GetInstance()->listeners().Release(this);
 
-        bdn::App()->dispatcher()->enqueue([]() {
+        bdn::App()->dispatchQueue()->dispatchAsync([]() {
             ((TestApplicationController *)bdn::App()->applicationController().get())
                 ->exit(testing::UnitTest::GetInstance()->failed_test_count() > 0 ? 1 : 0);
         });

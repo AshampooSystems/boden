@@ -150,7 +150,7 @@ namespace bdn::ios
 
     void UIApplication::disposeMainDispatcher()
     {
-        std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(dispatcher())->dispose();
+        std::dynamic_pointer_cast<bdn::fk::MainDispatcher>(dispatchQueue())->dispose();
     }
 
     void UIApplication::buildCommandlineArguments(int argCount, char *args[])

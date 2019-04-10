@@ -98,7 +98,7 @@ namespace bdn::ios
                                      logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString])
                                                  << "' (" << fk::nsStringToString([err localizedDescription]) << ")";
                                  } else {
-                                     App()->dispatcher()->enqueue([=]() {
+                                     App()->dispatchQueue()->dispatchAsync([=]() {
                                          ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
                                          this->scheduleLayout();
                                          markDirty();

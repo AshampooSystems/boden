@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Dispatcher.h>
+#include <bdn/DispatchQueue.h>
 #include <bdn/Notifier.h>
 #include <bdn/property/Property.h>
 #include <chrono>
@@ -16,10 +16,10 @@ namespace bdn
         using Duration = std::chrono::duration<float>;
 
       public:
-        static std::shared_ptr<Timer> create(std::shared_ptr<Dispatcher> dispatcher = nullptr);
+        static std::shared_ptr<Timer> create(std::shared_ptr<DispatchQueue> dispatchQueue = nullptr);
 
       public:
-        Timer(std::shared_ptr<Dispatcher> dispatcher = nullptr);
+        Timer(std::shared_ptr<DispatchQueue> dispatchQueue = nullptr);
         ~Timer();
 
       public:
@@ -40,7 +40,7 @@ namespace bdn
 
       private:
         size_t _id = 0;
-        std::shared_ptr<Dispatcher> _dispatcher;
+        std::shared_ptr<DispatchQueue> _dispatchQueue;
         Notifier<> _triggered;
         std::shared_ptr<TimerImpl> _impl;
         bool _isRunning = false;

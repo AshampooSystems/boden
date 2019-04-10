@@ -7,364 +7,110 @@
 
 #import <Foundation/Foundation.h>
 
-@interface BdnFkDispatchFuncWrapper_ : NSObject {
-}
-
-@property std::function<void()> func;
-@property bdn::Dispatcher::Duration delay;
-
-- (void)invoke;
-
-@end
-
-@implementation BdnFkDispatchFuncWrapper_
-
-@synthesize func;
-@synthesize delay;
-
-- (void)invoke
+namespace bdn::fk
 {
-    bdn::platformEntryWrapper(
-        [=]() {
-            if (delay <= bdn::Dispatcher::Duration::zero()) {
-                try {
-                    func();
-                }
-                catch (std::bad_function_call &) {
-                    // ignore. This means that the function is a weak method
-                    // whose object has been deleted. This is treated like a
-                    // no-op.
-                }
-            } else {
+    MainDispatcher::MainDispatcher() : bdn::DispatchQueue(true) {}
 
-                double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
+    MainDispatcher::~MainDispatcher() { dispose(); }
 
-                delay = bdn::Dispatcher::Duration::zero();
-
-                [self performSelector:@selector(invoke) withObject:nil afterDelay:delayInSeconds];
-            }
-        },
-        true);
-}
-
-@end
-
-@interface BdnFkTimerFuncWrapper_ : NSObject {
-    std::shared_ptr<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
-    std::list<std::function<bool()>>::iterator timerFuncIt;
-}
-
-@property std::shared_ptr<bdn::fk::MainDispatcher::TimerFuncList_> timerFuncList;
-@property std::list<std::function<bool()>>::iterator timerFuncIt;
-
-- (void)targetMethod:(NSTimer *)theTimer;
-
-@end
-
-@implementation BdnFkTimerFuncWrapper_
-
-@synthesize timerFuncList;
-@synthesize timerFuncIt;
-
-- (void)targetMethod:(NSTimer *)theTimer
-{
-    bdn::platformEntryWrapper(
-        [&]() {
-            if (timerFuncList != nullptr) {
-                std::function<bool()> &timerFunc = *timerFuncIt;
-
-                bool result;
-                try {
-                    result = timerFunc();
-                }
-                catch (std::bad_function_call &) {
-                    // ignore. This means that the function is a weak method
-                    // whose object has been deleted. This is treated as if the
-                    // function had returned false (i.e. the timer is stopped)
-                    result = false;
-                }
-
-                if (!result) {
-                    [theTimer invalidate];
-
-                    timerFuncList->funcList.erase(timerFuncIt);
-                    timerFuncList = nullptr;
-                }
-            }
-        },
-        true);
-}
-
-@end
-
-namespace bdn
-{
-    namespace fk
+    void MainDispatcher::scheduleCall()
     {
-        MainDispatcher::MainDispatcher()
-        {
-            _idleQueue = std::make_shared<IdleQueue>();
-            _timerFuncList = std::make_shared<TimerFuncList_>();
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+          process();
+        });
+    }
 
-        MainDispatcher::~MainDispatcher()
-        {
-            if (_idleObserverInstalled) {
-                // unregister our observer with a call from the main thread
-                // because this destructor might be called from a different
-                // thread. Note that the observer only holds a reference to the
-                // IdleQueue object, which remains valid as long as the observer
-                // exists. So the scheduled call does not access the destructed
-                // MainDispatcher object.
-                CFRunLoopObserverRef obs = _idleObserver;
-                _scheduleMainThreadCall([obs]() {
-                    CFRunLoopRemoveObserver([NSRunLoop mainRunLoop].getCFRunLoop, obs, kCFRunLoopCommonModes);
-                });
+    void MainDispatcher::scheduleCallAt(DispatchQueue::TimePoint at)
+    {
+        auto duration = at - DispatchQueue::Clock::now();
 
-                _idleObserverInstalled = false;
-            }
-        }
+        auto durationInNanoSeconds =
+            std::max((long long)0, std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
 
-        void MainDispatcher::dispose()
-        {
-            std::unique_lock lock(_queueMutex);
-
-            // empty our idle queue.
-            _idleQueue->dispose();
-
-            while (!_normalQueue.empty()) {
-                logAndIgnoreException(
-                    [=]() { // make a copy so that pop_front is not aborted if the
-                            // destructor fails.
-                        std::function<void()> item = _normalQueue.front();
-                        _normalQueue.pop_front();
-                    },
-                    "Error clearing MainDispatcher normal queue item during "
-                    "dispose. Ignoring.");
-            }
-
-            // for the timed queue the pending calls have iterators to the timed
-            // item. So we cannot clear the queue. Instead we have to invalidate
-            // the items.
-
-            for (std::function<void()> &item : _timedNormalQueue) {
-                logAndIgnoreException(
-                    [&]() {
-                        // make a copy so that pop_front is not aborted if thedestructor fails.
-                        std::function<void()> itemCopy = item;
-                        item = std::function<void()>();
-                    },
-                    "Error clearing MainDispatcher timed normal queue item "
-                    "during dispose. Ignoring.");
-            }
-
-            // for timers we also cannot remove the items. So do the same thing
-            // that we did for the normal timed items
-            for (std::function<bool()> &item : _timerFuncList->funcList) {
-                logAndIgnoreException(
-                    [&]() {
-                        // make a copy so that pop_front is not aborted if the destructor fails.
-                        std::function<bool()> itemCopy = item;
-                        item = std::function<bool()>();
-                    },
-                    "Error clearing MainDispatcher timed normal queue item "
-                    "during dispose. Ignoring.");
-            }
-        }
-
-        void MainDispatcher::_scheduleMainThreadCall(const std::function<void()> &func, Dispatcher::Duration delay)
-        {
-            // if delay is >0 then we also simply schedule an immediate
-            // call, because there is no performSelectorOnMainThread function
-            // that takes a delay parameter. So we first schedule the call
-            // without a delay and then from the main thread we reschedule with
-            // a delay (using performSelector:withObject:afterDelay, which must
-            // be called from the main thread).
-
-            BdnFkDispatchFuncWrapper_ *wrapper = [[BdnFkDispatchFuncWrapper_ alloc] init];
-            wrapper.func = func;
-            wrapper.delay = delay;
-
-            [wrapper performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:NO];
-        }
-
-        void MainDispatcher::enqueue(std::function<void()> func, Priority priority)
-        {
-            enqueueDelayed(Dispatcher::Duration::zero(), func, priority);
-        }
-
-        void MainDispatcher::enqueueDelayed(Dispatcher::Duration delay, std::function<void()> func, Priority priority)
-        {
-            if (priority == Priority::normal) {
-                std::shared_ptr<MainDispatcher> self(shared_from_this());
-
-                // we do not schedule the func call directly. Instead we add
-                // func to our own queue and schedule a call to our
-                // callNextQueued. That enables us to dipose all queued items
-                // when dipose() is called.
-
-                if (delay <= Dispatcher::Duration::zero()) {
-                    {
-                        std::unique_lock lock(_queueMutex);
-                        _normalQueue.push_back(func);
-                    }
-
-                    _scheduleMainThreadCall([self] { self->callNextNormalItem(); });
-                } else {
-                    std::list<std::function<void()>>::iterator it;
-                    {
-                        std::unique_lock lock(_queueMutex);
-                        _timedNormalQueue.push_back(func);
-                        it = _timedNormalQueue.end();
-                        --it;
-                    }
-
-                    _scheduleMainThreadCall([self, it] { self->callTimedItem(it); }, delay);
-                }
-            } else if (priority == Priority::idle) {
-                // we must only access the run loop from the main thread.
-                // Also, if the run loop is currently idle (=waiting) then
-                // we need to break that idle phase so that we will get
-                // a notification when the loop is idle next.
-
-                // Both of these can be solved by enqueuing the setup code with
-                // normal priority
-
-                std::shared_ptr<MainDispatcher> self(shared_from_this());
-
-                _scheduleMainThreadCall(
-                    [self, func] {
-                        self->_idleQueue->add(func);
-
-                        self->ensureIdleObserverInstalled();
-                    },
-
-                    delay);
-            } else {
-                throw std::invalid_argument("MainDispatcher::enqueueIn"
-                                            "called with invalid priority: " +
-                                            std::to_string((int)priority));
-            }
-        }
-
-        void MainDispatcher::callNextNormalItem()
-        {
-            std::function<void()> func;
-
-            {
-                std::unique_lock lock(_queueMutex);
-
-                if (_normalQueue.empty()) {
-                    return;
-                }
-
-                // make a copy so that exceptions in the destructor do not
-                // cause an invalid list state. Also because we need to hold the
-                // mutex when we access the queue.
-                func = _normalQueue.front();
-                _normalQueue.pop_front();
-            }
-
-            try {
-                func();
-            }
-            catch (std::bad_function_call &) {
-                // ignore. This means that the function is a weak method
-                // whose object has been deleted. This is treated like a no-op.
-            }
-        }
-
-        void MainDispatcher::callTimedItem(std::list<std::function<void()>>::iterator it)
-        {
-            std::function<void()> func;
-
-            {
-                std::unique_lock lock(_queueMutex);
-                func = *it;
-                _timedNormalQueue.erase(it);
-            }
-
-            try {
-                func();
-            }
-            catch (std::bad_function_call &) {
-                // ignore. This means that the function is a weak method
-                // whose object has been deleted. This is treated like a no-op.
-            }
-        }
-
-        void MainDispatcher::createTimer(Dispatcher::Duration interval, std::function<bool()> func)
-        {
-            if ([NSRunLoop mainRunLoop] == [NSRunLoop currentRunLoop]) {
-                std::list<std::function<bool()>>::iterator it;
-                {
-                    std::unique_lock lock(_queueMutex);
-                    _timerFuncList->funcList.push_back(func);
-                    it = _timerFuncList->funcList.end();
-                    --it;
-                }
-
-                BdnFkTimerFuncWrapper_ *wrapper = [[BdnFkTimerFuncWrapper_ alloc] init];
-                wrapper.timerFuncList = _timerFuncList;
-                wrapper.timerFuncIt = it;
-
-                double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
-
-                [NSTimer scheduledTimerWithTimeInterval:intervalInSeconds
-                                                 target:wrapper
-                                               selector:@selector(targetMethod:)
-                                               userInfo:nil
-                                                repeats:YES];
-            } else {
-                enqueue([=] { createTimer(interval, func); });
-            }
-        }
-
-        void MainDispatcher::ensureIdleObserverInstalled()
-        {
-            if (!_idleObserverInstalled) {
-                std::shared_ptr<IdleQueue> queue = _idleQueue;
-
-                id handler = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
-                  if (activity == kCFRunLoopBeforeWaiting) {
-                      queue->activateNext();
-                  }
-                };
-
-                _idleObserver = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, kCFRunLoopAllActivities, 1u,
-                                                                   0 /* order */, handler);
-                CFRunLoopAddObserver([NSRunLoop mainRunLoop].getCFRunLoop, _idleObserver, kCFRunLoopCommonModes);
-                CFRelease(_idleObserver);
-
-                _idleObserverInstalled = true;
-            }
-        }
-
-        void MainDispatcher::IdleQueue::activateNext()
-        {
-            // enqueue the next idle call in the normal loop.
-            // Afterwards, if nothing else is pending, we will be called again
-            // to enqueue the next one.
-
-            // Note that funcList can be empty if the queue was disposed
-            if (!_funcList.empty()) {
-                _scheduleMainThreadCall(_funcList.front());
-                _funcList.pop_front();
-            }
-        }
-
-        void MainDispatcher::IdleQueue::dispose()
-        {
-            while (!_funcList.empty()) {
-                logAndIgnoreException(
-                    [=]() { // make a copy so that pop_front is not aborted if the
-                            // destructor fails.
-                        std::function<void()> item = _funcList.front();
-                        _funcList.pop_front();
-                    },
-                    "Error clearing MainDispatcher::IdleQueue item during "
-                    "dispose. Ignoring.");
-            }
+        if (durationInNanoSeconds == 0) {
+            scheduleCall();
+        } else {
+            auto when = dispatch_time(DISPATCH_TIME_NOW, durationInNanoSeconds);
+            dispatch_after(when, dispatch_get_main_queue(), ^{
+              process();
+            });
         }
     }
+
+    void MainDispatcher::notifyWorker(DispatchQueue::LockType &lk) { scheduleCall(); }
+
+    void MainDispatcher::newTimed(DispatchQueue::LockType &lk) { scheduleCall(); }
+
+    void MainDispatcher::createTimerInternal(std::chrono::duration<double> interval, std::function<bool()> timer)
+    {
+        DispatchQueue::LockType lk(queueMutex());
+
+        auto intervalInNanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(interval);
+        _timers.emplace_back(std::make_unique<DispatchTimer>(shared_from_this(), timer, intervalInNanoseconds.count()));
+    }
+
+    void MainDispatcher::process()
+    {
+        DispatchQueue::LockType lk(queueMutex());
+        auto nextTimed = processQueue(lk);
+
+        if (nextTimed) {
+            scheduleCallAt(*nextTimed);
+        }
+    }
+
+    void MainDispatcher::timerFinished(DispatchTimer *timer)
+    {
+        auto it = std::find_if(_timers.begin(), _timers.end(), [timer](auto &p) { return p.get() == timer; });
+        if (it != _timers.end())
+            _timers.erase(it);
+    }
+
+    void MainDispatcher::dispose()
+    {
+        DispatchQueue::LockType lk(queueMutex());
+        emptyQueues(lk);
+        _timers.clear();
+    }
+
+    class DispatchTimer
+    {
+      public:
+        DispatchTimer(std::weak_ptr<MainDispatcher> dispatcher, std::function<bool()> timer,
+                      long long intervalInNanoseconds)
+            : _dispatcher(dispatcher), _timer(timer)
+        {
+            _source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+            dispatch_time_t intervalStart = dispatch_walltime(NULL, intervalInNanoseconds);
+
+            dispatch_source_set_timer(_source, intervalStart, (dispatch_time_t)intervalInNanoseconds,
+                                      10 * 1000 * 1000); // 10 ms leeway
+
+            dispatch_source_set_event_handler(_source, ^{
+              if (!timer()) {
+                  cancel();
+              }
+            });
+
+            dispatch_resume(_source);
+        }
+
+        ~DispatchTimer() { cancel(); }
+
+        void cancel()
+        {
+            if (_source) {
+                dispatch_source_cancel(_source);
+                _source = nullptr;
+            }
+            if (auto dispatcher = _dispatcher.lock()) {
+                dispatcher->timerFinished(this);
+            }
+        }
+
+      private:
+        dispatch_source_t _source = nullptr;
+        std::weak_ptr<MainDispatcher> _dispatcher;
+        std::function<bool()> _timer;
+    };
 }

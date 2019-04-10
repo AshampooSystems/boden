@@ -19,7 +19,7 @@ class AndroidStudioProjectGenerator(object):
         self.logger.debug("Android support directory: %s" %(self.android_support_dir))
 
     def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle:3.2.1'"
+        return "classpath 'com.android.tools.build:gradle:3.3.2'"
 
     def prepare_gradle(self):
         # the underlying commandline build system for android is gradle.

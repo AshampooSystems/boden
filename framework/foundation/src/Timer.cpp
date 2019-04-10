@@ -47,11 +47,11 @@ namespace bdn
         size_t _id;
     };
 
-    Timer::Timer(std::shared_ptr<Dispatcher> dispatcher)
-        : _dispatcher(std::move(dispatcher)), _impl(std::make_shared<TimerImpl>(this))
+    Timer::Timer(std::shared_ptr<DispatchQueue> dispatchQueue)
+        : _dispatchQueue(std::move(dispatchQueue)), _impl(std::make_shared<TimerImpl>(this))
     {
-        if (!_dispatcher) {
-            _dispatcher = App()->dispatcher();
+        if (!_dispatchQueue) {
+            _dispatchQueue = App()->dispatchQueue();
         }
 
         onTriggered() += [=]() {
@@ -99,11 +99,11 @@ namespace bdn
         if (!_isRunning) {
             if (!repeat) {
                 TimerCallback tc(_impl, ++_id);
-                _dispatcher->enqueueDelayed(std::chrono::duration_cast<Dispatcher::Duration>(interval.get()),
-                                            [tc]() { tc(); });
+                _dispatchQueue->dispatchAsyncDelayed(
+                    std::chrono::duration_cast<std::chrono::milliseconds>(interval.get()), [tc]() { tc(); });
             } else {
-                _dispatcher->createTimer(std::chrono::duration_cast<Dispatcher::Duration>(interval.get()),
-                                         TimerCallback{_impl, ++_id});
+                _dispatchQueue->createTimer(std::chrono::duration_cast<std::chrono::milliseconds>(interval.get()),
+                                            TimerCallback{_impl, ++_id});
             }
 
             _isRunning = true;

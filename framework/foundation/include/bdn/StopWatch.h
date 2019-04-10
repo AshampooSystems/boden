@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/Dispatcher.h>
 #include <chrono>
 
 namespace bdn
@@ -15,8 +14,10 @@ namespace bdn
        calling start is optional. However, you can re-start it by calling
        start() again at some later point in time.
     */
-    class StopWatch : public Base
+    class StopWatch
     {
+        using Clock = std::chrono::steady_clock;
+
       public:
         StopWatch() { start(); }
 
@@ -24,15 +25,15 @@ namespace bdn
 
             If the stopwatch is already running then this resets the start time
            to the current time.*/
-        void start() { _startTime = Dispatcher::Clock::now(); }
+        void start() { _startTime = Clock::now(); }
 
         /** Returns the number of seconds that have elapsed since the last
            start() call.
             getMillis does not stop the watch and it also does not reset the
            saved start time.*/
-        Dispatcher::Duration elapsed() { return Dispatcher::Clock::now() - _startTime; }
+        std::chrono::duration<double> elapsed() { return Clock::now() - _startTime; }
 
       protected:
-        Dispatcher::TimePoint _startTime;
+        Clock::time_point _startTime;
     };
 }

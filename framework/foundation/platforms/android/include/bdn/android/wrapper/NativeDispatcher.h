@@ -20,7 +20,7 @@ namespace bdn::android::wrapper
         JavaMethod<void()> dispose{this, "dispose"};
 
       public:
-        void enqueue(Dispatcher::Duration delay, const std::function<void()> &func, bool idlePriority)
+        void enqueue(double delay, const std::function<void()> &func, bool idlePriority)
         {
             bdn::java::wrapper::NativeOnceRunnable runnable([func]() {
                 try {
@@ -32,15 +32,14 @@ namespace bdn::android::wrapper
                 }
             });
 
-            double delayInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(delay).count();
-            return native_enqueue(delayInSeconds, bdn::java::wrapper::NativeRunnable(runnable.getRef_()), idlePriority);
+            return native_enqueue(delay, bdn::java::wrapper::NativeRunnable(runnable.getRef_()), idlePriority);
         }
 
-        void createTimer(Dispatcher::Duration interval, const std::shared_ptr<Base> &timerData)
+        void createTimer(std::chrono::duration<double> interval, const std::shared_ptr<Base> &timerData)
         {
             bdn::java::wrapper::NativeStrongPointer nativeTimerData(timerData);
 
-            double intervalInSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(interval).count();
+            double intervalInSeconds = interval.count();
             return native_createTimer(intervalInSeconds, nativeTimerData);
         }
     };

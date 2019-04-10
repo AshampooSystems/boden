@@ -93,7 +93,7 @@ namespace bdn::mac
                                          << fk::nsStringToString([err localizedDescription]) << ")";
                          } else {
 
-                             App()->dispatcher()->enqueue([=]() {
+                             App()->dispatchQueue()->dispatchAsync([=]() {
                                  ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithData:nsData];
                                  this->scheduleLayout();
                                  this->markDirty();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Application.h>
-#include <bdn/GenericDispatcher.h>
 
 #include <utility>
 
@@ -30,7 +29,7 @@ namespace bdn
       public:
         GenericApplication(Application::ApplicationControllerFactory appControllerCreator, int argCount, char *args[],
                            bool commandLineApp)
-            : Application(std::move(appControllerCreator), std::make_shared<GenericDispatcher>()),
+            : Application(std::move(appControllerCreator), std::make_shared<DispatchQueue>(true)),
               _commandLineApp(commandLineApp)
         {
             makeLaunchInfo(argCount, args);
@@ -42,7 +41,7 @@ namespace bdn
            application is a commandline app or not (see isCommandLineApp() for
                 more information)*/
         GenericApplication(Application::ApplicationControllerFactory appControllerCreator, bool commandLineApp)
-            : Application(std::move(appControllerCreator), std::make_shared<GenericDispatcher>()),
+            : Application(std::move(appControllerCreator), std::make_shared<DispatchQueue>()),
               _commandLineApp(commandLineApp)
         {}
 
@@ -78,27 +77,9 @@ namespace bdn
             return _exitRequested;
         }
 
-        void mainLoop()
-        {
-            // commandline apps have no user interface events to handle. So our
-            // main loop only needs to handle our own scheduled events.
+        void mainLoop() { dispatchQueue()->enter(); }
 
-            // just run the app controller iterations until we need to close.
-
-            while (!shouldExit()) {
-                if (!genericDispatcher()->executeNext()) {
-                    // just wait for the next work item.
-                    genericDispatcher()->waitForNext(10s);
-                }
-            }
-        }
-
-        std::shared_ptr<GenericDispatcher> genericDispatcher()
-        {
-            return std::dynamic_pointer_cast<GenericDispatcher>(dispatcher());
-        }
-
-        void disposeMainDispatcher() override { genericDispatcher()->dispose(); }
+        void disposeMainDispatcher() override {}
 
         bool _commandLineApp;
 
