@@ -3,7 +3,7 @@ input::placeholder {
 }
 
 .md-header.boden-hero {
-	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
+	background-color: rgb(27,27,27);
 	color: white;
 }
 
@@ -32,7 +32,7 @@ div.boden-call-to-action-bottom {
 }
 
 button.boden-call-to-action {
-	background-color: rgb(27,27,27);
+	background: transparent;
 	color: rgb(255,255,255);
 	border: 2px solid white;
 	/*background-color: rgb(112, 170, 68);*/
@@ -70,6 +70,7 @@ button.boden-call-to-action.secondary:hover {
 .md-grid.boden-hero {
 	color: white;
 	background-color: rgb(27,27,27);
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
 	margin: 0;
 	max-width: 100%;
 	text-align: center;
