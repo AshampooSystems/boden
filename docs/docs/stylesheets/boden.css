@@ -7,6 +7,10 @@ input::placeholder {
 	color: white;
 }
 
+.md-tabs.boden-hero {
+	border: 0;
+}
+
 .boden-logo {
 	margin-top: 3rem;
 	margin-bottom: 15px;
