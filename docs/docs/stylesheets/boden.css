@@ -3,12 +3,12 @@ input::placeholder {
 }
 
 .md-header.boden-hero {
-	background-color: rgb(27,27,27);
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
 	color: white;
 }
 
 .boden-logo {
-	margin-top: 20px;
+	margin-top: 3rem;
 	margin-bottom: 15px;
 	width: 125px;
 }
@@ -63,7 +63,7 @@ button.boden-call-to-action.secondary:hover {
 }
 
 .md-tabs.boden-hero {
-	background-color: rgb(27,27,27);
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
 	color: white;
 }
 
@@ -142,8 +142,9 @@ button.boden-call-to-action.secondary:hover {
 	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 	font-size: 1.4rem !important;
 	/*background-color: #fff !important;*/
-	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
-	color: rgb(27,27,27) !important;
+	/*background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));*/
+	background-color: rgb(27,27,27) !important;
+	/*color: rgb(27,27,27) !important;*/
 }
 
 .cc-dismiss {
