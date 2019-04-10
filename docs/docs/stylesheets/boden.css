@@ -9,12 +9,21 @@ input::placeholder {
 
 .boden-logo {
 	margin-top: 20px;
-	width: 150px;
+	margin-bottom: 15px;
+	width: 175px;
 }
 
 @media only screen and (max-width: 76.1875em) {
 	.boden-logo {
-		width: 75px;
+		margin-top: 30px;
+		width: 125px;
+	}
+}
+
+@media only screen and (max-width: 40em) {
+	.boden-logo {
+		margin-top: 30px;
+		width: 100px;
 	}
 }
 
@@ -24,12 +33,12 @@ div.boden-call-to-action-bottom {
 
 button.boden-call-to-action {
 	color: white;
-	background-color: rgb(109, 190, 47);
+	background-color: rgb(112, 170, 68);
 	/*background-image: linear-gradient(to right, rgb(32, 179, 248), rgb(0, 97, 122));*/
-	padding: 10px 20px 10px 20px;
+	padding: 10px 30px 10px 30px;
 	border-radius: 5px;
 	font-size: 1.6rem;
-	margin-bottom: 3.6rem;
+	margin-bottom: 4.6rem;
 	cursor: pointer;
 }
 
@@ -55,6 +64,8 @@ button.boden-call-to-action:hover {
 	margin: 0;
 	padding-top: 1.6rem;
 	padding-bottom: 3.6rem;
+	padding-right: 1rem;
+	padding-left: 1rem;
 }
 
 @media only screen and (max-width: 76.1875em) {
