@@ -8,7 +8,7 @@ namespace bdn
       public:
         TimerImpl(Timer *timer) : _timer(timer) {}
 
-        bool notify(int id)
+        bool notify(size_t id)
         {
             std::unique_lock<std::mutex> lk(_mutex);
             if (_timer && _timer->currentId() == id) {

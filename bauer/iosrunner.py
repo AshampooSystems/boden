@@ -23,6 +23,7 @@ class IOSRunner:
         self.iosInfo = IOSInfo()
         self.ios_simulator_device_type = None
         self.ios_simulator_os          = None
+        self.ios_device_id             = None
 
     def run(self, configuration, args):
 
@@ -35,9 +36,11 @@ class IOSRunner:
     def runExecutable(self, artifactToRun, args):
         self.ios_simulator_device_type = self.iosInfo.getSelectedDeviceType(args)
         self.ios_simulator_os = self.iosInfo.getSelectedOS(args)
+        self.ios_device_id = args.ios_device_id
 
         self.logger.debug("IOS Device type:  %s", self.ios_simulator_device_type)
         self.logger.debug("IOS Simulator OS: %s", self.ios_simulator_os)
+        self.logger.debug("IOS Device ID: %s", self.ios_device_id)
 
         self.logger.debug("Executable: %s", artifactToRun)
 
@@ -56,18 +59,20 @@ class IOSRunner:
 
         bundleId = self.getBundleIdentifier(bundlePath)
         self.logger.debug("Bundle Identifier: %s", bundleId)
-        
+
         simulatorId = None
         try:
-            simulatorId = self.createSimulatorDevice()
-
-            self.logger.debug("Simulator Id: %s", simulatorId)
-
-            self.bootSimulator(simulatorId)
+            if self.ios_device_id != None:
+                simulatorId = self.ios_device_id
+            else:
+                simulatorId = self.createSimulatorDevice()
+                self.logger.debug("Simulator Id: %s", simulatorId)
+                self.bootSimulator(simulatorId)
+    
             self.installApp(simulatorId, bundlePath)
             processId = self.startApp(simulatorId, bundleId, args)
         finally:
-            if simulatorId:
+            if simulatorId and not self.ios_device_id:
                 self.shutdownSimulator(simulatorId)
 
         return 0

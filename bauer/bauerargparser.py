@@ -100,6 +100,7 @@ class BauerArgParser():
     def addIOSSimulatorArguments(self, parser):
         parser.add_argument("--ios-device-type", action=EnvDefault, help="IOS Device type")
         parser.add_argument("--ios-simulator-os", action=EnvDefault, help="IOS Simulator SDK version")
+        parser.add_argument("--ios-device-id", action=EnvDefault, help="IOS Simulator Device id (overrides --ios-device-type and --ios-simulator-os")
 
     def addAndroidSimulatorArguments(self, parser):
         parser.add_argument("--run-android-fetch-output-from", action=EnvDefault, help="?" );
