@@ -58,4 +58,33 @@ namespace bdn
         trim(s);
         return s;
     }
+
+    template <> std::string duration_to_string(std::chrono::nanoseconds duration)
+    {
+        return std::to_string(duration.count()) + "ns";
+    }
+    template <> std::string duration_to_string(std::chrono::microseconds duration)
+    {
+        return std::to_string(duration.count()) + "\xC2\xB5s";
+    }
+    template <> std::string duration_to_string(std::chrono::milliseconds duration)
+    {
+        return std::to_string(duration.count()) + "ms";
+    }
+    template <> std::string duration_to_string(std::chrono::seconds duration)
+    {
+        return std::to_string(duration.count()) + "s";
+    }
+    template <> std::string duration_to_string(std::chrono::minutes duration)
+    {
+        return std::to_string(duration.count()) + "min";
+    }
+    template <> std::string duration_to_string(std::chrono::hours duration)
+    {
+        return std::to_string(duration.count()) + "h";
+    }
+    template <> std::string duration_to_string(std::chrono::duration<long double, std::ratio<1>> duration)
+    {
+        return std::to_string(duration.count()) + "s";
+    }
 }

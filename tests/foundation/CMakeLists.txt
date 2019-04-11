@@ -12,6 +12,7 @@ add_universal_executable(testFoundation TIDY SOURCES ../test_main.cpp
     testOfferedValue.cpp
     testDispatchQueue.cpp
     testTimer.cpp
+    testString.cpp
     testURI.cpp
     ${property_tests}
     TIDY)

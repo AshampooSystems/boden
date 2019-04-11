@@ -31,8 +31,8 @@ namespace bdn
         }
         virtual ~DispatchQueue()
         {
+            cancel();
             if (_thread) {
-                cancel();
                 _thread->join();
                 _thread.reset();
             }
@@ -62,7 +62,10 @@ namespace bdn
             dispatchAsync(std::ref(task), lk);
 
             lk.unlock();
-            future.wait();
+            while (!_cancelled) {
+                if (future.wait_for(std::chrono::milliseconds(10)) == std::future_status::ready)
+                    break;
+            }
         }
 
         template <class _Rep, class _Period>
@@ -180,6 +183,10 @@ namespace bdn
 
             while (!_queue.empty()) {
                 executeNext(lk);
+                if (nextTimed) {
+                    if (Clock::now() >= *nextTimed)
+                        break;
+                }
             }
 
             return nextTimed;

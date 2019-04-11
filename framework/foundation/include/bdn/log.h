@@ -29,9 +29,22 @@ namespace bdn
 
     class logstream : public std::ostringstream
     {
+        static std::mutex _globalMutex;
+        bool locked = false;
+
       public:
-        logstream() = default;
-        ~logstream() override { logInfo(str()); }
+        logstream(bool lock = false)
+        {
+            locked = lock;
+            if (lock)
+                _globalMutex.lock();
+        }
+        ~logstream() override
+        {
+            logInfo(str());
+            if (locked)
+                _globalMutex.unlock();
+        }
     };
 
     inline void logAndIgnoreException(const std::function<void()> &function, const String &errorContextMessage)

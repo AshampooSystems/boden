@@ -36,12 +36,12 @@ namespace bdn
                     std::cerr << "Debug: ";
                     break;
                 case Severity::None:
-                    std::cout << message << std::endl;
+                    std::cout << message << "\n" << std::flush;
                     break;
                 }
 
                 if (severity != Severity::None) {
-                    std::cerr << message << std::endl;
+                    std::cerr << message << "\n" << std::flush;
                 }
             }
             catch (...) {

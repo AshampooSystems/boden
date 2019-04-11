@@ -7,6 +7,8 @@
 
 namespace bdn
 {
+    std::mutex logstream::_globalMutex;
+
     void logError(const std::exception &e, const String &additionalInfo) noexcept
     {
         try {
