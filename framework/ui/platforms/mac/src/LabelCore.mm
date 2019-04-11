@@ -7,15 +7,16 @@ namespace bdn::detail
 
 namespace bdn::mac
 {
-    BdnMacTextView_ *LabelCore::_createNSTextView()
+    NSTextView *createNSTextView()
     {
-        BdnMacTextView_ *view = [[BdnMacTextView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        NSTextView *view = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
 
         view.editable = static_cast<BOOL>(false);
         view.selectable = static_cast<BOOL>(false);
         view.richText = static_cast<BOOL>(false);
 
         view.verticallyResizable = static_cast<BOOL>(false);
+        view.textContainer.lineFragmentPadding = 0.0;
 
         // do not draw the background by default
         view.drawsBackground = NO;
@@ -24,9 +25,9 @@ namespace bdn::mac
     }
 
     LabelCore::LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, _createNSTextView())
+        : bdn::mac::ViewCore(viewCoreFactory, createNSTextView())
     {
-        _nsTextView = (BdnMacTextView_ *)nsView();
+        _nsTextView = (NSTextView *)nsView();
 
         text.onChange() += [=](auto va) {
             NSString *macText = fk::stringToNSString(va->get());
@@ -54,13 +55,9 @@ namespace bdn::mac
                          context:nil];
 
         Size insetSize = macSizeToSize(_nsTextView.textContainerInset);
-        insetSize.applyMinimum({0, 0});
         insetSize += insetSize;
 
         Size result = macSizeToSize(r.size) + insetSize;
-
-        // Its magic !
-        result.width += 10;
 
         return result;
     }
