@@ -51,6 +51,7 @@ namespace bdn
         using value_accessor_t_ptr = typename Backing<ValType>::value_accessor_t_ptr;
 
         Property() : _backing(std::make_shared<internal_backing_t>()) {}
+        Property(Property &other) : _backing(other.backing()) {}
         Property(const Property &) = delete;
         ~Property() override = default;
 
@@ -90,6 +91,8 @@ namespace bdn
         const auto backing() const { return _backing; }
 
       public:
+        void bind(const Property<ValType> &sourceProperty) { _backing->bind(sourceProperty.backing()); }
+
         void bind(Property<ValType> &sourceProperty, BindMode bindMode = BindMode::bidirectional)
         {
             if (Compare<ValType>::is_faked && bindMode == BindMode::bidirectional) {

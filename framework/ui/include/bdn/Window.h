@@ -31,8 +31,11 @@ namespace bdn
       public:
         Window(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
+      private:
+        Property<Rect> internalContentGeometry;
+
       public:
-        Property<Rect> contentGeometry;
+        const Property<Rect> &contentGeometry = internalContentGeometry;
         Property<String> title;
         Property<std::shared_ptr<View>> content;
 

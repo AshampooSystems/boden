@@ -12,6 +12,36 @@ namespace bdn
         int changeCount = 0;
     };
 
+    TEST(Property, Const)
+    {
+        Property<String> nonConstProp;
+        const Property<String> cProp(nonConstProp.backing());
+
+        nonConstProp = "Hello World"s;
+        EXPECT_EQ(nonConstProp.get(), "Hello World"s);
+        EXPECT_EQ(cProp.get(), "Hello World"s);
+    }
+
+    TEST(Property, ConstRef)
+    {
+        Property<String> nonConstProp;
+        const Property<String> cProp(nonConstProp);
+
+        nonConstProp = "Hello World"s;
+        EXPECT_EQ(nonConstProp.get(), "Hello World"s);
+        EXPECT_EQ(cProp.get(), "Hello World"s);
+    }
+
+    TEST(Property, ConstRefRef)
+    {
+        Property<String> nonConstProp;
+        const Property<String> &cProp = nonConstProp;
+
+        nonConstProp = "Hello World"s;
+        EXPECT_EQ(nonConstProp.get(), "Hello World"s);
+        EXPECT_EQ(cProp.get(), "Hello World"s);
+    }
+
     TEST(Property, String)
     {
         Property<String> p1("Hallo Welt"s);
