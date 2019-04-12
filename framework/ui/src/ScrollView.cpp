@@ -14,7 +14,7 @@ namespace bdn
         : View(std::move(viewCoreFactory)), verticalScrollingEnabled(true)
     {
         detail::VIEW_CORE_REGISTER(ScrollView, View::viewCoreFactory());
-        content.onChange() += [=](auto va) { _content.update(shared_from_this(), va->get()); };
+        contentView.onChange() += [=](auto va) { _contentView.update(shared_from_this(), va->get()); };
     }
 
     void ScrollView::bindViewCore()
@@ -22,7 +22,7 @@ namespace bdn
         View::bindViewCore();
 
         auto scrollCore = core<ScrollView::Core>();
-        scrollCore->content.bind(content);
+        scrollCore->contentView.bind(contentView);
         scrollCore->horizontalScrollingEnabled.bind(horizontalScrollingEnabled);
         scrollCore->verticalScrollingEnabled.bind(verticalScrollingEnabled);
     }
@@ -39,8 +39,8 @@ namespace bdn
     {
         Application::assertInMainThread();
 
-        if (content.get() != nullptr) {
-            return {content.get()};
+        if (contentView.get() != nullptr) {
+            return {contentView.get()};
         }
 
         return {};
@@ -50,8 +50,8 @@ namespace bdn
     {
         Application::assertInMainThread();
 
-        if (childView == content.get()) {
-            content = nullptr;
+        if (childView == contentView.get()) {
+            contentView = nullptr;
         }
     }
 }

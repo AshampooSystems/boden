@@ -72,7 +72,7 @@ class MainViewController : public Base
 
         firstPage->addChildView(btn3);
 
-        _window->content = container;
+        _window->contentView = container;
 
         _navigationView->pushView(firstPage, "NavigationView Demo");
 

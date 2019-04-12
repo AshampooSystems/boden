@@ -248,7 +248,7 @@ class MainViewController : public Base
             navigationView->pushView(post->view(), "Details");
         };
 
-        _window->content = navigationView;
+        _window->contentView = navigationView;
         _window->visible = true;
     }
 

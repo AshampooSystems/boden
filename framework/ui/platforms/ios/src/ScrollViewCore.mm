@@ -60,7 +60,7 @@ namespace bdn::ios
         verticalScrollingEnabled.onChange() +=
             [=](auto va) { _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled; };
 
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
     }
 
     void ScrollViewCore::updateContent(const std::shared_ptr<View> &content)

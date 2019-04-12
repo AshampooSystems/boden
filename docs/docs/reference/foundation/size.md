@@ -1,6 +1,6 @@
 # Size
 
-Width / height container
+Represents a two-dimensional size composed of width and height.
 
 ## Declaration
 
@@ -8,32 +8,56 @@ Width / height container
 class Size
 ```
 
-## Member 
+## Public Member Variables
 
 * **double width = 0;**
+
+	A `double` representing the width of the `Size` object. Defaults to `0`.
+
 * **double height = 0;**
 
-## Helper
+	A `double` representing the height of the `Size` object. Defaults to `0`.
 
-* **static constexpr double componentNone();**
-* **static constexpr Size none()**
+## Creating a Size Object
 
-## Constructor
+* **constexpr Size()**
+
+	Constructs a `Size` object with `width` and `height` initialized to `0`.
 
 * **constexpr Size(double width, double height)**
 
-## Operators
+	Constructs a `Size` object with the given `width` and `height`.
 
-* **Size operator-(const Margin &margin)**
-* **Size &operator-=(const Margin &margin)**
-* **Size operator+(const Margin &margin)**
-* **Size &operator+=(const Margin &margin)**
-* **Size operator+(const Size &o) const**
+## Representing Non-Sizes
+
+* **static constexpr double componentNone();**
+
+	Represents a size component set to a non-value. Non-values are represented as `std::numeric_limits<double>::infinity()`.
+
+* **static constexpr Size none()**
+
+	Returns a new `Size` object with `width` and `height` both initialized to `componentNone()`.
+
+## Calculating with Sizes
+
+* **Size operator+(const Size &o)**
+
+	Adds the right hand size value to the left hand size value by performing component-wise addition.
+
 * **Size &operator+=(const Size &o)**
+
+	Adds the given right hand size value to the left hand size value by performing component-wise addition and stores the result in the left hand size value.
+
 * **Size operator-(const Size &o)**
+
+	Subtracts the right hand size value from the left hand size value by performing component-wise subtraction.
+
 * **Size &operator-=(const Size &o)**
 
-## Utility
+	Subtracts the given right hand size value from the left hand size value by performing component-wise addition and stores the result in the left hand size value.
 
-* **void applyMinimum(const Size &minSize)**
-* **void applyMaximum(const Size &maxSize)**
+## Managing Minima and Maxima
+
+* **void applyMinimum(const Size &minSize)** <span style="color: red">Deprecated</span>
+
+* **void applyMaximum(const Size &maxSize)** <span style="color: red">Deprecated</span>

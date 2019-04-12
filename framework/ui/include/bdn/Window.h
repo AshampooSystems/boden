@@ -37,7 +37,7 @@ namespace bdn
       public:
         const Property<Rect> &contentGeometry = internalContentGeometry;
         Property<String> title;
-        Property<std::shared_ptr<View>> content;
+        Property<std::shared_ptr<View>> contentView;
 
         Property<Orientation> allowedOrientations;
         Property<Orientation> currentOrientation;
@@ -52,7 +52,7 @@ namespace bdn
         void bindViewCore() override;
 
       private:
-        SingleChildHelper _content;
+        SingleChildHelper _contentView;
 
       public:
         class Core
@@ -61,7 +61,7 @@ namespace bdn
             using Orientation = Window::Orientation;
 
           public:
-            Property<std::shared_ptr<View>> content;
+            Property<std::shared_ptr<View>> contentView;
             Property<Rect> contentGeometry;
             Property<String> title;
 

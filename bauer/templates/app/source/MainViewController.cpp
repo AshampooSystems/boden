@@ -13,7 +13,7 @@ MainViewController::MainViewController()
     std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
     button->label = "Hello World";
 
-    _window->content = button;
+    _window->contentView = button;
 
     _window->visible = true;
 }

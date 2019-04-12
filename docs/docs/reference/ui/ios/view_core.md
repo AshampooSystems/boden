@@ -1,11 +1,13 @@
-# IOS ViewCore
+# ios::ViewCore
 
-Base class for IOS ViewCore
+Base class for iOS view cores.
 
 ## Declaration
 
 ```c++
-class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
+namespace bdn::ios {
+	class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
+}
 ```
 
 ## Construction

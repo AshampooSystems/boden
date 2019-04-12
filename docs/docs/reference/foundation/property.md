@@ -8,7 +8,7 @@ Represents a property of a class.
 Properties provide a simple means for accessing, manipulating and observing arbitrary value types such as int or String via the ValType
 template parameter. You may observe value changes using the onChange() method or bind two or more properties using the bind() method.
 
-See also: [Property Guide](../../../guides/foundation/properties.md)
+See also: [Property Guide](../../guides/foundation/properties.md)
 
 ## Declaration
 
@@ -43,7 +43,7 @@ class Property : virtual public IValueAccessor<ValType>
 
 	Constructs a Property instance with the given Streaming object
 
-* **template <class U> Property(const Transform<ValType, U> &transform)**
+* **template <class U\> Property(const Transform<ValType, U\> &transform)**
 
 	Constructs a Property instance with the given Transform object
 
@@ -92,13 +92,11 @@ class Property : virtual public IValueAccessor<ValType>
 
 	When `bindMode` is `BindMode::bidirectional` it also add the inverse notification to the `sourceProperty`
 
-	If [Compare<ValType\>::is_faked](compare.md) is true a std::logic_error is thrown if the user tries to create a bidirectional binding.
-
 ## Notification
 
 * **auto &onChange() const**
 	
-	Returns a [Notifier](../notifier.md) thats called when the property value changes.
+	Returns a [Notifier](notifier.md) thats called when the property value changes.
 
 ## Operators
 

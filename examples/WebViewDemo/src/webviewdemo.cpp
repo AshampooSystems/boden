@@ -56,7 +56,7 @@ class MainViewController : public Base
 
         reloadButton->onClick() += [=](auto) { webView->loadURL(urlInput->text); };
 
-        _window->content = mainContainer;
+        _window->contentView = mainContainer;
         _window->visible = true;
     }
 

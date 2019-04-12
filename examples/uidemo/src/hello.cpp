@@ -16,9 +16,12 @@ class MainViewController : public Base
         _window->geometry = Rect{0, 0, 1024, 768};
         _window->setLayout(std::make_shared<yogalayout::Layout>());
 
-        _window->content = createUiDemoPage(_window);
+        _window->contentView = createUiDemoPage(_window);
         _window->visible = true;
     }
+
+    Property<int> writeable;
+    const Property<int> &readonly = writeable;
 
   protected:
     std::shared_ptr<Window> _window;

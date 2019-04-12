@@ -3,7 +3,9 @@ source: ApplicationController.h
 
 # ApplicationController
 
-Base class for your ApplicationController.
+A base class for managing the lifecycle of your Boden-based application.
+
+Inherit from this class to create an application controller for your application.
 
 ## Declaration
 

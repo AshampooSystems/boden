@@ -289,4 +289,4 @@ Person person2 = person; // OK: copy constructor of name
 
 ## Reference
 
-[Property reference](../../reference/foundation/property/property.md)
+[Property reference](../../reference/foundation/property.md)

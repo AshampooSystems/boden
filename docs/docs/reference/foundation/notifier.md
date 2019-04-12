@@ -3,7 +3,7 @@ source: Notifier.h
 
 # Notifier
 
-A container that holds std::function<...\> objects that can be called using the *notify(...)* function.
+Represents a signal used to notify observers of events and value changes.
 
 ## Declaration
 

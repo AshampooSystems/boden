@@ -1,9 +1,9 @@
 path: tree/master/framework/foundation/include/bdn/property
 source: Streaming.h
 
-# Streaming Backing
+# Streaming (Property)
 
-The streaming backing allows you to create a (String) property that chains the values of multiple Properties and fixed values together
+Allows you to create a [String](string.md) property that chains multiple properties and values together.
 
 ## Declaration
 

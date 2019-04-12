@@ -1,9 +1,9 @@
 path: tree/master/framework/foundation/include/bdn/property
 source: Transform.h
 
-# Transform Backing
+# Transform (Property)
 
-The transform backing allows you to create a property that represents a custom transformation from another property.
+Allows you to create a [Property](property.md) that represents a custom transformation from another property's value.
 
 ## Declaration
 

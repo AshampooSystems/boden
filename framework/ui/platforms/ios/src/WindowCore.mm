@@ -229,7 +229,7 @@ namespace bdn::ios
             updateContentGeometry();
         };
 
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
 
         allowedOrientations.onChange() += [=](auto va) { [this->_rootViewController changeOrientation]; };
 

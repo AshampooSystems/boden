@@ -19,7 +19,7 @@ namespace bdn::android
         : ViewCore(viewCoreFactory, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
           _jContentParent(_jNativeScrollView.getContentParent())
     {
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
     }
 
     void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)
@@ -189,8 +189,8 @@ namespace bdn::android
 
     void ScrollViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
-        if (content.get()) {
-            function(content->viewCore());
+        if (contentView.get()) {
+            function(contentView->viewCore());
         }
     }
 
@@ -199,7 +199,7 @@ namespace bdn::android
         _childGeometry.reset();
         _jContentParent.removeAllViews();
 
-        if (auto childCore = content->core<android::ViewCore>()) {
+        if (auto childCore = contentView->core<android::ViewCore>()) {
             _jContentParent.addView(childCore->getJView());
             _childGeometry = std::make_unique<Property<Rect>>();
             _childGeometry->bind(childCore->geometry, BindMode::unidirectional);

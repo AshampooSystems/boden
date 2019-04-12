@@ -76,7 +76,7 @@ namespace bdn::android
 
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
 
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
 
         allowedOrientations.onChange() += [=](auto va) {
             wrapper::Activity activity(getJView().getContext().getRef_());
@@ -317,8 +317,8 @@ namespace bdn::android
 
     void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
     {
-        if (content.get()) {
-            function(content->viewCore());
+        if (contentView.get()) {
+            function(contentView->viewCore());
         }
     }
 

@@ -27,8 +27,7 @@ class View : public Base
 
 * **Property<bool\> isLayoutRoot = false**
 
-	If true, this views geometry will not be changed by the layouting system. 
-	Children will still be layouted, as if this view is the root in the layout hierarchy.
+	Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layouting system. Children are not affected by this setting and will still be layouted. Defaults to `false`.
 
 ## Layout
 
@@ -56,7 +55,7 @@ class View : public Base
 
 * **std::shared_ptr<ViewCore\> viewCore() const**
 
-	Returns the view's [`ViewCore`](cores/view_core.md).
+	Returns the view's [`ViewCore`](view_core.md).
 
 * **sstd::shared_ptr<ViewCoreFactory\> viewCoreFactory()**
 

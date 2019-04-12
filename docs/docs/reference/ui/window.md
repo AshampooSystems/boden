@@ -3,13 +3,7 @@ source: Window.h
 
 # Window
 
-A Window
-
-> Note: On Mac OSX: A real window
-
-> Note: On IOS: There can be only one!
-
-> Note: On Android: There can be only one!
+Represents a native window. On iOS and Android there can be only a single `Window` instance at a time currently.
 
 ## Declaration
 
@@ -28,7 +22,7 @@ window->title = "My Awesome App";
 
 ## Properties
 
-* **Property<Rect\> contentGeometry**
+* **const Property<Rect\> contentGeometry**
 
 	*(Read-only)* The "safe" area that the content view will occupy. 
 
@@ -38,7 +32,7 @@ window->title = "My Awesome App";
 
 	On Android this will be reflected in the Activities Toolbar. 
 
-* **Property<std::shared_ptr<View\>\> content**
+* **Property<std::shared_ptr<View\>\> contentView**
 
 	The content view of the window
 

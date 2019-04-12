@@ -3,9 +3,9 @@ source: Application.h
 
 # Application
 
-Represents the Application. Use an [ApplicationController](application_controller.md) to setup your application.
+Represents the Application. Inherit from [ApplicationController](application_controller.md) to set up your application.
 
-The entry point is defined by the `BDN_APP_INIT` macro. See [ApplicationController](application_controller.md) for an example
+The application's entry point is defined by the `BDN_APP_INIT` macro. See [ApplicationController](application_controller.md) for an example.
 
 ## Declaration
 

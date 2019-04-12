@@ -146,7 +146,7 @@ namespace bdn::ios
 ```
 
 !!! note ViewCores
-	For more information about the intricacies of implementing ViewCores please see [ViewCore](../../reference/ui/cores/view_core.md) and [IOS ViewCore](../../reference/ui/cores/ios/view_core.md)
+	For more information about the intricacies of implementing ViewCores please see [ViewCore](../../reference/ui/view_core.md) and [IOS ViewCore](../../reference/ui/ios/view_core.md)
 
 ## Connecting the ViewCore to the View
 
@@ -199,10 +199,17 @@ namespace bdn::detail
 {
 	VIEW_CORE_REGISTRY_IMPLEMENTATION(ExampleButtonView)
 }
+
+ExampleButtonView::ExampleButtonView(
+	std::shared_ptr<ViewCoreFactory> viewCoreFactory)
+ : View(viewCoreFactory)
+{
+	bdn::detail::VIEW_CORE_REGISTER(ExampleButtonView, View::viewCoreFactory());
+}
 ```
 
 ??? note "ExampleButtonView.cpp"
-	```c++ hl_lines="5 6 7 8"
+	```c++ hl_lines="5 6 7 8 14"
 	#include <bdn/ExampleButtonView.h>
 
 	namespace bdn 
@@ -216,6 +223,7 @@ namespace bdn::detail
 			std::shared_ptr<ViewCoreFactory> viewCoreFactory)
 		 : View(viewCoreFactory)
 		{
+			bdn::detail::VIEW_CORE_REGISTER(ExampleButtonView, View::viewCoreFactory());
 		} 
 	}
 	```
@@ -276,7 +284,7 @@ namespace bdn::detail
 
 ## Adding Properties
 
-For a simple property of a View boden uses the class [Property<T\>](../../reference/foundation/property/property.md).
+For a simple property of a View boden uses the class [Property<T\>](../../reference/foundation/property.md).
 
 In this example we add a "label" property to allow the user to change the text displayed on the Button.
 
@@ -368,7 +376,7 @@ void ExampleButtonView::bindViewCore()
 ```
 
 ??? note "ExampleButtonView.cpp"
-	```c++ hl_lines="16 17 18 19 20 21"
+	```c++ hl_lines="17 18 19 20 21 22"
 	#include <bdn/ExampleButtonView.h>
 
 	namespace bdn 
@@ -382,6 +390,7 @@ void ExampleButtonView::bindViewCore()
 			std::shared_ptr<ViewCoreFactory> viewCoreFactory)
 		 : View(viewCoreFactory)
 		{
+			bdn::detail::VIEW_CORE_REGISTER(ExampleButtonView, View::viewCoreFactory());			
 		}
 
 		void ExampleButtonView::bindViewCore()
@@ -638,7 +647,7 @@ void ExampleButtonView::bindViewCore()
 ```
 
 ??? note "ExampleButtonView.cpp"
-	```c++ hl_lines="22 23 24 25"
+	```c++ hl_lines="23 24 25 26"
 	#include <bdn/ExampleButtonView.h>
 
 	namespace bdn 
@@ -652,6 +661,7 @@ void ExampleButtonView::bindViewCore()
 			std::shared_ptr<ViewCoreFactory> viewCoreFactory)
 		 : View(viewCoreFactory)
 		{
+			bdn::detail::VIEW_CORE_REGISTER(ExampleButtonView, View::viewCoreFactory());			
 		}
 
 		void ExampleButtonView::bindViewCore()

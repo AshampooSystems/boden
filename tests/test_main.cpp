@@ -38,7 +38,7 @@ class TestApplicationController : public bdn::ApplicationController, public test
         container->addChildView(_progressLabel);
         container->addChildView(_testNameLabel);
 
-        _window->content = container;
+        _window->contentView = container;
 
         updateProgressLabel();
 

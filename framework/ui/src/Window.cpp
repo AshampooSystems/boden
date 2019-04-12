@@ -49,27 +49,27 @@ namespace bdn
         visible = false;
         allowedOrientations = Orientation::All;
 
-        registerCoreCreatingProperties(this, &visible, &content, &geometry, &contentGeometry);
-        content.onChange() += [=](auto va) { _content.update(shared_from_this(), va->get()); };
+        registerCoreCreatingProperties(this, &visible, &contentView, &geometry, &contentGeometry);
+        contentView.onChange() += [=](auto va) { _contentView.update(shared_from_this(), va->get()); };
     }
 
     std::list<std::shared_ptr<View>> Window::childViews()
     {
         Application::assertInMainThread();
-        if (content.get()) {
-            return {content.get()};
+        if (contentView.get()) {
+            return {contentView.get()};
         }
         return {};
     }
 
-    void Window::removeAllChildViews() { content = nullptr; }
+    void Window::removeAllChildViews() { contentView = nullptr; }
 
     void Window::childViewStolen(const std::shared_ptr<View> &childView)
     {
         Application::assertInMainThread();
 
-        if (childView == content.get()) {
-            content = nullptr;
+        if (childView == contentView.get()) {
+            contentView = nullptr;
         }
     }
 
@@ -79,7 +79,7 @@ namespace bdn
 
         auto windowCore = View::core<Window::Core>();
 
-        windowCore->content.bind(content);
+        windowCore->contentView.bind(contentView);
         windowCore->title.bind(title);
 
         windowCore->allowedOrientations.bind(allowedOrientations); //, BindMode::unidirectional);

@@ -14,7 +14,7 @@ namespace bdn
     class ScrollView : public View
     {
       public:
-        Property<std::shared_ptr<View>> content;
+        Property<std::shared_ptr<View>> contentView;
 
         /** Controls wether or not the view scrolls vertically.
             Default: true*/
@@ -45,7 +45,7 @@ namespace bdn
       public:
         std::list<std::shared_ptr<View>> childViews() override;
 
-        void removeAllChildViews() override { content = nullptr; }
+        void removeAllChildViews() override { contentView = nullptr; }
 
         void childViewStolen(const std::shared_ptr<View> &childView) override;
 
@@ -53,13 +53,13 @@ namespace bdn
         void bindViewCore() override;
 
       private:
-        SingleChildHelper _content;
+        SingleChildHelper _contentView;
 
       public:
         class Core
         {
           public:
-            Property<std::shared_ptr<View>> content;
+            Property<std::shared_ptr<View>> contentView;
             Property<bool> horizontalScrollingEnabled;
             Property<bool> verticalScrollingEnabled;
 

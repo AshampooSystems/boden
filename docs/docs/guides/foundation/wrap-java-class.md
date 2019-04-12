@@ -1,7 +1,7 @@
 # Wrapping a java class
 
 Wrapping a java class in Boden is done using the classes in ```bdn::java::wrapper```.
-There are two classes, [Object](object.md) and [JTObject](jtobject.md). [JTObject](jtobject.md) is a convenience class that uses templates to make creating new wrapper simpler. 
+There are two classes, `Object` and `JTObject`. `JTObject` is a convenience class that uses templates to make creating new wrapper simpler. 
 
 ## First steps
 
@@ -34,7 +34,7 @@ public:
 ```
 
 Now that we have our class we are ready to add methods to it. 
-For this we are going to use the convenience class [JavaMethod](method.md).
+For this we are going to use the convenience class `JavaMethod`.
 
 ```C++ hl_lines="7"
 constexpr const char kMyJavaClassName[] = "io/mycompany/MyJavaClass";
