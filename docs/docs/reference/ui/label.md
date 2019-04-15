@@ -3,7 +3,7 @@ source: Label.h
 
 # Label
 
-Displays read-only text 
+A read-only text label.
 
 ## Declaration
 
@@ -22,13 +22,13 @@ label->text = "Hello World";
 
 ## Properties
 
-* **Property<String\> text**
+* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> text**
 
-	The views text
+	The label's text.
 
-* **Property<bool\> wrap**
+* **[Property](../foundation/property.md)<bool\> wrap**
 
-	If true, the text will wrap if it does not fit in its width.
+	If true, the text will wrap if it exceeds the available width.
 
 ## Relationships
 

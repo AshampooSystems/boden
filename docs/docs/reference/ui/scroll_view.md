@@ -3,7 +3,7 @@ source: ScrollView.h
 
 # ScrollView
 
-A Container that can scroll its content view
+A container view that can scroll its content view.
 
 ## Declaration
 
@@ -26,28 +26,28 @@ scrollView->content = image;
 
 ## Properties
 
-* **Property<std::shared_ptr<View\>\> content**
+* **[Property](../foundation/property.md)<std::shared_ptr<[View](view.md)\>\> contentView**
 
-	The view to be scrolled
+	The content view to be scrolled.
 
-* **Property<bool\> verticalScrollingEnabled**
+* **[Property](../foundation/property.md)<bool\> verticalScrollingEnabled**
 
-	If true, vertical scrolling is enabled
+	Whether vertical scrolling is enabled.
 
-* **Property<bool\> horizontalScrollingEnabled**
+* **[Property](../foundation/property.md)<bool\> horizontalScrollingEnabled**
 
-	If true, horizontal scrolling is enabled
+	Whether horizontal scrolling is enabled.
 
-* **Property<Rect\> visibleClientRect**
+* **[Property](../foundation/property.md)<Rect\> visibleClientRect**
 
-	The currently visible part of the content view 
+	The currently visible part of the content view.
 
 
 ## Actions
 
 * **void scrollClientRectToVisible(const Rect &area)**
 
-	Scroll the view so that the *area* of the content view is visible
+	Scrolls the view so that the area of the content view is visible.
 
 ## Relationships
 

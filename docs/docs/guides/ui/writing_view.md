@@ -471,9 +471,9 @@ namespace bdn::ios {
 ## Sending notifications to the View
 
 To allow the user to react the Button clicks we need a way to call functions of the View from the Core.
-For this we can use a combination of a [Notifier](../../reference/foundation/notifier.md) and a [WeakCallback](../../reference/foundation/weak_callback.md).
+For this we can use a combination of a [Notifier](../../reference/foundation/notifier.md) and a `WeakCallback`.
 
-First we add the [WeakCallback](../../reference/foundation/weak_callback.md) to our Core:
+First we add the `WeakCallback` to our Core:
 
 ```C++
 class ExampleButtonView : public View
@@ -634,7 +634,7 @@ class ExampleButtonView
 	}
 	```
 
-And at last we connect it to the [WeakCallback](../../reference/foundation/weak_callback.md):
+And at last we connect it to the `WeakCallback`:
 
 ```c++
 void ExampleButtonView::bindViewCore()

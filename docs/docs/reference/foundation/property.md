@@ -5,8 +5,7 @@ source: Property.h
 
 Represents a property of a class.
 
-Properties provide a simple means for accessing, manipulating and observing arbitrary value types such as int or String via the ValType
-template parameter. You may observe value changes using the onChange() method or bind two or more properties using the bind() method.
+Properties provide a simple way to access and observe arbitrary value types such as `int` or `String`. You may observe value changes using the `onChange()` method or bind two or more properties using the `bind()` method.
 
 See also: [Property Guide](../../guides/foundation/properties.md)
 
@@ -17,38 +16,34 @@ template <class ValType>
 class Property : virtual public IValueAccessor<ValType>
 ```
 
-## Constructor
+## Creating a Property Object
 
 * **Property()**
 
-	Default constructor, value is uninitialized
+	Constructs a property with a default-constructed value.
 
 * **Property(const Property &) = delete**
 
-	The copy constructor is deleted, Property cannot be copied.
+	`Property` instances cannot be copy-constructed. However, they can be default-constructed and then assigned using `operator =`. See the [Property Guide](../../guides/foundation/properties.md#copying) for details.
 
 * **Property(ValType value)**
 
-	Initializes the value with the given value
+	Initializes the property's value with the given value.
 
 * **Property(const GetterSetter<ValType> &getterSetter)**
 
-	Constructs a Property instance from a GetterSetter object 
+	Constructs a `Property` instance from a `GetterSetter` object. This can be used to define custom getter and setter methods. See the [Property Guide](../../guides/foundation/properties.md#getters-and-setters) for details.
 
-* **Property(const Setter<ValType> &setter)**
+* **Property([Streaming](streaming.md) &stream)**
 
-	Constructs a Property instance with the given Setter object 
+	Constructs a `Property` instance with the given [`Streaming`](streaming.md) object.
 
-* **Property(Streaming &stream)**
+* **template <class U\> Property(const [Transform](transform.md)<ValType, U\> &transform)**
 
-	Constructs a Property instance with the given Streaming object
-
-* **template <class U\> Property(const Transform<ValType, U\> &transform)**
-
-	Constructs a Property instance with the given Transform object
+	Constructs a `Property` instance with the given [`Transform`](transform.md) object.
 
 
-## Value
+## Getting and Modifying the Value
 
 * **ValType get() const**
 
@@ -60,13 +55,13 @@ class Property : virtual public IValueAccessor<ValType>
 
 * **ValType operator\*() const**
 
-	Returns the property's value – intended for use with the `auto` keyword
+	Returns the property's value. Intended for use with the `auto` keyword.
 
 * **operator ValType() const**
 
-	Returns the property's value when casting explicitly or implicitly
+	Returns the property's value when casting explicitly or implicitly.
 
-## Non-primitive value types
+## Accessing Non-primitive Value Types
 
 * **template<...> const ValType operator-\>() const**
 * **template<...> const typename backing_t::Proxy operator-\>() const**
@@ -81,22 +76,23 @@ class Property : virtual public IValueAccessor<ValType>
     	const typename backing_t::Proxy operator->() const;
 	```
 
-	Provides access to members of non-primitive pointer types
+	Provides access to members of non-primitive pointer types.
 
-## Binding
+## Binding Properties
 
 * **void bind(Property<ValType\> &sourceProperty, BindMode bindMode = BindMode::bidirectional)**
 
-	Binds to the given property. Internally it adds a subscription on the `sourceProperty's onChange
-	notification in which it calls set() on itself.
+	Binds the property to the given source property.
 
-	When `bindMode` is `BindMode::bidirectional` it also add the inverse notification to the `sourceProperty`
+	`bindMode` can be one of `BindMode::unidirectional` (one-way) or `BindMode::bidirectional` (two-way). If `bindMode` is set to `BindMode::unidirectional`, the property's value will be updated when the source property's value is changed. However, the source property's value will not be updated when the property's value is changed. If `bindMode` is set to `BindMode::bidirectional`, either property will be updated when the other's value is changed. This is the default behavior of `bind()`.
 
-## Notification
+	Property bindings work synchronously. That is, the bound property will be updated immediately on the thread the value change has been invoked on.
+
+## Being Notified of Changes
 
 * **auto &onChange() const**
 	
-	Returns a [Notifier](notifier.md) thats called when the property value changes.
+	Returns a [Notifier](notifier.md) which is called when the property value changes.
 
 ## Operators
 

@@ -98,9 +98,9 @@ button.boden-call-to-action.secondary:hover {
 .md-grid.boden-hero h2 {
 	font-size: 18px;
 	font-family: Nunito Sans;
-	font-weight: 900;
+	font-weight: 400;
 	margin: 0;
-	padding-top: 1.6rem;
+	padding-top: 0;
 	padding-right: 1rem;
 	padding-left: 1rem;
 	color: white;

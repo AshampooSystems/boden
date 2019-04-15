@@ -3,7 +3,7 @@ source: ContainerView.h
 
 # ContainerView
 
-A content-less view that can hold child views. 
+A view that can hold child views. 
 
 ## Declaration
 
@@ -27,25 +27,25 @@ container->addChildView(label);
 container->addChildView(button);
 ```
 
-## Actions
+## Managing Child Views
 
-* **void void addChildView(const std::shared_ptr<View\> &childView)**
+* **void void addChildView(const std::shared_ptr<[View](view.md)\> &childView)**
 
-	Add a new child view
+	Adds a new child view to the container view.
 
-* **void void removeChildView(const std::shared_ptr<View\> &childView)**
+* **void void removeChildView(const std::shared_ptr<[View](view.md)\> &childView)**
 
-	Remove a specific child view
+	Remove a the given child view from the container view.
 
 * **void removeAllChildViews()**
 
-	Removes all child views
+	Removes all child views from the container view.
 
 ## Accessing children
 
-* **void std::list<std::shared_ptr<View>> childViews() override**
+* **void std::list<std::shared_ptr<[View](view.md)\>\> childViews() override**
 
-	Returns all child views
+	Returns an `std::list` containg all child views of the container view.
 
 ## Relationships
 

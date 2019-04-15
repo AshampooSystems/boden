@@ -3,7 +3,7 @@ source: ViewEvent.h
 
 # ViewEvent
 
-Base class for UI Events
+Base class for view events.
 
 ## Declaration
 

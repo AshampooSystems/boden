@@ -3,7 +3,7 @@ source: DispatchQueue.h
 
 # DispatchQueue
 
-A DispatchQueue can execute arbitrary functions on a thread.
+Queues and executes arbitrary functions on a thread.
 
 ## Declaration
 
@@ -17,42 +17,42 @@ class DispatchQueue
 * **using Clock = std::chrono::steady_clock**
 * **using TimePoint = Clock::time_point**
 
-## Constructor
+## Creating a DispatchQueue Object
 
 * **DispatchQueue(bool slave = false)**
 
-	If slave is `false`, create an internal thread for the DispatchQueue. 
+	Constructs a dispatch queue. If `slave` is `false` (the default), creates and manages a thread for the dispatch queue. If `slave` is `true`, the queue will not create a thread on its own. This is handy if there is already a thread/run loop which should be integrated with the dispatch queue.
 
-## Enqueue
+## Dispatching Methods to the Queue
 
 * **void dispatchSync([Function](#types) function)**
 
-	Dispatches a `function`on the DispatchQueue thread and waits for it to finish.
+	Dispatches a `function`on the dispatch queue thread and waits for it to finish.
 
 * **void dispatchAsync([Function](#types) function)**
 
-	Dispatches a `function` on the DispatchQueue thread.
+	Dispatches a `function` on the dispatch queue thread and returns immediately.
 
 * **template <\> void dispatchAsyncDelayed(std::chrono::duration<\> delay, [Function](#types) function)**
 
-	Dispatches a `function` to run on the DispatchQueue thread after the `delay`.
+	Dispatches a `function` to run on the dispatch queue thread after the `delay`.
 
-## Timer
+## Creating Timers
 
 * **template<\> createTimer(std::chrono::duration<\> interval, std::function<bool()\> timer)**
 
-	Creates a timer that will run `timer` repeatedly on the DispatchQueue's thread every `interval` until `timer` returns false.
+	Creates a timer that will run `timer` repeatedly on the dispatch queue's thread every `interval` until `timer` returns `false`.
 
-## Processing
+## Controlling the Queue's Internal Processing
 
 * **void enter()**
 
-	Only allowed if `slave` was true during construction. Starts the processing until `cancel` is called
+	Starts processing synchronously until `cancel` is called. Only allowed if `slave` was true during construction.
 
 * **void cancel()**
 
-	Stops processing
+	Stops processing as soon as possible.
 
 * **void executeSync()**
 
-	Execute a single item.
+	Executes the next function scheduled on the queue and returns.

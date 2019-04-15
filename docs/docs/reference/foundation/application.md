@@ -3,7 +3,9 @@ source: Application.h
 
 # Application
 
-Represents the Application. Inherit from [ApplicationController](application_controller.md) to set up your application.
+Represents the Application.
+
+To define the setup and behavior of your own app, inherit from [ApplicationController](application_controller.md).
 
 The application's entry point is defined by the `BDN_APP_INIT` macro. See [ApplicationController](application_controller.md) for an example.
 
@@ -14,32 +16,41 @@ class Application
 	: public std::enable_shared_from_this<Application>
 ```
 
-## Macros
+## Obtaining the Global Application Instance
 
-* **BDN_APP_INIT(ClassName)**
+* **static std::shared_ptr<Application\> globalApplication()**
 
-	Use this macro to register your main application controller
+	Returns the global `Application` instance for the current process.
+
+## Registering an Application Controller
+
+* **BDN_APP_INIT(ApplicationControllerClassName)**
+
+	Use this macro to register your main application controller.
 
 ## Properties
 
 * **Property<std::vector<String\>\> commandLineArguments**
 
-	A list of the command-line arguments
+	A list of command-line arguments as specified when the application was launched.
 
 * **std::shared_ptr<[DispatchQueue](dispatch_queue.md)> dispatchQueue()**
 
-	The main thread [DispatchQueue](dispatch_queue.md)
+	The main thread's [`DispatchQueue`](dispatch_queue.md).
 
 * **std::shared_ptr<ApplicationController> applicationController()**
 
-	The user-supplied application controller
+	The user-defined application controller associated with the application.
 
 ## Commandline arguments
 
 * **int argc()**
+
+	Returns the number of command-line arguments.
+
 * **char \*\*argv()**
 
-	Returns the raw commandline arguments
+	Returns the raw command-line arguments.
 
 ## Main thread
 
@@ -59,12 +70,12 @@ class Application
 
 * **virtual void openURL(const String &url)**
 
-	Calls the operating system to open the supplied URL.
+	Opens the given URL in a suitable external application. Web URLs will be opened in the system's standard web browser. Application-specific URLs will open in the respective application.
 
 ## Shutdown
 
 * **void initiateExitIfPossible(int exitCode)** 
 
-	Tries to shutdown the application with the supplied exit code.
+	Tries to shutdown the application with the given exit code.
 
-	This function does nothing on mobile operating systems that do not allow the app to exit on its own.
+	Does nothing on Android.

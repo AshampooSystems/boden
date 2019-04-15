@@ -1,6 +1,6 @@
 # View::Core
 
-Interface representing a platform specific "view core". Classes inheriting from `ViewCore` implement the actual user interface view logic to display user interfaces on screen.
+Interface representing a platform specific "view core". Classes inheriting from `ViewCore` implement the actual user interface logic to display user interfaces on screen.
 
 ## Declaration
 
@@ -12,23 +12,23 @@ class View {
 
 ## Properties
 
-* **Property<Rect\> geometry**
+* **[Property](../foundation/property.md)<Rect\> geometry**
 
-* **Property<bool\> visible**
+* **[Property](../foundation/property.md)<bool\> visible**
 
 ## Functions
 
 * **virtual void init() = 0**
 
-	Subclasses must override this method to implement initialization of platform-specific objects.
+	Deriving classes must override this method to implement initialization of platform-specific objects.
 
-* **virtual Size sizeForSpace(Size availableSize = Size::none()) const**
+* **virtual [Size](../foundation/size.md) sizeForSpace([Size](../foundation/size.md) availableSize = [Size](../foundation/size.md)::none()) const**
 
-	Returns the fitting size for the view <span style="color: red">in device independent pixels?</span> (DOCFIXME) given the available size. Setting `availableSize` to `Size::none()` indicates that infinite space is available to size the view.
+	Returns the fitting size for the view given the available size. Setting `availableSize` to `Size::none()` indicates that infinite space is available to the view.
 
-* **virtual bool canMoveToParentView(std::shared_ptr<View\> newParentView) const = 0**
+* **virtual bool canMoveToParentView(std::shared_ptr<[View](view.md)\> newParentView) const = 0**
 
-	Returns whether the view core can move to another parent view. The default implementation returns `true`.
+	Returns whether the view core can move to another parent view.
 
 * **virtual void dispose() = 0**
 
@@ -40,5 +40,5 @@ class View {
 
 * **void markDirty()**
 
-* **virtual void setLayout(std::shared_ptr<Layout\> layout)**
+* **virtual void setLayout(std::shared_ptr<[Layout](../layout/layout.md)\> layout)**
 

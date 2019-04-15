@@ -29,7 +29,7 @@ namespace bdn
 
     void ScrollView::scrollClientRectToVisible(const Rect &area)
     {
-        Application::assertInMainThread();
+        assert(Application::isMainThread());
 
         auto scrollCore = core<ScrollView::Core>();
         scrollCore->scrollClientRectToVisible(area);
@@ -37,7 +37,7 @@ namespace bdn
 
     std::list<std::shared_ptr<View>> ScrollView::childViews()
     {
-        Application::assertInMainThread();
+        assert(Application::isMainThread());
 
         if (contentView.get() != nullptr) {
             return {contentView.get()};
@@ -48,7 +48,7 @@ namespace bdn
 
     void ScrollView::childViewStolen(const std::shared_ptr<View> &childView)
     {
-        Application::assertInMainThread();
+        assert(Application::isMainThread());
 
         if (childView == contentView.get()) {
             contentView = nullptr;

@@ -1,6 +1,6 @@
-# Your first application
+# Your First Boden Application
 
-To create your first Boden project, open up a terminal (or command prompt), change to your local `boden` directory, and execute the following commands:
+To create your first Boden app, open up a terminal (or command prompt), change to your local `boden` directory, and execute the following commands:
 
 	python boden.py new -n AwesomeApp
 	cd AwesomeApp
@@ -12,7 +12,8 @@ In Xcode, select the `AwesomeApp` target and then press <kbd>Cmd</kbd>+<kbd>R</k
 
 In Android Studio, wait for Gradle to finish its sync and configuration processes and then select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application, then select the `AwesomeApp` target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.
 
-> Note: On macOS and Linux you can also simply type `./boden` instead of calling `python boden.py` explicitly. If you want to build the Android version of the app on macOS, run `../boden open -p android`.
+!!! note
+    On macOS and Linux you can also simply type `./boden` instead of calling `python boden.py` explicitly. If you want to build the Android version of the app on macOS, run `../boden open -p android`.
 
 ## Hello World
 

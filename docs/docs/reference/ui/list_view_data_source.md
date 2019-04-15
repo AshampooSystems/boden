@@ -3,7 +3,7 @@ source: ListViewDataSource.h
 
 # ListViewDataSource
 
-An abstract base class for a [ListView's](list_view.md) data source
+An abstract base class for a [`ListView`](list_view.md)'s data source
 
 ## Declaration
 
@@ -25,8 +25,6 @@ public:
 
 	size_t numberOfRows() override { return 2; }
 
-	String labelTextForRowIndex(size_t rowIndex) override { return _data[rowIndex]; }
-	
 	auto viewForRowIndex( size_t rowIndex, 
 						  std::shared_ptr<bdn::View> reusableView) override
 	{
@@ -34,7 +32,7 @@ public:
 		if(!label) {
 			label = std::make_shared<bdn::TextView>();
 		}
-		label->text = labelTextForRowIndex(rowIndex);
+		label->text = _data[rowIndex];;
 		return std::dynamic_pointer_cast<bdn::View>(label);
 	}
 	
@@ -46,25 +44,19 @@ listView->dataSource = std::make_shared<MyDataSource>();
 listView->reloadData();
 ```
 
-## Functions
+## Implementing a Data Source
 
 * **virtual size_t numberOfRows() = 0**
 
-	Return the number of rows
-
-* **virtual String labelTextForRowIndex(size_t rowIndex) = 0**
-
-	<span style="color: red">DOCFIXME: Currently unused! Remove or reimplement.</span>
-
-	Return the text for a row
+	Return the number of available rows in your data source implementation.
 	
-* **virtual std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) = 0**
+* **virtual std::shared_ptr<[View](view.md)\> viewForRowIndex(size_t rowIndex, std::shared_ptr<[View](view.md)\> reusableView) = 0**
 
-	Return the view for a row
+	Return the item view for the given row index in your data source implementation.
 
 * **virtual float heightForRowIndex(size_t rowIndex) = 0**
 
-	Return the height of a row
+	Return the height of the row at the given row index in your data source implementation.
 
 
  

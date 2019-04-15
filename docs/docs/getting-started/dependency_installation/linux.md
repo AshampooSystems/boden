@@ -1,4 +1,4 @@
-# Setting up Linux for Android Builds
+# Setting up Ubuntu Linux for Android Builds
 
 ## 1. Install Git, Python, CMake, OpenJDK, and qemu-kvm
 

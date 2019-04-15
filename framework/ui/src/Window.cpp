@@ -55,7 +55,7 @@ namespace bdn
 
     std::list<std::shared_ptr<View>> Window::childViews()
     {
-        Application::assertInMainThread();
+        assert(Application::isMainThread());
         if (contentView.get()) {
             return {contentView.get()};
         }
@@ -66,7 +66,7 @@ namespace bdn
 
     void Window::childViewStolen(const std::shared_ptr<View> &childView)
     {
-        Application::assertInMainThread();
+        assert(Application::isMainThread());
 
         if (childView == contentView.get()) {
             contentView = nullptr;

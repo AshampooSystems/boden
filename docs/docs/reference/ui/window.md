@@ -22,25 +22,25 @@ window->title = "My Awesome App";
 
 ## Properties
 
-* **const Property<Rect\> contentGeometry**
+* **const [Property](../foundation/property.md)<Rect\> contentGeometry**
 
 	*(Read-only)* The "safe" area that the content view will occupy. 
 
-* **Property<String\> title**
+* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> title**
 
 	The title of the Window. 
 
 	On Android this will be reflected in the Activities Toolbar. 
 
-* **Property<std::shared_ptr<View\>\> contentView**
+* **[Property](../foundation/property.md)<std::shared_ptr<[View](view.md)\>\> contentView**
 
-	The content view of the window
+	The content view of the window.
 
-* **Property<Orientation\> allowedOrientations**
+* **[Property](../foundation/property.md)<Orientation\> allowedOrientations**
 
 	The orientations the UI will rotate too.
 
-* **Property<Orientation\> currentOrientation**
+* **[Property](../foundation/property.md)<Orientation\> currentOrientation**
 
 	The current orientation of the device.
 

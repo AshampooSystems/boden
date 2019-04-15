@@ -106,8 +106,6 @@ class RedditListViewDataSource : public ListViewDataSource
 
     size_t numberOfRows() override { return _store->posts.size(); }
 
-    String labelTextForRowIndex(size_t rowIndex) override { return _store->posts.at(rowIndex)->title; }
-
     float heightForRowIndex(size_t rowIndex) override { return 50; }
 
     std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
@@ -121,7 +119,7 @@ class RedditListViewDataSource : public ListViewDataSource
             delegate->build();
         }
 
-        String text = labelTextForRowIndex(rowIndex);
+        String text = _store->posts.at(rowIndex)->title;
 
         delegate->text = text;
         delegate->imageUrl = _store->posts.at(rowIndex)->thumbnailUrl;

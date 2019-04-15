@@ -26,7 +26,7 @@ textField->onSubmit() += [](auto event) {
 
 ## Properties
 
-* **Property<String\> text**
+* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> text**
 
 	The text displayed in the text field.
 
@@ -34,13 +34,15 @@ textField->onSubmit() += [](auto event) {
 
 * **void submit()**
 
-	Informs observers of the onSubmit() notifier about a submit event.
+	Informs observers of the `onSubmit()` notifier about a submit event.
 
 ## Events
 
-* **ISyncNotifier<const SubmitEvent &\> &onSubmit()**
+* **[Notifier](../foundation/notifier.md)<const [SubmitEvent](submit_event.md) &\> &onSubmit()**
 
-	A notifier for submit events. Subscribe to this notifier if you want to be notified about submit events posted to the text field. Submit events are posted when the user presses the Enter key or when submit() is called programmatically.
+	Notifies subscribers when the <kbd>Enter</kbd> key is pressed by the user.
+
+	Subscribe to this notifier if you want to be notified about submit events posted to the text field. Submit events are posted when the user presses the <kbd>Enter</kbd> key or when `submit()` is called programmatically.
 
 ## Relationships
 

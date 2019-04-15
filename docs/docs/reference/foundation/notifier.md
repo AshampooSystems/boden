@@ -3,7 +3,7 @@ source: Notifier.h
 
 # Notifier
 
-Represents a signal used to notify observers of events and value changes.
+Notifies subscribing callback methods about an event synchronously.
 
 ## Declaration
 
@@ -16,37 +16,37 @@ class Notifier
 
 * **using Subscription = size_t**
 
-	An ID referencing a specific subscription
+	An ID referencing a specific subscription.
 
 * **using Target = std::function<void(Arguments...)\>**
 
-	The type of a callback
+	The type of a callback.
 
-## Subscribe
+## Subscribing to a Notifier
 
 * **Subscription subscribe(Target target)**
 
-	Adds a new subscription
+	Subscribes the function specified by `target` to the notifier and returns a `Subscription` value. The returned `Subscription` may be persisted by the caller to later unsubscribe from the subscription again.
 
 * **Notifier<Arguments...\> operator+=(Target target)**
 
-	Convenience function to add a new subscription
+	Convenience for adding a new subscription by using `operator +=`. If you need to unsubscribe the subscriber later on, use `subscribe` instead.
 
-## Unsubscribe
+## Unsubscribing from a Notifier
 
 * **void unsubscribe(Subscription subscription)**
 	
-	Unsubscribe a specific subscription
+	Unsubscribe the given subscription.
 
 * **void unsubscribeAll()**
 
-	Removes all subscriptions
+	Unsubscribe all subscriptions.
 
 !!! note
-	It is safe and valid to unsubscribe during a notify() call
+	It is safe to unsubscribe during a notify() call
 
-## Notify
+## Notifying Subscribers
 
 * **void notify(*Arguments*... arguments)**
 
-	Notifies all registered subscriptions
+	Notifies all subscribers. Passes the given arguments to each subscriber.

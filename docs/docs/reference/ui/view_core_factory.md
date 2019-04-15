@@ -14,15 +14,15 @@ class ViewCoreFactory : public bdn::Factory<std::shared_ptr<View::Core>, std::sh
 
 ## Create
 
-* **std::shared_ptr<ViewCore\> createViewCore(const std::type_info &viewType);**
+* **std::shared_ptr<[`View::Core`](view_core.md)\> createViewCore(const std::type_info &viewType);**
 
-	Creates a new [`ViewCore`](view_core.md) object for the given view type.
+	Creates a new [`View::Core`](view_core.md) object for the given view type.
 
 ## Register
 
 * **template <class CoreType, class ViewType\> void registerCoreType();**
 
-	Register a new core type and associates it with the given view type.
+	Registers a new core type and associates it with the given view type.
 
 ## Context
 

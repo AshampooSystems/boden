@@ -3,7 +3,7 @@ source: NavigationView.h
 
 # NavigationView
 
-A NavigationView manages a number of views where only one view is visible at a time.
+Provides the user with a way to navigate between a number of different views where only one view is visible at a time.
 
 ## Declaration
 
@@ -34,13 +34,13 @@ navigationView->pushView(firstButton, "First Page");
 
 ## View manipulation
 
-* **void pushView(std::shared_ptr<View\> view, String title)**
+* **void pushView(std::shared_ptr<[View](view.md)\> view, [String](../foundation/string.md) title)**
 
-	Pushes the *view* with a *title* to the top of the stack. 
+	Pushes the given view with the specified title to the top of the stack. 
 
 * **void popView()**
 
-	Pops the top most View from the stack
+	Pops the topmost view from the stack.
 
 ## Relationships
 

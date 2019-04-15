@@ -32,22 +32,6 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
         true, env);
 }
 
-extern "C" JNIEXPORT jstring JNICALL Java_io_boden_android_NativeListAdapter_nativeLabelTextForRowIndex(JNIEnv *env,
-                                                                                                        jobject rawSelf,
-                                                                                                        jobject rawView,
-                                                                                                        jint rowIndex)
-{
-    return bdn::nonVoidPlatformEntryWrapper<jstring>(
-        [&]() -> jstring {
-            if (auto dataSource = dataSourceFromRawView(rawView)) {
-                bdn::String labelText = dataSource->labelTextForRowIndex(rowIndex);
-                return env->NewStringUTF(labelText.c_str());
-            }
-            return env->NewStringUTF("");
-        },
-        true, env);
-}
-
 namespace bdn::android
 {
     jobject viewForRowIndex(const std::shared_ptr<bdn::ListViewDataSource> &dataSource, int rowIndex,

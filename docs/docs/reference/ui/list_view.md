@@ -3,7 +3,9 @@ source: ListView.h
 
 # ListView
 
-Displays Items from its model in a list. See [ListViewDataSource](list_view_data_source.md).
+A view displaying items in a scrollable single-column list.
+
+See also: [ListViewDataSource](list_view_data_source.md).
 
 ## Declaration
 
@@ -23,39 +25,34 @@ listView->reloadData();
 
 ## Properties
 
-* **Property<std::shared_ptr<ListViewDataSource\>\> dataSource**
+* **[Property](../foundation/property.md)<std::shared_ptr<[ListViewDataSource](list_view_data_source.md)\>\> dataSource**
 
-	The datasource of the list
+	The data source of the list.
 
-* **Property<std::optional<size_t\>\> selectedRowIndex**
+* **[Property](../foundation/property.md)<std::optional<size_t\>\> selectedRowIndex**
 
-	The currently selected row index
+	The currently selected row index.
 
 
-## Data
+## Reloading the List's Data
 
 * **void reloadData()**
 
-	Forces the list to refresh from its datasource
+	Reloads the list's data from its data source.
 
-## Swipe refresh
+## Enabling Swipe Refresh
 
-<video width="320" height="240" autoplay loop>
-	<source src="https://img.ashampoo.com/ashampoo.com_images/img/1/external/Boden/refresh.webm" type="video/webm">
-</video>
-
-
-* **Property<bool\> enableRefresh**
+* **[Property](../foundation/property.md)<bool\> enableRefresh**
 
 	Enables refresh on swipe down.
 
 * **void refreshDone()**
 
-	Finishes/hides the refresh animation if it was triggered by the user
+	Finishes/hides the refresh animation if it was triggered by the user.
 
 ## Events
 
-* **SimpleNotifier<\> &onRefresh()**
+* **[Notifier](../foundation/notifier.md)<\> &onRefresh()**
 
 	Signals that the list has updated its data.
 

@@ -56,7 +56,6 @@ public class NativeListAdapter extends BaseAdapter
     }
 
     public native int nativeGetCount(View view);
-    public native String nativeLabelTextForRowIndex(View view, int rowIndex);
     public native View nativeViewForRowIndex(View view, int rowIndex, View reusableView, ViewGroup container);
 
     private View _view;

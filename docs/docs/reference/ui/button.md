@@ -25,15 +25,15 @@ button->onClick() += [](auto event) {
 
 ## Properties
 
-* **Property<String\> label**
+* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> label**
 	
-	The button's label
+	The button's label.
 
 ## Events
 
-* **ISyncNotifier<const ClickEvent &\> &onClick()**
+* **[Notifier](../foundation/notifier.md)<const [ClickEvent](click_event.md) &\> &onClick()**
 
-	A notifier for click events. Subscribe to this notifier if you want to be notified when the user clicks the Button.
+	A notifier for click events. Subscribe to this notifier if you want to be notified when the user clicks the button.
 
 ## Relationships
 

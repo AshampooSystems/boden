@@ -49,7 +49,6 @@ namespace bdn
       public:
         static std::thread::id mainThreadId() { return _mainThreadId; }
         static bool isMainThread() { return std::this_thread::get_id() == _mainThreadId; }
-        static void assertInMainThread() { assert(isMainThread()); }
 
       public:
         virtual void openURL(const String &url) = 0;
