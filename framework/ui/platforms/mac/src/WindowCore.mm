@@ -112,7 +112,7 @@ namespace bdn::mac
         _ourDelegate = delegate;
         _nsWindow.delegate = delegate;
 
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
 
         geometry.onChange() += [=](auto va) {
             if (!_isInMoveOrResize) {

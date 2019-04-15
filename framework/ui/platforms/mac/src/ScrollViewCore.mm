@@ -95,7 +95,7 @@ namespace bdn::mac
         verticalScrollingEnabled.onChange() +=
             [=](auto va) { _nsScrollView.hasVerticalScroller = va->get() ? YES : NO; };
 
-        content.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
     }
 
     NSScrollView *ScrollViewCore::_createScrollView()
