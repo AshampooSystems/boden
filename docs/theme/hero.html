@@ -84,7 +84,7 @@
       <link rel="manifest" href="{{ config.extra.manifest | url }}">
     {% endif %}
     {% for path in config["extra_css"] %}
-      <link rel="stylesheet" href="{{ path | url }}">
+      <link rel="stylesheet" href="{{ (path | url) }}?{{ range(1, 5983402637) | random }}">
     {% endfor %}
     {% block analytics %}
       {% if config.google_analytics %}
