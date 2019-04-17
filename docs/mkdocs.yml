@@ -102,6 +102,7 @@ nav:
       - reference/ui/view_core.md
       - reference/ui/view_core_factory.md
       - reference/ui/view_event.md
+      - reference/ui/web_view.md
       - reference/ui/window.md
       - iOS:
         - reference/ui/ios/view_core.md
