@@ -42,7 +42,6 @@ webView->url = "https://www.example.com"
 
 	Calling `loadURL()` is essentially identical to setting the `url` property directly. Once the URL is set, the framework will load the resource asynchronously and display it to the user when it becomes ready.
 
-
 ## Types
 
 ### RedirectRequest
