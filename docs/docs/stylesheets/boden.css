@@ -8,6 +8,14 @@ input::placeholder {
 	}
 }
 
+.md-content__inner.md-typeset {
+	margin-bottom: 10rem;
+}
+
+.md-content__inner.md-typeset.boden-teaser {
+	margin-bottom: 0;
+}
+
 @media only screen and (min-width: 76.1875em) {
 	.md-content {
 		margin-right: 24.2rem;
