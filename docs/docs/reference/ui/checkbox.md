@@ -5,6 +5,8 @@ source: Checkbox.h
 
 A control providing the user with an on/off choice.
 
+In contrast to [`Switch`](switch.md), `Checkbox` is commonly used in scenarios where the user's on or off choice does not take effect immediately and an additional confirmation is required for the setting to take effect, e.g. by pushing an OK button.
+
 If the target platform does not provide a native checkbox widget, a platform-specific substitution provided by the framework will be displayed instead.
 
 ## Declaration

@@ -96,6 +96,7 @@ nav:
       - reference/ui/navigation_view.md
       - reference/ui/scroll_view.md
       - reference/ui/submit_event.md
+      - reference/ui/switch.md
       - reference/ui/text_field.md
       - reference/ui/tri_state.md
       - reference/ui/view.md
