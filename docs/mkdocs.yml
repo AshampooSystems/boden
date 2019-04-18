@@ -41,30 +41,29 @@ markdown_extensions:
 nav:
   - Getting Started:
     - getting-started/index.md
-    - Setup:
-      - getting-started/setup/mac.md
-      - getting-started/setup/win.md
-      - getting-started/setup/linux.md
     - getting-started/first_app.md
-    - Dependencies:
-      - getting-started/dependency_installation/mac.md
-      - getting-started/dependency_installation/win.md
-      - getting-started/dependency_installation/linux.md
+    - Building Boden:
+      - getting-started/building/mac.md
+      - getting-started/building/windows.md
+      - getting-started/building/linux.md
+    - Installing Dependencies:
+      - getting-started/installing_dependencies/mac.md
+      - getting-started/installing_dependencies/windows.md
+      - getting-started/installing_dependencies/linux.md
     - getting-started/troubleshooting/index.md
     - getting-started/faq.md
   - Guides:
     - guides/index.md
-    - Foundation:
-      - guides/foundation/properties.md
-      - guides/foundation/wrap-java-class.md
+    - Fundamentals:
+      - guides/fundamentals/properties.md
     - Layout:
       - guides/layout/summary.md
       - guides/layout/json.md
-      - Yoga:
-        - guides/layout/yoga/summary.md
-    - UI:
-      - guides/ui/writing_view.md
-      - guides/ui/writing_view_modules.md
+      - guides/layout/yoga.md
+    - Extending Boden:
+      - guides/extending/writing_view.md
+      - guides/extending/writing_view_modules.md
+      - guides/extending/wrap_java_class.md      
   - API Reference:
     - API Reference Overview: 'reference/index.md'
     - Foundation:
@@ -73,7 +72,9 @@ nav:
       - reference/foundation/base.md
       - reference/foundation/dispatch_queue.md
       - reference/foundation/notifier.md
+      - reference/foundation/point.md
       - reference/foundation/property.md
+      - reference/foundation/rect.md
       - reference/foundation/size.md
       - reference/foundation/streaming.md
       - reference/foundation/string.md

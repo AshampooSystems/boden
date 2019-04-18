@@ -10,7 +10,7 @@ To build Android apps on Windows, the following dependencies need to be installe
 6. [Android Studio](https://developer.android.com/studio) (with Android NDK)
 
 !!! note
-	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Windows](../dependency_installation/win.md#setting-up-windows-for-android-builds) and follow the steps listed there to install them.
+	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Windows](../installing_dependencies/windows.md#setting-up-windows-for-android-builds) and follow the steps listed there to install them.
 
 Follow these steps to set up Boden for Android development on Windows 10:
 

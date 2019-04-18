@@ -1,6 +1,6 @@
-# JSON support
+# Working with JSON Stylesheets
 
-[FlexStylesheet](../../reference/layout/flex_stylesheet.md) can be easily de-/serialized to/from JSON using the [nlohmann::json](https://github.com/nlohmann/json) library.
+[FlexStylesheet](../../reference/layout/flex_stylesheet.md) can be easily serialized to or deserialized from JSON using the [nlohmann::json](https://github.com/nlohmann/json) library.
 
 ## Linking
 
@@ -11,7 +11,7 @@ The JSON helper functions are only enabled if `BDN_HAS_NLOHMANN_JSON` is defined
 target_link_library(MyApp PRIVATE nlohmann::json)
 ```
 
-If you want to use your own version of the nlohmann json library, simply create your own define:
+If you want to use your own version of the nlohmann json library, simply create your own `define`:
 ```CMake
 # In you CMakeLists.txt
 target_compile_definitions(MyApp PRIVATE BDN_HAS_NLOHMANN_JSON)

@@ -2,7 +2,7 @@
 
 ## 1. Android Emulator won't start on Ubuntu Linux due to permission denied error
 
-Make sure that the `qemu-kvm` package is installed and your user is a member of the `kvm` group. See [Configure Ubuntu for Running Android Emulator](../dependency_installation/linux#3-configure-ubuntu-for-running-android-emulator) for further instructions.
+Make sure that the `qemu-kvm` package is installed and your user is a member of the `kvm` group. See [Configure Ubuntu for Running Android Emulator](../installing_dependencies/linux#3-configure-ubuntu-for-running-android-emulator) for further instructions.
 
 ## 2. `boden prepare` fails with a CMake error when setting up a Windows machine for Android development
 

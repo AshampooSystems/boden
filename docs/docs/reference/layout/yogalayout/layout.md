@@ -3,7 +3,7 @@ source: Layout.h
 
 # yogalayout::Layout
 
-An implementation of a Flex layout based on [Facebooks Yoga Library](https://github.com/facebook/yoga)
+An implementation of a Flex layout based on [Facebook's Yoga library](https://github.com/facebook/yoga).
 
 ## Declaration
 
@@ -16,6 +16,6 @@ namespace bdn::yogalayout
 
 ## Guide
 
-See [Yoga Layout Guide](../../../guides/layout/yoga/summary.md) for more information.
+See [Yoga Layout Guide](../../../guides/layout/yoga.md) for more information.
 
 

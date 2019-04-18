@@ -1,17 +1,17 @@
-# Yoga layout
+# Flexbox Layouts
 
-Boden provides a Layout implementation based on Facebooks yoga library.
+Boden provides a Flexbox layout implementation based on [Facebook's Yoga library](https://github.com/facebook/yoga).
 
 ## Example
 
-First, create the Layout and apply it to the window
+First, create the layout object and apply it to the window:
 
 ```C++
 auto window = std::make_shared<bdn::Window>();
 window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
 ```
 
-Now set a stylesheet.
+Then set a stylesheet:
 
 ```C++ tab="C++ Streaming"
 window->setLayoutStylesheet(FlexMarginBottom(5)
@@ -21,7 +21,7 @@ window->setLayoutStylesheet(FlexMarginBottom(5)
     << FlexWrap(FlexStylesheet::Wrap::Wrap));
 ```
 
-```C++ tab="C++ Json"
+```C++ tab="C++ JSON"
 nlohmann::json jsonStylesheet = 
 	{{"direction", FlexStylesheet::Direction::Column},
      {"flexGrow", 1.0},
@@ -44,8 +44,8 @@ window->setLayoutStylesheet(FlexStylesheet {
 });
 ```
 
-[View::setLayoutStyleSheet](../../../reference/ui/view.md#layout) is a convenience function that creates a *shared_ptr* and assigns it to
-the [View::layoutStyleSheet](../../../reference/ui/view.md#Properties) property.
+[`View::setLayoutStyleSheet`](../../reference/ui/view.md#layout) is a convenience function that creates an `std::shared_ptr` and assigns it to
+the [`View::layoutStyleSheet`](../../reference/ui/view.md#Properties) property.
 
 ```C++
 template <class T> 
@@ -56,4 +56,4 @@ void setLayoutStylesheet(T sheet) {
 
 ## Resources
 
-To get familiar with the Flex Box Layout we recommend to have a look at the <a href="https://yogalayout.com/playground" target="_blank">Yoga playground</a>
+To get familiar with the Flexbox Layout we recommend you to have a look at the <a href="https://yogalayout.com/playground" target="_blank">Yoga playground</a>.

@@ -16,7 +16,6 @@ class FlexStylesheet : public layoutStylesheet
 ```C++
 auto styleSheet = std::make_shared<FlexStylesheet>();
 styleSheet->flexDirection = Direction::Row;
-
 window->layoutStylesheet = styleSheet;
 ```
 
@@ -24,32 +23,34 @@ window->layoutStylesheet = styleSheet;
 
 * **[Direction](#enums) flexDirection** 
 	
-	Defines the direction ( Row vs. Column ) of the View children
+	Defines the direction (row vs. column) of the view's children.
 
-	Defaults to: *Direction::Column*
+	Defaults to: `Direction::Column`.
 
 * **[LayoutDirection](#enums) layoutDirection**
 
-	Defines the layout direction ( left to right, or right to left )
+	Defines the layout direction (left to right, or right to left).
 
-	Defaults to: *LayoutDirection::Inherit*
+	Defaults to: `LayoutDirection::Inherit`.
 
 * **[Wrap](#enums) flexWrap**
 
-	Defines whether the contained Items should wrap if the available space
-	is not sufficient
+	Defines whether the contained items should wrap if the available space
+	is not sufficient.
 
-	Defaults to: *Wrap::NoWrap*
+	Defaults to: `Wrap::NoWrap`.
 
-* **float flexGrow**
+* **float flexGrow = 0.0**
 
-	How much of the free space the view should fill
+	How much of the free space the view should fill.
 
-	Defaults to: *0.0f*
+	Defaults to: `0.0`.
 
 * **float flexShrink = 1.0**
 
-	The shrink factor of the View in case the parent does not have enough space
+	The shrink factor of the View in case the parent does not have enough space.
+
+    Defaults to: `1.0`.
 
 * **std::optional<float\> flexBasis**
 * **std::optional<float\> flexBasisPercent**
@@ -58,23 +59,23 @@ window->layoutStylesheet = styleSheet;
 
 * **[Align](#enums) alignSelf**
 
-	Defaults to: *Align::Auto*
+	Defaults to: `Align::Auto`.
 
 * **[Align](#enums) alignItems**
 
-	Defaults to: *Align::Stretch*
+	Defaults to: `Align::Stretch`.
 
 * **[Align](#enums) alignContents**
 
-	Defaults to: *Align::Stretch*
+	Defaults to: `Align::Stretch`.
 
 * **[Justify](#enums) justifyContent**
 
-	Defaults to: *Justify::FlexStart*
+	Defaults to: `Justify::FlexStart`.
 
 ### Padding
 
-Defines the border applied on the inside of the View
+Defines the space generated around the inside of the view.
 
 * **std::optional<float\> padding.all**
 * **std::optional<float\> padding.left**
@@ -84,7 +85,7 @@ Defines the border applied on the inside of the View
 
 ### Margin
 
-Defines the border applied on the outside of the View
+Defines the space generated around the outside of the view.
 
 * **std::optional<float\> margin.all**
 * **std::optional<float\> margin.left**

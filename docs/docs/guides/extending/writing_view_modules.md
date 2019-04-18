@@ -1,17 +1,17 @@
-# Writing a View module
+# Writing a New View Module
 
 ## Intro
 
+This guide will use the `LottieView` class implementation as an example to demonstrate the steps needed to extend the Boden Framework with new standalone view module.
+
 Boden views consist of two parts:
 
-1. The outward facing View class
-2. The inner platform specific ViewCore implementation
+1. The outward facing platform-independent [`View`](../../reference/ui/view.md) class. This is what users of your view component will usually see and interact with.
+2. The internal platform-specific [`View::Core`](../../reference/ui/view_core.md) implementation. This part of the view implementation is usually hidden from users of your new view component.
 
-This guide will use the LottieView class implementation to highlight the specific steps needed to implement new Views. 
+## The Module Structure
 
-## Module structure
-
-A View module consists of the public part ( Mostly the View class ), and a number of platform specific implementations:
+A view module consists of the public part (mostly the `View` class), and a number of platform-specific implementations:
 
 ```
 lottieview
@@ -61,7 +61,7 @@ lottieview
 add_sources(_BDN_LOTTIEVIEW_FILES _BDN_LOTTIEVIEW_HEADERS ./)
 ```
 
-`add_sources` Gathers all files from the ./include and ./src folders.
+`add_sources` gathers all files from the `./include` and `./src` folders.
 
 ```cmake
 GenerateTopLevelIncludeFile(_BDN_LOTTIEVIEW_COMBINED
@@ -70,7 +70,7 @@ GenerateTopLevelIncludeFile(_BDN_LOTTIEVIEW_COMBINED
     ${_BDN_LOTTIEVIEW_HEADERS})
 ```
 
-`GenerateTopLevelIncludeFile` creates a convenience header file that includes all files from the ./include folder
+`GenerateTopLevelIncludeFile` creates a convenience header file that includes all files from the `./include` folder
 
 ```cmake
 list(APPEND _BDN_LOTTIEVIEW_FILES
@@ -95,6 +95,6 @@ include(install.cmake)
 
 We link the library against the `Boden::UI` library. The include directories are specified here such that they work whether Boden is included in source form or as a bundled installation
 
-Now you can write your Views as described in [Writing a new View](writing_view.md). 
+Now you can write your view as described in [Writing a New View](writing_view.md). 
 
 

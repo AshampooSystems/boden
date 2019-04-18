@@ -183,7 +183,7 @@ MainViewController::MainViewController()
     std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
     button->label = "Hello World";
 
-    _window->content = button;
+    _window->contentView = button;
 
     _window->visible = true;
 }
@@ -215,7 +215,7 @@ button->label = "Hello World";
 As the button is the only control which we will be displaying in this example, we'll set it as the window's content view.
 
 ```C++
-_window->content = button;
+_window->contentView = button;
 ```
 
 Finally, we need make the Window visible.

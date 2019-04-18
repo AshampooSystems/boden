@@ -11,7 +11,7 @@ To build Android apps on Linux, the following dependencies need to be installed:
 6. [Android Studio](https://developer.android.com/studio/) (with Android NDK)
 
 !!! note
-	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Linux](../dependency_installation/linux.md#setting-up-linux-for-android-builds) and follow the steps listed there to install them.
+	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Linux](../installing_dependencies/linux.md#setting-up-linux-for-android-builds) and follow the steps listed there to install them.
 
 Follow these steps to set up Boden for Android development on Ubuntu:
 

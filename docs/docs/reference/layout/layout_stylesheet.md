@@ -3,7 +3,7 @@ source: LayoutStylesheet.h
 
 # LayoutStylesheet
 
-Base class for layout stylesheets
+Base class for layout stylesheets.
 
 ## Declaration
 
@@ -17,8 +17,8 @@ class LayoutStylesheet
 
 	Returns the type of the stylesheet.
 
-	As a workaround to allow aggregate initialization this is not implemented as a virtual function, but instead expects the first member of a sub-class 
-	to be a const char* containing the name of its type.
+	As a workaround to allow aggregate initialization this is not implemented as a virtual function, but instead expects the first member of a subclass 
+	to be a `const char*` containing the name of its type.
 
 	```C++
 	String type() { return *((const char **)this); }

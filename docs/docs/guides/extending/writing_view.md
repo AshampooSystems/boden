@@ -1,21 +1,23 @@
-# Writing a new View
+# Writing a New View
 
 ## Introduction
 
-Boden views consist of two parts:
+This guide will use the [`Button`](../../reference/ui/button.md) class implementation as an example to demonstrate the steps needed to extend the Boden Framework with new view components.
 
-1. The outward facing View class
-2. The inner platform specific ViewCore implementation
-
-This guide will use the Button class implementation to highlight the specific steps needed to implement new Views. 
+In contrast to [Writing a View Module](writing_view_modules.md), this guide will explain how to extend the Boden Framework itself with a new integrated view component rather than adding an optional component which can be shipped independently. Please refer to [Writing a View Module](writing_view_modules.md) if you want to create a standalone view component.
 
 ## The View
 
-The first step in writing new Views is to create a new class derived from [View](../../reference/ui/view.md).
+Boden views consist of two parts:
+
+1. The outward facing platform-independent [`View`](../../reference/ui/view.md) class. This is what users of your view component will usually see and interact with.
+2. The internal platform-specific [`View::Core`](../../reference/ui/view_core.md) implementation. This part of the view implementation is usually hidden from users of your new view component.
+
+The first step in writing a new view is to create a new class derived from [`View`](../../reference/ui/view.md).
 
 ### Header
 
-Lets create a new header in `framework/ui/include/bdn` called `ExampleButtonView.h`:
+Create a new header in `framework/ui/include/bdn` called `ExampleButtonView.h`:
 
 ```c++
 #pragma once
@@ -34,7 +36,7 @@ namespace bdn
 
 ### Source
 
-In `boden/framework/ui/src` we create a file called `ExampleButtonView.cpp`:
+In `boden/framework/ui/src`, create a file called `ExampleButtonView.cpp`:
 
 ```c++
 #include <bdn/ExampleButtonView.h>
@@ -49,9 +51,9 @@ namespace bdn
 }
 ```
 
-## The Core
+## The View Core
 
-Create a new Core Interface:
+Create a new `Core` interface as an inner class of `ExampleButtonView`:
 
 ```c++
 #pragma once
@@ -86,11 +88,11 @@ namespace bdn
 	}
 	```
 
-## The IOS Implementation
+## The iOS Implementation
 
 ### Header
 
-The actual Core implementation is platform specific. Create a new *objective-c* header in `framework/ui/platforms/ios/include/bdn/ios/` called `ExampleButtonViewCore.hh`:
+The core's actual implementation is platform-specific. Create a new Objective-C++ header in `framework/ui/platforms/ios/include/bdn/ios/` called `ExampleButtonViewCore.hh`:
 
 ```c++
 #pragma once
@@ -113,7 +115,7 @@ namespace bdn::ios
 
 ### Source
 
-Create a new *objective-c* source file in `framework/ui/platforms/ios/src` called `ExampleButtonViewCore.mm`:
+Create a new Objective-C++ source file in `framework/ui/platforms/ios/src` called `ExampleButtonViewCore.mm`:
 
 ```obj-c
 #import <bdn/ios/ExampleButtonViewCore.hh>
@@ -146,13 +148,13 @@ namespace bdn::ios
 ```
 
 !!! note ViewCores
-	For more information about the intricacies of implementing ViewCores please see [ViewCore](../../reference/ui/view_core.md) and [IOS ViewCore](../../reference/ui/ios/view_core.md)
+	For more information about the intricacies of implementing view cores please refer to [ViewCore](../../reference/ui/view_core.md) and [iOS ViewCore](../../reference/ui/ios/view_core.md).
 
-## Connecting the ViewCore to the View
+## Connecting the View Core to the View
 
-Boden uses the [ViewCoreFactory](../../reference/ui/view_core_factory.md) to create instances of the ViewCore. To create the connection between a View and its ViewCore we have to add some boilerplate to the classes.
+Boden uses the [`ViewCoreFactory`](../../reference/ui/view_core_factory.md) to create instances of the view core. To create the connection between a view and its core, add the following boilerplate to the classes:
 
-### View header
+### View Header
 
 Add the following code to `ExampleButtonView.h`:
 
@@ -190,7 +192,7 @@ namespace bdn::detail
 	}
 	```
 
-### View implementation
+### View Implementation
 
 Add the following code to `ExampleButtonView.cpp`:
 
@@ -228,7 +230,7 @@ ExampleButtonView::ExampleButtonView(
 	}
 	```
 
-### ViewCore implementation
+### View Core Implementation
 
 Add the following code to `ExampleButtonViewCore.mm`:
 
@@ -284,9 +286,9 @@ namespace bdn::detail
 
 ## Adding Properties
 
-For a simple property of a View boden uses the class [Property<T\>](../../reference/foundation/property.md).
+To represent properties of a view, use the [`Property`](../../reference/foundation/property.md) class.
 
-In this example we add a "label" property to allow the user to change the text displayed on the Button.
+As an example, add a `label` property so users of your view can set the button's label.
 
 ```c++
 class ExampleButtonView : public View
@@ -324,7 +326,7 @@ public:
 	}
 	```
 
-To connect the property to the core we replicate the Property:
+To connect the property to the core, replicate the property in the `Core` interface:
 
 ```c++
 class Core
@@ -364,7 +366,7 @@ public:
 	}
 	```
 
-To bind View and Core properties we override the [View::bindViewCore()](../../reference/ui/view.md#view-core) function:
+To bind the two label properties in `View` and `Core` properties, override the [`View::bindViewCore()`](../../reference/ui/view.md#view-core) function:
 
 ```c++
 void ExampleButtonView::bindViewCore()
@@ -403,7 +405,7 @@ void ExampleButtonView::bindViewCore()
 	```
 
 
-Now we can react to changes in our IOS Implementation by adding an onChange handler in its init function. 
+Now it is easy to react to changes to `label` in the iOS Implementation by adding an `onChange()` handler in the view core's init function. 
 
 ```c++
 namespace bdn::ios {
@@ -468,12 +470,11 @@ namespace bdn::ios {
 	}
 	```
 
-## Sending notifications to the View
+## Sending Notifications to the View
 
-To allow the user to react the Button clicks we need a way to call functions of the View from the Core.
-For this we can use a combination of a [Notifier](../../reference/foundation/notifier.md) and a `WeakCallback`.
+To allow users of your new class to react to button clicks, you can use a combination of a [Notifier](../../reference/foundation/notifier.md) and a `WeakCallback`.
 
-First we add the `WeakCallback` to our Core:
+First, add the `WeakCallback` to your Core:
 
 ```C++
 class ExampleButtonView : public View
@@ -520,7 +521,7 @@ public:
 	}
 	```
 
-Now we can fire the callback from our UIButton derived class:
+Now you can fire the callback from your `UIButton` subclass:
 
 ```obj-c
 - (void)clicked
@@ -586,7 +587,7 @@ Now we can fire the callback from our UIButton derived class:
 	}
 	```
 
-We still have to add the notifier and the callback receiver to our View class:
+Add the notifier and the callback receiver to your `View` class:
 
 ```c++
 class ExampleButtonView
@@ -634,7 +635,7 @@ class ExampleButtonView
 	}
 	```
 
-And at last we connect it to the `WeakCallback`:
+Finally, connect it to the `WeakCallback`:
 
 ```c++
 void ExampleButtonView::bindViewCore()
@@ -677,3 +678,5 @@ void ExampleButtonView::bindViewCore()
 		}
 	}
 	```
+
+Congratulations, your first custom view should be working now!

@@ -21,9 +21,9 @@ This will bring up Xcode on macOS or Android Studio on Linux/Windows.
 
 If anything goes wrong, please make sure that all dependencies are installed and set up correctly. Check out our extended guides for help:
 
-* [Building on macOS](setup/mac)
-* [Building on Windows](setup/win)
-* [Building on Linux](setup/linux)
+* [Building Boden on macOS](building/mac)
+* [Building Boden on Windows](building/windows)
+* [Building Boden on Linux](building/linux)
 
 ## Step 3: Run a Boden Example Application
 

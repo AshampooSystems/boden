@@ -1,11 +1,16 @@
+path: tree/master/framework/ui/include/bdn/
+source: Size.h
+
 # Size
 
-Represents a two-dimensional size composed of width and height.
+Represents a two-dimensional size comprised of `width` and `height` floating point numbers with double precision.
+
+`Size` objects are used throughout the framework to work with measurements and layouts. By default, a size in Boden is used to represent unscaled coordinates (points) and might be translated to physical pixels as required by the framework.
 
 ## Declaration
 
 ```C++
-class Size
+struct Size
 ```
 
 ## Public Member Variables

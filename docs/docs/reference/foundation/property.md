@@ -5,9 +5,9 @@ source: Property.h
 
 Represents a property of a class.
 
-Properties provide a simple way to access and observe arbitrary value types such as `int` or `String`. You may observe value changes using the `onChange()` method or bind two or more properties using the `bind()` method.
+Properties provide you with a simple way to represent and observe arbitrary value types such as `int` or `String` as part of a class or struct. You may observe value changes using the `onChange()` method or bind two or more properties using the `bind()` method.
 
-See also: [Property Guide](../../guides/foundation/properties.md)
+See also: [Property Guide](../../guides/fundamentals/properties.md)
 
 ## Declaration
 
@@ -24,7 +24,7 @@ class Property : virtual public IValueAccessor<ValType>
 
 * **Property(const Property &) = delete**
 
-	`Property` instances cannot be copy-constructed. However, they can be default-constructed and then assigned using `operator =`. See the [Property Guide](../../guides/foundation/properties.md#copying) for details.
+	`Property` instances cannot be copy-constructed. However, they can be default-constructed and then assigned using `operator =`. See the [Property Guide](../../guides/fundamentals/properties.md#copying) for details.
 
 * **Property(ValType value)**
 
@@ -32,7 +32,7 @@ class Property : virtual public IValueAccessor<ValType>
 
 * **Property(const GetterSetter<ValType> &getterSetter)**
 
-	Constructs a `Property` instance from a `GetterSetter` object. This can be used to define custom getter and setter methods. See the [Property Guide](../../guides/foundation/properties.md#getters-and-setters) for details.
+	Constructs a `Property` instance from a `GetterSetter` object. This can be used to define custom getter and setter methods. See the [Property Guide](../../guides/fundamentals/properties.md#getters-and-setters) for details.
 
 * **Property([Streaming](streaming.md) &stream)**
 
