@@ -2,6 +2,18 @@ input::placeholder {
 	color: rgba(255,255,255,0.5) !important;
 }
 
+@media only screen and (min-width: 60em) {
+	.md-content {
+		margin-right: 0;
+	}
+}
+
+@media only screen and (min-width: 76.1875em) {
+	.md-content {
+		margin-right: 24.2rem;
+	}
+}
+
 .md-header.boden-hero {
 	background-color: rgb(27,27,27);
 	color: white;
@@ -39,8 +51,6 @@ button.boden-call-to-action {
 	background: transparent;
 	color: rgb(255,255,255);
 	border: 2px solid white;
-	/*background-color: rgb(112, 170, 68);*/
-	/*background-image: linear-gradient(to right, rgb(32, 179, 248), rgb(0, 97, 122));*/
 	padding: 10px 30px 10px 30px;
 	font-size: 1.2rem;
 	font-weight: 600;
@@ -142,14 +152,10 @@ button.boden-call-to-action.secondary:hover {
 	display: inline-block;
 }
 
-/* rgb(112, 170, 68) */
 .cc-bottom {
 	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 	font-size: 1.4rem !important;
-	/*background-color: #fff !important;*/
-	/*background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));*/
 	background-color: rgb(27,27,27) !important;
-	/*color: rgb(27,27,27) !important;*/
 }
 
 .cc-dismiss {
