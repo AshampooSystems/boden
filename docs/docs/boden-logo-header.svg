@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-	 viewBox="0 0 40.826 35.357">
-<path style="fill:#FFFFFF;" d="M30.62,0H10.207L0,17.678l10.207,17.678H30.62l10.207-17.678L30.62,0z M16.501,1.728h13.121
-	l8.71,15.086H16.501V1.728z M14.773,33.629h-3.569l-9.209-15.95l9.209-15.95h3.569V33.629z M29.622,33.629H16.501V18.542l21.831,0
-	L29.622,33.629z"/>
+<!-- Generator: Adobe Illustrator 23.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 27.048 23.424" style="enable-background:new 0 0 27.048 23.424;" xml:space="preserve">
+<path style="fill:#FFFFFF;" d="M20.286,0H6.762L0,11.712l6.762,11.712h13.524l6.762-11.712L20.286,0z M11.774,2.185h7.631
+	l4.827,8.427H11.774V2.185z M9.597,21.255H8.312l-5.496-9.543l5.496-9.567h1.286V21.255z M19.405,21.279h-7.631v-8.49h12.458
+	L19.405,21.279z"/>
 </svg>
