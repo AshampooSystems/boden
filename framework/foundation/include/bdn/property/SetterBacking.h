@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/property/Backing.h>
-#include <bdn/property/Setter.h>
 
 namespace bdn
 {
@@ -11,12 +10,11 @@ namespace bdn
         using value_accessor_t = typename Backing<ValType>::value_accessor_t;
 
       public:
-        using SetterFunc = typename Setter<ValType>::SetterFunc;
+        using SetterFunc = std::function<bool(ValType &, ValType)>;
 
-        // Not default constructible, not copy-constructible
         SetterBacking() = delete;
-        SetterBacking(const SetterBacking &) = delete;
 
+        SetterBacking(const SetterBacking &other) : _value(other._value), _setter(other._setter) {}
         SetterBacking(ValType value) : _value(value) {}
         SetterBacking(SetterFunc setter) : _setter(setter) {}
 
@@ -34,7 +32,6 @@ namespace bdn
 
       protected:
         ValType _value;
-
         SetterFunc _setter;
     };
 }

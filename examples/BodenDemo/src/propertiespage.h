@@ -13,9 +13,9 @@ namespace bdn
         Property<String> _stringProperty = "Hello World"s;
         Property<int> _intProperty = 42;
         Property<String> _stringToIntProperty{
-            Transform<String, int>{_intProperty, &Properties::intToString, &Properties::stringToInt}};
+            TransformBacking<String, int>{_intProperty, &Properties::intToString, &Properties::stringToInt}};
 
-        Property<String> _streamProperty{Streaming()
+        Property<String> _streamProperty{StreamBacking()
                                          << "The string properties value is: \"" << _stringProperty << "\"\n"
                                          << "The int property value is: " << _intProperty << "\n"
                                          << "The stringToInt property value is: \"" << _stringToIntProperty << "\"\n"};
@@ -71,7 +71,7 @@ namespace bdn
             addChildView(btnContainer);
 
             auto header = std::make_shared<Label>();
-            header->text = "Streaming property:";
+            header->text = "StreamingBacking property:";
             header->stylesheet = FlexJsonStringify({"flexShrink" : 0});
             addChildView(header);
 

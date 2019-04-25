@@ -13,7 +13,7 @@ namespace bdn
       public:
         Property<Timer::Duration> interval = 10ms;
 
-        Property<String> _stringToDurationProperty{Transform<String, Timer::Duration>{
+        Property<String> _stringToDurationProperty{TransformBacking<String, Timer::Duration>{
             interval, &Timers::durationToString, std::bind(&Timers::stringToDuration, this, std::placeholders::_1)}};
 
         static String durationToString(Timer::Duration duration)

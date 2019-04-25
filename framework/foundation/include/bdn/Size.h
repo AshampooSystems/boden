@@ -1,9 +1,8 @@
 #pragma once
 
-#include <bdn/Margin.h>
-
 #include <cmath>
 #include <limits>
+#include <ostream>
 
 namespace bdn
 {
@@ -22,24 +21,6 @@ namespace bdn
         constexpr Size(double width, double height) : width(width), height(height) {}
 
       public:
-        Size operator-(const Margin &margin) const { return Size(*this) -= margin; }
-        Size &operator-=(const Margin &margin)
-        {
-            width -= margin.left + margin.right;
-            height -= margin.top + margin.bottom;
-
-            return *this;
-        }
-
-        Size operator+(const Margin &margin) const { return Size(*this) += margin; }
-        Size &operator+=(const Margin &margin)
-        {
-            width += margin.left + margin.right;
-            height += margin.top + margin.bottom;
-
-            return *this;
-        }
-
         Size operator+(const Size &o) const { return Size(*this) += o; }
         Size &operator+=(const Size &o)
         {
@@ -56,28 +37,6 @@ namespace bdn
             height -= o.height;
 
             return *this;
-        }
-
-        void applyMinimum(const Size &minSize)
-        {
-            if (std::isfinite(minSize.width) && (!std::isfinite(width) || width < minSize.width)) {
-                width = minSize.width;
-            }
-
-            if (std::isfinite(minSize.height) && (!std::isfinite(height) || height < minSize.height)) {
-                height = minSize.height;
-            }
-        }
-
-        void applyMaximum(const Size &maxSize)
-        {
-            if (std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width)) {
-                width = maxSize.width;
-            }
-
-            if (std::isfinite(maxSize.height) && (!std::isfinite(height) || height > maxSize.height)) {
-                height = maxSize.height;
-            }
         }
     };
 

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Cocoa/Cocoa.h>
-
 #include <bdn/Window.h>
 
+#import <Cocoa/Cocoa.h>
 #import <bdn/mac/util.hh>
 
 @class BdnMacWindowContentViewParent_;
@@ -31,7 +30,6 @@ namespace bdn::mac
         Rect getContentArea();
         Rect getScreenWorkArea() const;
         Size getMinimumSize() const;
-        Margin getNonClientMargin() const;
 
         NSScreen *_getNsScreen() const;
 

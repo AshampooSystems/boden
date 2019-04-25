@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/Margin.h>
 #include <bdn/Point.h>
 #include <bdn/Size.h>
 
@@ -31,34 +30,6 @@ namespace bdn
 
         Point position() const { return Point(x, y); }
         Size size() const { return Size(width, height); }
-
-        /** Decrease the rect size by subtracting the specified margin.*/
-        Rect operator-(const Margin &margin) const { return Rect(*this) -= margin; }
-
-        /** Decrease the rect size by subtracting the specified margin.*/
-        Rect &operator-=(const Margin &margin)
-        {
-            x += margin.left;
-            y += margin.top;
-            width -= margin.left + margin.right;
-            height -= margin.top + margin.bottom;
-
-            return *this;
-        }
-
-        /** Increase the rect size by adding the specified margin.*/
-        Rect operator+(const Margin &margin) const { return Rect(*this) += margin; }
-
-        /** Increase the rect size by adding the specified margin.*/
-        Rect &operator+=(const Margin &margin)
-        {
-            x -= margin.left;
-            y -= margin.top;
-            width += margin.left + margin.right;
-            height += margin.top + margin.bottom;
-
-            return *this;
-        }
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS>

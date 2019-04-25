@@ -144,4 +144,18 @@ namespace bdn
         p1 = "Hallo Welt";
         EXPECT_EQ("Hello World", p1.get());
     }
+
+    TEST(Property, SetterBacking)
+    {
+        Property<String> p1(SetterBacking<String>([](String &value, String newValue) -> bool {
+            value = newValue;
+            return true;
+        }));
+
+        p1 = "Hello World";
+        EXPECT_EQ("Hello World", p1.get());
+
+        Property<String> p2(SetterBacking<String>("Hello World"));
+        EXPECT_EQ("Hello World", p2.get());
+    }
 }

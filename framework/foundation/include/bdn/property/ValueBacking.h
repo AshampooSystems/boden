@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/property/Backing.h>
-#include <bdn/property/Compare.h>
 #include <optional>
 
 namespace bdn
@@ -23,7 +22,7 @@ namespace bdn
             bool changed = false;
 
             {
-                if (Compare<ValType>::not_equal(_value, value)) {
+                if (Compare<ValType>::notEqual(_value, value)) {
                     _value = value;
                     changed = true;
                 }
@@ -34,6 +33,26 @@ namespace bdn
                     std::dynamic_pointer_cast<value_accessor_t>(Backing<ValType>::shared_from_this()));
             }
         }
+
+        ValueBacking &operator=(const ValueBacking &other)
+        {
+            // Preserve own value memory and set value from other backing
+            this->set(other.get());
+            return *this;
+        }
+
+      public:
+        template <class T> struct Compare
+        {
+            static const bool isComparable = false;
+            static bool notEqual(const T &left, const T &right) { return left != right; }
+        };
+
+        template <class _fp> struct Compare<std::function<_fp>>
+        {
+            static const bool isComparable = true;
+            static bool notEqual(const std::function<_fp> &left, const std::function<_fp> &right) { return true; }
+        };
 
       protected:
         ValType _value;

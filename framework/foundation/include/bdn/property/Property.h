@@ -3,15 +3,11 @@
 #include <bdn/String.h>
 #include <bdn/property/IValueAccessor.h>
 
-#include <bdn/property/Compare.h>
-#include <bdn/property/GetterSetter.h>
 #include <bdn/property/GetterSetterBacking.h>
-#include <bdn/property/InternalValueBacking.h>
-#include <bdn/property/Setter.h>
 #include <bdn/property/SetterBacking.h>
-#include <bdn/property/Streaming.h>
-#include <bdn/property/Transform.h>
-#include <bdn/property/property_forward_decl.h>
+#include <bdn/property/StreamBacking.h>
+#include <bdn/property/TransformBacking.h>
+#include <bdn/property/ValueBacking.h>
 
 using namespace std::string_literals;
 
@@ -42,7 +38,7 @@ namespace bdn
             };
         };
 
-        using internal_backing_t = InternalValueBacking<ValType>;
+        using value_backing_t = ValueBacking<ValType>;
         using gs_backing_t = GetterSetterBacking<ValType>;
         using setter_backing_t = SetterBacking<ValType>;
 
@@ -50,36 +46,34 @@ namespace bdn
         using backing_t = Backing<ValType>;
         using value_accessor_t_ptr = typename Backing<ValType>::value_accessor_t_ptr;
 
-        Property() : _backing(std::make_shared<internal_backing_t>()) {}
+        Property() : _backing(std::make_shared<value_backing_t>()) {}
         Property(Property &other) : _backing(other.backing()) {}
         Property(const Property &) = delete;
         ~Property() override = default;
 
-        Property(ValType value) : _backing(std::make_shared<internal_backing_t>())
+        Property(ValType value) : _backing(std::make_shared<value_backing_t>())
         {
             set(value, false /* do not notify on initial set */);
         }
 
-        Property(const GetterSetter<ValType> &getterSetter)
+        Property(const GetterSetterBacking<ValType> &getterSetter)
         {
-            _backing =
-                std::make_shared<gs_backing_t>(getterSetter.getter(), getterSetter.setter(), getterSetter.member());
+            _backing = std::make_shared<gs_backing_t>(getterSetter);
         }
 
-        Property(const Setter<ValType> &setter) { _backing = std::make_shared<setter_backing_t>(setter.setter()); }
+        Property(const SetterBacking<ValType> &setter) { _backing = std::make_shared<setter_backing_t>(setter); }
 
-        Property(Streaming &stream) { _backing = std::make_shared<Streaming::Backing>(stream); }
+        Property(const StreamBacking &stream) { _backing = std::make_shared<StreamBacking>(stream); }
 
-        template <class U> Property(const Transform<ValType, U> &transform)
+        template <class U> Property(const TransformBacking<ValType, U> &transform)
         {
-            _backing = std::make_shared<typename Transform<ValType, U>::Backing>(transform);
+            _backing = std::make_shared<TransformBacking<ValType, U>>(transform);
         }
 
         Property(std::shared_ptr<Backing<ValType>> backing) { _backing = backing; }
 
         template <class _Rep, class _Period>
-        Property(const std::chrono::duration<_Rep, _Period> &duration)
-            : _backing(std::make_shared<internal_backing_t>())
+        Property(const std::chrono::duration<_Rep, _Period> &duration) : _backing(std::make_shared<value_backing_t>())
         {
             set(std::chrono::duration_cast<ValType>(duration), false);
         }
@@ -95,7 +89,7 @@ namespace bdn
 
         void bind(Property<ValType> &sourceProperty, BindMode bindMode = BindMode::bidirectional)
         {
-            if (Compare<ValType>::is_faked && bindMode == BindMode::bidirectional) {
+            if (ValueBacking<ValType>::template Compare<ValType>::isComparable && bindMode == BindMode::bidirectional) {
                 throw std::logic_error("You cannot bind this type of Property bidirectional, its == operator is faked "
                                        "and therefor would end up in an endless loop.");
             }

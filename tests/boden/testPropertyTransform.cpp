@@ -12,7 +12,7 @@ namespace bdn
         int changeCount = 0;
     };
 
-    TEST(Transform, IntToString)
+    TEST(TransformBacking, IntToString)
     {
         ChangeCounter<String> cc;
         Property<int> test(1);
@@ -61,10 +61,10 @@ namespace bdn
             return result;
         };
 
-        Property<String> trTest(Transform<String, int>{test, toFunc, fromFunc});
-        Property<String> trTest1(Transform<String, int>{test1, toFunc, fromFunc});
+        Property<String> trTest(TransformBacking<String, int>{test, toFunc, fromFunc});
+        Property<String> trTest1(TransformBacking<String, int>{test1, toFunc, fromFunc});
 
-        Property<String> pStream = {Streaming() << trTest << ", " << trTest1};
+        Property<String> pStream = {StreamBacking() << trTest << ", " << trTest1};
         pStream.onChange() += std::ref(cc);
         EXPECT_EQ(cc.changeCount, 0);
 

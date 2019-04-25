@@ -15,7 +15,7 @@ class Person
     bdn::Property<ComplexType> complex = ComplexType{42, "running out of ideas"s};
 
     // GetterSetterBacking
-    bdn::Property<int> height{bdn::GetterSetter<int>{this, &Person::getHeight, &Person::setHeight, &_height}};
+    bdn::Property<int> height{bdn::GetterSetterBacking<int>{this, &Person::getHeight, &Person::setHeight, &_height}};
 
     int getHeight() const { return _height; }
     bool setHeight(int height)
@@ -30,7 +30,7 @@ class Person
 
     // Transform backing
     bdn::Property<double> heightInInches = {
-        bdn::Transform<double, int>{height, &Person::heightToInches, &Person::inchesToHeight}};
+        bdn::TransformBacking<double, int>{height, &Person::heightToInches, &Person::inchesToHeight}};
 
     static double heightToInches(int height) { return 2.54 * double(height); }
     static int inchesToHeight(double inches) { return int(inches / 2.54); }

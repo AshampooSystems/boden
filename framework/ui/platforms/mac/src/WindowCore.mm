@@ -180,19 +180,6 @@ namespace bdn::mac
 
     Size WindowCore::getMinimumSize() const { return macSizeToSize(_nsWindow.minSize); }
 
-    Margin WindowCore::getNonClientMargin() const
-    {
-        Size dummyContentSize = getMinimumSize();
-
-        NSRect macContentRect = rectToMacRect(Rect(Point(0, 0), dummyContentSize), -1);
-        NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
-
-        Rect windowRect = macRectToRect(macWindowRect, -1);
-
-        return Margin(fabs(windowRect.y), fabs(windowRect.x + windowRect.width - dummyContentSize.width),
-                      fabs(windowRect.y + windowRect.height - dummyContentSize.height), fabs(windowRect.x));
-    }
-
     NSScreen *WindowCore::_getNsScreen() const
     {
         NSScreen *screen = _nsWindow.screen;

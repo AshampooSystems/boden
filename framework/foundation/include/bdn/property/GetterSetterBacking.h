@@ -12,6 +12,9 @@ namespace bdn
         using GetterFunc = std::function<ValType()>;
         using SetterFunc = std::function<bool(const ValType &)>;
 
+        // Not default constructible
+        GetterSetterBacking() = delete;
+
         template <typename GetterType, typename SetterType>
         GetterSetterBacking(GetterType getter, SetterType setter, ValType *member = nullptr)
             : _member(member), _getter(getter), _setter(setter)
@@ -24,9 +27,14 @@ namespace bdn
             }
         }
 
-        // Not default constructible, not copy-constructible
-        GetterSetterBacking() = delete;
-        GetterSetterBacking(const GetterSetterBacking &) = delete;
+        template <typename OwnerType, typename GetterType, typename SetterType>
+        GetterSetterBacking(OwnerType owner, GetterType getter, SetterType setter, ValType *member = nullptr)
+            : _member(member), _getter(bindOptionalGetter(owner, getter)), _setter(bindOptionalSetter(owner, setter))
+        {}
+
+        GetterSetterBacking(const GetterSetterBacking &other)
+            : _member(other._member), _getter(other._getter), _setter(other._setter)
+        {}
 
         ValType get() const override
         {
@@ -61,6 +69,29 @@ namespace bdn
             if (changed && notify) {
                 this->_pOnChange->notify(Backing<ValType>::shared_from_this());
             }
+        }
+
+      protected:
+        template <typename OwnerType, typename GetterType>
+        static GetterFunc bindOptionalGetter(OwnerType owner_, GetterType getter_)
+        {
+            return std::bind(getter_, owner_);
+        }
+
+        template <typename OwnerType> static GetterFunc bindOptionalGetter(OwnerType owner_, std::nullptr_t getter_)
+        {
+            return nullptr;
+        }
+
+        template <typename OwnerType, typename SetterType>
+        static SetterFunc bindOptionalSetter(OwnerType owner_, SetterType setter_)
+        {
+            return std::bind(setter_, owner_, std::placeholders::_1);
+        }
+
+        template <typename OwnerType> static SetterFunc bindOptionalSetter(OwnerType owner_, std::nullptr_t setter_)
+        {
+            return nullptr;
         }
 
       protected:
