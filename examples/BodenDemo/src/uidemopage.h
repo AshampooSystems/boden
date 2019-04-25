@@ -118,6 +118,32 @@ namespace bdn
         std::shared_ptr<Styler> _styler;
     };
 
+    class DemoDataSource : public ListViewDataSource
+    {
+      public:
+        std::vector<String> _data;
+
+      public:
+        DemoDataSource() { _data = {"List entry 1", "List entry 2"}; }
+
+        size_t numberOfRows() override { return _data.size(); }
+
+        std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+        {
+            std::shared_ptr<Label> label = std::dynamic_pointer_cast<Label>(reusableView);
+
+            if (!label) {
+                label = std::make_shared<Label>();
+            }
+
+            label->text = _data[rowIndex];
+
+            return label;
+        }
+
+        float heightForRowIndex(size_t rowIndex) override { return 15.0f; }
+    };
+
     std::shared_ptr<WindowMatcher> _windowMatcher;
 
     auto createUiDemoPage(std::shared_ptr<Window> window)
@@ -200,17 +226,12 @@ namespace bdn
 
         ////////////////////////////////////////////////////////////////////////
 
-        auto fakeList = std::make_shared<ContainerView>();
-        fakeList->stylesheet = FlexJsonStringify({"flexShrink" : 0});
+        auto list = std::make_shared<ListView>();
+        auto dataSource = std::make_shared<DemoDataSource>();
 
-        String demoEntries[] = {"List Item 1", "List Item 2"};
-
-        for (auto entry : demoEntries) {
-            auto newEntry = std::make_shared<Label>();
-            newEntry->text = entry;
-            newEntry->stylesheet = FlexJsonStringify({"flexShrink" : 0});
-            fakeList->addChildView(newEntry);
-        }
+        list->dataSource = dataSource;
+        list->reloadData();
+        list->stylesheet = FlexJsonStringify({"flexGrow" : 1.0, "minimumSize" : {"height" : 75}});
 
         auto buttonRow = std::make_shared<ContainerView>();
 
@@ -220,25 +241,27 @@ namespace bdn
         auto addButton = std::make_shared<Button>();
         addButton->label = "Add";
 
-        addButton->onClick() += [fakeList, textFieldCtrl](auto) {
-            auto newEntry = std::make_shared<Label>();
-            newEntry->text = textFieldCtrl->text.get().empty() ? "New Item" : textFieldCtrl->text.get();
-            newEntry->stylesheet = FlexJsonStringify({"flexShrink" : 0});
-            fakeList->addChildView(newEntry);
+        addButton->onClick() += [dataSource, list, textFieldCtrl](auto) {
+            String text = textFieldCtrl->text.get().empty() ? "New Item" : textFieldCtrl->text.get();
+            dataSource->_data.push_back(text);
+            list->reloadData();
         };
 
         auto removeButton = std::make_shared<Button>();
         removeButton->label = "Remove";
-        removeButton->onClick() += [fakeList](auto) {
-            std::list<std::shared_ptr<bdn::View>> children = fakeList->childViews();
-            if (children.size() > 0) {
-                fakeList->removeChildView(children.back());
+        removeButton->onClick() += [list, dataSource](auto) {
+            if (!dataSource->_data.empty()) {
+                dataSource->_data.pop_back();
+                list->reloadData();
             }
         };
 
         auto clearButton = std::make_shared<Button>();
         clearButton->label = "Clear";
-        clearButton->onClick() += [fakeList](auto) { fakeList->removeAllChildViews(); };
+        clearButton->onClick() += [list, dataSource](auto) {
+            dataSource->_data.clear();
+            list->reloadData();
+        };
 
         buttonRow->addChildView(addButton);
         buttonRow->addChildView(removeButton);
@@ -266,7 +289,7 @@ namespace bdn
         listHeader->addChildView(buttonRow);
 
         container->addChildView(listHeader);
-        container->addChildView(fakeList);
+        container->addChildView(list);
 
         return container;
     }
