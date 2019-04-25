@@ -56,6 +56,7 @@ nav:
     - guides/index.md
     - Fundamentals:
       - guides/fundamentals/properties.md
+      - guides/fundamentals/resources.md
     - Layout:
       - guides/layout/summary.md
       - guides/layout/json.md
@@ -80,9 +81,7 @@ nav:
       - reference/foundation/string.md
       - reference/foundation/transform.md
     - Layout:
-      - reference/layout/flex_stylesheet.md
       - reference/layout/layout.md
-      - reference/layout/layout_stylesheet.md
       - Yoga Layout:
         - reference/layout/yogalayout/layout.md
     - UI:
@@ -96,6 +95,7 @@ nav:
       - reference/ui/list_view_data_source.md
       - reference/ui/navigation_view.md
       - reference/ui/scroll_view.md
+      - reference/ui/styler.md
       - reference/ui/submit_event.md
       - reference/ui/switch.md
       - reference/ui/text_field.md

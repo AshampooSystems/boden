@@ -1,5 +1,5 @@
 macro(configure_app_permissions)
-    set(options ALLOW_INTERNET ALLOW_HTTP)
+    set(options ALLOW_INTERNET ALLOW_HTTP ALLOW_CAMERA)
 
     cmake_parse_arguments(_permissions "${options}" "" "" ${ARGN} )
 
@@ -22,6 +22,10 @@ macro(configure_app_permissions)
 
         if(_permissions_ALLOW_INTERNET)
             string(APPEND ANDROID_PERMISSIONS "<uses-permission android:name=\"android.permission.INTERNET\" />")
+        endif()
+
+        if(_permissions_ALLOW_CAMERA)
+            string(APPEND ANDROID_PERMISSIONS "<uses-permission android:name=\"android.permission.CAMERA\" />")
         endif()
     endif()
 endmacro()

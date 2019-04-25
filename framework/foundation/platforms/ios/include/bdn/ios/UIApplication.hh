@@ -20,6 +20,8 @@ namespace bdn::ios
 
         void openURL(const String &url) override;
 
+        String uriToBundledFileUri(const String &uri) override;
+
       public:
         bool _applicationWillFinishLaunching(NSDictionary *launchOptions);
         bool _applicationDidFinishLaunching(NSDictionary *launchOptions);

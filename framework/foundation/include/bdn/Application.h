@@ -52,6 +52,7 @@ namespace bdn
 
       public:
         virtual void openURL(const String &url) = 0;
+        virtual String uriToBundledFileUri(const String &uri) { return uri; }
 
       protected:
         virtual void platformSpecificInit() {}

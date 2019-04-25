@@ -17,6 +17,10 @@ namespace bdn
         View::bindViewCore();
 
         auto imageCore = core<ImageView::Core>();
+
+        iOriginalSize.bind(imageCore->originalSize, BindMode::unidirectional);
+        iAspectRatio.bind(imageCore->aspectRatio, BindMode::unidirectional);
+
         imageCore->url.bind(url);
     }
 }

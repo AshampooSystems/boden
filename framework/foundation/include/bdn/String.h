@@ -100,4 +100,27 @@ namespace bdn
 
         throw std::invalid_argument("Couldn't convert string to duration");
     }
+
+    namespace path // Replace with std::filesystem once its more commonly available
+    {
+        inline std::pair<String, String> split(const String &path)
+        {
+            auto lastSeperatorPos = path.find_last_of('/');
+            if (lastSeperatorPos == String::npos) {
+                return std::make_pair("", path);
+            }
+
+            return std::make_pair(path.substr(0, lastSeperatorPos), path.substr(lastSeperatorPos + 1));
+        }
+
+        inline std::pair<String, String> splitExt(const String &filename)
+        {
+            auto extpos = filename.find_last_of('.');
+            if (extpos == String::npos || extpos == 0) {
+                return std::make_pair(filename, "");
+            }
+
+            return std::make_pair(filename.substr(0, extpos), filename.substr(extpos + 1));
+        }
+    }
 }

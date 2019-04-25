@@ -203,11 +203,11 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'python boden.py run --target testFoundation -- --gtest_output=xml:$PWD/testresults/ios_testFoundation.xml'
-                                sh 'cat $PWD/testresults/ios_testFoundation.xml'
-                                junit "testresults/ios_testFoundation.xml"
+                                sh 'python boden.py run --target testBoden -- --gtest_output=xml:$PWD/testresults/ios_testBoden.xml'
+                                sh 'cat $PWD/testresults/ios_testBoden.xml'
+                                junit "testresults/ios_testBoden.xml"
 
-                                archiveArtifacts artifacts: 'testresults/ios_testFoundation.xml'
+                                archiveArtifacts artifacts: 'testresults/ios_testBoden.xml'
                             }
                         }
                     }

@@ -1,5 +1,11 @@
+import logging
+import os
+import sys
+import shutil
+import subprocess
+import tempfile
+
 from resource_file import ResourceFile
-import logging, os, sys, shutil, subprocess, tempfile
 
 class Roger:
 	def __init__(self):
@@ -34,7 +40,7 @@ class Roger:
 			sys.stdout.write(dest)
 			sys.stdout.write(";")
 
-	def destination_path_mac(self, args, src, bundle_path, lang_folder_name, suffix, real_ext = None):
+	def destination_path_flattened(self, args, src, bundle_path, lang_folder_name, suffix, real_ext = None):
 		src = self.full_path(src)
 
 		dest_name, dest_ext  = os.path.splitext(bundle_path)
@@ -48,22 +54,25 @@ class Roger:
 		dest = os.path.join(args.output_directory, lang_folder_name, dest_name)
 		return dest
 
-	def destination_path_ios(self, args, src, bundle_path, lang_folder_name, suffix, real_ext = None):
+	def destination_path(self, args, src, bundle_path, lang_folder_name, suffix, real_ext = None):
 		src = self.full_path(src)
 
 		dest_name, dest_ext = os.path.splitext(bundle_path)
 		dest_name += suffix
 		dest_name = "".join([dest_name, dest_ext])
 
+		if real_ext:
+			dest_name += real_ext;
+
 		dest = os.path.join(args.output_directory, lang_folder_name, dest_name)
 		return dest
 
-	def copy_file(self, args, lang_folder_name, src, bundle_path, suffix, real_ext = None):
+	def copy_file(self, args, lang_folder_name, src, bundle_path, suffix, real_ext = None, flatten_mac = True):
 		dest = ''
-		if args.platform == 'ios':
-			dest = self.destination_path_ios(args, src, bundle_path, lang_folder_name, suffix, real_ext)
+		if args.platform == 'ios' or flatten_mac == False:
+			dest = self.destination_path(args, src, bundle_path, lang_folder_name, suffix, real_ext)
 		elif args.platform == 'mac':
-			dest = self.destination_path_mac(args, src, bundle_path, lang_folder_name, suffix, real_ext)
+			dest = self.destination_path_flattened(args, src, bundle_path, lang_folder_name, suffix, real_ext)
 
 		self.copy(args, src, dest)
 
@@ -101,49 +110,58 @@ class Roger:
 	def build(self, args):
 		logging.debug("Building ...");
 
-		assetlists = self.resource_file.data["assets"]
-
 		if not os.path.exists(args.output_directory):
 			os.makedirs(args.output_directory)
 
 		if args.action == 'build':
 			open(os.path.join(args.output_directory, 'resource-timestamp'), 'w')
 
-		for assets in assetlists:
-			lang_folder_name = "Base.lproj"
-			if "language" in assets:
-				if len(assets["language"]) > 0:
-					lang_folder_name = assets["language"] + ".lproj"
+		if "resources" in self.resource_file.data:
+			resource_lists = self.resource_file.data["resources"]
 
-			images = assets["images"]
+			for resources in resource_lists:
+				lang_folder_name = "Base.lproj"
+				if "language" in resources:
+					if len(resources["language"]) > 0:
+						lang_folder_name = resources["language"] + ".lproj"
 
-			for image in images:
-				bundle_path = image['bundle_path']
-				resolutions = image['resolutions']
-				mac_combine = False
-				if args.platform == 'mac':
-					if "mac_combine" in image:
-						if image['mac_combine']:
-							mac_combine = image['mac_combine']
+				images = resources["images"]
+
+				for image in images:
+					bundle_path = image['bundle_path']
+					resolutions = image['resolutions']
+					mac_combine = args.platform == 'mac'
+					if args.platform == 'mac':
+						if "mac_combine" in image:
+							if image['mac_combine']:
+								mac_combine = image['mac_combine']
 
 
-				if mac_combine:
-					self.combine_images_mac(args, resolutions, lang_folder_name, bundle_path)
+					if mac_combine:
+						self.combine_images_mac(args, resolutions, lang_folder_name, bundle_path)
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
+					else:
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "1.0x", "")
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "2.0x", "@2x")
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
+						self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
 
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
-				else:
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "1.0x", "")
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "2.0x", "@2x")
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
-					self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
+				raws = resources["raw"]
+				for raw in raws:
+					bundle_path = raw["bundle_path"]
+					filename = raw["file"]
 
-			raws = assets["raw"]
-			for raw in raws:
-				bundle_path = raw["bundle_path"]
-				filename = raw["file"]
+					self.copy_file(args, lang_folder_name, filename, bundle_path, "", flatten_mac=False)
 
-				self.copy_file(args, lang_folder_name, filename, bundle_path, "")
+		if "assets" in self.resource_file.data:
+			asset_list = self.resource_file.data["assets"]
+			for asset in asset_list:
+				bundle_path = asset["bundle_path"]
+				filename = asset["file"]
+				if "language" in asset:
+					raise '"lanuage" is not supported for assets'
 
+				self.copy_file(args, "Base.lproj/assets", filename, bundle_path, "", flatten_mac=False)
 
 

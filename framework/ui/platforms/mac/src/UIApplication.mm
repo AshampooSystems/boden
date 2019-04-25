@@ -1,13 +1,14 @@
 
+#import <Cocoa/Cocoa.h>
+
+#include <utility>
+
+#import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/mac/UIApplication.hh>
 #import <bdn/mac/util.hh>
 
-#import <bdn/foundationkit/MainDispatcher.hh>
-#include <utility>
-
 #include <bdn/entry.h>
-
-#import <Cocoa/Cocoa.h>
+#include <bdn/log.h>
 
 @interface BdnMacAppDelegate_ : NSObject <NSApplicationDelegate>
 @property(nonatomic) std::weak_ptr<bdn::mac::UIApplication> bdnApplication;
@@ -81,6 +82,59 @@ namespace bdn::mac
         if (nsUrl != nullptr) {
             [[NSWorkspace sharedWorkspace] openURL:nsUrl];
         }
+    }
+
+    String UIApplication::uriToBundledFileUri(const String &uri)
+    {
+        String result;
+        std::regex re("(resource|asset|image)://([^/]*)/(.*)");
+
+        std::smatch base_match;
+        std::regex_match(uri, base_match, re);
+
+        if (!base_match.empty()) {
+            std::string scheme = base_match[1];
+            std::string host = base_match[2];
+            std::string path = base_match[3];
+
+            NSBundle *bundle = [NSBundle mainBundle];
+            if (!host.empty() && host != "main") {
+                bundle = [NSBundle bundleWithIdentifier:fk::stringToNSString(host)];
+            }
+            if (bundle) {
+                if (scheme == "resource" || scheme == "asset") {
+                    auto lastSeperator = path.find_last_of('/');
+                    if (lastSeperator) {
+                        auto [directory, filename] = bdn::path::split(path);
+                        auto [basename, ext] = bdn::path::splitExt(filename);
+
+                        if (scheme == "asset") {
+                            directory = "assets/" + directory;
+                        }
+
+                        result = fk::nsStringToString([bundle pathForResource:fk::stringToNSString(basename)
+                                                                       ofType:fk::stringToNSString(ext)
+                                                                  inDirectory:fk::stringToNSString(directory)]);
+                    }
+                } else if (scheme == "image") {
+                    auto [basename, ext] = bdn::path::splitExt(path);
+
+                    String fixedPath;
+                    fixedPath.resize(path.size());
+
+                    std::transform(path.begin(), path.end(), fixedPath.begin(),
+                                   [](auto c) { return c == '/' || c == '.' ? '_' : c; });
+
+                    result = fk::nsStringToString([bundle pathForImageResource:fk::stringToNSString(fixedPath)]);
+                }
+            }
+        }
+
+        if (result.empty()) {
+            return result;
+        }
+
+        return "file:///" + result;
     }
 
     void UIApplication::_applicationWillFinishLaunching(NSNotification *notification)

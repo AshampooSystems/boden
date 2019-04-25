@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
 import androidx.appcompat.widget.AppCompatImageView;
+import io.boden.android.NativeRootActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,25 +35,10 @@ public class NativeImageView extends AppCompatImageView
             Bitmap bitmap = null;
 
             try {
-                URI aUri = null;
-                try {
-                    aUri = new URI(params[0]);
-                } catch (URISyntaxException e) {
-                    return bitmap;
+                InputStream stream = NativeRootActivity.getStreamFromURI(params[0]);
+                if(stream != null) {
+                    bitmap = BitmapFactory.decodeStream(stream);
                 }
-
-                if(aUri.getScheme().equals("resource")) {
-                    int resId = NativeRootActivity.getRootActivity().getResourceIdFromURI(params[0], "drawable");
-                    if(resId != -1) {
-                        bitmap = BitmapFactory.decodeResource(NativeRootActivity.getRootActivity().getResources(), resId );
-                    }
-                }
-                else {
-                    URL url = new URL(params[0]);
-                    bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

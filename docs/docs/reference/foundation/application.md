@@ -72,6 +72,12 @@ class Application
 
 	Opens the given URL in a suitable external application. Web URLs will be opened in the system's standard web browser. Application-specific URLs will open in the respective application.
 
+## Resources
+
+* **virtual String uriToBundledFileUri(const String &uri)**
+
+	Returns a platform specific representation of a resource path ( see: [../../guides/fundamentals/resources.md](Resources) ). If the path cannot be converted, the `uri` parameter is returned.
+
 ## Shutdown
 
 * **void initiateExitIfPossible(int exitCode)** 

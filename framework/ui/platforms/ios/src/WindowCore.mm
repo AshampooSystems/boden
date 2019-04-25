@@ -59,10 +59,20 @@
 
     if (@available(iOS 11, *)) {
         UILayoutGuide *guide = self.view.safeAreaLayoutGuide;
-        [_safeRootView.leadingAnchor constraintEqualToAnchor:guide.leadingAnchor].active = YES;
-        [_safeRootView.trailingAnchor constraintEqualToAnchor:guide.trailingAnchor].active = YES;
-        [_safeRootView.topAnchor constraintEqualToAnchor:guide.topAnchor].active = YES;
-        [_safeRootView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor].active = YES;
+
+        _constraints[0][0] = [_safeRootView.leadingAnchor constraintEqualToAnchor:guide.leadingAnchor];
+        _constraints[0][1] = [_safeRootView.trailingAnchor constraintEqualToAnchor:guide.trailingAnchor];
+        _constraints[0][2] = [_safeRootView.topAnchor constraintEqualToAnchor:guide.topAnchor];
+        _constraints[0][3] = [_safeRootView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor];
+
+        _constraints[1][0] = [_safeRootView.leadingAnchor constraintEqualToAnchor:_rootView.leadingAnchor];
+        _constraints[1][1] = [_safeRootView.trailingAnchor constraintEqualToAnchor:_rootView.trailingAnchor];
+        _constraints[1][2] = [_safeRootView.topAnchor constraintEqualToAnchor:_rootView.topAnchor];
+        _constraints[1][3] = [_safeRootView.bottomAnchor constraintEqualToAnchor:_rootView.bottomAnchor];
+
+        for (auto &a : _constraints[0]) {
+            a.active = YES;
+        }
     }
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
     else {
@@ -73,7 +83,6 @@
         [_safeRootView.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor].active = YES;
     }
 #endif
-    //_safeRootView.backgroundColor = [UIColor blueColor];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size
@@ -168,6 +177,19 @@
     }
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle { return self.statusBarStyle; }
+
+- (void)setContentLayout:(bool)safe forEdge:(int)edge
+{
+    if (safe) {
+        _constraints[1][edge].active = NO;
+        _constraints[0][edge].active = YES;
+    } else {
+        _constraints[0][edge].active = NO;
+        _constraints[1][edge].active = YES;
+    }
+}
+
 @end
 
 namespace bdn::detail
@@ -232,6 +254,7 @@ namespace bdn::ios
         contentView.onChange() += [=](auto va) { updateContent(va->get()); };
 
         allowedOrientations.onChange() += [=](auto va) { [this->_rootViewController changeOrientation]; };
+        currentOrientation.onChange() += [=](auto va) { [this->_rootViewController updateCurrentOrientation]; };
 
         updateGeomtry();
         updateContentGeometry();
@@ -275,5 +298,58 @@ namespace bdn::ios
                 throw std::runtime_error("Cannot set this type of View as content");
             }
         }
+    }
+
+    void WindowCore::updateFromStylesheet(nlohmann::json stylesheet)
+    {
+        if (stylesheet.count("status-bar-style")) {
+            if (stylesheet.at("status-bar-style") == "light") {
+                _rootViewController.statusBarStyle = UIStatusBarStyleLightContent;
+            } else {
+                _rootViewController.statusBarStyle = UIStatusBarStyleDefault;
+            }
+
+            [_rootViewController setNeedsStatusBarAppearanceUpdate];
+        }
+        if (stylesheet.count("background-color")) {
+            String color = stylesheet.at("background-color");
+
+            unsigned rgbValue = 0;
+            NSScanner *scanner = [NSScanner scannerWithString:fk::stringToNSString(color)];
+            [scanner setScanLocation:1]; // bypass '#' character
+            [scanner scanHexInt:&rgbValue];
+
+            _rootViewController.rootView.backgroundColor = [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16) / 255.0
+                                                                           green:((rgbValue & 0xFF00) >> 8) / 255.0
+                                                                            blue:(rgbValue & 0xFF) / 255.0
+                                                                           alpha:1.0];
+        }
+
+        std::array<bool, 4> useUnsafeArea = {false, false, false, false};
+
+        if (stylesheet.count("use-unsafe-area")) {
+            auto &value = stylesheet.at("use-unsafe-area");
+            if (value.is_boolean() && value == true) {
+                useUnsafeArea.fill(true);
+            } else if (value.is_object()) {
+                if (value.count("left") && value.at("left") == true) {
+                    useUnsafeArea[0] = true;
+                }
+                if (value.count("right") && value.at("right") == true) {
+                    useUnsafeArea[1] = true;
+                }
+                if (value.count("top") && value.at("top") == true) {
+                    useUnsafeArea[2] = true;
+                }
+                if (value.count("bottom") && value.at("bottom") == true) {
+                    useUnsafeArea[3] = true;
+                }
+            }
+        }
+
+        [_rootViewController setContentLayout:!useUnsafeArea[0] forEdge:0];
+        [_rootViewController setContentLayout:!useUnsafeArea[1] forEdge:1];
+        [_rootViewController setContentLayout:!useUnsafeArea[2] forEdge:2];
+        [_rootViewController setContentLayout:!useUnsafeArea[3] forEdge:3];
     }
 }

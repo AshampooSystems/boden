@@ -21,13 +21,19 @@ class View : public Base
 
 	Whether the view is visible.
 
-* **Property<std::shared_ptr<LayoutStylesheet\>\> layoutStylesheet**
+* **Property<std::shared_ptr<json\>\> stylesheet**
 
-	A [`LayoutStylesheet`](../layout/layout_stylesheet.md) defining the layout of the view.
+	A stylesheet defining the styling and layout of the View. 
 
 * **Property<bool\> isLayoutRoot = false**
 
 	Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layouting system. Children are not affected by this setting and will still be layouted. Defaults to `false`.
+
+## Stylesheet
+
+* **{ "visible" : bool }**
+
+	Controls the [`visible`](#properties) property.
 
 ## Layout
 
@@ -42,10 +48,6 @@ class View : public Base
 * **void setLayout(std::shared_ptr<Layout\> layout)**
 
 	Sets the view's [`Layout`](../layout/layout.md).
-
-* **template <class T\> void setLayoutStylesheet(T sheet)**
-
-	Convenience method for setting the layout stylesheet using a type `T` derived from [`LayoutStylesheet`](../layout/layout_stylesheet.md) without having to use `std::make_shared`.
 
 ## View Core
 

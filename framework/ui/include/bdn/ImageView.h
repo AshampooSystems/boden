@@ -12,8 +12,14 @@ namespace bdn
 
     class ImageView : public View
     {
+      private:
+        Property<Size> iOriginalSize;
+        Property<float> iAspectRatio;
+
       public:
         Property<String> url;
+        const Property<Size> originalSize = iOriginalSize;
+        const Property<float> aspectRatio = iAspectRatio;
 
       public:
         ImageView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -27,6 +33,8 @@ namespace bdn
         {
           public:
             Property<String> url;
+            Property<Size> originalSize;
+            Property<float> aspectRatio;
         };
     };
 }

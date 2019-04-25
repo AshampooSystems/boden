@@ -55,6 +55,8 @@ if(BDN_INCLUDE_LOTTIE)
             $<INSTALL_INTERFACE:include/lottie-ios>
         )
         add_library(airBnB::Lottie ALIAS airbnb_lottie_ios)
+
+        ios_fix_lib_build_folder(airbnb_lottie_ios)
     endif()
 
     include(install.cmake)

@@ -18,6 +18,8 @@ namespace bdn::ios
 @property BodenUIView *rootView;
 @property BodenUIView *safeRootView;
 @property std::weak_ptr<bdn::ios::WindowCore> windowCore;
+@property UIStatusBarStyle statusBarStyle;
+@property std::array<std::array<NSLayoutConstraint *, 4>, 2> constraints;
 @end
 
 namespace bdn::ios
@@ -40,6 +42,8 @@ namespace bdn::ios
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
         void frameChanged() override;
+
+        void updateFromStylesheet(json stylesheet) override;
 
       protected:
         void init() override;

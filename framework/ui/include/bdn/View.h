@@ -1,5 +1,8 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
+#include <bdn/Json.h>
 #include <bdn/Layout.h>
 #include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
@@ -22,8 +25,8 @@ namespace bdn
       public:
         Property<Rect> geometry;
         Property<bool> visible = true;
-        Property<std::shared_ptr<LayoutStylesheet>> layoutStylesheet;
         Property<bool> isLayoutRoot = false;
+        Property<json> stylesheet;
 
       public:
         View() = delete;
@@ -41,8 +44,6 @@ namespace bdn
         std::shared_ptr<Layout> getLayout();
         void setLayout(std::shared_ptr<Layout> layout);
         void offerLayout(std::shared_ptr<Layout> layout);
-
-        template <class T> void setLayoutStylesheet(T sheet) { layoutStylesheet = std::make_shared<T>(sheet); }
 
         std::shared_ptr<ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
 
@@ -62,6 +63,8 @@ namespace bdn
         virtual const std::type_info &typeInfoForCoreCreation() const;
 
         void setParentView(const std::shared_ptr<View> &parentView);
+
+        virtual void updateFromStylesheet();
 
       protected:
         virtual void bindViewCore();
@@ -121,6 +124,8 @@ namespace bdn
             virtual void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> & /*unused*/) {}
 
             std::shared_ptr<bdn::ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
+
+            virtual void updateFromStylesheet(json stylesheet) {}
 
           private:
             std::shared_ptr<bdn::ViewCoreFactory> _viewCoreFactory;

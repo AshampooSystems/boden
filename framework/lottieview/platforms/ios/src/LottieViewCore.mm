@@ -1,11 +1,12 @@
 #include <bdn/LottieView.h>
 
+#import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/LottieViewCore.hh>
 
 #include <LOTAnimationView.h>
 
+#include <bdn/Application.h>
 #include <bdn/ViewUtilities.h>
-#import <bdn/foundationkit/stringUtil.hh>
 #include <bdn/log.h>
 
 namespace bdn::lottieview::detail
@@ -70,27 +71,20 @@ namespace bdn::ios
     {
         [[uiView() subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
-        if (cpp20::starts_with(url, "file://")) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+        auto uri = App()->uriToBundledFileUri(url);
+
+        if (uri.empty()) {
+            uri = url;
+        }
+
+        if (cpp20::starts_with(uri, "file:///")) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
                 if (auto localPath = nsURL.relativePath) {
                     animationView = [LOTAnimationView animationWithFilePath:localPath];
                 }
             }
-        } else if (cpp20::starts_with(url, "resource://")) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                auto server = nsURL.host;
-                NSBundle *bundle = [NSBundle mainBundle];
-                if (server && [server compare:@"main"] != NSOrderedSame) {
-                    bundle = [NSBundle bundleWithIdentifier:server];
-                }
-                if (bundle) {
-                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
-                        animationView = [LOTAnimationView animationNamed:localPath inBundle:bundle];
-                    }
-                }
-            }
         } else {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
                 animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsURL];
             }
         }

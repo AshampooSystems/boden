@@ -190,7 +190,9 @@ namespace bdn::java::wrapper
         }
 
       public:
-        template <class ReturnType, class... ArgumentTypes> class StaticMethod
+        template <class _Fp> class StaticMethod;
+
+        template <class ReturnType, class... ArgumentTypes> class StaticMethod<ReturnType(ArgumentTypes...)>
         {
           public:
             using JTObjectType = JTObject<javaClassName, ConstructorArguments...>;

@@ -1,0 +1,22 @@
+{
+    "name" : "main",
+    "root-path" : "./",
+    "assets" : [
+        {
+            "bundle_path" : "keeweb/index.html",
+            "file": "assets/keeweb/index.html"
+        },
+        {
+            "bundle_path" : "keeweb/browserconfig.xml",
+            "file": "assets/keeweb/browserconfig.xml"
+        },
+        {
+            "bundle_path" : "keeweb/manifest.appcache",
+            "file": "assets/keeweb/manifest.appcache"
+        },
+        {
+            "bundle_path" : "keeweb/manifest.json",
+            "file": "assets/keeweb/manifest.json"
+        }
+    ]
+}	

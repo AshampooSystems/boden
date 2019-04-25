@@ -1,10 +1,7 @@
 import logging
 import os
 import subprocess
-import shutil
 
-import error
-import json
 from distutils.spawn import find_executable
 from mackeychain import MacKeychain
 
@@ -32,9 +29,9 @@ class CodeSigner:
                         if target["type"] in ["SHARED_LIBRARY", "EXECUTABLE"]:
                             for artifact in target["artifacts"]:
                                 self.logger.info("Signing: %s ...", artifact)
-                                arguments = [self.codeSignUtil, '--force', '-s', args.identity, artifact]
+                                arguments = [self.codeSignUtil, '--force', '-s', " ".join(args.identity), artifact]
 
-                                subprocess.check_call(arguments);
+                                subprocess.check_call(arguments)
         finally:
             if args.keychain:
                 macKeychain.removeKeychain(args.keychain)

@@ -135,6 +135,10 @@ class BuildExecutor:
         if cmakeArch:
             cmakeArguments += ["-A "+cmakeArch ]
 
+        if args.cmake_option:
+            for option in args.cmake_option:
+                cmakeArguments += ["-D" + option]
+
         if needsCleanBuildDir:
             shutil.rmtree(cmakeBuildDir)
 

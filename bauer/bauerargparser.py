@@ -7,9 +7,13 @@ import logging
 class EnvDefault(argparse.Action):
     def __init__(self, option_strings, required=False, default=None, **kwargs):
         envvar = "BAUER_" + option_strings[-1].upper().strip('-').replace('-', '_')
+
         if not default and envvar:
             if envvar in os.environ:
                 default = os.environ[envvar]
+                if 'nargs' in kwargs and kwargs['nargs'] == '+':
+                    default = [default]
+
         if required and default:
             required = False
         super(EnvDefault, self).__init__(default=default, required=required, option_strings=option_strings,
@@ -73,6 +77,7 @@ class BauerArgParser():
           configGroup.add_argument('-b', "--build-system", action=EnvDefault, help="The cmake generator", required=require );
           configGroup.add_argument('-c', "--config", action=EnvDefault, choices=["Debug", "Release"], required=require );
           configGroup.add_argument('-a', "--arch", action=EnvDefault, help="The target architecture ( default: 'std' )", required=require );
+          configGroup.add_argument('-D', "--cmake-option", action='append', help="Allows to set additional cmake options")
 
           buildFolderGroup = parser.add_argument_group('Build folder', "(optional)")
           buildFolderGroup.add_argument("--build-folder", action=EnvDefault, help="The buildfolder root (default: ./build)")
@@ -170,7 +175,7 @@ class BauerArgParser():
 
         if sys.platform == 'darwin':
           sign = command_map["codesign"]
-          sign.add_argument('-i', '--identity', action=EnvDefault, help="The Identity to pass to codesign", required=True)
+          sign.add_argument('-i', '--identity', action=EnvDefault, help="The Identity to pass to codesign", required=True, nargs="+")
           self.addKeychainArgument([sign])
           self.addPasswordArgument([sign])
           self.addConfigurationArguments([sign], platforms=['ios', 'mac'])

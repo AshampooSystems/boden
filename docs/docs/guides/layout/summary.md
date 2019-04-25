@@ -17,7 +17,7 @@ See [Yoga](yoga.md) for more examples.
 
 ```C++
 auto container = std::make_shared<Container>();
-container->setLayoutStylesheet(FlexJson({"grow", 1.0}));
+container->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 ```
 
 See [JSON Support](json.md) for more examples.

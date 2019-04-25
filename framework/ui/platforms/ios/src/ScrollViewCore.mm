@@ -77,8 +77,8 @@ namespace bdn::ios
 
                 _childGeometry->onChange() += [=](auto va) {
                     CGSize s;
-                    s.width = va->get().width;
-                    s.height = va->get().height;
+                    s.width = va->get().width + va->get().x;
+                    s.height = va->get().height + va->get().y;
                     _uiScrollView.contentSize = s;
                 };
 

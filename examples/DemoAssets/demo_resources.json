@@ -1,13 +1,12 @@
 {
     "name" : "main",
     "root-path" : "./Resources",
-    "assets" : [
+    "resources" : [
         {
             "language" : "",
             "android-qualifiers" : "",
             "images" : [
                 {
-                    "mac_combine" : true,
                     "bundle_path" : "images/image.png",
                     "resolutions" : {
                         "0.75x" : "",
@@ -31,7 +30,6 @@
             "android-qualifiers" : "",
             "images" : [
                 {
-                    "mac_combine" : true,
                     "bundle_path" : "images/image.png",
                     "resolutions" : {
                         "0.75x" : "",
@@ -50,5 +48,11 @@
                 }
             ]
         }
+    ],
+    "assets" : [
+        {
+            "bundle_path" : "images/asset_image.png",
+            "file": "image.png"
+        }
     ]
-}	
+}

@@ -13,7 +13,6 @@ project(boden VERSION 0.1.1 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 
-set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 
 add_library(Boden_All INTERFACE)
@@ -55,6 +54,3 @@ endif()
 add_global_clangformat(FormatSources ${CMAKE_CURRENT_LIST_DIR})
 
 include(package/package.cmake)
-
-
-

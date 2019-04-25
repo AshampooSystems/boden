@@ -6,9 +6,6 @@
 
 namespace bdn::android
 {
-
-    /** IAppRunner implementation for android.
-     */
     class UIApplication : public Application
     {
       private:
@@ -23,6 +20,7 @@ namespace bdn::android
       public:
         void initiateExitIfPossible(int exitCode) override;
         void openURL(const String &url) override;
+        String uriToBundledFileUri(const String &uri) override;
 
       protected:
         void disposeMainDispatcher() override;

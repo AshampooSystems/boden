@@ -1,17 +1,36 @@
 package io.boden.android;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
-import android.view.MenuItem;
 
+import androidx.annotation.AnyRes;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+
+import android.util.Pair;
+import android.view.MenuItem;
+import android.view.Window;
+import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collections;
 import java.util.EventListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /** An activity that is controlled by native code.
@@ -51,6 +70,41 @@ public class NativeRootActivity extends FragmentActivity
                 }
             }
             return false;
+        }
+    }
+
+    class RedirectIntent extends Intent
+    {
+        public ValueCallback<Intent> mCallback;
+        public RedirectIntent(String action) {
+            super(action);
+        }
+    }
+
+    private HashMap<Integer, ValueCallback<Pair<Intent, Integer>>> mActivityCallbacks = new HashMap<Integer, ValueCallback<Pair<Intent, Integer>>>();
+
+    public Integer startActivityForResult(Intent intent, ValueCallback<Pair<Intent,Integer>> callback)
+    {
+        int m;
+        if(mActivityCallbacks.size() == 0) {
+            m = 0;
+        } else {
+            m = Collections.max(mActivityCallbacks.keySet()) + 1;
+        }
+
+        mActivityCallbacks.put(m, callback);
+
+        startActivityForResult(intent, m);
+
+        return m;
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if(mActivityCallbacks.containsKey(requestCode)) {
+            mActivityCallbacks.get(requestCode).onReceiveValue(new Pair<Intent, Integer>(intent, resultCode));
+            mActivityCallbacks.remove(requestCode);
         }
     }
 
@@ -95,26 +149,10 @@ public class NativeRootActivity extends FragmentActivity
         }
     }
 
-    public int getResourceIdFromURI(String uri, String type) {
+    private static int getResourceIdFromString(String resName, String type) {
         try {
-            URI aUri = new URI(uri);
-
-            String path = aUri.getPath();
-
-            path = path.replace('/', '_');
-            path = path.replace('.', '_');
-
-            path = path.substring(1); // Remove leading
-
-            return getResourceIdFromString(path, type);
-        } catch (URISyntaxException e) {
-            return -1;
-        }
-    }
-
-    private int getResourceIdFromString(String resName, String type) {
-        try {
-            Class<?> cls = Class.forName("io.boden.android." + _libName + ".R$" + type);
+            String libName = NativeRootActivity.getRootActivity()._libName;
+            Class<?> cls = Class.forName("io.boden.android." + libName + ".R$" + type);
 
             Field idField = cls.getDeclaredField(resName);
             return idField.getInt(idField);
@@ -124,6 +162,118 @@ public class NativeRootActivity extends FragmentActivity
         }
     }
 
+    public static InputStream getStreamFromURI(String uri) {
+        try {
+            uri = NativeRootActivity.getResourceURIFromURI(uri);
+
+            URI aUri = null;
+            aUri = new URI(uri);
+
+            String scheme = aUri.getScheme();
+            String path = aUri.getPath();
+
+            if (scheme.equals("file")) {
+                InputStream stream = null;
+                if (path.startsWith("/android_asset/")) {
+                    stream = NativeRootActivity.getRootActivity().getApplicationContext().getAssets().open(path.substring(15));
+                } else {
+                    int id = NativeRootActivity.getResourceIdFromURI(uri);
+                    if(id >= 0) {
+                        stream = NativeRootActivity.getRootActivity().getApplicationContext().getResources().openRawResource(id);
+                    }
+                }
+
+                if(stream != null)
+                    return stream;
+            }
+
+            URL url = new URL(uri);
+            return (InputStream) url.getContent();
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static int getResourceIdFromURI(String uri) {
+        try {
+            URI aUri = new URI(uri);
+            String host = aUri.getHost();
+            String scheme = aUri.getScheme();
+            String path = aUri.getPath();
+            if(host != null && !host.isEmpty() && !host.equals("main")) {
+                return -1; // Not supported yet.
+            }
+
+            if(scheme.equals("file")) {
+                path = path.substring(1);
+                String[] components = path.split("/");
+                if(components.length != 3) {
+                    return -1;
+                }
+
+                String root = components[0];
+
+                if(!root.equals("android_res")) {
+                    return -1;
+                }
+
+                String type = components[1];
+                String name = components[2];
+
+                name = name.substring(0,name.lastIndexOf('.'));
+
+                return getResourceIdFromString(name, type);
+            }
+
+
+        } catch(URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    public static final String getResourceURIFromURI(String uri) {
+        try {
+            URI aUri = new URI(uri);
+            String host = aUri.getHost();
+            String scheme = aUri.getScheme();
+            if(!host.isEmpty() && !host.equals("main")) {
+                return uri; // Not supported yet.
+            }
+
+            String path = aUri.getPath();
+
+            if(scheme.equals("asset")) {
+                return "file:///android_asset" + path;
+            }
+
+            path = path.substring(1); // Remove leading /
+            path = path.replace('/', '_');
+            String extension = MimeTypeMap.getFileExtensionFromUrl(path);
+            path = path.replace('.', '_');
+            path += '.' + extension;
+
+            if(scheme.equals("image")) {
+                return "file:///android_res/drawable/" + path;
+            }
+            if(scheme.equals("resource")) {
+                return "file:///android_res/raw/" + path;
+            }
+
+        } catch(URISyntaxException e) {
+            return "";
+        }
+
+        return uri;
+    }
 
     @Override
     public void onConfigurationChanged (Configuration newConfig) {

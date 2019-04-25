@@ -108,6 +108,49 @@ namespace bdn::ios
         }
     }
 
+    String UIApplication::uriToBundledFileUri(const String &uri)
+    {
+        String result;
+        std::regex re("(resource|asset|image)://([^/]*)/(.*)");
+
+        std::smatch base_match;
+        std::regex_match(uri, base_match, re);
+
+        if (!base_match.empty()) {
+            std::string scheme = base_match[1];
+            std::string host = base_match[2];
+            std::string path = base_match[3];
+
+            NSBundle *bundle = [NSBundle mainBundle];
+            if (!host.empty() && host != "main") {
+                bundle = [NSBundle bundleWithIdentifier:fk::stringToNSString(host)];
+            }
+            if (bundle) {
+                // if (scheme == "resource" || scheme == "asset") {
+                auto lastSeperator = path.find_last_of('/');
+                if (lastSeperator) {
+                    auto [directory, filename] = bdn::path::split(path);
+                    auto [basename, ext] = bdn::path::splitExt(filename);
+
+                    if (scheme == "asset") {
+                        directory = "assets/" + directory;
+                    }
+
+                    result = fk::nsStringToString([bundle pathForResource:fk::stringToNSString(basename)
+                                                                   ofType:fk::stringToNSString(ext)
+                                                              inDirectory:fk::stringToNSString(directory)]);
+                }
+                //}
+            }
+        }
+
+        if (result.empty()) {
+            return result;
+        }
+
+        return "file:///" + result;
+    }
+
     bool UIApplication::_applicationWillFinishLaunching(NSDictionary *launchOptions)
     {
         bdn::platformEntryWrapper(

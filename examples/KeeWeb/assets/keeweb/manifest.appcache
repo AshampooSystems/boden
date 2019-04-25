@@ -1,0 +1,10 @@
+CACHE MANIFEST
+
+# 2019-04-21:v1.8.1
+# updmin:v4.0.1
+
+CACHE:
+index.html
+
+NETWORK:
+*

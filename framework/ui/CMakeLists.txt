@@ -21,7 +21,7 @@ endif()
 
 add_universal_library(ui TIDY SOURCES ${_BDN_UI_FILES})
 
-target_link_libraries(ui PUBLIC foundation layout)
+target_link_libraries(ui PUBLIC foundation layout nlohmann_json::nlohmann_json)
 target_include_directories(ui
     PUBLIC
     $<INSTALL_INTERFACE:include>

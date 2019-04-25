@@ -3,6 +3,7 @@ package io.boden.android;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 

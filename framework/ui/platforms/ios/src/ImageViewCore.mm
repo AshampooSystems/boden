@@ -67,49 +67,60 @@ namespace bdn::ios
     {
         ((UIImageView *)this->uiView()).image = nullptr;
 
-        if (bdn::cpp20::starts_with(url, "resource://"s)) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                auto server = nsURL.host;
-                NSBundle *bundle = [NSBundle mainBundle];
-                if (server && [server compare:@"main"] != NSOrderedSame) {
-                    bundle = [NSBundle bundleWithIdentifier:server];
-                }
-                if (bundle) {
-                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
-                        ((UIImageView *)this->uiView()).image =
-                            [UIImage imageNamed:localPath inBundle:bundle compatibleWithTraitCollection:nil];
-                    }
-                }
-            }
-        } else if (bdn::cpp20::starts_with(url, "file://"s)) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+        auto uri = App()->uriToBundledFileUri(url);
+
+        if (uri.empty()) {
+            uri = url;
+        }
+
+        if (cpp20::starts_with(uri, "file:///")) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
                 if (auto localPath = nsURL.relativePath) {
-                    ((UIImageView *)this->uiView()).image = [UIImage imageWithContentsOfFile:localPath];
+                    UIImage *image = [[UIImage alloc] initWithContentsOfFile:localPath];
+                    ((UIImageView *)this->uiView()).image = image;
+
+                    if (image) {
+                        originalSize = iosSizeToSize(image.size);
+                        aspectRatio = originalSize->width / originalSize->height;
+                    }
                 }
             }
         } else {
-            if (auto session = [NSURLSession sharedSession]) {
-                if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                    auto dataTask =
-                        [session dataTaskWithURL:nsURL
-                               completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                                   NSError *_Nullable error) {
-                                 if (auto err = error) {
-                                     logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString])
-                                                 << "' (" << fk::nsStringToString([err localizedDescription]) << ")";
-                                 } else {
-                                     App()->dispatchQueue()->dispatchAsync([=]() {
-                                         ((UIImageView *)this->uiView()).image = [UIImage imageWithData:nsData];
-                                         this->scheduleLayout();
-                                         markDirty();
-                                     });
-                                 }
-                               }];
-                    if (dataTask != nullptr) {
-                        [dataTask resume];
-                    }
-                }
+            NSURLSession *session = [NSURLSession sharedSession];
+            NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
+
+            if (nsURL == nullptr) {
+                return;
             }
+
+            ((UIImageView *)this->uiView()).image = nullptr;
+            originalSize = Size{0, 0};
+            aspectRatio = 1.0;
+
+            NSURLSessionDataTask *dataTask =
+                [session dataTaskWithURL:nsURL
+                       completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
+                                           NSError *_Nullable error) {
+                         if (auto err = error) {
+                             logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
+                                         << fk::nsStringToString([err localizedDescription]) << ")";
+                         } else {
+
+                             App()->dispatchQueue()->dispatchAsync([=]() {
+                                 UIImage *image = [[UIImage alloc] initWithData:nsData];
+                                 ((UIImageView *)this->uiView()).image = image;
+
+                                 if (image) {
+                                     originalSize = iosSizeToSize(image.size);
+                                     aspectRatio = originalSize->width / originalSize->height;
+                                 }
+                                 this->scheduleLayout();
+                                 this->markDirty();
+                             });
+                         }
+                       }];
+
+            [dataTask resume];
         }
     }
 }

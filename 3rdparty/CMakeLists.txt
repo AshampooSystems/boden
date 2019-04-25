@@ -32,6 +32,9 @@ if(ANDROID)
     target_link_libraries(yogacore PUBLIC ${ANDROID_LOG_LIB})
 endif()
 
+target_compile_features(yogacore PUBLIC cxx_std_17)
+ios_fix_lib_build_folder(yogacore)
+
 #################################################################################
 # Lottie
 
@@ -42,5 +45,9 @@ add_subdirectory(lottie)
 
 if(BDN_BUILD_TESTS)
     add_subdirectory(googletest)
+    ios_fix_lib_build_folder(gtest)
+    ios_fix_lib_build_folder(gtest_main)
+    ios_fix_lib_build_folder(gmock)
+    ios_fix_lib_build_folder(gmock_main)
 endif()
 

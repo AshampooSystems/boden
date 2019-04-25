@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Base.h>
-#include <bdn/LayoutStylesheet.h>
 #include <bdn/String.h>
 
 namespace bdn

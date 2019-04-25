@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/yogalayout/Stylesheet.h>
 #include <bdn/yogalayout/ViewData.h>
 
 #include <map>
@@ -22,6 +21,9 @@ namespace bdn
 
           private:
             void applyStyle(View *view, YGNodeRef ygNode);
+
+            void insert(View *view);
+            void remove(View *view);
 
           private:
             std::map<View *, std::unique_ptr<ViewData>> _views;

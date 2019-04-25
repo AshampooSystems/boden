@@ -6,8 +6,7 @@ namespace bdn
 {
     namespace yogalayout
     {
-
-        ViewData::ViewData(View *v) : view(v), isRootNode(false)
+        ViewData::ViewData(View *v) : view(v), isRootNode(false), isIn(false)
         {
             ygNode = YGNodeNew();
             YGNodeSetContext(ygNode, this);
@@ -46,7 +45,7 @@ namespace bdn
             viewData->view->scheduleLayout();
         }
 
-        static float YGSanitizeMeasurement(float constrainedSize, float measuredSize, YGMeasureMode measureMode)
+        /*static float YGSanitizeMeasurement(float constrainedSize, float measuredSize, YGMeasureMode measureMode)
         {
             float result;
             if (measureMode == YGMeasureModeExactly) {
@@ -58,7 +57,7 @@ namespace bdn
             }
 
             return result;
-        }
+        }*/
 
         YGSize ViewData::measureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
                                      YGMeasureMode heightMode)
@@ -70,10 +69,7 @@ namespace bdn
 
             Size s = viewData->view->sizeForSpace(constraintSize);
 
-            return (YGSize){
-                .width = YGSanitizeMeasurement(constraintSize.width, s.width, widthMode),
-                .height = YGSanitizeMeasurement(constraintSize.height, s.height, heightMode),
-            };
+            return (YGSize){.width = (float)s.width, .height = (float)s.height};
         }
 
         void ViewData::applyLayout(YGNodeRef node, Point offset)

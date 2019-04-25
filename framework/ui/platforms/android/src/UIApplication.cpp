@@ -1,6 +1,7 @@
 #include <bdn/android/UIApplication.h>
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/wrapper/Intent.h>
+#include <bdn/android/wrapper/NativeRootActivity.h>
 #include <bdn/android/wrapper/NativeRootView.h>
 #include <bdn/android/wrapper/Uri.h>
 
@@ -60,5 +61,10 @@ namespace bdn::android
         wrapper::Intent intent(String((const char *)wrapper::Intent::ACTION_VIEW), wrapper::Uri::parse(url));
         wrapper::NativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.getContext().startActivity(intent);
+    }
+
+    String UIApplication::uriToBundledFileUri(const String &uri)
+    {
+        return bdn::android::wrapper::NativeRootActivity::getResourceURIFromURI(uri);
     }
 }

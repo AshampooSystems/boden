@@ -43,11 +43,7 @@ namespace bdn::android
     void LottieViewCore::loadURL(const String &url)
     {
         auto animationView = getJViewAS<wrapper::NativeLottieAnimationView>();
-        if (cpp20::starts_with(url, "resource://")) {
-            animationView.loadFromResource(url);
-        } else {
-            animationView.setAnimationFromUrl(url);
-        }
+        animationView.loadFromUrl(url);
     }
 
     void LottieViewCore::onAnimationEnded() { running = false; }

@@ -27,13 +27,13 @@ class TestApplicationController : public bdn::ApplicationController, public test
         _window = std::make_shared<bdn::Window>();
         _window->geometry = {0, 0, 300, 400};
         _window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
-        _window->setLayoutStylesheet(FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"}));
+        _window->stylesheet = FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"});
 
         _progressLabel = std::make_shared<bdn::Label>();
         _testNameLabel = std::make_shared<bdn::Label>();
 
         auto container = std::make_shared<bdn::ContainerView>();
-        container->setLayoutStylesheet(FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"}));
+        container->stylesheet = FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"});
 
         container->addChildView(_progressLabel);
         container->addChildView(_testNameLabel);

@@ -4,7 +4,7 @@
 #include <bdn/Rect.h>
 #include <bdn/View.h>
 #include <bdn/property/Property.h>
-#include <bdn/yogalayout/Stylesheet.h>
+#include <yoga/Yoga.h>
 
 struct YGNode;
 
@@ -39,6 +39,7 @@ namespace bdn
             View *view;
             std::function<void()> layoutFunction;
             bool isRootNode;
+            bool isIn;
         };
     }
 }

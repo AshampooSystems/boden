@@ -29,6 +29,6 @@ namespace bdn::android::wrapper
         using BaseLottieAnimationView<kNativeLottieAnimationViewClassName>::BaseLottieAnimationView;
 
       public:
-        JavaMethod<void(bdn::String)> loadFromResource{this, "loadFromResource"};
+        JavaMethod<void(bdn::String)> loadFromUrl{this, "loadFromUrl"};
     };
 }

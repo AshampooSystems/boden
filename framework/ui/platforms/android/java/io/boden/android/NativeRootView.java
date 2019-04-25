@@ -137,7 +137,9 @@ public class NativeRootView extends NativeViewGroup
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        getChildAt(0).layout(0, 0, right, bottom);
+        if(getChildAt(0) != null) {
+            getChildAt(0).layout(0, 0, right, bottom);
+        }
         //printInfo(this, 0);
     }
 

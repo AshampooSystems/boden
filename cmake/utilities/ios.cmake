@@ -119,3 +119,18 @@ macro(ios_configure_app_info)
         ios_supported_orientations(IPHONE ${_ARGUMENTS_IPHONE_ORIENTATIONS} IPAD ${_ARGUMENTS_IPAD_ORIENTATIONS})
     endif()
 endmacro()
+
+macro(ios_fix_lib_build_folder TARGET)
+    if(BDN_PLATFORM_IOS AND XCODE)
+
+        set_target_properties(${TARGET} PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY_DEBUG "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
+        set_target_properties(${TARGET} PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY_RELEASE "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
+        set_target_properties(${TARGET} PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
+        set_target_properties(${TARGET} PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
+
+    endif()
+endmacro()

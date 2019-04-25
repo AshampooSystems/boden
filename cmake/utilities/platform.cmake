@@ -121,6 +121,8 @@ macro(add_universal_library TARGET)
         add_library(${TARGET} STATIC ${_LIB_SOURCES})
     endif()
 
+    ios_fix_lib_build_folder(${TARGET})
+
     if(_LIB_TIDY AND BDN_ENABLE_CLANG_TIDY)
         message("Adding tidy target for ${TARGET} (${BDN_CLANG_TIDY_OPTIONS})")
         set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "${BDN_CLANG_TIDY_OPTIONS}")
@@ -128,6 +130,7 @@ macro(add_universal_library TARGET)
 
     add_clangformat(${TARGET})
     add_link_type_definitions(${TARGET})
+    ios_targeted_devices(TARGET ${TARGET} IPHONE IPAD)
 endmacro()
 
 macro(add_universal_executable TARGET)
@@ -202,6 +205,8 @@ macro(add_platform_library )
     elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
         add_library(${_library_name} STATIC ${_files})
     endif()
+
+    ios_fix_lib_build_folder(${_library_name})
 
     add_clangformat(${_library_name})
     add_link_type_definitions(${_library_name})

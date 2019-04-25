@@ -16,7 +16,8 @@ namespace bdn
             throw std::runtime_error("Couldn't get ViewCore Factory!");
         }
 
-        layoutStylesheet.onChange() += [=](auto va) {
+        stylesheet.onChange() += [=](auto va) {
+            updateFromStylesheet();
             if (auto layout = _layout.get()) {
                 layout->updateStylesheet(this);
             }
@@ -24,7 +25,13 @@ namespace bdn
 
         isLayoutRoot.onChange() += [=](auto) { updateLayout(_layout.get(), _layout.get()); };
 
-        registerCoreCreatingProperties(this, &visible, &geometry, &layoutStylesheet);
+        visible.onChange() += [=](auto) {
+            if (auto layout = _layout.get()) {
+                layout->updateStylesheet(this);
+            }
+        };
+
+        registerCoreCreatingProperties(this, &visible, &geometry, &stylesheet);
     }
 
     View::~View()
@@ -84,6 +91,19 @@ namespace bdn
             offerLayout(parentView->getLayout());
         } else {
             offerLayout(nullptr);
+        }
+    }
+
+    void View::updateFromStylesheet()
+    {
+        if (stylesheet->count("visible")) {
+            visible = (bool)stylesheet->at("visible");
+        } else {
+            visible = true;
+        }
+
+        if (auto core = viewCore()) {
+            core->updateFromStylesheet(stylesheet.get());
         }
     }
 

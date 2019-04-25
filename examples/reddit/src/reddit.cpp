@@ -77,20 +77,32 @@ class RedditListViewDataSource : public ListViewDataSource
         using ContainerView::ContainerView;
         void build()
         {
-            setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Row)
-                                << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
-                                << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexPaddingAll(2.5)
-                                << FlexGrow(1.0));
+            stylesheet = FlexJsonStringify({
+                "direction" : "Row",
+                "flexGrow" : 1.0,
+                "justifyContent" : "SpaceBetween",
+                "alignItems" : "FlexStart",
+                "padding" : {"all" : 2.5}
+            });
 
+            /*FlexDirection(FlexStylesheet::Direction::Row)
+                            << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
+                            << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexPaddingAll(2.5)
+                            << FlexGrow(1.0));
+*/
             auto image = std::make_shared<ImageView>();
             image->url.bind(imageUrl, BindMode::unidirectional);
-            image->setLayoutStylesheet(FlexMaximumSizeWidth(45.0)
-                                       << FlexAlignSelf(FlexStylesheet::Align::Center) << FlexMarginRight(5.f));
+            image->stylesheet = FlexJsonStringify(
+                {"maximumSize" : {"width" : 45.0}, "alignSelf" : "Center", "margin" : {"right" : 5.0}});
 
+            /*(FlexMaximumSizeWidth(45.0)
+                                   << FlexAlignSelf(FlexStylesheet::Align::Center) << FlexMarginRight(5.f));
+*/
             addChildView(image);
 
             auto textView = std::make_shared<Label>();
-            textView->setLayoutStylesheet((FlexStylesheet)FlexGrow(1.0f));
+            textView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
+            //((FlexStylesheet)FlexGrow(1.0f));
 
             addChildView(textView);
 
@@ -138,8 +150,11 @@ class PostListViewController : public Base
     PostListViewController() : _listView(std::make_shared<ListView>())
     {
         _listView->enableRefresh = true;
-        _listView->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
-                                       << FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMarginAll(10.0f));
+        _listView->stylesheet = FlexJsonStringify(
+            {"direction" : "Column", "flexGrow" : 1.0, "flexShrink" : 1.0, "margin" : {"all" : 10.0}});
+
+        // FlexDirection(FlexStylesheet::Direction::Column)
+        //                                     << FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMarginAll(10.0f));
 
         _store = std::make_shared<RedditStore>();
         _dataSource = std::make_shared<RedditListViewDataSource>(_store);
@@ -182,21 +197,30 @@ class PostDetailController : public Base
     PostDetailController(const String &title, const String &url, const String &imageUrl)
         : _mainColumn(std::make_shared<ContainerView>())
     {
-        _mainColumn->setLayoutStylesheet(Flex() << FlexGrow(1.0f));
+        _mainColumn->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         auto headerColumn = std::make_shared<ContainerView>();
 
-        headerColumn->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Row)
-                                          << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexMarginBottom(10.0f)
-                                          << FlexWrap(FlexStylesheet::Wrap::Wrap));
+        headerColumn->stylesheet = FlexJsonStringify(
+            {"direction" : "Row", "alignItems" : "FlexStart", "margin" : {"bottom" : 10.0}, "flexWrap" : "Wrap"});
 
+        /*FlexDirection(FlexStylesheet::Direction::Row)
+                                      << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexMarginBottom(10.0f)
+                                      << FlexWrap(FlexStylesheet::Wrap::Wrap));
+*/
         auto image = std::make_shared<ImageView>();
         auto titleField = std::make_shared<Label>();
 
-        image->setLayoutStylesheet(FlexGrow(0.0f) << FlexMaximumSizeWidth(100.0f) << FlexMaximumSizeHeight(100.0f)
-                                                  << FlexShrink(0.0f) << FlexMarginRight(5.f));
+        image->stylesheet = FlexJsonStringify({
+            "flexGrow" : 0.0,
+            "maximumSize" : {"width" : 100.0, "height" : 100.0},
+            "flexShrink" : 0.0,
+            "margin" : {"right" : 5}
+        });
 
-        titleField->setLayoutStylesheet(FlexGrow(1.0f) << FlexShrink(1.0f) << FlexMaximumSizeHeight(100.));
+        titleField->stylesheet =
+            FlexJsonStringify({"flexGrow" : 1.0, "flexShrink" : 1.0, "maximumSize" : {"height" : 100.0}});
+
         headerColumn->addChildView(image);
         headerColumn->addChildView(titleField);
 
@@ -205,7 +229,7 @@ class PostDetailController : public Base
 
         webView->userAgent = "boden-reddit/0.1";
         webView->url = url;
-        webView->setLayoutStylesheet(Flex() << FlexGrow(1.));
+        webView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         image->url = imageUrl;
         titleField->text = title;
@@ -235,9 +259,13 @@ class MainViewController : public Base
         _window->setLayout(std::make_shared<yogalayout::Layout>());
 
         auto navigationView = std::make_shared<NavigationView>();
-        navigationView->setLayoutStylesheet(FlexDirection(FlexStylesheet::Direction::Column)
-                                            << FlexGrow(1.0f) << FlexShrink(1.0f)
-                                            << FlexAlignItems(FlexStylesheet::Align::Stretch) << FlexPaddingAll(20));
+        navigationView->stylesheet = FlexJsonStringify({
+            "direction" : "Column",
+            "flexGrow" : 1.0,
+            "flexShrink" : 1.0,
+            "alignItems" : "Stretch",
+            "padding" : {"all" : 20}
+        });
 
         navigationView->pushView(_listViewController->view(), "Reddit");
 

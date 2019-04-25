@@ -1,4 +1,4 @@
-macro(roger_add TARGET _VAR_ _RESOURCE_FILE _BUNDLE_NAME)
+macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
     # Hack to force cmake to rerun when the resource description has changed
     configure_file(${_RESOURCE_FILE} ${CMAKE_BINARY_DIR}/resource_auto_refresh.txt)
 

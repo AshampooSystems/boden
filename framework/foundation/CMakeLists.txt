@@ -1,9 +1,5 @@
 include(CMakeDependentOption)
 
-if(CMAKE_CXX_STANDARD VERSION_LESS 17)
-    message(FATAL_ERROR "Boden requires at least the C++17 standard")
-endif()
-
 CMAKE_DEPENDENT_OPTION(BDN_SHARED_LIB "Compile foundation as a shared library" OFF "NOT BDN_NEEDS_TO_BE_SHARED_LIBRARY;NOT BDN_NEEDS_TO_BE_STATIC_LIBRARY" Off)
 
 ##########################################################################
@@ -55,6 +51,8 @@ enable_automatic_reference_counting(foundation PUBLIC)
 enable_big_object_files(foundation PUBLIC)
 enable_unicode(foundation PUBLIC)
 enable_multicore_build(foundation PUBLIC)
+target_compile_features(foundation PUBLIC cxx_std_17)
+
 
 # MT: I think we should enable this ( gcc on linux )
 # but a lot of errors are generated from it atm.
@@ -65,7 +63,6 @@ math(EXPR arch "${CMAKE_SIZEOF_VOID_P} * 8")
 message(STATUS "Boden library configuration:")
 message(STATUS "  Shared: ${BDN_SHARED_LIB}")
 message(STATUS "  Architecture: ${arch} bit")
-message(STATUS "  C++ Standard: ${CMAKE_CXX_STANDARD}")
 
 include(install.cmake)
 

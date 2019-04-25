@@ -186,7 +186,7 @@ class AndroidStudioProjectGenerator(object):
         self.make_directory(os.path.join(module_directory, "src", "main", "res"))
 
         resource_source_dir = os.path.join(app["buildDirectory"], "android-resources")
-        resource_dest_dir = os.path.join(module_directory, "src", "main", "res")
+        resource_dest_dir = os.path.join(module_directory, "src", "main")
 
         if os.path.exists(resource_source_dir):
             self.logger.debug("Copying resources ( %s => %s )" %(resource_source_dir, resource_dest_dir))

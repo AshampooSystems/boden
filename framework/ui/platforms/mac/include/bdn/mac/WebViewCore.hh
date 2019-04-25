@@ -5,6 +5,8 @@
 #import <bdn/applecommon/WebViewNavigationController.hh>
 #import <bdn/mac/ViewCore.hh>
 
+@class WebViewUIDelegate;
+
 namespace bdn::mac
 {
     class WebViewCore : public ViewCore, virtual public bdn::WebView::Core
@@ -18,5 +20,6 @@ namespace bdn::mac
 
       private:
         WebViewNavigationController *_navigationController;
+        WebViewUIDelegate *_uiDelegate;
     };
 }

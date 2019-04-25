@@ -10,6 +10,31 @@
 
 #include <bdn/ViewUtilities.h>
 
+@interface WebViewUIDelegate : NSObject <WKUIDelegate>
+
+@end
+
+@implementation WebViewUIDelegate
+- (void)webView:(WKWebView *)webView
+    runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters
+              initiatedByFrame:(WKFrameInfo *)frame
+             completionHandler:(void (^)(NSArray<NSURL *> *URLs))completionHandler
+{
+    bdn::logstream() << "OPEN?";
+
+    auto openPanel = [NSOpenPanel openPanel];
+
+    openPanel.canChooseFiles = true;
+    [openPanel beginWithCompletionHandler:^(NSModalResponse result) {
+      if (result == NSModalResponseOK) {
+          if (auto url = openPanel.URLs)
+              completionHandler(url);
+      }
+    }];
+}
+
+@end
+
 namespace bdn::webview::detail
 {
     CORE_REGISTER(WebView, bdn::mac::WebViewCore, WebView)
@@ -30,7 +55,9 @@ namespace bdn::mac
     void WebViewCore::init()
     {
         _navigationController = [[WebViewNavigationController alloc] init];
+        _uiDelegate = [[WebViewUIDelegate alloc] init];
         ((WKWebView *)nsView()).navigationDelegate = _navigationController;
+        ((WKWebView *)nsView()).UIDelegate = _uiDelegate;
 
         redirectHandler.onChange() += [=](auto va) { _navigationController.redirectHandler = va->get(); };
 

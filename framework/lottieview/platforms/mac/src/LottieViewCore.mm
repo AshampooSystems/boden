@@ -1,16 +1,15 @@
+#include <LOTAnimationView.h>
+
 #include <bdn/LottieView.h>
 
+#import <WebKit/WebKit.h>
 #import <bdn/mac/LottieViewCore.hh>
 #import <bdn/mac/util.hh>
 
-#include <LOTAnimationView.h>
-
-#import <WebKit/WebKit.h>
-#include <bdn/mac/util.hh>
-
-#include <bdn/log.h>
-
+#include <bdn/Application.h>
 #include <bdn/ViewUtilities.h>
+#include <bdn/log.h>
+#include <bdn/mac/util.hh>
 
 namespace bdn::lottieview::detail
 {
@@ -51,35 +50,20 @@ namespace bdn::mac
             [oldView removeFromSuperview];
         }
 
-        if (cpp20::starts_with(url, "file://")) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+        auto uri = App()->uriToBundledFileUri(url);
+
+        if (uri.empty()) {
+            uri = url;
+        }
+
+        if (cpp20::starts_with(uri, "file:///")) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
                 if (auto localPath = nsURL.relativePath) {
                     animationView = [LOTAnimationView animationWithFilePath:localPath];
                 }
             }
-        } else if (cpp20::starts_with(url, "resource://")) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                auto server = nsURL.host;
-                NSBundle *bundle = [NSBundle mainBundle];
-                if (server && [server compare:@"main"] != NSOrderedSame) {
-                    bundle = [NSBundle bundleWithIdentifier:server];
-                }
-                if (bundle) {
-                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
-                        NSRange lastDot = [localPath rangeOfString:@"." options:NSBackwardsSearch];
-                        NSString *ext = [localPath substringFromIndex:lastDot.location];
-
-                        NSString *resourceName = [localPath stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-                        resourceName = [resourceName stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-
-                        resourceName = [NSString stringWithFormat:@"%@%@", resourceName, ext];
-
-                        animationView = [LOTAnimationView animationNamed:resourceName inBundle:bundle];
-                    }
-                }
-            }
         } else {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
+            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
                 animationView = [[LOTAnimationView alloc] initWithContentsOfURL:nsURL];
             }
         }
