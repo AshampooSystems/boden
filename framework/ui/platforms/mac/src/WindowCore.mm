@@ -112,24 +112,25 @@ namespace bdn::mac
         _ourDelegate = delegate;
         _nsWindow.delegate = delegate;
 
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
 
-        geometry.onChange() += [=](auto va) {
+        geometry.onChange() += [=](auto &property) {
             if (!_isInMoveOrResize) {
                 NSScreen *screen = [NSScreen mainScreen];
-                [_nsWindow setFrame:rectToMacRect(va->get(), screen.frame.size.height) display:YES];
+                [_nsWindow setFrame:rectToMacRect(property.get(), screen.frame.size.height) display:YES];
             }
         };
 
-        visible.onChange() += [&window = self->_nsWindow](auto va) {
-            if (va->get()) {
+        visible.onChange() += [&window = self->_nsWindow](auto &property) {
+            if (property.get()) {
                 [window makeKeyAndOrderFront:NSApp];
             } else {
                 [window orderOut:NSApp];
             }
         };
 
-        title.onChange() += [&window = self->_nsWindow](auto va) { [window setTitle:fk::stringToNSString(va->get())]; };
+        title.onChange() +=
+            [&window = self->_nsWindow](auto &property) { [window setTitle:fk::stringToNSString(property.get())]; };
     }
 
     bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const

@@ -194,7 +194,7 @@ namespace bdn::ios
         uiTableView.dataSource = nativeDelegate;
         uiTableView.delegate = nativeDelegate;
 
-        enableRefresh.onChange() += [=](auto va) { updateRefresh(va->get()); };
+        enableRefresh.onChange() += [=](auto &property) { updateRefresh(property.get()); };
     }
 
     void ListViewCore::updateRefresh(bool enable) { [((BodenUITableView *)uiView()) updateRefresh:enable]; }

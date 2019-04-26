@@ -59,10 +59,10 @@ namespace bdn::mac
         ((WKWebView *)nsView()).navigationDelegate = _navigationController;
         ((WKWebView *)nsView()).UIDelegate = _uiDelegate;
 
-        redirectHandler.onChange() += [=](auto va) { _navigationController.redirectHandler = va->get(); };
+        redirectHandler.onChange() += [=](auto &property) { _navigationController.redirectHandler = property.get(); };
 
         userAgent.onChange() +=
-            [=](auto va) { ((WKWebView *)nsView()).customUserAgent = fk::stringToNSString(va->get()); };
+            [=](auto &property) { ((WKWebView *)nsView()).customUserAgent = fk::stringToNSString(property.get()); };
     }
 
     void WebViewCore::loadURL(const String &url)

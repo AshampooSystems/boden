@@ -8,7 +8,7 @@ namespace bdn
 {
     template <class T> struct ChangeCounter
     {
-        void operator()(typename Property<T>::value_accessor_t_ptr) { changeCount++; }
+        void operator()(Property<T> &) { changeCount++; }
         int changeCount = 0;
     };
 

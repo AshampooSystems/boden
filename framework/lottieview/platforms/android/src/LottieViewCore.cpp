@@ -22,17 +22,17 @@ namespace bdn::android
     {
         ViewCore::init();
 
-        running.onChange() += [=](auto va) {
+        running.onChange() += [=](auto &property) {
             auto animationView = getJViewAS<wrapper::LottieAnimationView>();
-            if (va->get()) {
+            if (property.get()) {
                 animationView.playAnimation();
             } else {
                 animationView.pauseAnimation();
             }
         };
-        loop.onChange() += [=](auto va) {
+        loop.onChange() += [=](auto &property) {
             auto animationView = getJViewAS<wrapper::LottieAnimationView>();
-            if (va->get()) {
+            if (property.get()) {
                 animationView.setRepeatCount(0xffffffff);
             } else {
                 animationView.setRepeatCount(0);

@@ -73,10 +73,10 @@ namespace bdn::mac
         _delegate.textFieldCore = shared_from_this<TextFieldCore>();
         _delegate.nsTextField = (NSTextField *)nsView();
 
-        text.onChange() += [=](auto va) {
+        text.onChange() += [=](auto &property) {
             NSTextField *textField = (NSTextField *)nsView();
-            if (fk::nsStringToString(textField.stringValue) != va->get()) {
-                textField.stringValue = fk::stringToNSString(va->get());
+            if (fk::nsStringToString(textField.stringValue) != property.get()) {
+                textField.stringValue = fk::stringToNSString(property.get());
             }
         };
     }

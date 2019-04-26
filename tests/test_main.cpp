@@ -62,8 +62,10 @@ class TestApplicationController : public bdn::ApplicationController, public test
         bdn::String sProgress = ssProgress.str();
         bdn::String sTestInfo = ssTestInfo.str();
         bdn::App()->dispatchQueue()->dispatchAsync([this, sProgress, sTestInfo]() {
-            _progressLabel->text = sProgress;
-            _testNameLabel->text = sTestInfo;
+            if (_progressLabel)
+                _progressLabel->text = sProgress;
+            if (_testNameLabel)
+                _testNameLabel->text = sTestInfo;
         });
     }
 

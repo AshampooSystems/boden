@@ -19,10 +19,7 @@ namespace bdn
         TransformBacking(const TransformBacking &t)
             : toFunc(t.toFunc), fromFunc(t.fromFunc), _otherBacking(t._otherBacking)
         {
-            subscription = _otherBacking->onChange().subscribe([=](auto va) {
-                bdn::Backing<ValType>::onChange().notify(
-                    std::dynamic_pointer_cast<IValueAccessor<ValType>>(IValueAccessor<ValType>::shared_from_this()));
-            });
+            subscription = _otherBacking->onChange().subscribe(std::bind(&TransformBacking::otherChanged, this));
         }
 
         ~TransformBacking() override
@@ -30,6 +27,8 @@ namespace bdn
             if (subscription)
                 _otherBacking->onChange().unsubscribe(subscription);
         }
+
+        void otherChanged() { Backing<ValType>::_onChange.notify(Backing<ValType>::shared_from_this()); }
 
       public:
         ValType get() const override { return toFunc(_otherBacking->get()); }

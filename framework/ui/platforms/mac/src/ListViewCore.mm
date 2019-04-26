@@ -245,9 +245,9 @@ namespace bdn::mac
         ListScrollView *scrollView = (ListScrollView *)nsView();
         scrollView.listCore = nativeDelegate.listCore;
 
-        enableRefresh.onChange() += [=](auto va) {
+        enableRefresh.onChange() += [=](auto &property) {
             ListScrollView *scrollView = (ListScrollView *)nsView();
-            scrollView.refreshEnabled = va->get();
+            scrollView.refreshEnabled = property.get();
         };
 
         _nsTableView = (scrollView).documentView;

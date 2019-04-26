@@ -84,12 +84,12 @@ namespace bdn::ios
                                 action:@selector(clicked)
                       forControlEvents:UIControlEventTouchUpInside];
 
-        label.onChange() += [=](auto va) {
+        label.onChange() += [=](auto &property) {
             _composite.uiLabel.text = fk::stringToNSString(label);
             [_composite.uiLabel sizeToFit];
         };
 
-        on.onChange() += [=](auto va) { ((BdnIosSwitchComposite *)_composite).uiSwitch.on = on; };
+        on.onChange() += [=](auto &property) { ((BdnIosSwitchComposite *)_composite).uiSwitch.on = on; };
     }
 
     SwitchCore::~SwitchCore()

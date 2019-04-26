@@ -61,8 +61,8 @@ namespace bdn
             }
         };
 
-        running.onChange() += [=](auto va) {
-            if (va->get()) {
+        running.onChange() += [=](auto &property) {
+            if (property.get()) {
                 start();
             } else {
                 stop();
@@ -75,8 +75,8 @@ namespace bdn
             }
         };
 
-        repeat.onChange() += [=](auto va) {
-            if (va->get()) {
+        repeat.onChange() += [=](auto &property) {
+            if (property.get()) {
                 if (_isRunning && running) {
                     restart();
                 }

@@ -7,8 +7,6 @@ namespace bdn
 
     template <class ValType> class SetterBacking : public Backing<ValType>
     {
-        using value_accessor_t = typename Backing<ValType>::value_accessor_t;
-
       public:
         using SetterFunc = std::function<bool(ValType &, ValType)>;
 
@@ -25,8 +23,7 @@ namespace bdn
             if (_setter == nullptr) {
                 _value = value;
             } else if (_setter(_value, value) && notify) {
-                this->_pOnChange->notify(
-                    std::dynamic_pointer_cast<value_accessor_t>(Backing<ValType>::shared_from_this()));
+                this->_onChange.notify(Backing<ValType>::shared_from_this());
             }
         }
 

@@ -21,8 +21,8 @@ namespace bdn
 
     void createSizeBindings(const std::shared_ptr<ImageView> &imageView)
     {
-        imageView->originalSize.onChange() += [=](auto va) { update(imageView); };
-        imageView->aspectRatio.onChange() += [=](auto va) { update(imageView); };
+        imageView->originalSize.onChange() += [=](auto &property) { update(imageView); };
+        imageView->aspectRatio.onChange() += [=](auto &property) { update(imageView); };
     };
 
     auto createImageViewDemoPage()

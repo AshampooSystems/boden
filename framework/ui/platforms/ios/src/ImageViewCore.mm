@@ -60,7 +60,7 @@ namespace bdn::ios
     ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUIImageView())
     {
-        url.onChange() += [=](auto va) { setUrl(va->get()); };
+        url.onChange() += [=](auto &property) { setUrl(property.get()); };
     }
 
     void ImageViewCore::setUrl(const String &url)

@@ -159,8 +159,9 @@ namespace bdn
         auto screenOrientationCtrl = std::make_shared<Label>();
 
         screenOrientationCtrl->text = Window::orientationToString(window->currentOrientation);
-        window->currentOrientation.onChange() +=
-            [screenOrientationCtrl](auto va) { screenOrientationCtrl->text = Window::orientationToString(va->get()); };
+        window->currentOrientation.onChange() += [screenOrientationCtrl](auto &property) {
+            screenOrientationCtrl->text = Window::orientationToString(property.get());
+        };
 
         container->addChildView(makeRow("Orientation", screenOrientationCtrl));
 

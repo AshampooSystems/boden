@@ -91,16 +91,16 @@ namespace bdn::mac
         [composite.bdnSwitch setTarget:_clickManager];
         [composite.bdnSwitch setAction:@selector(clicked)];
 
-        label.onChange() += [=](auto va) {
+        label.onChange() += [=](auto &property) {
             BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
-            composite.label.stringValue = fk::stringToNSString(va->get());
+            composite.label.stringValue = fk::stringToNSString(property.get());
             NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:composite.label.stringValue];
             [composite.label setFrameSize:cell.cellSize];
         };
 
-        on.onChange() += [=](auto va) {
+        on.onChange() += [=](auto &property) {
             BdnMacSwitchComposite *composite = (BdnMacSwitchComposite *)nsView();
-            [composite.bdnSwitch setOn:va->get() animate:NO];
+            [composite.bdnSwitch setOn:property.get() animate:NO];
         };
     }
 

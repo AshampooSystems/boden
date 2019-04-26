@@ -14,7 +14,7 @@ namespace bdn
         : View(std::move(viewCoreFactory)), verticalScrollingEnabled(true)
     {
         detail::VIEW_CORE_REGISTER(ScrollView, View::viewCoreFactory());
-        contentView.onChange() += [=](auto va) { _contentView.update(shared_from_this(), va->get()); };
+        contentView.onChange() += [=](auto &property) { _contentView.update(shared_from_this(), property.get()); };
     }
 
     void ScrollView::bindViewCore()

@@ -12,7 +12,7 @@ namespace bdn::android
     NavigationViewCore::NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeNavigationView>(viewCoreFactory))
     {
-        geometry.onChange() += [=](auto va) { this->reLayout(); };
+        geometry.onChange() += [=](auto &property) { this->reLayout(); };
     }
 
     NavigationViewCore::~NavigationViewCore() { getJViewAS<wrapper::NativeNavigationView>().close(); }

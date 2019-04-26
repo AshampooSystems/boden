@@ -49,7 +49,7 @@ namespace bdn::mac
         _heightWithRoundedBezelStyle = (int)macSizeToSize(nsView().fittingSize).height;
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
-        label.onChange() += [=](auto va) {
+        label.onChange() += [=](auto &property) {
             NSString *macLabel = fk::stringToNSString(label);
             [(NSButton *)nsView() setTitle:macLabel];
         };

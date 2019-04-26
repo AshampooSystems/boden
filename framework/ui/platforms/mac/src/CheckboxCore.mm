@@ -21,12 +21,12 @@ namespace bdn::mac
 
         _nsButton.allowsMixedState = static_cast<BOOL>(true);
 
-        label.onChange() += [=](auto va) {
+        label.onChange() += [=](auto &property) {
             NSString *macLabel = fk::stringToNSString(label);
             [_nsButton setTitle:macLabel];
         };
 
-        state.onChange() += [=](auto va) {
+        state.onChange() += [=](auto &property) {
             if (state == TriState::mixed) {
                 _nsButton.allowsMixedState = static_cast<BOOL>(true);
             }

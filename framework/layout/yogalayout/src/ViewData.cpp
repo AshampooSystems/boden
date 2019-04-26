@@ -23,7 +23,7 @@ namespace bdn
                     geometry.bind(view->geometry);
                 }
 
-                geometry.onChange() += [=](auto va) { ygNode->markDirtyAndPropogate(); };
+                geometry.onChange() += [=](auto &property) { ygNode->markDirtyAndPropogate(); };
             }
         }
 

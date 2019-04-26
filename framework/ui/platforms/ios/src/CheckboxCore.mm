@@ -134,9 +134,10 @@ namespace bdn::ios
                               action:@selector(clicked)
                     forControlEvents:UIControlEventTouchUpInside];
 
-        state.onChange() += [=](auto va) { ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state; };
+        state.onChange() +=
+            [=](auto &property) { ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState = state; };
 
-        label.onChange() += [=](auto va) {
+        label.onChange() += [=](auto &property) {
             _composite.uiLabel.text = fk::stringToNSString(label);
             [_composite.uiLabel sizeToFit];
         };

@@ -46,10 +46,10 @@ namespace bdn::ios
         _navigationController = [[WebViewNavigationController alloc] init];
         ((WKWebView *)uiView()).navigationDelegate = _navigationController;
 
-        redirectHandler.onChange() += [=](auto va) { _navigationController.redirectHandler = va->get(); };
+        redirectHandler.onChange() += [=](auto &property) { _navigationController.redirectHandler = property.get(); };
 
         userAgent.onChange() +=
-            [=](auto va) { ((WKWebView *)uiView()).customUserAgent = fk::stringToNSString(va->get()); };
+            [=](auto &property) { ((WKWebView *)uiView()).customUserAgent = fk::stringToNSString(property.get()); };
     }
 
     void WebViewCore::loadURL(const String &url)

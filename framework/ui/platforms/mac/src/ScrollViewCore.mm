@@ -91,11 +91,11 @@ namespace bdn::mac
                                                    object:_nsScrollView.contentView];
 
         horizontalScrollingEnabled.onChange() +=
-            [=](auto va) { _nsScrollView.hasHorizontalScroller = va->get() ? YES : NO; };
+            [=](auto &property) { _nsScrollView.hasHorizontalScroller = property.get() ? YES : NO; };
         verticalScrollingEnabled.onChange() +=
-            [=](auto va) { _nsScrollView.hasVerticalScroller = va->get() ? YES : NO; };
+            [=](auto &property) { _nsScrollView.hasVerticalScroller = property.get() ? YES : NO; };
 
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
     }
 
     NSScrollView *ScrollViewCore::_createScrollView()

@@ -14,13 +14,13 @@ namespace bdn::android
     {
         _jCheckBox.setSingleLine(true);
 
-        label.onChange() += [=](auto va) {
-            _jCheckBox.setText(va->get());
+        label.onChange() += [=](auto &property) {
+            _jCheckBox.setText(property.get());
             scheduleLayout();
         };
 
-        state.onChange() += [=](auto va) {
-            _jCheckBox.setChecked(va->get() == TriState::on);
+        state.onChange() += [=](auto &property) {
+            _jCheckBox.setChecked(property.get() == TriState::on);
             _state = state;
         };
 

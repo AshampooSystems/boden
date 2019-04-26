@@ -12,7 +12,8 @@ namespace bdn::android
         : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeWebView>(viewCoreFactory)),
           _jWebView(getJViewAS<wrapper::WebView>())
     {
-        userAgent.onChange() += [=](auto va) { getJViewAS<wrapper::NativeWebView>().setUserAgent(va->get()); };
+        userAgent.onChange() +=
+            [=](auto &property) { getJViewAS<wrapper::NativeWebView>().setUserAgent(property.get()); };
     }
 
     void WebViewCore::loadURL(const String &url) { _jWebView.loadUrl(url); }

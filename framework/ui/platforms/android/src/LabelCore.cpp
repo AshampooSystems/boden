@@ -11,9 +11,9 @@ namespace bdn::android
         : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::TextView>(viewCoreFactory)),
           _jTextView(getJViewAS<wrapper::TextView>())
     {
-        text.onChange() += [=](auto va) {
+        text.onChange() += [=](auto &property) {
             // Remove '\r' as android treats them as a space
-            String textToSet = va->get();
+            String textToSet = property.get();
             textToSet.erase(
                 std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
                 textToSet.end());
@@ -21,14 +21,14 @@ namespace bdn::android
             scheduleLayout();
         };
 
-        wrap.onChange() += [=](auto va) {
-            _jTextView.setMaxLines(va->get() ? std::numeric_limits<int>::max() : 1);
-            _wrap = va->get();
+        wrap.onChange() += [=](auto &property) {
+            _jTextView.setMaxLines(property.get() ? std::numeric_limits<int>::max() : 1);
+            _wrap = property.get();
             scheduleLayout();
         };
 
-        geometry.onChange() += [=](auto va) {
-            int widthPixels = va->get().width * getUIScaleFactor();
+        geometry.onChange() += [=](auto &property) {
+            int widthPixels = property.get().width * getUIScaleFactor();
 
             if (_wrap) {
                 _jTextView.setMaxWidth(widthPixels);

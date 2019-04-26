@@ -16,7 +16,7 @@ namespace bdn
             throw std::runtime_error("Couldn't get ViewCore Factory!");
         }
 
-        stylesheet.onChange() += [=](auto va) {
+        stylesheet.onChange() += [=](auto &property) {
             updateFromStylesheet();
             if (auto layout = _layout.get()) {
                 layout->updateStylesheet(this);

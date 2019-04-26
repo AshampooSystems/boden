@@ -87,7 +87,7 @@ namespace bdn
         void onPropertyChanged()
         {
             updateValue();
-            _pOnChange->notify(shared_from_this());
+            _onChange.notify(shared_from_this());
         }
 
       private:

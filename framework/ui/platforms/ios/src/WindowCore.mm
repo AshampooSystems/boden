@@ -243,18 +243,19 @@ namespace bdn::ios
 
         [_rootViewController updateCurrentOrientation];
 
-        title.onChange() +=
-            [&window = this->_window](auto va) { window.rootViewController.title = fk::stringToNSString(va->get()); };
+        title.onChange() += [&window = this->_window](auto &property) {
+            window.rootViewController.title = fk::stringToNSString(property.get());
+        };
 
-        geometry.onChange() += [=](auto va) {
+        geometry.onChange() += [=](auto &property) {
             updateGeomtry();
             updateContentGeometry();
         };
 
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
 
-        allowedOrientations.onChange() += [=](auto va) { [this->_rootViewController changeOrientation]; };
-        currentOrientation.onChange() += [=](auto va) { [this->_rootViewController updateCurrentOrientation]; };
+        allowedOrientations.onChange() += [=](auto &property) { [this->_rootViewController changeOrientation]; };
+        currentOrientation.onChange() += [=](auto &property) { [this->_rootViewController updateCurrentOrientation]; };
 
         updateGeomtry();
         updateContentGeometry();

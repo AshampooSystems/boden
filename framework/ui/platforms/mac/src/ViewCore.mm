@@ -21,14 +21,14 @@ namespace bdn::mac
     {
         if (_nsView != nullptr) {
 
-            geometry.onChange() += [&view = this->_nsView](auto va) {
-                NSRect r = rectToMacRect(va->get(), -1);
+            geometry.onChange() += [&view = this->_nsView](auto &property) {
+                NSRect r = rectToMacRect(property.get(), -1);
 
                 [view setFrameOrigin:r.origin];
                 [view setFrameSize:r.size];
             };
 
-            visible.onChange() += [&view = this->_nsView](auto va) { view.hidden = !va->get(); };
+            visible.onChange() += [&view = this->_nsView](auto &property) { view.hidden = !property.get(); };
 
             _nsView.postsFrameChangedNotifications = YES;
 

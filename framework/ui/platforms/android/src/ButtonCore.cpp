@@ -15,8 +15,8 @@ namespace bdn::android
     {
         _jButton.setSingleLine(true);
 
-        label.onChange() += [=](auto va) {
-            _jButton.setText(va->get());
+        label.onChange() += [=](auto &property) {
+            _jButton.setText(property.get());
             scheduleLayout();
         };
 

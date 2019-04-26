@@ -11,8 +11,9 @@ namespace bdn::android
 
         _uiScaleFactor = 1;
 
-        visible.onChange() += [=](auto va) {
-            _jView.setVisibility(va->get() ? wrapper::View::Visibility::visible : wrapper::View::Visibility::invisible);
+        visible.onChange() += [=](auto &property) {
+            _jView.setVisibility(property.get() ? wrapper::View::Visibility::visible
+                                                : wrapper::View::Visibility::invisible);
         };
 
         geometry.onChange() += [=](auto) { updateGeometry(); };

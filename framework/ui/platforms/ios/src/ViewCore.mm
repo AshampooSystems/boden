@@ -16,9 +16,9 @@ namespace bdn::ios
     {
         [_view setViewCore:shared_from_this<ViewCore>()];
 
-        geometry.onChange() += [=](auto va) { this->onGeometryChanged(va->get()); };
+        geometry.onChange() += [=](auto &property) { this->onGeometryChanged(property.get()); };
 
-        visible.onChange() += [&view = this->_view](auto va) { view.hidden = !va->get(); };
+        visible.onChange() += [&view = this->_view](auto &property) { view.hidden = !property.get(); };
     }
 
     ViewCore::~ViewCore() { [_view setViewCore:std::weak_ptr<ViewCore>()]; }

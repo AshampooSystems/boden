@@ -61,10 +61,10 @@ namespace bdn::android
     {
         ViewCore::init();
 
-        title.onChange() += [=](auto va) {
+        title.onChange() += [=](auto &property) {
             wrapper::NativeRootView rootView(getJView().getParent().getRef_());
 
-            rootView.setTitle(va->get());
+            rootView.setTitle(property.get());
         };
 
         wrapper::NativeRootView rootView(getJView().getParent().getRef_());
@@ -76,16 +76,16 @@ namespace bdn::android
 
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight());
 
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
 
-        allowedOrientations.onChange() += [=](auto va) {
+        allowedOrientations.onChange() += [=](auto &property) {
             wrapper::Activity activity(getJView().getContext().getRef_());
 
-            if (va->get() == bdn::Window::Core::Orientation::All) {
+            if (property.get() == bdn::Window::Core::Orientation::All) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
-            } else if (va->get() & bdn::Window::Core::Orientation::PortraitMask) {
+            } else if (property.get() & bdn::Window::Core::Orientation::PortraitMask) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
-            } else if (va->get() & bdn::Window::Core::Orientation::LandscapeMask) {
+            } else if (property.get() & bdn::Window::Core::Orientation::LandscapeMask) {
                 activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
             }
         };

@@ -66,7 +66,7 @@ namespace bdn::mac
         [_navigationBar addSubview:_title];
         [_navigationBar addSubview:_backButton];
 
-        geometry.onChange() += [self](auto va) { self->reLayout(); };
+        geometry.onChange() += [self](auto &property) { self->reLayout(); };
     }
 
     void NavigationViewCore::pushView(std::shared_ptr<bdn::View> view, bdn::String title)

@@ -57,14 +57,14 @@ namespace bdn::ios
     void LottieViewCore::init()
     {
         ViewCore::init();
-        running.onChange() += [=](auto va) {
-            if (va->get()) {
+        running.onChange() += [=](auto &property) {
+            if (property.get()) {
                 play();
             } else {
                 [animationView pause];
             }
         };
-        loop.onChange() += [=](auto va) { animationView.loopAnimation = va->get(); };
+        loop.onChange() += [=](auto &property) { animationView.loopAnimation = property.get(); };
     }
 
     void LottieViewCore::loadURL(const String &url)

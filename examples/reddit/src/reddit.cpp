@@ -164,8 +164,8 @@ class PostListViewController : public Base
 
         updatePosts();
 
-        _listView->selectedRowIndex.onChange() += [this](auto va) {
-            auto post = _store->posts.at(*va->get());
+        _listView->selectedRowIndex.onChange() += [this](auto &property) {
+            auto post = _store->posts.at(*property.get());
             _onClicked.notify(post->title, post->url, post->thumbnailUrl);
         };
     }

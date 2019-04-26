@@ -8,7 +8,7 @@ namespace bdn
 {
     template <class T> struct ChangeCounter
     {
-        void operator()(typename Property<T>::value_accessor_t_ptr) { changeCount++; }
+        void operator()(Property<T> &) { changeCount++; }
         int changeCount = 0;
     };
 
@@ -140,7 +140,7 @@ namespace bdn
         Property<String> p2;
 
         p1.bind(p2);
-        p2.onChange() += [&p2](auto va) { p2 = "Hello World"; };
+        p2.onChange() += [&p2](auto p) { p2 = "Hello World"; };
         p1 = "Hallo Welt";
         EXPECT_EQ("Hello World", p1.get());
     }

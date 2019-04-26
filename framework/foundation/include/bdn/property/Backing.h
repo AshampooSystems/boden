@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/Notifier.h>
-#include <bdn/property/IValueAccessor.h>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -10,7 +9,7 @@ namespace bdn
 {
     template <class ValType> class Property;
 
-    template <class ValType> class Backing : virtual public IValueAccessor<ValType>
+    template <class ValType> class Backing : public std::enable_shared_from_this<Backing<ValType>>
     {
       public:
         class Proxy
@@ -24,29 +23,22 @@ namespace bdn
             ValType _value;
         };
 
-        using value_accessor_t = IValueAccessor<ValType>;
-        using value_accessor_t_ptr = std::shared_ptr<value_accessor_t>;
-        using notifier_t = Notifier<std::shared_ptr<value_accessor_t>>;
+        using notifier_t = Notifier<std::shared_ptr<Backing<ValType>>>;
         using notifier_t_ptr = std::shared_ptr<notifier_t>;
         using notifier_subscription_t = typename notifier_t::Subscription;
         using property_t = Property<ValType>;
         using property_t_ptr = std::shared_ptr<property_t>;
 
       public:
-        Backing() : _pOnChange(std::make_shared<notifier_t>()) {}
-        ~Backing() override { unbind(); }
+        Backing() {}
+        virtual ~Backing() { unbind(); }
 
-        std::shared_ptr<Backing<ValType>> shared_from_this()
-        {
-            return std::dynamic_pointer_cast<Backing<ValType>>(IValueAccessor<ValType>::shared_from_this());
-        }
-
-        ValType get() const override = 0;
+        virtual ValType get() const = 0;
         virtual void set(const ValType &value, bool notify = true) = 0;
 
         virtual Proxy proxy() const { return Proxy(get()); }
 
-        virtual notifier_t &onChange() const { return *(_pOnChange.get()); }
+        notifier_t &onChange() { return _onChange; }
 
         virtual void bind(std::shared_ptr<Backing<ValType>> sourceBacking)
         {
@@ -70,10 +62,10 @@ namespace bdn
         }
 
       public:
-        void bindSourceChanged(value_accessor_t_ptr pValue) { set(pValue->get()); }
+        void bindSourceChanged(const std::shared_ptr<Backing<ValType>> &otherBacking) { set(otherBacking->get()); }
 
       protected:
-        mutable notifier_t_ptr _pOnChange;
+        notifier_t _onChange;
 
         struct Binding
         {

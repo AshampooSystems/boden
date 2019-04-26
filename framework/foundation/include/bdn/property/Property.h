@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bdn/String.h>
-#include <bdn/property/IValueAccessor.h>
 
 #include <bdn/property/GetterSetterBacking.h>
 #include <bdn/property/SetterBacking.h>
@@ -19,7 +18,7 @@ namespace bdn
         bidirectional
     };
 
-    template <class ValType> class Property : virtual public IValueAccessor<ValType>
+    template <class ValType> class Property
     {
       private:
         template <typename T> class overloadsArrowOperator
@@ -42,44 +41,66 @@ namespace bdn
         using gs_backing_t = GetterSetterBacking<ValType>;
         using setter_backing_t = SetterBacking<ValType>;
 
+        using notifier_t = Notifier<Property &>;
+
       public:
         using backing_t = Backing<ValType>;
-        using value_accessor_t_ptr = typename Backing<ValType>::value_accessor_t_ptr;
 
-        Property() : _backing(std::make_shared<value_backing_t>()) {}
-        Property(Property &other) : _backing(other.backing()) {}
+        Property() : _backing(std::make_shared<value_backing_t>()) { init(); }
+        Property(Property &other) : _backing(other.backing()) { init(); }
         Property(const Property &) = delete;
-        ~Property() override = default;
+        ~Property()
+        {
+            if (_backing) {
+                _backing->onChange().unsubscribe(_forwardSub);
+            }
+        }
 
         Property(ValType value) : _backing(std::make_shared<value_backing_t>())
         {
+            init();
             set(value, false /* do not notify on initial set */);
         }
 
         Property(const GetterSetterBacking<ValType> &getterSetter)
         {
             _backing = std::make_shared<gs_backing_t>(getterSetter);
+            init();
         }
 
-        Property(const SetterBacking<ValType> &setter) { _backing = std::make_shared<setter_backing_t>(setter); }
+        Property(const SetterBacking<ValType> &setter)
+        {
+            _backing = std::make_shared<setter_backing_t>(setter);
+            init();
+        }
 
-        Property(const StreamBacking &stream) { _backing = std::make_shared<StreamBacking>(stream); }
+        Property(const StreamBacking &stream)
+        {
+            _backing = std::make_shared<StreamBacking>(stream);
+            init();
+        }
 
         template <class U> Property(const TransformBacking<ValType, U> &transform)
         {
             _backing = std::make_shared<TransformBacking<ValType, U>>(transform);
+            init();
         }
 
-        Property(std::shared_ptr<Backing<ValType>> backing) { _backing = backing; }
+        Property(std::shared_ptr<Backing<ValType>> backing)
+        {
+            _backing = backing;
+            init();
+        }
 
         template <class _Rep, class _Period>
         Property(const std::chrono::duration<_Rep, _Period> &duration) : _backing(std::make_shared<value_backing_t>())
         {
+            init();
             set(std::chrono::duration_cast<ValType>(duration), false);
         }
 
       public:
-        ValType get() const override { return _backing->get(); }
+        ValType get() const { return _backing->get(); }
         void set(ValType value, bool notify = true) { _backing->set(value, notify); }
 
         const auto backing() const { return _backing; }
@@ -101,7 +122,7 @@ namespace bdn
         }
 
       public:
-        auto &onChange() const { return _backing->onChange(); }
+        auto &onChange() const { return _onChange; }
 
       public:
         template <typename U = ValType, typename std::enable_if<overloadsArrowOperator<U>::value, int>::type = 0>
@@ -266,9 +287,20 @@ namespace bdn
             return *this;
         }
 
+        void forwardNotification() { _onChange.notify(*this); }
+
       private:
+        void init()
+        {
+            _forwardSub = _backing->onChange().subscribe(std::bind(&Property<ValType>::forwardNotification, this));
+        }
+
+      private:
+        typename backing_t::notifier_t::Subscription _forwardSub;
         mutable std::shared_ptr<backing_t> _backing;
         mutable bool _isConnected = false;
+
+        mutable notifier_t _onChange;
     };
 
     template <typename CHAR_TYPE, class CHAR_TRAITS, typename PROP_VALUE>

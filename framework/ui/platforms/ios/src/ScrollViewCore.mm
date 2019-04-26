@@ -54,13 +54,15 @@ namespace bdn::ios
         _delegate.core = shared_from_this<ScrollViewCore>();
         _uiScrollView.delegate = _delegate;
 
-        horizontalScrollingEnabled.onChange() +=
-            [=](auto va) { _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled; };
+        horizontalScrollingEnabled.onChange() += [=](auto &property) {
+            _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled;
+        };
 
-        verticalScrollingEnabled.onChange() +=
-            [=](auto va) { _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled; };
+        verticalScrollingEnabled.onChange() += [=](auto &property) {
+            _uiScrollView.scrollEnabled = horizontalScrollingEnabled || verticalScrollingEnabled;
+        };
 
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
     }
 
     void ScrollViewCore::updateContent(const std::shared_ptr<View> &content)
@@ -75,10 +77,10 @@ namespace bdn::ios
 
                 _childGeometry->bind(childCore->geometry);
 
-                _childGeometry->onChange() += [=](auto va) {
+                _childGeometry->onChange() += [=](auto &property) {
                     CGSize s;
-                    s.width = va->get().width + va->get().x;
-                    s.height = va->get().height + va->get().y;
+                    s.width = property.get().width + property.get().x;
+                    s.height = property.get().height + property.get().y;
                     _uiScrollView.contentSize = s;
                 };
 

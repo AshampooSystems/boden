@@ -50,7 +50,7 @@ namespace bdn
         allowedOrientations = Orientation::All;
 
         registerCoreCreatingProperties(this, &visible, &contentView, &geometry, &contentGeometry);
-        contentView.onChange() += [=](auto va) { _contentView.update(shared_from_this(), va->get()); };
+        contentView.onChange() += [=](auto &property) { _contentView.update(shared_from_this(), property.get()); };
     }
 
     std::list<std::shared_ptr<View>> Window::childViews()

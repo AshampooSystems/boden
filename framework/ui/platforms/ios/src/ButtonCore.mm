@@ -45,7 +45,7 @@ namespace bdn::ios
         [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
         label.onChange() +=
-            [=](auto va) { [_button setTitle:fk::stringToNSString(label) forState:UIControlStateNormal]; };
+            [=](auto &property) { [_button setTitle:fk::stringToNSString(label) forState:UIControlStateNormal]; };
     }
 
     ButtonCore::~ButtonCore()

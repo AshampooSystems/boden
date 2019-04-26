@@ -14,12 +14,12 @@ namespace bdn::android
     {
         _jSwitch.setSingleLine(true);
 
-        label.onChange() += [=](auto va) {
-            _jSwitch.setText(va->get());
+        label.onChange() += [=](auto &property) {
+            _jSwitch.setText(property.get());
             scheduleLayout();
         };
 
-        on.onChange() += [=](auto va) { _jSwitch.setChecked(va->get()); };
+        on.onChange() += [=](auto &property) { _jSwitch.setChecked(property.get()); };
 
         wrapper::NativeViewCoreClickListener listener;
         _jSwitch.setOnClickListener(listener.cast<wrapper::OnClickListener>());

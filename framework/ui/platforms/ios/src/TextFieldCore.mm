@@ -105,7 +105,7 @@ namespace bdn::ios
         _delegate = [[BdnTextFieldDelegate alloc] initWithTextField:(UITextField *)uiView()
                                                                core:shared_from_this<TextFieldCore>()];
 
-        text.onChange() += [=](auto va) {
+        text.onChange() += [=](auto &property) {
             UITextField *textField = (UITextField *)uiView();
             if (fk::nsStringToString(textField.text) != text.get()) {
                 textField.text = fk::stringToNSString(text);

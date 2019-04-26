@@ -13,7 +13,7 @@ See also: [Property Guide](../../guides/fundamentals/properties.md)
 
 ```C++
 template <class ValType> 
-class Property : virtual public IValueAccessor<ValType>
+class Property
 ```
 
 ## Creating a Property Object
@@ -90,7 +90,7 @@ class Property : virtual public IValueAccessor<ValType>
 
 ## Being Notified of Changes
 
-* **auto &onChange() const**
+* **Notifier<Property&> &onChange() const**
 	
 	Returns a [Notifier](notifier.md) which is called when the property value changes.
 

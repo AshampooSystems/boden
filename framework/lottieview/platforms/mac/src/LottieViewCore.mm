@@ -33,15 +33,15 @@ namespace bdn::mac
     void LottieViewCore::init()
     {
         ViewCore::init();
-        geometry.onChange() += [=](auto va) { updateGeometry(); };
-        running.onChange() += [=](auto va) {
-            if (va->get()) {
+        geometry.onChange() += [=](auto &property) { updateGeometry(); };
+        running.onChange() += [=](auto &property) {
+            if (property.get()) {
                 play();
             } else {
                 [animationView pause];
             }
         };
-        loop.onChange() += [=](auto va) { animationView.loopAnimation = va->get(); };
+        loop.onChange() += [=](auto &property) { animationView.loopAnimation = property.get(); };
     }
 
     void LottieViewCore::loadURL(const String &url)

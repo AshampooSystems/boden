@@ -24,7 +24,7 @@ namespace bdn::mac
     ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : bdn::mac::ViewCore(viewCoreFactory, createNSImageView())
     {
-        url.onChange() += [=](auto va) { setUrl(va->get()); };
+        url.onChange() += [=](auto &property) { setUrl(property.get()); };
     }
 
     Size ImageViewCore::sizeForSpace(Size availableSize) const

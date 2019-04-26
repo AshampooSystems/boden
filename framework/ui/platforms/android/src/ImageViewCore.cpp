@@ -13,9 +13,9 @@ namespace bdn::android
     ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeImageView>(viewCoreFactory))
     {
-        url.onChange() += [=](auto va) {
+        url.onChange() += [=](auto &property) {
             _imageSize = Size{0, 0};
-            getJViewAS<wrapper::NativeImageView>().loadUrl(va->get());
+            getJViewAS<wrapper::NativeImageView>().loadUrl(property.get());
         };
     }
 

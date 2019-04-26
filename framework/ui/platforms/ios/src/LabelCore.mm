@@ -19,12 +19,12 @@ namespace bdn::ios
     {
         _uiLabel = (UILabel *)uiView();
 
-        text.onChange() += [=](auto va) {
+        text.onChange() += [=](auto &property) {
             _uiLabel.text = fk::stringToNSString(text);
             markDirty();
         };
 
-        wrap.onChange() += [=](auto va) {
+        wrap.onChange() += [=](auto &property) {
             _uiLabel.numberOfLines = wrap ? 0 : 1;
             markDirty();
         };

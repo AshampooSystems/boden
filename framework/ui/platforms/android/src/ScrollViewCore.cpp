@@ -19,7 +19,7 @@ namespace bdn::android
         : ViewCore(viewCoreFactory, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
           _jContentParent(_jNativeScrollView.getContentParent())
     {
-        contentView.onChange() += [=](auto va) { updateContent(va->get()); };
+        contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
     }
 
     void ScrollViewCore::scrollClientRectToVisible(const Rect &clientRect)
@@ -203,9 +203,9 @@ namespace bdn::android
             _jContentParent.addView(childCore->getJView());
             _childGeometry = std::make_unique<Property<Rect>>();
             _childGeometry->bind(childCore->geometry, BindMode::unidirectional);
-            _childGeometry->onChange() += [=](auto va) {
-                _jContentParent.setSize(std::lround(va->get().width * getUIScaleFactor()),
-                                        std::lround(va->get().height * getUIScaleFactor()));
+            _childGeometry->onChange() += [=](auto &property) {
+                _jContentParent.setSize(std::lround(property.get().width * getUIScaleFactor()),
+                                        std::lround(property.get().height * getUIScaleFactor()));
             };
         } else {
             throw std::runtime_error("Cannot add Child with this type of core");

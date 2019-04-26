@@ -17,11 +17,11 @@ namespace bdn::android
 
         _jEditText.setOnEditorActionListener(_onEditorActionListener.cast<wrapper::OnEditorActionListener>());
 
-        text.onChange() += [=](auto va) {
+        text.onChange() += [=](auto &property) {
             _jEditText.removeTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
             String currentText = _jEditText.getText();
-            if (va->get() != currentText) {
-                _jEditText.setText(va->get());
+            if (property.get() != currentText) {
+                _jEditText.setText(property.get());
             }
             _jEditText.addTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
         };

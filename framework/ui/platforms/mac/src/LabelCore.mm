@@ -29,8 +29,8 @@ namespace bdn::mac
     {
         _nsTextView = (NSTextView *)nsView();
 
-        text.onChange() += [=](auto va) {
-            NSString *macText = fk::stringToNSString(va->get());
+        text.onChange() += [=](auto &property) {
+            NSString *macText = fk::stringToNSString(property.get());
             _nsTextView.string = macText;
 
             [_nsTextView.layoutManager glyphRangeForTextContainer:_nsTextView.textContainer];
@@ -38,7 +38,7 @@ namespace bdn::mac
             markDirty();
         };
 
-        wrap.onChange() += [=](auto va) {
+        wrap.onChange() += [=](auto &property) {
             _wrap = wrap;
             scheduleLayout();
             markDirty();

@@ -67,7 +67,7 @@ namespace bdn
             }
 
             if (changed && notify) {
-                this->_pOnChange->notify(Backing<ValType>::shared_from_this());
+                this->_onChange.notify(Backing<ValType>::shared_from_this());
             }
         }
 

@@ -23,7 +23,7 @@ namespace bdn::android
         wrapper::NativeAdapterViewOnItemClickListener listener;
         _jListView.setOnItemClickListener(listener.cast<wrapper::OnItemClickListener>());
 
-        enableRefresh.onChange() += [this](auto va) { _jNativeListView.setEnabled(va->get()); };
+        enableRefresh.onChange() += [this](auto &property) { _jNativeListView.setEnabled(property.get()); };
     }
 
     void ListViewCore::refreshDone() { _jNativeListView.setRefreshing(false); }
