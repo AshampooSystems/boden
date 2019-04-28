@@ -17,6 +17,8 @@ namespace bdn::android
       public:
         void entry();
 
+        void onDestroy();
+
       public:
         void initiateExitIfPossible(int exitCode) override;
         void openURL(const String &url) override;

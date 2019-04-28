@@ -8,10 +8,7 @@ Base class for view events.
 ## Declaration
 
 ```C++
-class ViewEvent : public Base
+class ViewEvent
 ```
 
-## Relationships
-
-Inherits from: [Base](../foundation/base.md)
  

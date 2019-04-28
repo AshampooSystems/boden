@@ -1,22 +1,19 @@
 package io.boden.android;
 
-import android.content.ContentResolver;
+import io.boden.android.NativeInit;
+import io.boden.android.NativeRootView;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.AnyRes;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.util.Pair;
 import android.view.MenuItem;
-import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
 
@@ -33,6 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import static android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+
 /** An activity that is controlled by native code.
  *
  *  You can directly specify this activity in your AndroidManifest.xml.
@@ -46,7 +45,7 @@ import java.util.Vector;
  *
  *
  * */
-public class NativeRootActivity extends FragmentActivity
+public class NativeRootActivity extends AppCompatActivity
 {
     public interface BackButtonListener extends EventListener {
         boolean backButtonPressed();
@@ -135,7 +134,23 @@ public class NativeRootActivity extends FragmentActivity
 
         nativeRegisterAppContext(this);
 
+
+        _currentDayNightMode = getResources().getConfiguration().uiMode & UI_MODE_NIGHT_MASK;
+
         NativeInit.launch( getIntent() );
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        NativeInit.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -277,9 +292,16 @@ public class NativeRootActivity extends FragmentActivity
 
     @Override
     public void onConfigurationChanged (Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
         _rootView.onConfigurationChanged(newConfig);
 
-        super.onConfigurationChanged(newConfig);
+        int newDayNightMode = newConfig.uiMode & UI_MODE_NIGHT_MASK;
+
+        if(_currentDayNightMode != newDayNightMode) {
+            _currentDayNightMode = newDayNightMode;
+            this.recreate();
+        }
     }
 
     @Override
@@ -300,6 +322,7 @@ public class NativeRootActivity extends FragmentActivity
     public static NativeRootActivity getRootActivity() {
         return _rootActivity;
     }
+    public static NativeRootView getRootView() { return getRootActivity()._rootView; }
 
     private void loadMetaData()
     {
@@ -335,7 +358,7 @@ public class NativeRootActivity extends FragmentActivity
     private Bundle _metaData;
     private String _libName;
     private static NativeRootActivity _rootActivity;
-
+    private int _currentDayNightMode;
     private BackButtonHandlers _backButtonHandlers;
 }
 

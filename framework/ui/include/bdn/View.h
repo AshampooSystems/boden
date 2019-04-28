@@ -15,7 +15,7 @@ namespace bdn
 {
     class ViewCoreFactory;
 
-    class View : public Base
+    class View : public std::enable_shared_from_this<View>
     {
         friend class Window;
 
@@ -33,10 +33,7 @@ namespace bdn
         View(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         View(const View &o) = delete;
 
-        ~View() override;
-
-        auto shared_from_this() { return std::static_pointer_cast<View>(Base::shared_from_this()); }
-        auto shared_from_this() const { return std::static_pointer_cast<View const>(Base::shared_from_this()); }
+        virtual ~View();
 
       public:
         virtual Size sizeForSpace(Size availableSpace = Size::none()) const;

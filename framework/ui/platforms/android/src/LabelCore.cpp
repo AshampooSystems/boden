@@ -8,7 +8,7 @@ namespace bdn::detail
 namespace bdn::android
 {
     LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::TextView>(viewCoreFactory)),
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::AppCompatTextView>(viewCoreFactory)),
           _jTextView(getJViewAS<wrapper::TextView>())
     {
         text.onChange() += [=](auto &property) {

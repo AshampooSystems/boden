@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/Base.h>
 #include <bdn/DispatchQueue.h>
 
 #include <list>
@@ -12,13 +11,8 @@ namespace bdn::fk
 {
     class DispatchTimer;
 
-    class MainDispatcher : public Base, virtual public DispatchQueue
+    class MainDispatcher : public DispatchQueue, public std::enable_shared_from_this<MainDispatcher>
     {
-        std::shared_ptr<MainDispatcher> shared_from_this()
-        {
-            return std::static_pointer_cast<MainDispatcher>(Base::shared_from_this());
-        }
-
       public:
         MainDispatcher();
         ~MainDispatcher() override;

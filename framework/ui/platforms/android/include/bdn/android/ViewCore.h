@@ -19,7 +19,7 @@ using namespace std::string_literals;
 
 namespace bdn::android
 {
-    class ViewCore : public bdn::View::Core, public bdn::Base
+    class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
     {
         friend class bdn::ViewCoreFactory;
 

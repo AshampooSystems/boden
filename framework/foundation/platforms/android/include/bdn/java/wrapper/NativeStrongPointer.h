@@ -38,7 +38,6 @@ namespace bdn::java::wrapper
         ByteBuffer getWrappedPointer();
 
         std::shared_ptr<void> getPointer();
-        std::shared_ptr<bdn::Base> getBdnBasePointer();
 
         /*
         static Base *unwrapJObject(jobject obj);
@@ -61,11 +60,11 @@ namespace bdn::java::wrapper
 
 namespace bdn::java
 {
-    template <> class TypeConversion<std::shared_ptr<bdn::Base>> : public TypeConversionBase_
+    template <> class TypeConversion<std::shared_ptr<void>> : public TypeConversionBase_
     {
       public:
         using JavaType = jobject;
-        using NativeType = std::shared_ptr<bdn::Base>;
+        using NativeType = std::shared_ptr<void>;
 
         static String getJavaSignature()
         {
@@ -85,7 +84,7 @@ namespace bdn::java
         static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
         {
             wrapper::NativeStrongPointer native(bdn::java::Reference::convertExternalLocal(arg));
-            return std::static_pointer_cast<bdn::Base>(native.getPointer());
+            return native.getPointer();
         }
     };
 
@@ -103,7 +102,7 @@ namespace bdn::java
 
         static JavaType nativeToJava(const NativeType &arg, std::list<Reference> &createdJavaObjects)
         {
-            wrapper::NativeStrongPointer javaPtr(std::static_pointer_cast<bdn::Base>(arg));
+            wrapper::NativeStrongPointer javaPtr(std::static_pointer_cast<void>(arg));
             Reference ref = javaPtr.getRef_();
             createdJavaObjects.push_back(ref);
             return ref.getJObject();

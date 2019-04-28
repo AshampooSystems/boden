@@ -50,13 +50,17 @@ public class NativeInit
         }
     }
 
+    public static void onDestroy()
+    {
+        mLaunched = false;
+        nativeDestroy();
+    }
+
     private static boolean mBaseInitialized = false;
     private static boolean mLaunched = false;
 
     private static native void nativeLaunch(Intent intent);
 
-
-
-
+    private static native void nativeDestroy();
 };
 

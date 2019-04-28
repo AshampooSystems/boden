@@ -5,7 +5,7 @@
 
 using namespace bdn;
 
-class MainViewController : public Base
+class MainViewController
 {
   public:
     MainViewController()

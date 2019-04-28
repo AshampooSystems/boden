@@ -14,8 +14,8 @@ namespace bdn::android
       public:
         RowContainerView(std::shared_ptr<ViewCoreFactory> factory = nullptr) : ContainerView(std::move(factory))
         {
-            isLayoutRoot = true;
             viewCoreFactory()->registerCoreType<Core, RowContainerView>();
+            isLayoutRoot = true;
         }
 
       public:
@@ -31,7 +31,7 @@ namespace bdn::android
             {
                 java::wrapper::NativeStrongPointer strongPtr =
                     getJViewAS<wrapper::NativeListAdapterRowContainer>().getBdnView();
-                return std::dynamic_pointer_cast<RowContainerView>(strongPtr.getBdnBasePointer());
+                return std::static_pointer_cast<RowContainerView>(strongPtr.getPointer());
             }
 
             void setRowContainerView(const std::shared_ptr<RowContainerView> &view)

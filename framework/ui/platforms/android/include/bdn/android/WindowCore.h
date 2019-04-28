@@ -90,7 +90,7 @@ namespace bdn::android
          * function will return a null reference.*/
         java::Reference tryGetAccessibleRootViewRef() const;
 
-        class RootViewRegistry : public Base
+        class RootViewRegistry
         {
           public:
             void add(const java::WeakReference &javaRef) { _rootViewList.push_back(javaRef); }

@@ -35,7 +35,7 @@ namespace bdn::android::wrapper
             return native_enqueue(delay, bdn::java::wrapper::NativeRunnable(runnable.getRef_()), idlePriority);
         }
 
-        void createTimer(std::chrono::duration<double> interval, const std::shared_ptr<Base> &timerData)
+        void createTimer(std::chrono::duration<double> interval, const std::shared_ptr<void> &timerData)
         {
             bdn::java::wrapper::NativeStrongPointer nativeTimerData(timerData);
 

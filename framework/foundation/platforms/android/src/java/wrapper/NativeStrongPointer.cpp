@@ -51,12 +51,6 @@ namespace bdn::java::wrapper
         return invoke_<ByteBuffer>(getStaticClass_(), methodId, "getWrappedPointer");
     }
 
-    std::shared_ptr<bdn::Base> NativeStrongPointer::getBdnBasePointer()
-    {
-        auto result = std::static_pointer_cast<Base>(getPointer());
-        return result;
-    }
-
     std::shared_ptr<void> NativeStrongPointer::getPointer()
     {
         ByteBuffer buffer = getWrappedPointer();

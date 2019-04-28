@@ -3,8 +3,8 @@
 #include <bdn/Label.h>
 
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/wrapper/AppCompatTextView.h>
 #include <bdn/android/wrapper/RStyle.h>
-#include <bdn/android/wrapper/TextView.h>
 
 #include <limits>
 

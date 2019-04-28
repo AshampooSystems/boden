@@ -1,13 +1,12 @@
 #pragma once
 
 #include <bdn/View.h>
-
 #include <utility>
 
 namespace bdn
 {
 
-    class ViewEvent : public Base
+    class ViewEvent
     {
       public:
         ViewEvent(std::shared_ptr<View> view) { _view = std::move(view); }

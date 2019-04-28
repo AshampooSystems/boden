@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bdn/Base.h>
 #include <bdn/Window.h>
 
 class MainViewController : public bdn::Base

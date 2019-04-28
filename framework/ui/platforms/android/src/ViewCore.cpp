@@ -142,11 +142,11 @@ namespace bdn::android
             bdn::JavaObject viewTag(view.getTag());
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeWeakPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeWeakPointer viewTagPtr(viewTag.getRef_());
-                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getPointer().lock());
+                return std::static_pointer_cast<ViewCore>(viewTagPtr.getPointer().lock());
             }
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeStrongPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeStrongPointer viewTagPtr(viewTag.getRef_());
-                return std::dynamic_pointer_cast<ViewCore>(viewTagPtr.getBdnBasePointer());
+                return std::static_pointer_cast<ViewCore>(viewTagPtr.getPointer());
             }
         }
 

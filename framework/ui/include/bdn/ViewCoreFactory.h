@@ -37,7 +37,7 @@ namespace bdn
             if (stack->empty()) {
                 throw std::runtime_error("No UIContext available");
             }
-            if (auto top = std::dynamic_pointer_cast<T>(stack->back())) {
+            if (auto top = std::static_pointer_cast<T>(stack->back())) {
                 return top;
             }
 

@@ -38,11 +38,11 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
     }
 
     public void setWindowTitle(String title) {
-        NativeRootActivity.getRootActivity().getActionBar().setTitle(title);
+        NativeRootActivity.getRootView().setTitle(title);
     }
 
     public void enableBackButton(boolean enabled) {
-        NativeRootActivity.getRootActivity().getActionBar().setDisplayHomeAsUpEnabled(enabled);
+        NativeRootActivity.getRootView().enableBackButton(enabled);
     }
 
     public void changeContent(View newContent, boolean animate, boolean isEnter) {

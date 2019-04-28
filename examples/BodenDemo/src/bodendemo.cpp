@@ -15,7 +15,7 @@
 
 using namespace bdn;
 
-class MainViewController : public Base
+class MainViewController
 {
   public:
     std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 5> pages = {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bdn/Base.h>
-
 #include <bdn/jni.h>
 
 namespace bdn::java
@@ -16,10 +14,10 @@ namespace bdn::java
      * for the current thread.
      *
      */
-    class Env : public Base
+    class Env
     {
       public:
-        ~Env() override;
+        ~Env();
 
         /** Static function that returns a reference to the Env instance for
          * the current thread. The instance cannot be used in other threads.

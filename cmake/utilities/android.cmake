@@ -20,6 +20,10 @@ macro(android_manifest TARGET_NAME)
             set(ANDROID_PACKAGEID "io.boden.android.${TARGET_NAME}")
         endif()
 
+        if("${ANDROID_THEME}" STREQUAL "")
+            set(ANDROID_THEME "@style/Theme.AppCompat.DayNight")
+        endif()
+
         get_target_property(TARGET_BINARY_DIR ${TARGET_NAME} BINARY_DIR)
         configure_file("${BAUER_ANDROID_MANIFEST_FILE}" "${TARGET_BINARY_DIR}/AndroidManifest.xml")
     endif()

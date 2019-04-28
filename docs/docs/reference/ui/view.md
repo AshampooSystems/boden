@@ -8,7 +8,7 @@ Abstract base class for all user interface elements.
 ## Declaration
 
 ```C++
-class View : public Base
+class View : public std::enable_shared_from_this<View>
 ```
 
 ## Properties
@@ -97,4 +97,4 @@ class View : public Base
 
 ## Relationships
 
-Inherits from [`Base`](../foundation/base.md).
+Inherits from `std::enable_shared_from_this<View\>`.

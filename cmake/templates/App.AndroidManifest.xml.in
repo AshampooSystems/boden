@@ -4,14 +4,14 @@
   would also have the following <application> attributed:
   android:icon="@mipmap/ic_launcher"
   android:roundIcon="@mipmap/ic_launcher_round"
-  android:theme="@style/AppTheme"
   android:supportsRtl="true" -->
 
   ${ANDROID_PERMISSIONS}
 
   <application
     android:allowBackup="true"
-    android:label="@string/app_name" >
+    android:label="@string/app_name"
+    android:theme="${ANDROID_THEME}">
     <activity android:name="io.boden.android.NativeRootActivity"
               android:label="@string/app_name"
               android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">

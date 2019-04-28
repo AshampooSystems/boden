@@ -1,13 +1,12 @@
 #pragma once
 
-#include <bdn/Base.h>
 #include <bdn/HTTPRequest.h>
 
 namespace bdn
 {
     namespace net
     {
-        class HTTPResponse : public Base
+        class HTTPResponse
         {
           public:
             HTTPRequest originalRequest;

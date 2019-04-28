@@ -20,8 +20,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
             bdn::java::wrapper::NativeStrongPointer nativePointer(
                 bdn::java::Reference::convertExternalLocal(rawTimerObject));
 
-            auto timer =
-                std::dynamic_pointer_cast<bdn::android::MainDispatcher::Timer_>(nativePointer.getBdnBasePointer());
+            auto timer = std::static_pointer_cast<bdn::android::MainDispatcher::Timer_>(nativePointer.getPointer());
 
             if (timer) {
                 returnValue = timer->onEvent() ? JNI_TRUE : JNI_FALSE;

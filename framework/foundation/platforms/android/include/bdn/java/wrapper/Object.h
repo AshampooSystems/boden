@@ -34,11 +34,12 @@ namespace bdn::java::wrapper
      * Java method (unless documented otherwise).
      *
      * */
-    class Object : public Base
+    class Object
     {
       public:
         Object() = default;
         explicit Object(const Reference &javaRef) : _javaRef(javaRef) {}
+        virtual ~Object() = default;
 
       public:
         String toString()

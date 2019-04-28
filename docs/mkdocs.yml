@@ -70,7 +70,6 @@ nav:
     - Foundation:
       - reference/foundation/application.md
       - reference/foundation/application_controller.md
-      - reference/foundation/base.md
       - reference/foundation/dispatch_queue.md
       - reference/foundation/notifier.md
       - reference/foundation/point.md
@@ -95,6 +94,7 @@ nav:
       - reference/ui/list_view_data_source.md
       - reference/ui/navigation_view.md
       - reference/ui/scroll_view.md
+      - reference/ui/slider.md
       - reference/ui/styler.md
       - reference/ui/submit_event.md
       - reference/ui/switch.md

@@ -8,7 +8,7 @@ namespace bdn::detail
 namespace bdn::android
 {
     TextFieldCore::TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::EditText>(viewCoreFactory)),
+        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::AppCompatEditText>(viewCoreFactory)),
           _jEditText(getJViewAS<wrapper::EditText>()), _watcher(_jEditText.cast<wrapper::TextView>())
     {
         _jEditText.setSingleLine(true);

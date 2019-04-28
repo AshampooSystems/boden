@@ -1,8 +1,7 @@
 #pragma once
 
-#include <bdn/Base.h>
-
 #include <bdn/jni.h>
+#include <memory>
 
 namespace bdn::java
 {
@@ -25,7 +24,7 @@ namespace bdn::java
      * wrapStrongGlobal().*
      *
      * */
-    class Reference : public Base
+    class Reference
     {
       public:
         /** Creates a Reference instance from an external local jobject.
@@ -97,12 +96,11 @@ namespace bdn::java
       private:
         Reference(jobject strongRef) : _shared(std::make_shared<Shared>(strongRef)) {}
 
-        class Shared : public Base
+        class Shared
         {
           public:
             Shared(jobject ref) { _ref = ref; }
-
-            ~Shared() override;
+            ~Shared();
 
             jobject getJObject() const { return _ref; }
 

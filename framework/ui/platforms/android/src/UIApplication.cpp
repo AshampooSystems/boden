@@ -49,6 +49,8 @@ namespace bdn::android
 
     void UIApplication::entry() { launch(); }
 
+    void UIApplication::onDestroy() { terminating(); }
+
     void UIApplication::disposeMainDispatcher()
     {
         std::dynamic_pointer_cast<MainDispatcher>(dispatchQueue())->dispose();
@@ -66,5 +68,13 @@ namespace bdn::android
     String UIApplication::uriToBundledFileUri(const String &uri)
     {
         return bdn::android::wrapper::NativeRootActivity::getResourceURIFromURI(uri);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeDestroy(JNIEnv *env, jclass cls,
+                                                                                 jobject rawIntent)
+{
+    if (auto androidApp = std::dynamic_pointer_cast<bdn::android::UIApplication>(bdn::App())) {
+        androidApp->onDestroy();
     }
 }

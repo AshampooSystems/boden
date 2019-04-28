@@ -19,7 +19,7 @@ namespace bdn::java
      *  You can delete the strong reference again after the access, if you
      do not need it.
      * */
-    class WeakReference : public Base
+    class WeakReference
     {
       public:
         WeakReference(const Reference &o);
@@ -42,12 +42,11 @@ namespace bdn::java
       private:
         WeakReference(jobject weakRef) : _shared(std::make_shared<Shared>(weakRef)) {}
 
-        class Shared : public Base
+        class Shared
         {
           public:
             Shared(jobject ref) { _ref = ref; }
-
-            ~Shared() override;
+            ~Shared();
 
             jobject getJObject() const { return _ref; }
 

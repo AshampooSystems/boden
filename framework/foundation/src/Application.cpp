@@ -81,5 +81,7 @@ namespace bdn
         disposeMainDispatcher();
 
         platformSpecificCleanup();
+
+        setGlobalApplication(nullptr);
     }
 }

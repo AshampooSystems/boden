@@ -1,5 +1,6 @@
 package io.boden.android;
 
+import io.boden.android.NativeViewGroup;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -10,6 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import static com.android.volley.VolleyLog.setTag;
+import static java.security.AccessController.getContext;
 
 /**
  * Root view group that contains user interface components that are controlled by native code.
@@ -54,11 +60,19 @@ public class NativeRootView extends NativeViewGroup
 
     public void setTitle(CharSequence title)
     {
-        ((Activity)getContext()).getActionBar().setTitle(title);
+        if(NativeRootActivity.getRootActivity().getSupportActionBar() != null) {
+            NativeRootActivity.getRootActivity().getSupportActionBar().setTitle(title);
+        } else if(NativeRootActivity.getRootActivity().getActionBar() != null) {
+            NativeRootActivity.getRootActivity().getActionBar().setTitle(title);
+        }
     }
 
     public void enableBackButton(boolean enabled) {
-        ((Activity)getContext()).getActionBar().setDisplayHomeAsUpEnabled(enabled);
+        if(NativeRootActivity.getRootActivity().getSupportActionBar() != null) {
+            NativeRootActivity.getRootActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(enabled);
+        } else if(NativeRootActivity.getRootActivity().getActionBar() != null) {
+            NativeRootActivity.getRootActivity().getActionBar().setDisplayHomeAsUpEnabled(enabled);
+        }
     }
 
 

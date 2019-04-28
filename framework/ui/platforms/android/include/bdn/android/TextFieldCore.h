@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/android/wrapper/AppCompatEditText.h>
 #include <bdn/android/wrapper/EditText.h>
 #include <bdn/android/wrapper/InputMethodManager.h>
 #include <bdn/android/wrapper/KeyEvent.h>

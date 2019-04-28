@@ -13,7 +13,7 @@ namespace bdn::android
      *  Each Dispatcher instance is associated with an android looper
      * (passed in the constructor). *
      */
-    class MainDispatcher : public Base, public DispatchQueue
+    class MainDispatcher : public DispatchQueue
     {
       public:
         MainDispatcher(wrapper::Looper looper);
@@ -35,7 +35,7 @@ namespace bdn::android
         wrapper::NativeDispatcher _nativeDispatcher;
 
       public:
-        class Timer_ : public Base
+        class Timer_
         {
           public:
             Timer_(const std::function<bool()> &func) { _func = func; }

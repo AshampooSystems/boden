@@ -5,6 +5,6 @@
 
 namespace bdn::android::wrapper
 {
-    constexpr const char kButtonClassName[] = "android/widget/Button";
+    constexpr const char kButtonClassName[] = "androidx/appcompat/widget/AppCompatButton";
     using Button = BaseTextView<kButtonClassName>;
 }

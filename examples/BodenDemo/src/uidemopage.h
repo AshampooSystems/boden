@@ -169,6 +169,10 @@ namespace bdn
         switchView->label = "I'm a switch!";
         container->addChildView(makeRow("Switch", switchView));
 
+        auto slider = std::make_shared<Slider>();
+        container->addChildView(makeRow("Slider", slider));
+        slider->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 100}});
+
         auto checkBox = std::make_shared<Checkbox>();
         checkBox->label = "I'm a Checkbox!";
 

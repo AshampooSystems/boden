@@ -63,7 +63,6 @@ namespace bdn::android
 
         title.onChange() += [=](auto &property) {
             wrapper::NativeRootView rootView(getJView().getParent().getRef_());
-
             rootView.setTitle(property.get());
         };
 

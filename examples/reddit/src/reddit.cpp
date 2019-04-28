@@ -142,7 +142,7 @@ class RedditListViewDataSource : public ListViewDataSource
     std::shared_ptr<RedditStore> _store;
 };
 
-class PostListViewController : public Base
+class PostListViewController
 {
   public:
     using clickNotifier_t = Notifier<String, String, String>;
@@ -191,7 +191,7 @@ class PostListViewController : public Base
     clickNotifier_t _onClicked;
 };
 
-class PostDetailController : public Base
+class PostDetailController
 {
   public:
     PostDetailController(const String &title, const String &url, const String &imageUrl)
@@ -248,7 +248,7 @@ class PostDetailController : public Base
     std::shared_ptr<ContainerView> _mainColumn;
 };
 
-class MainViewController : public Base
+class MainViewController
 {
   public:
     MainViewController() : _listViewController(std::make_shared<PostListViewController>())

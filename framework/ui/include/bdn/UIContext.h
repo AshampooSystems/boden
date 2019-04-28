@@ -1,13 +1,12 @@
 #pragma once
 
-#include <bdn/Base.h>
 #include <bdn/platform.h>
 #include <memory>
 
 namespace bdn
 {
 
-    class UIContext : public Base
+    class UIContext : std::enable_shared_from_this<UIContext>
     {
     };
 
