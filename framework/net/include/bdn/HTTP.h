@@ -2,32 +2,25 @@
 
 #include <memory>
 
-namespace bdn
+namespace bdn::net
 {
-    namespace net
+    class HTTPRequest;
+    class HTTPResponse;
+
+    namespace http
     {
-
-        class HTTPRequest;
-        class HTTPResponse;
-
-        namespace http
+        enum class Method
         {
-            enum class Method
-            {
-                GET,
-                POST,
-                PUT,
-                DELETE,
-                HEAD,
-                TRACE,
-                OPTIONS,
-                CONNECT
-            };
-        }
+            GET,
+            POST,
+            PUT,
+            DELETE,
+            HEAD,
+            TRACE,
+            OPTIONS,
+            CONNECT
+        };
 
-        namespace http
-        {
-            std::shared_ptr<HTTPResponse> request(HTTPRequest request);
-        }
+        std::shared_ptr<HTTPResponse> request(HTTPRequest request);
     }
 }

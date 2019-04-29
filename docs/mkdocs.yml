@@ -108,6 +108,10 @@ nav:
       - reference/ui/window.md
       - iOS:
         - reference/ui/ios/view_core.md
+    - Net:
+      - reference/net/http.md
+      - reference/net/http_request.md
+      - reference/net/http_response.md
     - Lottie:
       - reference/lottie/lottie_view.md
   - Legal:
