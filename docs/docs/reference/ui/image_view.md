@@ -24,7 +24,7 @@ imageView->url = 'https://via.placeholder.com/350x150';
 
 * **Property<[String](../foundation/string.md)\> url**
 	
-	The URL of the image to be displayed.
+	The URL of the image to be displayed. ( see [Using resources](../../guides/fundamentals/resources.md#using-resources) )
 
 ## Relationships
 

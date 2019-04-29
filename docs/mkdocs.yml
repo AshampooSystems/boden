@@ -108,6 +108,8 @@ nav:
       - reference/ui/window.md
       - iOS:
         - reference/ui/ios/view_core.md
+    - Lottie:
+      - reference/lottie/lottie_view.md
   - Legal:
     - Legal: 'https://www.ashampoo-systems.com/base/about'
     - legal/privacy_policy.md

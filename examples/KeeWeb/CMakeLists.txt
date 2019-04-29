@@ -12,6 +12,7 @@ ios_configure_asset(KEEWEB_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboar
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP ALLOW_CAMERA)
 
 set(MACOSX_BUNDLE_BUNDLE_NAME KeeWeb)
+set(ANDROID_THEME "@style/Theme.AppCompat.NoActionBar")
 
 roger_add(
     keeweb

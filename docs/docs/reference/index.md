@@ -22,3 +22,7 @@ The Net module provides essential networking services for apps written with Bode
 ### Layout
 
 The Layout module contains base classes, interfaces, and layout implementations required for laying out Boden-based user interfaces.
+
+### Lottie
+
+The Lottie module provides a simple way to display vector animations. You can find example files on [lottiefiles.com](https://lottiefiles.com/). Custom animations can be created using Adobe After Effects and the Lottie plugin for it.
