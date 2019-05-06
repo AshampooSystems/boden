@@ -8,6 +8,7 @@ theme:
   feature:
     tabs: true
   logo: 'boden-logo-header.svg'
+  favicon: 'favicon-32x32.png'
 extra:
   social:
     - type: 'github'
