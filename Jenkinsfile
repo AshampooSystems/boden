@@ -126,6 +126,11 @@ pipeline {
                                 archiveArtifacts artifacts: 'testresults/*.xml'
                             }
                         }*/
+                        stage('Test boden new') {
+                            steps {
+                                sh 'python boden.py new -n testapp && cd testapp && python ../boden.py build -p android'
+                            }
+                        }                        
                     }
                 }
 
@@ -208,6 +213,12 @@ pipeline {
                                 junit "testresults/ios_testBoden.xml"
 
                                 archiveArtifacts artifacts: 'testresults/ios_testBoden.xml'
+                            }
+                        }
+
+                        stage('Test boden new') {
+                            steps {
+                                sh 'python boden.py new -n testapp && cd testapp && python ../boden.py build -p ios'
                             }
                         }
                     }
