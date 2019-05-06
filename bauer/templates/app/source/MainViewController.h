@@ -2,7 +2,7 @@
 
 #include <bdn/Window.h>
 
-class MainViewController : public bdn::Base
+class MainViewController
 {
   public:
     MainViewController();

@@ -8,7 +8,7 @@ using namespace bdn;
 class AppController : public UIApplicationController
 {
   public:
-    void beginLaunch(const AppLaunchInfo &launchInfo) override;
+    void beginLaunch() override;
 
   protected:
     std::shared_ptr<MainViewController> _mainViewController;

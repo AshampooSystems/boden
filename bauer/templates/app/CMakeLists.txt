@@ -21,6 +21,6 @@ set(BDN_BUILD_EXAMPLES OFF CACHE BOOL "Don't include boden examples")
 
 add_subdirectory({boden_relative_path} boden)
 
-add_universal_executable({project_name} NO ${_sources})
+add_universal_executable({project_name} SOURCES ${_sources})
 
 target_link_libraries({project_name} ui yogalayout)
