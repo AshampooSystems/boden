@@ -1,0 +1,172 @@
+input::placeholder {
+	color: rgba(255,255,255,0.5) !important;
+}
+
+@media only screen and (min-width: 60em) {
+	.md-content {
+		margin-right: 0;
+	}
+}
+
+.md-content__inner.md-typeset {
+	margin-bottom: 10rem;
+}
+
+.md-content__inner.md-typeset.boden-teaser {
+	margin-bottom: 0;
+}
+
+@media only screen and (min-width: 76.1875em) {
+	.md-content {
+		margin-right: 24.2rem;
+	}
+}
+
+.md-header.boden-hero {
+	background-color: rgb(27,27,27);
+	color: white;
+}
+
+.md-tabs.boden-hero {
+	border: 0;
+}
+
+.boden-logo {
+	margin-top: 3rem;
+	margin-bottom: 15px;
+	width: 125px;
+}
+
+@media only screen and (max-width: 76.1875em) {
+	.boden-logo {
+		margin-top: 30px;
+		width: 125px;
+	}
+}
+
+@media only screen and (max-width: 40em) {
+	.boden-logo {
+		margin-top: 30px;
+		width: 100px;
+	}
+}
+
+div.boden-call-to-action-bottom {
+	text-align: center;
+}
+
+button.boden-call-to-action {
+	background: transparent;
+	color: rgb(255,255,255);
+	border: 2px solid white;
+	padding: 10px 30px 10px 30px;
+	font-size: 1.2rem;
+	font-weight: 600;
+	margin-top: 4rem;
+	margin-bottom: 3rem;
+	cursor: pointer;
+	text-transform: uppercase;
+}
+
+button.boden-call-to-action:hover {
+	background-color: rgb(255,255,255);
+	color: rgb(27,27,27);
+}
+
+button.boden-call-to-action.secondary {
+	background-color: rgb(255,255,255);
+	color: rgb(27,27,27);
+	border: solid 2px rgb(27,27,27);
+}
+
+button.boden-call-to-action.secondary:hover {
+	background-color: rgb(27,27,27);
+	color: rgb(255,255,255);
+}
+
+.md-tabs.boden-hero {
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
+	color: white;
+}
+
+.md-grid.boden-hero {
+	color: white;
+	background-color: rgb(27,27,27);
+	background-image: linear-gradient(to right, rgb(36, 158, 209), rgb(219, 44, 107));
+	margin: 0;
+	max-width: 100%;
+	text-align: center;
+}
+
+.md-grid.boden-hero h1 {
+	font-size: 40px;
+	font-family: Nunito Sans;
+	font-weight: 700;
+	margin: 0;
+	padding-top: 0rem;
+	padding-bottom: 0;
+	padding-right: 1rem;
+	padding-left: 1rem;
+	color: white;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	line-height: 5rem;
+}
+
+.md-grid.boden-hero h2 {
+	font-size: 1.6rem;
+	font-family: Nunito Sans;
+	font-weight: 400;
+	margin: 0;
+	padding-top: 0;
+	padding-right: 1rem;
+	padding-left: 1rem;
+	color: white;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+@media only screen and (max-width: 76.1875em) {
+	.md-grid.boden-hero h1 {
+		font-size: 24px;
+	}
+}
+
+.boden-hero-main__inner {
+	height: auto;
+}
+
+@media only screen and (min-width: 76.1875em) {
+	.boden-hero-sidebar__primary {
+		display: none;
+	}
+}
+
+.md-legal {
+	margin-top: 1.5em;
+	margin-bottom: 5em;
+}
+
+.md-legal ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.md-legal ul li {
+	margin: 0;
+	padding: 0;
+	margin-right: 10px;
+	display: inline-block;
+}
+
+.cc-bottom {
+	font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-size: 1.4rem !important;
+	background-color: rgb(27,27,27) !important;
+}
+
+.cc-dismiss {
+	background-color: rgb(27,27,27) !important;
+	color: #fff !important;
+}
