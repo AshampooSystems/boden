@@ -59,14 +59,17 @@ namespace bdn
 
     void Styler::rematchAllViews(const String &matcherName)
     {
-        for (auto it = _data.begin(); it != _data.end(); ++it) {
+        for (auto it = _data.begin(); it != _data.end();) {
             if (it->second.usedMatchers.find(matcherName) != it->second.usedMatchers.end()) {
                 if (auto view = it->first.lock()) {
                     rematchView(view);
                 } else {
                     it = _data.erase(it);
+                    continue;
                 }
             }
+
+            ++it;
         }
     }
 }
