@@ -129,3 +129,4 @@ google_analytics:
   - 'auto'
 
 copyright: 'Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG'
+site_description: 'Boden is the new cross-platform framework for building real native mobile apps using native widgets and modern C++17. Boden is free and open source.'
