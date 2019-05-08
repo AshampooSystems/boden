@@ -259,7 +259,7 @@ _window->visible = true;
 2. Install Java 8:
 
 		brew tap caskroom/versions
-		brew cask install java8
+		brew cask install homebrew/cask-versions/adoptopenjdk8
 
 4. Install Python and CMake:
 
