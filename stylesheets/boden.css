@@ -17,7 +17,7 @@ input::placeholder {
 }
 
 @media only screen and (min-width: 76.1875em) {
-	.md-content {
+	.md-content.boden-hero {
 		margin-right: 24.2rem;
 	}
 }
