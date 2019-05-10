@@ -32,7 +32,7 @@
 
 @interface BdnMacScrollViewCoreEventForwarder_ : NSObject
 
-@property std::weak_ptr<bdn::mac::ScrollViewCore> scrollViewCore;
+@property std::weak_ptr<bdn::ui::mac::ScrollViewCore> scrollViewCore;
 
 @end
 
@@ -47,15 +47,15 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ScrollView, bdn::mac::ScrollViewCore, ScrollView)
+    CORE_REGISTER(ScrollView, bdn::ui::mac::ScrollViewCore, ScrollView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, _createScrollView())
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, _createScrollView())
     {}
 
     ScrollViewCore::~ScrollViewCore()
@@ -67,7 +67,7 @@ namespace bdn::mac
 
     void ScrollViewCore::init()
     {
-        bdn::mac::ViewCore::init();
+        mac::ViewCore::init();
 
         _nsScrollView = (NSScrollView *)nsView();
 

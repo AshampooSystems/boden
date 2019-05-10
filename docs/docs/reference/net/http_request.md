@@ -1,4 +1,4 @@
-path: tree/master/framework/net/include/bdn/
+path: tree/master/framework/net/include/bdn/net
 source: HTTPRequest.h
 
 # HTTPRequest
@@ -10,7 +10,9 @@ Use the [`http::request()`](http.md) method to perform an HTTP request.
 ## Declaration
 
 ```C++
-class HTTPRequest
+namespace bdn::net {
+	class HTTPRequest
+}
 ```
 
 ## Handler

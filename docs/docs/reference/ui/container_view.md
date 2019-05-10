@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ContainerView.h
 
 # ContainerView
@@ -8,15 +8,17 @@ A view that can hold child views.
 ## Declaration
 
 ```C++
-class ContainerView : public View
+namespace bdn::ui {
+	class ContainerView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/ContainerView.h>
-#include <bdn/TextView.h>
-#include <bdn/Button.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/TextView.h>
+#include <bdn/ui/Button.h>
 // ...
 auto container = std::make_shared<Container>();
 

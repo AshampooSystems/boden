@@ -1,9 +1,8 @@
-#include <bdn/UIApplicationController.h>
-#include <bdn/ViewCoreFactory.h>
+#include <bdn/ui/UIApplicationController.h>
+#include <bdn/ui/ViewCoreFactory.h>
 
-namespace bdn
+namespace bdn::ui
 {
-
     UIApplicationController::ViewCoreFactoryPtr UIApplicationController::topViewCoreFactory()
     {
         return viewCoreFactoryStack()->back();

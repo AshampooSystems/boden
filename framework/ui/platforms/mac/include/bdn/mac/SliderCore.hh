@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Slider.h>
+#include <bdn/ui/Slider.h>
 
 #import <Cocoa/Cocoa.h>
 #import <bdn/mac/ViewCore.hh>
@@ -8,12 +8,12 @@
 
 @class BdnSliderHandler;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class SliderCore : public ViewCore, virtual public bdn::Slider::Core
+    class SliderCore : public ViewCore, virtual public Slider::Core
     {
       public:
-        SliderCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        SliderCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         void init() override;
 
         void valueChanged();

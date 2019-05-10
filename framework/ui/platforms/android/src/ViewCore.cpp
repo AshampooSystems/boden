@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     void ViewCore::init()
     {
@@ -12,13 +12,13 @@ namespace bdn::android
         _uiScaleFactor = 1;
 
         visible.onChange() += [=](auto &property) {
-            _jView.setVisibility(property.get() ? wrapper::View::Visibility::visible
-                                                : wrapper::View::Visibility::invisible);
+            _jView.setVisibility(property.get() ? bdn::android::wrapper::View::Visibility::visible
+                                                : bdn::android::wrapper::View::Visibility::invisible);
         };
 
         geometry.onChange() += [=](auto) { updateGeometry(); };
 
-        wrapper::NativeViewCoreLayoutChangeListener layoutChangeListener;
+        bdn::android::wrapper::NativeViewCoreLayoutChangeListener layoutChangeListener;
         getJView().addOnLayoutChangeListener(layoutChangeListener);
 
         initTag();
@@ -45,17 +45,19 @@ namespace bdn::android
         int heightSpec;
 
         if (std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace()) {
-            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(availableSpace.width * _uiScaleFactor,
-                                                                    wrapper::View::MeasureSpec::atMost);
+            widthSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
+                availableSpace.width * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::atMost);
         } else {
-            widthSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
+            widthSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
+                0, bdn::android::wrapper::View::MeasureSpec::unspecified);
         }
 
         if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
-            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(availableSpace.height * _uiScaleFactor,
-                                                                     wrapper::View::MeasureSpec::atMost);
+            heightSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
+                availableSpace.height * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::atMost);
         } else {
-            heightSpec = wrapper::View::MeasureSpec::makeMeasureSpec(0, wrapper::View::MeasureSpec::unspecified);
+            heightSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
+                0, bdn::android::wrapper::View::MeasureSpec::unspecified);
         }
 
         _jView.measure(widthSpec, heightSpec);
@@ -117,14 +119,14 @@ namespace bdn::android
         Rect rGeometry = geometry;
 
         if (parent.isNull_()) {
-            auto thisViewAsNativeGroup = getJViewAS<wrapper::NativeViewGroup>();
-            if (thisViewAsNativeGroup.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
+            auto thisViewAsNativeGroup = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
+            if (thisViewAsNativeGroup.isInstanceOf_(bdn::android::wrapper::NativeViewGroup::javaClass())) {
                 thisViewAsNativeGroup.setSize((int)(rGeometry.width * _uiScaleFactor),
                                               (int)(rGeometry.height * _uiScaleFactor));
             }
         } else {
-            wrapper::NativeViewGroup parentView(parent.getRef_());
-            if (parentView.isInstanceOf_(wrapper::NativeViewGroup::javaClass())) {
+            bdn::android::wrapper::NativeViewGroup parentView(parent.getRef_());
+            if (parentView.isInstanceOf_(bdn::android::wrapper::NativeViewGroup::javaClass())) {
                 parentView.setChildBounds(getJView(), (int)(rGeometry.x * _uiScaleFactor),
                                           (int)(rGeometry.y * _uiScaleFactor), (int)(rGeometry.width * _uiScaleFactor),
                                           (int)(rGeometry.height * _uiScaleFactor));
@@ -138,7 +140,7 @@ namespace bdn::android
     std::shared_ptr<ViewCore> viewCoreFromJavaViewRef(const java::Reference &javaViewRef)
     {
         if (!javaViewRef.isNull()) {
-            wrapper::View view(javaViewRef);
+            bdn::android::wrapper::View view(javaViewRef);
             bdn::JavaObject viewTag(view.getTag());
             if (viewTag.isInstanceOf_(bdn::java::wrapper::NativeWeakPointer::getStaticClass_())) {
                 bdn::java::wrapper::NativeWeakPointer viewTagPtr(viewTag.getRef_());

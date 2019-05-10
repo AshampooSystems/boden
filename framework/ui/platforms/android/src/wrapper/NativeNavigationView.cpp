@@ -10,8 +10,9 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeNavigationView
 {
     return bdn::nonVoidPlatformEntryWrapper<jboolean>(
         [&]() -> jboolean {
-            if (auto navigationViewCore = bdn::android::viewCoreFromJavaReference<bdn::android::NavigationViewCore>(
-                    bdn::java::Reference::convertExternalLocal(rawSelf))) {
+            if (auto navigationViewCore =
+                    bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::NavigationViewCore>(
+                        bdn::java::Reference::convertExternalLocal(rawSelf))) {
                 return static_cast<jboolean>(navigationViewCore->handleBackButton());
             }
 

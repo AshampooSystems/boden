@@ -2,16 +2,16 @@
 #include <bdn/android/ButtonCore.h>
 #include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Button, bdn::android::ButtonCore, Button)
+    CORE_REGISTER(Button, bdn::ui::android::ButtonCore, Button)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    ButtonCore::ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::Button>(viewCoreFactory)),
-          _jButton(getJViewAS<wrapper::Button>())
+    ButtonCore::ButtonCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::Button>(viewCoreFactory)),
+          _jButton(getJViewAS<bdn::android::wrapper::Button>())
     {
         _jButton.setSingleLine(true);
 
@@ -20,11 +20,11 @@ namespace bdn::android
             scheduleLayout();
         };
 
-        wrapper::NativeViewCoreClickListener listener;
-        _jButton.setOnClickListener(listener.cast<wrapper::OnClickListener>());
+        bdn::android::wrapper::NativeViewCoreClickListener listener;
+        _jButton.setOnClickListener(listener.cast<bdn::android::wrapper::OnClickListener>());
     }
 
-    wrapper::Button &ButtonCore::getJButton() { return _jButton; }
+    bdn::android::wrapper::Button &ButtonCore::getJButton() { return _jButton; }
 
     void ButtonCore::clicked() { _clickCallback.fire(); }
 }

@@ -7,18 +7,18 @@
 
 #include <utility>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
-    void UIApplication::buildCommandlineArguments(wrapper::Intent intent)
+    void UIApplication::buildCommandlineArguments(bdn::android::wrapper::Intent intent)
     {
         std::vector<String> args;
 
         // add a dummy arg for the program name
         args.emplace_back();
 
-        if (intent.getAction() == String((const char *)wrapper::Intent::ACTION_MAIN)) {
-            wrapper::Bundle extras = intent.getExtras();
+        if (intent.getAction() == String((const char *)bdn::android::wrapper::Intent::ACTION_MAIN)) {
+            bdn::android::wrapper::Bundle extras = intent.getExtras();
 
             if (!extras.isNull_()) {
                 bdn::java::wrapper::ArrayOfObjects<bdn::JavaString> argArray =
@@ -40,9 +40,9 @@ namespace bdn::android
     }
 
     UIApplication::UIApplication(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator,
-                                 wrapper::Intent intent)
+                                 bdn::android::wrapper::Intent intent)
         : Application(std::move(appControllerCreator),
-                      std::make_shared<MainDispatcher>(wrapper::Looper::getMainLooper()))
+                      std::make_shared<bdn::android::MainDispatcher>(bdn::android::wrapper::Looper::getMainLooper()))
     {
         UIApplication::buildCommandlineArguments(std::move(intent));
     }
@@ -53,15 +53,17 @@ namespace bdn::android
 
     void UIApplication::disposeMainDispatcher()
     {
-        std::dynamic_pointer_cast<MainDispatcher>(dispatchQueue())->dispose();
+        std::dynamic_pointer_cast<bdn::android::MainDispatcher>(dispatchQueue())->dispose();
     }
 
     void UIApplication::initiateExitIfPossible(int exitCode) {}
 
     void UIApplication::openURL(const String &url)
     {
-        wrapper::Intent intent(String((const char *)wrapper::Intent::ACTION_VIEW), wrapper::Uri::parse(url));
-        wrapper::NativeRootView rootView(WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        bdn::android::wrapper::Intent intent(String((const char *)bdn::android::wrapper::Intent::ACTION_VIEW),
+                                             bdn::android::wrapper::Uri::parse(url));
+        bdn::android::wrapper::NativeRootView rootView(
+            WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.getContext().startActivity(intent);
     }
 
@@ -74,7 +76,7 @@ namespace bdn::android
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeDestroy(JNIEnv *env, jclass cls,
                                                                                  jobject rawIntent)
 {
-    if (auto androidApp = std::dynamic_pointer_cast<bdn::android::UIApplication>(bdn::App())) {
+    if (auto androidApp = std::dynamic_pointer_cast<bdn::ui::android::UIApplication>(bdn::App())) {
         androidApp->onDestroy();
     }
 }

@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ListViewDataSource.h
 
 # ListViewDataSource
@@ -10,15 +10,17 @@ To implement a custom list view data source, inherit from `ListViewDataSource` a
 ## Declaration
 
 ```C++
-class ListViewDataSource
+namespace bdn::ui {
+	class ListViewDataSource
+}
 ```
 
 ## Example
 
 ```C++
 #include <bdn/String.h>
-#include <bdn/ListView.h>
-#include <bdn/ListViewDataSource.h>
+#include <bdn/ui/ListView.h>
+#include <bdn/ui/ListViewDataSource.h>
 
 class MyDataSource : public bdn::Base, virtual public bdn::ListViewDataSource
 {

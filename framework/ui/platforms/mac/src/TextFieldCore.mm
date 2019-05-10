@@ -3,7 +3,7 @@
 
 @interface BdnTextFieldDelegate : NSObject <NSTextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::TextFieldCore> textFieldCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::TextFieldCore> textFieldCore;
 @property(nonatomic, weak) NSTextField *nsTextField;
 
 - (void)controlTextDidChange:(NSNotification *)obj;
@@ -39,12 +39,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(TextField, bdn::mac::TextFieldCore, TextField)
+    CORE_REGISTER(TextField, bdn::ui::mac::TextFieldCore, TextField)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSTextField *TextFieldCore::_createNsTextView()
     {
@@ -55,8 +55,8 @@ namespace bdn::mac
         return textField;
     }
 
-    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, _createNsTextView())
+    TextFieldCore::TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, _createNsTextView())
     {}
 
     TextFieldCore::~TextFieldCore()
@@ -67,7 +67,7 @@ namespace bdn::mac
 
     void TextFieldCore::init()
     {
-        bdn::mac::ViewCore::init();
+        mac::ViewCore::init();
 
         _delegate = [[BdnTextFieldDelegate alloc] init];
         _delegate.textFieldCore = shared_from_this<TextFieldCore>();

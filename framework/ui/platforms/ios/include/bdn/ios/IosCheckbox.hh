@@ -2,11 +2,11 @@
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/TriState.h>
+#include <bdn/ui/TriState.h>
 
 @interface BdnIosCheckbox : UIControl
 
-@property(nonatomic, assign) bdn::TriState checkboxState;
+@property(nonatomic, assign) bdn::ui::TriState checkboxState;
 @property(nonatomic, assign) bool isTouching;
 
 - (CGSize)systemLayoutSizeFittingSize:(CGSize)targetSize;

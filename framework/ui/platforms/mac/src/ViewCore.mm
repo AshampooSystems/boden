@@ -4,20 +4,20 @@
 
 @interface BdnMacViewCoreEventForwarder_ : NSObject
 
-@property std::weak_ptr<bdn::mac::ViewCore> viewCore;
+@property std::weak_ptr<bdn::ui::mac::ViewCore> viewCore;
 
 @end
 
 @implementation BdnMacViewCoreEventForwarder_
 
-- (void)frameDidChange { _viewCore.lock()->frameChanged(); }
+- (void)frameDidChange { self.viewCore.lock()->frameChanged(); }
 
 @end
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView)
-        : bdn::View::Core(viewCoreFactory), _nsView(nsView)
+    ViewCore::ViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, NSView *nsView)
+        : bdn::ui::View::Core(viewCoreFactory), _nsView(nsView)
     {
         if (_nsView != nullptr) {
 
@@ -32,9 +32,12 @@ namespace bdn::mac
 
             _nsView.postsFrameChangedNotifications = YES;
 
-            /*  _nsView.wantsLayer = YES;
-              _nsView.layer.borderColor = [NSColor blueColor].CGColor;
-              _nsView.layer.borderWidth = 2;*/
+            _nsView.wantsLayer = YES;
+            /*              _nsView.layer.borderColor = [NSColor blueColor].CGColor;
+                          _nsView.layer.borderWidth = 2;
+            */
+            _nsView.layer.backgroundColor =
+                [NSColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0].CGColor;
         }
     }
 
@@ -60,5 +63,5 @@ namespace bdn::mac
 
     void ViewCore::scheduleLayout() { _nsView.needsLayout = YES; }
 
-    Size ViewCore::sizeForSpace(Size availableSpace) const { return macSizeToSize(_nsView.fittingSize); }
+    Size ViewCore::sizeForSpace(Size) const { return macSizeToSize(_nsView.fittingSize); }
 }

@@ -1,18 +1,18 @@
 #pragma once
 
-#include <bdn/Window.h>
+#include <bdn/ui/Window.h>
 
 #import <Cocoa/Cocoa.h>
 #import <bdn/mac/util.hh>
 
 @class BdnMacWindowContentViewParent_;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class WindowCore : public ViewCore, virtual public bdn::Window::Core
+    class WindowCore : public ViewCore, virtual public Window::Core
     {
       public:
-        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~WindowCore();
 
       public:

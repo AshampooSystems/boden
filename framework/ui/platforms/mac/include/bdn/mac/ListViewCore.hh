@@ -1,16 +1,16 @@
 #pragma once
 
-#include <bdn/ListView.h>
 #include <bdn/mac/ViewCore.hh>
+#include <bdn/ui/ListView.h>
 
 @class ListViewDelegateMac;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class ListViewCore : public ViewCore, virtual public bdn::ListView::Core
+    class ListViewCore : public ViewCore, virtual public ListView::Core
     {
       public:
-        ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~ListViewCore();
 
       public:

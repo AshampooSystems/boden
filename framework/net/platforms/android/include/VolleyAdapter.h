@@ -2,8 +2,7 @@
 
 #include <bdn/java/wrapper/Object.h>
 #include <bdn/java/wrapper/String.h>
-
-#include <bdn/HTTP.h>
+#include <bdn/net/HTTP.h>
 
 #include <functional>
 

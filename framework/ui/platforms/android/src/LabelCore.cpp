@@ -1,15 +1,15 @@
 #include <bdn/android/LabelCore.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Label, bdn::android::LabelCore, Label)
+    CORE_REGISTER(Label, bdn::ui::android::LabelCore, Label)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::AppCompatTextView>(viewCoreFactory)),
-          _jTextView(getJViewAS<wrapper::TextView>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::AppCompatTextView>(viewCoreFactory)),
+          _jTextView(getJViewAS<bdn::android::wrapper::TextView>())
     {
         text.onChange() += [=](auto &property) {
             // Remove '\r' as android treats them as a space

@@ -7,18 +7,17 @@
 #include <bdn/android/wrapper/NativeEditTextTextWatcher.h>
 #include <bdn/android/wrapper/NativeTextViewOnEditorActionListener.h>
 
-#include <bdn/TextField.h>
+#include <bdn/ui/TextField.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/debug.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-
-    class TextFieldCore : public ViewCore, virtual public bdn::TextField::Core
+    class TextFieldCore : public ViewCore, virtual public TextField::Core
     {
       public:
-        TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
         // Called by Java (via JNativeEditTextTextWatcher)
@@ -30,11 +29,11 @@ namespace bdn::android
         // Called by Java (via JNativeEditTextTextWatcher)
         void afterTextChanged();
 
-        bool onEditorAction(int actionId, const wrapper::KeyEvent &keyEvent);
+        bool onEditorAction(int actionId, const bdn::android::wrapper::KeyEvent &keyEvent);
 
       private:
-        mutable wrapper::EditText _jEditText;
-        wrapper::NativeEditTextTextWatcher _watcher;
-        wrapper::NativeTextViewOnEditorActionListener _onEditorActionListener;
+        mutable bdn::android::wrapper::EditText _jEditText;
+        bdn::android::wrapper::NativeEditTextTextWatcher _watcher;
+        bdn::android::wrapper::NativeTextViewOnEditorActionListener _onEditorActionListener;
     };
 }

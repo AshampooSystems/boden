@@ -1,6 +1,6 @@
-#include <bdn/ListView.h>
+#include <bdn/ui/ListView.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

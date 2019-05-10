@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Window.h>
+#include <bdn/ui/Window.h>
 
 class MainViewController
 {
@@ -9,5 +9,5 @@ class MainViewController
     virtual ~MainViewController() = default;
 
   private:
-    std::shared_ptr<bdn::Window> _window;
+    std::shared_ptr<bdn::ui::Window> _window;
 };

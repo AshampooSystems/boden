@@ -1,16 +1,16 @@
 #include <bdn/android/CheckboxCore.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Checkbox, bdn::android::CheckboxCore, Checkbox)
+    CORE_REGISTER(Checkbox, bdn::ui::android::CheckboxCore, Checkbox)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
     CheckboxCore::CheckboxCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::CheckBox>(viewCoreFactory)),
-          _jCheckBox(getJViewAS<wrapper::CheckBox>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::CheckBox>(viewCoreFactory)),
+          _jCheckBox(getJViewAS<bdn::android::wrapper::CheckBox>())
     {
         _jCheckBox.setSingleLine(true);
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bdn/Button.h>
-#include <bdn/ContainerView.h>
-#include <bdn/Label.h>
-#include <bdn/TextField.h>
-#include <bdn/WebView.h>
 #include <bdn/log.h>
-#include <bdn/yogalayout/FlexStylesheet.h>
+#include <bdn/ui/Button.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/Label.h>
+#include <bdn/ui/TextField.h>
+#include <bdn/ui/WebView.h>
+#include <bdn/ui/yoga/FlexStylesheet.h>
 
 namespace bdn
 {
@@ -26,7 +26,7 @@ namespace bdn
 
         auto urlInput = std::make_shared<TextField>();
         urlInput->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
-        urlInput->text = "https://ashampoosystems.github.io/boden";
+        urlInput->text = "https://www.boden.io";
 
         auto reloadButton = std::make_shared<Button>();
         reloadButton->label = "Reload";

@@ -2,14 +2,14 @@
 #import <bdn/ios/ButtonCore.hh>
 
 @interface BodenUIButton : UIButton <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ButtonCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ButtonCore> core;
 @end
 
 @implementation BodenUIButton
 
-- (void)setViewCore:(std::weak_ptr<bdn::ios::ViewCore>)viewCore
+- (void)setViewCore:(std::weak_ptr<bdn::ui::ios::ViewCore>)viewCore
 {
-    self.core = std::dynamic_pointer_cast<bdn::ios::ButtonCore>(viewCore.lock());
+    self.core = std::dynamic_pointer_cast<bdn::ui::ios::ButtonCore>(viewCore.lock());
 }
 
 - (void)setFrame:(CGRect)frame
@@ -29,16 +29,16 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Button, bdn::ios::ButtonCore, Button)
+    CORE_REGISTER(Button, bdn::ui::ios::ButtonCore, Button)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUIButton *_createUIButton() { return [BodenUIButton buttonWithType:UIButtonTypeSystem]; }
 
-    ButtonCore::ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ButtonCore::ButtonCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, _createUIButton())
     {
         _button = (UIButton *)uiView();

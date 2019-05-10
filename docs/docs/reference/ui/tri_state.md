@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: TriState.h
 
 # TriState
@@ -7,12 +7,16 @@ Represents the on, off, or mixed state of a [Checkbox](checkbox.md).
 
 ## Definition
 
+```c++
+namespace bdn::ui {
 	enum TriState
 	{
 	    off,
 	    on,
 	    mixed
 	};
+}
+```
 
 ## Enum Values
 

@@ -10,14 +10,14 @@
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv *env, jobject rawSelf)
 {
     bdn::platformEntryWrapper(
-        [&]() { bdn::android::WindowCore::_rootViewCreated(bdn::java::Reference::convertExternalLocal(rawSelf)); },
+        [&]() { bdn::ui::android::WindowCore::_rootViewCreated(bdn::java::Reference::convertExternalLocal(rawSelf)); },
         true, env);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_disposed(JNIEnv *env, jobject rawSelf)
 {
     bdn::platformEntryWrapper(
-        [&]() { bdn::android::WindowCore::_rootViewDisposed(bdn::java::Reference::convertExternalLocal(rawSelf)); },
+        [&]() { bdn::ui::android::WindowCore::_rootViewDisposed(bdn::java::Reference::convertExternalLocal(rawSelf)); },
         true, env);
 }
 
@@ -26,8 +26,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChang
 {
     bdn::platformEntryWrapper(
         [&]() {
-            bdn::android::WindowCore::_rootViewSizeChanged(bdn::java::Reference::convertExternalLocal(rawSelf),
-                                                           newWidth, newHeight);
+            bdn::ui::android::WindowCore::_rootViewSizeChanged(bdn::java::Reference::convertExternalLocal(rawSelf),
+                                                               newWidth, newHeight);
         },
         true, env);
 }
@@ -40,8 +40,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configura
         [&]() {
             bdn::android::wrapper::Configuration newConfig((bdn::java::Reference::convertExternalLocal(rawNewConfig)));
 
-            bdn::android::WindowCore::_rootViewConfigurationChanged(bdn::java::Reference::convertExternalLocal(rawSelf),
-                                                                    newConfig);
+            bdn::ui::android::WindowCore::_rootViewConfigurationChanged(
+                bdn::java::Reference::convertExternalLocal(rawSelf), newConfig);
         },
         true, env);
 }
@@ -53,7 +53,8 @@ extern "C" JNIEXPORT bool JNICALL Java_io_boden_android_NativeRootView_native_1h
 
     bdn::platformEntryWrapper(
         [&]() {
-            result = bdn::android::WindowCore::_handleBackPressed(bdn::java::Reference::convertExternalLocal(rawSelf));
+            result =
+                bdn::ui::android::WindowCore::_handleBackPressed(bdn::java::Reference::convertExternalLocal(rawSelf));
         },
         true, env);
 

@@ -1,4 +1,4 @@
-path: tree/master/framework/net/include/bdn/
+path: tree/master/framework/net/include/bdn/net
 source: HTTP.h
 
 # HTTP
@@ -33,7 +33,7 @@ namespace bdn::net::http
 ## Example
 
 ```C++
-#include <bdn/HTTP.h>
+#include <bdn/net/HTTP.h>
 // ...
 void handleResponse(net::HTTPResponse response) {
 	json j = json::parse(r->data);

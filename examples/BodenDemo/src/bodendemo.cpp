@@ -1,7 +1,7 @@
 #include <bdn/foundation.h>
 #include <bdn/log.h>
 #include <bdn/ui.h>
-#include <bdn/yogalayout.h>
+#include <bdn/ui/yoga.h>
 
 #include "imagespage.h"
 #include "propertiespage.h"
@@ -45,7 +45,7 @@ class MainViewController
         _window = std::make_shared<Window>();
         _window->title = "Boden Demo";
         _window->geometry = Rect{0, 0, 1024, 768};
-        _window->setLayout(std::make_shared<yogalayout::Layout>());
+        _window->setLayout(std::make_shared<yoga::Layout>());
 
         auto container = std::make_shared<ContainerView>();
         container->stylesheet = FlexJsonStringify({"direction" : "Column", "flexGrow" : 1.0, "alignItems" : "Stretch"});

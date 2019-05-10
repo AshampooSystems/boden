@@ -1,26 +1,26 @@
 #pragma once
 
 #import <UIKit/UIKit.h>
-
-#include <bdn/View.h>
-
 #import <bdn/ios/util.hh>
 
-namespace bdn::ios
+#include <bdn/ui/View.h>
+#include <memory>
+
+namespace bdn::ui::ios
 {
     class ViewCore;
 }
 
 @protocol UIViewWithFrameNotification
-- (void)setViewCore:(std::weak_ptr<bdn::ios::ViewCore>)viewCore;
+- (void)setViewCore:(std::weak_ptr<bdn::ui::ios::ViewCore>)viewCore;
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
+    class ViewCore : public View::Core, public std::enable_shared_from_this<ViewCore>
     {
       public:
-        ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView);
+        ViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView);
         ~ViewCore() override;
 
         template <class T> std::shared_ptr<T> shared_from_this()

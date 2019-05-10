@@ -2,7 +2,7 @@
 #import <bdn/mac/ButtonCore.hh>
 
 @interface BdnButtonClickManager : NSObject
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::ButtonCore> buttonCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::ButtonCore> buttonCore;
 @end
 
 @implementation BdnButtonClickManager
@@ -16,12 +16,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Button, bdn::mac::ButtonCore, Button)
+    CORE_REGISTER(Button, bdn::ui::mac::ButtonCore, Button)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSButton *ButtonCore::_createNsButton()
     {
@@ -33,13 +33,13 @@ namespace bdn::mac
         return button;
     }
 
-    ButtonCore::ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, _createNsButton()), _currBezelStyle(NSBezelStyleRounded)
+    ButtonCore::ButtonCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, _createNsButton()), _currBezelStyle(NSBezelStyleRounded)
     {}
 
     void ButtonCore::init()
     {
-        bdn::mac::ViewCore::init();
+        mac::ViewCore::init();
 
         _clickManager = [[BdnButtonClickManager alloc] init];
         _clickManager.buttonCore = shared_from_this<ButtonCore>();

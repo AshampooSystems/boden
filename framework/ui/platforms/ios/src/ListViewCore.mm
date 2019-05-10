@@ -4,13 +4,13 @@
 
 #import <bdn/ios/ContainerViewCore.hh>
 
-#include <bdn/ContainerView.h>
-#include <bdn/ListViewDataSource.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/ListViewDataSource.h>
 
 #include <bdn/log.h>
 
 @interface FollowSizeUITableViewCell : UITableViewCell
-@property std::shared_ptr<bdn::ContainerView> containerView;
+@property std::shared_ptr<bdn::ui::ContainerView> containerView;
 @end
 @implementation FollowSizeUITableViewCell
 
@@ -32,12 +32,12 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ListViewCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ListViewCore> core;
 @end
 
 @implementation ListViewDelegateIOS
 
-- (std::shared_ptr<bdn::ListViewDataSource>)outerDataSource
+- (std::shared_ptr<bdn::ui::ListViewDataSource>)outerDataSource
 {
     auto core = self.core.lock();
     if (core == nullptr) {
@@ -72,8 +72,8 @@
         FollowSizeUITableViewCell *cell =
             (FollowSizeUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
 
-        std::shared_ptr<bdn::ContainerView> containerView;
-        std::shared_ptr<bdn::View> view;
+        std::shared_ptr<bdn::ui::ContainerView> containerView;
+        std::shared_ptr<bdn::ui::View> view;
         bool reuse = false;
 
         auto core = self.core.lock();
@@ -83,11 +83,11 @@
                 [[FollowSizeUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
             cell.clipsToBounds = YES;
 
-            containerView = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
+            containerView = std::make_shared<bdn::ui::ContainerView>(core->viewCoreFactory());
             containerView->isLayoutRoot = true;
             containerView->offerLayout(core->layout());
 
-            [cell.contentView addSubview:containerView->core<bdn::ios::ViewCore>()->uiView()];
+            [cell.contentView addSubview:containerView->core<bdn::ui::ios::ViewCore>()->uiView()];
             cell.containerView = containerView;
 
         } else {
@@ -127,7 +127,7 @@
 @end
 
 @interface BodenUITableView : UITableView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUITableView
@@ -141,7 +141,7 @@
 
 - (void)handleRefresh
 {
-    if (auto viewCore = std::dynamic_pointer_cast<bdn::ios::ListViewCore>(self.viewCore.lock())) {
+    if (auto viewCore = std::dynamic_pointer_cast<bdn::ui::ios::ListViewCore>(self.viewCore.lock())) {
         viewCore->fireRefresh();
     }
 }
@@ -165,12 +165,12 @@
 }
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ListView, bdn::ios::ListViewCore, ListView)
+    CORE_REGISTER(ListView, bdn::ui::ios::ListViewCore, ListView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUITableView *createUITableView()
     {
@@ -178,7 +178,7 @@ namespace bdn::ios
         return uiTableView;
     }
 
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ListViewCore::ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUITableView())
     {}
 

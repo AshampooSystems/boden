@@ -1,7 +1,7 @@
-#include <bdn/TextField.h>
-#include <bdn/ViewUtilities.h>
+#include <bdn/ui/TextField.h>
+#include <bdn/ui/ViewUtilities.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {
@@ -15,7 +15,7 @@ namespace bdn
 
     void TextField::submit()
     {
-        bdn::SubmitEvent event(shared_from_this());
+        SubmitEvent event(shared_from_this());
         onSubmit().notify(event);
     }
 

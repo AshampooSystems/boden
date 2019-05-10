@@ -1,20 +1,20 @@
 #pragma once
 
-#include <bdn/Button.h>
+#include <bdn/ui/Button.h>
 
 #import <bdn/mac/ViewCore.hh>
 
 @class BdnButtonClickManager;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class ButtonCore : public ViewCore, virtual public bdn::Button::Core
+    class ButtonCore : public ViewCore, virtual public Button::Core
     {
       private:
         static NSButton *_createNsButton();
 
       public:
-        ButtonCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ButtonCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~ButtonCore();
 
         void init() override;

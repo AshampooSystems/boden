@@ -205,6 +205,8 @@ macro(add_platform_library )
     elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
         add_library(${_library_name} STATIC ${_files})
     endif()
+    
+    set_property(TARGET ${_library_name} PROPERTY FOLDER "Boden/Framework/${_PLATFORM_LIB_PARENT_LIBRARY}")
 
     ios_fix_lib_build_folder(${_library_name})
 

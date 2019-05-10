@@ -1,11 +1,11 @@
 #include <bdn/ios/LabelCore.hh>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Label, bdn::ios::LabelCore, Label)
+    CORE_REGISTER(Label, bdn::ui::ios::LabelCore, Label)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUILabel *LabelCore::createUILabel()
     {
@@ -14,7 +14,7 @@ namespace bdn::ios
         return label;
     }
 
-    LabelCore::LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUILabel())
     {
         _uiLabel = (UILabel *)uiView();

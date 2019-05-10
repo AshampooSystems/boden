@@ -5,7 +5,7 @@ This part of the Boden Framework documentation provides a reference to make look
 !!! warning
 	The Boden API is work in progress and may change in the coming months. We are currently aiming at providing the first stable API by Q3/2019. [Follow us on Twitter](https://twitter.com/bodenhq) and [star/watch our repo on GitHub](https://github.com/AshampooSystems/boden) to stay in the loop!
 
-The Boden API is organized into four principal modules:
+The Boden API is organized into three principal modules:
 
 ### Foundation
 
@@ -18,7 +18,3 @@ The UI module contains all classes, types, and widgets required for building use
 ### Net
 
 The Net module provides essential networking services for apps written with Boden.
-
-### Layout
-
-The Layout module contains base classes, interfaces, and layout implementations required for laying out Boden-based user interfaces.

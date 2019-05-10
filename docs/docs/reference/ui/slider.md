@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Slider.h
 
 # Slider
@@ -8,13 +8,15 @@ A slider
 ## Declaration
 
 ```C++
-class Slider : public View
+namespace bdn::ui {
+	class Slider : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Slider.h>
+#include <bdn/ui/Slider.h>
 // ...
 auto slider = std::make_shared<Slider>();
 slider->value = 0.5;

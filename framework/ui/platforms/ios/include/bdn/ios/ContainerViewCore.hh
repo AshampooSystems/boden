@@ -1,21 +1,21 @@
 #pragma once
 
-#include <bdn/ContainerView.h>
 #import <bdn/ios/ViewCore.hh>
+#include <bdn/ui/ContainerView.h>
 
 @interface BodenUIView : UIView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 
 - (void)layoutSubviews;
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
+    class ContainerViewCore : public ViewCore, virtual public ContainerView::Core
     {
       public:
-        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+        ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
+        ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory,
                           id<UIViewWithFrameNotification> view);
 
       protected:

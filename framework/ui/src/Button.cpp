@@ -1,6 +1,6 @@
-#include <bdn/Button.h>
+#include <bdn/ui/Button.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

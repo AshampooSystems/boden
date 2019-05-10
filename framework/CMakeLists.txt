@@ -4,7 +4,7 @@ include(CMakePackageConfigHelpers)
 # Utilities
 
 function(sourcefiles_from_folder HEADERS SOURCES FOLDER)
-    file(GLOB _HEADERS ./include/bdn/${FOLDER}/*.h ./include/bdn/${FOLDER}/*.hh)
+    file(GLOB_RECURSE _HEADERS ./include/bdn/${FOLDER}/*.h ./include/bdn/${FOLDER}/*.hh)
     file(GLOB _SOURCES ./src/${FOLDER}/*.cpp ./src/${FOLDER}/*.c ./src/${FOLDER}/*.mm ./src/${FOLDER}/*.m)
 
     set(${HEADERS} ${_HEADERS} PARENT_SCOPE)
@@ -51,8 +51,7 @@ install(
 add_subdirectory(foundation)
 add_subdirectory(net)
 add_subdirectory(ui)
-add_subdirectory(layout)
 
-if(BDN_INCLUDE_LOTTIE)
-    add_subdirectory(lottieview)
-endif()
+set_property(TARGET foundation PROPERTY FOLDER "Boden/Framework/foundation")
+set_property(TARGET net PROPERTY FOLDER "Boden/Framework/net")
+set_property(TARGET ui PROPERTY FOLDER "Boden/Framework/ui")

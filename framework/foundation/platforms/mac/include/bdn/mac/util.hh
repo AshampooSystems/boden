@@ -6,8 +6,9 @@
 
 #include <bdn/Rect.h>
 
-namespace bdn::mac
-{ /** Converts a mac rect to a bdn::Rect.
+namespace bdn::ui::mac
+{
+    /** Converts a mac rect to a bdn::Rect.
 
      Mac UI objects often use an inverted coordinate space with the
     origin in the lower left corner, rather than the lower right.

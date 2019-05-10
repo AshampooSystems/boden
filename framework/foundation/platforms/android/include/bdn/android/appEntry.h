@@ -3,7 +3,7 @@
 #include <bdn/Application.h>
 #include <bdn/jni.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
     /** Entry point function for android apps.

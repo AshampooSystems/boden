@@ -4,7 +4,7 @@
 #include <bdn/entry.h>
 #import <bdn/mac/UIApplication.hh>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[])
     {
@@ -12,7 +12,7 @@ namespace bdn::mac
 
         bdn::platformEntryWrapper(
             [&]() {
-                auto application = std::make_shared<bdn::mac::UIApplication>(appControllerCreator, argc, argv);
+                auto application = std::make_shared<mac::UIApplication>(appControllerCreator, argc, argv);
 
                 application->init();
                 returnValue = application->entry();

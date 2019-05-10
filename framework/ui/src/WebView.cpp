@@ -1,17 +1,17 @@
-#include <bdn/ViewCoreFactory.h>
-#include <bdn/ViewUtilities.h>
-#include <bdn/WebView.h>
+#include <bdn/ui/ViewCoreFactory.h>
+#include <bdn/ui/ViewUtilities.h>
+#include <bdn/ui/WebView.h>
 
-namespace bdn
+namespace bdn::ui
 {
-    namespace webview::detail
+    namespace detail
     {
         VIEW_CORE_REGISTRY_IMPLEMENTATION(WebView)
     }
 
     WebView::WebView(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
-        webview::detail::VIEW_CORE_REGISTER(WebView, View::viewCoreFactory());
+        detail::VIEW_CORE_REGISTER(WebView, View::viewCoreFactory());
 
         registerCoreCreatingProperties(this, &url);
         url.onChange() += [this](auto) { loadURL(url); };

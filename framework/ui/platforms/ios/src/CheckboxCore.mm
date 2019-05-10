@@ -5,7 +5,7 @@
 
 @interface BdnIosCheckboxClickManager : NSObject
 
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::CheckboxCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::CheckboxCore> core;
 @property(nonatomic, weak) BdnIosCheckboxComposite *composite;
 
 @end
@@ -52,12 +52,12 @@
         self.checkbox.isTouching = NO;
 
         switch (self.checkbox.checkboxState) {
-        case bdn::TriState::on:
-            self.checkbox.checkboxState = bdn::TriState::off;
+        case bdn::ui::TriState::on:
+            self.checkbox.checkboxState = bdn::ui::TriState::off;
             break;
-        case bdn::TriState::mixed:
-        case bdn::TriState::off:
-            self.checkbox.checkboxState = bdn::TriState::on;
+        case bdn::ui::TriState::mixed:
+        case bdn::ui::TriState::off:
+            self.checkbox.checkboxState = bdn::ui::TriState::on;
             break;
         }
 
@@ -91,12 +91,12 @@
 }
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Checkbox, bdn::ios::CheckboxCore, Checkbox)
+    CORE_REGISTER(Checkbox, bdn::ui::ios::CheckboxCore, Checkbox)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BdnIosCheckboxComposite *CheckboxCore::_createCheckboxComposite()
     {
@@ -112,7 +112,7 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    CheckboxCore::CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    CheckboxCore::CheckboxCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, _createCheckboxComposite())
     {}
 

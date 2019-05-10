@@ -39,3 +39,5 @@ add_custom_target(boden_cmake SOURCES ${_CMAKE_UTILITIES} ${_CMAKE_TOOLCHAINS} $
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${_CMAKE_UTILITIES} ${_CMAKE_TOOLCHAINS} ${_CMAKE_SCRIPTS} ${_CMAKE_TEMPLATES})
 
+set_property(TARGET boden_cmake PROPERTY FOLDER "Boden/CMake")
+

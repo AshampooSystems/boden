@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Switch.h
 
 # Switch
@@ -10,13 +10,15 @@ In contrast to [`Checkbox`](checkbox.md), `Switch` is commonly used in scenarios
 ## Declaration
 
 ```C++
-class Switch : public View
+namespace bdn::ui {
+	class Switch : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Switch.h>
+#include <bdn/ui/Switch.h>
 // ...
 auto switchControl = std::make_shared<Switch>();
 switchControl->label = "A switch can also have a label!";

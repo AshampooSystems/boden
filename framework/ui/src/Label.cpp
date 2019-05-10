@@ -1,7 +1,7 @@
 
-#include <bdn/Label.h>
+#include <bdn/ui/Label.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

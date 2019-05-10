@@ -6,7 +6,7 @@
 
 #include <bdn/entry.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
     void appEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, JNIEnv *env,
@@ -16,8 +16,8 @@ namespace bdn::android
             [&]() {
                 bdn::android::wrapper::Intent intent(bdn::java::Reference::convertExternalLocal(rawIntent));
 
-                std::shared_ptr<bdn::android::UIApplication> app =
-                    std::make_shared<bdn::android::UIApplication>(appControllerCreator, intent);
+                std::shared_ptr<android::UIApplication> app =
+                    std::make_shared<android::UIApplication>(appControllerCreator, intent);
                 app->init();
                 app->entry();
             },

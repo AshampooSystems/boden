@@ -1,8 +1,8 @@
 #include <bdn/ios/SliderCore.hh>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Slider, bdn::ios::SliderCore, Slider)
+    CORE_REGISTER(Slider, bdn::ui::ios::SliderCore, Slider)
 }
 
 @implementation BodenUISlider
@@ -16,13 +16,13 @@ namespace bdn::detail
 
 - (void)sliderAction:(id)sender
 {
-    if (auto sliderCore = std::dynamic_pointer_cast<bdn::ios::SliderCore>(self.viewCore.lock())) {
+    if (auto sliderCore = std::dynamic_pointer_cast<bdn::ui::ios::SliderCore>(self.viewCore.lock())) {
         sliderCore->value = self.value;
     }
 }
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUISlider *SliderCore::createUISlider()
     {
@@ -33,7 +33,7 @@ namespace bdn::ios
         return slider;
     }
 
-    SliderCore::SliderCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    SliderCore::SliderCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUISlider())
     {
         _uiSlider = (UISlider *)uiView();

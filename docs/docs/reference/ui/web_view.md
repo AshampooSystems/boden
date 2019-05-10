@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: WebView.h
 
 # WebView
@@ -8,13 +8,15 @@ A view for displaying web content within your app.
 ## Declaration
 
 ```C++
-class WebView : public View
+namespace bdn::ui {
+	class WebView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/WebView.h>
+#include <bdn/ui/WebView.h>
 // ...
 auto webView = std::make_shared<WebView>();
 webView->url = "https://www.example.com"

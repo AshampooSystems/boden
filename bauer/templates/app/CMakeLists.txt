@@ -23,4 +23,4 @@ add_subdirectory({boden_relative_path} boden)
 
 add_universal_executable({project_name} SOURCES ${_sources})
 
-target_link_libraries({project_name} ui yogalayout)
+target_link_libraries({project_name} ui yoga)

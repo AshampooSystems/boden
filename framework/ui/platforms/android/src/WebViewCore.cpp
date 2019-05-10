@@ -1,19 +1,19 @@
-#include <bdn/ViewUtilities.h>
 #include <bdn/android/WebViewCore.h>
+#include <bdn/ui/ViewUtilities.h>
 
-namespace bdn::webview::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(WebView, bdn::android::WebViewCore, WebView)
+    CORE_REGISTER(WebView, bdn::ui::android::WebViewCore, WebView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     WebViewCore::WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeWebView>(viewCoreFactory)),
-          _jWebView(getJViewAS<wrapper::WebView>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeWebView>(viewCoreFactory)),
+          _jWebView(getJViewAS<bdn::android::wrapper::WebView>())
     {
         userAgent.onChange() +=
-            [=](auto &property) { getJViewAS<wrapper::NativeWebView>().setUserAgent(property.get()); };
+            [=](auto &property) { getJViewAS<bdn::android::wrapper::NativeWebView>().setUserAgent(property.get()); };
     }
 
     void WebViewCore::loadURL(const String &url) { _jWebView.loadUrl(url); }

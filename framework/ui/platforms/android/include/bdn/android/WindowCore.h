@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Window.h>
+#include <bdn/ui/Window.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Activity.h>
@@ -10,16 +10,16 @@
 
 #include "wrapper/Window.h"
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
-    class WindowCore : public ViewCore, virtual public bdn::Window::Core
+    class WindowCore : public ViewCore, virtual public Window::Core
     {
       private:
-        wrapper::View createJNativeViewGroup();
+        bdn::android::wrapper::View createJNativeViewGroup();
 
       public:
-        WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~WindowCore() override;
 
         void enableBackButton(bool enable);
@@ -30,7 +30,8 @@ namespace bdn::android
 
         static void _rootViewSizeChanged(const java::Reference &javaRef, int width, int height);
 
-        static void _rootViewConfigurationChanged(const java::Reference &javaRef, const wrapper::Configuration &config);
+        static void _rootViewConfigurationChanged(const java::Reference &javaRef,
+                                                  const bdn::android::wrapper::Configuration &config);
 
         static bool _handleBackPressed(const java::Reference &javaRef);
 
@@ -62,13 +63,13 @@ namespace bdn::android
          *  The default implementation updates the Window's size to match
          * the new root dimensions.
          *  */
-        virtual void rootViewConfigurationChanged(const wrapper::Configuration &config);
+        virtual void rootViewConfigurationChanged(const bdn::android::wrapper::Configuration &config);
 
         virtual void attachedToNewRootView(const java::Reference &javaRef);
 
         virtual bool handleBackPressed();
 
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function) override;
 
         void updateGeometry() override;
 
@@ -77,8 +78,8 @@ namespace bdn::android
 
         Rect getScreenWorkArea() const;
 
-        void updateUIScaleFactor(const wrapper::Configuration &config);
-        void updateOrientation(const wrapper::Configuration &config);
+        void updateUIScaleFactor(const bdn::android::wrapper::Configuration &config);
+        void updateOrientation(const bdn::android::wrapper::Configuration &config);
 
         static std::list<std::shared_ptr<WindowCore>>
         getWindowCoreListFromRootView(const java::Reference &javaRootViewRef);

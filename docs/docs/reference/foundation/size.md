@@ -10,7 +10,9 @@ Represents a two-dimensional size comprised of `width` and `height` floating poi
 ## Declaration
 
 ```C++
-struct Size
+namespace bdn {
+	struct Size
+}
 ```
 
 ## Public Member Variables

@@ -2,16 +2,16 @@
 
 #import <bdn/ios/ViewCore.hh>
 
-#include <bdn/WebView.h>
+#include <bdn/ui/WebView.h>
 
 #import <bdn/applecommon/WebViewNavigationController.hh>
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class WebViewCore : public ViewCore, public bdn::WebView::Core
+    class WebViewCore : public ViewCore, public WebView::Core
     {
       public:
-        WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
         void init() override;

@@ -8,7 +8,9 @@ Represents a two-dimensional rectangle comprised of position and size represente
 ## Declaration
 
 ```C++
-struct Rect
+namespace bdn {
+	struct Rect
+}
 ```
 
 ## Public Member Variables

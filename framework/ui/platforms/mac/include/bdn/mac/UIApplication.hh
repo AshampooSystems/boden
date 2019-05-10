@@ -4,7 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     class UIApplication : public Application
     {

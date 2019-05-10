@@ -4,7 +4,7 @@
 
 @interface BdnBackButtonClickHandler : NSObject
 
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::NavigationViewCore> stackCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::NavigationViewCore> stackCore;
 
 @end
 
@@ -19,12 +19,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(NavigationView, bdn::mac::NavigationViewCore, NavigationView)
+    CORE_REGISTER(NavigationView, bdn::ui::mac::NavigationViewCore, NavigationView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSView *createNavigationView()
     {
@@ -33,7 +33,7 @@ namespace bdn::mac
         return root;
     }
 
-    NavigationViewCore::NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    NavigationViewCore::NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createNavigationView())
     {}
 
@@ -69,7 +69,7 @@ namespace bdn::mac
         geometry.onChange() += [self](auto &property) { self->reLayout(); };
     }
 
-    void NavigationViewCore::pushView(std::shared_ptr<bdn::View> view, bdn::String title)
+    void NavigationViewCore::pushView(std::shared_ptr<View> view, bdn::String title)
     {
         _stack.push_back({view, title});
         updateCurrentView();
@@ -103,7 +103,7 @@ namespace bdn::mac
             _container = std::make_shared<ContainerView>(viewCoreFactory());
             _container->isLayoutRoot = true;
             _container->offerLayout(layout());
-            if (auto containerCore = _container->core<bdn::mac::ContainerViewCore>()) {
+            if (auto containerCore = _container->core<mac::ContainerViewCore>()) {
                 addChildNSView(containerCore->nsView());
             } else {
                 throw std::runtime_error("Container did not have the right core type!");

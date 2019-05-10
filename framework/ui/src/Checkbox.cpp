@@ -1,9 +1,9 @@
 
-#include <bdn/Checkbox.h>
+#include <bdn/ui/Checkbox.h>
 
 #include <utility>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

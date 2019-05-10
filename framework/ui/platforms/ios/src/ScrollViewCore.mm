@@ -2,7 +2,7 @@
 #import <bdn/ios/ScrollViewCore.hh>
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ScrollViewCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ScrollViewCore> core;
 @end
 
 @implementation BdnIosScrollViewDelegate_
@@ -16,7 +16,7 @@
 @end
 
 @interface BodenUIScrollView : UIScrollView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIScrollView
@@ -31,16 +31,16 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ScrollView, bdn::ios::ScrollViewCore, ScrollView)
+    CORE_REGISTER(ScrollView, bdn::ui::ios::ScrollViewCore, ScrollView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUIScrollView *_createScrollView() { return [[BodenUIScrollView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)]; }
 
-    ScrollViewCore::ScrollViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ScrollViewCore::ScrollViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, _createScrollView())
     {}
 

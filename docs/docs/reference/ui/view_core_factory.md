@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ViewCoreFactory.h
 
 # ViewCoreFactory
@@ -8,8 +8,10 @@ Allows you to easily instantiate [ViewCore](view_core.md) classes for a specific
 ## Declaration
 
 ```C++
-class ViewCoreFactory : public bdn::Factory<std::shared_ptr<View::Core>, std::shared_ptr<ViewCoreFactory>>,
-                        public std::enable_shared_from_this<ViewCoreFactory>
+namespace bdn::ui {
+	class ViewCoreFactory : public bdn::Factory<std::shared_ptr<View::Core>, std::shared_ptr<ViewCoreFactory>>,
+                            public std::enable_shared_from_this<ViewCoreFactory>
+}
 ```
 
 ## Create

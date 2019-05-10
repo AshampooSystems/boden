@@ -21,11 +21,11 @@ Create a new header in `framework/ui/include/bdn` called `ExampleButtonView.h`:
 
 ```c++
 #pragma once
-#include <bdn/View.h>
+#include <bdn/ui/View.h>
 
 namespace bdn
 {
-	class ExampleButtonView : public View
+	class ExampleButtonView : public ui::View
 	{
 	  public:
 		ExampleButtonView(
@@ -59,7 +59,7 @@ Create a new `Core` interface as an inner class of `ExampleButtonView`:
 #pragma once
 namespace bdn
 {
-	class ExampleButtonView : public View
+	class ExampleButtonView : public ui::View
 	{
 		// ...
 	public:
@@ -75,7 +75,7 @@ namespace bdn
 	#pragma once
 	namespace bdn
 	{
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			ExampleButtonView(
@@ -170,7 +170,7 @@ namespace bdn::detail
 ??? note "ExampleButtonView.h"
 	```c++ hl_lines="3 7 8 9 10"
 	#pragma once
-	#include <bdn/View.h>
+	#include <bdn/ui/View.h>
 	#include <bdn/ViewUtilities.h>
 
 	namespace bdn
@@ -179,7 +179,7 @@ namespace bdn::detail
 		{
 			VIEW_CORE_REGISTRY_DECLARATION(ExampleButtonView)
 		}
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			ExampleButtonView(
@@ -291,7 +291,7 @@ To represent properties of a view, use the [`Property`](../../reference/foundati
 As an example, add a `label` property so users of your view can set the button's label.
 
 ```c++
-class ExampleButtonView : public View
+class ExampleButtonView : public ui::View
 {
 public:
 	Property<String> label;
@@ -301,7 +301,7 @@ public:
 ??? note "ExampleButtonView.h"
 	```c++ hl_lines="12 13"
 	#pragma once
-	#include <bdn/View.h>
+	#include <bdn/ui/View.h>
 
 	namespace bdn
 	{
@@ -309,7 +309,7 @@ public:
 		{
 			VIEW_CORE_REGISTRY_DECLARATION(ExampleButtonView)
 		}
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			Property<String> label;
@@ -339,7 +339,7 @@ public:
 ??? note "ExampleButtonView.h"
 	```c++ hl_lines="22 23"
 	#pragma once
-	#include <bdn/View.h>
+	#include <bdn/ui/View.h>
 
 	namespace bdn
 	{
@@ -347,7 +347,7 @@ public:
 		{
 			VIEW_CORE_REGISTRY_DECLARATION(ExampleButtonView)
 		}
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			Property<String> label;
@@ -477,7 +477,7 @@ To allow users of your new class to react to button clicks, you can use a combin
 First, add the `WeakCallback` to your Core:
 
 ```C++
-class ExampleButtonView : public View
+class ExampleButtonView : public ui::View
 {
 public:
 	class Core
@@ -491,7 +491,7 @@ public:
 ??? note "ExampleButtonView.h"
 	```c++ hl_lines="25 26"
 	#pragma once
-	#include <bdn/View.h>
+	#include <bdn/ui/View.h>
 
 	namespace bdn
 	{
@@ -499,7 +499,7 @@ public:
 		{
 			VIEW_CORE_REGISTRY_DECLARATION(ExampleButtonView)
 		}
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			Property<String> label;
@@ -601,7 +601,7 @@ class ExampleButtonView
 ??? note "ExampleButtonView.h"
 	```c++ hl_lines="19 20 21"
 	#pragma once
-	#include <bdn/View.h>
+	#include <bdn/ui/View.h>
 
 	namespace bdn
 	{
@@ -609,7 +609,7 @@ class ExampleButtonView
 		{
 			VIEW_CORE_REGISTRY_DECLARATION(ExampleButtonView)
 		}
-		class ExampleButtonView : public View
+		class ExampleButtonView : public ui::View
 		{
 		  public:
 			Property<String> label;

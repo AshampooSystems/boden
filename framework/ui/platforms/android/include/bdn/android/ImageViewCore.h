@@ -1,15 +1,15 @@
 #pragma once
 
-#include <bdn/ImageView.h>
+#include <bdn/ui/ImageView.h>
 
 #include <bdn/android/ViewCore.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    class ImageViewCore : public ViewCore, virtual public bdn::ImageView::Core
+    class ImageViewCore : public ViewCore, virtual public ImageView::Core
     {
       public:
-        ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~ImageViewCore() override = default;
 
       public:

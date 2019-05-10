@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: View.h
 
 # View
@@ -8,7 +8,9 @@ Abstract base class for all user interface elements.
 ## Declaration
 
 ```C++
-class View : public std::enable_shared_from_this<View>
+namespace bdn::ui {
+	class View : public std::enable_shared_from_this<View>
+}
 ```
 
 ## Properties
@@ -43,11 +45,11 @@ class View : public std::enable_shared_from_this<View>
 
 * **std::shared_ptr<Layout\> getLayout()**
 
-	Returns the view's [`Layout`](../layout/layout.md).
+	Returns the view's [`Layout`](layout.md).
 
 * **void setLayout(std::shared_ptr<Layout\> layout)**
 
-	Sets the view's [`Layout`](../layout/layout.md).
+	Sets the view's [`Layout`](layout.md).
 
 ## View Core
 

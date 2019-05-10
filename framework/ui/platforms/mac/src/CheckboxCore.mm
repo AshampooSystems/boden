@@ -1,11 +1,11 @@
 #include <bdn/mac/CheckboxCore.hh>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Checkbox, bdn::mac::CheckboxCore, Checkbox)
+    CORE_REGISTER(Checkbox, bdn::ui::mac::CheckboxCore, Checkbox)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSButton *CheckboxCore::createNSButton()
     {
@@ -14,8 +14,8 @@ namespace bdn::mac
         return button;
     }
 
-    CheckboxCore::CheckboxCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, createNSButton())
+    CheckboxCore::CheckboxCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, createNSButton())
     {
         _nsButton = (NSButton *)nsView();
 

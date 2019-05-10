@@ -1,21 +1,21 @@
 #include <bdn/android/ScrollViewCore.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ScrollView, bdn::android::ScrollViewCore, ScrollView)
+    CORE_REGISTER(ScrollView, bdn::ui::android::ScrollViewCore, ScrollView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
     ScrollViewCore::ScrollViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ScrollViewCore(
-              viewCoreFactory,
-              createAndroidViewClass<wrapper::NativeScrollView>(viewCoreFactory).cast<wrapper::NativeScrollView>())
+        : ScrollViewCore(viewCoreFactory,
+                         createAndroidViewClass<bdn::android::wrapper::NativeScrollView>(viewCoreFactory)
+                             .cast<bdn::android::wrapper::NativeScrollView>())
     {}
 
     ScrollViewCore::ScrollViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory,
-                                   wrapper::NativeScrollView nativeScrollView)
+                                   bdn::android::wrapper::NativeScrollView nativeScrollView)
         : ViewCore(viewCoreFactory, nativeScrollView.getWrapperView()), _jNativeScrollView(nativeScrollView),
           _jContentParent(_jNativeScrollView.getContentParent())
     {
@@ -187,7 +187,7 @@ namespace bdn::android
         _jNativeScrollView.smoothScrollTo(scrollX, scrollY);
     }
 
-    void ScrollViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
+    void ScrollViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function)
     {
         if (contentView.get()) {
             function(contentView->viewCore());

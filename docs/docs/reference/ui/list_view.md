@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ListView.h
 
 # ListView
@@ -10,13 +10,15 @@ See also: [ListViewDataSource](list_view_data_source.md).
 ## Declaration
 
 ```C++
-class ListView : public View
+namespace bdn::ui {
+	class ListView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/ListView.h>
+#include <bdn/ui/ListView.h>
 ...
 auto listView = std::make_shared<ListView>();
 listView->dataSource = std::make_shared<MyDataSource>();

@@ -5,7 +5,7 @@
 
 @interface BdnWindowDelegate : NSObject <NSWindowDelegate>
 
-@property std::weak_ptr<bdn::mac::WindowCore> windowCore;
+@property std::weak_ptr<bdn::ui::mac::WindowCore> windowCore;
 
 @end
 
@@ -30,7 +30,7 @@
 @end
 
 @interface BdnMacWindowContentViewParent_ : NSView <BdnLayoutable>
-@property std::weak_ptr<bdn::mac::WindowCore> windowCore;
+@property std::weak_ptr<bdn::ui::mac::WindowCore> windowCore;
 @end
 
 @implementation BdnMacWindowContentViewParent_
@@ -46,15 +46,14 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Window, bdn::mac::WindowCore, Window)
+    CORE_REGISTER(Window, bdn::ui::mac::WindowCore, Window)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, nullptr)
+    WindowCore::WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory) : ViewCore(viewCoreFactory, nullptr)
     {}
 
     WindowCore::~WindowCore()

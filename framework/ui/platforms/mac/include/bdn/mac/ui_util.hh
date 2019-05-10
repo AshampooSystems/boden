@@ -4,7 +4,7 @@
 #include <Availability.h>
 #import <bdn/foundationkit/stringUtil.hh>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
 #if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
 

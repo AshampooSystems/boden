@@ -8,7 +8,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeListView_doRefresh
 {
     bdn::platformEntryWrapper(
         [&]() {
-            if (auto core = bdn::android::viewCoreFromJavaReference<bdn::android::ListViewCore>(
+            if (auto core = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
                     bdn::java::Reference::convertExternalLocal(rawSelf))) {
                 core->fireRefresh();
             }

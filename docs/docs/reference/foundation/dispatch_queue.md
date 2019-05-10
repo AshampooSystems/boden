@@ -8,7 +8,9 @@ Queues and executes arbitrary functions on a thread.
 ## Declaration
 
 ```C++
-class DispatchQueue
+namespace bdn {
+	class DispatchQueue
+}
 ```
 
 ## Types

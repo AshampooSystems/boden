@@ -1,5 +1,1 @@
-#include <bdn/HTTPRequest.h>
-
-namespace bdn
-{
-}
+#include <bdn/net/HTTPRequest.h>

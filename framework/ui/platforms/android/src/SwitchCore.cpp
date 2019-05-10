@@ -1,16 +1,16 @@
 #include <bdn/android/SwitchCore.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Switch, bdn::android::SwitchCore, Switch)
+    CORE_REGISTER(Switch, bdn::ui::android::SwitchCore, Switch)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
     SwitchCore::SwitchCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::Switch>(viewCoreFactory)),
-          _jSwitch(getJViewAS<wrapper::Switch>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::Switch>(viewCoreFactory)),
+          _jSwitch(getJViewAS<bdn::android::wrapper::Switch>())
     {
         _jSwitch.setSingleLine(true);
 
@@ -21,8 +21,8 @@ namespace bdn::android
 
         on.onChange() += [=](auto &property) { _jSwitch.setChecked(property.get()); };
 
-        wrapper::NativeViewCoreClickListener listener;
-        _jSwitch.setOnClickListener(listener.cast<wrapper::OnClickListener>());
+        bdn::android::wrapper::NativeViewCoreClickListener listener;
+        _jSwitch.setOnClickListener(listener.cast<bdn::android::wrapper::OnClickListener>());
     }
 
     void SwitchCore::clicked()

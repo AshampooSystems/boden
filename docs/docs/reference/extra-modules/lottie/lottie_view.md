@@ -1,5 +1,5 @@
-path: tree/master/framework/lottieview/include/bdn
-source: LottieView.h
+path: tree/master/framework/ui/modules/lottieview/include/bdn/ui/lottie
+source: View.h
 
 # LottieView
 
@@ -8,15 +8,17 @@ Provides a simple way to display vector animations made with Adobe After Effects
 ## Declaration
 
 ```C++
-class LottieView : public View
+namespace bdn::ui::lottie {
+	class View : public ui::View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/LottieView.h>
+#include <bdn/ui/lottie/View.h>
 // ...
-auto lottieView  = std::make_shared<LottieView>();
+auto lottieView  = std::make_shared<bdn::ui::lottie::View>();
 lottieView->url = "resource://main/images/animation.json";
 lottieView->running = true;
 lottieView->loop = true;

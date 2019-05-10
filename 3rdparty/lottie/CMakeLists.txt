@@ -29,6 +29,8 @@ if(BDN_INCLUDE_LOTTIE)
 
         target_link_libraries(airbnb_lottie_mac PUBLIC "-framework Cocoa -framework QuartzCore")
         add_library(airBnB::Lottie ALIAS airbnb_lottie_mac)
+        
+        set_property(TARGET airbnb_lottie_mac PROPERTY FOLDER "Boden/3rd-Party/Lottie")
     elseif(BDN_PLATFORM_IOS)
 
         set(_source_dir ./lottie-ios/lottie-ios/Classes/)
@@ -55,6 +57,8 @@ if(BDN_INCLUDE_LOTTIE)
             $<INSTALL_INTERFACE:include/lottie-ios>
         )
         add_library(airBnB::Lottie ALIAS airbnb_lottie_ios)
+        
+        set_property(TARGET airbnb_lottie_ios PROPERTY FOLDER "Boden/3rd-Party/Lottie")
 
         ios_fix_lib_build_folder(airbnb_lottie_ios)
     endif()

@@ -1,6 +1,6 @@
-#include <bdn/ContainerView.h>
+#include <bdn/ui/ContainerView.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

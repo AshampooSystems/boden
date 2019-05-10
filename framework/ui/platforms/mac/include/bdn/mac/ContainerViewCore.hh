@@ -1,18 +1,18 @@
 #pragma once
 
-#include <bdn/ContainerView.h>
 #import <bdn/mac/ViewCore.hh>
+#include <bdn/ui/ContainerView.h>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
+    class ContainerViewCore : public ViewCore, virtual public ContainerView::Core
     {
       private:
         static NSView *_createContainer();
 
       public:
-        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        explicit ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *view);
+        ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
+        explicit ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, NSView *view);
 
       public:
         void init() override;

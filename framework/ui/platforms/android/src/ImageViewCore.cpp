@@ -3,19 +3,19 @@
 
 #include <bdn/entry.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ImageView, bdn::android::ImageViewCore, ImageView)
+    CORE_REGISTER(ImageView, bdn::ui::android::ImageViewCore, ImageView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeImageView>(viewCoreFactory))
+    ImageViewCore::ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeImageView>(viewCoreFactory))
     {
         url.onChange() += [=](auto &property) {
             _imageSize = Size{0, 0};
-            getJViewAS<wrapper::NativeImageView>().loadUrl(property.get());
+            getJViewAS<bdn::android::wrapper::NativeImageView>().loadUrl(property.get());
         };
     }
 
@@ -50,8 +50,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeImageView_native_1
     bdn::platformEntryWrapper(
         [&]() {
             if (auto core =
-                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                if (auto imageCore = std::dynamic_pointer_cast<bdn::android::ImageViewCore>(core)) {
+                    bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                if (auto imageCore = std::dynamic_pointer_cast<bdn::ui::android::ImageViewCore>(core)) {
                     imageCore->imageLoaded(width, height);
                 }
             }

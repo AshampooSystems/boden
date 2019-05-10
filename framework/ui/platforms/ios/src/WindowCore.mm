@@ -6,7 +6,7 @@
 #include <bdn/log.h>
 
 @interface BodenUIWindow : UIWindow <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIWindow
@@ -97,13 +97,13 @@
 
     if (auto core = self.windowCore.lock()) {
         if (orientation == UIInterfaceOrientationPortrait) {
-            core->currentOrientation = bdn::Window::Core::Orientation::Portrait;
+            core->currentOrientation = bdn::ui::Window::Core::Orientation::Portrait;
         } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
-            core->currentOrientation = bdn::Window::Core::Orientation::LandscapeLeft;
+            core->currentOrientation = bdn::ui::Window::Core::Orientation::LandscapeLeft;
         } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-            core->currentOrientation = bdn::Window::Core::Orientation::LandscapeRight;
+            core->currentOrientation = bdn::ui::Window::Core::Orientation::LandscapeRight;
         } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
-            core->currentOrientation = bdn::Window::Core::Orientation::PortraitUpsideDown;
+            core->currentOrientation = bdn::ui::Window::Core::Orientation::PortraitUpsideDown;
         }
     }
 }
@@ -113,16 +113,16 @@
     if (auto core = self.windowCore.lock()) {
         UIInterfaceOrientationMask newOrientation = 0;
         auto o = core->allowedOrientations.get();
-        if (o & bdn::Window::Core::Orientation::Portrait) {
+        if (o & bdn::ui::Window::Core::Orientation::Portrait) {
             newOrientation |= UIInterfaceOrientationMaskPortrait;
         }
-        if (o & bdn::Window::Core::Orientation::LandscapeLeft) {
+        if (o & bdn::ui::Window::Core::Orientation::LandscapeLeft) {
             newOrientation |= UIInterfaceOrientationMaskLandscapeLeft;
         }
-        if (o & bdn::Window::Core::Orientation::LandscapeRight) {
+        if (o & bdn::ui::Window::Core::Orientation::LandscapeRight) {
             newOrientation |= UIInterfaceOrientationMaskLandscapeRight;
         }
-        if (o & bdn::Window::Core::Orientation::PortraitUpsideDown) {
+        if (o & bdn::ui::Window::Core::Orientation::PortraitUpsideDown) {
             newOrientation |= UIInterfaceOrientationMaskPortraitUpsideDown;
         }
 
@@ -132,21 +132,21 @@
     return UIInterfaceOrientationMaskAll;
 }
 
-- (bdn::Window::Core::Orientation)toBdnOrientation:(UIInterfaceOrientation)orientation
+- (bdn::ui::Window::Core::Orientation)toBdnOrientation:(UIInterfaceOrientation)orientation
 {
     switch (orientation) {
     case UIInterfaceOrientationPortrait:
-        return bdn::Window::Core::Orientation::Portrait;
+        return bdn::ui::Window::Core::Orientation::Portrait;
     case UIInterfaceOrientationLandscapeLeft:
-        return bdn::Window::Core::Orientation::LandscapeLeft;
+        return bdn::ui::Window::Core::Orientation::LandscapeLeft;
     case UIInterfaceOrientationLandscapeRight:
-        return bdn::Window::Core::Orientation::LandscapeRight;
+        return bdn::ui::Window::Core::Orientation::LandscapeRight;
     case UIInterfaceOrientationPortraitUpsideDown:
-        return bdn::Window::Core::Orientation::PortraitUpsideDown;
+        return bdn::ui::Window::Core::Orientation::PortraitUpsideDown;
     default:
         break;
     }
-    return bdn::Window::Core::Orientation::Portrait;
+    return bdn::ui::Window::Core::Orientation::Portrait;
 }
 
 - (void)changeOrientation
@@ -161,16 +161,16 @@
             return;
         }
 
-        if (targetOrientation & bdn::Window::Core::Orientation::Portrait) {
+        if (targetOrientation & bdn::ui::Window::Core::Orientation::Portrait) {
             NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
             [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
-        } else if (targetOrientation & bdn::Window::Core::Orientation::LandscapeLeft) {
+        } else if (targetOrientation & bdn::ui::Window::Core::Orientation::LandscapeLeft) {
             NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationLandscapeLeft];
             [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
-        } else if (targetOrientation & bdn::Window::Core::Orientation::LandscapeRight) {
+        } else if (targetOrientation & bdn::ui::Window::Core::Orientation::LandscapeRight) {
             NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationLandscapeRight];
             [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
-        } else if (targetOrientation & bdn::Window::Core::Orientation::PortraitUpsideDown) {
+        } else if (targetOrientation & bdn::ui::Window::Core::Orientation::PortraitUpsideDown) {
             NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortraitUpsideDown];
             [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
         }
@@ -192,12 +192,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Window, bdn::ios::WindowCore, Window)
+    CORE_REGISTER(Window, bdn::ui::ios::WindowCore, Window)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenRootViewController *createRootViewController()
     {
@@ -212,12 +212,12 @@ namespace bdn::ios
         return rootViewCtrl;
     }
 
-    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+    WindowCore::WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory,
                            BodenRootViewController *viewController)
         : ViewCore(viewCoreFactory, viewController.safeRootView), _rootViewController(viewController)
     {}
 
-    WindowCore::WindowCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    WindowCore::WindowCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : WindowCore(viewCoreFactory, createRootViewController())
     {}
 
@@ -239,7 +239,7 @@ namespace bdn::ios
 
         _window = _rootViewController.myWindow;
         _rootViewController.myWindow = _window;
-        _rootViewController.windowCore = shared_from_this<bdn::ios::WindowCore>();
+        _rootViewController.windowCore = shared_from_this<WindowCore>();
 
         [_rootViewController updateCurrentOrientation];
 

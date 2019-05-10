@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Label.h
 
 # Label
@@ -8,13 +8,15 @@ A read-only text label.
 ## Declaration
 
 ```C++
-class Label : public View
+namespace bdn::ui {
+	class Label : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Label.h>
+#include <bdn/ui/Label.h>
 // ...
 auto label = std::make_shared<Label>();
 label->text = "Hello World";

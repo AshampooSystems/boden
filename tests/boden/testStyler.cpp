@@ -1,9 +1,11 @@
-#include <bdn/ContainerView.h>
-#include <bdn/Styler.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/Styler.h>
 #include <gtest/gtest.h>
 
 namespace bdn
 {
+    using namespace bdn::ui;
+
     TEST(Styler, Simple)
     {
         auto view = std::make_shared<ContainerView>();

@@ -1,18 +1,20 @@
 #pragma once
 
-#include <bdn/Json.h>
-#include <bdn/LottieView.h>
 #include <bdn/StopWatch.h>
 #include <bdn/Timer.h>
 #include <bdn/log.h>
 #include <bdn/ui.h>
-#include <bdn/yogalayout.h>
+#include <bdn/ui/Json.h>
+#include <bdn/ui/lottie/View.h>
+#include <bdn/ui/yoga.h>
 
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 
 namespace bdn
 {
+    using namespace bdn::ui;
+
     static constexpr const char testText[] = "The user interface (UI), in the industrial design field of "
                                              "human–computer interaction, is the space where interactions "
                                              "between humans and machines occur. The goal of this interaction "
@@ -194,7 +196,7 @@ namespace bdn
 
         image->stylesheet = FlexJsonStringify({"maximumSize" : {"height" : 50}});
 
-        auto lottieView = std::make_shared<LottieView>();
+        auto lottieView = std::make_shared<lottie::View>();
         lottieView->stylesheet = FlexJsonStringify({"size" : {"width" : 50, "height" : 50}});
         lottieView->url = "resource://main/images/animation.json";
         container->addChildView(makeRow("Lottie", lottieView));

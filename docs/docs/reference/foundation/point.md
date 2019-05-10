@@ -8,7 +8,9 @@ Represents a two-dimensional point comprised of `x` and `y` floating point numbe
 ## Declaration
 
 ```C++
-struct Point
+namespace bdn {
+	struct Point
+}
 ```
 
 ## Public Member Variables

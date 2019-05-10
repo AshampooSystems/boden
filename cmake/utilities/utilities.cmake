@@ -7,6 +7,8 @@ endmacro()
 macro(GenerateTopLevelIncludeFile OUTPUT NAME BASEDIR)
     get_target_property(BODEN_CMAKE_SOURCE_DIR boden_cmake SOURCE_DIR)
 
+    set(_HEADERS_)
+    
     foreach(_file ${ARGN})
         file(RELATIVE_PATH _relativePath ${BASEDIR} ${_file})
         if(NOT "${_relativePath}" MATCHES "jni.h")

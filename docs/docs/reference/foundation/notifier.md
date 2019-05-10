@@ -8,8 +8,10 @@ Notifies subscribing callback methods about an event synchronously.
 ## Declaration
 
 ```C++
-template<class... Arguments>
-class Notifier
+namespace bdn {
+	template<class... Arguments>
+	class Notifier
+}
 ```
 
 ## Types

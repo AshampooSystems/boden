@@ -6,14 +6,14 @@
 #include <bdn/android/wrapper/Configuration.h>
 #include <utility>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Window, bdn::android::WindowCore, Window)
+    CORE_REGISTER(Window, bdn::ui::android::WindowCore, Window)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    wrapper::View WindowCore::createJNativeViewGroup()
+    bdn::android::wrapper::View WindowCore::createJNativeViewGroup()
     {
         // we need a context to create our view object.
         // To know the context we first have to determine the root view
@@ -21,7 +21,7 @@ namespace bdn::android
 
         // We connect to the first root view that is available in the
         // root view registry.
-        wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        bdn::android::wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
 
         if (rootView.isNull_()) {
             throw std::logic_error("WindowCore being created but there are no native root "
@@ -29,9 +29,9 @@ namespace bdn::android
                                    "or NativeRootView instance!");
         }
 
-        wrapper::NativeViewGroup viewGroup(rootView.getContext());
+        bdn::android::wrapper::NativeViewGroup viewGroup(rootView.getContext());
 
-        wrapper::View view(viewGroup.getRef_());
+        bdn::android::wrapper::View view(viewGroup.getRef_());
 
         // add the view group to the root view. That is important so
         // that the root view we have chosen is fixed to the view group
@@ -47,10 +47,10 @@ namespace bdn::android
 
     WindowCore::~WindowCore()
     {
-        wrapper::View view(getJView());
+        bdn::android::wrapper::View view(getJView());
         if (!view.isNull_()) {
             // remove the view from its parent.
-            wrapper::ViewGroup parent(view.getParent().getRef_());
+            bdn::android::wrapper::ViewGroup parent(view.getParent().getRef_());
             if (!parent.isNull_()) {
                 parent.removeView(view);
             }
@@ -62,11 +62,11 @@ namespace bdn::android
         ViewCore::init();
 
         title.onChange() += [=](auto &property) {
-            wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+            bdn::android::wrapper::NativeRootView rootView(getJView().getParent().getRef_());
             rootView.setTitle(property.get());
         };
 
-        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+        bdn::android::wrapper::NativeRootView rootView(getJView().getParent().getRef_());
 
         _weakRootViewRef = bdn::java::WeakReference(rootView.getRef_());
 
@@ -78,14 +78,14 @@ namespace bdn::android
         contentView.onChange() += [=](auto &property) { updateContent(property.get()); };
 
         allowedOrientations.onChange() += [=](auto &property) {
-            wrapper::Activity activity(getJView().getContext().getRef_());
+            bdn::android::wrapper::Activity activity(getJView().getContext().getRef_());
 
-            if (property.get() == bdn::Window::Core::Orientation::All) {
-                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
-            } else if (property.get() & bdn::Window::Core::Orientation::PortraitMask) {
-                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
-            } else if (property.get() & bdn::Window::Core::Orientation::LandscapeMask) {
-                activity.setRequestedOrientation(wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
+            if (property.get() == Window::Core::Orientation::All) {
+                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
+            } else if (property.get() & Window::Core::Orientation::PortraitMask) {
+                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
+            } else if (property.get() & Window::Core::Orientation::LandscapeMask) {
+                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
             }
         };
     }
@@ -94,13 +94,13 @@ namespace bdn::android
     {
         ViewCore::initTag();
 
-        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+        bdn::android::wrapper::NativeRootView rootView(getJView().getParent().getRef_());
         rootView.setTag(bdn::java::wrapper::NativeWeakPointer(shared_from_this()));
     }
 
     void WindowCore::enableBackButton(bool enable)
     {
-        wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        bdn::android::wrapper::NativeRootView rootView(getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.enableBackButton(enable);
     }
 
@@ -138,7 +138,8 @@ namespace bdn::android
         }
     }
 
-    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef, const wrapper::Configuration &config)
+    void WindowCore::_rootViewConfigurationChanged(const java::Reference &javaRef,
+                                                   const bdn::android::wrapper::Configuration &config)
     {
         auto windowCoreList = getWindowCoreListFromRootView(javaRef);
 
@@ -184,7 +185,7 @@ namespace bdn::android
         // Note that this is necessary because the root view does not
         // have a bdn::View associated with it. So there is not
         // automatic layout happening.
-        wrapper::NativeRootView rootView(getJView().getParent().getRef_());
+        bdn::android::wrapper::NativeRootView rootView(getJView().getParent().getRef_());
         rootView.setChildBounds(getJView(), 0, 0, width, height);
         rootView.requestLayout();
 
@@ -196,7 +197,7 @@ namespace bdn::android
         geometry = _currentBounds;
     }
 
-    void WindowCore::rootViewConfigurationChanged(const wrapper::Configuration &config)
+    void WindowCore::rootViewConfigurationChanged(const bdn::android::wrapper::Configuration &config)
     {
         updateUIScaleFactor(config);
         updateOrientation(config);
@@ -205,9 +206,9 @@ namespace bdn::android
     void WindowCore::attachedToNewRootView(const java::Reference &javaRef)
     {
         // set the window's bounds to fill the root view completely.
-        wrapper::NativeRootView rootView(javaRef);
+        bdn::android::wrapper::NativeRootView rootView(javaRef);
 
-        wrapper::Configuration config(rootView.getContext().getResources().getConfiguration());
+        bdn::android::wrapper::Configuration config(rootView.getContext().getResources().getConfiguration());
 
         updateUIScaleFactor(config);
 
@@ -218,7 +219,7 @@ namespace bdn::android
 
     void WindowCore::updateContent(const std::shared_ptr<View> &view)
     {
-        wrapper::NativeViewGroup parentGroup(getJView().getRef_());
+        bdn::android::wrapper::NativeViewGroup parentGroup(getJView().getRef_());
 
         parentGroup.removeAllViews();
 
@@ -235,7 +236,7 @@ namespace bdn::android
 
     Rect WindowCore::getScreenWorkArea() const
     {
-        wrapper::NativeRootView rootView(tryGetAccessibleRootViewRef());
+        bdn::android::wrapper::NativeRootView rootView(tryGetAccessibleRootViewRef());
 
         if (rootView.isNull_()) {
             // don't have a root view => work area size is 0
@@ -250,7 +251,7 @@ namespace bdn::android
         return Rect(0, 0, width, height);
     }
 
-    void WindowCore::updateUIScaleFactor(const wrapper::Configuration &config)
+    void WindowCore::updateUIScaleFactor(const bdn::android::wrapper::Configuration &config)
     {
         int dpi = config.densityDpi();
 
@@ -263,12 +264,12 @@ namespace bdn::android
         setUIScaleFactor(scaleFactor);
     }
 
-    void WindowCore::updateOrientation(const wrapper::Configuration &config)
+    void WindowCore::updateOrientation(const bdn::android::wrapper::Configuration &config)
     {
         int orientation = config.orientation();
-        if (orientation == wrapper::Configuration::ORIENTATION_PORTRAIT) {
+        if (orientation == bdn::android::wrapper::Configuration::ORIENTATION_PORTRAIT) {
             currentOrientation = WindowCore::Orientation::Portrait;
-        } else if (orientation == wrapper::Configuration::ORIENTATION_LANDSCAPE) {
+        } else if (orientation == bdn::android::wrapper::Configuration::ORIENTATION_LANDSCAPE) {
             currentOrientation = WindowCore::Orientation::LandscapeLeft;
         }
     }
@@ -278,13 +279,13 @@ namespace bdn::android
     {
         auto result = std::list<std::shared_ptr<WindowCore>>{};
 
-        wrapper::NativeRootView rootView(javaRootViewRef);
+        bdn::android::wrapper::NativeRootView rootView(javaRootViewRef);
 
         // enumerate all children of the root view. Those are our
         // "window" views.
         int childCount = rootView.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            wrapper::View child = rootView.getChildAt(i);
+            bdn::android::wrapper::View child = rootView.getChildAt(i);
 
             if (auto windowCore = std::dynamic_pointer_cast<WindowCore>(viewCoreFromJavaViewRef(child.getRef_()))) {
                 result.push_back(windowCore);
@@ -314,7 +315,7 @@ namespace bdn::android
 
     void WindowCore::scheduleLayout() { getJView().requestLayout(); }
 
-    void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
+    void WindowCore::visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function)
     {
         if (contentView.get()) {
             function(contentView->viewCore());

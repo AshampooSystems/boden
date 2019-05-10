@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bdn/Button.h>
-#include <bdn/ContainerView.h>
-#include <bdn/NavigationView.h>
-#include <bdn/View.h>
-#include <bdn/Window.h>
+#include <bdn/ui/Button.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/NavigationView.h>
+#include <bdn/ui/View.h>
+#include <bdn/ui/Window.h>
 
 #include <functional>
 

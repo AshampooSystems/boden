@@ -2,15 +2,15 @@
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/entry.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ContainerView, bdn::android::ContainerViewCore, ContainerView)
+    CORE_REGISTER(ContainerView, bdn::ui::android::ContainerViewCore, ContainerView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeViewGroup>(viewCoreFactory))
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeViewGroup>(viewCoreFactory))
     {}
 
     ContainerViewCore::~ContainerViewCore() = default;
@@ -21,7 +21,7 @@ namespace bdn::android
     {
         if (auto childCore = child->core<android::ViewCore>()) {
             _children.push_back(child);
-            auto group = getJViewAS<wrapper::NativeViewGroup>();
+            auto group = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
             group.addView(childCore->getJView());
         } else {
             throw std::runtime_error("Tried adding Child with incompatible core");
@@ -35,7 +35,7 @@ namespace bdn::android
     {
         if (auto childCore = child->core<android::ViewCore>()) {
             _children.remove(child);
-            auto group = getJViewAS<wrapper::NativeViewGroup>();
+            auto group = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
             group.removeView(childCore->getJView());
         } else {
             throw std::runtime_error("Tried removing Child with incompatible core");
@@ -44,12 +44,12 @@ namespace bdn::android
         scheduleLayout();
     }
 
-    std::list<std::shared_ptr<bdn::View>> ContainerViewCore::childViews() { return _children; }
+    std::list<std::shared_ptr<View>> ContainerViewCore::childViews() { return _children; }
 
-    void ContainerViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
+    void ContainerViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function)
     {
         for (auto &child : _children) {
-            if (auto childCore = child->core<bdn::View::Core>()) {
+            if (auto childCore = child->core<View::Core>()) {
                 function(childCore);
             }
         }
@@ -63,7 +63,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewGroup_doLayout
     bdn::platformEntryWrapper(
         [&]() {
             if (auto core =
-                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                    bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
                 core->startLayout();
             }
         },

@@ -1,7 +1,7 @@
 
-#include <bdn/Slider.h>
+#include <bdn/ui/Slider.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

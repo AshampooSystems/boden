@@ -9,9 +9,12 @@ In the Boden Framework, all strings operations are based on UTF-8 `std::string`s
 
 ## Types
 
+```c++
+namespace bdn {
     using String = std::string;
     using StringView = std::string_view;
-
+}
+```
 ## C++20 Polyfills
 
 * **inline bool starts_with(const String &haystack, const String &needle)**

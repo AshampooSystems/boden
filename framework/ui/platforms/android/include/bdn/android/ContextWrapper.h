@@ -4,18 +4,18 @@
 
 #include <utility>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     class ContextWrapper
     {
       public:
         ContextWrapper() = delete;
-        ContextWrapper(wrapper::Context ctxt) : _context(std::move(ctxt)) {}
+        ContextWrapper(bdn::android::wrapper::Context ctxt) : _context(std::move(ctxt)) {}
 
       public:
-        const wrapper::Context &getContext() const { return _context; }
+        const bdn::android::wrapper::Context &getContext() const { return _context; }
 
       private:
-        wrapper::Context _context;
+        bdn::android::wrapper::Context _context;
     };
 }

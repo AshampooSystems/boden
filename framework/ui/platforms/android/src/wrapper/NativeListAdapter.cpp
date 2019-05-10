@@ -10,10 +10,10 @@
 
 #include <bdn/Rect.h>
 
-std::shared_ptr<bdn::ListViewDataSource> dataSourceFromRawView(jobject rawView)
+std::shared_ptr<bdn::ui::ListViewDataSource> dataSourceFromRawView(jobject rawView)
 {
-    if (auto listCore = std::dynamic_pointer_cast<bdn::android::ListViewCore>(
-            bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)))) {
+    if (auto listCore = std::dynamic_pointer_cast<bdn::ui::android::ListViewCore>(
+            bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)))) {
         return listCore->dataSource.get();
     }
     return nullptr;
@@ -32,9 +32,9 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
         true, env);
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    jobject viewForRowIndex(const std::shared_ptr<bdn::ListViewDataSource> &dataSource, int rowIndex,
+    jobject viewForRowIndex(const std::shared_ptr<bdn::ui::ListViewDataSource> &dataSource, int rowIndex,
                             const std::shared_ptr<RowContainerView> &reusable)
     {
 
@@ -61,22 +61,23 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
 {
     return bdn::nonVoidPlatformEntryWrapper<jobject>(
         [&]() -> jobject {
-            if (auto listCore = bdn::android::viewCoreFromJavaReference<bdn::android::ListViewCore>(
+            if (auto listCore = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
                     bdn::java::Reference::convertExternalLocal(rawView))) {
 
-                std::shared_ptr<bdn::android::RowContainerView> reusable;
-                std::shared_ptr<bdn::android::RowContainerView::Core> reusableCore;
+                std::shared_ptr<bdn::ui::android::RowContainerView> reusable;
+                std::shared_ptr<bdn::ui::android::RowContainerView::Core> reusableCore;
 
                 if (rawReusableView != nullptr) {
-                    if ((reusableCore = bdn::android::viewCoreFromJavaReference<bdn::android::RowContainerView::Core>(
-                             bdn::java::Reference::convertExternalLocal(rawReusableView)))) {
+                    if ((reusableCore =
+                             bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::RowContainerView::Core>(
+                                 bdn::java::Reference::convertExternalLocal(rawReusableView)))) {
                         reusable = reusableCore->getRowContainerView();
                     }
                 }
 
                 if (!reusable) {
-                    reusable = std::make_shared<bdn::android::RowContainerView>(listCore->viewCoreFactory());
-                    reusableCore = reusable->core<bdn::android::RowContainerView::Core>();
+                    reusable = std::make_shared<bdn::ui::android::RowContainerView>(listCore->viewCoreFactory());
+                    reusableCore = reusable->core<bdn::ui::android::RowContainerView::Core>();
                     reusableCore->setRowContainerView(reusable);
                 }
 
@@ -87,7 +88,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                     float height = dataSource->heightForRowIndex(rowIndex);
 
                     reusable->geometry.set(bdn::Rect{0, 0, listCore->geometry->width, height});
-                    return bdn::android::viewForRowIndex(dataSource, rowIndex, reusable);
+                    return bdn::ui::android::viewForRowIndex(dataSource, rowIndex, reusable);
                 }
             }
 

@@ -8,8 +8,10 @@ Allows you to create a [Property](property.md) that represents a custom transfor
 ## Declaration
 
 ```C++
-template<class T, class U>
-class Transform
+namespace bdn {
+	template<class T, class U>
+	class Transform
+}
 ```
 
 ## Example

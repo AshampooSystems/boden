@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Styler.h
 
 # Styler
@@ -10,6 +10,9 @@ Multiple conditional parts can be active, in which case they will be merged from
 ## Example
 
 ```c++
+#include <bdn/ui/Styler.h>
+#include <bdn/ui/Button.h>
+
 auto styler = std::make_shared<Styler>();
 auto button = std::make_shared<Button>();
 
@@ -35,7 +38,9 @@ _styler->setStyleSheet(addButton,
 ## Declaration
 
 ```C++
-class Styler
+namespace bdn::ui {
+	class Styler
+}
 ```
 
 ## Layout

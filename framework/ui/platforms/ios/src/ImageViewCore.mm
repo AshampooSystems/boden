@@ -9,7 +9,7 @@
 using namespace std::string_literals;
 
 @interface BodenUIImageView : UIImageView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUIImageView
@@ -22,12 +22,12 @@ using namespace std::string_literals;
 }
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ImageView, bdn::ios::ImageViewCore, ImageView)
+    CORE_REGISTER(ImageView, bdn::ui::ios::ImageViewCore, ImageView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     UIView<UIViewWithFrameNotification> *ImageViewCore::createUIImageView()
     {
@@ -57,7 +57,7 @@ namespace bdn::ios
         return ViewCore::sizeForSpace(availableSize);
     }
 
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ImageViewCore::ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createUIImageView())
     {
         url.onChange() += [=](auto &property) { setUrl(property.get()); };

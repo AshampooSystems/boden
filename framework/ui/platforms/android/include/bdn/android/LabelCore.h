@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/Label.h>
+#include <bdn/ui/Label.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/AppCompatTextView.h>
@@ -8,12 +8,12 @@
 
 #include <limits>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    class LabelCore : public ViewCore, virtual public bdn::Label::Core
+    class LabelCore : public ViewCore, virtual public Label::Core
     {
       public:
-        LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
 
@@ -21,7 +21,7 @@ namespace bdn::android
         bool canAdjustWidthToAvailableSpace() const override { return false; }
 
       private:
-        mutable wrapper::TextView _jTextView;
+        mutable bdn::android::wrapper::TextView _jTextView;
         bool _wrap = true;
     };
 }

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <bdn/Label.h>
+#include <bdn/ui/Label.h>
 
 #import <bdn/mac/ViewCore.hh>
 #import <bdn/mac/util.hh>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class LabelCore : public ViewCore, virtual public bdn::Label::Core
+    class LabelCore : public ViewCore, virtual public Label::Core
     {
       public:
-        LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
         Size sizeForSpace(Size availableSpace) const override;

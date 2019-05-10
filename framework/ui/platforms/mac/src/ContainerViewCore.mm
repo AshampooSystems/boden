@@ -1,4 +1,3 @@
-
 #import <bdn/mac/ContainerViewCore.hh>
 
 /** NSView implementation that is used internally by
@@ -8,7 +7,7 @@
  top left, rather than the bottom left.
  */
 @interface BdnMacContainerView_ : NSView
-@property std::weak_ptr<bdn::View::Core> viewCore;
+@property std::weak_ptr<bdn::ui::View::Core> viewCore;
 @end
 
 @implementation BdnMacContainerView_
@@ -24,12 +23,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ContainerView, bdn::mac::ContainerViewCore, ContainerView)
+    CORE_REGISTER(ContainerView, bdn::ui::mac::ContainerViewCore, ContainerView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSView *ContainerViewCore::_createContainer()
     {
@@ -37,12 +36,12 @@ namespace bdn::mac
         return macContainerView;
     }
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ContainerViewCore(viewCoreFactory, _createContainer())
     {}
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *view)
-        : bdn::mac::ViewCore(viewCoreFactory, view)
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, NSView *view)
+        : mac::ViewCore(viewCoreFactory, view)
     {}
 
     void ContainerViewCore::init()

@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <bdn/Application.h>
-#include <bdn/ContainerView.h>
-#include <bdn/Label.h>
-#include <bdn/Window.h>
 #include <bdn/appInit.h>
 #include <bdn/log.h>
-#include <bdn/yogalayout.h>
+#include <bdn/ui/ContainerView.h>
+#include <bdn/ui/Label.h>
+#include <bdn/ui/Window.h>
+#include <bdn/ui/yoga.h>
 
 #include <sstream>
 #include <thread>
@@ -24,15 +24,15 @@ class TestApplicationController : public bdn::ApplicationController, public test
 
     void createTestUI()
     {
-        _window = std::make_shared<bdn::Window>();
+        _window = std::make_shared<bdn::ui::Window>();
         _window->geometry = {0, 0, 300, 400};
-        _window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
+        _window->setLayout(std::make_shared<bdn::ui::yoga::Layout>());
         _window->stylesheet = FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"});
 
-        _progressLabel = std::make_shared<bdn::Label>();
-        _testNameLabel = std::make_shared<bdn::Label>();
+        _progressLabel = std::make_shared<bdn::ui::Label>();
+        _testNameLabel = std::make_shared<bdn::ui::Label>();
 
-        auto container = std::make_shared<bdn::ContainerView>();
+        auto container = std::make_shared<bdn::ui::ContainerView>();
         container->stylesheet = FlexJsonStringify({"justifyContent" : "Center", "alignItems" : "Center"});
 
         container->addChildView(_progressLabel);
@@ -114,9 +114,9 @@ class TestApplicationController : public bdn::ApplicationController, public test
     }
 
   private:
-    std::shared_ptr<bdn::Window> _window;
-    std::shared_ptr<bdn::Label> _progressLabel;
-    std::shared_ptr<bdn::Label> _testNameLabel;
+    std::shared_ptr<bdn::ui::Window> _window;
+    std::shared_ptr<bdn::ui::Label> _progressLabel;
+    std::shared_ptr<bdn::ui::Label> _testNameLabel;
     std::unique_ptr<std::thread> _testThread;
 
     int nCasesRun = 0;

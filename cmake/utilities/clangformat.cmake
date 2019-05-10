@@ -100,7 +100,9 @@ function(add_global_clangformat TARGETNAME ROOTFOLDER)
                 add_dependencies(${_target} ${TARGETNAME})
             endforeach()
         endif()
-
+        
+        set_property(TARGET FormatSources PROPERTY FOLDER "Boden/Format-Sources")
+        set_property(TARGET FormatSources_clangformat PROPERTY FOLDER "Boden/Format-Sources")
     endif()
 endfunction()
 

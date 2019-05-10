@@ -8,7 +8,9 @@ Allows you to create a [String](string.md) property that chains multiple propert
 ## Declaration
 
 ```C++
-class Streaming
+namespace bdn {
+	class Streaming
+}
 ```
 
 ## Example

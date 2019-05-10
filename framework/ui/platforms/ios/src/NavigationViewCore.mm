@@ -30,10 +30,10 @@
 @end
 
 @interface BodenStackUIViewController : UIViewController
-@property(nonatomic) std::weak_ptr<bdn::ios::NavigationViewCore> stackCore;
-@property(nonatomic) std::shared_ptr<bdn::ContainerView> containerView;
-@property(nonatomic) std::shared_ptr<bdn::View> userContent;
-@property(nonatomic) std::shared_ptr<bdn::ContainerView> safeContent;
+@property(nonatomic) std::weak_ptr<bdn::ui::ios::NavigationViewCore> stackCore;
+@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> containerView;
+@property(nonatomic) std::shared_ptr<bdn::ui::View> userContent;
+@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> safeContent;
 @end
 
 @implementation BodenStackUIViewController
@@ -68,12 +68,12 @@
 - (void)loadView
 {
     if (auto core = _stackCore.lock()) {
-        _containerView = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
-        _safeContent = std::make_shared<bdn::ContainerView>(core->viewCoreFactory());
+        _containerView = std::make_shared<bdn::ui::ContainerView>(core->viewCoreFactory());
+        _safeContent = std::make_shared<bdn::ui::ContainerView>(core->viewCoreFactory());
         _containerView->isLayoutRoot = true;
         _safeContent->isLayoutRoot = true;
 
-        self.view = _containerView->core<bdn::ios::ViewCore>()->uiView();
+        self.view = _containerView->core<bdn::ui::ios::ViewCore>()->uiView();
 
         _containerView->offerLayout(core->layout());
 
@@ -84,7 +84,7 @@
 
         _containerView->geometry.onChange() += [weakSelf](auto) { [weakSelf updateSafeContent]; };
 
-        auto c = std::dynamic_pointer_cast<bdn::ios::ViewCore>(_safeContent->viewCore());
+        auto c = std::dynamic_pointer_cast<bdn::ui::ios::ViewCore>(_safeContent->viewCore());
         if (c) {
             // c->uiView().backgroundColor = [UIColor redColor];
             c->uiView().clipsToBounds = YES;
@@ -100,12 +100,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(NavigationView, bdn::ios::NavigationViewCore, NavigationView)
+    CORE_REGISTER(NavigationView, bdn::ui::ios::NavigationViewCore, NavigationView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUINavigationControllerContainerView *createNavigationControllerView()
     {
@@ -117,7 +117,7 @@ namespace bdn::ios
         return view;
     }
 
-    NavigationViewCore::NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    NavigationViewCore::NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createNavigationControllerView())
     {}
 

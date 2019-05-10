@@ -5,9 +5,9 @@
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
-@property(nonatomic, assign) std::weak_ptr<bdn::TextField::Core> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::TextField::Core> core;
 
-- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextField::Core>)core;
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::ui::TextField::Core>)core;
 - (void)textFieldDidChange:(UITextField *)textField;
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;
 
@@ -15,7 +15,7 @@
 
 @implementation BdnTextFieldDelegate
 
-- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::TextField::Core>)core
+- (id)initWithTextField:(UITextField *)textField core:(std::shared_ptr<bdn::ui::TextField::Core>)core
 {
     if ((self = [super init]) != nullptr) {
         self.core = core;
@@ -55,7 +55,7 @@
 @end
 
 @interface BodenUITextField : UITextField <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUITextField
@@ -70,12 +70,12 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(TextField, bdn::ios::TextFieldCore, TextField)
+    CORE_REGISTER(TextField, bdn::ui::ios::TextFieldCore, TextField)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUITextField *_createUITextField()
     {
@@ -95,7 +95,7 @@ namespace bdn::ios
         return textField;
     }
 
-    TextFieldCore::TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    TextFieldCore::TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, _createUITextField())
     {}
 

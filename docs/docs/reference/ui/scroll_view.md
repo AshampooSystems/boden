@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ScrollView.h
 
 # ScrollView
@@ -8,14 +8,16 @@ A container view that can scroll its content view.
 ## Declaration
 
 ```C++
-class ScrollView : public View
+namespace bdn::ui {
+	class ScrollView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/ScrollView.h>
-#include <bdn/ImageView.h>
+#include <bdn/ui/ScrollView.h>
+#include <bdn/ui/ImageView.h>
 // ...
 auto image = std::make_shared<ImageView>();
 image->url = "https:://www.xyz.com/some_huge_image.png";

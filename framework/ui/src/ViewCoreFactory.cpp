@@ -1,6 +1,6 @@
-#include <bdn/ViewCoreFactory.h>
+#include <bdn/ui/ViewCoreFactory.h>
 
-namespace bdn
+namespace bdn::ui
 {
     std::shared_ptr<View::Core> ViewCoreFactory::createViewCore(const std::type_info &viewType)
     {

@@ -1,6 +1,6 @@
-#include <bdn/Switch.h>
+#include <bdn/ui/Switch.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

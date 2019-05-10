@@ -80,10 +80,6 @@ nav:
       - reference/foundation/streaming.md
       - reference/foundation/string.md
       - reference/foundation/transform.md
-    - Layout:
-      - reference/layout/layout.md
-      - Yoga Layout:
-        - reference/layout/yogalayout/layout.md
     - UI:
       - reference/ui/button.md
       - reference/ui/checkbox.md
@@ -91,6 +87,7 @@ nav:
       - reference/ui/container_view.md
       - reference/ui/image_view.md
       - reference/ui/label.md
+      - reference/ui/layout.md
       - reference/ui/list_view.md
       - reference/ui/list_view_data_source.md
       - reference/ui/navigation_view.md
@@ -116,6 +113,8 @@ nav:
     - Extra Modules:
       - Lottie:
         - reference/extra-modules/lottie/lottie_view.md
+      - Yoga Layout:
+        - reference/extra-modules/yoga/layout.md
   - Legal:
     - Legal: 'https://www.ashampoo-systems.com/base/about'
     - legal/privacy_policy.md

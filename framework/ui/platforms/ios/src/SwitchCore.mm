@@ -48,12 +48,12 @@
 }
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Switch, bdn::ios::SwitchCore, Switch)
+    CORE_REGISTER(Switch, bdn::ui::ios::SwitchCore, Switch)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BdnIosSwitchComposite *SwitchCore::createSwitchComposite()
     {
@@ -68,7 +68,7 @@ namespace bdn::ios
         return switchComposite;
     }
 
-    SwitchCore::SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    SwitchCore::SwitchCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createSwitchComposite())
     {}
 

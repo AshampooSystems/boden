@@ -1,6 +1,6 @@
-#include <bdn/ImageView.h>
+#include <bdn/ui/ImageView.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

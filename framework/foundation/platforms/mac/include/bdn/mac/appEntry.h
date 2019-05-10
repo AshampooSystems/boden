@@ -3,10 +3,7 @@
 #include <bdn/Application.h>
 #include <functional>
 
-namespace bdn
+namespace bdn::ui::mac
 {
-    namespace mac
-    {
-        int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[]);
-    }
+    int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[]);
 }

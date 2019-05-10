@@ -1,23 +1,23 @@
 #pragma once
 
-#include <bdn/Switch.h>
+#include <bdn/ui/Switch.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 #include <bdn/android/wrapper/Switch.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
-    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
+    class SwitchCore : public ViewCore, virtual public Switch::Core
     {
       public:
-        SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        SwitchCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
         void clicked() override;
 
       private:
-        mutable wrapper::Switch _jSwitch;
+        mutable bdn::android::wrapper::Switch _jSwitch;
     };
 }

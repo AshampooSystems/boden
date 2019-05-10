@@ -1,8 +1,8 @@
-#include <bdn/NavigationView.h>
+#include <bdn/ui/NavigationView.h>
 
 #include <utility>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

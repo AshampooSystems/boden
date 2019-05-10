@@ -1,7 +1,7 @@
-#include <bdn/Styler.h>
 #include <bdn/log.h>
+#include <bdn/ui/Styler.h>
 
-namespace bdn
+namespace bdn::ui
 {
     void Styler::setStyleSheet(std::shared_ptr<View> view, json json)
     {

@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/ui
+source: View.h
+
 # View::Core
 
 Interface representing a platform specific "view core". Classes inheriting from `ViewCore` implement the actual user interface logic to display user interfaces on screen.
@@ -5,8 +8,10 @@ Interface representing a platform specific "view core". Classes inheriting from 
 ## Declaration
 
 ```C++
-class View {
-	class Core
+namespace bdn::ui {
+	class View {
+		class Core
+	}
 }
 ```
 
@@ -40,5 +45,5 @@ class View {
 
 * **void markDirty()**
 
-* **virtual void setLayout(std::shared_ptr<[Layout](../layout/layout.md)\> layout)**
+* **virtual void setLayout(std::shared_ptr<[Layout](layout.md)\> layout)**
 

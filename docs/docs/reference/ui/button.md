@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Button.h
 
 # Button
@@ -8,13 +8,15 @@ A simple button with a text label.
 ## Declaration
 
 ```C++
-class Button : public View
+namespace bdn::ui {
+	class Button : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Button.h>
+#include <bdn/ui/Button.h>
 // ...
 auto button = std::make_shared<Button>();
 button->label = "Click me!";

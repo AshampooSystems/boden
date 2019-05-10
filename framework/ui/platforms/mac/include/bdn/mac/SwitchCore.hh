@@ -1,17 +1,17 @@
 #pragma once
 
-#include <bdn/Switch.h>
+#include <bdn/ui/Switch.h>
 
 #import <bdn/mac/MacSwitch.hh>
 #import <bdn/mac/ViewCore.hh>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     class SwitchCore;
 }
 
 @interface BdnSwitchClickManager : NSObject
-@property std::weak_ptr<bdn::mac::SwitchCore> switchCore;
+@property std::weak_ptr<bdn::ui::mac::SwitchCore> switchCore;
 @end
 
 @interface BdnMacSwitchComposite : NSView
@@ -19,15 +19,15 @@ namespace bdn::mac
 @property(strong) BdnMacSwitch *bdnSwitch;
 @end
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
+    class SwitchCore : public ViewCore, virtual public Switch::Core
     {
       private:
         static BdnMacSwitchComposite *_createSwitchComposite();
 
       public:
-        SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        SwitchCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~SwitchCore();
 
         void init() override;

@@ -22,7 +22,7 @@
     int main(int argc, char *argv[])                                                                                   \
     {                                                                                                                  \
         bdn::platform::MacHooks::init();                                                                               \
-        return bdn::mac::uiAppEntry(appControllerCreator, argc, argv);                                                 \
+        return bdn::ui::mac::uiAppEntry(appControllerCreator, argc, argv);                                             \
     }
 
 #endif

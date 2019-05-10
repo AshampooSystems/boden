@@ -1,8 +1,8 @@
 #include <bdn/Application.h>
-#include <bdn/HTTP.h>
-#include <bdn/HTTPRequest.h>
-#include <bdn/HTTPResponse.h>
 #include <bdn/config.h>
+#include <bdn/net/HTTP.h>
+#include <bdn/net/HTTPRequest.h>
+#include <bdn/net/HTTPResponse.h>
 
 #import <bdn/foundationkit/stringUtil.hh>
 

@@ -1,4 +1,4 @@
-path: tree/master/framework/net/include/bdn/
+path: tree/master/framework/net/include/bdn/net
 source: HTTPResponse.h
 
 # HTTPResponse
@@ -8,7 +8,9 @@ Represents a response to an [`HTTPRequest`](http_request.md).
 ## Declaration
 
 ```C++
-class HTTPResponse
+namespace bdn::net {
+	class HTTPResponse
+}
 ```
 
 ## Fields

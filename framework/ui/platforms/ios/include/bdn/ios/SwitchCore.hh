@@ -1,13 +1,13 @@
 #pragma once
 
-#include <bdn/ClickEvent.h>
-#include <bdn/Switch.h>
+#include <bdn/ui/ClickEvent.h>
+#include <bdn/ui/Switch.h>
 
 #import <bdn/ios/ViewCore.hh>
 
 #import <UIKit/UIKit.h>
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     class SwitchCore;
 }
@@ -15,16 +15,16 @@ namespace bdn::ios
 @interface BdnIosSwitchComposite : UIControl <UIViewWithFrameNotification>
 @property(strong) UISwitch *uiSwitch;
 @property(strong) UILabel *uiLabel;
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @interface BdnIosSwitchClickManager : NSObject
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::SwitchCore> core;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::SwitchCore> core;
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class SwitchCore : public ViewCore, virtual public bdn::Switch::Core
+    class SwitchCore : public ViewCore, virtual public Switch::Core
     {
       private:
         static BdnIosSwitchComposite *createSwitchComposite();
@@ -32,7 +32,7 @@ namespace bdn::ios
       public:
         static std::shared_ptr<SwitchCore> create();
 
-        SwitchCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        SwitchCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~SwitchCore();
 
         void init() override;

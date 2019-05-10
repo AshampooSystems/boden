@@ -4,15 +4,15 @@
 #include <bdn/android/MainDispatcher.h>
 #include <bdn/android/wrapper/Intent.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     class UIApplication : public Application
     {
       private:
-        void buildCommandlineArguments(wrapper::Intent intent);
+        void buildCommandlineArguments(bdn::android::wrapper::Intent intent);
 
       public:
-        UIApplication(ApplicationControllerFactory appControllerCreator, wrapper::Intent intent);
+        UIApplication(ApplicationControllerFactory appControllerCreator, bdn::android::wrapper::Intent intent);
 
       public:
         void entry();

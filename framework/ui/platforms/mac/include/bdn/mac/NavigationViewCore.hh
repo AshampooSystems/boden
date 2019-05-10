@@ -1,18 +1,18 @@
 #pragma once
 
-#include <bdn/NavigationView.h>
 #import <bdn/mac/ViewCore.hh>
+#include <bdn/ui/NavigationView.h>
 #include <deque>
 #include <memory>
 
 @class BdnBackButtonClickHandler;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
+    class NavigationViewCore : public ViewCore, public NavigationView::Core
     {
       public:
-        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~NavigationViewCore();
 
         void init() override;

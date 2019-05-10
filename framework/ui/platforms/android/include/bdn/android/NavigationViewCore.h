@@ -1,18 +1,18 @@
 #pragma once
 
-#include <bdn/NavigationView.h>
+#include <bdn/ui/NavigationView.h>
 
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/WindowCore.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     class NavButtonHandler;
 
-    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
+    class NavigationViewCore : public ViewCore, public NavigationView::Core
     {
       public:
-        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~NavigationViewCore() override;
 
       public:
@@ -21,7 +21,7 @@ namespace bdn::android
         std::list<std::shared_ptr<View>> childViews() override;
 
       public:
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function) override;
 
         bool handleBackButton();
 

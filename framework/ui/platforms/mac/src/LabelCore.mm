@@ -1,11 +1,11 @@
 #include <bdn/mac/LabelCore.hh>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Label, bdn::mac::LabelCore, Label)
+    CORE_REGISTER(Label, bdn::ui::mac::LabelCore, Label)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSTextView *createNSTextView()
     {
@@ -24,8 +24,8 @@ namespace bdn::mac
         return view;
     }
 
-    LabelCore::LabelCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, createNSTextView())
+    LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, createNSTextView())
     {
         _nsTextView = (NSTextView *)nsView();
 

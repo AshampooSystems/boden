@@ -1,13 +1,13 @@
 
-#include <bdn/Window.h>
+#include <bdn/ui/Window.h>
 
 #include <bdn/Application.h>
-#include <bdn/UIApplicationController.h>
 #include <bdn/debug.h>
+#include <bdn/ui/UIApplicationController.h>
 
 #include <sstream>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

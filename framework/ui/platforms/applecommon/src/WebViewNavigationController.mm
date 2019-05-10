@@ -19,7 +19,7 @@
     decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    bdn::WebView::RedirectRequest request;
+    bdn::ui::WebView::RedirectRequest request;
     request.url = bdn::fk::nsStringToString(navigationAction.request.URL.absoluteString);
 
     if (!self.redirectHandler || self.redirectHandler(request)) {

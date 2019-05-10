@@ -1,11 +1,10 @@
 
 #import <bdn/ios/ViewCore.hh>
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    ViewCore::ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
-                       id<UIViewWithFrameNotification> uiView)
-        : bdn::View::Core(viewCoreFactory)
+    ViewCore::ViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, id<UIViewWithFrameNotification> uiView)
+        : View::Core(viewCoreFactory)
     {
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
 

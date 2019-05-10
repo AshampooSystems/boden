@@ -1,11 +1,11 @@
 #import <bdn/mac/ListViewCore.hh>
 
-#include <bdn/ContainerView.h>
 #include <bdn/log.h>
 #include <bdn/mac/ContainerViewCore.hh>
+#include <bdn/ui/ContainerView.h>
 
 @interface FixedNSView : NSView <BdnLayoutable>
-@property(nonatomic, assign) std::shared_ptr<bdn::ContainerView> view;
+@property(nonatomic, assign) std::shared_ptr<bdn::ui::ContainerView> view;
 @end
 
 @implementation FixedNSView
@@ -18,18 +18,18 @@
 }
 - (void)setFrame:(NSRect)newFrame
 {
-    _view->geometry = bdn::mac::macRectToRect(newFrame, -1);
+    _view->geometry = bdn::ui::mac::macRectToRect(newFrame, -1);
     [super setFrame:newFrame];
 }
 @end
 
 @interface ListViewDelegateMac : NSObject <NSTableViewDataSource, NSTableViewDelegate>
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::ListViewCore> listCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::ListViewCore> listCore;
 @end
 
 @implementation ListViewDelegateMac
 
-- (std::shared_ptr<bdn::ListViewDataSource>)outerDataSource
+- (std::shared_ptr<bdn::ui::ListViewDataSource>)outerDataSource
 {
     if (auto listCore = self.listCore.lock()) {
         return listCore->dataSource;
@@ -51,8 +51,8 @@
 {
     if (auto listCore = self.listCore.lock()) {
         if (auto dataSource = listCore->dataSource.get()) {
-            std::shared_ptr<bdn::ContainerView> container;
-            std::shared_ptr<bdn::View> view;
+            std::shared_ptr<bdn::ui::ContainerView> container;
+            std::shared_ptr<bdn::ui::View> view;
 
             FixedNSView *result = [tableView makeViewWithIdentifier:@"Column" owner:self];
 
@@ -60,11 +60,11 @@
                 result = [[FixedNSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
                 result.identifier = @"Column";
 
-                container = std::make_shared<bdn::ContainerView>(listCore->viewCoreFactory());
+                container = std::make_shared<bdn::ui::ContainerView>(listCore->viewCoreFactory());
                 container->isLayoutRoot = true;
                 container->offerLayout(listCore->layout());
 
-                if (auto core = container->core<bdn::mac::ViewCore>()) {
+                if (auto core = container->core<bdn::ui::mac::ViewCore>()) {
                     [result addSubview:core->nsView()];
                 } else {
                     throw std::runtime_error("View did not have the correct core");
@@ -110,7 +110,7 @@
 
 @interface ListScrollView : NSScrollView
 @property NSTextView *refreshLabel;
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::ListViewCore> listCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::ListViewCore> listCore;
 @property bool isInRefreshStatus;
 @property(nonatomic) bool refreshEnabled;
 @end
@@ -192,7 +192,7 @@
     }
 }
 
-- (void)setFrameSize:(NSSize)newSize;
+- (void)setFrameSize:(NSSize)newSize
 {
     [super setFrameSize:newSize];
 
@@ -224,14 +224,14 @@
 }
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ListView, bdn::mac::ListViewCore, ListView)
+    CORE_REGISTER(ListView, bdn::ui::mac::ListViewCore, ListView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ListViewCore::ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createNSTableView())
     {}
 

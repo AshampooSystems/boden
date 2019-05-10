@@ -1,18 +1,19 @@
 #pragma once
 
-#include <bdn/ListView.h>
 #import <bdn/ios/ViewCore.hh>
+#include <bdn/ui/ListView.h>
 
 @class ListViewDelegateIOS;
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class ListViewCore : public ViewCore, virtual public bdn::ListView::Core
+    class ListViewCore : public ViewCore, virtual public ListView::Core
     {
-        friend class bdn::ViewCoreFactory;
+        friend class ViewCoreFactory;
 
       public:
-        ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
+        void init() override;
 
       public:
         void reloadData() override;
@@ -21,8 +22,6 @@ namespace bdn::ios
         void fireRefresh();
 
       protected:
-        void init() override;
-
         void updateRefresh(bool enable);
 
       private:

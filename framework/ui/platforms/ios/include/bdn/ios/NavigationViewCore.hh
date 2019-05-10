@@ -1,19 +1,19 @@
 #pragma once
 
-#include <bdn/NavigationView.h>
 #import <bdn/ios/ViewCore.hh>
+#include <bdn/ui/NavigationView.h>
 
 @interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @property UINavigationController *navController;
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class NavigationViewCore : public ViewCore, public bdn::NavigationView::Core
+    class NavigationViewCore : public ViewCore, public NavigationView::Core
     {
       public:
-        NavigationViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
         void init() override;

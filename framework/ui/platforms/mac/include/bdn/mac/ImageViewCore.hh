@@ -1,14 +1,14 @@
 #pragma once
 
-#include <bdn/ImageView.h>
 #include <bdn/mac/ViewCore.hh>
+#include <bdn/ui/ImageView.h>
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class ImageViewCore : public ViewCore, virtual public bdn::ImageView::Core
+    class ImageViewCore : public ViewCore, virtual public ImageView::Core
     {
       public:
-        ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       protected:
         void setUrl(const String &url);

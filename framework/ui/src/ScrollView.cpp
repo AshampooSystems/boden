@@ -1,9 +1,9 @@
 
-#include <bdn/ScrollView.h>
+#include <bdn/ui/ScrollView.h>
 
 #include <bdn/Application.h>
 
-namespace bdn
+namespace bdn::ui
 {
     namespace detail
     {

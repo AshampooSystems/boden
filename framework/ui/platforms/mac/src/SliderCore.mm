@@ -1,12 +1,12 @@
 #include <bdn/mac/SliderCore.hh>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Slider, bdn::mac::SliderCore, Slider)
+    CORE_REGISTER(Slider, bdn::ui::mac::SliderCore, Slider)
 }
 
 @interface BdnSliderHandler : NSObject
-@property(nonatomic, assign) std::weak_ptr<bdn::mac::SliderCore> sliderCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::SliderCore> sliderCore;
 @end
 
 @implementation BdnSliderHandler
@@ -18,7 +18,7 @@ namespace bdn::detail
 }
 @end
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSSlider *createNSSlider()
     {
@@ -27,8 +27,8 @@ namespace bdn::mac
         return slider;
     }
 
-    SliderCore::SliderCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, createNSSlider())
+    SliderCore::SliderCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, createNSSlider())
     {
         _nsSlider = (NSSlider *)nsView();
     }

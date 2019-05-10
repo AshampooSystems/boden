@@ -11,12 +11,12 @@
 #include <bdn/log.h>
 
 @interface BdnMacAppDelegate_ : NSObject <NSApplicationDelegate>
-@property(nonatomic) std::weak_ptr<bdn::mac::UIApplication> bdnApplication;
+@property(nonatomic) std::weak_ptr<bdn::ui::mac::UIApplication> bdnApplication;
 @end
 
 @implementation BdnMacAppDelegate_
 
-bdn::mac::UIApplication *_runner;
+bdn::ui::mac::UIApplication *_runner;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
@@ -55,7 +55,7 @@ bdn::mac::UIApplication *_runner;
 
 @end
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     UIApplication::UIApplication(Application::ApplicationControllerFactory appControllerCreator, int argCount,
                                  char *args[])
@@ -69,7 +69,7 @@ namespace bdn::mac
         [NSApplication sharedApplication];
 
         BdnMacAppDelegate_ *appDelegate = [[BdnMacAppDelegate_ alloc] init];
-        appDelegate.bdnApplication = std::dynamic_pointer_cast<bdn::mac::UIApplication>(shared_from_this());
+        appDelegate.bdnApplication = std::dynamic_pointer_cast<mac::UIApplication>(shared_from_this());
         [NSApp setDelegate:appDelegate];
         [NSApp run];
 

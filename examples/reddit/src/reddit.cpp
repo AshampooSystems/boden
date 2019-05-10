@@ -2,7 +2,7 @@
 #include <bdn/log.h>
 #include <bdn/net.h>
 #include <bdn/ui.h>
-#include <bdn/yogalayout.h>
+#include <bdn/ui/yoga.h>
 
 #include <nlohmann/json.hpp>
 
@@ -65,9 +65,9 @@ class RedditStore
     std::vector<std::shared_ptr<RedditPost>> posts;
 };
 
-class RedditListViewDataSource : public ListViewDataSource
+class RedditListViewDataSource : public ui::ListViewDataSource
 {
-    class Delegate : public ContainerView
+    class Delegate : public ui::ContainerView
     {
       public:
         Property<String> text;
@@ -90,7 +90,7 @@ class RedditListViewDataSource : public ListViewDataSource
                             << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexPaddingAll(2.5)
                             << FlexGrow(1.0));
 */
-            auto image = std::make_shared<ImageView>();
+            auto image = std::make_shared<ui::ImageView>();
             image->url.bind(imageUrl, BindMode::unidirectional);
             image->stylesheet = FlexJsonStringify(
                 {"maximumSize" : {"width" : 45.0}, "alignSelf" : "Center", "margin" : {"right" : 5.0}});
@@ -100,7 +100,7 @@ class RedditListViewDataSource : public ListViewDataSource
 */
             addChildView(image);
 
-            auto textView = std::make_shared<Label>();
+            auto textView = std::make_shared<ui::Label>();
             textView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
             //((FlexStylesheet)FlexGrow(1.0f));
 
@@ -120,7 +120,7 @@ class RedditListViewDataSource : public ListViewDataSource
 
     float heightForRowIndex(size_t rowIndex) override { return 50; }
 
-    std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+    std::shared_ptr<ui::View> viewForRowIndex(size_t rowIndex, std::shared_ptr<ui::View> reusableView) override
     {
         std::shared_ptr<Delegate> delegate;
 
@@ -147,7 +147,7 @@ class PostListViewController
   public:
     using clickNotifier_t = Notifier<String, String, String>;
 
-    PostListViewController() : _listView(std::make_shared<ListView>())
+    PostListViewController() : _listView(std::make_shared<ui::ListView>())
     {
         _listView->enableRefresh = true;
         _listView->stylesheet = FlexJsonStringify(
@@ -178,14 +178,14 @@ class PostListViewController
         });
     }
 
-    std::shared_ptr<View> view() { return _listView; }
+    std::shared_ptr<ui::View> view() { return _listView; }
 
     clickNotifier_t &onClicked() { return _onClicked; }
 
   private:
     std::shared_ptr<RedditListViewDataSource> _dataSource;
 
-    std::shared_ptr<ListView> _listView;
+    std::shared_ptr<ui::ListView> _listView;
     std::shared_ptr<RedditStore> _store;
 
     clickNotifier_t _onClicked;
@@ -195,11 +195,11 @@ class PostDetailController
 {
   public:
     PostDetailController(const String &title, const String &url, const String &imageUrl)
-        : _mainColumn(std::make_shared<ContainerView>())
+        : _mainColumn(std::make_shared<ui::ContainerView>())
     {
         _mainColumn->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
-        auto headerColumn = std::make_shared<ContainerView>();
+        auto headerColumn = std::make_shared<ui::ContainerView>();
 
         headerColumn->stylesheet = FlexJsonStringify(
             {"direction" : "Row", "alignItems" : "FlexStart", "margin" : {"bottom" : 10.0}, "flexWrap" : "Wrap"});
@@ -208,8 +208,8 @@ class PostDetailController
                                       << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexMarginBottom(10.0f)
                                       << FlexWrap(FlexStylesheet::Wrap::Wrap));
 */
-        auto image = std::make_shared<ImageView>();
-        auto titleField = std::make_shared<Label>();
+        auto image = std::make_shared<ui::ImageView>();
+        auto titleField = std::make_shared<ui::Label>();
 
         image->stylesheet = FlexJsonStringify({
             "flexGrow" : 0.0,
@@ -224,8 +224,8 @@ class PostDetailController
         headerColumn->addChildView(image);
         headerColumn->addChildView(titleField);
 
-        auto webView = std::make_shared<WebView>();
-        auto openButton = std::make_shared<Button>();
+        auto webView = std::make_shared<ui::WebView>();
+        auto openButton = std::make_shared<ui::Button>();
 
         webView->userAgent = "boden-reddit/0.1";
         webView->url = url;
@@ -242,10 +242,10 @@ class PostDetailController
         _mainColumn->addChildView(openButton);
     }
 
-    std::shared_ptr<View> view() { return _mainColumn; }
+    std::shared_ptr<ui::View> view() { return _mainColumn; }
 
   private:
-    std::shared_ptr<ContainerView> _mainColumn;
+    std::shared_ptr<ui::ContainerView> _mainColumn;
 };
 
 class MainViewController
@@ -253,12 +253,12 @@ class MainViewController
   public:
     MainViewController() : _listViewController(std::make_shared<PostListViewController>())
     {
-        _window = std::make_shared<Window>();
+        _window = std::make_shared<ui::Window>();
         _window->title = "UI Demo";
         _window->geometry = Rect{0, 0, 1024, 768};
-        _window->setLayout(std::make_shared<yogalayout::Layout>());
+        _window->setLayout(std::make_shared<ui::yoga::Layout>());
 
-        auto navigationView = std::make_shared<NavigationView>();
+        auto navigationView = std::make_shared<ui::NavigationView>();
         navigationView->stylesheet = FlexJsonStringify({
             "direction" : "Column",
             "flexGrow" : 1.0,
@@ -279,11 +279,11 @@ class MainViewController
     }
 
   protected:
-    std::shared_ptr<Window> _window;
+    std::shared_ptr<ui::Window> _window;
     std::shared_ptr<PostListViewController> _listViewController;
 };
 
-class RedditApplicationController : public UIApplicationController
+class RedditApplicationController : public ui::UIApplicationController
 {
   public:
     void beginLaunch() override { _mainViewController = std::make_shared<MainViewController>(); }

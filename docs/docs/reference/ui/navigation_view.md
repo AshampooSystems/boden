@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: NavigationView.h
 
 # NavigationView
@@ -8,14 +8,16 @@ Provides the user with a way to navigate between a number of different views whe
 ## Declaration
 
 ```C++
-class NavigationView : public View
+namespace bdn::ui {
+	class NavigationView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Button.h>
-#include <bdn/NavigationView.h>
+#include <bdn/ui/Button.h>
+#include <bdn/ui/NavigationView.h>
 // ...
 auto navigationView = std::make_shared<NavigationView>();
 auto firstButton = std::make_shared<Button>();

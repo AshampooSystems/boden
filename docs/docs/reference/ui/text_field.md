@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: TextField.h
 
 # TextField
@@ -8,13 +8,15 @@ A simple single-line editable text field.
 ## Declaration
 
 ```C++
-class TextField : public View
+namespace bdn::ui {
+	class TextField : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/TextField.h>
+#include <bdn/ui/TextField.h>
 //...
 auto textField = std::make_shared<TextField>();
 textField->text = "Hello world!";

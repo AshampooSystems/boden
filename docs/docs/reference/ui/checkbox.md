@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Checkbox.h
 
 # Checkbox
@@ -12,13 +12,15 @@ If the target platform does not provide a native checkbox widget, a platform-spe
 ## Declaration
 
 ```C++
-class Checkbox : public View
+namespace bdn::ui {
+	class Checkbox : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Checkbox.h>
+#include <bdn/ui/Checkbox.h>
 // ...
 auto checkbox = std::make_shared<Checkbox>();
 checkbox->label = "Click me!";

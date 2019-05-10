@@ -1,14 +1,13 @@
-#include <bdn/View.h>
+#include <bdn/ui/View.h>
 
-#include <bdn/ViewCoreFactory.h>
+#include <bdn/ui/ViewCoreFactory.h>
 
-#include <bdn/UIApplicationController.h>
+#include <bdn/ui/UIApplicationController.h>
 
 #include <utility>
 
-namespace bdn
+namespace bdn::ui
 {
-
     View::View(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
         : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory) : UIApplicationController::topViewCoreFactory())
     {

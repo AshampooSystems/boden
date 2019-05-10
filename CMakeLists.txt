@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./ )
 
 option(BDN_BUILD_TESTS "Build boden tests" ON)

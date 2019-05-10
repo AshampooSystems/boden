@@ -1,17 +1,17 @@
 #pragma once
 
-#include <bdn/TextField.h>
 #include <bdn/ios/ViewCore.hh>
 #include <bdn/ios/util.hh>
+#include <bdn/ui/TextField.h>
 
 @class BdnTextFieldDelegate;
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
-    class TextFieldCore : public ViewCore, virtual public bdn::TextField::Core
+    class TextFieldCore : public ViewCore, virtual public TextField::Core
     {
       public:
-        TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~TextFieldCore();
 
       public:

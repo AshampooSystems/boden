@@ -1,21 +1,22 @@
-#include <bdn/NavigationView.h>
 #include <bdn/android/NavigationViewCore.h>
 #include <bdn/android/wrapper/NativeNavigationView.h>
+#include <bdn/ui/NavigationView.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(NavigationView, bdn::android::NavigationViewCore, NavigationView)
+    CORE_REGISTER(NavigationView, bdn::ui::android::NavigationViewCore, NavigationView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     NavigationViewCore::NavigationViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeNavigationView>(viewCoreFactory))
+        : ViewCore(viewCoreFactory,
+                   createAndroidViewClass<bdn::android::wrapper::NativeNavigationView>(viewCoreFactory))
     {
         geometry.onChange() += [=](auto &property) { this->reLayout(); };
     }
 
-    NavigationViewCore::~NavigationViewCore() { getJViewAS<wrapper::NativeNavigationView>().close(); }
+    NavigationViewCore::~NavigationViewCore() { getJViewAS<bdn::android::wrapper::NativeNavigationView>().close(); }
 
     void NavigationViewCore::pushView(std::shared_ptr<View> view, String title)
     {
@@ -44,8 +45,7 @@ namespace bdn::android
         return {};
     }
 
-    void
-    NavigationViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function)
+    void NavigationViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function)
     {
         for (const auto &entry : _stack) {
             function(entry.container->viewCore());
@@ -57,7 +57,7 @@ namespace bdn::android
         if (!_stack.empty()) {
             auto fixedCore = _stack.back().container->core<android::ContainerViewCore>();
 
-            auto NativeNavigationView = getJViewAS<wrapper::NativeNavigationView>();
+            auto NativeNavigationView = getJViewAS<bdn::android::wrapper::NativeNavigationView>();
 
             NativeNavigationView.setWindowTitle(_stack.back().title);
             NativeNavigationView.enableBackButton(_stack.size() > 1);

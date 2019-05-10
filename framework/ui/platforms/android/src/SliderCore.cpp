@@ -3,20 +3,21 @@
 
 #include <bdn/entry.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(Slider, bdn::android::SliderCore, Slider)
+    CORE_REGISTER(Slider, bdn::ui::android::SliderCore, Slider)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    SliderCore::SliderCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeSeekBar>(viewCoreFactory))
+    SliderCore::SliderCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeSeekBar>(viewCoreFactory))
     {
-        getJViewAS<wrapper::SeekBar>().setMin(0);
-        getJViewAS<wrapper::SeekBar>().setMax(1000);
+        getJViewAS<bdn::android::wrapper::SeekBar>().setMin(0);
+        getJViewAS<bdn::android::wrapper::SeekBar>().setMax(1000);
 
-        value.onChange() += [=](const auto &p) { getJViewAS<wrapper::SeekBar>().setProgress(p.get() * 1000); };
+        value.onChange() +=
+            [=](const auto &p) { getJViewAS<bdn::android::wrapper::SeekBar>().setProgress(p.get() * 1000); };
     }
 
     void SliderCore::valueChanged(int newValue) { value = (double)newValue / 1000.0; }
@@ -28,8 +29,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeSeekBar_native_1va
     bdn::platformEntryWrapper(
         [&]() {
             if (auto core =
-                    bdn::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                if (auto sliderCore = std::dynamic_pointer_cast<bdn::android::SliderCore>(core)) {
+                    bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                if (auto sliderCore = std::dynamic_pointer_cast<bdn::ui::android::SliderCore>(core)) {
                     sliderCore->valueChanged(newValue);
                 }
             }

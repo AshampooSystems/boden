@@ -1,20 +1,21 @@
 #pragma once
 
-#include <Cocoa/Cocoa.h>
+#include <bdn/ui/View.h>
+#include <memory>
 
-#include <bdn/View.h>
+#import <Cocoa/Cocoa.h>
 #import <bdn/mac/util.hh>
 
 @protocol BdnLayoutable
 @end
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class ViewCore : public std::enable_shared_from_this<ViewCore>, public bdn::View::Core
+    class ViewCore : public std::enable_shared_from_this<ViewCore>, public bdn::ui::View::Core
     {
       public:
         ViewCore() = delete;
-        ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, NSView *nsView);
+        ViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, NSView *nsView);
 
       public:
         void init() override;

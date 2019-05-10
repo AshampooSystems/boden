@@ -17,20 +17,20 @@
 
 @end
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ContainerView, bdn::ios::ContainerViewCore, ContainerView)
+    CORE_REGISTER(ContainerView, bdn::ui::ios::ContainerViewCore, ContainerView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenUIView *_createContainer() { return [[BodenUIView alloc] initWithFrame:CGRectZero]; }
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, _createContainer())
     {}
 
-    ContainerViewCore::ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory,
+    ContainerViewCore::ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory,
                                          id<UIViewWithFrameNotification> view)
         : ViewCore(viewCoreFactory, view)
     {}

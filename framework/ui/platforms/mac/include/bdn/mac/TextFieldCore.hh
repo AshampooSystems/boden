@@ -1,20 +1,20 @@
 #pragma once
 
-#include <bdn/TextField.h>
 #include <bdn/mac/ViewCore.hh>
 #include <bdn/mac/util.hh>
+#include <bdn/ui/TextField.h>
 
 @class BdnTextFieldDelegate;
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
-    class TextFieldCore : public ViewCore, virtual public bdn::TextField::Core
+    class TextFieldCore : public ViewCore, virtual public TextField::Core
     {
       private:
         static NSTextField *_createNsTextView();
 
       public:
-        TextFieldCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
+        TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~TextFieldCore();
 
         void init() override;

@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: ImageView.h
 
 # ImageView
@@ -8,13 +8,15 @@ Displays an image on the user interface.
 ## Declaration
 
 ```C++
-class ImageView : public View
+namespace bdn::ui {
+	class ImageView : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/ImageView.h>
+#include <bdn/ui/ImageView.h>
 // ...
 auto imageView = std::make_shared<ImageView>();
 imageView->url = 'https://via.placeholder.com/350x150';

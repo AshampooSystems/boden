@@ -12,8 +12,10 @@ The application's entry point is defined by the `BDN_APP_INIT` macro. See [Appli
 ## Declaration
 
 ```C++
-class Application 
-	: public std::enable_shared_from_this<Application>
+namespace bdn {
+	class Application 
+		: public std::enable_shared_from_this<Application>
+}
 ```
 
 ## Obtaining the Global Application Instance

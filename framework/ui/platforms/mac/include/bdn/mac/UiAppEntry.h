@@ -1,15 +1,12 @@
 #pragma once
 
+#include <bdn/Application.h>
 #include <bdn/ApplicationController.h>
 
-namespace bdn
+namespace bdn::ui::mac
 {
-    namespace mac
-    {
-
-        /** Entry point function for mac apps with a graphical user interface.
+    /** Entry point function for mac apps with a graphical user interface.
             This is automatically called by the BDN_APP_INIT macro and it
            usually does not need to be called manually.*/
-        int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[]);
-    }
+    int uiAppEntry(const Application::ApplicationControllerFactory &appControllerCreator, int argc, char *argv[]);
 }

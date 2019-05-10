@@ -1,4 +1,4 @@
-#include <bdn/WebView.h>
+#include <bdn/ui/WebView.h>
 
 #import <bdn/mac/WebViewCore.hh>
 #import <bdn/mac/util.hh>
@@ -8,7 +8,7 @@
 
 #include <bdn/log.h>
 
-#include <bdn/ViewUtilities.h>
+#include <bdn/ui/ViewUtilities.h>
 
 @interface WebViewUIDelegate : NSObject <WKUIDelegate>
 
@@ -35,12 +35,12 @@
 
 @end
 
-namespace bdn::webview::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(WebView, bdn::mac::WebViewCore, WebView)
+    CORE_REGISTER(WebView, bdn::ui::mac::WebViewCore, WebView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     WKWebView *createWKWebView()
     {
@@ -48,7 +48,7 @@ namespace bdn::mac
         return [[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration];
     }
 
-    WebViewCore::WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    WebViewCore::WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createWKWebView())
     {}
 

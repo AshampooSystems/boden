@@ -1,29 +1,31 @@
 #include <bdn/android/TextFieldCore.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(TextField, bdn::android::TextFieldCore, TextField)
+    CORE_REGISTER(TextField, bdn::ui::android::TextFieldCore, TextField)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
     TextFieldCore::TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::AppCompatEditText>(viewCoreFactory)),
-          _jEditText(getJViewAS<wrapper::EditText>()), _watcher(_jEditText.cast<wrapper::TextView>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::AppCompatEditText>(viewCoreFactory)),
+          _jEditText(getJViewAS<bdn::android::wrapper::EditText>()),
+          _watcher(_jEditText.cast<bdn::android::wrapper::TextView>())
     {
         _jEditText.setSingleLine(true);
 
-        _jEditText.addTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
+        _jEditText.addTextChangedListener(_watcher.cast<bdn::android::wrapper::TextWatcher>());
 
-        _jEditText.setOnEditorActionListener(_onEditorActionListener.cast<wrapper::OnEditorActionListener>());
+        _jEditText.setOnEditorActionListener(
+            _onEditorActionListener.cast<bdn::android::wrapper::OnEditorActionListener>());
 
         text.onChange() += [=](auto &property) {
-            _jEditText.removeTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
+            _jEditText.removeTextChangedListener(_watcher.cast<bdn::android::wrapper::TextWatcher>());
             String currentText = _jEditText.getText();
             if (property.get() != currentText) {
                 _jEditText.setText(property.get());
             }
-            _jEditText.addTextChangedListener(_watcher.cast<wrapper::TextWatcher>());
+            _jEditText.addTextChangedListener(_watcher.cast<bdn::android::wrapper::TextWatcher>());
         };
     }
 
@@ -37,11 +39,11 @@ namespace bdn::android
         text = newText;
     }
 
-    bool TextFieldCore::onEditorAction(int actionId, const wrapper::KeyEvent &keyEvent)
+    bool TextFieldCore::onEditorAction(int actionId, const bdn::android::wrapper::KeyEvent &keyEvent)
     {
         // hide virtual keyboard
-        wrapper::InputMethodManager inputManager(
-            _jEditText.getContext().getSystemService(wrapper::Context::INPUT_METHOD_SERVICE).getRef_());
+        bdn::android::wrapper::InputMethodManager inputManager(
+            _jEditText.getContext().getSystemService(bdn::android::wrapper::Context::INPUT_METHOD_SERVICE).getRef_());
         inputManager.hideSoftInputFromWindow(_jEditText.getWindowToken(), 0);
 
         submitCallback.fire();

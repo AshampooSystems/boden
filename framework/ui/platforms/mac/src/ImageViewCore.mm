@@ -6,12 +6,12 @@
 
 using namespace std::string_literals;
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ImageView, bdn::mac::ImageViewCore, ImageView)
+    CORE_REGISTER(ImageView, bdn::ui::mac::ImageViewCore, ImageView)
 }
 
-namespace bdn::mac
+namespace bdn::ui::mac
 {
     NSView *ImageViewCore::createNSImageView()
     {
@@ -21,8 +21,8 @@ namespace bdn::mac
         return view;
     }
 
-    ImageViewCore::ImageViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : bdn::mac::ViewCore(viewCoreFactory, createNSImageView())
+    ImageViewCore::ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : mac::ViewCore(viewCoreFactory, createNSImageView())
     {
         url.onChange() += [=](auto &property) { setUrl(property.get()); };
     }
@@ -106,38 +106,6 @@ namespace bdn::mac
 
             [dataTask resume];
         }
-
-        /*if (bdn::cpp20::starts_with(url, "resource://"s)) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                auto server = nsURL.host;
-                NSBundle *bundle = [NSBundle mainBundle];
-                if (server && [server compare:@"main"] != NSOrderedSame) {
-                    bundle = [NSBundle bundleWithIdentifier:server];
-                }
-                if (bundle) {
-                    if (auto localPath = [nsURL.relativePath substringFromIndex:1]) {
-                        NSString *imageName = [localPath stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-                        imageName = [imageName stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-
-                        NSImage *image = [NSImage imageNamed:imageName];
-
-                        if (image) {
-                            ((NSImageView *)this->nsView()).image = image;
-                        }
-                    }
-                }
-            }
-        } else if (bdn::cpp20::starts_with(url, "file://"s)) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(url)]) {
-                if (auto localPath = nsURL.relativePath) {
-                    ((NSImageView *)this->nsView()).image = [[NSImage alloc] initWithContentsOfFile:localPath];
-                }
-            }
-        } else {
-
-
-        }
-*/
 
         this->scheduleLayout();
         this->markDirty();

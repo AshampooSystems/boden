@@ -7,8 +7,8 @@ The default implementation for layouts in Boden provides Flexbox layouts based o
 ## Setting a Layout
 
 ```C++
-auto window = std::make_shared<bdn::Window>();
-window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
+auto window = std::make_shared<bdn::ui::Window>();
+window->setLayout(std::make_shared<bdn::ui::yoga::Layout>());
 ```
 
 See [Yoga](yoga.md) for more examples.
@@ -16,7 +16,7 @@ See [Yoga](yoga.md) for more examples.
 ## Setting a stylesheet
 
 ```C++
-auto container = std::make_shared<Container>();
+auto container = std::make_shared<bdn::ui::Container>();
 container->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 ```
 

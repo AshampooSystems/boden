@@ -10,8 +10,10 @@ Inherit from this class to create an application controller for your application
 ## Declaration
 
 ```C++
-class ApplicationController 
-	: public std::enable_shared_from_this<ApplicationController>
+namespace bdn {
+	class ApplicationController 
+		: public std::enable_shared_from_this<ApplicationController>
+}
 ```
 
 ## Example

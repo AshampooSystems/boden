@@ -12,8 +12,10 @@ See also: [Property Guide](../../guides/fundamentals/properties.md)
 ## Declaration
 
 ```C++
-template <class ValType> 
-class Property
+namespace bdn {
+	template <class ValType> 
+	class Property
+}
 ```
 
 ## Creating a Property Object

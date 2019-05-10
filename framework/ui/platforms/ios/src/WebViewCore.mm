@@ -1,5 +1,5 @@
-#include <bdn/ViewUtilities.h>
-#include <bdn/WebView.h>
+#include <bdn/ui/ViewUtilities.h>
+#include <bdn/ui/WebView.h>
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/WebViewCore.hh>
@@ -7,7 +7,7 @@
 #import <WebKit/WebKit.h>
 
 @interface BodenWebView : WKWebView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ios::ViewCore> viewCore;
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenWebView
@@ -22,12 +22,12 @@
 
 @end
 
-namespace bdn::webview::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(WebView, bdn::ios::WebViewCore, WebView)
+    CORE_REGISTER(WebView, bdn::ui::ios::WebViewCore, WebView)
 }
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     BodenWebView *createWKWebView()
     {
@@ -35,7 +35,7 @@ namespace bdn::ios
         return [[BodenWebView alloc] initWithFrame:CGRectZero configuration:configuration];
     }
 
-    WebViewCore::WebViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    WebViewCore::WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createWKWebView())
     {}
 

@@ -7,8 +7,8 @@ Boden provides a Flexbox layout implementation based on [Facebook's Yoga library
 First, create the layout object and apply it to the window:
 
 ```C++
-auto window = std::make_shared<bdn::Window>();
-window->setLayout(std::make_shared<bdn::yogalayout::Layout>());
+auto window = std::make_shared<bdn::ui::Window>();
+window->setLayout(std::make_shared<bdn::ui::yoga::Layout>());
 ```
 
 Then set the stylesheet:

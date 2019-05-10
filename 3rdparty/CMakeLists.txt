@@ -35,6 +35,8 @@ endif()
 target_compile_features(yogacore PUBLIC cxx_std_17)
 ios_fix_lib_build_folder(yogacore)
 
+set_property(TARGET yogacore PROPERTY FOLDER "Boden/3rd-Party/Yoga")
+
 #################################################################################
 # Lottie
 
@@ -49,5 +51,9 @@ if(BDN_BUILD_TESTS)
     ios_fix_lib_build_folder(gtest_main)
     ios_fix_lib_build_folder(gmock)
     ios_fix_lib_build_folder(gmock_main)
+    
+    set_property(TARGET gmock PROPERTY FOLDER "Boden/3rd-Party/Google")
+    set_property(TARGET gmock_main PROPERTY FOLDER "Boden/3rd-Party/Google")
+    set_property(TARGET gtest PROPERTY FOLDER "Boden/3rd-Party/Google")
+    set_property(TARGET gtest_main PROPERTY FOLDER "Boden/3rd-Party/Google")
 endif()
-

@@ -10,7 +10,7 @@
                                                                                     jobject rawIntent)                 \
     {                                                                                                                  \
         bdn::platform::AndroidHooks::init();                                                                           \
-        bdn::android::appEntry(appControllerCreator, env, rawIntent);                                                  \
+        bdn::ui::android::appEntry(appControllerCreator, env, rawIntent);                                              \
     }
 
 #define BDN_APP_INIT(appControllerClass)                                                                               \

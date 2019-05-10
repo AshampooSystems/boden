@@ -4,24 +4,25 @@
 #include <bdn/android/wrapper/NativeListAdapter.h>
 #include <bdn/android/wrapper/NativeListView.h>
 
-namespace bdn::detail
+namespace bdn::ui::detail
 {
-    CORE_REGISTER(ListView, bdn::android::ListViewCore, ListView)
+    CORE_REGISTER(ListView, bdn::ui::android::ListViewCore, ListView)
 }
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    ListViewCore::ListViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<wrapper::NativeListView>(viewCoreFactory)),
-          _jNativeListView(getJViewAS<wrapper::NativeListView>()), _jListView(_jNativeListView.getListView()),
-          _jNativeListAdapter(_jListView.cast<wrapper::View>())
+    ListViewCore::ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeListView>(viewCoreFactory)),
+          _jNativeListView(getJViewAS<bdn::android::wrapper::NativeListView>()),
+          _jListView(_jNativeListView.getListView()),
+          _jNativeListAdapter(_jListView.cast<bdn::android::wrapper::View>())
     {
         _jListView.setDescendantFocusability(0x00060000);
         _jListView.setChoiceMode(0x00000001);
-        _jListView.setAdapter(wrapper::ListAdapter(_jNativeListAdapter.getRef_()));
+        _jListView.setAdapter(bdn::android::wrapper::ListAdapter(_jNativeListAdapter.getRef_()));
 
-        wrapper::NativeAdapterViewOnItemClickListener listener;
-        _jListView.setOnItemClickListener(listener.cast<wrapper::OnItemClickListener>());
+        bdn::android::wrapper::NativeAdapterViewOnItemClickListener listener;
+        _jListView.setOnItemClickListener(listener.cast<bdn::android::wrapper::OnItemClickListener>());
 
         enableRefresh.onChange() += [this](auto &property) { _jNativeListView.setEnabled(property.get()); };
     }

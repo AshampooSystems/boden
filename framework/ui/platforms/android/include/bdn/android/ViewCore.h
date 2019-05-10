@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/View.h>
+#include <bdn/ui/View.h>
 
 #include <bdn/java/wrapper/NativeStrongPointer.h>
 #include <bdn/java/wrapper/NativeWeakPointer.h>
@@ -9,28 +9,30 @@
 #include <bdn/android/wrapper/NativeViewGroup.h>
 #include <bdn/android/wrapper/View.h>
 
-#include <bdn/UIContext.h>
-#include <bdn/ViewCoreFactory.h>
 #include <bdn/android/ContextWrapper.h>
+#include <bdn/ui/UIContext.h>
+#include <bdn/ui/ViewCoreFactory.h>
 
 #include <utility>
 
 using namespace std::string_literals;
 
-namespace bdn::android
+namespace bdn::ui::android
 {
-    class ViewCore : public bdn::View::Core, public std::enable_shared_from_this<ViewCore>
+    class ViewCore : public View::Core, public std::enable_shared_from_this<ViewCore>
     {
-        friend class bdn::ViewCoreFactory;
+        friend class ViewCoreFactory;
 
       public:
-        ViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, wrapper::View jView)
-            : bdn::View::Core(viewCoreFactory), _jView(std::move(std::move(jView)))
+        ViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, bdn::android::wrapper::View jView)
+            : View::Core(viewCoreFactory), _jView(std::move(std::move(jView)))
         {}
         ~ViewCore() override;
 
+        void init() override;
+
       public:
-        wrapper::View &getJView() { return _jView; }
+        bdn::android::wrapper::View &getJView() { return _jView; }
         template <class JSuperType> JSuperType getJViewAS() { return _jView.cast<JSuperType>(); }
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
@@ -50,7 +52,6 @@ namespace bdn::android
         void updateChildren();
 
       protected:
-        void init() override;
         virtual void initTag();
 
         virtual bool canAdjustWidthToAvailableSpace() const { return false; }
@@ -59,7 +60,7 @@ namespace bdn::android
         virtual void updateGeometry();
 
       private:
-        mutable wrapper::View _jView;
+        mutable bdn::android::wrapper::View _jView;
         double _uiScaleFactor{};
 
         mutable double _emDipsIfInitialized = -1;
@@ -74,9 +75,9 @@ namespace bdn::android
     }
 
     template <class T>
-    wrapper::View createAndroidViewClass(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory)
+    bdn::android::wrapper::View createAndroidViewClass(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
     {
-        T view(viewCoreFactory->getContextStackTop<bdn::android::UIContext>()->_contextWrapper->getContext());
-        return wrapper::View(view.getRef_());
+        T view(viewCoreFactory->getContextStackTop<UIContext>()->_contextWrapper->getContext());
+        return bdn::android::wrapper::View(view.getRef_());
     }
 }

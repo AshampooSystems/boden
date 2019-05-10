@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/
+path: tree/master/framework/ui/include/bdn/ui
 source: Window.h
 
 # Window
@@ -8,13 +8,15 @@ Represents a native window. On iOS and Android there can be only a single `Windo
 ## Declaration
 
 ```C++
-class Window : public View
+namespace bdn::ui {
+    class Window : public View
+}
 ```
 
 ## Example
 
 ```C++
-#include <bdn/Window.h>
+#include <bdn/ui/Window.h>
 // ...
 auto window = std::make_shared<Window>();
 window->title = "My Awesome App";

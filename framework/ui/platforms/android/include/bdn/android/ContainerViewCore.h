@@ -1,23 +1,23 @@
 #pragma once
 
-#include <bdn/ContainerView.h>
+#include <bdn/ui/ContainerView.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/wrapper/Context.h>
 #include <bdn/android/wrapper/NativeViewGroup.h>
 #include <bdn/android/wrapper/View.h>
 
-namespace bdn::android
+namespace bdn::ui::android
 {
 
-    class ContainerViewCore : public ViewCore, virtual public bdn::ContainerView::Core
+    class ContainerViewCore : public ViewCore, virtual public ContainerView::Core
     {
       private:
-        static wrapper::View _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
+        static bdn::android::wrapper::View _createJNativeViewGroup(std::shared_ptr<ContainerView> outer);
 
       public:
-        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory);
-        ContainerViewCore(const std::shared_ptr<bdn::ViewCoreFactory> &viewCoreFactory, wrapper::View jView)
+        ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
+        ContainerViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory, bdn::android::wrapper::View jView)
             : ViewCore(viewCoreFactory, std::move(jView))
         {}
 
@@ -35,6 +35,6 @@ namespace bdn::android
 
         // ViewCore interface
       public:
-        void visitInternalChildren(const std::function<void(std::shared_ptr<bdn::View::Core>)> &function) override;
+        void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function) override;
     };
 }

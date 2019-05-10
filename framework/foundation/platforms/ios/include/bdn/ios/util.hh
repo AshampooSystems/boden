@@ -5,7 +5,7 @@
 
 #include <bdn/Rect.h>
 
-namespace bdn::ios
+namespace bdn::ui::ios
 { /** Converts an iOS rect to a bdn::Rect.
    */
     inline Rect iosRectToRect(const CGRect &rect)

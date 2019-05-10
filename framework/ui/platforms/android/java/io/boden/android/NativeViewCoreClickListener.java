@@ -4,7 +4,7 @@ import android.view.View;
 
 
 /** An OnClickListener implementation to be attached to java View objects.
- *  The click events will be forwarded to native code bdn::View::Core objects that are
+ *  The click events will be forwarded to native code View::Core objects that are
  *  associated with the view.
  *
  *  The ViewCore native object must be wrapped in a NativeWeakPointer
