@@ -113,8 +113,9 @@ nav:
       - reference/net/http.md
       - reference/net/http_request.md
       - reference/net/http_response.md
-    - Lottie:
-      - reference/lottie/lottie_view.md
+    - Extra Modules:
+      - Lottie:
+        - reference/extra-modules/lottie/lottie_view.md
   - Legal:
     - Legal: 'https://www.ashampoo-systems.com/base/about'
     - legal/privacy_policy.md
