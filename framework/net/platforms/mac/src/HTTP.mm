@@ -14,7 +14,7 @@ namespace bdn
     {
         namespace http
         {
-            std::shared_ptr<HTTPResponse> request(HTTPRequest request)
+            void request(HTTPRequest request)
             {
                 std::shared_ptr<HTTPResponse> response = std::make_shared<HTTPResponse>();
 
@@ -23,7 +23,7 @@ namespace bdn
                 NSURLSession *session = [NSURLSession sharedSession];
                 NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(request.url)];
                 if (nsURL == nullptr) {
-                    return nullptr;
+                    return;
                 }
 
                 NSURLSessionDataTask *dataTask = [session
@@ -50,7 +50,6 @@ namespace bdn
                 if (dataTask != nullptr) {
                     [dataTask resume];
                 }
-                return response;
             }
         }
     }

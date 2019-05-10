@@ -3,7 +3,9 @@ source: HTTPRequest.h
 
 # HTTPRequest
 
-Class used with [http::request](http.md)
+Represents an HTTP(S) request.
+
+Use the [`http::request()`](http.md) method to perform an HTTP request.
 
 ## Declaration
 
@@ -15,15 +17,15 @@ class HTTPRequest
 
 * **using DoneHandler = std::function<void(std::shared_ptr<HTTPResponse\>)\>**
 
-	Called once the request is done.
+	Called once a response has been received or an error occurred.
 
 ## Constructor
 
 * **HTTPRequest([String](../foundation/string.md) requestUrl, DoneHandler requestDoneHandler)**
 
-	Creates a HTTP GET Request
+	Creates a HTTP `GET` request with the given request URL and done handler.
 
 * **HTTPRequest([http::Method](http.md) requestMethod, [String](../foundation/string.md) requestUrl, DoneHandler requestDoneHandler)**
 
-	Creates a HTTP Request with the specified `requestMethod`
+	Creates a HTTP request with the specified request method.
 

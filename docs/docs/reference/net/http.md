@@ -3,11 +3,11 @@ source: HTTP.h
 
 # HTTP
 
-A simple way to fetch data via HTTP.
+Provides methods and types for working with HTTP(S) requests.
 
 !!! note
-	Mobile platforms by default often disallow internet access, and especially non-https requests. 
-	Make sure to specify `configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)` in your Apps CMakeLists.txt
+	Mobile platforms by default often disallow internet access, and especially non-HTTPS requests. 
+	Make sure to specify `configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)` in your app's CMakeLists.txt
 
 ## Declaration
 
@@ -48,7 +48,7 @@ net::http::request({
 
 ## Request
 
-* **std::shared_ptr<HTTPResponse\> request(HTTPRequest request)**
+* **void request([HTTPRequest](http_request.md) request)**
 	
-	Starts the request. The response will arrive asynchronously.
+	Performs the given request asynchronously and immediately returns. The request's `DoneHandler` is called on the main thread once a response has been received or an error has occurred.
 

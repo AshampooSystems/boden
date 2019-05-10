@@ -33,7 +33,7 @@ class RedditStore
   public:
     void fetchPosts(const std::function<void()> &doneHandler)
     {
-        auto response = net::http::request(
+        net::http::request(
             {bdn::net::http::Method::GET, "https://www.reddit.com/hot.json?limit=100", [this, doneHandler](auto r) {
                  try {
                      json j = json::parse(r->data);

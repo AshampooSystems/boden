@@ -16,7 +16,7 @@ namespace bdn
     {
         namespace http
         {
-            std::shared_ptr<HTTPResponse> request(HTTPRequest request)
+            void request(HTTPRequest request)
             {
 
                 static std::shared_ptr<android::JVolleyAdapter> staticVolleyAdapter =
@@ -27,8 +27,6 @@ namespace bdn
 
                 staticVolleyAdapter->request(android::JVolleyAdapter::toVolleyRequestMethod(request.method),
                                              request.url, response);
-
-                return response;
             }
         }
     }

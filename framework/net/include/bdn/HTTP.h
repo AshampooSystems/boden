@@ -21,6 +21,6 @@ namespace bdn::net
             CONNECT
         };
 
-        std::shared_ptr<HTTPResponse> request(HTTPRequest request);
+        void request(HTTPRequest request);
     }
 }
