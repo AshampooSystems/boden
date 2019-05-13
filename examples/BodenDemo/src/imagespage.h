@@ -32,7 +32,7 @@ namespace bdn
 
         auto image = std::make_shared<ui::ImageView>();
         createSizeBindings(image);
-        image->url = "image://main/images/image.png";
+        image->url = "image://main/images/logo.png";
 
         auto label = std::make_shared<ui::Label>();
         label->text = "Image from resource:";

@@ -25,6 +25,7 @@ enable_testing()
 # cmake utilities
 add_subdirectory(cmake)
 add_subdirectory(bauer)
+add_subdirectory(roger)
 
 fix_ios_package()
 

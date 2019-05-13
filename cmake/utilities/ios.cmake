@@ -82,12 +82,6 @@ macro(ios_supported_orientations)
     endif()
 endmacro()
 
-macro(ios_set_appicon_asset_file TARGETNAME APP_ICON_NAME)
-    if(BDN_PLATFORM_IOS)
-        set_xcode_property(${TARGETNAME} ASSETCATALOG_COMPILER_APPICON_NAME ${APP_ICON_NAME})
-    endif()
-endmacro()
-
 macro(ios_set_launchboard_file LAUNCHBOARD_NAME)
     SET(MACOSX_BUNDLE_LAUNCH_STORYBOARD ${LAUNCHBOARD_NAME})
 endmacro()
@@ -102,14 +96,13 @@ endmacro()
 macro(ios_configure_app_info)
     if(BDN_PLATFORM_IOS)
         set(options )
-        set(oneValueArgs TARGET LAUNCHSCREEN APPICON)
+        set(oneValueArgs TARGET LAUNCHSCREEN)
         set(multiValueArgs TARGETED_DEVICES IPHONE_ORIENTATIONS IPAD_ORIENTATIONS)
         cmake_parse_arguments(_ARGUMENTS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
         set_xcode_property(${_ARGUMENTS_TARGET} INSTALL_PATH "$(LOCAL_APPS_DIR)")
 
         ios_setup_code_signing(${_ARGUMENTS_TARGET})
-        ios_set_appicon_asset_file(${_ARGUMENTS_TARGET} "${_ARGUMENTS_APPICON}")
         ios_set_launchboard_file(${_ARGUMENTS_LAUNCHSCREEN})
 
         if(_ARGUMENTS_TARGETED_DEVICES)

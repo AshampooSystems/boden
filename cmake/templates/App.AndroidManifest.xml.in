@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${ANDROID_PACKAGEID}">
   <!-- project files generated manually with android studio
   would also have the following <application> attributed:
-  android:icon="@mipmap/ic_launcher"
   android:roundIcon="@mipmap/ic_launcher_round"
   android:supportsRtl="true" -->
 
@@ -11,7 +10,8 @@
   <application
     android:allowBackup="true"
     android:label="@string/app_name"
-    android:theme="${ANDROID_THEME}">
+    android:theme="${ANDROID_THEME}"
+    ${ANDROID_ICON}>
     <activity android:name="io.boden.android.NativeRootActivity"
               android:label="@string/app_name"
               android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">

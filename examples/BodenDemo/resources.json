@@ -1,0 +1,69 @@
+{
+    "name": "main",
+    "root-path": "./Resources",
+    "resources": [
+        {
+            "language": "",
+            "android-qualifiers": "",
+            "images": [
+                {
+                    "bundle-path": "images/image.png",
+                    "resolutions": {
+                        "0.75x": "",
+                        "1.0x": "image.png",
+                        "1.5x": "",
+                        "2.0x": "image@2x.png",
+                        "3.0x": "image@3x.png",
+                        "4.0x": ""
+                    }
+                },
+                {
+                    "bundle-path": "images/logo.png",
+                    "resolutions": {
+                        "0.75x": "",
+                        "1.0x":  "../../DemoIcon/icons/ios-mac/128.png",
+                        "1.5x":  "",
+                        "2.0x":  "../../DemoIcon/icons/ios-mac/256.png",
+                        "3.0x":  "../../DemoIcon/icons/ios-mac/384.png",
+                        "4.0x":  "../../DemoIcon/icons/ios-mac/512.png"
+                    }
+                }
+            ],
+            "raw": [
+                {
+                    "bundle-path": "images/animation.json",
+                    "file": "flag.json"
+                }
+            ]
+        },
+        {
+            "language": "de",
+            "android-qualifiers": "",
+            "images": [
+                {
+                    "bundle-path": "images/image.png",
+                    "resolutions": {
+                        "0.75x": "",
+                        "1.0x": "de/image.png",
+                        "1.5x": "",
+                        "2.0x": "de/image@2x.png",
+                        "3.0x": "de/image@3x.png",
+                        "4.0x": ""
+                    }
+                }
+            ],
+            "raw": [
+                {
+                    "bundle-path": "images/animation.json",
+                    "file": "de/flag.json"
+                }
+            ]
+        }
+    ],
+    "assets": [
+        {
+            "bundle-path": "images/asset_image.png",
+            "file": "image.png"
+        }
+    ]
+}

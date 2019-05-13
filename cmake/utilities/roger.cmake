@@ -11,8 +11,11 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
             set(_platform "mac")
         endif()
 
+
+        string(SHA256 _timestamp_name ${_RESOURCE_FILE})
+
         set(_dest_dir ${CMAKE_CURRENT_BINARY_DIR}/precompiled-resources)
-        set(_timestamp_file ${_dest_dir}/resource-timestamp)
+        set(_timestamp_file ${_dest_dir}/timestamp-${_timestamp_name})
 
         execute_process(COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py dependencies -p ${_platform} -v ${_RESOURCE_FILE} ${_dest_dir}
             OUTPUT_VARIABLE _resource_output

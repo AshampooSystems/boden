@@ -26,9 +26,9 @@ pipeline {
                     }
                     agent {
                         dockerfile {
-                            filename 'Dockerfile_android'
+                            filename 'docker/Dockerfile_android'
                             additionalBuildArgs  '-t boden_android'
-                            label 'boden-general'
+                            label 'boden'
                         }
                     }
                     stages {
@@ -62,7 +62,7 @@ pipeline {
                 stage('mkdocs') {
                     agent {
                         dockerfile {
-                            filename 'Dockerfile_mkdocs'
+                            filename 'docker/Dockerfile_mkdocs'
                             label 'boden-general'
                             additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
                         }
@@ -87,7 +87,7 @@ pipeline {
                     }
                     agent {
                         dockerfile {
-                            filename 'Dockerfile_android'
+                            filename 'docker/Dockerfile_android'
                             additionalBuildArgs  '-t boden_android'
                             label 'boden'
                         }
@@ -234,7 +234,7 @@ pipeline {
                     }
                     agent {
                         dockerfile {
-                            filename 'Dockerfile_mkdocs'
+                            filename 'docker/Dockerfile_mkdocs'
                             label 'boden-general'
                             additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g)'
                         }
@@ -258,7 +258,7 @@ pipeline {
                     }
                     agent {
                         dockerfile {
-                            filename 'Dockerfile_github'
+                            filename 'docker/Dockerfile_github'
                             args '--volume ${WORKSPACE}:/boden'
                             label 'boden-general'
                         }
