@@ -29,6 +29,9 @@ namespace bdn::ui
         Property<json> stylesheet;
 
       public:
+        static bool &debugViewEnabled();
+
+      public:
         View() = delete;
         View(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         View(const View &o) = delete;

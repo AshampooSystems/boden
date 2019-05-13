@@ -1,23 +1,22 @@
 
+#import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/UIApplication.hh>
 
-#import <bdn/foundationkit/MainDispatcher.hh>
-
-#include <bdn/entry.h>
-
 #include <bdn/ApplicationController.h>
+#include <bdn/entry.h>
+#include <bdn/ui/View.h>
 
 #import <UIKit/UIKit.h>
 
 @interface BdnIosAppDelegate_ : UIResponder <UIApplicationDelegate>
 @property(strong, nonatomic) UIWindow *window;
-@property(nonatomic) std::weak_ptr<bdn::ios::UIApplication> bdnApplication;
+@property(nonatomic) std::weak_ptr<bdn::ui::ios::UIApplication> bdnApplication;
 @end
 
 @implementation BdnIosAppDelegate_
 
-static std::weak_ptr<bdn::ios::UIApplication> s_staticApplication;
+static std::weak_ptr<bdn::ui::ios::UIApplication> s_staticApplication;
 
 - (id)init
 {
@@ -81,7 +80,7 @@ static std::weak_ptr<bdn::ios::UIApplication> s_staticApplication;
 
 @end
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     UIApplication::UIApplication(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator,
                                  int argCount, char *args[])
@@ -212,5 +211,9 @@ namespace bdn::ios
         _argv = args;
 
         commandLineArguments = argStrings;
+
+        if (std::find(argStrings.begin(), argStrings.end(), "--bdn-view-enable-debug"s) != argStrings.end()) {
+            View::debugViewEnabled() = true;
+        }
     }
 }

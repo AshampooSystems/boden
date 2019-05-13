@@ -37,6 +37,10 @@ namespace bdn::ui::android
         }
 
         commandLineArguments = args;
+
+        if (std::find(args.begin(), args.end(), "--bdn-view-enable-debug"s) != args.end()) {
+            View::debugViewEnabled() = true;
+        }
     }
 
     UIApplication::UIApplication(std::function<std::shared_ptr<ApplicationController>()> appControllerCreator,

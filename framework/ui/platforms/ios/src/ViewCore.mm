@@ -8,7 +8,11 @@ namespace bdn::ui::ios
     {
         _view = (UIView<UIViewWithFrameNotification> *)uiView;
 
-        //_view.backgroundColor = [UIColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0];
+        if (View::debugViewEnabled()) {
+            _view.layer.borderWidth = 1;
+            _view.layer.borderColor = [UIColor blackColor].CGColor;
+            _view.backgroundColor = [UIColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0];
+        }
     }
 
     void ViewCore::init()

@@ -1,13 +1,10 @@
-
-#include <bdn/ios/appEntry.h>
+#include <bdn/Application.h>
+#include <bdn/entry.h>
+#include <bdn/ios/appEntry.hh>
 
 #import <bdn/ios/UIApplication.hh>
 
-#include <bdn/Application.h>
-
-#include <bdn/entry.h>
-
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     int appEntry(const std::function<std::shared_ptr<ApplicationController>()> &appControllerCreator, int argc,
                  char *argv[])
@@ -16,8 +13,8 @@ namespace bdn::ios
 
         bdn::platformEntryWrapper(
             [&]() {
-                std::shared_ptr<bdn::ios::UIApplication> app =
-                    std::make_shared<bdn::ios::UIApplication>(appControllerCreator, argc, argv);
+                std::shared_ptr<bdn::ui::ios::UIApplication> app =
+                    std::make_shared<bdn::ui::ios::UIApplication>(appControllerCreator, argc, argv);
                 app->init();
 
                 returnValue = app->entry(argc, argv);

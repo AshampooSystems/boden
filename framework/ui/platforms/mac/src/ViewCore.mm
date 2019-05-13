@@ -32,12 +32,14 @@ namespace bdn::ui::mac
 
             _nsView.postsFrameChangedNotifications = YES;
 
-            _nsView.wantsLayer = YES;
-            /*              _nsView.layer.borderColor = [NSColor blueColor].CGColor;
-                          _nsView.layer.borderWidth = 2;
-            */
-            _nsView.layer.backgroundColor =
-                [NSColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0].CGColor;
+            if (View::debugViewEnabled()) {
+                _nsView.wantsLayer = YES;
+                _nsView.layer.borderColor = [NSColor blackColor].CGColor;
+                _nsView.layer.borderWidth = 1;
+
+                _nsView.layer.backgroundColor =
+                    [NSColor colorWithHue:drand48() saturation:0.75 brightness:0.75 alpha:1.0].CGColor;
+            }
         }
     }
 

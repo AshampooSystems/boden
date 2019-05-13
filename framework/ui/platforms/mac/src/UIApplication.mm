@@ -6,6 +6,7 @@
 #import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/mac/UIApplication.hh>
 #import <bdn/mac/util.hh>
+#include <bdn/ui/View.h>
 
 #include <bdn/entry.h>
 #include <bdn/log.h>
@@ -194,5 +195,9 @@ namespace bdn::ui::mac
         _argv = (char **)args;
 
         commandLineArguments = argStrings;
+
+        if (std::find(argStrings.begin(), argStrings.end(), "--bdn-view-enable-debug"s) != argStrings.end()) {
+            View::debugViewEnabled() = true;
+        }
     }
 }

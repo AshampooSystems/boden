@@ -6,8 +6,10 @@ namespace bdn::ui::android
 {
     void ViewCore::init()
     {
-        // int bgColor = 0xFF000000 + (std::rand() % 0x00FFFFFF);
-        //_jView.setBackgroundColor(bgColor);
+        if (View::debugViewEnabled()) {
+            int bgColor = 0xFF000000 + (std::rand() % 0x00FFFFFF);
+            _jView.setBackgroundColor(bgColor);
+        }
 
         _uiScaleFactor = 1;
 

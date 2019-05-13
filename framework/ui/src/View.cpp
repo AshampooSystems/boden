@@ -8,6 +8,12 @@
 
 namespace bdn::ui
 {
+    bool &View::debugViewEnabled()
+    {
+        static bool s_debugViewEnabled = false;
+        return s_debugViewEnabled;
+    }
+
     View::View(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
         : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory) : UIApplicationController::topViewCoreFactory())
     {

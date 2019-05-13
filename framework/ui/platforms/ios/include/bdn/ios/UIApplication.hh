@@ -4,7 +4,7 @@
 
 #import <UIKit/UIKit.h>
 
-namespace bdn::ios
+namespace bdn::ui::ios
 {
     class UIApplication : public Application
     {
