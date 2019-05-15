@@ -122,6 +122,29 @@ namespace bdn::ui::yoga
         return result;
     }
 
+#define UPDATE_VALUE(FuncName, Value, ...)                                                                             \
+    if (!Value) {                                                                                                      \
+        FuncName(__VA_ARGS__, NAN);                                                                                    \
+        FuncName##Percent(__VA_ARGS__, NAN);                                                                           \
+    } else {                                                                                                           \
+        if (Value->isPercent()) {                                                                                      \
+            FuncName##Percent(__VA_ARGS__, Value->value);                                                              \
+        } else {                                                                                                       \
+            FuncName(__VA_ARGS__, Value->value);                                                                       \
+        }                                                                                                              \
+    }
+
+#define UPDATE_EDGES(FuncName, Node, Value)                                                                            \
+    UPDATE_VALUE(FuncName, Value.all, Node, YGEdgeAll)                                                                 \
+    UPDATE_VALUE(FuncName, Value.left, Node, YGEdgeLeft)                                                               \
+    UPDATE_VALUE(FuncName, Value.top, Node, YGEdgeTop)                                                                 \
+    UPDATE_VALUE(FuncName, Value.right, Node, YGEdgeRight)                                                             \
+    UPDATE_VALUE(FuncName, Value.bottom, Node, YGEdgeBottom)
+
+#define UPDATE_SIZES(FuncName, Node, Value)                                                                            \
+    UPDATE_VALUE(FuncName##Width, Value.width, Node)                                                                   \
+    UPDATE_VALUE(FuncName##Height, Value.height, Node)
+
     void Layout::applyStyle(View *view, YGNodeRef ygNode)
     {
         FlexStylesheet stylesheet = fromStyleSheet(view->stylesheet.get());
@@ -146,37 +169,23 @@ namespace bdn::ui::yoga
         YGNodeStyleSetFlexGrow(ygNode, stylesheet.flexGrow);
         YGNodeStyleSetFlexShrink(ygNode, stylesheet.flexShrink);
 
-        YGNodeStyleSetPadding(ygNode, YGEdgeAll, stylesheet.padding.all ? *stylesheet.padding.all : NAN);
-        YGNodeStyleSetPadding(ygNode, YGEdgeLeft, stylesheet.padding.left ? *stylesheet.padding.left : NAN);
-        YGNodeStyleSetPadding(ygNode, YGEdgeTop, stylesheet.padding.top ? *stylesheet.padding.top : NAN);
-        YGNodeStyleSetPadding(ygNode, YGEdgeRight, stylesheet.padding.right ? *stylesheet.padding.right : NAN);
-        YGNodeStyleSetPadding(ygNode, YGEdgeBottom, stylesheet.padding.bottom ? *stylesheet.padding.bottom : NAN);
+        UPDATE_EDGES(YGNodeStyleSetPadding, ygNode, stylesheet.padding)
+        UPDATE_EDGES(YGNodeStyleSetMargin, ygNode, stylesheet.margin)
 
-        YGNodeStyleSetMargin(ygNode, YGEdgeAll, stylesheet.margin.all ? *stylesheet.margin.all : NAN);
-        YGNodeStyleSetMargin(ygNode, YGEdgeLeft, stylesheet.margin.left ? *stylesheet.margin.left : NAN);
-        YGNodeStyleSetMargin(ygNode, YGEdgeTop, stylesheet.margin.top ? *stylesheet.margin.top : NAN);
-        YGNodeStyleSetMargin(ygNode, YGEdgeRight, stylesheet.margin.right ? *stylesheet.margin.right : NAN);
-        YGNodeStyleSetMargin(ygNode, YGEdgeBottom, stylesheet.margin.bottom ? *stylesheet.margin.bottom : NAN);
-
-        YGNodeStyleSetWidth(ygNode, stylesheet.size.width ? *stylesheet.size.width : NAN);
-        YGNodeStyleSetHeight(ygNode, stylesheet.size.height ? *stylesheet.size.height : NAN);
-
-        YGNodeStyleSetMinWidth(ygNode, stylesheet.minimumSize.width ? *stylesheet.minimumSize.width : NAN);
-        YGNodeStyleSetMinHeight(ygNode, stylesheet.minimumSize.height ? *stylesheet.minimumSize.height : NAN);
-
-        YGNodeStyleSetMaxWidth(ygNode, stylesheet.maximumSize.width ? *stylesheet.maximumSize.width : NAN);
-        YGNodeStyleSetMaxHeight(ygNode, stylesheet.maximumSize.height ? *stylesheet.maximumSize.height : NAN);
+        UPDATE_SIZES(YGNodeStyleSet, ygNode, stylesheet.size)
+        UPDATE_SIZES(YGNodeStyleSetMin, ygNode, stylesheet.minimumSize)
+        UPDATE_SIZES(YGNodeStyleSetMax, ygNode, stylesheet.maximumSize)
 
         YGNodeStyleSetAspectRatio(ygNode, stylesheet.aspectRatio ? *stylesheet.aspectRatio : NAN);
 
-        if (!stylesheet.flexBasis && !stylesheet.flexBasisPercent) {
+        if (!stylesheet.flexBasis) {
             YGNodeStyleSetFlexBasisAuto(ygNode);
-        } else if (stylesheet.flexBasis && stylesheet.flexBasisPercent) {
-            throw std::runtime_error("Both flexBasis and flexBasis percent were specified!");
-        } else if (stylesheet.flexBasis) {
-            YGNodeStyleSetFlexBasis(ygNode, *stylesheet.flexBasis);
-        } else if (stylesheet.flexBasisPercent) {
-            YGNodeStyleSetFlexBasisPercent(ygNode, *stylesheet.flexBasisPercent);
+        } else {
+            if (stylesheet.flexBasis->isPercent()) {
+                YGNodeStyleSetFlexBasisPercent(ygNode, stylesheet.flexBasis->value);
+            } else {
+                YGNodeStyleSetFlexBasis(ygNode, stylesheet.flexBasis->value);
+            }
         }
     }
 

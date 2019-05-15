@@ -3,6 +3,15 @@
 #include <bdn/String.h>
 #include <bdn/ui/Json.h>
 #include <optional>
+#include <variant>
+
+#ifdef JSON_THROW_USER
+#define JSON_THROW JSON_THROW_USER
+#elif defined(JSON_NOEXCEPTION)
+#define JSON_THROW(exception) std::abort()
+#else
+#define JSON_THROW(exception) throw exception
+#endif
 
 namespace bdn::ui::yoga
 {
@@ -53,13 +62,30 @@ namespace bdn::ui::yoga
             WrapReverse
         };
 
+        struct ValueWithUnit
+        {
+            enum class Unit
+            {
+                PIXEL,
+                PERCENT
+            } unit = Unit::PIXEL;
+            float value = NAN;
+
+            ValueWithUnit() : unit(Unit::PIXEL), value(NAN) {}
+
+            constexpr bool isPixel() const { return unit == Unit::PIXEL; }
+            constexpr bool isPercent() const { return unit == Unit::PERCENT; }
+
+            bool operator==(const ValueWithUnit &other) const { return value == other.value && unit == other.unit; }
+        };
+
         struct Edges
         {
-            std::optional<float> all;
-            std::optional<float> left;
-            std::optional<float> top;
-            std::optional<float> right;
-            std::optional<float> bottom;
+            std::optional<ValueWithUnit> all;
+            std::optional<ValueWithUnit> left;
+            std::optional<ValueWithUnit> top;
+            std::optional<ValueWithUnit> right;
+            std::optional<ValueWithUnit> bottom;
 
             bool operator==(const Edges &other) const
             {
@@ -70,8 +96,8 @@ namespace bdn::ui::yoga
 
         struct Size
         {
-            std::optional<float> width;
-            std::optional<float> height;
+            std::optional<ValueWithUnit> width;
+            std::optional<ValueWithUnit> height;
 
             bool operator==(const Size &other) const { return width == other.width && height == other.height; }
         };
@@ -88,8 +114,7 @@ namespace bdn::ui::yoga
 
         Justify justifyContent = Justify::FlexStart;
 
-        std::optional<float> flexBasis;
-        std::optional<float> flexBasisPercent;
+        std::optional<ValueWithUnit> flexBasis;
 
         float flexGrow = 0.0f;
         float flexShrink = 1.0;
@@ -108,10 +133,9 @@ namespace bdn::ui::yoga
             return flexDirection == other.flexDirection && layoutDirection == other.layoutDirection &&
                    flexWrap == other.flexWrap && alignSelf == other.alignSelf && alignItems == other.alignItems &&
                    alignContents == other.alignContents && justifyContent == other.justifyContent &&
-                   flexBasis == other.flexBasis && flexBasisPercent == other.flexBasisPercent &&
-                   flexGrow == other.flexGrow && flexShrink == other.flexShrink && padding == other.padding &&
-                   margin == other.margin && size == other.size && minimumSize == other.minimumSize &&
-                   maximumSize == other.maximumSize;
+                   flexBasis == other.flexBasis && flexGrow == other.flexGrow && flexShrink == other.flexShrink &&
+                   padding == other.padding && margin == other.margin && size == other.size &&
+                   minimumSize == other.minimumSize && maximumSize == other.maximumSize;
         }
     };
 }
@@ -183,9 +207,58 @@ namespace nlohmann
         }
     };
 
+    template <> struct adl_serializer<bdn::ui::yoga::FlexStylesheet::ValueWithUnit>
+    {
+        using ValueWithUnit = bdn::ui::yoga::FlexStylesheet::ValueWithUnit;
+        static void to_json(json &j, const ValueWithUnit value)
+        {
+            if (value.unit == ValueWithUnit::Unit::PIXEL) {
+                j = value.value;
+            } else {
+                j = std::to_string(value.value) + "%";
+            }
+        }
+
+        static void from_json(const json &j, ValueWithUnit &value)
+        {
+            if (j.is_number()) {
+                value.value = j.get<float>();
+                value.unit = ValueWithUnit::Unit::PIXEL;
+            } else if (j.is_string()) {
+                std::string s = j.get<std::string>();
+                std::string unit;
+
+                std::istringstream istr(s);
+                istr.imbue(std::locale("C"));
+                istr >> value.value;
+
+                if (istr.fail()) {
+                    JSON_THROW(
+                        nlohmann::json::other_error::create(501, "Failed parsing string to number: \"" + s + "\""));
+                }
+
+                istr >> unit;
+
+                if (unit == "%") {
+                    value.unit = ValueWithUnit::Unit::PERCENT;
+                } else if (unit == "px" || unit == "") {
+                    value.unit = ValueWithUnit::Unit::PIXEL;
+                } else {
+                    JSON_THROW(
+                        nlohmann::json::other_error::create(501, "Invalid unit: \"" + unit + "\" in: \"" + s + "\""));
+                }
+            } else {
+                JSON_THROW(nlohmann::json::type_error::create(302, "type must be number or string, but is " +
+                                                                       std::string(j.type_name())));
+            }
+        }
+    };
+
     template <> struct adl_serializer<bdn::ui::yoga::FlexStylesheet::Edges>
     {
-        static void to_json(json &j, const bdn::ui::yoga::FlexStylesheet::Edges &edge)
+        using FlexStylesheet = bdn::ui::yoga::FlexStylesheet;
+
+        static void to_json(json &j, const FlexStylesheet::Edges &edge)
         {
             j = {{"all", edge.all},
                  {"left", edge.left},
@@ -194,40 +267,42 @@ namespace nlohmann
                  {"bottom", edge.bottom}};
         }
 
-        static void from_json(const json &j, bdn::ui::yoga::FlexStylesheet::Edges &edge)
+        static void from_json(const json &j, FlexStylesheet::Edges &edge)
         {
             if (j.count("all") != 0) {
-                edge.all = j.at("all").get<std::optional<float>>();
+                edge.all = j.at("all").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("left") != 0) {
-                edge.left = j.at("left").get<std::optional<float>>();
+                edge.left = j.at("left").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("right") != 0) {
-                edge.right = j.at("right").get<std::optional<float>>();
+                edge.right = j.at("right").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("top") != 0) {
-                edge.top = j.at("top").get<std::optional<float>>();
+                edge.top = j.at("top").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("bottom") != 0) {
-                edge.bottom = j.at("bottom").get<std::optional<float>>();
+                edge.bottom = j.at("bottom").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
         }
     };
 
     template <> struct adl_serializer<bdn::ui::yoga::FlexStylesheet::Size>
     {
-        static void to_json(json &j, const bdn::ui::yoga::FlexStylesheet::Size &size)
+        using FlexStylesheet = bdn::ui::yoga::FlexStylesheet;
+
+        static void to_json(json &j, const FlexStylesheet::Size &size)
         {
             j = {{"width", size.width}, {"height", size.height}};
         }
 
-        static void from_json(const json &j, bdn::ui::yoga::FlexStylesheet::Size &size)
+        static void from_json(const json &j, FlexStylesheet::Size &size)
         {
             if (j.count("width") != 0) {
-                size.width = j.at("width").get<std::optional<float>>();
+                size.width = j.at("width").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("height") != 0) {
-                size.height = j.at("height").get<std::optional<float>>();
+                size.height = j.at("height").get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
         }
     };
@@ -246,7 +321,6 @@ namespace nlohmann
                 {"justifyContent", sheet.justifyContent},
 
                 {"flexBasis", sheet.flexBasis},
-                {"flexBasisPercent", sheet.flexBasisPercent},
 
                 {"flexGrow", sheet.flexGrow},
                 {"flexShrink", sheet.flexShrink},
@@ -286,10 +360,7 @@ namespace nlohmann
                 sheet.justifyContent = j.at("justifyContent");
             }
             if (j.count("flexBasis") != 0) {
-                sheet.flexBasis = j.at("flexBasis").get<std::optional<float>>();
-            }
-            if (j.count("flexBasisPercent") != 0) {
-                sheet.flexBasisPercent = j.at("flexBasisPercent").get<std::optional<float>>();
+                sheet.flexBasis = j.at("flexBasis").get<std::optional<bdn::ui::yoga::FlexStylesheet::ValueWithUnit>>();
             }
             if (j.count("flexGrow") != 0) {
                 sheet.flexGrow = j.at("flexGrow");
