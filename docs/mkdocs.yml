@@ -85,6 +85,7 @@ nav:
       - reference/ui/checkbox.md
       - reference/ui/click_event.md
       - reference/ui/container_view.md
+      - reference/ui/core_less.md
       - reference/ui/image_view.md
       - reference/ui/label.md
       - reference/ui/layout.md

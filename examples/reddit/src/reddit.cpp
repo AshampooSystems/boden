@@ -67,14 +67,13 @@ class RedditStore
 
 class RedditListViewDataSource : public ui::ListViewDataSource
 {
-    class Delegate : public ui::ContainerView
+    class Delegate : public ui::CoreLess<ui::ContainerView>
     {
       public:
         Property<String> text;
         Property<String> imageUrl;
 
       public:
-        using ContainerView::ContainerView;
         void build()
         {
             stylesheet = FlexJsonStringify({
@@ -85,32 +84,21 @@ class RedditListViewDataSource : public ui::ListViewDataSource
                 "padding" : {"all" : 2.5}
             });
 
-            /*FlexDirection(FlexStylesheet::Direction::Row)
-                            << FlexJustifyContent(FlexStylesheet::Justify::SpaceBetween)
-                            << FlexAlignItems(FlexStylesheet::Align::FlexStart) << FlexPaddingAll(2.5)
-                            << FlexGrow(1.0));
-*/
             auto image = std::make_shared<ui::ImageView>();
             image->url.bind(imageUrl, BindMode::unidirectional);
             image->stylesheet = FlexJsonStringify(
                 {"maximumSize" : {"width" : 45.0}, "alignSelf" : "Center", "margin" : {"right" : 5.0}});
 
-            /*(FlexMaximumSizeWidth(45.0)
-                                   << FlexAlignSelf(FlexStylesheet::Align::Center) << FlexMarginRight(5.f));
-*/
             addChildView(image);
 
             auto textView = std::make_shared<ui::Label>();
             textView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
-            //((FlexStylesheet)FlexGrow(1.0f));
 
             addChildView(textView);
 
             textView->text.bind(text);
             textView->wrap = true;
         }
-
-        const std::type_info &typeInfoForCoreCreation() const { return typeid(ContainerView); }
     };
 
   public:
