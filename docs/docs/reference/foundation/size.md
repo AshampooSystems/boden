@@ -62,9 +62,3 @@ namespace bdn {
 * **Size &operator-=(const Size &o)**
 
 	Subtracts the given right hand size value from the left hand size value by performing component-wise addition and stores the result in the left hand size value.
-
-## Managing Minima and Maxima
-
-* **void applyMinimum(const Size &minSize)** <span style="color: red">Deprecated</span>
-
-* **void applyMaximum(const Size &maxSize)** <span style="color: red">Deprecated</span>

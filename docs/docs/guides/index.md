@@ -13,10 +13,6 @@ If you did not yet set up and build Boden, please refer to the [Getting Started]
 
 Explains the [Boden Property System](fundamentals/properties.md). This part of the Guides section will be extended in the future to explain the basic Boden architecture, design considerations, and how to get started with fundamental Boden features to implement your apps.
 
-## The Boden Layout System
-
-The Layout section provides a general overview about the [Boden Layout System](layout/summary.md), discusses how to work with [JSON Stylesheets](layout/json.md), and demonstrates how to use Flexbox layouts to lay out your user interface in Boden.
-
 ## Extending Boden
 
 The Extending Boden section is intended to help you create [your own Boden view components](extending/writing_view.md). It's also a good place to start if you are interested in the inner workings of Boden and how it implements wrapper classes around platform-specific features.

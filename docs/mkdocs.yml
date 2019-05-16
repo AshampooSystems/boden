@@ -58,10 +58,6 @@ nav:
     - Fundamentals:
       - guides/fundamentals/properties.md
       - guides/fundamentals/resources.md
-    - Layout:
-      - guides/layout/summary.md
-      - guides/layout/json.md
-      - guides/layout/yoga.md
     - Extending Boden:
       - guides/extending/writing_view.md
       - guides/extending/writing_view_modules.md
@@ -81,6 +77,11 @@ nav:
       - reference/foundation/string.md
       - reference/foundation/transform.md
     - UI:
+      - Yoga:
+          - reference/ui/yoga/layout.md
+      - Platforms:
+        - iOS:
+          - reference/ui/ios/view_core.md
       - reference/ui/button.md
       - reference/ui/checkbox.md
       - reference/ui/click_event.md
@@ -105,8 +106,6 @@ nav:
       - reference/ui/view_event.md
       - reference/ui/web_view.md
       - reference/ui/window.md
-      - iOS:
-        - reference/ui/ios/view_core.md
     - Net:
       - reference/net/http.md
       - reference/net/http_request.md
@@ -114,8 +113,6 @@ nav:
     - Extra Modules:
       - Lottie:
         - reference/extra-modules/lottie/lottie_view.md
-      - Yoga Layout:
-        - reference/extra-modules/yoga/layout.md
   - Legal:
     - Legal: 'https://www.ashampoo-systems.com/base/about'
     - legal/privacy_policy.md
