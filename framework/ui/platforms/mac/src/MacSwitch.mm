@@ -156,12 +156,17 @@
 - (void)mouseUp:(NSEvent *)event
 {
     NSPoint locationInView = [self convertPoint:event.locationInWindow fromView:nil];
-    if (locationInView.x < self.startDragOffset + 5 && locationInView.x > self.startDragOffset - 5) {
+
+    if (abs(locationInView.x - self.startDragOffset) < 2) {
         self.on = !self.on;
-    } else if (locationInView.x < self.startDragOffset) {
-        self.on = false;
     } else {
-        self.on = true;
+        if (locationInView.x < [self handleRadius]) {
+            self.on = NO;
+        } else if (locationInView.x >= self.frame.size.width - [self handleRadius]) {
+            self.on = YES;
+        } else {
+            self.on = self.on;
+        }
     }
 
     [self sendAction:self.action to:self.target];

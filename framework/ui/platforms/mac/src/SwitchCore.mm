@@ -17,10 +17,15 @@
 
 - (NSSize)fittingSize
 {
-    NSSize labelSize = self.label.bounds.size;
+    NSSize labelSize = CGSizeMake(0, 0);
+    CGFloat margin = 0.0;
+    if (self.label.stringValue.length > 0) {
+        margin = 10.0;
+        labelSize = self.label.fittingSize;
+    }
+
     NSSize switchSize = self.bdnSwitch.fittingSize;
     // We only want the switch's size if the label is empty
-    CGFloat margin = self.label.stringValue.length > 0 ? 10. : 0.;
     return CGSizeMake(switchSize.width + labelSize.width + margin, fmax(switchSize.height, labelSize.height));
 }
 
@@ -42,6 +47,10 @@
                                    labelBounds.size.width, labelBounds.size.height);
     _label.frame = labelFrame;
 }
+
+- (void)mouseDown:(NSEvent *)event { [_bdnSwitch mouseDown:event]; }
+
+- (void)mouseUp:(NSEvent *)event { [_bdnSwitch mouseUp:event]; }
 
 @end
 

@@ -1,4 +1,4 @@
-#pragma once
+#include "UIDemoPage.h"
 
 #include <bdn/StopWatch.h>
 #include <bdn/Timer.h>
@@ -8,13 +8,8 @@
 #include <bdn/ui/lottie/View.h>
 #include <bdn/ui/yoga.h>
 
-using namespace std::string_literals;
-using namespace std::chrono_literals;
-
 namespace bdn
 {
-    using namespace bdn::ui;
-
     static constexpr const char testText[] = "The user interface (UI), in the industrial design field of "
                                              "human–computer interaction, is the space where interactions "
                                              "between humans and machines occur. The goal of this interaction "
@@ -69,26 +64,6 @@ namespace bdn
                                              "interface.\n\nThis text uses material from the Wikipedia article "
                                              "https://en.wikipedia.org/wiki/User_interface";
 
-    std::shared_ptr<View> makeRow(String title, std::shared_ptr<View> ctrl)
-    {
-        auto row = std::make_shared<ContainerView>();
-
-        row->stylesheet = FlexJsonStringify({
-            "direction" : "Row",
-            "margin" : {"bottom" : 5},
-            "flexShrink" : 0.0,
-            "alignItems" : "Center",
-            "justifyContent" : "SpaceBetween",
-            "flexWrap" : "Wrap"
-        });
-
-        auto textView = std::make_shared<Label>();
-        textView->text = title;
-        row->addChildView(textView);
-        row->addChildView(ctrl);
-        return row;
-    }
-
     auto _styler = std::make_shared<Styler>();
 
     class WindowMatcher
@@ -120,6 +95,14 @@ namespace bdn
         std::shared_ptr<Styler> _styler;
     };
 
+    class DemoListItemView : public ContainerView
+    {
+      public:
+        virtual const std::type_info &typeInfoForCoreCreation() const { return typeid(ContainerView); }
+
+        std::shared_ptr<Label> label;
+    };
+
     class DemoDataSource : public ListViewDataSource
     {
       public:
@@ -132,23 +115,32 @@ namespace bdn
 
         std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
         {
-            std::shared_ptr<Label> label = std::dynamic_pointer_cast<Label>(reusableView);
+            std::shared_ptr<DemoListItemView> itemView = std::dynamic_pointer_cast<DemoListItemView>(reusableView);
 
-            if (!label) {
-                label = std::make_shared<Label>();
+            if (!itemView) {
+                itemView = std::make_shared<DemoListItemView>();
+                itemView->label = std::make_shared<Label>();
+                itemView->addChildView(itemView->label);
             }
 
-            label->text = _data[rowIndex];
+            itemView->stylesheet = FlexJsonStringify({
+                "direction" : "Row",
+                "flexGrow" : 1.0,
+                "alignItems" : "Center",
+                "justifyContent" : "FlexStart",
+                "margin" : {"left" : 10, "right" : 10}
+            });
+            itemView->label->text = _data[rowIndex];
 
-            return label;
+            return itemView;
         }
 
-        float heightForRowIndex(size_t rowIndex) override { return 15.0f; }
+        float heightForRowIndex(size_t rowIndex) override { return 40.0f; }
     };
 
     std::shared_ptr<WindowMatcher> _windowMatcher;
 
-    auto createUiDemoPage(std::shared_ptr<Window> window)
+    std::shared_ptr<ContainerView> createUiDemoPage(std::shared_ptr<Window> window)
     {
         _windowMatcher = std::make_shared<WindowMatcher>(window, _styler);
 
@@ -158,66 +150,50 @@ namespace bdn
         container->stylesheet =
             FlexJsonStringify({"direction" : "Column", "flexGrow" : 1.0, "flexShrink" : 1.0, "alignItems" : "Stretch"});
 
-        auto screenOrientationCtrl = std::make_shared<Label>();
-
-        screenOrientationCtrl->text = Window::orientationToString(window->currentOrientation);
-        window->currentOrientation.onChange() += [screenOrientationCtrl](auto &property) {
-            screenOrientationCtrl->text = Window::orientationToString(property.get());
-        };
-
-        container->addChildView(makeRow("Orientation", screenOrientationCtrl));
+        auto topWhitespaceContainer = std::make_shared<ContainerView>();
+        topWhitespaceContainer->stylesheet =
+            FlexJsonStringify({"direction" : "Row", "flexGrow" : 0.38, "minimumSize" : {"height" : 40}});
+        container->addChildView(topWhitespaceContainer);
 
         auto switchView = std::make_shared<Switch>();
-        switchView->label = "I'm a switch!";
-        container->addChildView(makeRow("Switch", switchView));
+        switchView->on = true;
+        container->addChildView(makeRow("Switch", switchView, 0.));
 
         auto slider = std::make_shared<Slider>();
         container->addChildView(makeRow("Slider", slider));
         slider->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 100}});
+        slider->value = 0.5;
 
-        auto checkBox = std::make_shared<Checkbox>();
-        checkBox->label = "I'm a Checkbox!";
-
-        container->addChildView(makeRow("Checkbox", checkBox));
+        auto checkbox = std::make_shared<Checkbox>();
+        checkbox->state = TriState::on;
+        container->addChildView(makeRow("Checkbox", checkbox));
 
         auto btn = std::make_shared<Button>();
         btn->label = "Button";
         container->addChildView(makeRow("Button", btn));
-
-        auto bigBtn = std::make_shared<Button>();
-        bigBtn->stylesheet = FlexJsonStringify({"minimumSize" : {"height" : 50}});
-        bigBtn->label = "Big Button";
-        container->addChildView(makeRow("Big Button", bigBtn));
 
         auto image = std::make_shared<ImageView>();
 
         image->url = "image://main/images/image.png";
         container->addChildView(makeRow("Image", image));
 
-        image->stylesheet = FlexJsonStringify({"maximumSize" : {"height" : 50}});
+        image->stylesheet = FlexJsonStringify({"maximumSize" : {"height" : 30}});
 
         auto lottieView = std::make_shared<lottie::View>();
-        lottieView->stylesheet = FlexJsonStringify({"size" : {"width" : 50, "height" : 50}});
+        lottieView->stylesheet = FlexJsonStringify({"size" : {"width" : 40, "height" : 40}});
         lottieView->url = "resource://main/images/animation.json";
-        container->addChildView(makeRow("Lottie", lottieView));
+        container->addChildView(makeRow("Animation", lottieView));
 
         lottieView->running = true;
         lottieView->loop = true;
 
-        auto textFieldCtrl = std::make_shared<TextField>();
-        textFieldCtrl->text = "Some text";
-        textFieldCtrl->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 250}});
-        container->addChildView(makeRow("Text Field", textFieldCtrl));
-        ////////////////////////////////////////////////////////////////////////
-
-        auto header = std::make_shared<Label>();
-        header->text = "Scrolling multiline text";
-        header->stylesheet = FlexJsonStringify({"margin" : {"bottom" : 5}, "flexShrink" : 0.0});
-
-        container->addChildView(header);
+        auto textField = std::make_shared<TextField>();
+        textField->text = "Enter text here";
+        textField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150}});
+        container->addChildView(makeRow("Text Field", textField, 5., 20.));
 
         auto textScrollView = std::make_shared<ScrollView>();
-        textScrollView->stylesheet = FlexJsonStringify({"flexGrow" : 1, "flexShrink" : 1, "margin" : {"bottom" : 5}});
+        textScrollView->stylesheet = FlexJsonStringify({"flexGrow" : 1, "flexShrink" : 1, "margin" : {"all" : 20}});
 
         auto scrolledTextView = std::make_shared<Label>();
         scrolledTextView->text = testText;
@@ -226,77 +202,14 @@ namespace bdn
                                    {"flex" : {"flexGrow" : 1, "flexShrink" : 0, "margin" : {"all" : 0}}},
                                    {"if" : {"os" : "mac"}, "flex" : {"margin" : {"all" : 5}}}
                                ]));
-
         textScrollView->contentView = scrolledTextView;
 
         container->addChildView(textScrollView);
 
-        ////////////////////////////////////////////////////////////////////////
-
-        auto list = std::make_shared<ListView>();
-        auto dataSource = std::make_shared<DemoDataSource>();
-
-        list->dataSource = dataSource;
-        list->reloadData();
-        list->stylesheet = FlexJsonStringify({"flexGrow" : 1.0, "minimumSize" : {"height" : 75}});
-
-        auto buttonRow = std::make_shared<ContainerView>();
-
-        buttonRow->stylesheet = FlexJsonStringify(
-            {"direction" : "Row", "flexShrink" : 0.0, "alignItems" : "Center", "justifyContent" : "FlexStart"});
-
-        auto addButton = std::make_shared<Button>();
-        addButton->label = "Add";
-
-        addButton->onClick() += [dataSource, list, textFieldCtrl](auto) {
-            String text = textFieldCtrl->text.get().empty() ? "New Item" : textFieldCtrl->text.get();
-            dataSource->_data.push_back(text);
-            list->reloadData();
-        };
-
-        auto removeButton = std::make_shared<Button>();
-        removeButton->label = "Remove";
-        removeButton->onClick() += [list, dataSource](auto) {
-            if (!dataSource->_data.empty()) {
-                dataSource->_data.pop_back();
-                list->reloadData();
-            }
-        };
-
-        auto clearButton = std::make_shared<Button>();
-        clearButton->label = "Clear";
-        clearButton->onClick() += [list, dataSource](auto) {
-            dataSource->_data.clear();
-            list->reloadData();
-        };
-
-        buttonRow->addChildView(addButton);
-        buttonRow->addChildView(removeButton);
-        buttonRow->addChildView(clearButton);
-
-        auto btnStyle = JsonStringify([ {"if" : {"os" : "ios"}, "flex" : {"padding" : {"all" : 5}}} ]);
-
-        _styler->setStyleSheet(addButton, btnStyle);
-        _styler->setStyleSheet(removeButton, btnStyle);
-        _styler->setStyleSheet(clearButton, btnStyle);
-
-        auto listHeader = std::make_shared<ContainerView>();
-        listHeader->stylesheet = FlexJsonStringify({
-            "margin" : {"bottom" : 5},
-            "direction" : "Row",
-            "flexShrink" : 0,
-            "alignItems" : "Center",
-            "justifyContent" : "SpaceBetween"
-        });
-
-        auto listHeaderLabel = std::make_shared<Label>();
-        listHeaderLabel->text = "Mutable list";
-
-        listHeader->addChildView(listHeaderLabel);
-        listHeader->addChildView(buttonRow);
-
-        container->addChildView(listHeader);
-        container->addChildView(list);
+        auto bottomWhitespaceContainer = std::make_shared<ContainerView>();
+        bottomWhitespaceContainer->stylesheet =
+            FlexJsonStringify({"direction" : "Row", "flexGrow" : 0.62, "minimumSize" : {"height" : 40}});
+        container->addChildView(bottomWhitespaceContainer);
 
         return container;
     }

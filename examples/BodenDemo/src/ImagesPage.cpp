@@ -1,5 +1,3 @@
-#pragma once
-
 #include <bdn/ui/ContainerView.h>
 #include <bdn/ui/ImageView.h>
 #include <bdn/ui/Json.h>
@@ -25,14 +23,14 @@ namespace bdn
         imageView->aspectRatio.onChange() += [=](auto &property) { update(imageView); };
     };
 
-    auto createImageViewDemoPage()
+    std::shared_ptr<ui::ContainerView> createImageViewDemoPage()
     {
         auto mainContainer = std::make_shared<ui::ContainerView>();
         mainContainer->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         auto image = std::make_shared<ui::ImageView>();
         createSizeBindings(image);
-        image->url = "image://main/images/logo.png";
+        image->url = "image://main/images/image.png";
 
         auto label = std::make_shared<ui::Label>();
         label->text = "Image from resource:";

@@ -21,12 +21,18 @@ namespace bdn::ui::mac
 
         Size sizeForSpace(Size availableSpace) const override;
 
+        void frameChanged() override;
+
       public:
         void handleClick();
+
+      protected:
+        void setFrame(Rect r) override;
 
       private:
         void _updateBezelStyle();
 
+      private:
         BdnButtonClickManager *_clickManager;
 
         NSBezelStyle _currBezelStyle;

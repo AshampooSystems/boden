@@ -1,13 +1,11 @@
-#pragma once
+#include "TimersPage.h"
+#include <bdn/ui/yoga.h>
 
-#include <bdn/foundation.h>
-#include <bdn/ui.h>
-
-#include "uidemopage.h"
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 namespace bdn
 {
-
     class Timers : public ContainerView
     {
       public:
@@ -124,7 +122,7 @@ namespace bdn
         const std::type_info &typeInfoForCoreCreation() const override { return typeid(ContainerView); }
     };
 
-    auto createTimerDemoPage()
+    std::shared_ptr<ContainerView> createTimerDemoPage()
     {
         auto page = std::make_shared<Timers>();
         page->init();

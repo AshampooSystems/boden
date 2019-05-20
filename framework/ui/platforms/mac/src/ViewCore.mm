@@ -21,12 +21,7 @@ namespace bdn::ui::mac
     {
         if (_nsView != nullptr) {
 
-            geometry.onChange() += [&view = this->_nsView](auto &property) {
-                NSRect r = rectToMacRect(property.get(), -1);
-
-                [view setFrameOrigin:r.origin];
-                [view setFrameSize:r.size];
-            };
+            geometry.onChange() += [this](auto &property) { setFrame(property.get()); };
 
             visible.onChange() += [&view = this->_nsView](auto &property) { view.hidden = !property.get(); };
 
@@ -66,4 +61,12 @@ namespace bdn::ui::mac
     void ViewCore::scheduleLayout() { _nsView.needsLayout = YES; }
 
     Size ViewCore::sizeForSpace(Size) const { return macSizeToSize(_nsView.fittingSize); }
+
+    void ViewCore::setFrame(Rect r)
+    {
+        NSRect frame = rectToMacRect(r, -1);
+
+        [_nsView setFrameOrigin:frame.origin];
+        [_nsView setFrameSize:frame.size];
+    }
 }

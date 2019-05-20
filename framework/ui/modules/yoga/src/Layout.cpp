@@ -90,6 +90,18 @@ namespace bdn::ui::yoga
         return YGWrapNoWrap;
     }
 
+    constexpr YGPositionType toYGPositionType(FlexStylesheet::PositionType positionType)
+    {
+        switch (positionType) {
+        case FlexStylesheet::PositionType::Relative:
+            return YGPositionTypeRelative;
+        case FlexStylesheet::PositionType::Absolute:
+            return YGPositionTypeAbsolute;
+        }
+
+        return YGPositionTypeRelative;
+    }
+
     void Layout::registerView(View *view)
     {
         _views[view] = std::make_unique<ViewData>(view);
@@ -171,10 +183,13 @@ namespace bdn::ui::yoga
 
         UPDATE_EDGES(YGNodeStyleSetPadding, ygNode, stylesheet.padding)
         UPDATE_EDGES(YGNodeStyleSetMargin, ygNode, stylesheet.margin)
+        UPDATE_EDGES(YGNodeStyleSetPosition, ygNode, stylesheet.position)
 
         UPDATE_SIZES(YGNodeStyleSet, ygNode, stylesheet.size)
         UPDATE_SIZES(YGNodeStyleSetMin, ygNode, stylesheet.minimumSize)
         UPDATE_SIZES(YGNodeStyleSetMax, ygNode, stylesheet.maximumSize)
+
+        YGNodeStyleSetPositionType(ygNode, toYGPositionType(stylesheet.positionType));
 
         YGNodeStyleSetAspectRatio(ygNode, stylesheet.aspectRatio ? *stylesheet.aspectRatio : NAN);
 

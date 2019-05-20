@@ -55,6 +55,12 @@ namespace bdn::ui::yoga
             SpaceEvenly
         };
 
+        enum class PositionType
+        {
+            Relative,
+            Absolute
+        };
+
         enum class Wrap
         {
             NoWrap,
@@ -121,6 +127,9 @@ namespace bdn::ui::yoga
 
         Edges padding;
         Edges margin;
+        Edges position;
+
+        PositionType positionType = PositionType::Relative;
 
         Size size;
         Size minimumSize;
@@ -135,7 +144,8 @@ namespace bdn::ui::yoga
                    alignContents == other.alignContents && justifyContent == other.justifyContent &&
                    flexBasis == other.flexBasis && flexGrow == other.flexGrow && flexShrink == other.flexShrink &&
                    padding == other.padding && margin == other.margin && size == other.size &&
-                   minimumSize == other.minimumSize && maximumSize == other.maximumSize;
+                   minimumSize == other.minimumSize && maximumSize == other.maximumSize && position == other.position &&
+                   positionType != other.positionType;
         }
     };
 }
@@ -178,6 +188,10 @@ namespace nlohmann
                                      {bdn::ui::yoga::FlexStylesheet::Justify::SpaceAround, "SpaceAround"},
                                      {bdn::ui::yoga::FlexStylesheet::Justify::SpaceEvenly, "SpaceEvenly"},
                                  })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::ui::yoga::FlexStylesheet::PositionType,
+                                 {{bdn::ui::yoga::FlexStylesheet::PositionType::Relative, "Relative"},
+                                  {bdn::ui::yoga::FlexStylesheet::PositionType::Absolute, "Absolute"}})
 
     NLOHMANN_JSON_SERIALIZE_ENUM(bdn::ui::yoga::FlexStylesheet::Wrap,
                                  {
@@ -319,6 +333,7 @@ namespace nlohmann
                 {"alignItems", sheet.alignItems},
                 {"alignContents", sheet.alignContents},
                 {"justifyContent", sheet.justifyContent},
+                {"positionType", sheet.positionType},
 
                 {"flexBasis", sheet.flexBasis},
 
@@ -329,6 +344,7 @@ namespace nlohmann
 
                 {"margin", sheet.margin},
                 {"padding", sheet.padding},
+                {"position", sheet.position},
 
                 {"size", sheet.size},
                 {"maximumSize", sheet.maximumSize},
@@ -359,6 +375,9 @@ namespace nlohmann
             if (j.count("justifyContent") != 0) {
                 sheet.justifyContent = j.at("justifyContent");
             }
+            if (j.count("positionType") != 0) {
+                sheet.positionType = j.at("positionType");
+            }
             if (j.count("flexBasis") != 0) {
                 sheet.flexBasis = j.at("flexBasis").get<std::optional<bdn::ui::yoga::FlexStylesheet::ValueWithUnit>>();
             }
@@ -376,6 +395,9 @@ namespace nlohmann
             }
             if (j.count("padding") != 0) {
                 sheet.padding = j.at("padding");
+            }
+            if (j.count("position") != 0) {
+                sheet.position = j.at("position");
             }
             if (j.count("size") != 0) {
                 sheet.size = j.at("size");

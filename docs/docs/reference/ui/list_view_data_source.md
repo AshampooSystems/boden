@@ -22,25 +22,25 @@ namespace bdn::ui {
 #include <bdn/ui/ListView.h>
 #include <bdn/ui/ListViewDataSource.h>
 
-class MyDataSource : public bdn::Base, virtual public bdn::ListViewDataSource
+class MyDataSource : public bdn::ListViewDataSource
 {
 public:
 	std::array<bdn::String, 2> _data = {"This is a test", "With only two lines of text"};
 
 	size_t numberOfRows() override { return 2; }
 
-	auto viewForRowIndex( size_t rowIndex, 
-						  std::shared_ptr<bdn::View> reusableView) override
+	std::shared_ptr<View> viewForRowIndex(size_t rowIndex, 
+		 								  std::shared_ptr<bdn::View> reusableView) override
 	{
-		label = std::dynamic_pointer_cast<bdn::TextView>(reusableView);
-		if(!label) {
-			label = std::make_shared<bdn::TextView>();
+		auto label = std::dynamic_pointer_cast<bdn::Label>(reusableView);
+		if (!label) {
+			label = std::make_shared<bdn::Label>();
 		}
 		label->text = _data[rowIndex];;
 		return std::dynamic_pointer_cast<bdn::View>(label);
 	}
 	
-	float heightForRowIndex(size_t rowIndex) { return 25; }
+	float heightForRowIndex(size_t rowIndex) override { return 25; }
 };
 // ...
 auto listView = std::make_shared<bdn::ListView>();

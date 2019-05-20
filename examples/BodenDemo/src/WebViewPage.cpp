@@ -1,4 +1,4 @@
-#pragma once
+#include "WebViewPage.h"
 
 #include <bdn/log.h>
 #include <bdn/ui/Button.h>
@@ -10,7 +10,7 @@
 
 namespace bdn
 {
-    auto createWebViewDemoPage()
+    std::shared_ptr<ContainerView> createWebViewDemoPage()
     {
         auto mainContainer = std::make_shared<ContainerView>();
         mainContainer->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
@@ -26,7 +26,7 @@ namespace bdn
 
         auto urlInput = std::make_shared<TextField>();
         urlInput->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
-        urlInput->text = "https://www.boden.io";
+        urlInput->text = "https://ashampoosystems.github.io/boden";
 
         auto reloadButton = std::make_shared<Button>();
         reloadButton->label = "Reload";

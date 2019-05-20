@@ -18,6 +18,8 @@
 - (CGSize)systemLayoutSizeFittingSize:(CGSize)targetSize
 {
     CGFloat minMargin = 10.;
+    if (self.uiLabel.text.length == 0)
+        minMargin = 0;
     CGSize switchSize = [self.uiSwitch systemLayoutSizeFittingSize:targetSize];
     CGSize labelSize = [self.uiLabel systemLayoutSizeFittingSize:targetSize];
     return CGSizeMake(switchSize.width + labelSize.width + minMargin, fmax(switchSize.height, labelSize.height));

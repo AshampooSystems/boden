@@ -32,11 +32,14 @@ namespace bdn::ui::mac
         void addChildNSView(NSView *childView);
         void removeFromNsSuperview();
 
-        void frameChanged();
+        virtual void frameChanged();
 
         void scheduleLayout() override;
 
         Size sizeForSpace(Size availableSpace) const override;
+
+      protected:
+        virtual void setFrame(Rect r);
 
       private:
         NSView *_nsView;

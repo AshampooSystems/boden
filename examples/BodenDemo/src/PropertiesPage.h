@@ -2,11 +2,14 @@
 
 #include <bdn/foundation.h>
 #include <bdn/ui.h>
+#include <bdn/ui/yoga.h>
 
-#include "uidemopage.h"
+#include "Page.h"
 
 namespace bdn
 {
+    std::shared_ptr<ContainerView> createPropertyDemoPage();
+
     class Properties : public ContainerView
     {
       public:
@@ -45,13 +48,13 @@ namespace bdn
 
             auto stringField = std::make_shared<TextField>();
             stringField->text.bind(_stringProperty);
-            stringField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 250.0}});
-            addChildView(makeRow("String", stringField));
+            stringField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150.0}});
+            addChildView(makeRow("String", stringField, 5., 5., 0.8));
 
             auto intField = std::make_shared<TextField>();
             intField->text.bind(_stringToIntProperty);
-            intField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 250.0}});
-            addChildView(makeRow("Int", intField));
+            intField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150.0}});
+            addChildView(makeRow("Int", intField, 5., 5., 0.8));
 
             auto btnContainer = std::make_shared<ContainerView>();
             btnContainer->stylesheet = FlexJsonStringify(
@@ -83,11 +86,4 @@ namespace bdn
       public:
         const std::type_info &typeInfoForCoreCreation() const override { return typeid(ContainerView); }
     };
-
-    auto createPropertyDemoPage()
-    {
-        auto page = std::make_shared<Properties>();
-        page->init();
-        return page;
-    }
 }

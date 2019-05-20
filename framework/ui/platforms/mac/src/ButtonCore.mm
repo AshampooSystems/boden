@@ -59,22 +59,26 @@ namespace bdn::ui::mac
 
     Size ButtonCore::sizeForSpace(Size availableSpace) const
     {
-        // the bezel style influences the fitting size. To get
-        // consistent values here we have to ensure that we use the same
-        // bezel style each time we calculate the size.
+        auto s = ((NSButton *)nsView()).intrinsicContentSize;
 
-        NSBezelStyle bezelStyle = ((NSButton *)nsView()).bezelStyle;
-        if (bezelStyle != NSBezelStyleRounded) {
-            ((NSButton *)nsView()).bezelStyle = NSBezelStyleRounded;
-        }
+        return macSizeToSize(s);
+    }
 
-        Size size = ViewCore::sizeForSpace(availableSpace);
+    void ButtonCore::frameChanged() {}
 
-        if (bezelStyle != NSBezelStyleRounded) {
-            ((NSButton *)nsView()).bezelStyle = bezelStyle;
-        }
+    void ButtonCore::setFrame(Rect r)
+    {
+        NSRect frame = rectToMacRect(r, -1);
 
-        return size;
+        auto insets = ((NSButton *)nsView()).alignmentRectInsets;
+
+        frame.origin.x -= insets.left;
+        frame.origin.y -= insets.top;
+        frame.size.width += insets.left + insets.right;
+        frame.size.height += insets.top + insets.bottom;
+
+        [nsView() setFrameOrigin:frame.origin];
+        [nsView() setFrameSize:frame.size];
     }
 
     void ButtonCore::handleClick() { _clickCallback.fire(); }
