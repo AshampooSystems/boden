@@ -3,7 +3,7 @@ source: Point.h
 
 # Point
 
-Represents a two-dimensional point comprised of `x` and `y` floating point numbers with double precision.
+Represents a two-dimensional point comprised of `x` and `y` floating point numbers with double precision.
 
 ## Declaration
 

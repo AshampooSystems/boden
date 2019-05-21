@@ -3,7 +3,7 @@ source: Styler.h
 
 # Styler
 
-Allows conditional changes of a [Views](./view.md) stylesheet.
+Enables you to change a [`View`](./view.md)'s stylesheet based on a set of conditions.
 
 Multiple conditional parts can be active, in which case they will be merged from first to last. 
 
@@ -53,8 +53,7 @@ namespace bdn::ui {
 
 	Adds a new `condition` named `name` that stylesheets can match against.
 	If a condition with `name` already exists it will be overriden and all
-	registered View stylesheets will be updated if they are conditioned based
-	on the name.
+	registered stylesheets will be updated accordingly.
 
 ## Conditions
 
@@ -72,7 +71,7 @@ namespace bdn::ui {
 
 * **equals_condition**
 
-	Returns true if the value is equal to the target value
+	Returns true if the value is equal to the target value.
 
 	```C++
 	struct equals_condition : public condition
@@ -89,7 +88,7 @@ namespace bdn::ui {
 
 * **less_condition**
 
-	Returns true if the value is less than the target value
+	Returns true if the value is less than the target value.
 
 	```C++
 	struct less_condition : public condition
@@ -106,7 +105,7 @@ namespace bdn::ui {
 
 * **greater_equal_condition**
 
-	Returns true if the value is greater or equal to the target value
+	Returns true if the value is greater or equal to the target value.
 
 	```C++
 	struct greater_equal_condition : public condition

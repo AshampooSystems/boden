@@ -3,7 +3,7 @@
 This part of the Boden Framework documentation contains guides that are intended to help you learn Boden to make it easier and more fun to write your cross-platform apps.
 
 !!! warning
-	The Boden API is work in progress and may change in the coming months. We are currently aiming at providing the first stable API by Q3/2019. This means the guides in this section may also be subject to change. [Follow us on Twitter](https://twitter.com/bodenhq) and [star/watch our repo on GitHub](https://github.com/AshampooSystems/boden) to stay in the loop!
+	The Boden API is work in progress and may change in the coming months. [Follow us on Twitter](https://twitter.com/bodenhq) and [star/watch our repo on GitHub](https://github.com/AshampooSystems/boden) to stay in the loop!
 
 ## Getting Started
 

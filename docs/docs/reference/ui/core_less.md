@@ -3,7 +3,7 @@ source: CoreLess.h
 
 # CoreLess
 
-Helper class to easily derive from View classes without having to create a custom Core.
+Helper class allowing you to easily create your own platform-independent composite views without having to create a specialized [`ViewCore`](view_core.md).
 
 ## Declaration
 

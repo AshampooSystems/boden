@@ -3,7 +3,7 @@ source: Slider.h
 
 # Slider
 
-A slider
+Lets users select from a range of values.
 
 ## Declaration
 
@@ -26,7 +26,7 @@ slider->value = 0.5;
 
 * **[Property](../foundation/property.md)<double\> value**
 
-	The position of the slider, between 0.0 and 1.0
+	The position of the slider. Ranges from 0.0 to 1.0.
 
 ## Relationships
 

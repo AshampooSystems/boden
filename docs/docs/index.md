@@ -2,7 +2,7 @@ template: hero.html
 
 # Build real native mobile apps using modern C++17 and Boden
 
-Write your mobile apps in modern C++17 and compile 100% native Android and iOS apps from the same statically typed codebase. No need for scripting. No overhead introduced by virtual machines. Using Boden is straight forward:
+Write your mobile apps in modern C++17 and compile 100% native Android and iOS apps from a single statically typed codebase. No need for scripting. No overhead introduced by virtual machines. Using Boden is straight forward:
 
 ```C++
 // MainViewController.cpp
@@ -30,8 +30,7 @@ MainViewController::MainViewController()
 
 # Harness the power of native widgets and native user interface behavior
 
-Boden wraps the native user interface controls provided by the platform. This is done consistently, down to the level of a list item in a native list control. In doing so, Boden lets you create apps as if you had used the native platform framework. And users
-won't recognize any difference to the behavior they are already used to.
+Boden wraps the native user interface controls provided by the platform. This is done consistently, down to the level of a list item in a native list control. In doing so, Boden lets you create apps as if you had used the native platform framework. And users won't recognize any difference to the behavior they are already used to.
 
 # Lay out your user interface with Flex layouts
 

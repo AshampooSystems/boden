@@ -5,7 +5,7 @@ source: Property.h
 
 Represents a property of a class.
 
-Properties provide you with a simple way to represent and observe arbitrary value types such as `int` or `String` as part of a class or struct. You may observe value changes using the `onChange()` method or bind two or more properties using the `bind()` method.
+Properties provide you with a simple way to represent and observe arbitrary member variables of a class or struct. You may observe value changes using the `onChange()` method or bind two or more properties using the `bind()` method.
 
 See also: [Property Guide](../../guides/fundamentals/properties.md)
 

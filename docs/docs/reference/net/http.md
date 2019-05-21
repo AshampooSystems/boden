@@ -6,7 +6,7 @@ source: HTTP.h
 Provides methods and types for working with HTTP(S) requests.
 
 !!! note
-	Mobile platforms by default often disallow internet access, and especially non-HTTPS requests. 
+	Mobile platforms by default often disallow internet access, especially non-HTTPS requests. 
 	Make sure to specify `configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)` in your app's CMakeLists.txt
 
 ## Declaration

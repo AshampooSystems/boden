@@ -172,7 +172,7 @@ Property<String> nameProperty = "John";
 auto name = nameProperty.get();
 ```
 
-## Non-primitive Value Types
+## Non-Primitive Value Types
 
 Properties support non-primitive value types such as user-defined
 classes and structs. Members can be read using the arrow operator:
@@ -239,7 +239,7 @@ viewModel->model->labelText = "Hello world!";
 
 ## Copying
 
-The Property class is not copy-constructible. However, property values
+The Property class is not copy constructible. However, property values
 can be copied by default constructing a `Property` instance and then
 assigning using `operator =`:
 
@@ -254,7 +254,7 @@ goodNameCopy = name; // OK: value of name is copied to value
 ```
 
 Consequently, structs or classes containing `Property` data members are
-also not copy-constructible:
+also not copy constructible:
 
 ```c++
 struct Person
@@ -267,8 +267,8 @@ Person person2 = person; // Error: copy constructor of Person
 						 // is implicitly deleted 
 ```
 
-If your struct or class needs to be copy-constructible, you may
-implement a custom copy constructor:
+If your struct or class needs to be copy constructible, you may
+implement a custom copy constructor:
 
 ```c++
 struct Person

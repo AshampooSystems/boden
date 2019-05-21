@@ -31,6 +31,19 @@ input::placeholder {
 	border: 0;
 }
 
+.md-content.boden-hero h1 {
+	margin: 0;
+	padding: 0;
+}
+
+.md-content.boden-hero video {
+	width: 100%;
+}
+
+.md-content.boden-hero h2:first-of-type {
+	margin-top: 0;
+}
+
 .boden-logo {
 	margin-top: 3rem;
 	margin-bottom: 15px;

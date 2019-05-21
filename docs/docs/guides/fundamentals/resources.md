@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Many Platforms provide native ways to bundle application resources 
-like Images or other binary data. 
+Many platforms provide native ways to bundle application resources 
+like images or other binary data. 
 The way these are embedded into the build process and the specific 
-capabilities / features of these mechanisms vary quite a bit though.
+capabilities of these mechanisms vary quite a bit though.
 
-As an example lets compare the iOS and Androids resource system.
+As an example let's compare the iOS and Androids resource system.
 
 ### iOS
 
@@ -15,7 +15,7 @@ Example folder structure:
 
 ![iOS resource folder structure](./images/resources-ios-folder.png)
 
-iOS .app bundles contain a Resources folder that is meant to host the applications binary data.
+iOS .app bundles contain a `Resources` folder that is meant to host the applications binary data.
 Inside you can create subfolders with the extension `.lproj` that can host 
 different versions of a file for different languages ( e.g. `de.lrpoj` or `en-US.lproj`). 
 The special `base.lproj` is used the specify the default such that files not found in a specific
@@ -29,18 +29,18 @@ Example folder structure:
 ![Android resource folder structure](./images/resources-android-folder.png)
 
 Android on the other hand follows a different approach. 
-It defines a rigid structure per type of resource, 
-an Image for instance needs to be in a folder called `res/drawables`, 
+It defines a rigid structure per type of resource.
+An image, for instance, needs to be in a folder called `res/drawables` 
 while a json file might be stored in `res/raw`. 
 To specify the language ( and other selections like e.g. the dpi etc. ) 
 you add this information to the folder name: `res/drawables-hidpi-en-US`.
 
-The user cannot create subfolders inside these folders, trying to do so may
+Users cannot create subfolders inside these folders. Trying to do so may
 result in compile errors, and the files are simply not accessible.
 
 Android has another mechanism for distributing files with the application called `assets`.
-The asset folders structure can be defined by user and it can house any type of data.
-As a downside its content cannot be automatically localized.
+The asset folders structure can be defined by users and it can house any type of data.
+However, a downside is that its content cannot be automatically localized.
 
 ## Boden representation of resources
 
@@ -129,7 +129,7 @@ Boden abstracts all these intricacies into a platform agnostic json file:
 }
 ```
 
-To include a resource.json file into the targets build process use the following code in your cmake file:
+To include a `resource.json` file into the targets build process use the following code in your CMake file:
 
 ```cmake tab="Basic"
 roger_add( "TARGET_NAME" OUTPUT "PATH_TO_JSON")
@@ -178,9 +178,9 @@ bdn::App()->uriToBundledFileUri("asset://main/test/index.html")
 
 ## Automatic flattening
 
-As discussed previously android does not support subdirectories in its resource folders. Therefore the roger utility
-will flatten any directory structure by replacing all `/` with `_`. Additionally when accessing resources 
-the extension is ignored by android, therefore roger will append the extension twice but replace the `.` with an `_`
+As discussed previously, Android does not support subdirectories in its resource folders. Therefore the `roger` utility
+will flatten any directory structure by replacing all `/` with `_`. Additionally, when accessing resources, 
+the extension is ignored by android. Therefore `roger` will append the extension twice, but replace the `.` with an `_`
 as well:
 
 | Original | Flattened (Android) |

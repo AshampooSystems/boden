@@ -3,7 +3,7 @@ source: ViewCoreFactory.h
 
 # ViewCoreFactory
 
-Allows you to easily instantiate [ViewCore](view_core.md) classes for a specific platform.
+Allows you to easily instantiate [`ViewCore`](view_core.md) classes for a specific platform.
 
 ## Declaration
 
