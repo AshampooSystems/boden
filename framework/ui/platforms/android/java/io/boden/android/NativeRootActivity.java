@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import android.util.Pair;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
 
@@ -118,6 +119,7 @@ public class NativeRootActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         _rootActivity = this;
         _backButtonHandlers = new BackButtonHandlers();
 

@@ -26,7 +26,7 @@ namespace bdn
 
         auto urlInput = std::make_shared<TextField>();
         urlInput->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
-        urlInput->text = "https://ashampoosystems.github.io/boden";
+        urlInput->text = "https://www.boden.io";
 
         auto reloadButton = std::make_shared<Button>();
         reloadButton->label = "Reload";

@@ -70,8 +70,6 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
 
         list(APPEND ${_VAR_} ${_RESOURCE_FILE})
 
-        file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/android-resources)
-
         execute_process(COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py build -p android -v ${_RESOURCE_FILE} ${CMAKE_CURRENT_BINARY_DIR}/android-resources
             OUTPUT_VARIABLE _resource_copy_output
             ERROR_VARIABLE _resource_copy_verbose_output
