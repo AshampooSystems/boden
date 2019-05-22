@@ -1,5 +1,10 @@
 template: hero.html
 
+***************************************************************************************************************
+WARNING: THIS IS NOT THE SOURCE FILE FOR THE BODEN.IO FRONT PAGE. THE FRONT PAGE SOURCE IS IN themes/hero.html!
+PLEASE DO NOT DELETE THIS FILE. WE KEEP IT FOR REFERENCE AND TO GENERATE SYNTAX HIGHLIGHTED SOURCE BLOCKS.
+***************************************************************************************************************
+
 # Build real native mobile apps using modern C++17 and Boden
 
 Write your mobile apps in modern C++17 and compile 100% native Android and iOS apps from a single statically typed codebase. No need for scripting. No overhead introduced by virtual machines. Using Boden is straight forward:

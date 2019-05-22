@@ -83,7 +83,6 @@
               font.text | replace(' ', '+')  + ':300,400,400i,700|' +
               font.code | replace(' ', '+')
             }}">
-        <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600,700,800,900" rel="stylesheet">
         <style>body,input{font-family:"{{ font.text }}","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"{{ font.code }}","Courier New",Courier,monospace}</style>
       {% endif %}
     {% endblock %}
@@ -144,7 +143,7 @@
         <div class="md-grid boden-hero">
           <img class="boden-logo" src="{{ 'boden-logo-colored.png' | url }}"/>
           <h1>Boden</h1>
-          <h2>Open-Source Cross-Platform Framework</h2>
+          <h2>Cross-Platform Framework</h2>
           <!--h2>Cross-Platform Framework</h2-->
           <a href="{{ 'getting-started' | url }}">
             <button class="boden-call-to-action">Get Started</button>
@@ -175,7 +174,17 @@
             <article class="md-content__inner md-typeset boden-teaser">
               {% block content %}
                 <h1></h1>
-                <h2>Build real native mobile apps using modern C++17 and&nbsp;Boden</h2>
+
+                <h2>Build native cross-platform user experiences with&nbsp;Boden</h2>
+
+                <p>With Boden you can create native mobile cross-platform applications based on the real user interface controls provided by the target platform. Users won't recognize any difference to the look and feel they are already used&nbsp;to.</p>
+
+                <video autoplay loop muted playsinline>
+                  <source src="{{ ('boden-demo.mp4' | url) }}?{{ range(1, 5983402637) | random }}" type="video/mp4">
+                </video>
+
+                <h2 style="margin-top: 0;">Compile native apps from a single C++17&nbsp;codebase</h2>
+
                 <p>Write your mobile apps in modern C++17 and compile 100% native Android and iOS apps from a single statically typed codebase. No need for scripting. No overhead introduced by virtual machines. Using Boden is straight forward:</p>
 <div class="codehilite"><pre><span></span><span class="c1">// MainViewController.cpp</span>
 <span class="cp">#include</span> <span class="cpf">&lt;bdn/Button.h&gt;</span><span class="cp"></span>
@@ -196,15 +205,10 @@
     <span class="n">_window</span><span class="o">-&gt;</span><span class="n">visible</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-                <h2>Harness the power of native widgets and native user interface&nbsp;behavior</h2>
 
-                <video autoplay loop muted playsinline>
-                  <source src="{{ ('boden-demo.mp4' | url) }}?{{ range(1, 5983402637) | random }}" type="video/mp4">
-                </video>
+                <h2>Lay out your user interface with Flexbox&nbsp;layouts</h2>
+                <p>With Boden laying out your UI is a breeze. Just define your layouts using Flexbox stylesheets directly in C++. Boden uses <a target="_blank" href="https://yogalayout.com">Facebook's Yoga Layout</a> engine accross all platforms.</p>
 
-                <p>Boden wraps the native user interface controls provided by the platform. This is done consistently, down to the level of a list item in a native list control. In doing so, Boden lets you create apps as if you had used the native platform framework. And users won't recognize any difference to the behavior they are already used to.</p>
-                <h2>Lay out your user interface with Flex&nbsp;layouts</h2>
-                <p>With Boden laying out your UI is a breeze. Just define your layouts using Flex stylesheets directly in C++. Boden uses the Yoga layout engine accross all platforms.</p>
 <div class="codehilite"><pre><span></span><span class="c1">// MainViewController.cpp</span>
 
 <span class="cp">#include</span> <span class="cpf">&lt;bdn/Button.h&gt;</span><span class="cp"></span>
@@ -232,7 +236,7 @@
 <span class="p">}</span>
 </pre></div>
                 <h2>Reuse your existing programming&nbsp;skills</h2>
-                <p>Boden builds upon well-established technologies and best practices where possible. A Boden string literally is an `std::string`. No custom containers, smart pointers, or other basic concepts. This allows you to reuse your existing knowledge and focus on what's most important: your app.</p>
+                <p>Boden builds upon well-established technologies and best practices where possible. A Boden string literally is an <code>std::string</code>. No custom containers, smart pointers, or reinvented basics. This allows you to reuse your existing knowledge and focus on what's most important: your app.</p>
               {% endblock %}
             </article>
           </div>
