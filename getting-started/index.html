@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../stylesheets/cookieconsent.min.css?5865487328">
+      <link rel="stylesheet" href="../stylesheets/cookieconsent.min.css?537684715">
     
-      <link rel="stylesheet" href="../stylesheets/boden.css?4686282394">
+      <link rel="stylesheet" href="../stylesheets/boden.css?111731836">
     
     
       
@@ -514,8 +514,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="installing_dependencies/mac/" title="Setting up macOS for iOS builds" class="md-nav__link">
+    <a href="installing_dependencies/mac-ios/" title="Setting up macOS for iOS builds" class="md-nav__link">
       Setting up macOS for iOS builds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="installing_dependencies/mac-android/" title="Setting up macOS for Android builds" class="md-nav__link">
+      Setting up macOS for Android builds
     </a>
   </li>
 
@@ -1638,9 +1650,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 
                 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>On a Mac: macOS 10.14+, <a href="https://developer.apple.com/xcode/">Xcode 10.1+</a>, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>.</p>
-<p>On Windows: Windows 10, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>, <a href="https://git-scm.com/download/win">Git</a>, <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Oracle JDK 8</a>, and <a href="https://developer.android.com/studio">Android Studio</a> (with Android NDK).</p>
-<p>On Ubuntu 18.04: <code>sudo apt update &amp;&amp; sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code> plus <a href="https://developer.android.com/studio/">Android Studio</a>.</p>
+<p><strong>On a Mac</strong>: macOS 10.14+, <a href="https://developer.apple.com/xcode/">Xcode 10.1+</a>, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>.</p>
+<p><strong>On Windows</strong>: Windows 10, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>, <a href="https://git-scm.com/download/win">Git</a>, <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Oracle JDK 8</a>, and <a href="https://developer.android.com/studio">Android Studio</a> (with Android NDK, see the <a href="installing_dependencies/windows/">installation instructions</a> for further details).</p>
+<p><strong>On Ubuntu 18.04</strong>: <code>sudo apt update &amp;&amp; sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code> plus <a href="https://developer.android.com/studio/">Android Studio</a> (with Android NDK, see the <a href="installing_dependencies/linux/">installation instructions</a> for further details).</p>
 <h2 id="step-1-clone-the-boden-repo">Step 1: Clone the Boden Repo<a class="headerlink" href="#step-1-clone-the-boden-repo" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span>git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 </pre></div>
@@ -1660,8 +1672,8 @@ python boden.py open
 <li><a href="building/linux">Building Boden on Linux</a></li>
 </ul>
 <h2 id="step-3-run-a-boden-example-application">Step 3: Run a Boden Example Application<a class="headerlink" href="#step-3-run-a-boden-example-application" title="Permanent link">&para;</a></h2>
-<p>In Xcode, select the <code>uidemo</code> target and hit <kbd>Cmd</kbd>+<kbd>R</kbd>.</p>
-<p>In Android Studio, select the <code>uidemo</code> target and hit <kbd>Shift</kbd>+<kbd>F10</kbd>.</p>
+<p>In Xcode, select the <code>bodendemo</code> target and hit <kbd>Cmd</kbd>+<kbd>R</kbd>.</p>
+<p>In Android Studio, select the <code>bodendemo</code> target and hit <kbd>Shift</kbd>+<kbd>F10</kbd>.</p>
 <h2 id="step-4-create-your-first-boden-application">Step 4: Create Your First Boden Application<a class="headerlink" href="#step-4-create-your-first-boden-application" title="Permanent link">&para;</a></h2>
 <p>Still with us? Great! Now <a href="first_app/">learn how to create your first Boden application</a>.</p>
                 

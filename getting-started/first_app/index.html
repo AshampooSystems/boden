@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../stylesheets/cookieconsent.min.css?773158072">
+      <link rel="stylesheet" href="../../stylesheets/cookieconsent.min.css?5093671468">
     
-      <link rel="stylesheet" href="../../stylesheets/boden.css?691141618">
+      <link rel="stylesheet" href="../../stylesheets/boden.css?73654414">
     
     
       
@@ -486,8 +486,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../installing_dependencies/mac/" title="Setting up macOS for iOS builds" class="md-nav__link">
+    <a href="../installing_dependencies/mac-ios/" title="Setting up macOS for iOS builds" class="md-nav__link">
       Setting up macOS for iOS builds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installing_dependencies/mac-android/" title="Setting up macOS for Android builds" class="md-nav__link">
+      Setting up macOS for Android builds
     </a>
   </li>
 
@@ -1590,7 +1602,7 @@ python ../boden.py open
 
 <p>This will create a new folder named <code>AwesomeApp</code> and generate source and project files for a simple Hello World cross-platform application. The last command will prepare and open an Xcode project on the Mac or an Android Studio project on Linux/Windows.</p>
 <p>In Xcode, select the <code>AwesomeApp</code> target and then press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the Hello World application.</p>
-<p>In Android Studio, wait for Gradle to finish its sync and configuration processes and then select the <code>uidemo</code> target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application, then select the <code>AwesomeApp</code> target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.</p>
+<p>In Android Studio, wait for Gradle to finish its sync and configuration processes and then select the <code>bodendemo</code> target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application, then select the <code>AwesomeApp</code> target and then press <kbd>Ctrl</kbd>+<kbd>R</kbd> on Mac or <kbd>Shift</kbd>+<kbd>F10</kbd> on Linux/Windows to build an run the Hello World application.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>On macOS and Linux you can also simply type <code>./boden</code> instead of calling <code>python boden.py</code> explicitly. If you want to build the Android version of the app on macOS, run <code>../boden open -p android</code>.</p>
