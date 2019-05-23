@@ -30,7 +30,7 @@ window->title = "My Awesome App";
 
 * **[Property](../foundation/property.md)<[String](../foundation/string.md)\> title**
 
-	The title of the Window. 
+	The title of the window. 
 
 	On Android this will be reflected in the Activities Toolbar. 
 

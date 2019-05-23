@@ -4,7 +4,7 @@
 
 Open up a terminal and run the following command:
 
-	sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm
+<pre><code>sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code></pre>
 
 ## 2. Install Android Studio
 

@@ -48,7 +48,8 @@ nav:
       - getting-started/building/windows.md
       - getting-started/building/linux.md
     - Installing Dependencies:
-      - getting-started/installing_dependencies/mac.md
+      - getting-started/installing_dependencies/mac-ios.md
+      - getting-started/installing_dependencies/mac-android.md
       - getting-started/installing_dependencies/windows.md
       - getting-started/installing_dependencies/linux.md
     - getting-started/troubleshooting/index.md

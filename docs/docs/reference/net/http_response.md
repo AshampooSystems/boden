@@ -15,7 +15,7 @@ namespace bdn::net {
 
 ## Fields
 
-* **[HTTPRequest](./http_request) originalRequest**
+* **[HTTPRequest](http_request.md) originalRequest**
 	
 	The request that resulted in the given response.
 

@@ -10,7 +10,7 @@ To build iOS apps on macOS, the following dependencies need to be installed:
 4. [CMake 3.10.2+](https://cmake.org/download/)
 
 !!! note
-	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for iOS on macOS](../installing_dependencies/mac.md#setting-up-macos-for-ios-builds) and follow the steps listed there.
+	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for iOS on macOS](../installing_dependencies/mac-ios.md) and follow the steps listed there.
 
 Follow these steps to set up Boden for iOS development:
 
@@ -23,9 +23,9 @@ Follow these steps to set up Boden for iOS development:
 		cd boden
 		./boden open -p ios
 
-3. In Xcode select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
+3. In Xcode select the `bodendemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
 
-Continue to the [Getting Started](#getting-started) section to learn how to create your first boden app.
+Continue to [Your first Boden application](../first_app.md) to learn how to create your first Boden app.
 
 ## Android Apps
 
@@ -39,7 +39,7 @@ To build Android apps on macOS, the following dependencies need to be installed:
 6. [Android Studio](https://developer.android.com/studio) (with Android NDK)
 
 !!! note
-	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on macOS](../installing_dependencies/mac.md#setting-up-macos-for-android-builds) and follow the steps listed there to install them.
+	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on macOS](../installing_dependencies/mac-android.md) and follow the steps listed there to install them.
 
 Follow these steps to set up Boden for Android development on the Mac:
 
@@ -52,6 +52,6 @@ Follow these steps to set up Boden for Android development on the Mac:
 		cd boden
 		./boden open -p android
 
-3. Wait for Android Studio to finish its gradle sync and configuration, then select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
+3. Wait for Android Studio to finish its gradle sync and configuration, then select the `bodendemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
-Continue to [Your first Application](../first_app.md) to learn how to create your first boden app.
+Continue to [Your first Boden application](../first_app.md) to learn how to create your first Boden app.
