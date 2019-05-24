@@ -1,9 +1,22 @@
 #import <UIKit/UIKit.h>
 #import <bdn/foundationkit/stringUtil.hh>
-#include <bdn/ios/ContainerViewCore.hh>
+#import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/NavigationViewCore.hh>
+#import <bdn/ios/UIView+Helper.hh>
 #import <bdn/ios/util.hh>
-#include <bdn/log.h>
+
+@interface BodenStackUIViewController : UIViewController
+@property(nonatomic) std::weak_ptr<bdn::ui::ios::NavigationViewCore> stackCore;
+@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> containerView;
+@property(nonatomic) std::shared_ptr<bdn::ui::View> userContent;
+@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> safeContent;
+@property(nonatomic) bool isVisible;
+@property(nonatomic) CGFloat keyboardInset;
+
+- (void)handleKeyboardWillShow:(NSNotification *)aNotification;
+- (void)handleKeyboardWillBeHidden:(NSNotification *)aNotification;
+
+@end
 
 @implementation BodenUINavigationControllerContainerView
 
@@ -29,13 +42,6 @@
 }
 @end
 
-@interface BodenStackUIViewController : UIViewController
-@property(nonatomic) std::weak_ptr<bdn::ui::ios::NavigationViewCore> stackCore;
-@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> containerView;
-@property(nonatomic) std::shared_ptr<bdn::ui::View> userContent;
-@property(nonatomic) std::shared_ptr<bdn::ui::ContainerView> safeContent;
-@end
-
 @implementation BodenStackUIViewController
 - (bool)isViewLoaded { return [super isViewLoaded]; }
 - (void)loadViewIfNeeded { [super loadViewIfNeeded]; }
@@ -45,14 +51,14 @@
     if (@available(iOS 11.0, *)) {
         _safeContent->geometry = bdn::Rect{
             self.view.safeAreaInsets.left,
-            self.view.safeAreaInsets.top,
+            self.view.safeAreaInsets.top - self.keyboardInset,
             self.view.frame.size.width - (self.view.safeAreaInsets.left + self.view.safeAreaInsets.right),
             self.view.frame.size.height - (self.view.safeAreaInsets.top + self.view.safeAreaInsets.bottom),
         };
     } else {
         _safeContent->geometry = bdn::Rect{
             0,
-            0,
+            0 - self.keyboardInset,
             self.view.frame.size.width,
             self.view.frame.size.height,
         };
@@ -94,9 +100,50 @@
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated { self.isVisible = YES; }
+
+- (void)viewWillDisappear:(BOOL)animated { self.isVisible = NO; }
+
 - (void)willMoveToParentViewController:(UIViewController *)parent { [super willMoveToParentViewController:parent]; }
 
 - (void)didMoveToParentViewController:(UIViewController *)parent { [super didMoveToParentViewController:parent]; }
+
+- (void)handleKeyboardWillShow:(NSNotification *)aNotification
+{
+    if (self.isVisible) {
+        NSDictionary *info = [aNotification userInfo];
+        CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+
+        auto rootView = self.view;
+
+        UIView *firstResponder = [rootView findViewThatIsFirstResponder];
+
+        if (firstResponder) {
+            CGRect frRect = firstResponder.frame;
+            frRect.origin = CGPointMake(0, 0);
+            CGRect relativeRect = [firstResponder convertRect:frRect toView:rootView];
+
+            auto viewY = rootView.frame.origin.y;
+            auto viewHeight = rootView.frame.size.height - viewY;
+
+            auto remainingHeight = viewHeight - kbSize.height;
+
+            if (relativeRect.origin.y + relativeRect.size.height > remainingHeight) {
+                [self.view layoutIfNeeded];
+                self.keyboardInset = (relativeRect.origin.y + relativeRect.size.height) - remainingHeight;
+                [self updateSafeContent];
+            }
+        }
+    }
+}
+
+- (void)handleKeyboardWillBeHidden:(NSNotification *)aNotification
+{
+    if (self.isVisible) {
+        self.keyboardInset = 0;
+        [self updateSafeContent];
+    }
+}
 
 @end
 
@@ -193,5 +240,13 @@ namespace bdn::ui::ios
             return {container};
         }
         return {};
+    }
+
+    void NavigationViewCore::removeFromUISuperview()
+    {
+        [getNavigationController() setToolbarHidden:YES];
+        [getNavigationController() setNavigationBarHidden:YES];
+        ViewCore::removeFromUISuperview();
+        [getNavigationController() removeFromParentViewController];
     }
 }

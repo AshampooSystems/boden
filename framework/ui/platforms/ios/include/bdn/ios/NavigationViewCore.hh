@@ -1,6 +1,8 @@
 #pragma once
 
 #import <bdn/ios/ViewCore.hh>
+
+#include <bdn/ui/ContainerView.h>
 #include <bdn/ui/NavigationView.h>
 
 @interface BodenUINavigationControllerContainerView : UIView <UIViewWithFrameNotification>
@@ -25,6 +27,8 @@ namespace bdn::ui::ios
         void popView() override;
 
         std::list<std::shared_ptr<View>> childViews() override;
+
+        void removeFromUISuperview() override;
 
       private:
         UINavigationController *getNavigationController();

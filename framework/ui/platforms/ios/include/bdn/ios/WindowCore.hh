@@ -20,6 +20,11 @@ namespace bdn::ui::ios
 @property std::weak_ptr<bdn::ui::ios::WindowCore> windowCore;
 @property UIStatusBarStyle statusBarStyle;
 @property std::array<std::array<NSLayoutConstraint *, 4>, 2> constraints;
+@property UIResponder *activeKeyboardPushHandler;
+
+- (void)handleKeyboardWillShow:(NSNotification *)aNotification;
+- (void)handleKeyboardWillBeHidden:(NSNotification *)aNotification;
+
 @end
 
 namespace bdn::ui::ios
@@ -54,6 +59,8 @@ namespace bdn::ui::ios
 
         UIScreen *_getUIScreen() const;
         UIWindow *_window;
+
+        std::shared_ptr<View> _contentView;
 
         BodenRootViewController *_rootViewController;
     };

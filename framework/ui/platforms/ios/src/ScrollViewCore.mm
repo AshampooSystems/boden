@@ -1,5 +1,5 @@
-
 #import <bdn/ios/ScrollViewCore.hh>
+#import <bdn/ios/UIView+Helper.hh>
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ScrollViewCore> core;
@@ -17,6 +17,8 @@
 
 @interface BodenUIScrollView : UIScrollView <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
+@property(nonatomic, assign) CGPoint keyboardMoveContentOffset;
+@property BOOL hasMovedForKeyboardAlready;
 @end
 
 @implementation BodenUIScrollView
@@ -26,6 +28,41 @@
     [super setFrame:frame];
     if (auto viewCore = self.viewCore.lock()) {
         viewCore->frameChanged();
+    }
+}
+
+- (void)handleKeyboardWillShow:(NSNotification *)aNotification
+{
+    if (self.hasMovedForKeyboardAlready)
+        return;
+
+    NSDictionary *info = [aNotification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+
+    CGPoint overlapKb =
+        [self convertPoint:CGPointMake(0, self.window.frame.size.height - kbSize.height) fromView:self.window];
+    CGFloat fHeight = self.frame.size.height;
+    CGFloat remainingKeyboardSize = fHeight - (overlapKb.y - self.contentOffset.y);
+
+    if (remainingKeyboardSize > 0) {
+        self.keyboardMoveContentOffset = self.contentOffset;
+
+        UIEdgeInsets contentInsets = UIEdgeInsetsMake(0, 0, remainingKeyboardSize, 0);
+        self.contentInset = contentInsets;
+        self.scrollIndicatorInsets = contentInsets;
+        self.hasMovedForKeyboardAlready = YES;
+    }
+}
+
+- (void)handleKeyboardWillBeHidden:(NSNotification *)aNotification
+{
+    if (self.hasMovedForKeyboardAlready) {
+        UIEdgeInsets contentInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+        self.contentInset = contentInsets;
+        self.scrollIndicatorInsets = contentInsets;
+        self.contentOffset = self.keyboardMoveContentOffset;
+
+        self.hasMovedForKeyboardAlready = NO;
     }
 }
 

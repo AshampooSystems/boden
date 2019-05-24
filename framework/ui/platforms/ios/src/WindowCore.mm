@@ -1,6 +1,7 @@
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/ContainerViewCore.hh>
+#import <bdn/ios/UIView+Helper.hh>
 #import <bdn/ios/WindowCore.hh>
 
 #include <bdn/log.h>
@@ -24,7 +25,6 @@
         viewCore->startLayout();
     }
 }
-
 @end
 
 @implementation BodenRootViewController
@@ -45,6 +45,8 @@
 
     _safeRootView = [[BodenUIView alloc] init];
     _safeRootView.translatesAutoresizingMaskIntoConstraints = NO;
+    _safeRootView.clipsToBounds = YES;
+
     [_rootView addSubview:_safeRootView];
 
     {
@@ -83,6 +85,77 @@
         [_safeRootView.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor].active = YES;
     }
 #endif
+
+    [self registerForKeyboardNotifications];
+}
+
+- (void)registerForKeyboardNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+}
+
+- (void)handleKeyboardWillShow:(NSNotification *)aNotification
+{
+    NSDictionary *info = [aNotification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+
+    kbSize.height -=
+        self.rootView.frame.size.height - (self.safeRootView.frame.origin.y + self.safeRootView.frame.size.height);
+
+    UIView *firstResponder = [self.view findViewThatIsFirstResponder];
+
+    if (firstResponder) {
+        double moveDistance =
+            [firstResponder calculateKeyboardMoveDistanceWithKeyboardSize:kbSize withParentView:self.safeRootView];
+
+        for (auto &c : _constraints) {
+            c[2].constant = -moveDistance;
+            c[3].constant = -moveDistance;
+        }
+    }
+
+    [self.view layoutIfNeeded];
+}
+
+- (void)handleKeyboardWillBeHidden:(NSNotification *)aNotification
+{
+    _constraints[0][2].constant = 0;
+    _constraints[0][3].constant = 0;
+    _constraints[1][2].constant = 0;
+    _constraints[1][3].constant = 0;
+
+    [self.view layoutIfNeeded];
+}
+
+- (void)keyboardWillShow:(NSNotification *)aNotification
+{
+    if (!self.activeKeyboardPushHandler) {
+        UIView *firstResponder = [self.view findViewThatIsFirstResponder];
+        if (firstResponder) {
+            self.activeKeyboardPushHandler = [firstResponder findResponderToHandleKeyboard];
+        }
+    }
+
+    if (self.activeKeyboardPushHandler) {
+        [self.activeKeyboardPushHandler performSelector:@selector(handleKeyboardWillShow:) withObject:aNotification];
+    }
+}
+
+- (void)keyboardWillBeHidden:(NSNotification *)aNotification
+{
+    if (self.activeKeyboardPushHandler) {
+        [self.activeKeyboardPushHandler performSelector:@selector(handleKeyboardWillBeHidden:)
+                                             withObject:aNotification];
+        self.activeKeyboardPushHandler = nullptr;
+    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size
@@ -182,11 +255,11 @@
 - (void)setContentLayout:(bool)safe forEdge:(int)edge
 {
     if (safe) {
-        _constraints[1][edge].active = NO;
-        _constraints[0][edge].active = YES;
+        self.constraints[1][edge].active = NO;
+        self.constraints[0][edge].active = YES;
     } else {
-        _constraints[0][edge].active = NO;
-        _constraints[1][edge].active = YES;
+        self.constraints[0][edge].active = NO;
+        self.constraints[1][edge].active = YES;
     }
 }
 
@@ -201,7 +274,7 @@ namespace bdn::ui::ios
 {
     BodenRootViewController *createRootViewController()
     {
-        UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        UIWindow *window = [[BodenUIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
         BodenRootViewController *rootViewCtrl = [[BodenRootViewController alloc] init];
         rootViewCtrl.myWindow = window;
@@ -290,7 +363,10 @@ namespace bdn::ui::ios
     {
         UIView *rootView = _rootViewController.safeRootView;
 
-        [[rootView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        if (_contentView) {
+            auto oldCore = std::dynamic_pointer_cast<bdn::ui::ios::ViewCore>(_contentView->viewCore());
+            oldCore->removeFromUISuperview();
+        }
 
         if (newContent) {
             if (auto childCore = newContent->core<ios::ViewCore>()) {
@@ -299,6 +375,8 @@ namespace bdn::ui::ios
                 throw std::runtime_error("Cannot set this type of View as content");
             }
         }
+
+        _contentView = newContent;
     }
 
     void WindowCore::updateFromStylesheet(nlohmann::json stylesheet)

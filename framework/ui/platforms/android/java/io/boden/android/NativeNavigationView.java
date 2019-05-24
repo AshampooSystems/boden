@@ -3,16 +3,23 @@ package io.boden.android;
 import android.content.Context;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import android.transition.AutoTransition;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NativeNavigationView extends NativeViewGroup implements NativeRootActivity.BackButtonListener {
 
     public NativeNavigationView(Context context) {
         super(context);
+
+        fragmentQueue = new ArrayList<NativeStackFragment>();
 
         int id = View.generateViewId();
         setId(id);
@@ -46,10 +53,34 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
     }
 
     public void changeContent(View newContent, boolean animate, boolean isEnter) {
-
         NativeStackFragment newFragment = new NativeStackFragment();
         newFragment.setView(newContent);
         newContent.requestLayout();
+
+        if (getParent() == null) {
+            this.removeAllViews();
+            this.addView(newContent);
+
+            if(isEnter) {
+                fragmentQueue.add(newFragment);
+            } else {
+                fragmentQueue.remove(fragmentQueue.size()-1);
+            }
+            return;
+        }
+
+        if (!fragmentQueue.isEmpty()) {
+            this.removeAllViews();
+            for (int i = 0; i < fragmentQueue.size(); i++) {
+                doFragmentTransaction(fragmentQueue.get(i), false, true);
+            }
+            fragmentQueue.clear();
+        }
+
+        doFragmentTransaction(newFragment, animate, isEnter);
+    }
+
+    public void doFragmentTransaction(NativeStackFragment newFragment, boolean animate, boolean isEnter) {
 
         FragmentManager fragmentManager = NativeRootActivity.getRootActivity().getSupportFragmentManager();
 
@@ -70,8 +101,11 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
         }
 
         transaction.replace(myId, newFragment);
-        transaction.commitNow();
-
+        try {
+            transaction.commitNow();
+        } catch(IllegalArgumentException e) {
+            return;
+        }
         currentFragment = newFragment;
     }
 
@@ -85,6 +119,7 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
     private Transition enterAnimation;
     private Transition returnAnimation;
     private Transition exitAnimation;
+    private List<NativeStackFragment> fragmentQueue;
 
     private native boolean handleBackButton();
 }
