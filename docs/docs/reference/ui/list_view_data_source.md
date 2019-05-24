@@ -5,7 +5,7 @@ source: ListViewDataSource.h
 
 An abstract base class for a [`ListView`](list_view.md)'s data source.
 
-To implement a custom list view data source, inherit from `ListViewDataSource` and implement `numberOfRow()`, `viewForRoIndex()`, and `heightForRowIndex()`. See the example below for reference.
+To implement a custom list view data source, inherit from `ListViewDataSource` and implement `numberOfRows()`, `viewForRowIndex()`, and `heightForRowIndex()`. See the example below for reference.
 
 ## Declaration
 
