@@ -6,6 +6,7 @@ SET(MACOSX_BUNDLE_BUNDLE_NAME reddit)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.reddit")
 
 ios_configure_asset(REDDIT_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
+ios_configure_asset(REDDIT_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.png)
 
 roger_add(
     reddit

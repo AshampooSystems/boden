@@ -6,6 +6,7 @@ SET(MACOSX_BUNDLE_BUNDLE_NAME bodendemo)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.bodendemo")
 
 ios_configure_asset(BODENDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
+ios_configure_asset(BODENDEMO_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.png)
 
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 
