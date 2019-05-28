@@ -54,13 +54,13 @@ window->styleSheet =
 
 ## Stylesheet
 
-The layout is configured using the View's [stylesheet](../view.md#properties) property.
+The layout is configured using the [`View`](../view.md)'s [`stylesheet`](../view.md#properties) property.
 The layout retrieves its setting from the `"flex"` entry.
 
 
 ### Defaults
 
-If the View's stylesheet does not specify a value, the following defaults are used:
+If the [`View`](../view.md)'s stylesheet does not specify a value, the following defaults are used:
 
 ```json
 {
@@ -111,7 +111,7 @@ If the View's stylesheet does not specify a value, the following defaults are us
 
 * **`direction`**
 
-	Specifies the Layout direction, possible values are:
+	Specifies the layout direction.
 
 	| Value | Direction |
 	|---|---|
@@ -123,7 +123,7 @@ If the View's stylesheet does not specify a value, the following defaults are us
 
 * **`layoutDirection`**
 
-	Specifies the layout anchor 
+	Specifies the layout anchor.
 
 	| Value | Direction |
 	|---|---|
@@ -132,7 +132,7 @@ If the View's stylesheet does not specify a value, the following defaults are us
 
 * **`flexWrap`** 
 
-	Allows items to wrap to the next line if they don't fit
+	Allows items to wrap to the next line if they don't fit.
 
 	| Value | Result |
 	|---|---|
@@ -143,7 +143,7 @@ If the View's stylesheet does not specify a value, the following defaults are us
 
 ### Alignment
 
-Possible align- Items/Self/Content values
+Available values for alignItems/alignSelf/alignContent:
 
 | Value | Description |
 |---|---|
@@ -158,21 +158,21 @@ Possible align- Items/Self/Content values
 
 * **`alignItems`**
 
-	Alignment of children along the cross axis of the container
+	Alignment of children along the cross axis of the container.
 
-	*Defaults to "Stretch"* 
+	Defaults to `Stretch`.
 
 * **`alignSelf`**
 
-	Same as **alignItems** but for a single child ( overrides the parents alignItems )
+	Same as `alignItems` but for a single child (overrides the parents alignItems).
 
-	*Defaults to "Auto"* 
+	Defaults to `Auto`.
 
 * **`alignContent`**
 
-	Alignment of lines along the cross-axis. Only affects containers with **flexWrap** enabled.
+	Alignment of lines along the cross-axis. Only affects containers with `flexWrap` enabled.
 	
-	*Defaults to "Stretch"* 
+	Defaults to `Stretch`.
 
 * **`justifyContent`**
 
@@ -180,12 +180,14 @@ Possible align- Items/Self/Content values
 
 	| Value | Distribution |
 	|---|---|
-	| **FlexStart** (default) | start of the container |
+	| FlexStart (default) | start of the container |
 	| Center | center of the container |
 	| FlexEnd | end of the container |
 	| SpaceEvenly | evenly across the container, remaining space split evenly around items |
 	| SpaceBetween | evenly across the container, remaining space split between items |
 	| SpaceAround | evenly across the container, remaining space split around the items |
+
+	Defaults to `FlexStart`.
 
 
 ### Flex
@@ -193,8 +195,8 @@ Possible align- Items/Self/Content values
 * **`flexBasis`**
 
 	Specifies the default size of the item along the containers main axis. 
-	Similar to **size/width** for Row containers or **size/height** for Column containers.
-	flexBasis can be specified in pixel or percent:
+	Similar to size/width for row containers or size/height for column containers.
+	`flexBasis` can be specified in pixels or as percentage value (string):
 
 	```json
 	{ "flexBasis" : 100 },
@@ -205,17 +207,17 @@ Possible align- Items/Self/Content values
 
 * **`flexGrow`**
 
-	Specifies the fraction of a containers empty space the item should request. 
+	Specifies the fraction of a container's empty space the item should request. 
 	The default value is 0.
 
 * **`flexShrink`**
 
-	Specifies how much to shrink an item if there is not enough space for all items.
+	Specifies how much to shrink an item if there is not enough space.
 
 
 ### Border
 
-Margin/Padding can be specified in pixel or percent:
+Margin and padding can be specified as pixels or percentage value (string):
 
 ```json
 { "margin" : {"all" : 100} },
@@ -242,8 +244,7 @@ Sizes are specified as dictionaries containing `width` and `height`.
 | minimumSize  | `min-width`, `min-height`  |
 | maximumSize  | `max-width`, `max-height`  |
 
-
-minimum-/maximum-/Size can be specified in pixel or percent:
+`minimumSize`/`maximumSize` can be specified as pixels or percentage value (string):
 
 ```json
 { "size" : {"width" : 100} },
@@ -253,21 +254,21 @@ minimum-/maximum-/Size can be specified in pixel or percent:
 
 * **`size`**
 
-	Specifies the width and height of the item
+	Specifies the width and height of the item.
 
 	* **`size/width`**
 	* **`size/height`**
 
 * **`minimumSize`**
 
-	Specifies the minimum width and height of the item
+	Specifies the minimum width and height of the item.
 
 	* **`minimumSize/width`**
 	* **`minimumSize/height`**
 
 * **`maximumSize`**
 
-	Specifies the maximum width and height of the item
+	Specifies the maximum width and height of the item.
 
 	* **`maximumSize/width`**
 	* **`maximumSize/height`**
@@ -275,7 +276,7 @@ minimum-/maximum-/Size can be specified in pixel or percent:
 
 * **`aspectRatio`**
 
-	Defines the aspect ratio between width and height.
+	Defines the aspect ratio.
 
 
 
