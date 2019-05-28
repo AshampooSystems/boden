@@ -30,6 +30,7 @@ namespace bdn::ui
 
       public:
         static bool &debugViewEnabled();
+        static bool &debugViewBaselineEnabled();
 
       public:
         View() = delete;
@@ -40,6 +41,8 @@ namespace bdn::ui
 
       public:
         virtual Size sizeForSpace(Size availableSpace = Size::none()) const;
+        virtual float baseline(Size forSize) const;
+        virtual float pointScaleFactor() const;
 
         std::shared_ptr<Layout> getLayout();
         void setLayout(std::shared_ptr<Layout> layout);
@@ -110,6 +113,8 @@ namespace bdn::ui
             virtual void init() = 0;
 
             virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }
+            virtual float baseline(Size forSize) const { return static_cast<float>(forSize.height); }
+            virtual float pointScaleFactor() const = 0;
 
             virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
 

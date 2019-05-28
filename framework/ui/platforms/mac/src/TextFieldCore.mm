@@ -80,4 +80,11 @@ namespace bdn::ui::mac
             }
         };
     }
+
+    float TextFieldCore::calculateBaseline(Size forSize, bool forIndicator) const
+    {
+        NSTextField *textField = (NSTextField *)nsView();
+
+        return static_cast<float>(textField.firstBaselineOffsetFromTop + 1);
+    }
 }

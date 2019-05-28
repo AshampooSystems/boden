@@ -72,6 +72,19 @@ namespace bdn::ui::android
         return prefSize;
     }
 
+    float ViewCore::baseline(Size forSize) const
+    {
+        auto baseline = _jView.getBaseline() / _uiScaleFactor;
+
+        if (baseline == -1) {
+            return forSize.height;
+        }
+
+        return static_cast<float>(baseline);
+    }
+
+    float ViewCore::pointScaleFactor() const { return _uiScaleFactor; }
+
     bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
 
     void ViewCore::layoutChange(int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,

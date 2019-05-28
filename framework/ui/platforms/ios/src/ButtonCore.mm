@@ -56,4 +56,22 @@ namespace bdn::ui::ios
     UIButton *ButtonCore::getUIButton() { return _button; }
 
     void ButtonCore::handleClick() { _clickCallback.fire(); }
+
+    float ButtonCore::calculateBaseline(Size forSize) const
+    {
+        auto bounds = CGRectMake(0, 0, forSize.width, forSize.height);
+        auto titleBox = [_button titleRectForContentRect:bounds];
+
+        auto labelOffset = titleBox.origin.y;
+        auto buttonBaseline = labelOffset + _button.titleLabel.font.ascender;
+
+        auto scaleFactor = _button.titleLabel.contentScaleFactor;
+        auto scaledBaseline = buttonBaseline * scaleFactor;
+
+        buttonBaseline = ceil(scaledBaseline) / scaleFactor;
+
+        return static_cast<float>(buttonBaseline);
+    }
+
+    float ButtonCore::pointScaleFactor() const { return _button.titleLabel.contentScaleFactor; }
 }

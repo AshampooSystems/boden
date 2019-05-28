@@ -215,5 +215,8 @@ namespace bdn::ui::ios
         if (std::find(argStrings.begin(), argStrings.end(), "--bdn-view-enable-debug"s) != argStrings.end()) {
             View::debugViewEnabled() = true;
         }
+        if (std::find(argStrings.begin(), argStrings.end(), "--bdn-view-enable-baseline-debug"s) != argStrings.end()) {
+            View::debugViewBaselineEnabled() = true;
+        }
     }
 }

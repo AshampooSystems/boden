@@ -125,6 +125,8 @@ namespace bdn::android::wrapper
         JavaMethod<int()> getMeasuredWidth{this, "getMeasuredWidth"};
         JavaMethod<int()> getMeasuredHeight{this, "getMeasuredHeight"};
 
+        JavaMethod<int()> getBaseline{this, "getBaseline"};
+
         JavaMethod<void(int, int, int, int)> layout{this, "layout"};
 
         JavaMethod<void()> requestLayout{this, "requestLayout"};

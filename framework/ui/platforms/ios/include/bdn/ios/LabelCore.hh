@@ -31,6 +31,9 @@ namespace bdn::ui::ios
       public:
         LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
+      public:
+        float calculateBaseline(Size forSize) const override;
+
       private:
         UILabel *getUILabel();
 

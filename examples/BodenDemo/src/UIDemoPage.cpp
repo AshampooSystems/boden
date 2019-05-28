@@ -170,7 +170,7 @@ namespace bdn
 
         auto btn = std::make_shared<Button>();
         btn->label = "Button";
-        container->addChildView(makeRow("Button", btn));
+        container->addChildView(makeRow("Button", btn, 5, 5, 0.62, true));
 
         auto image = std::make_shared<ImageView>();
 
@@ -190,7 +190,7 @@ namespace bdn
         auto textField = std::make_shared<TextField>();
         textField->text = "Enter text here";
         textField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150}});
-        container->addChildView(makeRow("Text Field", textField, 5., 20.));
+        container->addChildView(makeRow("Text Field", textField, 5., 20., 0.62, true));
 
         auto textScrollView = std::make_shared<ScrollView>();
         textScrollView->stylesheet = FlexJsonStringify({"flexGrow" : 1, "flexShrink" : 1, "margin" : {"all" : 20}});

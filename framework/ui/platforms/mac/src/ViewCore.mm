@@ -35,6 +35,16 @@ namespace bdn::ui::mac
                 _nsView.layer.backgroundColor =
                     [NSColor colorWithHue:drand48() saturation:0.75 brightness:0.75 alpha:1.0].CGColor;
             }
+
+            if (View::debugViewBaselineEnabled()) {
+                _baselineIndicator = [[NSView alloc] init];
+                _baselineIndicator.wantsLayer = YES;
+                _baselineIndicator.hidden = YES;
+                _baselineIndicator.layer.backgroundColor =
+                    [NSColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.75].CGColor;
+
+                [_nsView addSubview:_baselineIndicator];
+            }
         }
     }
 
@@ -61,6 +71,31 @@ namespace bdn::ui::mac
     void ViewCore::scheduleLayout() { _nsView.needsLayout = YES; }
 
     Size ViewCore::sizeForSpace(Size) const { return macSizeToSize(_nsView.fittingSize); }
+
+    float ViewCore::baseline(Size forSize) const
+    {
+        auto cb = calculateBaseline(forSize, false);
+
+        if (View::debugViewBaselineEnabled()) {
+            _baselineIndicator.hidden = NO;
+            _baselineIndicator.frame = CGRectMake(0, calculateBaseline(forSize, true), forSize.width, 1);
+        }
+
+        return cb;
+    }
+
+    float ViewCore::calculateBaseline(Size forSize, bool forIndicator) const
+    {
+        return static_cast<float>(forSize.height);
+    }
+
+    float ViewCore::pointScaleFactor() const
+    {
+        if (_nsView && _nsView.window) {
+            return static_cast<float>(_nsView.window.backingScaleFactor);
+        }
+        return 1.0f;
+    }
 
     void ViewCore::setFrame(Rect r)
     {

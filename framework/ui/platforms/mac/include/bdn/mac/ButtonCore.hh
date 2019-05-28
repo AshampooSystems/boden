@@ -20,6 +20,7 @@ namespace bdn::ui::mac
         void init() override;
 
         Size sizeForSpace(Size availableSpace) const override;
+        float calculateBaseline(Size forSize, bool forIndicator) const override;
 
         void frameChanged() override;
 

@@ -23,6 +23,8 @@ namespace bdn::ui::yoga
         static YGSize measureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
                                   YGMeasureMode heightMode);
 
+        static float baselineFunc(YGNodeRef node, float width, float height);
+
         static void applyLayout(YGNodeRef node, Point offset);
 
         static void yogaVisit(YGNodeRef node, const std::function<void(YGNodeRef, Point)> &function,

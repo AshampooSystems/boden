@@ -17,6 +17,9 @@ namespace bdn::ui::ios
       public:
         void init() override;
 
+      public:
+        float calculateBaseline(Size forSize) const override;
+
       private:
         BdnTextFieldDelegate *_delegate;
     };

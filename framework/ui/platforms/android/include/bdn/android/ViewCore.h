@@ -51,6 +51,9 @@ namespace bdn::ui::android
 
         void updateChildren();
 
+        float baseline(Size forSize) const override;
+        float pointScaleFactor() const override;
+
       protected:
         virtual void initTag();
 

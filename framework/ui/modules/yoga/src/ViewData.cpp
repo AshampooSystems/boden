@@ -6,7 +6,10 @@ namespace bdn::ui::yoga
 {
     ViewData::ViewData(View *v) : view(v), isRootNode(false), isIn(false)
     {
-        ygNode = YGNodeNew();
+        auto config = YGConfigGetDefault();
+        config->pointScaleFactor = view->pointScaleFactor();
+
+        ygNode = YGNodeNewWithConfig(config);
         YGNodeSetContext(ygNode, this);
 
         childrenChanged();
@@ -43,24 +46,12 @@ namespace bdn::ui::yoga
         viewData->view->scheduleLayout();
     }
 
-    /*static float YGSanitizeMeasurement(float constrainedSize, float measuredSize, YGMeasureMode measureMode)
-    {
-        float result;
-        if (measureMode == YGMeasureModeExactly) {
-            result = constrainedSize;
-        } else if (measureMode == YGMeasureModeAtMost) {
-            result = std::min(constrainedSize, measuredSize);
-        } else {
-            result = measuredSize;
-        }
-
-        return result;
-    }*/
-
     YGSize ViewData::measureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
                                  YGMeasureMode heightMode)
     {
         auto viewData = static_cast<ViewData *>(YGNodeGetContext(node));
+
+        node->getConfig()->pointScaleFactor = viewData->view->pointScaleFactor();
 
         Size constraintSize = Size(widthMode == YGMeasureModeUndefined ? Size::componentNone() : width,
                                    heightMode == YGMeasureModeUndefined ? Size::componentNone() : height);
@@ -68,6 +59,12 @@ namespace bdn::ui::yoga
         Size s = viewData->view->sizeForSpace(constraintSize);
 
         return (YGSize){.width = (float)s.width, .height = (float)s.height};
+    }
+
+    float ViewData::baselineFunc(YGNodeRef node, float width, float height)
+    {
+        auto viewData = static_cast<ViewData *>(YGNodeGetContext(node));
+        return viewData->view->baseline({width, height});
     }
 
     void ViewData::applyLayout(YGNodeRef node, Point offset)
@@ -120,8 +117,10 @@ namespace bdn::ui::yoga
     {
         if (YGNodeGetChildCount(ygNode) > 0 || adding) {
             YGNodeSetMeasureFunc(ygNode, nullptr);
+            YGNodeSetBaselineFunc(ygNode, nullptr);
         } else {
             YGNodeSetMeasureFunc(ygNode, &measureFunc);
+            YGNodeSetBaselineFunc(ygNode, &ViewData::baselineFunc);
         }
     }
 }

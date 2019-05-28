@@ -33,6 +33,8 @@ namespace bdn::ui::ios
         UIView *uiView() const;
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
+        float baseline(Size forSize) const override;
+        float pointScaleFactor() const override;
 
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
@@ -48,6 +50,10 @@ namespace bdn::ui::ios
       protected:
         virtual bool canAdjustToAvailableWidth() const;
         virtual bool canAdjustToAvailableHeight() const;
+
+        virtual float calculateBaseline(Size forSize) const;
+
+        UIView *_baselineIndicator;
 
       private:
         UIView<UIViewWithFrameNotification> *_view;

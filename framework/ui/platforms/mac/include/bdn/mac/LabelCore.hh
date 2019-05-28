@@ -14,6 +14,7 @@ namespace bdn::ui::mac
 
       public:
         Size sizeForSpace(Size availableSpace) const override;
+        float calculateBaseline(Size forSize, bool forIndicator) const override;
 
       private:
         NSTextView *_nsTextView;

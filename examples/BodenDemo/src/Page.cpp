@@ -28,17 +28,23 @@ namespace bdn
     }
 
     std::shared_ptr<View> makeRow(String title, std::shared_ptr<View> ctrl, double marginTop, double marginBottom,
-                                  double contentRatio)
+                                  double contentRatio, bool baseline)
     {
         auto row = std::make_shared<ContainerView>();
 
-        row->stylesheet = nlohmann::json{{"flex",
-                                          {{"direction", FlexStylesheet::Direction::Row},
-                                           {"minimumSize", {"height", 40}},
-                                           {"alignItems", FlexStylesheet::Align::Center},
-                                           {"justifyContent", FlexStylesheet::Align::SpaceBetween},
-                                           {"flexShrink", 0},
-                                           {"margin", {{"top", marginTop}, {"bottom", marginBottom}}}}}};
+        auto rowStylesheet = nlohmann::json{{"flex",
+                                             {{"direction", FlexStylesheet::Direction::Row},
+                                              {"minimumSize", {"height", 40}},
+                                              {"alignItems", FlexStylesheet::Align::Center},
+                                              {"justifyContent", FlexStylesheet::Align::SpaceBetween},
+                                              {"flexShrink", 0},
+                                              {"margin", {{"top", marginTop}, {"bottom", marginBottom}}}}}};
+
+        if (baseline) {
+            rowStylesheet["flex"]["alignItems"] = FlexStylesheet::Align::Baseline;
+        }
+
+        row->stylesheet = rowStylesheet;
 
         auto leftColumn = std::make_shared<ContainerView>();
         leftColumn->stylesheet = nlohmann::json{{"flex",

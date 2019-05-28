@@ -80,16 +80,9 @@ namespace bdn::ui::ios
     BodenUITextField *_createUITextField()
     {
         BodenUITextField *textField = [[BodenUITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-        textField.backgroundColor = [UIColor clearColor];
-        textField.layer.borderColor = [[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0] CGColor];
-        textField.layer.borderWidth = 1;
-        textField.layer.cornerRadius = 5;
-        textField.font = [UIFont systemFontOfSize:15];
         textField.borderStyle = UITextBorderStyleRoundedRect;
         textField.clearButtonMode = UITextFieldViewModeWhileEditing;
         textField.keyboardType = UIKeyboardTypeDefault;
-        textField.autocorrectionType = UITextAutocorrectionTypeNo;
-        textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         textField.returnKeyType = UIReturnKeyDone;
 
         return textField;
@@ -114,4 +107,24 @@ namespace bdn::ui::ios
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
+
+    float TextFieldCore::calculateBaseline(Size forSize) const
+    {
+        UITextField *textField = (UITextField *)uiView();
+
+        auto bounds = CGRectMake(0, 0, forSize.width, forSize.height);
+
+        auto textBox = [textField textRectForBounds:bounds];
+        auto baseline = textBox.origin.y + textField.font.ascender;
+
+        if (textField.contentVerticalAlignment == UIControlContentVerticalAlignmentCenter) {
+            auto offset = ((textBox.size.height - textBox.origin.y) / 2.0) - (textField.font.lineHeight / 2.0);
+            baseline += offset;
+        }
+        if (textField.contentVerticalAlignment == UIControlContentVerticalAlignmentBottom) {
+            baseline = textBox.size.height + textField.font.descender;
+        }
+
+        return baseline;
+    }
 }

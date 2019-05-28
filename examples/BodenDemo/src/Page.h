@@ -10,7 +10,7 @@ using namespace bdn::ui::yoga;
 namespace bdn
 {
     std::shared_ptr<View> makeRow(String title, std::shared_ptr<View> ctrl, double marginTop = 5.,
-                                  double marginBottom = 5., double contentRatio = 0.62);
+                                  double marginBottom = 5., double contentRatio = 0.62, bool baseline = false);
     std::shared_ptr<View> createPageContainer(std::shared_ptr<View> page, String nextTitle,
                                               std::function<void()> nextFunc);
 }

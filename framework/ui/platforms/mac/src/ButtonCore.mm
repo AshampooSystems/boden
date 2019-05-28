@@ -59,9 +59,24 @@ namespace bdn::ui::mac
 
     Size ButtonCore::sizeForSpace(Size availableSpace) const
     {
-        auto s = ((NSButton *)nsView()).intrinsicContentSize;
+        Size s = ViewCore::sizeForSpace(availableSpace);
+        auto insets = ((NSButton *)nsView()).alignmentRectInsets;
 
-        return macSizeToSize(s);
+        s.width -= insets.left + insets.right;
+        s.height -= insets.top + insets.bottom;
+
+        return s;
+    }
+
+    float ButtonCore::calculateBaseline(Size forSize, bool forIndicator) const
+    {
+        auto baseline = nsView().firstBaselineOffsetFromTop;
+
+        if (forIndicator) {
+            baseline += ((NSButton *)nsView()).alignmentRectInsets.top;
+        }
+
+        return static_cast<float>(baseline);
     }
 
     void ButtonCore::frameChanged() {}

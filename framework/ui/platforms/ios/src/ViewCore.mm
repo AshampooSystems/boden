@@ -13,6 +13,13 @@ namespace bdn::ui::ios
             _view.layer.borderColor = [UIColor blackColor].CGColor;
             _view.backgroundColor = [UIColor colorWithHue:drand48() saturation:1.0 brightness:1.0 alpha:1.0];
         }
+
+        if (View::debugViewBaselineEnabled()) {
+            _baselineIndicator = [[UIView alloc] init];
+            _baselineIndicator.backgroundColor = [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.5];
+            _baselineIndicator.hidden = YES;
+            [_view addSubview:_baselineIndicator];
+        }
     }
 
     void ViewCore::init()
@@ -29,6 +36,22 @@ namespace bdn::ui::ios
     void ViewCore::frameChanged() { geometry = iosRectToRect(_view.frame); }
 
     void ViewCore::onGeometryChanged(Rect newGeometry) { _view.frame = rectToIosRect(newGeometry); }
+
+    float ViewCore::baseline(Size forSize) const
+    {
+        auto cb = calculateBaseline(forSize);
+
+        if (View::debugViewBaselineEnabled()) {
+            _baselineIndicator.frame = CGRectMake(0, cb, forSize.width, 1);
+            _baselineIndicator.hidden = NO;
+        }
+
+        return cb;
+    }
+
+    float ViewCore::calculateBaseline(Size forSize) const { return forSize.height; }
+
+    float ViewCore::pointScaleFactor() const { return _view.contentScaleFactor; }
 
     UIView *ViewCore::uiView() const { return _view; }
 

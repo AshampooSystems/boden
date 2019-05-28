@@ -61,4 +61,13 @@ namespace bdn::ui::mac
 
         return result;
     }
+
+    float LabelCore::calculateBaseline(Size forSize, bool forIndicator) const
+    {
+        if (text->empty()) {
+            return ViewCore::baseline(forSize);
+        }
+        auto x = [_nsTextView baselineDeltaForCharacterAtIndex:0];
+        return static_cast<float>(x);
+    }
 }

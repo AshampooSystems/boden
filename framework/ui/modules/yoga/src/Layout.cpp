@@ -219,7 +219,8 @@ namespace bdn::ui::yoga
                 auto childList = parent->childViews();
 
                 YGNodeRemoveAllChildren(it->second->ygNode);
-                YGNodeSetMeasureFunc(it->second->ygNode, nullptr);
+
+                it->second->childrenChanged(true);
 
                 for (auto &child : parent->childViews()) {
                     if (child->visible.get()) {
@@ -230,6 +231,8 @@ namespace bdn::ui::yoga
                         }
                     }
                 }
+
+                it->second->childrenChanged();
             }
         }
     }

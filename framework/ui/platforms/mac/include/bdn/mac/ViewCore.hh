@@ -37,9 +37,14 @@ namespace bdn::ui::mac
         void scheduleLayout() override;
 
         Size sizeForSpace(Size availableSpace) const override;
+        float baseline(Size forSize) const override;
+        virtual float calculateBaseline(Size forSize, bool forIndicator) const;
+        float pointScaleFactor() const override;
 
       protected:
         virtual void setFrame(Rect r);
+
+        NSView *_baselineIndicator;
 
       private:
         NSView *_nsView;

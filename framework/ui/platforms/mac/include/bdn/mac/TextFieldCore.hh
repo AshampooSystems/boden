@@ -19,6 +19,9 @@ namespace bdn::ui::mac
 
         void init() override;
 
+      public:
+        float calculateBaseline(Size forSize, bool forIndicator) const override;
+
       private:
         BdnTextFieldDelegate *_delegate;
     };

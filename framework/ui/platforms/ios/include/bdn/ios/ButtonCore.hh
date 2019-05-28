@@ -18,6 +18,10 @@ namespace bdn::ui::ios
         UIButton *getUIButton();
         void handleClick();
 
+      public:
+        float calculateBaseline(Size forSize) const override;
+        float pointScaleFactor() const override;
+
       private:
         UIButton *_button;
         BdnIosButtonClickManager *_clickManager;

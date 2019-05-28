@@ -11,6 +11,7 @@ namespace bdn::ui::ios
     {
         BodenUILabel *label = [[BodenUILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         label.numberOfLines = 0;
+
         return label;
     }
 
@@ -31,4 +32,14 @@ namespace bdn::ui::ios
     }
 
     UILabel *LabelCore::getUILabel() { return _uiLabel; }
+
+    float LabelCore::calculateBaseline(bdn::Size forSize) const
+    {
+        auto s = _uiLabel.intrinsicContentSize.height;
+        auto offset = std::max(((forSize.height) / 2.0) - (s / 2.0), 0.0);
+
+        auto ascender = round(_uiLabel.font.ascender);
+
+        return static_cast<float>(ascender + offset);
+    }
 }

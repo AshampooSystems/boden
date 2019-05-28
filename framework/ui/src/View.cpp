@@ -14,6 +14,12 @@ namespace bdn::ui
         return s_debugViewEnabled;
     }
 
+    bool &View::debugViewBaselineEnabled()
+    {
+        static bool s_debugViewBaselineEnabled = false;
+        return s_debugViewBaselineEnabled;
+    }
+
     View::View(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
         : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory) : UIApplicationController::topViewCoreFactory())
     {
@@ -181,6 +187,10 @@ namespace bdn::ui
     }
 
     Size View::sizeForSpace(Size availableSpace) const { return viewCore()->sizeForSpace(availableSpace); }
+
+    float View::baseline(Size forSize) const { return viewCore()->baseline(forSize); }
+
+    float View::pointScaleFactor() const { return viewCore()->pointScaleFactor(); }
 
     View::Core::Core(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : _viewCoreFactory(std::move(viewCoreFactory)) {}
 }
