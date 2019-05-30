@@ -5,6 +5,7 @@ To build Android apps on Windows, the following dependencies need to be installe
 1. Windows 10
 2. [Python 3.4+](https://www.python.org/downloads/)
 3. [CMake 3.10.2+](https://cmake.org/download/)
+4. [Ninja](https://github.com/ninja-build/ninja/releases)
 4. [Git](https://git-scm.com/download/win)
 5. [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 6. [Android Studio](https://developer.android.com/studio) (with Android NDK)
