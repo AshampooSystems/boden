@@ -122,6 +122,10 @@ nav:
       - FDL 1.3: 'legal/licensing/fdl-1.3.md'
       - GPL 2: 'legal/licensing/gpl-2.md'
       - GPL 3: 'legal/licensing/gpl-3.md'
+  - Feedback:
+    - Getting in Touch with the Boden Team: feedback/index.md
+    - Reporting Bugs: feedback/reporting-bugs.md
+    - Contributing: feedback/contributing.md
 
 google_analytics:
   - 'GTM-MP93ZKM'

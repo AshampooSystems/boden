@@ -175,7 +175,7 @@
               {% block content %}
                 <h1></h1>
 
-                <h2>Build native cross-platform user experiences with&nbsp;Boden</h2>
+                <h2>Build purely native cross-platform user experiences with&nbsp;Boden</h2>
 
                 <p>With Boden you can create native mobile cross-platform applications from one codebase. Boden uses the real user interface controls of the target platform, so users won't recognize any difference to the look and feel they are already used&nbsp;to.</p>
 
@@ -188,21 +188,26 @@
 
                 <p>Write your mobile apps in modern C++17 and compile 100% native Android and iOS apps from a single statically typed codebase. No need for scripting. No overhead introduced by virtual machines. Using Boden is straight forward:</p>
 <div class="codehilite"><pre><span></span><span class="c1">// MainViewController.cpp</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/Button.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/Window.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/yoga.h&gt;</span><span class="cp"></span>
+
 <span class="cp">#include</span> <span class="cpf">&quot;MainViewController.h&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
 
 <span class="n">MainViewController</span><span class="o">::</span><span class="n">MainViewController</span><span class="p">()</span>
 <span class="p">{</span>
-    <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="n">_window</span><span class="o">-&gt;</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;AwesomeApp&quot;</span><span class="p">;</span>
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">yoga</span><span class="o">::</span><span class="n">Layout</span><span class="o">&gt;</span><span class="p">());</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="k">auto</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Hello World&quot;</span><span class="p">;</span>
-    <span class="n">button</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">Rect</span><span class="p">{</span><span class="mi">150</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">22</span><span class="p">};</span>
 
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">content</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">contentView</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
+
     <span class="n">_window</span><span class="o">-&gt;</span><span class="n">visible</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
@@ -211,28 +216,30 @@
                 <p>With Boden laying out your UI is a breeze. Just define your layouts using Flexbox stylesheets directly in C++. Boden uses <a target="_blank" href="https://yogalayout.com">Facebook's Yoga Layout</a> engine accross all platforms.</p>
 
 <div class="codehilite"><pre><span></span><span class="c1">// MainViewController.cpp</span>
+<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/yoga.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/Button.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/Window.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/yogalayout.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;MainViewController.h&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
 
 <span class="n">MainViewController</span><span class="o">::</span><span class="n">MainViewController</span><span class="p">()</span>
 <span class="p">{</span>
-    <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="n">_window</span><span class="o">-&gt;</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;AwesomeApp&quot;</span><span class="p">;</span>
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">yogalayout</span><span class="o">::</span><span class="n">Layout</span><span class="o">&gt;</span><span class="p">());</span>
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">setLayoutStylesheet</span><span class="p">(</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">yoga</span><span class="o">::</span><span class="n">Layout</span><span class="o">&gt;</span><span class="p">());</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">stylesheet</span> <span class="o">=</span>
                 <span class="n">FlexJsonStringify</span><span class="p">({</span>
-                                      <span class="s">&quot;justifyContent&quot;</span> <span class="o">:</span> <span class="s">&quot;Center&quot;</span><span class="p">,</span> 
-                                      <span class="s">&quot;alignItems&quot;</span> <span class="o">:</span> <span class="s">&quot;Center&quot;</span>
-                                  <span class="p">}));</span>
+                                      <span class="s">&quot;justifyContent&quot;</span><span class="o">:</span> <span class="s">&quot;Center&quot;</span><span class="p">,</span> 
+                                      <span class="s">&quot;alignItems&quot;</span><span class="o">:</span> <span class="s">&quot;Center&quot;</span>
+                                  <span class="p">});</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Hello World&quot;</span><span class="p">;</span>
 
-    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">content</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
+    <span class="n">_window</span><span class="o">-&gt;</span><span class="n">contentView</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
     <span class="n">_window</span><span class="o">-&gt;</span><span class="n">visible</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>

@@ -30,3 +30,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 	If Android Studio displays an error stating that permission to `/dev/kvm` is denied, make sure that you have added your user to the `kvm` group.
 
 Continue to [Your first Boden application](../first_app.md) to learn how to create your first Boden app.
+
+## Didn't work?
+
+Please [let us know](../../../feedback). We're happy to help!

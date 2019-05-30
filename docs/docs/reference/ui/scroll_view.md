@@ -23,7 +23,7 @@ auto image = std::make_shared<ImageView>();
 image->url = "https:://www.xyz.com/some_huge_image.png";
 
 auto scrollView = std::make_shared<ScrollView>();
-scrollView->content = image;
+scrollView->contentView = image;
 ```
 
 ## Properties

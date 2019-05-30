@@ -42,3 +42,8 @@
 1. Accept the NDK license agreement.
 1. The NDK component is being installed, grab another drink.
 1. After the installation has finished, click Finish. The installation is now complete.
+
+## Didn't work?
+
+Please [let us know](../../../feedback). We're happy to help!
+

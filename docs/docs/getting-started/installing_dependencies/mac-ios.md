@@ -18,3 +18,7 @@
 2. Install Python and CMake: 
 
 		brew install python3 cmake
+
+## Didn't work?
+
+Please [let us know](../../../feedback). We're happy to help!

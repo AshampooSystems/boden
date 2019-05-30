@@ -22,25 +22,28 @@ namespace bdn {
 #include <bdn/Window.h>
 #include <bdn/ApplicationController.h>
 
-class MyApplicationController : public bdn::ApplicationController
+using namespace bdn;
+using namespace bdn::ui;
+
+class MyApplicationController : public ApplicationController
 {
 public:
 	void beginLaunch() override
 	{
-	    _window = std::make_shared<bdn::Window>();
+	    _window = std::make_shared<Window>();
 	    _window->title = "AwesomeApp";
-	    _window->geometry = bdn::Rect{0, 0, 400, 300};
+	    _window->geometry = Rect{0, 0, 400, 300};
 
-	    std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
+	    std::shared_ptr<Button> button = std::make_shared<Button>();
 	    button->label = "Hello World";
-	    button->geometry = bdn::Rect{150, 129, 100, 22};
+	    button->geometry = Rect{150, 129, 100, 22};
 
-	    _window->content = button;
+	    _window->contentView = button;
 	    _window->visible = true;
 	}
 
 private:
-	std::shared_ptr<bdn::Window> _window;
+	std::shared_ptr<Window> _window;
 };
 
 BDN_APP_INIT(MyApplicationController)

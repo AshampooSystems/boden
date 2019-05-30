@@ -40,3 +40,7 @@ Open up a terminal and run the following command:
 		gnome-session-quit
 
 2. Log back in. Android Emulator should now work on your system.
+
+## Didn't work?
+
+Please [let us know](../../../feedback). We're happy to help!

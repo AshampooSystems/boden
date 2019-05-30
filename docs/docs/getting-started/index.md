@@ -34,3 +34,7 @@ In Android Studio, select the `bodendemo` target and hit <kbd>Shift</kbd>+<kbd>F
 ## Step 4: Create Your First Boden Application
 
 Still with us? Great! Now [learn how to create your first Boden application](first_app.md).
+
+## Something didn't work?
+
+Let us know. We're happy about your [feedback](../feedback).

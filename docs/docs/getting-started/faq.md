@@ -50,3 +50,7 @@ Hint: There's unofficial macOS support already, but we don't talk about that as 
 
 Yes. While Boden is free and open source, it is commercially developed by a full-time team. Our goal is to make sophisticated app development hassle-free for you and we believe there is no better way of ensuring the necessary resources are fully committed to the framework.
 
+## Didn't find the question you were looking for?
+
+Please [let us know](../../../feedback). We're happy to answer your questions!
+
