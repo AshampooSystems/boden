@@ -172,7 +172,7 @@ class AndroidStudioProjectGenerator(object):
 
     def copytree(self, src, dst, symlinks=False, ignore=None):
         for root, dirs, files in os.walk(src):
-            sub = root.replace(src + "/", "")
+            sub = os.path.relpath(root, src) 
             dir = os.path.join(dst, sub)
             if not os.path.exists(dir):
                 os.makedirs(dir)

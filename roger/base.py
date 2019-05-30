@@ -26,9 +26,9 @@ class Roger:
                 os.makedirs(folder)
             shutil.copyfile(src, dest)
         else:
-            sys.stdout.write(src)
+            sys.stdout.write(os.path.abspath(src).replace('\\', '/'))
             sys.stdout.write("\\;")
-            sys.stdout.write(dest)
+            sys.stdout.write(os.path.abspath(dest).replace('\\', '/'))
             sys.stdout.write(";")
         return True
 

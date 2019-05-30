@@ -1,3 +1,5 @@
+find_package(PythonInterp REQUIRED)
+
 macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
     # Hack to force cmake to rerun when the resource description has changed
     configure_file(${_RESOURCE_FILE} ${CMAKE_BINARY_DIR}/resource_auto_refresh.txt)
@@ -11,13 +13,12 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
             set(_platform "mac")
         endif()
 
-
         string(SHA256 _timestamp_name ${_RESOURCE_FILE})
 
         set(_dest_dir ${CMAKE_CURRENT_BINARY_DIR}/precompiled-resources)
         set(_timestamp_file ${_dest_dir}/timestamp-${_timestamp_name})
 
-        execute_process(COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py dependencies -p ${_platform} -v ${_RESOURCE_FILE} ${_dest_dir}
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py dependencies -p ${_platform} -v ${_RESOURCE_FILE} ${_dest_dir}
             OUTPUT_VARIABLE _resource_output
             ERROR_VARIABLE _resource_verbose_output
             RESULT_VARIABLE _resource_result
@@ -40,7 +41,7 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
         endforeach()
 
         add_custom_command(OUTPUT ${_timestamp_file}
-            COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py build -p ${_platform} ${_RESOURCE_FILE} ${_dest_dir}
+            COMMAND ${PYTHON_EXECUTABLE} ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py build -p ${_platform} ${_RESOURCE_FILE} ${_dest_dir}
             MAIN_DEPENDENCY ${_RESOURCE_FILE}
             DEPENDS ${_input_resource_files}
             COMMENT "Copying Resources from ${_RESOURCE_FILE} ..."
@@ -51,7 +52,7 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
     elseif(BDN_PLATFORM_ANDROID)
         get_target_property(BODEN_CMAKE_SOURCE_DIR boden_cmake SOURCE_DIR)
 
-        execute_process(COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py dependencies -p android -v ${_RESOURCE_FILE} ${CMAKE_CURRENT_BINARY_DIR}/android-resources
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py dependencies -p android -v ${_RESOURCE_FILE} ${CMAKE_CURRENT_BINARY_DIR}/android-resources
             OUTPUT_VARIABLE _resource_output
             ERROR_VARIABLE _resource_verbose_output
             RESULT_VARIABLE _resource_result
@@ -70,7 +71,7 @@ macro(roger_add TARGET _VAR_ _RESOURCE_FILE)
 
         list(APPEND ${_VAR_} ${_RESOURCE_FILE})
 
-        execute_process(COMMAND ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py build -p android -v ${_RESOURCE_FILE} ${CMAKE_CURRENT_BINARY_DIR}/android-resources
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} ${BODEN_CMAKE_SOURCE_DIR}/../roger/roger.py build -p android -v ${_RESOURCE_FILE} ${CMAKE_CURRENT_BINARY_DIR}/android-resources
             OUTPUT_VARIABLE _resource_copy_output
             ERROR_VARIABLE _resource_copy_verbose_output
             RESULT_VARIABLE _resource_copy_result
