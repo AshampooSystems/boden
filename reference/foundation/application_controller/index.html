@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2208692433">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3692093353">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1840459526">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?5693019629">
     
     
       
@@ -272,6 +272,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
       
       	
+      
+      	
+        	
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../../../feedback/" title="Feedback" class="md-tabs__link">
+          Feedback
+        </a>
+      
+    </li>
+  
+
+        
       
     </ul>
   </div>
@@ -1589,6 +1604,66 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Feedback
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Feedback
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../feedback/" title="Getting in Touch with the Boden Team" class="md-nav__link">
+      Getting in Touch with the Boden Team
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../feedback/reporting-bugs/" title="Reporting Bugs" class="md-nav__link">
+      Reporting Bugs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../feedback/contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -1690,25 +1765,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/Window.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;bdn/ApplicationController.h&gt;</span><span class="cp"></span>
 
-<span class="k">class</span> <span class="nc">MyApplicationController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ApplicationController</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">MyApplicationController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ApplicationController</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="kt">void</span> <span class="n">beginLaunch</span><span class="p">()</span> <span class="k">override</span>
     <span class="p">{</span>
-        <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">_window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
         <span class="n">_window</span><span class="o">-&gt;</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;AwesomeApp&quot;</span><span class="p">;</span>
-        <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
+        <span class="n">_window</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Rect</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">};</span>
 
-        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
         <span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Hello World&quot;</span><span class="p">;</span>
-        <span class="n">button</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">Rect</span><span class="p">{</span><span class="mi">150</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">22</span><span class="p">};</span>
+        <span class="n">button</span><span class="o">-&gt;</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Rect</span><span class="p">{</span><span class="mi">150</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">22</span><span class="p">};</span>
 
-        <span class="n">_window</span><span class="o">-&gt;</span><span class="n">content</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
+        <span class="n">_window</span><span class="o">-&gt;</span><span class="n">contentView</span> <span class="o">=</span> <span class="n">button</span><span class="p">;</span>
         <span class="n">_window</span><span class="o">-&gt;</span><span class="n">visible</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
     <span class="p">}</span>
 
 <span class="k">private</span><span class="o">:</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span> <span class="n">_window</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Window</span><span class="o">&gt;</span> <span class="n">_window</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="n">BDN_APP_INIT</span><span class="p">(</span><span class="n">MyApplicationController</span><span class="p">)</span>
@@ -1850,6 +1928,7 @@ Use onSuspend to store application state or User data.</p>
             <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
+            <li><a href="../../../feedback">Feedback</a></li>
           </ul>
         </div>
       </div>

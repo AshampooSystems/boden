@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../stylesheets/cookieconsent.min.css?3785536447">
+      <link rel="stylesheet" href="../stylesheets/cookieconsent.min.css?2257785075">
     
-      <link rel="stylesheet" href="../stylesheets/boden.css?2620398613">
+      <link rel="stylesheet" href="../stylesheets/boden.css?3159988056">
     
     
       
@@ -273,6 +273,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       
       	
       
+      	
+        	
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../feedback/" title="Feedback" class="md-tabs__link">
+          Feedback
+        </a>
+      
+    </li>
+  
+
+        
+      
     </ul>
   </div>
 </nav>
@@ -402,6 +417,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#step-4-create-your-first-boden-application" title="Step 4: Create Your First Boden Application" class="md-nav__link">
     Step 4: Create Your First Boden Application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#something-didnt-work" title="Something didn't work?" class="md-nav__link">
+    Something didn't work?
   </a>
   
 </li>
@@ -1574,6 +1596,66 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Feedback
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Feedback
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../feedback/" title="Getting in Touch with the Boden Team" class="md-nav__link">
+      Getting in Touch with the Boden Team
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../feedback/reporting-bugs/" title="Reporting Bugs" class="md-nav__link">
+      Reporting Bugs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../feedback/contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -1629,6 +1711,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#something-didnt-work" title="Something didn't work?" class="md-nav__link">
+    Something didn't work?
+  </a>
+  
+</li>
+      
       
       
       
@@ -1651,7 +1740,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p><strong>On a Mac</strong>: macOS 10.14+, <a href="https://developer.apple.com/xcode/">Xcode 10.1+</a>, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>.</p>
-<p><strong>On Windows</strong>: Windows 10, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>, <a href="https://git-scm.com/download/win">Git</a>, <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Oracle JDK 8</a>, and <a href="https://developer.android.com/studio">Android Studio</a> (with Android NDK, see the <a href="installing_dependencies/windows/">installation instructions</a> for further details).</p>
+<p><strong>On Windows</strong>: Windows 10, <a href="https://www.python.org/downloads/">Python 3.4+</a>, <a href="https://cmake.org/download/">CMake 3.10.2+</a>, <a href="https://github.com/ninja-build/ninja/releases">Ninja</a>, <a href="https://git-scm.com/download/win">Git</a>, <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Oracle JDK 8</a>, and <a href="https://developer.android.com/studio">Android Studio</a> (with Android NDK, see the <a href="installing_dependencies/windows/">installation instructions</a> for further details).</p>
 <p><strong>On Ubuntu 18.04</strong>: <code>sudo apt update &amp;&amp; sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code> plus <a href="https://developer.android.com/studio/">Android Studio</a> (with Android NDK, see the <a href="installing_dependencies/linux/">installation instructions</a> for further details).</p>
 <h2 id="step-1-clone-the-boden-repo">Step 1: Clone the Boden Repo<a class="headerlink" href="#step-1-clone-the-boden-repo" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span>git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
@@ -1676,6 +1765,8 @@ python boden.py open
 <p>In Android Studio, select the <code>bodendemo</code> target and hit <kbd>Shift</kbd>+<kbd>F10</kbd>.</p>
 <h2 id="step-4-create-your-first-boden-application">Step 4: Create Your First Boden Application<a class="headerlink" href="#step-4-create-your-first-boden-application" title="Permanent link">&para;</a></h2>
 <p>Still with us? Great! Now <a href="first_app/">learn how to create your first Boden application</a>.</p>
+<h2 id="something-didnt-work">Something didn't work?<a class="headerlink" href="#something-didnt-work" title="Permanent link">&para;</a></h2>
+<p>Let us know. We're happy about your <a href="../feedback">feedback</a>.</p>
                 
                   
                 
@@ -1733,6 +1824,7 @@ python boden.py open
             <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
             <li><a href="../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../legal/licensing">Licensing</a></li>
+            <li><a href="../feedback">Feedback</a></li>
           </ul>
         </div>
       </div>

@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?1389611689">
+      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?1662550134">
     
-      <link rel="stylesheet" href="../../../../stylesheets/boden.css?1234127310">
+      <link rel="stylesheet" href="../../../../stylesheets/boden.css?1596854539">
     
     
       
@@ -272,6 +272,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
       
       	
+      
+      	
+        	
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../../../../feedback/" title="Feedback" class="md-tabs__link">
+          Feedback
+        </a>
+      
+    </li>
+  
+
+        
       
     </ul>
   </div>
@@ -1618,6 +1633,66 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Feedback
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Feedback
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../../feedback/" title="Getting in Touch with the Boden Team" class="md-nav__link">
+      Getting in Touch with the Boden Team
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../../feedback/reporting-bugs/" title="Reporting Bugs" class="md-nav__link">
+      Reporting Bugs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../../feedback/contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -1777,10 +1852,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </pre></div></div>
 </div>
 <h2 id="stylesheet">Stylesheet<a class="headerlink" href="#stylesheet" title="Permanent link">&para;</a></h2>
-<p>The layout is configured using the View's <a href="../../view/#properties">stylesheet</a> property.
+<p>The layout is configured using the <a href="../../view/"><code>View</code></a>'s <a href="../../view/#properties"><code>stylesheet</code></a> property.
 The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <h3 id="defaults">Defaults<a class="headerlink" href="#defaults" title="Permanent link">&para;</a></h3>
-<p>If the View's stylesheet does not specify a value, the following defaults are used:</p>
+<p>If the <a href="../../view/"><code>View</code></a>'s stylesheet does not specify a value, the following defaults are used:</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;flex&quot;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;alignContents&quot;</span><span class="p">:</span> <span class="s2">&quot;Stretch&quot;</span><span class="p">,</span>
@@ -1828,7 +1903,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <ul>
 <li>
 <p><strong><code>direction</code></strong></p>
-<p>Specifies the Layout direction, possible values are:</p>
+<p>Specifies the layout direction.</p>
 <table>
 <thead>
 <tr>
@@ -1858,7 +1933,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 </li>
 <li>
 <p><strong><code>layoutDirection</code></strong></p>
-<p>Specifies the layout anchor </p>
+<p>Specifies the layout anchor.</p>
 <table>
 <thead>
 <tr>
@@ -1880,7 +1955,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 </li>
 <li>
 <p><strong><code>flexWrap</code></strong> </p>
-<p>Allows items to wrap to the next line if they don't fit</p>
+<p>Allows items to wrap to the next line if they don't fit.</p>
 <table>
 <thead>
 <tr>
@@ -1906,7 +1981,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 </li>
 </ul>
 <h3 id="alignment">Alignment<a class="headerlink" href="#alignment" title="Permanent link">&para;</a></h3>
-<p>Possible align- Items/Self/Content values</p>
+<p>Available values for alignItems/alignSelf/alignContent:</p>
 <table>
 <thead>
 <tr>
@@ -1952,18 +2027,18 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <ul>
 <li>
 <p><strong><code>alignItems</code></strong></p>
-<p>Alignment of children along the cross axis of the container</p>
-<p><em>Defaults to "Stretch"</em> </p>
+<p>Alignment of children along the cross axis of the container.</p>
+<p>Defaults to <code>Stretch</code>.</p>
 </li>
 <li>
 <p><strong><code>alignSelf</code></strong></p>
-<p>Same as <strong>alignItems</strong> but for a single child ( overrides the parents alignItems )</p>
-<p><em>Defaults to "Auto"</em> </p>
+<p>Same as <code>alignItems</code> but for a single child (overrides the parents alignItems).</p>
+<p>Defaults to <code>Auto</code>.</p>
 </li>
 <li>
 <p><strong><code>alignContent</code></strong></p>
-<p>Alignment of lines along the cross-axis. Only affects containers with <strong>flexWrap</strong> enabled.</p>
-<p><em>Defaults to "Stretch"</em> </p>
+<p>Alignment of lines along the cross-axis. Only affects containers with <code>flexWrap</code> enabled.</p>
+<p>Defaults to <code>Stretch</code>.</p>
 </li>
 <li>
 <p><strong><code>justifyContent</code></strong></p>
@@ -1977,7 +2052,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>FlexStart</strong> (default)</td>
+<td>FlexStart (default)</td>
 <td>start of the container</td>
 </tr>
 <tr>
@@ -2002,6 +2077,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 </tr>
 </tbody>
 </table>
+<p>Defaults to <code>FlexStart</code>.</p>
 </li>
 </ul>
 <h3 id="flex">Flex<a class="headerlink" href="#flex" title="Permanent link">&para;</a></h3>
@@ -2009,8 +2085,8 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <li>
 <p><strong><code>flexBasis</code></strong></p>
 <p>Specifies the default size of the item along the containers main axis. 
-Similar to <strong>size/width</strong> for Row containers or <strong>size/height</strong> for Column containers.
-flexBasis can be specified in pixel or percent:</p>
+Similar to size/width for row containers or size/height for column containers.
+<code>flexBasis</code> can be specified in pixels or as percentage value (string):</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span> <span class="p">}</span>
@@ -2019,16 +2095,16 @@ flexBasis can be specified in pixel or percent:</p>
 </li>
 <li>
 <p><strong><code>flexGrow</code></strong></p>
-<p>Specifies the fraction of a containers empty space the item should request. 
+<p>Specifies the fraction of a container's empty space the item should request. 
 The default value is 0.</p>
 </li>
 <li>
 <p><strong><code>flexShrink</code></strong></p>
-<p>Specifies how much to shrink an item if there is not enough space for all items.</p>
+<p>Specifies how much to shrink an item if there is not enough space.</p>
 </li>
 </ul>
 <h3 id="border">Border<a class="headerlink" href="#border" title="Permanent link">&para;</a></h3>
-<p>Margin/Padding can be specified in pixel or percent:</p>
+<p>Margin and padding can be specified as pixels or percentage value (string):</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span><span class="p">}</span> <span class="p">}</span>
@@ -2068,7 +2144,7 @@ The default value is 0.</p>
 </tr>
 </tbody>
 </table>
-<p>minimum-/maximum-/Size can be specified in pixel or percent:</p>
+<p><code>minimumSize</code>/<code>maximumSize</code> can be specified as pixels or percentage value (string):</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;size&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;minimumSize&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
 <span class="p">{</span> <span class="nt">&quot;maximumSize&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span><span class="p">}</span> <span class="p">}</span>
@@ -2077,7 +2153,7 @@ The default value is 0.</p>
 <ul>
 <li>
 <p><strong><code>size</code></strong></p>
-<p>Specifies the width and height of the item</p>
+<p>Specifies the width and height of the item.</p>
 <ul>
 <li><strong><code>size/width</code></strong></li>
 <li><strong><code>size/height</code></strong></li>
@@ -2085,7 +2161,7 @@ The default value is 0.</p>
 </li>
 <li>
 <p><strong><code>minimumSize</code></strong></p>
-<p>Specifies the minimum width and height of the item</p>
+<p>Specifies the minimum width and height of the item.</p>
 <ul>
 <li><strong><code>minimumSize/width</code></strong></li>
 <li><strong><code>minimumSize/height</code></strong></li>
@@ -2093,7 +2169,7 @@ The default value is 0.</p>
 </li>
 <li>
 <p><strong><code>maximumSize</code></strong></p>
-<p>Specifies the maximum width and height of the item</p>
+<p>Specifies the maximum width and height of the item.</p>
 <ul>
 <li><strong><code>maximumSize/width</code></strong></li>
 <li><strong><code>maximumSize/height</code></strong></li>
@@ -2101,7 +2177,7 @@ The default value is 0.</p>
 </li>
 <li>
 <p><strong><code>aspectRatio</code></strong></p>
-<p>Defines the aspect ratio between width and height.</p>
+<p>Defines the aspect ratio.</p>
 </li>
 </ul>
                 
@@ -2186,6 +2262,7 @@ The default value is 0.</p>
             <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
             <li><a href="../../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../../legal/licensing">Licensing</a></li>
+            <li><a href="../../../../feedback">Feedback</a></li>
           </ul>
         </div>
       </div>
