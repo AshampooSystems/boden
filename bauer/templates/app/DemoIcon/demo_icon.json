@@ -1,0 +1,49 @@
+{
+    "name": "main",
+    "root-path": "./",
+    "icon": {
+        "android": {
+            "48x48":        "icons/android/48.png",
+            "72x72":        "icons/android/72.png",
+            "96x96":        "icons/android/96.png",
+            "144x144":      "icons/android/144.png",
+            "192x192":      "icons/android/192.png"
+        },
+        "mac": {
+            "16x16@1x":     "icons/ios-mac/16.png",
+            "16x16@2x":     "icons/ios-mac/32.png",
+            "32x32@1x":     "icons/ios-mac/32.png",
+            "32x32@2x":     "icons/ios-mac/64.png",
+            "128x128@1x":   "icons/ios-mac/128.png",
+            "128x128@2x":   "icons/ios-mac/256.png",
+            "256x256@1x":   "icons/ios-mac/256.png",
+            "256x256@2x":   "icons/ios-mac/512.png",
+            "512x512@1x":   "icons/ios-mac/512.png",
+            "512x512@2x":   "icons/ios-mac/1024.png"
+        },
+        "iphone": {
+            "20x20@2x":     "icons/ios-mac/40.png",
+            "20x20@3x":     "icons/ios-mac/60.png",
+            "29x29@2x":     "icons/ios-mac/58.png",
+            "29x29@3x":     "icons/ios-mac/87.png",
+            "40x40@2x":     "icons/ios-mac/80.png",
+            "40x40@3x":     "icons/ios-mac/120.png",
+            "60x60@2x":     "icons/ios-mac/120.png",
+            "60x60@3x":     "icons/ios-mac/180.png"
+        },
+        "ipad": {
+            "20x20@1x":     "icons/ios-mac/20.png",
+            "20x20@2x":     "icons/ios-mac/40.png",
+            "29x29@1x":     "icons/ios-mac/29.png",
+            "29x29@2x":     "icons/ios-mac/58.png",
+            "40x40@1x":     "icons/ios-mac/40.png",
+            "40x40@2x":     "icons/ios-mac/80.png",
+            "76x76@1x":     "icons/ios-mac/76.png",
+            "76x76@2x":     "icons/ios-mac/152.png",
+            "83.5x83.5@2x": "icons/ios-mac/167.png"
+        },
+        "ios-marketing": {
+            "1024x1024@1x": "icons/ios-mac/1024.png"
+        }
+    }
+}

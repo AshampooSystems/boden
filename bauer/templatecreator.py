@@ -5,17 +5,28 @@ import shutil
 import pprint
 import logging
 
+
+text_extensions = ['.json'
+                  , '.h'
+                  , '.hh'
+                  , '.c'
+                  , '.cpp'
+                  , '.mm'
+                  , '.txt']
+
+
 class TemplateCreator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
     def process_template(self, path, vars):
-        template = open(path,'r').read()
-        #for arg in dir(args):
-        for k,v in vars.items():
-            template = template.replace('{%s}' % k, v)
+        extension = os.path.splitext(path)[1]
 
-        open(path, 'w').write(template)
+        if extension in text_extensions:
+            template = open(path,'r').read()
+            for k,v in vars.items():
+                template = template.replace('{%s}' % k, v)
+            open(path, 'w').write(template)
 
 
     def generate(self, args):
