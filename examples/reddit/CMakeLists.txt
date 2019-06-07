@@ -11,7 +11,7 @@ ios_configure_asset(REDDIT_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.pn
 roger_add(
     reddit
     REDDIT_ASSETS
-    ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/demo_icon.json)
+    ${PROJECT_SOURCE_DIR}/examples/DemoIcon/demo_icon.json)
 
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 

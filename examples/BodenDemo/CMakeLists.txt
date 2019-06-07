@@ -6,7 +6,7 @@ SET(MACOSX_BUNDLE_BUNDLE_NAME bodendemo)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.bodendemo")
 
 ios_configure_asset(BODENDEMO_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
-ios_configure_asset(BODENDEMO_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.png)
+ios_configure_asset(BODENDEMO_ASSETS ${PROJECT_SOURCE_DIR}/examples/DemoIcon/black.png)
 
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP)
 
@@ -18,7 +18,7 @@ roger_add(
 roger_add(
     bodendemo
     BODENDEMO_RESOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/demo_icon.json)
+    ${PROJECT_SOURCE_DIR}/examples/DemoIcon/demo_icon.json)
 
 set(ANDROID_ICON "android:icon=\"@mipmap/ic_launcher_png\"")
 

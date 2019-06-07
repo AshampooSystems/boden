@@ -6,7 +6,7 @@ SET(MACOSX_BUNDLE_BUNDLE_NAME keeweb)
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.keeweb")
 
 ios_configure_asset(KEEWEB_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
-ios_configure_asset(KEEWEB_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.png)
+ios_configure_asset(KEEWEB_ASSETS ${PROJECT_SOURCE_DIR}/examples/DemoIcon/black.png)
 
 configure_app_permissions(ALLOW_INTERNET ALLOW_HTTP ALLOW_CAMERA)
 

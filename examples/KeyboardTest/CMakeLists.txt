@@ -11,7 +11,7 @@ ios_configure_asset(KEYBOARDTEST_ASSETS ./ios-assets/Base.lproj/LaunchScreen.sto
 roger_add(
     KeyboardTest
     BODENDEMO_RESOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/demo_icon.json)
+    ${PROJECT_SOURCE_DIR}/examples/DemoIcon/demo_icon.json)
 
 set(ANDROID_ICON "android:icon=\"@mipmap/ic_launcher_png\"")
 
