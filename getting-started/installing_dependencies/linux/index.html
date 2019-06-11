@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4086062541">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?319036628">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2136833444">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2782550803">
     
     
       
@@ -1728,7 +1728,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="setting-up-ubuntu-linux-for-android-builds">Setting up Ubuntu Linux for Android Builds<a class="headerlink" href="#setting-up-ubuntu-linux-for-android-builds" title="Permanent link">&para;</a></h1>
 <h2 id="1-install-git-python-cmake-openjdk-and-qemu-kvm">1. Install Git, Python, CMake, OpenJDK, and qemu-kvm<a class="headerlink" href="#1-install-git-python-cmake-openjdk-and-qemu-kvm" title="Permanent link">&para;</a></h2>
 <p>Open up a terminal and run the following command:</p>
-<pre><code>sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code></pre>
+<pre><code>sudo apt update && sudo apt install git cmake python python3-distutils openjdk-8-jdk qemu-kvm</code></pre>
 
 <h2 id="2-install-android-studio">2. Install Android Studio<a class="headerlink" href="#2-install-android-studio" title="Permanent link">&para;</a></h2>
 <ol>
@@ -1760,6 +1760,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <li>The NDK component is being installed, grab another drink.</li>
 <li>After the installation has finished, click Finish. The installation is now complete.</li>
 </ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to run <code>boden</code>, the <code>studio</code> command-line tool must be installed. Please follow the instructions shown when calling <code>boden</code> for the first time after Android Studio has been installed: Open Android Studio, open a project, and then select Tools =&gt; Create Command-Line Launcher.</p>
+</div>
 <h2 id="3-configure-ubuntu-for-running-android-emulator">3. Configure Ubuntu for Running Android Emulator<a class="headerlink" href="#3-configure-ubuntu-for-running-android-emulator" title="Permanent link">&para;</a></h2>
 <ol>
 <li>
