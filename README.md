@@ -23,6 +23,8 @@
 * **Fast**: Boden is written in modern C++17 to make development easy and apps fast and battery-friendly.
 * **Open**: Boden is an open framework and welcomes contributions and feedback from the community. We want you to shape its development so Boden can meet your requirements.
 
+> Note: This is a beta release. The Boden API is not yet fully complete and stable.
+
 ## Table of Contents
 
 * [Getting Started](#getting-started)
