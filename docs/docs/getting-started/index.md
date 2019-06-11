@@ -6,7 +6,7 @@
 
 **On Windows**: Windows 10, [Python 3.4+](https://www.python.org/downloads/), [CMake 3.10.2+](https://cmake.org/download/), [Ninja](https://github.com/ninja-build/ninja/releases), [Git](https://git-scm.com/download/win), [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), and [Android Studio](https://developer.android.com/studio) (with Android NDK, see the [installation instructions](installing_dependencies/windows.md) for further details).
 
-**On Ubuntu 18.04**: `sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm` plus [Android Studio](https://developer.android.com/studio/) (with Android NDK, see the [installation instructions](installing_dependencies/linux.md) for further details).
+**On Ubuntu 18.04**: `sudo apt update && sudo apt install git cmake python python3-distutils openjdk-8-jdk qemu-kvm` plus [Android Studio](https://developer.android.com/studio/) (with Android NDK, see the [installation instructions](installing_dependencies/linux.md) for further details).
 
 ## Step 1: Clone the Boden Repo
 

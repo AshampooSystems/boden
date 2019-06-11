@@ -4,7 +4,7 @@
 
 Open up a terminal and run the following command:
 
-<pre><code>sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm</code></pre>
+<pre><code>sudo apt update && sudo apt install git cmake python python3-distutils openjdk-8-jdk qemu-kvm</code></pre>
 
 ## 2. Install Android Studio
 
@@ -28,6 +28,9 @@ Open up a terminal and run the following command:
 1. Accept the NDK license agreement.
 1. The NDK component is being installed, grab another drink.
 1. After the installation has finished, click Finish. The installation is now complete.
+
+!!! note
+	In order to run `boden`, the `studio` command-line tool must be installed. Please follow the instructions shown when calling `boden` for the first time after Android Studio has been installed: Open Android Studio, open a project, and then select Tools => Create Command-Line Launcher.
 
 ## 3. Configure Ubuntu for Running Android Emulator
 

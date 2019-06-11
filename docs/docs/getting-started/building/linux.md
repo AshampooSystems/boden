@@ -5,10 +5,11 @@ To build Android apps on Linux, the following dependencies need to be installed:
 1. Ubuntu 18.04
 2. Git
 3. [OpenJDK 8](https://openjdk.java.net/)
-4. [Python 3.4+](https://www.python.org/downloads/) (with `python3-distutils`)
-5. [CMake 3.10.2+](https://cmake.org/download/)
-6. qemu-kvm
-6. [Android Studio](https://developer.android.com/studio/) (with Android NDK)
+4. [Python 2.7+](https://www.python.org/downloads/) (required for Android Studio command-line tool)
+5. [Python 3.4+](https://www.python.org/downloads/) (with `python3-distutils`)
+6. [CMake 3.10.2+](https://cmake.org/download/)
+7. qemu-kvm
+8. [Android Studio](https://developer.android.com/studio/) (with Android NDK)
 
 !!! note
 	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Linux](../installing_dependencies/linux.md#setting-up-linux-for-android-builds) and follow the steps listed there to install them.

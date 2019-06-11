@@ -43,6 +43,9 @@
 1. The NDK component is being installed, grab another drink.
 1. After the installation has finished, click Finish. The installation is now complete.
 
+!!! note
+	In order to run `boden`, the `studio` command-line tool must be installed. Please follow the instructions shown when calling `boden` for the first time after Android Studio has been installed: Open Android Studio, open a project, and then select Tools => Create Command-Line Launcher.
+
 ## Didn't work?
 
 Please [let us know](../../../feedback). We're happy to help!
