@@ -83,7 +83,7 @@ namespace bdn::ui::android
         return static_cast<float>(baseline);
     }
 
-    float ViewCore::pointScaleFactor() const { return _uiScaleFactor; }
+    float ViewCore::pointScaleFactor() const { return 1.0f; }
 
     bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
 
