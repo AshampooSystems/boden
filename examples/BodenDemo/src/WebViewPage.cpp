@@ -10,10 +10,9 @@
 
 namespace bdn
 {
-    std::shared_ptr<ContainerView> createWebViewDemoPage()
+    void WebViewPage::init()
     {
-        auto mainContainer = std::make_shared<ContainerView>();
-        mainContainer->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
+        stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         auto navigationBar = std::make_shared<ContainerView>();
         navigationBar->stylesheet =
@@ -40,8 +39,8 @@ namespace bdn
         webView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
         webView->userAgent = "boden/0.1";
 
-        mainContainer->addChildView(navigationBar);
-        mainContainer->addChildView(webView);
+        addChildView(navigationBar);
+        addChildView(webView);
 
         webView->url = urlInput->text;
 
@@ -53,7 +52,5 @@ namespace bdn
         urlInput->onSubmit() += [=](auto) { webView->loadURL(urlInput->text); };
 
         reloadButton->onClick() += [=](auto) { webView->loadURL(urlInput->text); };
-
-        return mainContainer;
     }
 }

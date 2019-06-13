@@ -14,25 +14,8 @@ namespace bdn::ui
     {
       public:
         Property<std::shared_ptr<View>> contentView;
-
-        /** Controls wether or not the view scrolls vertically.
-            Default: true*/
         Property<bool> verticalScrollingEnabled;
-
-        /** Controls wether or not the view scrolls horizontally.
-            Default: false*/
         Property<bool> horizontalScrollingEnabled;
-
-        /** Read-only property that indicates the part of the client area (=the
-           scrolled area) that is currently visible. The rect is in client
-           coordinates (see \ref layout_box_model.bd).
-
-            The top-left corner of the visible client rect is what is also
-           commonly referred to as the "scroll position".
-
-            The visible client rect / scroll position can be manipulated with
-           scrollClientRectToVisible().
-        */
         Property<Rect> visibleClientRect;
 
       public:

@@ -5,5 +5,11 @@
 
 namespace bdn
 {
-    std::shared_ptr<ContainerView> createWebViewDemoPage();
+    class WebViewPage : public ui::CoreLess<ContainerView>
+    {
+      public:
+        using CoreLess<ContainerView>::CoreLess;
+
+        void init() override;
+    };
 }

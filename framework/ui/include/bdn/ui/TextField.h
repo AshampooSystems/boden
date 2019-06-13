@@ -15,21 +15,13 @@ namespace bdn::ui
     class TextField : public View
     {
       public:
-        /** The text field's text */
         Property<String> text;
 
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
-        /** Informs observers of the onSubmit() notifier about a submit event.
-         */
+      public:
         void submit();
-
-        /** A notifier for submit events. Subscribe to this notifier if you want
-           to be notified about submit events posted to the text field. Submit
-           events are posted when the user presses the Enter key or when
-           submit() is called programmatically.
-        */
         Notifier<const SubmitEvent &> &onSubmit();
 
       protected:

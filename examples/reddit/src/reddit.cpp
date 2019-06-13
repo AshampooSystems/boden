@@ -74,7 +74,9 @@ class RedditListViewDataSource : public ui::ListViewDataSource
         Property<String> imageUrl;
 
       public:
-        void build()
+        using ui::CoreLess<ui::ContainerView>::CoreLess;
+
+        void init() override
         {
             stylesheet = FlexJsonStringify({
                 "direction" : "Row",
@@ -115,8 +117,7 @@ class RedditListViewDataSource : public ui::ListViewDataSource
         if (reusableView) {
             delegate = std::dynamic_pointer_cast<Delegate>(reusableView);
         } else {
-            delegate = std::make_shared<Delegate>();
-            delegate->build();
+            delegate = std::make_shared<Delegate>(needsInit);
         }
 
         String text = _store->posts.at(rowIndex)->title;

@@ -5,6 +5,8 @@
 #include <bdn/ui/TextField.h>
 #include <bdn/ui/yoga/FlexStylesheet.h>
 
+#include "ImagesPage.h"
+
 namespace bdn
 {
     void update(const std::shared_ptr<ui::ImageView> &imageView)
@@ -23,10 +25,9 @@ namespace bdn
         imageView->aspectRatio.onChange() += [=](auto &property) { update(imageView); };
     };
 
-    std::shared_ptr<ui::ContainerView> createImageViewDemoPage()
+    void ImagesPage::init()
     {
-        auto mainContainer = std::make_shared<ui::ContainerView>();
-        mainContainer->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
+        stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         auto image = std::make_shared<ui::ImageView>();
         createSizeBindings(image);
@@ -36,8 +37,8 @@ namespace bdn
         label->text = "Image from resource:";
         label->stylesheet = FlexJsonStringify({"flexShrink" : 0});
 
-        mainContainer->addChildView(label);
-        mainContainer->addChildView(image);
+        addChildView(label);
+        addChildView(image);
 
         auto imageAsset = std::make_shared<ui::ImageView>();
         createSizeBindings(imageAsset);
@@ -47,8 +48,8 @@ namespace bdn
         labelAsset->text = "Image from Assets:";
         labelAsset->stylesheet = FlexJsonStringify({"flexShrink" : 0});
 
-        mainContainer->addChildView(labelAsset);
-        mainContainer->addChildView(imageAsset);
+        addChildView(labelAsset);
+        addChildView(imageAsset);
 
         auto imageWeb = std::make_shared<ui::ImageView>();
         createSizeBindings(imageWeb);
@@ -58,9 +59,7 @@ namespace bdn
         labelWeb->text = "Image from web:";
         labelWeb->stylesheet = FlexJsonStringify({"flexShrink" : 0});
 
-        mainContainer->addChildView(labelWeb);
-        mainContainer->addChildView(imageWeb);
-
-        return mainContainer;
+        addChildView(labelWeb);
+        addChildView(imageWeb);
     }
 }

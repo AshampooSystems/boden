@@ -4,5 +4,11 @@
 
 namespace bdn
 {
-    std::shared_ptr<ContainerView> createImageViewDemoPage();
+    class ImagesPage : public ui::CoreLess<ContainerView>
+    {
+      public:
+        using CoreLess<ContainerView>::CoreLess;
+
+        void init() override;
+    };
 }

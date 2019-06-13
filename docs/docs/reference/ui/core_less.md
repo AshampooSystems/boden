@@ -26,9 +26,13 @@ using namespace bdn::ui;
 class MyCustomView : public CoreLess<ContainerView>
 {
 public:
-	void init() {
+	using CoreLess<ContainerView>::CoreLess;
+
+	void init() override {
 		_firstLabel = std::make_shared<Label>();
 		_firstLabel->text = "Hello";
+
+		_secondLabel = std::make_shared<Label>();
 		_secondLabel->text = "World";
 
 		addChildView(_firstLabel);
@@ -39,4 +43,23 @@ private:
 	Label _firstLabel;
 	Label _secondLabel;
 };
+
+void test() {
+	auto myCustomView = std::make_shared<MyCustomView>(needsInit);
+	// ...
+}
 ```
+
+## Constuctor
+
+* **explicit CoreLess(bdn::NeedsInit, std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr)**
+
+	Expects a [`bdn::NeedsInit`](../foundation/needs_init.md) so that [`make_shared`](../foundation/needs_init.md) is used which will automatically call the `init()` function.  
+
+## Virtual methods
+
+* **virtual void init() = 0**
+
+	Override the init function to create children. This is needed because
+	[ContainerView::addChildView()](container_view.md#managing-child-views) uses shared_from_this() 
+	which is not available during construction.

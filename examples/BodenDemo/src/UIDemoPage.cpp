@@ -64,37 +64,6 @@ namespace bdn
                                              "interface.\n\nThis text uses material from the Wikipedia article "
                                              "https://en.wikipedia.org/wiki/User_interface";
 
-    auto _styler = std::make_shared<Styler>();
-
-    class WindowMatcher
-    {
-      public:
-        WindowMatcher(std::shared_ptr<Window> window, std::shared_ptr<Styler> styler) : _window(window), _styler(styler)
-        {
-            windowGeometrySub = _window->geometry.onChange().subscribe([=](auto) { update(); });
-            update();
-        }
-
-        ~WindowMatcher() { _window->geometry.onChange().unsubscribe(windowGeometrySub); }
-
-        void update()
-        {
-            // TODO: Allow matcher to change, not rebuild ?
-            _styler->setCondition("width", std::make_shared<Styler::equals_condition>(_window->geometry->width));
-            _styler->setCondition("height", std::make_shared<Styler::equals_condition>(_window->geometry->height));
-            _styler->setCondition("max-width", std::make_shared<Styler::less_condition>(_window->geometry->width));
-            _styler->setCondition("max-height", std::make_shared<Styler::less_condition>(_window->geometry->height));
-            _styler->setCondition("min-width",
-                                  std::make_shared<Styler::greater_equal_condition>(_window->geometry->width));
-            _styler->setCondition("min-height",
-                                  std::make_shared<Styler::greater_equal_condition>(_window->geometry->height));
-        }
-
-        Property<Rect>::backing_t::notifier_t::Subscription windowGeometrySub;
-        std::shared_ptr<Window> _window;
-        std::shared_ptr<Styler> _styler;
-    };
-
     class DemoListItemView : public ContainerView
     {
       public:
@@ -138,51 +107,51 @@ namespace bdn
         float heightForRowIndex(size_t rowIndex) override { return 40.0f; }
     };
 
-    std::shared_ptr<WindowMatcher> _windowMatcher;
+    UIDemoPage::UIDemoPage(bdn::NeedsInit needsInit, std::shared_ptr<Window> window)
+        : CoreLess<ContainerView>(needsInit, window->viewCoreFactory()), _styler(std::make_shared<Styler>()),
+          _windowMatcher(std::make_shared<WindowMatcher>(window, _styler))
+    {}
 
-    std::shared_ptr<ContainerView> createUiDemoPage(std::shared_ptr<Window> window)
+    void UIDemoPage::init()
     {
-        _windowMatcher = std::make_shared<WindowMatcher>(window, _styler);
-
         _styler->setCondition("os", std::make_shared<Styler::equals_condition>(BDN_TARGET));
-        auto container = std::make_shared<ContainerView>();
 
-        container->stylesheet =
+        stylesheet =
             FlexJsonStringify({"direction" : "Column", "flexGrow" : 1.0, "flexShrink" : 1.0, "alignItems" : "Stretch"});
 
         auto topWhitespaceContainer = std::make_shared<ContainerView>();
         topWhitespaceContainer->stylesheet =
             FlexJsonStringify({"direction" : "Row", "flexGrow" : 0.38, "minimumSize" : {"height" : 40}});
-        container->addChildView(topWhitespaceContainer);
+        addChildView(topWhitespaceContainer);
 
         auto switchView = std::make_shared<Switch>();
         switchView->on = true;
-        container->addChildView(makeRow("Switch", switchView, 0.));
+        addChildView(makeRow("Switch", switchView, 0.));
 
         auto slider = std::make_shared<Slider>();
-        container->addChildView(makeRow("Slider", slider));
+        addChildView(makeRow("Slider", slider));
         slider->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 100}});
         slider->value = 0.5;
 
         auto checkbox = std::make_shared<Checkbox>();
         checkbox->state = TriState::on;
-        container->addChildView(makeRow("Checkbox", checkbox));
+        addChildView(makeRow("Checkbox", checkbox));
 
         auto btn = std::make_shared<Button>();
         btn->label = "Button";
-        container->addChildView(makeRow("Button", btn, 5, 5, 0.62, true));
+        addChildView(makeRow("Button", btn, 5, 5, 0.62, true));
 
         auto image = std::make_shared<ImageView>();
 
         image->url = "image://main/images/image.png";
-        container->addChildView(makeRow("Image", image));
+        addChildView(makeRow("Image", image));
 
         image->stylesheet = FlexJsonStringify({"maximumSize" : {"height" : 30}});
 
         auto lottieView = std::make_shared<lottie::View>();
         lottieView->stylesheet = FlexJsonStringify({"size" : {"width" : 40, "height" : 40}});
         lottieView->url = "resource://main/images/animation.json";
-        container->addChildView(makeRow("Animation", lottieView));
+        addChildView(makeRow("Animation", lottieView));
 
         lottieView->running = true;
         lottieView->loop = true;
@@ -190,7 +159,7 @@ namespace bdn
         auto textField = std::make_shared<TextField>();
         textField->text = "Enter text here";
         textField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150}});
-        container->addChildView(makeRow("Text Field", textField, 5., 20., 0.62, true));
+        addChildView(makeRow("Text Field", textField, 5., 20., 0.62, true));
 
         auto textScrollView = std::make_shared<ScrollView>();
         textScrollView->stylesheet = FlexJsonStringify({"flexGrow" : 1, "flexShrink" : 1, "margin" : {"all" : 20}});
@@ -204,13 +173,11 @@ namespace bdn
                                ]));
         textScrollView->contentView = scrolledTextView;
 
-        container->addChildView(textScrollView);
+        addChildView(textScrollView);
 
         auto bottomWhitespaceContainer = std::make_shared<ContainerView>();
         bottomWhitespaceContainer->stylesheet =
             FlexJsonStringify({"direction" : "Row", "flexGrow" : 0.62, "minimumSize" : {"height" : 40}});
-        container->addChildView(bottomWhitespaceContainer);
-
-        return container;
+        addChildView(bottomWhitespaceContainer);
     }
 }

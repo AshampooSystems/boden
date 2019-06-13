@@ -69,6 +69,7 @@ nav:
       - reference/foundation/application.md
       - reference/foundation/application_controller.md
       - reference/foundation/dispatch_queue.md
+      - reference/foundation/needs_init.md
       - reference/foundation/notifier.md
       - reference/foundation/point.md
       - reference/foundation/property.md
