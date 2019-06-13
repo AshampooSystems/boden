@@ -3,13 +3,13 @@ source: NeedsInit.h
 
 # NeedsInit
 
-NeedsInit implements a custom std::make_shared version that allow to create classes that need to have their `init()` function called after construction.
+`NeedsInit` implements a custom version of `std::make_shared` that calls the `void init()` member function of certain objects after construction is complete.
 
 ## Types
 
 * **class NeedsInit**
 
-	Helper type to force using of the specialized `make_shared` implementation
+	Helper type used in the constructor of a class to indicate that the custom version of `make_shared` should be called.
 
 	```c++
 	namespace bdn {
@@ -20,7 +20,7 @@ NeedsInit implements a custom std::make_shared version that allow to create clas
 
 * **struct has_init_method** 
 
-	Helper type to determine if a class has a method called `init()`
+	Helper type to determine if a class has a member function called `init()` at compile time.
 
 	```c++
 	namespace bdn
@@ -43,7 +43,7 @@ NeedsInit implements a custom std::make_shared version that allow to create clas
 
 * **std::shared_ptr<T\> make_shared(bdn::NeedsInit needsInit, Arguments... arguments)**
 
-	Specialized `make_shared<>()` that calls `init()` after construction.
+	Specialized version of `std::make_shared<>()` that calls `init()` after construction.
 
 	```c++
 	namespace std
