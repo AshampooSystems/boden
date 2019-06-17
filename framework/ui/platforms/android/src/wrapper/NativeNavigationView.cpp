@@ -20,3 +20,24 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeNavigationView
         },
         true, env);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeNavigationView_viewIsChanging(JNIEnv *env,
+                                                                                            jobject rawSelf,
+                                                                                            jobject from, jobject to)
+{
+    return bdn::platformEntryWrapper(
+        [&]() {
+            if (auto navigationViewCore =
+                    bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::NavigationViewCore>(
+                        bdn::java::Reference::convertExternalLocal(rawSelf))) {
+
+                auto fromView = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ViewCore>(
+                    bdn::java::Reference::convertExternalLocal(from));
+                auto toView = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ViewCore>(
+                    bdn::java::Reference::convertExternalLocal(to));
+
+                navigationViewCore->viewIsChanging(fromView, toView);
+            }
+        },
+        true, env);
+}

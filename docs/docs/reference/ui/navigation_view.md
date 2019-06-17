@@ -13,6 +13,14 @@ namespace bdn::ui {
 }
 ```
 
+## Reacting to Changes
+
+The NavigationView signals the state of a view via its [`visible`](view.md#properties) property.
+
+When a new view is pushed, its [`visible`](view.md#properties) property is set to `true`,
+while the previously visible view's [`visible`](view.md#properties) property is set to `false`. The same
+happens if e.g. the back button is clicked by the user.
+
 ## Example
 
 ```C++

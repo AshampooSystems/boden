@@ -100,10 +100,6 @@
     }
 }
 
-- (void)viewWillAppear:(BOOL)animated { self.isVisible = YES; }
-
-- (void)viewWillDisappear:(BOOL)animated { self.isVisible = NO; }
-
 - (void)willMoveToParentViewController:(UIViewController *)parent { [super willMoveToParentViewController:parent]; }
 
 - (void)didMoveToParentViewController:(UIViewController *)parent { [super didMoveToParentViewController:parent]; }
@@ -144,6 +140,21 @@
         [self updateSafeContent];
     }
 }
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.userContent->visible = true;
+    self.isVisible = YES;
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    self.userContent->visible = false;
+}
+
+- (void)viewWillDisappear:(BOOL)animated { self.isVisible = NO; }
 
 @end
 

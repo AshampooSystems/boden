@@ -25,6 +25,15 @@ namespace bdn::ui::android
         _jListView.setOnItemClickListener(listener.cast<bdn::android::wrapper::OnItemClickListener>());
 
         enableRefresh.onChange() += [this](auto &property) { _jNativeListView.setEnabled(property.get()); };
+
+        selectedRowIndex.onChange() += [this](auto &property) {
+            auto idx = property.get();
+            if (idx) {
+                _jNativeListView.getListView().setSelection(*idx);
+            } else {
+                _jNativeListView.getListView().clearChoices();
+            }
+        };
     }
 
     void ListViewCore::refreshDone() { _jNativeListView.setRefreshing(false); }

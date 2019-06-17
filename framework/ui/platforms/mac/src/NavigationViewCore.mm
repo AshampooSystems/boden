@@ -114,6 +114,8 @@ namespace bdn::ui::mac
 
         _container->removeAllChildViews();
 
+        auto oldCurrentView = _currentView;
+
         if (_currentView) {
             _currentView->setParentView(nullptr);
         }
@@ -128,6 +130,11 @@ namespace bdn::ui::mac
             _container->addChildView(newView);
 
             _currentView = newView;
+            _currentView->visible = true;
+        }
+
+        if (oldCurrentView) {
+            oldCurrentView->visible = false;
         }
 
         reLayout();

@@ -23,7 +23,6 @@ public class NativeListView extends SwipeRefreshLayout {
                 doRefresh();
             }
         });
-
     }
 
     ListView getListView() {

@@ -23,6 +23,7 @@ namespace bdn::ui::android
         auto containerView = std::make_shared<ContainerView>(viewCoreFactory());
         containerView->isLayoutRoot = true;
         containerView->addChildView(view);
+        containerView->visible.bind(view->visible);
         containerView->offerLayout(layout());
 
         bool isFirst = _stack.empty();
@@ -75,6 +76,16 @@ namespace bdn::ui::android
             return true;
         }
         return false;
+    }
+
+    void NavigationViewCore::viewIsChanging(const std::shared_ptr<ViewCore> &from, const std::shared_ptr<ViewCore> &to)
+    {
+        if (from) {
+            from->visible = false;
+        }
+        if (to) {
+            to->visible = true;
+        }
     }
 
     void NavigationViewCore::reLayout()

@@ -24,6 +24,7 @@ namespace bdn::ui::android
         void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function) override;
 
         bool handleBackButton();
+        void viewIsChanging(const std::shared_ptr<ViewCore> &from, const std::shared_ptr<ViewCore> &to);
 
       private:
         void updateCurrentView(bool first, bool enter);

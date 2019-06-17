@@ -94,7 +94,11 @@
 {
     if (auto core = self.listCore.lock()) {
         NSTableView *tableView = (NSTableView *)notification.object;
-        core->selectedRowIndex = (size_t)tableView.selectedRow;
+        if (tableView.selectedRow != -1) {
+            core->selectedRowIndex = (size_t)tableView.selectedRow;
+        } else {
+            core->selectedRowIndex = std::nullopt;
+        }
     }
 }
 
@@ -248,6 +252,15 @@ namespace bdn::ui::mac
         enableRefresh.onChange() += [=](auto &property) {
             ListScrollView *scrollView = (ListScrollView *)nsView();
             scrollView.refreshEnabled = property.get();
+        };
+
+        selectedRowIndex.onChange() += [=](auto &p) {
+            if (!p.get()) {
+                [_nsTableView deselectAll:nullptr];
+            } else {
+                NSIndexSet *newSet = [NSIndexSet indexSetWithIndex:*p.get()];
+                [_nsTableView selectRowIndexes:(NSIndexSet *)newSet byExtendingSelection:NO];
+            }
         };
 
         _nsTableView = (scrollView).documentView;

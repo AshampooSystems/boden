@@ -154,8 +154,10 @@ class PostListViewController
         updatePosts();
 
         _listView->selectedRowIndex.onChange() += [this](auto &property) {
-            auto post = _store->posts.at(*property.get());
-            _onClicked.notify(post->title, post->url, post->thumbnailUrl);
+            if (property.get()) {
+                auto post = _store->posts.at(*property.get());
+                _onClicked.notify(post->title, post->url, post->thumbnailUrl);
+            }
         };
     }
 
@@ -166,6 +168,8 @@ class PostListViewController
             _listView->refreshDone();
         });
     }
+
+    void deselect() { _listView->selectedRowIndex = std::nullopt; }
 
     std::shared_ptr<ui::View> view() { return _listView; }
 
@@ -255,6 +259,12 @@ class MainViewController
             "alignItems" : "Stretch",
             "padding" : {"all" : 20}
         });
+
+        _listViewController->view()->visible.onChange() += [&](auto &p) {
+            if (p.get()) {
+                _listViewController->deselect();
+            }
+        };
 
         navigationView->pushView(_listViewController->view(), "Reddit");
 

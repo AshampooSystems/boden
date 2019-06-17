@@ -14,5 +14,7 @@ namespace bdn::android::wrapper
 
         JavaMethod<void(int)> setChoiceMode{this, "setChoiceMode"};
         JavaMethod<void(bool)> setStackFromBottom{this, "setStackFromBottom"};
+        JavaMethod<void(int)> setSelection{this, "setSelection"};
+        JavaMethod<void()> clearChoices{this, "clearChoices"};
     };
 }

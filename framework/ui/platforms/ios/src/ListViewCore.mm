@@ -121,7 +121,11 @@
         return;
     }
 
-    core->selectedRowIndex = (size_t)indexPath.row;
+    if (indexPath) {
+        core->selectedRowIndex = (size_t)indexPath.row;
+    } else {
+        core->selectedRowIndex = std::nullopt;
+    }
 }
 
 @end
@@ -193,6 +197,31 @@ namespace bdn::ui::ios
         UITableView *uiTableView = (UITableView *)uiView();
         uiTableView.dataSource = nativeDelegate;
         uiTableView.delegate = nativeDelegate;
+
+        selectedRowIndex.onChange() += [=](auto &p) {
+            NSIndexPath *newIndexPath = nullptr;
+            auto newIndex = p.get();
+            if (newIndex) {
+                newIndexPath = [NSIndexPath indexPathForRow:*newIndex inSection:0];
+            }
+
+            bool alreadySelected = false;
+            for (NSIndexPath *indexPath in [uiTableView indexPathsForSelectedRows]) {
+                if (newIndexPath && newIndexPath.row == indexPath.row) {
+                    alreadySelected = true;
+                    continue;
+                }
+                [uiTableView deselectRowAtIndexPath:indexPath animated:NO];
+            }
+
+            if (!alreadySelected && newIndexPath) {
+                if (newIndexPath.row < [uiTableView numberOfRowsInSection:0]) {
+                    [uiTableView selectRowAtIndexPath:newIndexPath
+                                             animated:YES
+                                       scrollPosition:UITableViewScrollPositionMiddle];
+                }
+            }
+        };
 
         enableRefresh.onChange() += [=](auto &property) { updateRefresh(property.get()); };
     }

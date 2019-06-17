@@ -54,7 +54,7 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
 
     public void changeContent(View newContent, boolean animate, boolean isEnter) {
         NativeStackFragment newFragment = new NativeStackFragment();
-        newFragment.setView(newContent);
+        newFragment.setActualView(newContent);
         newContent.requestLayout();
 
         if (getParent() == null) {
@@ -106,6 +106,18 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
         } catch(IllegalArgumentException e) {
             return;
         }
+
+        View from = null;
+        View to = null;
+        if(currentFragment != null) {
+            from = currentFragment.getActualView();
+        }
+        if(newFragment != null) {
+            to = newFragment.getActualView();
+        }
+
+        viewIsChanging(from, to);
+
         currentFragment = newFragment;
     }
 
@@ -122,4 +134,5 @@ public class NativeNavigationView extends NativeViewGroup implements NativeRootA
     private List<NativeStackFragment> fragmentQueue;
 
     private native boolean handleBackButton();
+    private native void viewIsChanging(View from, View to);
 }
