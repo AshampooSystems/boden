@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4800514570">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1492297859">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1422986945">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?3216672461">
     
     
       
@@ -775,6 +775,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/needs_init/" title="NeedsInit" class="md-nav__link">
+      NeedsInit
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/notifier/" title="Notifier" class="md-nav__link">
       Notifier
     </a>
@@ -1046,6 +1058,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#declaration" title="Declaration" class="md-nav__link">
     Declaration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reacting-to-changes" title="Reacting to Changes" class="md-nav__link">
+    Reacting to Changes
   </a>
   
 </li>
@@ -1678,6 +1697,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#reacting-to-changes" title="Reacting to Changes" class="md-nav__link">
+    Reacting to Changes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#example" title="Example" class="md-nav__link">
     Example
   </a>
@@ -1731,6 +1757,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="p">}</span>
 </pre></div>
 
+<h2 id="reacting-to-changes">Reacting to Changes<a class="headerlink" href="#reacting-to-changes" title="Permanent link">&para;</a></h2>
+<p>The NavigationView signals the state of a view via its <a href="../view/#properties"><code>visible</code></a> property.</p>
+<p>When a new view is pushed, its <a href="../view/#properties"><code>visible</code></a> property is set to <code>true</code>,
+while the previously visible view's <a href="../view/#properties"><code>visible</code></a> property is set to <code>false</code>. The same
+happens if e.g. the back button is clicked by the user.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/Button.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/NavigationView.h&gt;</span><span class="cp"></span>

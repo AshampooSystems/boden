@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1466917321">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5579017362">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5478686778">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?212211793">
     
     
       
@@ -775,6 +775,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/needs_init/" title="NeedsInit" class="md-nav__link">
+      NeedsInit
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/notifier/" title="Notifier" class="md-nav__link">
       Notifier
     </a>
@@ -981,6 +993,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#example" title="Example" class="md-nav__link">
     Example
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constuctor" title="Constuctor" class="md-nav__link">
+    Constuctor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#virtual-methods" title="Virtual methods" class="md-nav__link">
+    Virtual methods
   </a>
   
 </li>
@@ -1670,6 +1696,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#constuctor" title="Constuctor" class="md-nav__link">
+    Constuctor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#virtual-methods" title="Virtual methods" class="md-nav__link">
+    Virtual methods
+  </a>
+  
+</li>
+      
       
         <li class="md-nav__item">
           <a href="#__source" title="Source" class="md-nav__link md-nav__link--active">
@@ -1714,9 +1754,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="k">class</span> <span class="nc">MyCustomView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">CoreLess</span><span class="o">&lt;</span><span class="n">ContainerView</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="kt">void</span> <span class="n">init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">using</span> <span class="n">CoreLess</span><span class="o">&lt;</span><span class="n">ContainerView</span><span class="o">&gt;::</span><span class="n">CoreLess</span><span class="p">;</span>
+
+    <span class="kt">void</span> <span class="nf">init</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span>
         <span class="n">_firstLabel</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span>
         <span class="n">_firstLabel</span><span class="o">-&gt;</span><span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Hello&quot;</span><span class="p">;</span>
+
+        <span class="n">_secondLabel</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span>
         <span class="n">_secondLabel</span><span class="o">-&gt;</span><span class="n">text</span> <span class="o">=</span> <span class="s">&quot;World&quot;</span><span class="p">;</span>
 
         <span class="n">addChildView</span><span class="p">(</span><span class="n">_firstLabel</span><span class="p">);</span>
@@ -1727,7 +1771,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <span class="n">Label</span> <span class="n">_firstLabel</span><span class="p">;</span>
     <span class="n">Label</span> <span class="n">_secondLabel</span><span class="p">;</span>
 <span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">test</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">myCustomView</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MyCustomView</span><span class="o">&gt;</span><span class="p">(</span><span class="n">needsInit</span><span class="p">);</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
 </pre></div>
+
+<h2 id="constuctor">Constuctor<a class="headerlink" href="#constuctor" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>explicit CoreLess(bdn::NeedsInit, std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr)</strong></p>
+<p>Expects a <a href="../../foundation/needs_init/"><code>bdn::NeedsInit</code></a> so that <a href="../../foundation/needs_init/"><code>make_shared</code></a> is used which will automatically call the <code>init()</code> function.  </p>
+</li>
+</ul>
+<h2 id="virtual-methods">Virtual methods<a class="headerlink" href="#virtual-methods" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>virtual void init() = 0</strong></p>
+<p>Override the init function to create children. This is needed because
+<a href="../container_view/#managing-child-views">ContainerView::addChildView()</a> uses shared_from_this() 
+which is not available during construction.</p>
+</li>
+</ul>
                 
                   
                     <h2 id="__source">Source</h2>
