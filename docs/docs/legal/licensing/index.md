@@ -1,6 +1,6 @@
 # Overview
 
-**Boden Cross-platform Framework**  
+**Boden Cross-Platform Framework**  
 Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
 
 ## Open Source Framework License
