@@ -1,15 +1,13 @@
-# Boden License
+Boden Cross-platform Framework\
+Copyright (C) 2019 Ashampoo Systems GmbH & Co. KG
 
-Boden is currently available under two open source licenses:
-[GPL v2](LICENSE.GPL2.md) and [GPL v3](LICENSE.GPL3.md).
-We also plan to offer Boden under commercial licenses in the future, including
-a free commercial option. Please contact us if you are interested in those.
+---
 
-If you want to use Boden in your project you can simply select the license
-option you are most comfortable with. Only the terms of the chosen license
-apply.
+Open source users can select one of the following licenses included with this repository:
 
-The detailed terms and conditions can be found here:
+* [GNU General Public License Version 2](LICENSE.GPL-2.md)
+* [GNU General Public License Version 3](LICENSE.GPL-3.md)
+* [GNU Lesser General Public License Version 2.1](LICENSE.LGPL-2.1.md)
+* [GNU Lesser General Public License Version 3](LICENSE.LGPL-3.md)
 
-- [License option: GPL v2](LICENSE.GPL2.md)
-- [License option: GPL v3](LICENSE.GPL3.md)
+For commercial/proprietary licensing, please contact us at boden-team@ashampoo-systems.com.
