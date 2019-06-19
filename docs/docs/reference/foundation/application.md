@@ -36,11 +36,11 @@ namespace bdn {
 
 	A list of command-line arguments as specified when the application was launched.
 
-* **std::shared_ptr<[DispatchQueue](dispatch_queue.md)> dispatchQueue()**
+* **std::shared_ptr<[DispatchQueue](dispatch_queue.md)\> dispatchQueue()**
 
 	The main thread's [`DispatchQueue`](dispatch_queue.md).
 
-* **std::shared_ptr<ApplicationController> applicationController()**
+* **std::shared_ptr<[ApplicationController](application_controller.md)\> applicationController()**
 
 	The user-defined application controller associated with the application.
 

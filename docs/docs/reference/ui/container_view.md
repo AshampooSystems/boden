@@ -20,7 +20,7 @@ namespace bdn::ui {
 #include <bdn/ui/TextView.h>
 #include <bdn/ui/Button.h>
 // ...
-auto container = std::make_shared<Container>();
+auto container = std::make_shared<ContainerView>();
 
 auto label = std::make_shared<TextView>();
 auto button = std::make_shared<Button>();
@@ -37,7 +37,7 @@ container->addChildView(button);
 
 * **void void removeChildView(const std::shared_ptr<[View](view.md)\> &childView)**
 
-	Remove a the given child view from the container view.
+	Removes the given child view from the container view.
 
 * **void removeAllChildViews()**
 
