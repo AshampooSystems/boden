@@ -225,6 +225,13 @@ Margin and padding can be specified as pixels or percentage value (string):
 { "margin" : {"all" : "100%"} }
 ```
 
+As a shorthand for `all` you can also use this form:
+
+```json
+{ "margin" : 100 },
+{ "padding" : 100 },
+``` 
+
 * **`margin`**
 
 	Specifies the border **around** the item

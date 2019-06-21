@@ -15,6 +15,7 @@ add_universal_executable(testBoden TIDY SOURCES ../test_main.cpp
     testString.cpp
     testURI.cpp
     testStyler.cpp
+    testColor.cpp
     ${property_tests}
     TIDY)
 

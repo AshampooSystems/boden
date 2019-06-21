@@ -27,8 +27,16 @@ namespace bdn::ui::ios
         [_view setViewCore:shared_from_this<ViewCore>()];
 
         geometry.onChange() += [=](auto &property) { this->onGeometryChanged(property.get()); };
-
         visible.onChange() += [&view = this->_view](auto &property) { view.hidden = !property.get(); };
+        backgroundColor.onChange() += [&view = this->_view](auto &property) {
+            auto color = property.get();
+            if (color) {
+                view.backgroundColor =
+                    [UIColor colorWithRed:color->red() green:color->green() blue:color->blue() alpha:color->alpha()];
+            } else {
+                view.backgroundColor = [UIColor clearColor];
+            }
+        };
     }
 
     ViewCore::~ViewCore() { [_view setViewCore:std::weak_ptr<ViewCore>()]; }

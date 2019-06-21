@@ -97,28 +97,30 @@ namespace bdn::ui::ios
             originalSize = Size{0, 0};
             aspectRatio = 1.0;
 
-            NSURLSessionDataTask *dataTask =
-                [session dataTaskWithURL:nsURL
-                       completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                           NSError *_Nullable error) {
-                         if (auto err = error) {
-                             logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
-                                         << fk::nsStringToString([err localizedDescription]) << ")";
-                         } else {
+            NSURLSessionDataTask *dataTask = [session
+                  dataTaskWithURL:nsURL
+                completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
+                                    NSError *_Nullable error) {
+                  if (auto err = error) {
+                      logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
+                                  << fk::nsStringToString([err localizedDescription]) << ")";
+                  } else {
 
-                             App()->dispatchQueue()->dispatchAsync([=]() {
-                                 UIImage *image = [[UIImage alloc] initWithData:nsData];
-                                 ((UIImageView *)this->uiView()).image = image;
+                      App()->dispatchQueue()->dispatchAsync([nsData, self = shared_from_this<ImageViewCore>()]() {
+                          if (self) {
+                              UIImage *image = [[UIImage alloc] initWithData:nsData];
+                              ((UIImageView *)self->uiView()).image = image;
 
-                                 if (image) {
-                                     originalSize = iosSizeToSize(image.size);
-                                     aspectRatio = originalSize->width / originalSize->height;
-                                 }
-                                 this->scheduleLayout();
-                                 this->markDirty();
-                             });
-                         }
-                       }];
+                              if (image) {
+                                  self->originalSize = iosSizeToSize(image.size);
+                                  self->aspectRatio = self->originalSize->width / self->originalSize->height;
+                              }
+                              self->scheduleLayout();
+                              self->markDirty();
+                          }
+                      });
+                  }
+                }];
 
             [dataTask resume];
         }

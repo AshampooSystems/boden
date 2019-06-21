@@ -6,6 +6,7 @@
 #include <bdn/Rect.h>
 #include <bdn/WeakCallback.h>
 #include <bdn/property/Property.h>
+#include <bdn/ui/Color.h>
 #include <bdn/ui/Json.h>
 #include <bdn/ui/Layout.h>
 
@@ -27,6 +28,7 @@ namespace bdn::ui
         Property<bool> visible = true;
         Property<bool> isLayoutRoot = false;
         Property<json> stylesheet;
+        Property<std::optional<Color>> backgroundColor;
 
       public:
         static bool &debugViewEnabled();
@@ -103,6 +105,7 @@ namespace bdn::ui
           public:
             Property<Rect> geometry;
             Property<bool> visible;
+            Property<std::optional<Color>> backgroundColor;
 
           public:
             Core() = delete;

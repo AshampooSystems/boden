@@ -20,6 +20,15 @@ namespace bdn::ui::android
 
         geometry.onChange() += [=](auto) { updateGeometry(); };
 
+        backgroundColor.onChange() += [=](auto &property) {
+            auto color = property.get();
+            if (color) {
+                _jView.setBackgroundColor(color->asIntAlphaFirst());
+            } else {
+                _jView.setBackgroundColor(0x0);
+            }
+        };
+
         bdn::android::wrapper::NativeViewCoreLayoutChangeListener layoutChangeListener;
         getJView().addOnLayoutChangeListener(layoutChangeListener);
 

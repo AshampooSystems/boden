@@ -15,13 +15,9 @@ namespace bdn::ui::android
         CheckboxCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
-        TriState getState() const;
-
-      public:
         void clicked() override;
 
       private:
         mutable bdn::android::wrapper::CheckBox _jCheckBox;
-        TriState _state = TriState::off;
     };
 }

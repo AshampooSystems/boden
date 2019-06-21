@@ -6,6 +6,8 @@
 #import <bdn/mac/ui_util.hh>
 #import <bdn/mac/util.hh>
 
+@class BdnCheckboxClickManager;
+
 namespace bdn::ui::mac
 {
     class CheckboxCore : public ViewCore, virtual public Checkbox::Core
@@ -15,11 +17,13 @@ namespace bdn::ui::mac
 
       public:
         CheckboxCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
+        void init() override;
 
       public:
         void handleClick();
 
       private:
         NSButton *_nsButton;
+        BdnCheckboxClickManager *_clickManager;
     };
 }

@@ -283,20 +283,24 @@ namespace nlohmann
 
         static void from_json(const json &j, FlexStylesheet::Edges &edge)
         {
-            if (j.count("all") != 0) {
-                edge.all = j.at("all").get<std::optional<FlexStylesheet::ValueWithUnit>>();
-            }
-            if (j.count("left") != 0) {
-                edge.left = j.at("left").get<std::optional<FlexStylesheet::ValueWithUnit>>();
-            }
-            if (j.count("right") != 0) {
-                edge.right = j.at("right").get<std::optional<FlexStylesheet::ValueWithUnit>>();
-            }
-            if (j.count("top") != 0) {
-                edge.top = j.at("top").get<std::optional<FlexStylesheet::ValueWithUnit>>();
-            }
-            if (j.count("bottom") != 0) {
-                edge.bottom = j.at("bottom").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+            if (j.is_object()) {
+                if (j.count("all") != 0) {
+                    edge.all = j.at("all").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+                }
+                if (j.count("left") != 0) {
+                    edge.left = j.at("left").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+                }
+                if (j.count("right") != 0) {
+                    edge.right = j.at("right").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+                }
+                if (j.count("top") != 0) {
+                    edge.top = j.at("top").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+                }
+                if (j.count("bottom") != 0) {
+                    edge.bottom = j.at("bottom").get<std::optional<FlexStylesheet::ValueWithUnit>>();
+                }
+            } else if (j.is_number() || j.is_string()) {
+                edge.all = j.get<std::optional<FlexStylesheet::ValueWithUnit>>();
             }
         }
     };

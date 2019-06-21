@@ -112,6 +112,11 @@ namespace bdn::ui
         } else {
             visible = true;
         }
+        if (stylesheet->count("background-color")) {
+            backgroundColor = stylesheet->at("background-color");
+        } else {
+            backgroundColor = std::nullopt;
+        }
 
         if (auto core = viewCore()) {
             core->updateFromStylesheet(stylesheet.get());
@@ -167,6 +172,7 @@ namespace bdn::ui
     {
         viewCore()->visible.bind(visible);
         viewCore()->geometry.bind(geometry);
+        viewCore()->backgroundColor.bind(backgroundColor);
 
         _layoutCallbackReceiver = viewCore()->_layoutCallback.set([=]() { onCoreLayout(); });
         _dirtyCallbackReceiver = viewCore()->_dirtyCallback.set([=]() { onCoreDirty(); });

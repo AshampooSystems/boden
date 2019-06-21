@@ -15,5 +15,6 @@ namespace bdn::android::wrapper
 
       public:
         JavaMethod<void(bool)> setChecked{this, "setChecked"};
+        JavaMethod<bool()> isChecked{this, "isChecked"};
     };
 }

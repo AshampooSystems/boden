@@ -25,6 +25,20 @@ namespace bdn::ui::mac
 
             visible.onChange() += [&view = this->_nsView](auto &property) { view.hidden = !property.get(); };
 
+            backgroundColor.onChange() += [this](auto &property) {
+                auto color = property.get();
+
+                if (color) {
+                    _nsView.wantsLayer = YES;
+                    _nsView.layer.backgroundColor =
+                        [NSColor colorWithRed:color->red() green:color->green() blue:color->blue() alpha:color->alpha()]
+                            .CGColor;
+                } else {
+                    _nsView.layer.backgroundColor = [NSColor clearColor].CGColor;
+                    _nsView.wantsLayer = NO;
+                }
+            };
+
             _nsView.postsFrameChangedNotifications = YES;
 
             if (View::debugViewEnabled()) {
