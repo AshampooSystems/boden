@@ -1,3 +1,5 @@
+*This license makes reference to the version 3 of the [GNU General Public License](gpl-3.md).*
+
 ### GNU LESSER GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007

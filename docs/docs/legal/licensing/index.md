@@ -12,7 +12,7 @@ You may license Boden under one of the following open-source licenses:
 * [GNU Lesser General Public License Version 2.1](lgpl-2.1.md)
 * [GNU Lesser General Public License Version 3](lgpl-3.md)
 
-For commercial/proprietary licensing, please contact us at boden-team@ashampoo-systems.com.
+For commercial/proprietary licensing, please contact us at [boden-team@ashampoo-systems.com](mailto:boden-team@ashampoo-systems.com).
 
 ## Documentation License
 
