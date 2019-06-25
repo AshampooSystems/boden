@@ -18,6 +18,7 @@ extra:
 
 repo_url: 'https://github.com/AshampooSystems/boden'
 repo_name: 'boden'
+edit_uri: edit/master/docs/docs
 
 extra_css:
   - 'stylesheets/cookieconsent.min.css'
