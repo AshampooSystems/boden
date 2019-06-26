@@ -15,7 +15,7 @@
 ## Step 2: Generate and Open an IDE Project
 
 	cd boden
-	python boden.py open
+	python boden.py open -t bodendemo
 
 This will bring up Xcode on macOS or Android Studio on Linux/Windows.
 

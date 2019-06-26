@@ -24,7 +24,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 2. Run the `boden` build tool to generate an Xcode project:
 
 		cd boden
-		./boden open -p android
+		./boden open -p android -t bodendemo
 
 3. Wait for Android Studio to finish its gradle sync and configuration, select the `bodendemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 

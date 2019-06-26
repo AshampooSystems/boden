@@ -23,7 +23,7 @@ Follow these steps to set up Boden for Android development on Windows 10:
 3. Run the `boden.py` build tool to generate an Android Studio project:
 
 		cd boden
-		python boden.py open -p android
+		python boden.py open -p android -t bodendemo
 
 4. Wait for Android Studio to finish its gradle sync and configuration, then select the `bodendemo` target and press <kbd>Shift</kbd>+<kbd>F10</kbd> to build and run the example application.
 
