@@ -18,11 +18,9 @@ Other workflows are possible, but we don't advertise them actively as they have 
 
 ## How does licensing work?
 
-Boden is an open-source project currently licensed under the GNU General Public License. You can choose which version of the GPL you like better (2 or 3). Copy the respective Boden license file into your derivative project's repo and you're all set.
+Boden is an open-source project licensed under the (Lesser) GNU General Public License. You may license Boden either under the GPL (version 2 or 3) or LGPL (version 2.1 or 3). Please refer to our [Licensing](../legal/licensing/index.md) section for details.
 
-In the future, we will most likely offer an LGPL licensing option as an alternative for those who find the GPL too restrictive.
-
-Finally, there will be a commercial licensing option for everyone who cannot or does not want to comply with the GPL.
+If you cannot or do not want to comply with the (L)GPL terms, please [contact us](mailto:boden-team@ashampoo-systems.com) to learn more about our commercial/proprietary licensing options.
 
 ## Where can I get support?
 
