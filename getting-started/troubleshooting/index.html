@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../stylesheets/cookieconsent.min.css?4841003146">
+      <link rel="stylesheet" href="../../stylesheets/cookieconsent.min.css?2748332243">
     
-      <link rel="stylesheet" href="../../stylesheets/boden.css?3944311108">
+      <link rel="stylesheet" href="../../stylesheets/boden.css?4341006953">
     
     
       
@@ -559,6 +559,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#3-the-run-and-build-functions-in-android-studio-are-disabled" title="3. The Run and Build functions in Android Studio are disabled" class="md-nav__link">
     3. The Run and Build functions in Android Studio are disabled
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-bodenpy-script-runs-into-ssl-certificate-exception-when-using-python-3-from-pythonorg-on-macos" title="4. boden.py script runs into SSL certificate exception when using Python 3 from python.org on macOS" class="md-nav__link">
+    4. boden.py script runs into SSL certificate exception when using Python 3 from python.org on macOS
   </a>
   
 </li>
@@ -1732,6 +1739,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#4-bodenpy-script-runs-into-ssl-certificate-exception-when-using-python-3-from-pythonorg-on-macos" title="4. boden.py script runs into SSL certificate exception when using Python 3 from python.org on macOS" class="md-nav__link">
+    4. boden.py script runs into SSL certificate exception when using Python 3 from python.org on macOS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#didnt-find-what-youre-looking-for" title="Didn't find what you're looking for?" class="md-nav__link">
     Didn't find what you're looking for?
   </a>
@@ -1763,7 +1777,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="2-boden-prepare-fails-with-a-cmake-error-when-setting-up-a-windows-machine-for-android-development">2. <code>boden prepare</code> fails with a CMake error when setting up a Windows machine for Android development<a class="headerlink" href="#2-boden-prepare-fails-with-a-cmake-error-when-setting-up-a-windows-machine-for-android-development" title="Permanent link">&para;</a></h2>
 <p>Double-check whether the right Java version is installed. Android Studio requires the <code>openjdk-8-jdk</code> package on Ubuntu Linux or <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Oracle JDK 8</a> on Windows. Other Java versions are not supported.</p>
 <h2 id="3-the-run-and-build-functions-in-android-studio-are-disabled">3. The Run and Build functions in Android Studio are disabled<a class="headerlink" href="#3-the-run-and-build-functions-in-android-studio-are-disabled" title="Permanent link">&para;</a></h2>
-<p>Android Studio needs several minutes for its initial preparation (gradle sync, etc.) when the project is first opened. If the build and run functions remain disabled after the preparation has finished please wait an additional minute or two. If they remain disabled then you may be experiencing a sporadically occurring Android Studio bug. Solution: click on the "N processes running" entry in the status bar and then on the play button next to "Indexing paused due to batch update".</p>
+<p>Android Studio may need up to several minutes for its initial preparation (gradle sync, etc.) when the project is first opened. If the build and run functions remain disabled after the preparation has finished, please wait an additional minute or two. If they still remain disabled, you may be experiencing a sporadically occurring Android Studio bug. Solution: click on the "N processes running" entry in the status bar and then on the play button next to "Indexing paused due to batch update".</p>
+<h2 id="4-bodenpy-script-runs-into-ssl-certificate-exception-when-using-python-3-from-pythonorg-on-macos">4. boden.py script runs into SSL certificate exception when using Python 3 from python.org on macOS<a class="headerlink" href="#4-bodenpy-script-runs-into-ssl-certificate-exception-when-using-python-3-from-pythonorg-on-macos" title="Permanent link">&para;</a></h2>
+<p>If you're using Python 3, you may run into an issue with SSL certificates on macOS when running <code>boden.py</code> or <code>boden</code>.</p>
+<p>We recommend <a href="../installing_dependencies/mac-ios/#2-install-homebrew-python-and-cmake">installing Python 3 via Homebrew</a> which should correctly install the required SSL certificate support for Python on your machine.</p>
+<p>If you want to stick with the version of Python 3 you have already installed, please open a Terminal and run the following commands:</p>
+<div class="codehilite"><pre><span></span>cd /Applications/Python\ 3.7/
+./Install\ Certificates.command
+</pre></div>
+
+
+<p>Please replace <code>3.7</code> with the appropriate Python version if necessary.</p>
+<p>Certificate support should work correctly after running this command.</p>
+<p>Users from certain regions have also reported that the requested download addresses, specifically subdomains of gradle.org, might be blocked by certain ISPs. Please use a VPN if you think that you may be affected by such blocking measures.</p>
+<p>If all else fails, please use Python 2 to run the <code>boden.py</code> tool. This should work around the SSL certificate issue with Python 3.</p>
 <h2 id="didnt-find-what-youre-looking-for">Didn't find what you're looking for?<a class="headerlink" href="#didnt-find-what-youre-looking-for" title="Permanent link">&para;</a></h2>
 <p>Please <a href="../../../feedback">let us know</a>. We're happy to help!</p>
                 
@@ -1836,6 +1863,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <ul>
             <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
             <li><a href="../../legal/privacy_policy">Privacy Policy</a></li>
+            <li><a href="../faq">FAQ</a></li>
             <li><a href="../../legal/licensing">Licensing</a></li>
             <li><a href="../../feedback">Feedback</a></li>
           </ul>
