@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/Notifier.h>
+#include <bdn/ui/Font.h>
 #include <bdn/ui/SubmitEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
@@ -16,6 +17,7 @@ namespace bdn::ui
     {
       public:
         Property<String> text;
+        Property<Font> font;
 
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -26,6 +28,7 @@ namespace bdn::ui
 
       protected:
         void bindViewCore() override;
+        void updateFromStylesheet() override;
 
       private:
         Notifier<const SubmitEvent &> _onSubmit;
@@ -36,6 +39,7 @@ namespace bdn::ui
         {
           public:
             Property<String> text;
+            Property<Font> font;
 
           public:
             WeakCallback<void()> submitCallback;

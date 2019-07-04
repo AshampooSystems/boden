@@ -21,6 +21,9 @@ namespace bdn::ui::ios
         float calculateBaseline(Size forSize) const override;
 
       private:
+        void setFont(const Font &font);
+
+      private:
         BdnTextFieldDelegate *_delegate;
     };
 }

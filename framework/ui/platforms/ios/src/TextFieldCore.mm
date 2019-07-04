@@ -2,6 +2,7 @@
 
 #import <bdn/foundationkit/stringUtil.hh>
 #import <bdn/ios/TextFieldCore.hh>
+#include <bdn/log.h>
 
 @interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
@@ -104,6 +105,8 @@ namespace bdn::ui::ios
                 textField.text = fk::stringToNSString(text);
             }
         };
+
+        font.onChange() += [this](auto &property) { setFont(property.get()); };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
@@ -126,5 +129,81 @@ namespace bdn::ui::ios
         }
 
         return baseline;
+    }
+
+    void TextFieldCore::setFont(const Font &font)
+    {
+        UITextField *textField = (UITextField *)uiView();
+
+        static UIFontDescriptor *defaultFontDescriptor = textField.font.fontDescriptor;
+        static float defaultSize = textField.font.pointSize;
+
+        float size = defaultSize;
+
+        switch (font.size.type) {
+        case Font::Size::Type::Inherit:
+        case Font::Size::Type::Medium:
+            break;
+        case Font::Size::Type::Small:
+            size *= 0.75;
+            break;
+        case Font::Size::Type::XSmall:
+            size *= 0.5;
+            break;
+        case Font::Size::Type::XXSmall:
+            size *= 0.25;
+            break;
+        case Font::Size::Type::Large:
+            size *= 1.25;
+            break;
+        case Font::Size::Type::XLarge:
+            size *= 1.5;
+            break;
+        case Font::Size::Type::XXLarge:
+            size *= 1.75;
+            break;
+        case Font::Size::Type::Percent:
+            size *= font.size.value;
+            break;
+        case Font::Size::Type::Points:
+        case Font::Size::Type::Pixels:
+            size = font.size.value;
+            break;
+        }
+
+        UIFontDescriptor *descriptor = nullptr;
+
+        if (!font.family.empty()) {
+            descriptor = [[UIFontDescriptor alloc] init];
+            descriptor = [descriptor fontDescriptorWithFamily:fk::stringToNSString(font.family)];
+        } else {
+            descriptor = [defaultFontDescriptor copy];
+        }
+
+        descriptor = [descriptor fontDescriptorWithSize:size];
+
+        if (font.style == Font::Style::Italic) {
+            descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
+        }
+
+        if (font.weight != Font::Weight::Inherit && font.weight != Font::Weight::Normal) {
+            if (font.weight == Font::Weight::Bold) {
+                descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
+            } else {
+                std::array<UIFontWeight, 9> weights = {UIFontWeightUltraLight, UIFontWeightThin,   UIFontWeightLight,
+                                                       UIFontWeightRegular,    UIFontWeightMedium, UIFontWeightSemibold,
+                                                       UIFontWeightBold,       UIFontWeightHeavy,  UIFontWeightBlack};
+
+                UIFontWeight w = weights[(font.weight / 1000.0) * 8];
+
+                descriptor = [descriptor fontDescriptorByAddingAttributes:@{
+                    UIFontDescriptorTraitsAttribute : @{UIFontWeightTrait : @(w)}
+                }];
+            }
+        }
+
+        textField.font = [UIFont fontWithDescriptor:descriptor size:size];
+
+        this->markDirty();
     }
 }

@@ -8,8 +8,8 @@ namespace bdn::ui::detail
 namespace bdn::ui::android
 {
     TextFieldCore::TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::AppCompatEditText>(viewCoreFactory)),
-          _jEditText(getJViewAS<bdn::android::wrapper::EditText>()),
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeEditText>(viewCoreFactory)),
+          _jEditText(getJViewAS<bdn::android::wrapper::NativeEditText>()),
           _watcher(_jEditText.cast<bdn::android::wrapper::TextView>())
     {
         _jEditText.setSingleLine(true);
@@ -27,6 +27,8 @@ namespace bdn::ui::android
             }
             _jEditText.addTextChangedListener(_watcher.cast<bdn::android::wrapper::TextWatcher>());
         };
+
+        font.onChange() += [=](auto &property) { setFont(property.get()); };
     }
 
     void TextFieldCore::beforeTextChanged(const String &string, int start, int count, int after) {}
@@ -49,5 +51,11 @@ namespace bdn::ui::android
         submitCallback.fire();
 
         return true;
+    }
+
+    void TextFieldCore::setFont(const Font &font)
+    {
+        _jEditText.setFont(font.family, (int)font.size.type, font.size.value, font.weight,
+                           font.style == Font::Style::Italic);
     }
 }

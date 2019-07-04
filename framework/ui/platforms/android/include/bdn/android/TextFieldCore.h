@@ -1,9 +1,9 @@
 #pragma once
 
 #include <bdn/android/wrapper/AppCompatEditText.h>
-#include <bdn/android/wrapper/EditText.h>
 #include <bdn/android/wrapper/InputMethodManager.h>
 #include <bdn/android/wrapper/KeyEvent.h>
+#include <bdn/android/wrapper/NativeEditText.h>
 #include <bdn/android/wrapper/NativeEditTextTextWatcher.h>
 #include <bdn/android/wrapper/NativeTextViewOnEditorActionListener.h>
 
@@ -31,8 +31,11 @@ namespace bdn::ui::android
 
         bool onEditorAction(int actionId, const bdn::android::wrapper::KeyEvent &keyEvent);
 
+      public:
+        void setFont(const Font &font);
+
       private:
-        mutable bdn::android::wrapper::EditText _jEditText;
+        mutable bdn::android::wrapper::NativeEditText _jEditText;
         bdn::android::wrapper::NativeEditTextTextWatcher _watcher;
         bdn::android::wrapper::NativeTextViewOnEditorActionListener _onEditorActionListener;
     };

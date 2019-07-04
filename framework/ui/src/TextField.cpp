@@ -26,10 +26,25 @@ namespace bdn::ui
         View::bindViewCore();
         auto textCore = View::core<TextField::Core>();
         textCore->text.bind(text);
+        textCore->font.bind(font);
 
         _submitCallbackReceiver = textCore->submitCallback.set([=]() {
             SubmitEvent evt(shared_from_this());
             onSubmit().notify(evt);
         });
+    }
+
+    void TextField::updateFromStylesheet()
+    {
+        if (stylesheet->count("font")) {
+            Font f = stylesheet->at("font");
+            font = f;
+        }
+
+        if (stylesheet->count("text")) {
+            text = stylesheet->at("text");
+        }
+
+        View::updateFromStylesheet();
     }
 }

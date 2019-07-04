@@ -79,6 +79,8 @@ namespace bdn::ui::mac
                 textField.stringValue = fk::stringToNSString(property.get());
             }
         };
+
+        font.onChange() += [=](auto &property) { setFont(property.get()); };
     }
 
     float TextFieldCore::calculateBaseline(Size forSize, bool forIndicator) const
@@ -86,5 +88,84 @@ namespace bdn::ui::mac
         NSTextField *textField = (NSTextField *)nsView();
 
         return static_cast<float>(textField.firstBaselineOffsetFromTop + 1);
+    }
+
+    void TextFieldCore::setFont(const Font &font)
+    {
+        NSTextField *textField = (NSTextField *)nsView();
+
+        static NSFont *defaultFont = textField.font;
+
+        float size = defaultFont.pointSize;
+
+        switch (font.size.type) {
+        case Font::Size::Type::Inherit:
+        case Font::Size::Type::Medium:
+            break;
+        case Font::Size::Type::Small:
+            size *= 0.75;
+            break;
+        case Font::Size::Type::XSmall:
+            size *= 0.5;
+            break;
+        case Font::Size::Type::XXSmall:
+            size *= 0.25;
+            break;
+        case Font::Size::Type::Large:
+            size *= 1.25;
+            break;
+        case Font::Size::Type::XLarge:
+            size *= 1.5;
+            break;
+        case Font::Size::Type::XXLarge:
+            size *= 1.75;
+            break;
+        case Font::Size::Type::Percent:
+            size *= font.size.value;
+            break;
+        case Font::Size::Type::Points:
+        case Font::Size::Type::Pixels:
+            size = font.size.value;
+            break;
+        }
+
+        NSFont *nsFont = nullptr;
+
+        if (font.family.empty()) {
+            nsFont = [defaultFont copy];
+        } else {
+            nsFont = [NSFont fontWithName:fk::stringToNSString(font.family) size:size];
+        }
+
+        NSString *fontFamily = nsFont.familyName;
+
+        auto fontManager = [NSFontManager sharedFontManager];
+
+        NSFontTraitMask fontTraits = 0;
+        int fontWeight = NSFontWeightRegular;
+
+        if (font.weight == Font::Weight::Inherit) {
+            fontWeight = [fontManager weightOfFont:defaultFont];
+            fontTraits = [fontManager traitsOfFont:defaultFont];
+        } else if (font.weight == Font::Weight::Bold) {
+            fontWeight = NSFontWeightBold;
+            fontTraits |= NSBoldFontMask;
+        } else if (font.weight == Font::Weight::Normal) {
+            fontWeight = NSFontWeightRegular;
+        } else {
+            fontWeight = ((double)font.weight / 1000.0) * 15;
+        }
+
+        if (font.style == Font::Style::Italic) {
+            fontTraits |= NSItalicFontMask;
+        }
+
+        if (font.variant == Font::Variant::SmallCaps) {
+            fontTraits |= NSSmallCapsFontMask;
+        }
+
+        nsFont = [fontManager fontWithFamily:fontFamily traits:fontTraits weight:fontWeight size:size];
+
+        textField.font = nsFont;
     }
 }
