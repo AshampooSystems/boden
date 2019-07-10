@@ -215,7 +215,7 @@ endif()
 # Specify minimum version of deployment target.
 if (NOT DEFINED IOS_DEPLOYMENT_TARGET)
   # Unless specified, SDK version 9.0 is used by default as minimum target version.
-  set(IOS_DEPLOYMENT_TARGET "9.0" CACHE STRING "Minimum iOS version to build for." )
+  set(IOS_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum iOS version to build for." )
   message(STATUS "Using the default min-version since IOS_DEPLOYMENT_TARGET not provided!")
 endif()
 # Use bitcode or not

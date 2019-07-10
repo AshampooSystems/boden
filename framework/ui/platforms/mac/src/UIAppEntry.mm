@@ -2,6 +2,7 @@
 #include <bdn/mac/appEntry.h>
 
 #include <bdn/entry.h>
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/mac/UIApplication.hh>
 
 namespace bdn::ui::mac

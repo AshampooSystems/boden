@@ -165,7 +165,7 @@ namespace bdn
         std::this_thread::sleep_for(1ms * rand() % 500);
 
         std::shared_ptr<int> nCalls = std::make_shared<int>(0);
-        logstream(true) << "BombThread started (" << std::this_thread::get_id() << ")";
+        logstream(true) << "BombThread started ( id = 0x" << std::hex << std::this_thread::get_id() << " )";
         while (!end) {
             if (auto queue = dispatchQueue.lock())
                 // std::this_thread::sleep_for(1ns * (rand() % 10000));
@@ -191,7 +191,8 @@ namespace bdn
                 }
         }
 
-        logstream(true) << std::this_thread::get_id() << " Produced: " << *nCalls;
+        logstream(true) << "Thread Id = 0x" << std::hex << std::this_thread::get_id() << " Produced: " << std::dec
+                        << *nCalls;
     }
 
     TEST(DispatchQueue, StressTest)

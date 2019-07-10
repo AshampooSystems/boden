@@ -1,4 +1,5 @@
 
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/ios/ViewCore.hh>
 
 namespace bdn::ui::ios

@@ -1,3 +1,4 @@
+#import <bdn/foundationkit/AttributedString.hh>
 #include <bdn/ios/LabelCore.hh>
 
 namespace bdn::ui::detail
@@ -20,10 +21,7 @@ namespace bdn::ui::ios
     {
         _uiLabel = (UILabel *)uiView();
 
-        text.onChange() += [=](auto &property) {
-            _uiLabel.text = fk::stringToNSString(text);
-            markDirty();
-        };
+        text.onChange() += [=](auto &property) { textChanged(property.get()); };
 
         wrap.onChange() += [=](auto &property) {
             _uiLabel.numberOfLines = wrap ? 0 : 1;
@@ -41,5 +39,24 @@ namespace bdn::ui::ios
         auto ascender = round(_uiLabel.font.ascender);
 
         return static_cast<float>(ascender + offset);
+    }
+
+    void LabelCore::textChanged(const Text &text)
+    {
+        std::visit(
+            [uiLabel = this->_uiLabel](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    uiLabel.text = fk::stringToNSString(arg);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
+                        uiLabel.attributedText = fkAttrString->nsAttributedString();
+                    }
+                }
+            },
+            text);
+
+        markDirty();
     }
 }

@@ -1,3 +1,4 @@
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/mac/ViewCore.hh>
 
 #include <iostream>

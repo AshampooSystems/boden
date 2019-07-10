@@ -40,11 +40,22 @@ namespace bdn
 
         notifier_t &onChange() { return _onChange; }
 
-        virtual void bind(std::shared_ptr<Backing<ValType>> sourceBacking)
+        template <typename OtherType> void bind(std::shared_ptr<Backing<OtherType>> sourceBacking)
         {
-            Binding binding{sourceBacking->onChange().subscribe(
-                                std::bind(&Backing::bindSourceChanged, this, std::placeholders::_1)),
-                            sourceBacking};
+            static_assert(std::is_convertible<OtherType, ValType>::value ||
+                              std::is_constructible<OtherType, ValType>::value,
+                          "Types are not convertible");
+
+            auto subscription = sourceBacking->onChange().subscribe(
+                [this](const auto &sourceBacking) { this->bindSourceChanged(sourceBacking); });
+
+            std::weak_ptr<Backing<OtherType>> weakSourceBacking = sourceBacking;
+
+            Binding binding = [subscription, weakSourceBacking]() {
+                if (auto source = weakSourceBacking.lock()) {
+                    source->onChange().unsubscribe(subscription);
+                }
+            };
 
             _bindings.push_back(binding);
 
@@ -53,25 +64,22 @@ namespace bdn
 
         void unbind()
         {
-            for (const auto &binding : _bindings) {
-                if (auto strongBacking = binding.backing.lock()) {
-                    strongBacking->onChange().unsubscribe(binding.subscription);
-                }
+            for (const auto &unbind : _bindings) {
+                unbind();
             }
             _bindings.clear();
         }
 
       public:
-        void bindSourceChanged(const std::shared_ptr<Backing<ValType>> &otherBacking) { set(otherBacking->get()); }
+        template <typename OtherType> void bindSourceChanged(const std::shared_ptr<Backing<OtherType>> &sourceBacking)
+        {
+            set(sourceBacking->get());
+        }
 
       protected:
         notifier_t _onChange;
 
-        struct Binding
-        {
-            notifier_subscription_t subscription;
-            std::weak_ptr<Backing<ValType>> backing;
-        };
+        using Binding = std::function<void()>;
 
         std::vector<Binding> _bindings;
     };

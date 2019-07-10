@@ -5,6 +5,7 @@
 #include <bdn/log.h>
 #include <bdn/ui/ContainerView.h>
 #include <bdn/ui/Label.h>
+#include <bdn/ui/UIApplicationController.h>
 #include <bdn/ui/Window.h>
 #include <bdn/ui/yoga.h>
 
@@ -13,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-class TestApplicationController : public bdn::ApplicationController, public testing::EmptyTestEventListener
+class TestApplicationController : public bdn::ui::UIApplicationController, public testing::EmptyTestEventListener
 {
   public:
     ~TestApplicationController() override
@@ -54,18 +55,27 @@ class TestApplicationController : public bdn::ApplicationController, public test
 
         ssProgress << "Running test " << nRun << " of " << ::testing::UnitTest::GetInstance()->total_test_count();
         std::ostringstream ssTestInfo;
-
+        bool hasFailed = false;
         if (testinfo) {
             ssTestInfo << testinfo->test_suite_name() << "." << testinfo->name();
+
+            if (testinfo->result()) {
+                if (testinfo->result()->Failed()) {
+                    hasFailed = true;
+                }
+            }
         }
 
         bdn::String sProgress = ssProgress.str();
         bdn::String sTestInfo = ssTestInfo.str();
-        bdn::App()->dispatchQueue()->dispatchAsync([this, sProgress, sTestInfo]() {
+        bdn::App()->dispatchQueue()->dispatchAsync([this, sProgress, sTestInfo, hasFailed]() {
             if (_progressLabel)
                 _progressLabel->text = sProgress;
             if (_testNameLabel)
                 _testNameLabel->text = sTestInfo;
+            if (hasFailed) {
+                _window->backgroundColor = bdn::ui::Color(1, 0, 0, 1);
+            }
         });
     }
 
@@ -102,6 +112,7 @@ class TestApplicationController : public bdn::ApplicationController, public test
         nCasesRun++;
         updateProgressLabel();
     }
+
     void OnTestEnd(const testing::TestInfo & /*testInfo*/) override { updateProgressLabel(); }
     void OnTestProgramEnd(const testing::UnitTest &unit_test) override
     {

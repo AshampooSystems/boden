@@ -39,6 +39,7 @@ namespace bdn::ui::ios
 
       protected:
         bool canAdjustToAvailableWidth() const override { return wrap.get(); }
+        void textChanged(const Text &text);
 
       private:
         UILabel *_uiLabel;

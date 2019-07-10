@@ -115,6 +115,7 @@ namespace bdn::ui
           public:
             virtual void init() = 0;
 
+          public:
             virtual Size sizeForSpace(Size availableSize = Size::none()) const { return Size{0, 0}; }
             virtual float baseline(Size forSize) const { return static_cast<float>(forSize.height); }
             virtual float pointScaleFactor() const = 0;

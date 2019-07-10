@@ -1,3 +1,4 @@
+#include <bdn/android/AttributedString.h>
 #include <bdn/android/ViewCore.h>
 
 #include <cmath>

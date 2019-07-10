@@ -25,6 +25,7 @@ namespace bdn::ui::mac
             return std::dynamic_pointer_cast<T>(std::enable_shared_from_this<ViewCore>::shared_from_this());
         }
 
+      public:
         bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
 
         NSView *nsView() const;

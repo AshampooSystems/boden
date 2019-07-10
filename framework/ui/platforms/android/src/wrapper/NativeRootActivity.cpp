@@ -19,7 +19,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootActivity_nativ
                 std::make_shared<bdn::ui::android::UIContext>(std::make_unique<bdn::ui::android::ContextWrapper>(
                     bdn::android::wrapper::Context(bdn::java::Reference::convertExternalLocal(rawContext))));
 
-            bdn::ui::UIApplicationController::topViewCoreFactory()->pushContext(uiContext);
+            bdn::ui::UIApplicationController::ViewCoreFactoryStack::top()->pushContext(uiContext);
         },
         true, env);
 }

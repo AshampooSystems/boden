@@ -32,6 +32,7 @@ namespace bdn::ui::ios
 
         UIView *uiView() const;
 
+      public:
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
         float baseline(Size forSize) const override;
         float pointScaleFactor() const override;

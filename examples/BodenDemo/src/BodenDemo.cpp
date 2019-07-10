@@ -8,6 +8,7 @@
 #include "ImagesPage.h"
 #include "ListViewPage.h"
 #include "PropertiesPage.h"
+#include "StyledTextPage.h"
 #include "TimersPage.h"
 #include "UIDemoPage.h"
 #include "WebViewPage.h"
@@ -21,7 +22,7 @@ using namespace bdn;
 class PagesDataSource : public ListViewDataSource
 {
   public:
-    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 8> pages = {
+    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 9> pages = {
         std::make_pair("UI Demo", [=]() { return std::make_shared<UIDemoPage>(needsInit, _window); }),
         std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(needsInit); }),
         std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(needsInit); }),
@@ -30,6 +31,7 @@ class PagesDataSource : public ListViewDataSource
         std::make_pair("ListView", [=]() { return std::make_shared<ListViewPage>(needsInit); }),
         std::make_pair("Colors", [=]() { return std::make_shared<ColorPage>(needsInit); }),
         std::make_pair("Fonts", [=]() { return std::make_shared<FontPage>(needsInit); }),
+        std::make_pair("Styled Text", [=]() { return std::make_shared<StyledTextPage>(needsInit); }),
     };
 
   public:
@@ -59,7 +61,7 @@ class PagesDataSource : public ListViewDataSource
       public:
         using CoreLess<ContainerView>::CoreLess;
 
-        void init()
+        void init() override
         {
             stylesheet = FlexJsonStringify(
                 {"direction" : "Row", "alignItems" : "Center", "flexGrow" : 1, "padding" : {"all" : 10}});
@@ -74,6 +76,17 @@ class PagesDataSource : public ListViewDataSource
   private:
     std::shared_ptr<Window> _window;
 };
+
+/*
+class Test
+{
+  public:
+};
+
+using VVV = std::variant<String, Test>;
+
+inline bool operator!=(const VVV &left, const VVV &right) { return true; }
+*/
 
 class MainViewController
 {

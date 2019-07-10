@@ -216,10 +216,13 @@ class IOSRunner:
         return bundlePath
 
     def readPList(self, plistPath):
+        self.logger.info("Reading plist at %s", plistPath)
         if sys.version_info >= (3, 0):
             return plistlib.load( open(plistPath, "rb") )
         else:
-            return plistlib.readPlist(plistPath)
+            tf = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+            os.system('plutil -convert xml1 %s -o %s' % (plistPath,tf.name))
+            return plistlib.readPlist(open(tf.name, "rb"))
 
     def getBundleIdentifier(self, bundlePath):
         plistPath = os.path.abspath(os.path.join( bundlePath, "Info.plist"))

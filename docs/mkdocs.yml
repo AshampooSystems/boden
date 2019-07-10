@@ -69,7 +69,9 @@ nav:
     - Foundation:
       - reference/foundation/application.md
       - reference/foundation/application_controller.md
+      - reference/foundation/attributed_string.md
       - reference/foundation/dispatch_queue.md
+      - reference/foundation/global_stack.md
       - reference/foundation/needs_init.md
       - reference/foundation/notifier.md
       - reference/foundation/point.md
@@ -78,6 +80,7 @@ nav:
       - reference/foundation/size.md
       - reference/foundation/streaming.md
       - reference/foundation/string.md
+      - reference/foundation/text.md
       - reference/foundation/transform.md
     - UI:
       - reference/ui/button.md

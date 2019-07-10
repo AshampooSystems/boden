@@ -1,9 +1,8 @@
 
-#include <bdn/android/appEntry.h>
-
+#include <bdn/android/AttributedString.h>
 #include <bdn/android/UIApplication.h>
+#include <bdn/android/appEntry.h>
 #include <bdn/android/wrapper/Intent.h>
-
 #include <bdn/entry.h>
 
 namespace bdn::ui::android

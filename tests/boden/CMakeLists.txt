@@ -16,9 +16,14 @@ add_universal_executable(testBoden TIDY SOURCES ../test_main.cpp
     testURI.cpp
     testStyler.cpp
     testColor.cpp
+    testAttributedString.cpp
     ${property_tests}
     TIDY)
 
 target_link_libraries(testBoden PRIVATE gtest gtest_main Boden::All)
+
+#get_git_short_revision(GIT_REV)
+#set_target_version(TARGET testBoden VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
+
 
 add_test( testBoden testBoden )

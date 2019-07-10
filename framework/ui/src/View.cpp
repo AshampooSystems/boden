@@ -21,7 +21,8 @@ namespace bdn::ui
     }
 
     View::View(std::shared_ptr<ViewCoreFactory> viewCoreFactory)
-        : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory) : UIApplicationController::topViewCoreFactory())
+        : _viewCoreFactory(viewCoreFactory ? std::move(viewCoreFactory)
+                                           : UIApplicationController::ViewCoreFactoryStack::top())
     {
         if (!_viewCoreFactory) {
             throw std::runtime_error("Couldn't get ViewCore Factory!");

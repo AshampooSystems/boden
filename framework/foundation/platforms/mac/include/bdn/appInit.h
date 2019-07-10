@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/ApplicationController.h>
+#include <bdn/AttributedString.h>
 #include <bdn/platform/macplatform.h>
 
 #ifdef BDN_COMPILING_COMMANDLINE_APP

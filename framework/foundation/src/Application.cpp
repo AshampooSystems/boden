@@ -1,7 +1,6 @@
 
 #include <bdn/Application.h>
 #include <bdn/debug.h>
-
 #include <bdn/log.h>
 
 #include <utility>

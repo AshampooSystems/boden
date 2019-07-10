@@ -106,11 +106,12 @@ namespace bdn
         const auto backing() const { return _backing; }
 
       public:
-        void bind(const Property<ValType> &sourceProperty) { _backing->bind(sourceProperty.backing()); }
-
-        void bind(Property<ValType> &sourceProperty, BindMode bindMode = BindMode::bidirectional)
+        template <class OtherType>
+        void bind(const Property<OtherType> &sourceProperty, BindMode bindMode = BindMode::bidirectional)
         {
-            if (ValueBacking<ValType>::template Compare<ValType>::isComparable && bindMode == BindMode::bidirectional) {
+            if ((!ValueBacking<ValType>::template Compare<ValType>::isComparable ||
+                 !ValueBacking<ValType>::template Compare<OtherType>::isComparable) &&
+                bindMode == BindMode::bidirectional) {
                 throw std::logic_error("You cannot bind this type of Property bidirectional, its == operator is faked "
                                        "and therefor would end up in an endless loop.");
             }

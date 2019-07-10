@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/Text.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
 
@@ -14,7 +15,7 @@ namespace bdn::ui
     class Label : public View
     {
       public:
-        Property<String> text;
+        Property<Text> text;
         Property<bool> wrap;
 
       public:
@@ -27,7 +28,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> text;
+            Property<Text> text;
             Property<bool> wrap;
 
           public:

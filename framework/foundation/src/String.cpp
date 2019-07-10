@@ -1,8 +1,8 @@
+#include <bdn/Factory.h>
 #include <bdn/String.h>
 
 namespace bdn
 {
-
     String fromUtf32(const std::u32string &utf32String)
     {
         std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;

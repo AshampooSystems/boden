@@ -19,6 +19,7 @@ namespace bdn::ui::android
 
       protected:
         bool canAdjustWidthToAvailableSpace() const override { return false; }
+        void textChanged(const Text &text);
 
       private:
         mutable bdn::android::wrapper::TextView _jTextView;

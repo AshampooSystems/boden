@@ -17,6 +17,9 @@ namespace bdn::ui::mac
         float calculateBaseline(Size forSize, bool forIndicator) const override;
 
       private:
+        void textPropertyChanged(const Text &text);
+
+      private:
         NSTextView *_nsTextView;
         bool _wrap;
     };

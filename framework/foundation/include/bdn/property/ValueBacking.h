@@ -41,13 +41,13 @@ namespace bdn
       public:
         template <class T> struct Compare
         {
-            static const bool isComparable = false;
+            static const bool isComparable = true;
             static bool notEqual(const T &left, const T &right) { return left != right; }
         };
 
         template <class _fp> struct Compare<std::function<_fp>>
         {
-            static const bool isComparable = true;
+            static const bool isComparable = false;
             static bool notEqual(const std::function<_fp> &left, const std::function<_fp> &right) { return true; }
         };
 
