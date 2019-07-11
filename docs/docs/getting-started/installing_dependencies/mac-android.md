@@ -31,7 +31,12 @@
 1. Follow the steps in the setup wizard.
 3. Stay on the "Welcome to Android" screen and complete the steps below to complete the installation.
 
-> For Boden, it's sufficient to select the default setup type in the Android Studio Setup wizard. When asked, grant permission to the Intel HAXM installer to allow for Android device emulation.
+!!! note
+	It's sufficient to select the default setup type in the Android Studio Setup wizard. When asked, grant permission to the Intel HAXM installer to enable Android device emulation.
+
+	If Intel's HAXM installation fails, please download the latest release from [https://github.com/intel/haxm/releases](https://github.com/intel/haxm/releases) and install it manually.
+
+
 
 ### 2.3 Install Android NDK
 
