@@ -23,6 +23,7 @@ namespace bdn::ui
 
       protected:
         void bindViewCore() override;
+        void updateFromStylesheet() override;
 
       public:
         class Core

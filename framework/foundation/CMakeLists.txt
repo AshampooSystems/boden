@@ -68,6 +68,7 @@ include(install.cmake)
 
 add_subdirectory(platforms)
 
+target_link_libraries(foundation PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(foundation INTERFACE ${BDN_FOUNDATION_PLATFORM_LIBRARIES})
 add_library(Boden::Foundation ALIAS foundation)
 target_link_libraries(Boden_All INTERFACE foundation)

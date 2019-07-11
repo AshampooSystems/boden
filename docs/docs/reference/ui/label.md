@@ -24,13 +24,19 @@ label->text = "Hello World";
 
 ## Properties
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> text**
+* **[Property](../foundation/property.md)<[Text](../foundation/text.md)\> text**
 
 	The label's text.
 
 * **[Property](../foundation/property.md)<bool\> wrap**
 
 	If true, the text will wrap if it exceeds the available width.
+
+## Stylesheet
+
+* **{ "text" : [Text](../foundation/text.md) }**
+
+	Controls the [`text`](#properties) property.
 
 ## Relationships
 

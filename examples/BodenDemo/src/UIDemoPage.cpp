@@ -1,10 +1,10 @@
 #include "UIDemoPage.h"
 
+#include <bdn/Json.h>
 #include <bdn/StopWatch.h>
 #include <bdn/Timer.h>
 #include <bdn/log.h>
 #include <bdn/ui.h>
-#include <bdn/ui/Json.h>
 #include <bdn/ui/lottie/View.h>
 #include <bdn/ui/yoga.h>
 

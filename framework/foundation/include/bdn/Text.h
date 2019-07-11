@@ -4,6 +4,8 @@
 #include <bdn/String.h>
 #include <variant>
 
+#include <bdn/Json.h>
+
 namespace bdn
 {
     class Text : public std::variant<String, std::shared_ptr<AttributedString>>
@@ -23,6 +25,39 @@ namespace bdn
                     }
                 },
                 *this);
+        }
+    };
+}
+
+namespace nlohmann
+{
+    template <> struct adl_serializer<bdn::Text>
+    {
+        static void to_json(json &j, const bdn::Text &text)
+        {
+            std::visit(
+                [&j](auto &&arg) {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, bdn::String>) {
+                        j = arg;
+                    } else if constexpr (std::is_same_v<T, std::shared_ptr<bdn::AttributedString>>) {
+                        j = {{"html", arg->toHtml()}};
+                    }
+                },
+                text);
+        }
+
+        static void from_json(const json &j, bdn::Text &text)
+        {
+            if (j.is_string()) {
+                text = (bdn::String)j;
+            } else if (j.is_object()) {
+                if (j.count("html")) {
+                    auto attrString = std::make_shared<bdn::AttributedString>();
+                    attrString->fromHtml(j.at("html"));
+                    text = attrString;
+                }
+            }
         }
     };
 }

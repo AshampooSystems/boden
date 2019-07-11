@@ -1,4 +1,5 @@
 
+#include <bdn/Text.h>
 #include <bdn/ui/Label.h>
 
 namespace bdn::ui
@@ -19,5 +20,15 @@ namespace bdn::ui
         auto textCore = View::core<Label::Core>();
         textCore->text.bind(text);
         textCore->wrap.bind(wrap);
+    }
+
+    void Label::updateFromStylesheet()
+    {
+        View::updateFromStylesheet();
+
+        if (stylesheet->count("text")) {
+            text = stylesheet->at("text").get<bdn::Text>();
+        } else {
+        }
     }
 }

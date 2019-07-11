@@ -19,6 +19,7 @@ namespace bdn
 
       public:
         virtual bool fromHtml(const String &html) = 0;
+        virtual String toHtml() const = 0;
     };
 }
 

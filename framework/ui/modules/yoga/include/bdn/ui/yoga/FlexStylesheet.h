@@ -1,7 +1,7 @@
 #pragma once
 
+#include <bdn/Json.h>
 #include <bdn/String.h>
-#include <bdn/ui/Json.h>
 #include <optional>
 #include <variant>
 

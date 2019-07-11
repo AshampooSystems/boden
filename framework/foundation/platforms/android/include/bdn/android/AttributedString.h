@@ -12,6 +12,7 @@ namespace bdn::android
 
       public:
         bool fromHtml(const String &html) override;
+        String toHtml() const override;
 
       public:
         wrapper::Spanned spanned() { return _spanned; }

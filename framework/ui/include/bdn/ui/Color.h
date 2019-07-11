@@ -6,8 +6,8 @@
 #include <regex>
 #include <sstream>
 
+#include <bdn/Json.h>
 #include <bdn/String.h>
-#include <bdn/ui/Json.h>
 
 namespace bdn::ui
 {

@@ -12,12 +12,13 @@ namespace bdn::fk
         AttributedString();
 
       public:
-        bool fromHtml(const String &str);
+        bool fromHtml(const String &str) override;
+        String toHtml() const override;
 
       public:
         NSAttributedString *nsAttributedString() { return _nsAttributedString; }
 
       private:
-        NSAttributedString *_nsAttributedString = nullptr;
+        NSMutableAttributedString *_nsAttributedString = nullptr;
     };
 }

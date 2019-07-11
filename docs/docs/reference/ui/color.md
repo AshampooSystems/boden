@@ -10,7 +10,7 @@ Holds an RGBA color. Can be de-/serialized to json.
 
 ```C++
 #include <bdn/ui/Color.h>
-#include <bdn/ui/Json.h>
+#include <bdn/Json.h>
 
 int main() {
 	bdn::ui::Color color("royalblue");
@@ -18,7 +18,6 @@ int main() {
 
 	return 0;
 }
-
 ```
 
 ## Declaration

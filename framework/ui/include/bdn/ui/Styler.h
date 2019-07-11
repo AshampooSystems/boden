@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/ui/Json.h>
+#include <bdn/Json.h>
 #include <bdn/ui/View.h>
 #include <map>
 #include <memory>

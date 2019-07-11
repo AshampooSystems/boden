@@ -10,6 +10,8 @@ namespace bdn::android
         _spanned = bdn::android::wrapper::Html::fromHtml(html, 63);
         return true;
     }
+
+    String AttributedString::toHtml() const { return bdn::android::wrapper::Html::toHtml(_spanned, 1); }
 }
 
 namespace bdn

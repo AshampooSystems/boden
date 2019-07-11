@@ -2,9 +2,9 @@
 
 #include <vector>
 
+#include <bdn/Json.h>
 #include <bdn/String.h>
 #include <bdn/property/Property.h>
-#include <bdn/ui/Json.h>
 
 #ifdef JSON_THROW_USER
 #define JSON_THROW JSON_THROW_USER

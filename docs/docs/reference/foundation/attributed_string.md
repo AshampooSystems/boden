@@ -24,6 +24,11 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 	Replaces the contents of the `AttributedString` with the `html` code.
 
+* **virtual String toHtml() const**
+
+	Returns the contents encoded as Html.
+
+
 ## Types
 
 * **CreatorStack**

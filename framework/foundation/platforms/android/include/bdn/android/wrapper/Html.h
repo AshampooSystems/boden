@@ -13,5 +13,6 @@ namespace bdn::android::wrapper
 
       public:
         constexpr static StaticMethod<Spanned(String, int)> fromHtml{"fromHtml"};
+        constexpr static StaticMethod<String(Spanned, int)> toHtml{"toHtml"};
     };
 }

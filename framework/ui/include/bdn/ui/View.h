@@ -2,12 +2,12 @@
 
 #include <nlohmann/json.hpp>
 
+#include <bdn/Json.h>
 #include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
 #include <bdn/WeakCallback.h>
 #include <bdn/property/Property.h>
 #include <bdn/ui/Color.h>
-#include <bdn/ui/Json.h>
 #include <bdn/ui/Layout.h>
 
 #include <list>
