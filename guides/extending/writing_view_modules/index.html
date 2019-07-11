@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5456002696">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1421245586">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3819294283">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?5959607815">
     
     
       
@@ -834,8 +834,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../reference/foundation/attributed_string/" title="AttributedString" class="md-nav__link">
+      AttributedString
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../reference/foundation/dispatch_queue/" title="DispatchQueue" class="md-nav__link">
       DispatchQueue
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/foundation/global_stack/" title="GlobalStack" class="md-nav__link">
+      GlobalStack
     </a>
   </li>
 
@@ -932,6 +956,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <li class="md-nav__item">
     <a href="../../../reference/foundation/string/" title="String" class="md-nav__link">
       String
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/foundation/text/" title="Text" class="md-nav__link">
+      Text
     </a>
   </li>
 
@@ -1772,20 +1808,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </ol>
 <h2 id="the-module-structure">The Module Structure<a class="headerlink" href="#the-module-structure" title="Permanent link">&para;</a></h2>
 <p>A view module consists of the public part (mostly the <code>View</code> class), and a number of platform-specific implementations:</p>
-<div class="codehilite"><pre><span></span>lottieview
-├── include
-│── src
-├── platforms
-│  ├── android
-│  │  ├── include
-│  │  ├── java
-│  │  └── src
-│  ├── ios
-│  │  ├── include
-│  │  └── src
-│  └── mac
-│     ├── include
-│     └── src
+<div class="codehilite"><pre><span></span><span class="nv">lottieview</span>
+├── <span class="k">include</span>
+│── <span class="nv">src</span>
+├── <span class="nv">platforms</span>
+│  ├── <span class="nv">android</span>
+│  │  ├── <span class="k">include</span>
+│  │  ├── <span class="nv">java</span>
+│  │  └── <span class="nv">src</span>
+│  ├── <span class="nv">ios</span>
+│  │  ├── <span class="k">include</span>
+│  │  └── <span class="nv">src</span>
+│  └── <span class="nv">mac</span>
+│     ├── <span class="k">include</span>
+│     └── <span class="nv">src</span>
 </pre></div>
 
 <h2 id="main-cmakeliststxt">Main CMakeLists.txt<a class="headerlink" href="#main-cmakeliststxt" title="Permanent link">&para;</a></h2>
