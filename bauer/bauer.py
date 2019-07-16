@@ -56,6 +56,11 @@ def run(argv):
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))
     source_folder = os.getcwd()
 
+    # Python will switch to the real path when the working dir has a symlink in it.
+    # We'll update the current dir and the environment variable to reflect this.
+    os.chdir(source_folder)
+    os.environ["PWD"] = source_folder
+
     buildFolder = BuildFolder(bauerGlobals, generatorInfo, source_folder, args)
 
     commandProcessor = CommandProcessor(bauerGlobals, generatorInfo, args, rootPath, source_folder, buildFolder)
