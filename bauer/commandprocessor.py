@@ -148,7 +148,7 @@ class CommandProcessor:
 
     def clean(self, configuration):
         if configuration.platform == "android":
-            self.androidExecutor.clean(configuration)
+            self.androidExecutor.clean(configuration, self.args)
         else:
             self.buildExecutor.clean(configuration, self.args)
 
