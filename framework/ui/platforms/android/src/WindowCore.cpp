@@ -81,11 +81,12 @@ namespace bdn::ui::android
             bdn::android::wrapper::Activity activity(getJView().getContext().getRef_());
 
             if (property.get() == Window::Core::Orientation::All) {
-                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_FULL_USER);
+                activity.setRequestedOrientation(bdn::android::wrapper::ActivityInfo::SCREEN_ORIENTATION_FULL_USER);
             } else if (property.get() & Window::Core::Orientation::PortraitMask) {
-                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_USER_PORTRAIT);
+                activity.setRequestedOrientation(bdn::android::wrapper::ActivityInfo::SCREEN_ORIENTATION_USER_PORTRAIT);
             } else if (property.get() & Window::Core::Orientation::LandscapeMask) {
-                activity.setRequestedOrientation(bdn::android::wrapper::Activity::SCREEN_ORIENTATION_USER_LANDSCAPE);
+                activity.setRequestedOrientation(
+                    bdn::android::wrapper::ActivityInfo::SCREEN_ORIENTATION_USER_LANDSCAPE);
             }
         };
     }
@@ -253,7 +254,7 @@ namespace bdn::ui::android
 
     void WindowCore::updateUIScaleFactor(const bdn::android::wrapper::Configuration &config)
     {
-        int dpi = config.densityDpi();
+        int dpi = config.densityDpi;
 
         // the scale factor is at 1 for 160 dpi. Note that smaller DPI
         // values are also possible, so the scale factor can be <1 as
@@ -266,7 +267,7 @@ namespace bdn::ui::android
 
     void WindowCore::updateOrientation(const bdn::android::wrapper::Configuration &config)
     {
-        int orientation = config.orientation();
+        int orientation = config.orientation;
         if (orientation == bdn::android::wrapper::Configuration::ORIENTATION_PORTRAIT) {
             currentOrientation = WindowCore::Orientation::Portrait;
         } else if (orientation == bdn::android::wrapper::Configuration::ORIENTATION_LANDSCAPE) {

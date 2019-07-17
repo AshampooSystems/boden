@@ -1,9 +1,10 @@
-# Clear android dependencies in the cache
+set(BDN_ANDROID_MIN_SDK_VERSION "23" CACHE STRING "Minimum Android sdk version")
+set(BDN_ANDROID_TARGET_SDK_VERSION "28" CACHE STRING "Android sdk version to target")
 
+# Clear android dependencies in the cache
 set(BAUER_ANDROID_DEPENDENCIES "" CACHE STRING "The android dependencies" FORCE)
 set(BAUER_ANDROID_MANIFEST_FILE "" CACHE STRING "The android manifest file" FORCE)
 set(BAUER_ANDROID_EXTRA_JAVA_DIRECTORIES "" CACHE STRING "Additional Java Directories" FORCE)
-
 
 macro(android_manifest TARGET_NAME)
     if(BDN_PLATFORM_ANDROID)

@@ -10,32 +10,51 @@ namespace bdn::android::wrapper
     class Activity : public BaseContext<kActivityClassName>
     {
       public:
-        enum
-        {
-            SCREEN_ORIENTATION_BEHIND = 3,
-            SCREEN_ORIENTATION_FULL_SENSOR = 10,
-            SCREEN_ORIENTATION_FULL_USER = 13,
-            SCREEN_ORIENTATION_LANDSCAPE = 0,
-            SCREEN_ORIENTATION_LOCKED = 14,
-            SCREEN_ORIENTATION_NOSENSOR = 5,
-            SCREEN_ORIENTATION_PORTRAIT = 1,
-            SCREEN_ORIENTATION_REVERSE_LANDSCAPE = 8,
-            SCREEN_ORIENTATION_REVERSE_PORTRAIT = 9,
-            SCREEN_ORIENTATION_SENSOR = 4,
-            SCREEN_ORIENTATION_SENSOR_LANDSCAPE = 6,
-            SCREEN_ORIENTATION_SENSOR_PORTRAIT = 7,
-            SCREEN_ORIENTATION_UNSET = -2,
-            SCREEN_ORIENTATION_UNSPECIFIED = -1,
-            SCREEN_ORIENTATION_USER = 2,
-            SCREEN_ORIENTATION_USER_LANDSCAPE = 11,
-            SCREEN_ORIENTATION_USER_PORTRAIT = 12
-        };
-
-      public:
         using BaseContext<kActivityClassName>::BaseContext;
 
       public:
         JavaMethod<Window()> getWindow{this, "getWindow"};
         JavaMethod<void(int)> setRequestedOrientation{this, "setRequestedOrientation"};
+    };
+
+    constexpr const char kActivityInfoClassName[] = "android/content/pm/ActivityInfo";
+    class ActivityInfo : public java::wrapper::JTObject<kActivityInfoClassName>
+    {
+      public:
+        using JTObject<kActivityInfoClassName>::JTObject;
+
+      public:
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_UNSET{"SCREEN_ORIENTATION_UNSET"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_UNSPECIFIED{
+            "SCREEN_ORIENTATION_UNSPECIFIED"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_LANDSCAPE{
+            "SCREEN_ORIENTATION_LANDSCAPE"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_PORTRAIT{
+            "SCREEN_ORIENTATION_PORTRAIT"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_USER{"SCREEN_ORIENTATION_USER"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_BEHIND{
+            "SCREEN_ORIENTATION_BEHIND"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_SENSOR{
+            "SCREEN_ORIENTATION_SENSOR"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_NOSENSOR{
+            "SCREEN_ORIENTATION_NOSENSOR"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_SENSOR_LANDSCAPE{
+            "SCREEN_ORIENTATION_SENSOR_LANDSCAPE"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_SENSOR_PORTRAIT{
+            "SCREEN_ORIENTATION_SENSOR_PORTRAIT"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_REVERSE_LANDSCAPE{
+            "SCREEN_ORIENTATION_REVERSE_LANDSCAPE"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_REVERSE_PORTRAIT{
+            "SCREEN_ORIENTATION_REVERSE_PORTRAIT"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_FULL_SENSOR{
+            "SCREEN_ORIENTATION_FULL_SENSOR"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_USER_LANDSCAPE{
+            "SCREEN_ORIENTATION_USER_LANDSCAPE"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_USER_PORTRAIT{
+            "SCREEN_ORIENTATION_USER_PORTRAIT"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_FULL_USER{
+            "SCREEN_ORIENTATION_FULL_USER"};
+        constexpr static java::StaticFinalField<int, ActivityInfo> SCREEN_ORIENTATION_LOCKED{
+            "SCREEN_ORIENTATION_LOCKED"};
     };
 }

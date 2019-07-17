@@ -53,6 +53,9 @@ enable_unicode(foundation PUBLIC)
 enable_multicore_build(foundation PUBLIC)
 target_compile_features(foundation PUBLIC cxx_std_17)
 
+if(BDN_PLATFORM_ANDROID)
+    target_compile_definitions(foundation PUBLIC -DBDN_ANDROID_MIN_SDK_VERSION=${BDN_ANDROID_MIN_SDK_VERSION})
+endif()
 
 # MT: I think we should enable this ( gcc on linux )
 # but a lot of errors are generated from it atm.

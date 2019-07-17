@@ -2,6 +2,7 @@
 
 #include <bdn/java/Field.h>
 #include <bdn/java/ObjectFieldKind.h>
+#include <bdn/java/wrapper/Object.h>
 
 namespace bdn::java
 {
@@ -23,13 +24,32 @@ namespace bdn::java
      * alive, even if the Field instance was returned by the accessor object
      *
      * */
-    template <class NativeType> class ObjectField : public Field<NativeType, ObjectFieldKind>
+    template <class NativeType> class ObjectFieldImpl : public Field<NativeType, ObjectFieldKind>
     {
       public:
         using Id = ObjectFieldKind::Id<int>;
 
-        ObjectField(const Reference &obj, const ObjectFieldKind::Id<NativeType> &fieldId)
+        ObjectFieldImpl(const Reference &obj, const ObjectFieldKind::Id<NativeType> &fieldId)
             : Field<NativeType, ObjectFieldKind>(obj, fieldId)
         {}
+    };
+
+    template <class NativeType> class ObjectField
+    {
+      public:
+        ObjectField(wrapper::Object *object, const char *fieldName)
+            : _field{object->getRef_(), {object->getClass_(), fieldName}}
+        {}
+
+        operator NativeType() const { return _field.get(); }
+
+        ObjectField &operator=(const NativeType &newValue)
+        {
+            _field.set(newValue);
+            return *this;
+        }
+
+      private:
+        bdn::java::ObjectFieldImpl<NativeType> _field;
     };
 }

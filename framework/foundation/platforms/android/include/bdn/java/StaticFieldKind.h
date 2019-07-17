@@ -22,7 +22,7 @@ namespace bdn::java
 
                 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
                 _id = env.getJniEnv()->GetStaticFieldID((jclass)cls.getJObject_(), fieldName,
-                                                        TypeConversion<NativeType>::getJavaSignature().asUtf8Ptr());
+                                                        TypeConversion<NativeType>::getJavaSignature().c_str());
             }
 
             /** Returns the Id. Throws and exception if the Id has not been

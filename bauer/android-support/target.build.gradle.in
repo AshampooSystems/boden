@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion $compile_sdk_version
     defaultConfig {
         applicationId = "$application_id"
         minSdkVersion $min_sdk_version
+        compileSdkVersion $compile_sdk_version
         targetSdkVersion $target_sdk_version
         versionCode $version_code
         versionName "$version_name"

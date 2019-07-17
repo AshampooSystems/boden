@@ -23,7 +23,7 @@ endmacro()
 
 macro(set_target_version )
     set(options )
-    set(oneValueArgs TARGET VERSION SHORTVERSION LONGVERSION)
+    set(oneValueArgs TARGET VERSION SHORTVERSION LONGVERSION ANDROID_VERSION_ID)
     set(multiValueArgs )
     cmake_parse_arguments(_ARGUMENTS "${options}" "${oneValueArgs}"
         "${multiValueArgs}" ${ARGN} )
@@ -34,6 +34,9 @@ macro(set_target_version )
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${_ARGUMENTS_SHORTVERSION}"
             MACOSX_BUNDLE_BUNDLE_VERSION "${_ARGUMENTS_VERSION}"
             VERSION "${_ARGUMENTS_VERSION}")
+    elseif(BDN_PLATFORM_ANDROID)
+        target_compile_definitions(${_ARGUMENTS_TARGET} PRIVATE
+            -DANDROID_VERSION_ID=${_ARGUMENTS_ANDROID_VERSION_ID}
+            -DANDROID_VERSION=${_ARGUMENTS_VERSION})
     endif()
-
 endmacro()

@@ -12,23 +12,22 @@ namespace bdn::android::wrapper
         using JTObject<kWindowClassName>::JTObject;
 
       public:
-        enum FEATURE
-        {
-            OPTIONS_PANEL = 0,
-            NO_TITLE = 1,
-            PROGRESS = 2,
-            LEFT_ICON = 3,
-            RIGHT_ICON = 4,
-            INDETERMINATE_PROGRESS = 5,
-            CONTEXT_MENU = 6,
-            CUSTOM_TITLE = 7,
-            ACTION_BAR = 8,
-            ACTION_BAR_OVERLAY = 9,
-            ACTION_MODE_OVERLAY = 10,
-            SWIPE_TO_DISMISS = 11,
-            CONTENT_TRANSITIONS = 12,
-            ACTIVITY_TRANSITIONS = 13
-        };
+        constexpr static java::StaticFinalField<int, Window> FEATURE_OPTIONS_PANEL{"FEATURE_OPTIONS_PANEL"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_NO_TITLE{"FEATURE_NO_TITLE"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_PROGRESS{"FEATURE_PROGRESS"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_LEFT_ICON{"FEATURE_LEFT_ICON"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_RIGHT_ICON{"FEATURE_RIGHT_ICON"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_INDETERMINATE_PROGRESS{
+            "FEATURE_INDETERMINATE_PROGRESS"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_CONTEXT_MENU{"FEATURE_CONTEXT_MENU"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_CUSTOM_TITLE{"FEATURE_CUSTOM_TITLE"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_ACTION_BAR{"FEATURE_ACTION_BAR"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_ACTION_BAR_OVERLAY{"FEATURE_ACTION_BAR_OVERLAY"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_ACTION_MODE_OVERLAY{"FEATURE_ACTION_MODE_OVERLAY"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_SWIPE_TO_DISMISS{"FEATURE_SWIPE_TO_DISMISS"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_CONTENT_TRANSITIONS{"FEATURE_CONTENT_TRANSITIONS"};
+        constexpr static java::StaticFinalField<int, Window> FEATURE_ACTIVITY_TRANSITIONS{
+            "FEATURE_ACTIVITY_TRANSITIONS"};
 
       public:
         JavaMethod<View()> getDecorView{this, "getDecorView"};

@@ -3,9 +3,8 @@
 #include <bdn/android/wrapper/Context.h>
 #include <bdn/android/wrapper/IBinder.h>
 #include <bdn/android/wrapper/ViewParent.h>
+#include <bdn/java/StaticField.h>
 #include <bdn/java/wrapper/Object.h>
-
-#include <bdn/android/wrapper/ViewGroup__LayoutParams.h>
 
 namespace bdn::android::wrapper
 {
@@ -35,7 +34,24 @@ namespace bdn::android::wrapper
     constexpr const char kOnScrollChangeListenerClassName[] = "android/view/View$OnScrollChangeListener";
     using OnScrollChangeListener = java::wrapper::JTObject<kOnScrollChangeListenerClassName>;
 
+    constexpr const char kViewGroupLayoutParamsClassName[] = "android/view/ViewGroup$LayoutParams";
+
+    class LayoutParams : public java::wrapper::JTObject<kViewGroupLayoutParamsClassName, int, int>
+    {
+      public:
+        using java::wrapper::JTObject<kViewGroupLayoutParamsClassName, int, int>::JTObject;
+
+      public:
+        java::StaticFinalField<int, LayoutParams> MATCH_PARENT{"MATCH_PARENT"};
+        java::StaticFinalField<int, LayoutParams> WRAP_CONTENT{"WRAP_CONTENT"};
+
+      public:
+        java::ObjectField<int> width{this, "width"};
+        java::ObjectField<int> height{this, "height"};
+    };
+
     constexpr const char kViewClassName[] = "android/view/View";
+    constexpr const char kViewMeasureSpecClassName[] = "android/view/View$MeasureSpec";
 
     template <const char *javaClassName = kViewClassName, class... ConstructorArguments>
     class BaseView : public java::wrapper::JTObject<javaClassName, Context, ConstructorArguments...>
@@ -44,53 +60,42 @@ namespace bdn::android::wrapper
         using java::wrapper::JTObject<javaClassName, Context, ConstructorArguments...>::JTObject;
 
       public:
-        enum Visibility
-        {
-            visible = 0,
+        constexpr static java::StaticFinalField<int, BaseView> VISIBLE{"VISIBLE"};
+        constexpr static java::StaticFinalField<int, BaseView> INVISIBLE{"INVISIBLE"};
+        constexpr static java::StaticFinalField<int, BaseView> GONE{"GONE"};
 
-            /** The view is invisible, but still takes up space during
-               layout.*/
-            invisible = 4,
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_VISIBLE{"SYSTEM_UI_FLAG_VISIBLE"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LOW_PROFILE{"SYSTEM_UI_FLAG_LOW_PROFILE"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_HIDE_NAVIGATION{
+            "SYSTEM_UI_FLAG_HIDE_NAVIGATION"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_FULLSCREEN{"SYSTEM_UI_FLAG_FULLSCREEN"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LAYOUT_STABLE{
+            "SYSTEM_UI_FLAG_LAYOUT_STABLE"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION{
+            "SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN{
+            "SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_IMMERSIVE{"SYSTEM_UI_FLAG_IMMERSIVE"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_IMMERSIVE_STICKY{
+            "SYSTEM_UI_FLAG_IMMERSIVE_STICKY"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LIGHT_STATUS_BAR{
+            "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_RESERVED_LEGACY1{"SYSTEM_UI_RESERVED_LEGACY1"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_RESERVED_LEGACY2{"SYSTEM_UI_RESERVED_LEGACY2"};
+        constexpr static java::StaticFinalField<int, BaseView> SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR{
+            "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR"};
 
-            /** The view is invisible and does NOT take up space during
-               layout.*/
-            gone = 8
-        };
-
-        enum SYSTEM_UI_FLAG
-        {
-            VISIBLE = 0,
-            LOW_PROFILE = 0x00000001,
-            HIDE_NAVIGATION = 0x00000002,
-            FULLSCREEN = 0x00000004,
-            LAYOUT_STABLE = 0x00000100,
-            LAYOUT_HIDE_NAVIGATION = 0x00000200,
-            LAYOUT_FULLSCREEN = 0x00000400,
-            IMMERSIVE = 0x00000800,
-            IMMERSIVE_STICKY = 0x00001000,
-            LIGHT_STATUS_BAR = 0x00002000,
-            LIGHT_NAVIGATION_BAR = 0x00000010
-        };
-
-        class MeasureSpec
+        class MeasureSpec : public java::wrapper::JTObject<kViewMeasureSpecClassName>
         {
           public:
-            enum Mode
-            {
-                /** Indicates that the view can be as large as it wants up
-                   to the specified size.*/
-                unspecified = 0,
+            using JTObject<kViewMeasureSpecClassName>::JTObject;
 
-                /** Indicates that the view must be exactly the given size.
-                 * */
-                exactly = 0x40000000,
+          public:
+            constexpr static java::StaticFinalField<int, MeasureSpec> UNSPECIFIED{"UNSPECIFIED"};
+            constexpr static java::StaticFinalField<int, MeasureSpec> EXACTLY{"EXACTLY"};
+            constexpr static java::StaticFinalField<int, MeasureSpec> AT_MOST{"AT_MOST"};
 
-                /** Indicates that there is no size constraint on the
-                   view.*/
-                atMost = 0x80000000
-            };
-
-            static int makeMeasureSpec(int size, Mode mode) { return size | mode; }
+            static int makeMeasureSpec(int size, int mode) { return size | mode; }
         };
 
       public:
@@ -142,7 +147,7 @@ namespace bdn::android::wrapper
         JavaMethod<void(OnScrollChangeListener)> setOnScrollChangeListener{this, "setOnScrollChangeListener"};
         JavaMethod<void(OnLayoutChangeListener)> addOnLayoutChangeListener{this, "addOnLayoutChangeListener"};
 
-        JavaMethod<void(ViewGroup__LayoutParams)> setLayoutParams{this, "setLayoutParams"};
+        JavaMethod<void(LayoutParams)> setLayoutParams{this, "setLayoutParams"};
 
         JavaMethod<IBinder()> getWindowToken{this, "getWindowToken"};
     };

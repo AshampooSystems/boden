@@ -16,7 +16,7 @@ namespace bdn::android::wrapper
         using BaseAdapter<kNativeListAdapterClassName, View>::BaseAdapter;
     };
 
-    constexpr const char kNativeListAdapterRowContainer[] = "io/boden/android/NativeListAdapter$RowContainer";
+    constexpr const char kNativeListAdapterRowContainer[] = "io/boden/android/RowContainer";
     class NativeListAdapterRowContainer : public BaseNativeViewGroup<kNativeListAdapterRowContainer>
     {
       public:

@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import logging
 import sys
+import re
 
 from string import Template
 
@@ -19,7 +20,7 @@ class AndroidStudioProjectGenerator(object):
         self.logger.debug("Android support directory: %s" %(self.android_support_dir))
 
     def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle:3.4.0'"
+        return "classpath 'com.android.tools.build:gradle:3.4.2'"
 
     def prepare_gradle(self):
         # the underlying commandline build system for android is gradle.
@@ -114,7 +115,7 @@ class AndroidStudioProjectGenerator(object):
 
         return (source_directories, include_directories, java_directories)     
 
-    def create_target_build_gradle(self, module_directory, app, project, android_abi, android_dependencies, android_extra_java_directories, target_dependencies):
+    def create_target_build_gradle(self, module_directory, app, project, android_abi, android_dependencies, android_extra_java_directories, target_dependencies, android_min_sdk_version, android_target_sdk_version, android_version, android_version_id):
         self.make_directory(module_directory)
         directories = self.gather_directories(app, project)
 
@@ -133,13 +134,13 @@ class AndroidStudioProjectGenerator(object):
 
         result = gradle_template.substitute(
             compile_sdk_version = self.androidBuildApiVersion,
-            target_sdk_version = self.androidBuildApiVersion,
+            target_sdk_version = android_target_sdk_version,
             application_id = "io.boden.android." + app["name"],
-            min_sdk_version = 23,
-            version_code = 1,
-            version_name = "1.0",
+            min_sdk_version = android_min_sdk_version,
+            version_code = android_version_id,
+            version_name = android_version,
             cmake_target_list = cmake_target_list,
-            cmake_target_arguments = '"-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"',
+            cmake_target_arguments = '"-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions", "-DBDN_ANDROID_MIN_SDK_VERSION=$minSdkVersion.mApiLevel", "-DBDN_ANDROID_TARGET_SDK_VERSION=$targetSdkVersion.mApiLevel"',
             abi_filter = abi_filter_string, 
             cpp_flags = "-std=c++17 -frtti -fexceptions",
             cmakelists_path = cmakelists_path,
@@ -192,10 +193,28 @@ class AndroidStudioProjectGenerator(object):
             self.logger.debug("Copying resources ( %s => %s )" %(resource_source_dir, resource_dest_dir))
             self.copytree(resource_source_dir, resource_dest_dir)
 
+    def find_defines(self,app):
+        result = []
+        if "fileGroups" in app:
+            for file_group in app["fileGroups"]:
+                if "defines" in file_group:
+                    result.extend(file_group["defines"])
+        return result
+
+    def from_defines(self, defines, key, default):
+        for define in defines:
+            r = r"%s=(.*)" % key
+            match = re.match(r, define)
+            if match:
+                return match.group(1)
+        return default
+
     def generate(self, project, androidAbi, target_dependencies, args):
         if not os.path.isdir(self.project_dir):
             os.makedirs(self.project_dir);
 
+        android_target_sdk_version = self.cmake.cache["BDN_ANDROID_TARGET_SDK_VERSION"]
+        android_min_sdk_version = self.cmake.cache["BDN_ANDROID_MIN_SDK_VERSION"]
         android_dependencies = self.cmake.cache["BAUER_ANDROID_DEPENDENCIES"].split(';')
         android_extra_java_directories = list(filter(None, self.cmake.cache["BAUER_ANDROID_EXTRA_JAVA_DIRECTORIES"].split(';')))
         self.logger.debug("Dependencies: %s" % android_dependencies)
@@ -212,11 +231,15 @@ class AndroidStudioProjectGenerator(object):
         for app in apps:
             module_directory = os.path.join(self.project_dir, app["name"]);
 
+            defines = self.find_defines(app)
+            android_version = self.from_defines(defines, "ANDROID_VERSION", "1.0")
+            android_version_id = self.from_defines(defines, "ANDROID_VERSION_ID", "1")
+
             resource_directory = os.path.join(module_directory, "src", "main", "res")
             if os.path.exists(resource_directory):
                 shutil.rmtree(resource_directory)
 
-            self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, android_extra_java_directories, target_dependencies[app["name"]])
+            self.create_target_build_gradle(module_directory, app, project, androidAbi, android_dependencies, android_extra_java_directories, target_dependencies[app["name"]], android_min_sdk_version, android_target_sdk_version, android_version, android_version_id)
             self.create_target_strings_xml(module_directory, app)
             self.copy_android_manifest(module_directory, app)
             self.copy_resources(app, module_directory)

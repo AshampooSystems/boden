@@ -33,7 +33,7 @@ ios_configure_app_info(TARGET bodendemo
 set_xcode_appicon_asset(bodendemo "ApplicationIcon")
 
 get_git_short_revision(GIT_REV)
-set_target_version(TARGET bodendemo VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
+set_target_version(TARGET bodendemo VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}" ANDROID_VERSION_ID 2)
 
 use_boden_template_info_plist(bodendemo)
 

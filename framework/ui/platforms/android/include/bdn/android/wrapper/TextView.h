@@ -18,29 +18,6 @@ namespace bdn::android::wrapper
     class BaseTextView : public BaseView<javaClassName, ConstructorArguments...>
     {
       public:
-        enum class BreakStrategy
-        {
-            /** Value for break strategy indicating simple line breaking.
-             * Automatic hyphens are not added (though soft hyphens are
-             * respected), and modifying text generally doesn't affect the
-             * layout before it (which yields a more consistent user
-             * experience when editing), but layout may not be the highest
-             * quality.*/
-            simple = 0,
-
-            /** Value for break strategy indicating high quality line
-             * breaking, including automatic hyphenation and doing
-             * whole-paragraph optimization of line breaks.*/
-            highQuality = 1,
-
-            /** Value for break strategy indicating balanced line breaking.
-             * The breaks are chosen
-             *  to make all lines as close to the same length as possible,
-             * including automatic hyphenation.*/
-            balanced = 2
-        };
-
-      public:
         using BaseView<javaClassName, ConstructorArguments...>::BaseView;
 
         JavaMethod<TextPaint()> getPaint{this, "getPaint"};
@@ -50,7 +27,7 @@ namespace bdn::android::wrapper
 
         JavaMethod<void(bool)> setSingleLine{this, "setSingleLine"};
 
-        JavaMethod<void(int)> setBreakStrategy{this, "setBreakStrategy"};
+        JavaMethod<void(int)> setBreakStrategy{this, "setBreakStrategy"}; // Layout::BREAK_STRATEGY_...
 
         JavaMethod<void(bool)> setHorizontallyScrolling{this, "setHorizontallyScrolling"};
 

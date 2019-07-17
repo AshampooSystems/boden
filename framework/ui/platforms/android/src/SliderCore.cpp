@@ -13,11 +13,11 @@ namespace bdn::ui::android
     SliderCore::SliderCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
         : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeSeekBar>(viewCoreFactory))
     {
-        getJViewAS<bdn::android::wrapper::SeekBar>().setMin(0);
-        getJViewAS<bdn::android::wrapper::SeekBar>().setMax(1000);
+        getJViewAS<bdn::android::wrapper::NativeSeekBar>().setMin(0);
+        getJViewAS<bdn::android::wrapper::NativeSeekBar>().setMax(1000);
 
         value.onChange() +=
-            [=](const auto &p) { getJViewAS<bdn::android::wrapper::SeekBar>().setProgress(p.get() * 1000); };
+            [=](const auto &p) { getJViewAS<bdn::android::wrapper::NativeSeekBar>().setProgress(p.get() * 1000); };
     }
 
     void SliderCore::valueChanged(int newValue) { value = (double)newValue / 1000.0; }

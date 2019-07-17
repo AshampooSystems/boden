@@ -1,8 +1,7 @@
 #pragma once
 
 #include <bdn/android/wrapper/View.h>
-#include <bdn/android/wrapper/ViewGroup__LayoutParams.h>
-#include <bdn/android/wrapper/ViewGroup__MarginLayoutParams.h>
+#include <bdn/java/StaticField.h>
 
 namespace bdn::android::wrapper
 {
@@ -22,10 +21,6 @@ namespace bdn::android::wrapper
         JavaMethod<int()> getChildCount{this, "getChildCount"};
         JavaMethod<View(int)> getChildAt{this, "getChildAt"};
         JavaMethod<void(int)> setDescendantFocusability{this, "setDescendantFocusability"};
-
-      public:
-        using LayoutParams = ViewGroup__LayoutParams;
-        using MarginLayoutParams = ViewGroup__MarginLayoutParams;
     };
 
     using ViewGroup = BaseViewGroup<>;

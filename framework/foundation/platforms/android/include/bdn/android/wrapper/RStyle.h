@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/java/StaticField.h>
 #include <bdn/java/wrapper/Object.h>
 
 namespace bdn::android::wrapper
@@ -31,11 +32,8 @@ namespace bdn::android::wrapper
 
         bdn::java::wrapper::Class &getClass_() override { return getStaticClass_(); }
 
-        enum
-        {
-            TextAppearance_Small = 0x01030046,
-            TextAppearance_Medium = 0x01030044,
-            TextAppearance_Large = 0x01030042
-        };
+        constexpr static java::StaticFinalField<int, RStyle> TextAppearance_Small{"TextAppearance_Small"};
+        constexpr static java::StaticFinalField<int, RStyle> TextAppearance_Medium{"TextAppearance_Medium"};
+        constexpr static java::StaticFinalField<int, RStyle> TextAppearance_Large{"TextAppearance_Large"};
     };
 }

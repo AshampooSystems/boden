@@ -101,6 +101,11 @@ class AndroidExecutor:
             "-DBDN_BUILD_EXAMPLES=Off",
         ]
 
+        if args.cmake_option:
+            for option in args.cmake_option:
+                cmakeArguments += ["-D" + option]
+
+
         if args.package_generator:
             cmakeArguments += ["-DCPACK_GENERATOR=%s" % (args.package_generator)]
 
@@ -151,6 +156,10 @@ class AndroidExecutor:
 
         if sys.platform == 'win32':
             cmakeArguments += ["-DCMAKE_MAKE_PROGRAM=%s/ndk-bundle/prebuilt/windows-x86_64/bin/make.exe" % (androidHome)]
+
+        if args.cmake_option:
+            for option in args.cmake_option:
+                cmakeArguments += ["-D" + option]
 
         self.logger.debug("Starting configure ...")
         self.logger.debug(" Arguments: %s", cmakeArguments)

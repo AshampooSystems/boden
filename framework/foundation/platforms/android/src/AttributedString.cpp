@@ -1,5 +1,8 @@
 #include <bdn/android/AttributedString.h>
+#include <bdn/android/wrapper/Build.h>
 #include <bdn/android/wrapper/Html.h>
+
+#include <bdn/log.h>
 
 namespace bdn::android
 {
@@ -7,11 +10,23 @@ namespace bdn::android
 
     bool AttributedString::fromHtml(const String &html)
     {
-        _spanned = bdn::android::wrapper::Html::fromHtml(html, 63);
+        if ((int)wrapper::Build::VERSION::SDK_INT >= wrapper::Build::VERSION_CODES::M) {
+            _spanned = wrapper::Html::fromHtmlWithFlags(html, wrapper::Html::FROM_HTML_MODE_COMPACT);
+        } else {
+            _spanned = wrapper::Html::fromHtml(html);
+        }
+
         return true;
     }
 
-    String AttributedString::toHtml() const { return bdn::android::wrapper::Html::toHtml(_spanned, 1); }
+    String AttributedString::toHtml() const
+    {
+        if ((int)wrapper::Build::VERSION::SDK_INT > wrapper::Build::VERSION_CODES::M) {
+            return wrapper::Html::toHtmlWithFlags(_spanned, wrapper::Html::TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+        } else {
+            return wrapper::Html::toHtml(_spanned);
+        }
+    }
 }
 
 namespace bdn

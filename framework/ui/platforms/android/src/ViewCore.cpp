@@ -15,8 +15,8 @@ namespace bdn::ui::android
         _uiScaleFactor = 1;
 
         visible.onChange() += [=](auto &property) {
-            _jView.setVisibility(property.get() ? bdn::android::wrapper::View::Visibility::visible
-                                                : bdn::android::wrapper::View::Visibility::invisible);
+            _jView.setVisibility(property.get() ? bdn::android::wrapper::View::VISIBLE
+                                                : bdn::android::wrapper::View::INVISIBLE);
         };
 
         geometry.onChange() += [=](auto) { updateGeometry(); };
@@ -58,18 +58,18 @@ namespace bdn::ui::android
 
         if (std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace()) {
             widthSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
-                availableSpace.width * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::atMost);
+                availableSpace.width * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::AT_MOST);
         } else {
             widthSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
-                0, bdn::android::wrapper::View::MeasureSpec::unspecified);
+                0, bdn::android::wrapper::View::MeasureSpec::UNSPECIFIED);
         }
 
         if (std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace()) {
             heightSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
-                availableSpace.height * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::atMost);
+                availableSpace.height * _uiScaleFactor, bdn::android::wrapper::View::MeasureSpec::AT_MOST);
         } else {
             heightSpec = bdn::android::wrapper::View::MeasureSpec::makeMeasureSpec(
-                0, bdn::android::wrapper::View::MeasureSpec::unspecified);
+                0, bdn::android::wrapper::View::MeasureSpec::UNSPECIFIED);
         }
 
         _jView.measure(widthSpec, heightSpec);
