@@ -24,11 +24,12 @@ namespace bdn::ui
     void TextField::bindViewCore()
     {
         View::bindViewCore();
-        auto textCore = View::core<TextField::Core>();
-        textCore->text.bind(text);
-        textCore->font.bind(font);
+        auto core = View::core<TextField::Core>();
+        core->text.bind(text);
+        core->font.bind(font);
+        core->autocorrectionType.bind(autocorrectionType);
 
-        _submitCallbackReceiver = textCore->submitCallback.set([=]() {
+        _submitCallbackReceiver = core->submitCallback.set([=]() {
             SubmitEvent evt(shared_from_this());
             onSubmit().notify(evt);
         });

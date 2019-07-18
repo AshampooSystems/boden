@@ -48,8 +48,7 @@
         core->submitCallback.fire();
     }
 
-    // close virtual keyboard
-    [textField resignFirstResponder];
+    [textField resignFirstResponder]; // Close software keyboard
 
     return YES;
 }
@@ -107,6 +106,8 @@ namespace bdn::ui::ios
         };
 
         font.onChange() += [this](auto &property) { setFont(property.get()); };
+
+        autocorrectionType.onChange() += [this](auto &property) { setAutocorrectionType(property.get()); };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
@@ -205,5 +206,22 @@ namespace bdn::ui::ios
         textField.font = [UIFont fontWithDescriptor:descriptor size:size];
 
         this->markDirty();
+    }
+
+    void TextFieldCore::setAutocorrectionType(AutocorrectionType autocorrectionType)
+    {
+        UITextField *textField = (UITextField *)uiView();
+
+        switch (autocorrectionType) {
+        case AutocorrectionType::Default:
+            textField.autocorrectionType = UITextAutocorrectionTypeDefault;
+            break;
+        case AutocorrectionType::No:
+            textField.autocorrectionType = UITextAutocorrectionTypeNo;
+            break;
+        case AutocorrectionType::Yes:
+            textField.autocorrectionType = UITextAutocorrectionTypeYes;
+            break;
+        }
     }
 }

@@ -39,6 +39,9 @@ namespace bdn::android::wrapper
         JavaMethod<float()> getTextSize{this, "getTextSize"};
         JavaMethod<void(int)> setTextAppearance{this, "setTextAppearance"};
 
+        JavaMethod<void(int)> setInputType{this, "setInputType"};
+        JavaMethod<int()> getInputType{this, "getInputType"};
+
         JavaMethod<void(TextWatcher)> addTextChangedListener{this, "addTextChangedListener"};
         JavaMethod<void(TextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
 

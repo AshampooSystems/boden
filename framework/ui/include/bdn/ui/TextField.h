@@ -1,10 +1,13 @@
 #pragma once
 
+#include <optional>
+
 #include <bdn/Notifier.h>
 #include <bdn/ui/Font.h>
 #include <bdn/ui/SubmitEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
+#include <bdn/ui/textTypes.h>
 
 namespace bdn::ui
 {
@@ -18,6 +21,7 @@ namespace bdn::ui
       public:
         Property<String> text;
         Property<Font> font;
+        Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
 
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -40,6 +44,7 @@ namespace bdn::ui
           public:
             Property<String> text;
             Property<Font> font;
+            Property<AutocorrectionType> autocorrectionType;
 
           public:
             WeakCallback<void()> submitCallback;

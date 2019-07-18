@@ -159,6 +159,7 @@ namespace bdn
         auto textField = std::make_shared<TextField>();
         textField->text = "Enter text here";
         textField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150}});
+        textField->autocorrectionType = AutocorrectionType::Yes;
         addChildView(makeRow("Text Field", textField, 5., 20., 0.62, true));
 
         auto textScrollView = std::make_shared<ScrollView>();

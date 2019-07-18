@@ -22,6 +22,7 @@ namespace bdn::ui::ios
 
       private:
         void setFont(const Font &font);
+        void setAutocorrectionType(const AutocorrectionType autocorrectionType);
 
       private:
         BdnTextFieldDelegate *_delegate;

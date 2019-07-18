@@ -25,12 +25,22 @@ textField->onSubmit() += [](auto event) {
 };
 ```
 
-
 ## Properties
 
 * **[Property](../foundation/property.md)<[String](../foundation/string.md)\> text**
 
 	The text displayed in the text field.
+
+* **[Property](../foundation/property.md)<[AutocorrectionType](autocorrection_type.md)\> autocorrectionType**
+
+	The autocorrection type used by the text field. If not set, the platform's default behavior will be used. If set to `AutocorrectionType::Yes`, the text field will display typing suggestions and apply platform-specific autocorrection and autocomplete.
+
+	Note that on Android, the implementation of the software keyboard may override the behavior indicated by the `autocorrectionType` property.
+
+	This property is supported on Android and iOS only.
+
+	!!! warning
+		On Android, this function uses the `EditText` widget's input type flag `TYPE_TEXT_FLAG_NO_SUGGESTIONS` to deactivate autocorrection, autocomplete, and typing suggestions. Based on the software keyboard implementation used by the operating system, this flag may or may not have an effect. Setting the `autocorrectionType` property to `AutocorrectionType::No` is hence not a guarantee that autocorrection will be deactivated on Android.
 
 ## Actions
 

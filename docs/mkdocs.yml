@@ -83,6 +83,7 @@ nav:
       - reference/foundation/text.md
       - reference/foundation/transform.md
     - UI:
+      - reference/ui/autocorrection_type.md
       - reference/ui/button.md
       - reference/ui/checkbox.md
       - reference/ui/click_event.md
