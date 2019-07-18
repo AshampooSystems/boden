@@ -13,7 +13,7 @@
 
 4. Install Python and CMake:
 
-		brew install python3 cmake
+		brew install python3 cmake ninja
 
 ## 2. Install Android Studio
 
