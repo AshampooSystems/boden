@@ -84,4 +84,4 @@ _window->visible = true;
 
 ## Found a Problem?
 
-Please let us know. We're happy about your [feedback](../feedback).
+Please let us know. We're happy about your [feedback](../../feedback).
