@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?247700310">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4246184916">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5915629522">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1608138464">
     
     
       
@@ -1027,6 +1027,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../ui/autocorrection_type/" title="AutocorrectionType" class="md-nav__link">
+      AutocorrectionType
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../ui/button/" title="Button" class="md-nav__link">
       Button
     </a>
@@ -1172,13 +1184,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13" type="checkbox" id="nav-3-3-13">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14" type="checkbox" id="nav-3-3-14">
     
-    <label class="md-nav__link" for="nav-3-3-13">
+    <label class="md-nav__link" for="nav-3-3-14">
       Platforms
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-13">
+      <label class="md-nav__title" for="nav-3-3-14">
         Platforms
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1191,13 +1203,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13-1" type="checkbox" id="nav-3-3-13-1">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14-1" type="checkbox" id="nav-3-3-14-1">
     
-    <label class="md-nav__link" for="nav-3-3-13-1">
+    <label class="md-nav__link" for="nav-3-3-14-1">
       iOS
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="4">
-      <label class="md-nav__title" for="nav-3-3-13-1">
+      <label class="md-nav__title" for="nav-3-3-14-1">
         iOS
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1388,13 +1400,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-27" type="checkbox" id="nav-3-3-27">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
     
-    <label class="md-nav__link" for="nav-3-3-27">
+    <label class="md-nav__link" for="nav-3-3-28">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-27">
+      <label class="md-nav__title" for="nav-3-3-28">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1825,7 +1837,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 
                 
                 <h1 id="attributedstring">AttributedString<a class="headerlink" href="#attributedstring" title="Permanent link">&para;</a></h1>
-<p>Holds an attributed String.</p>
+<p>A string that allows you to set attributes for text ranges. Attributed strings are commonly used to apply formatting to a string.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span> <span class="p">{</span>
     <span class="k">class</span> <span class="nc">AttributedString</span>
@@ -1837,8 +1849,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>virtual bool fromHtml(const String &amp;html)</strong></p>
-<p>Replaces the contents of the <code>AttributedString</code> with the <code>html</code> code.</p>
+<p><strong>virtual bool fromHTML(const String &amp;html)</strong></p>
+<p>Replaces the contents of the <code>AttributedString</code> with the given <code>html</code> markup code.</p>
+</li>
+<li>
+<p><strong>virtual String toHTML() const</strong></p>
+<p>Returns the contents as a string containing HTML markup code.</p>
 </li>
 </ul>
 <h2 id="types">Types<a class="headerlink" href="#types" title="Permanent link">&para;</a></h2>

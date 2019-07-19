@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4459136151">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?854631371">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5637758834">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?3412591790">
     
     
       
@@ -962,6 +962,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../autocorrection_type/" title="AutocorrectionType" class="md-nav__link">
+      AutocorrectionType
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../button/" title="Button" class="md-nav__link">
       Button
     </a>
@@ -1186,13 +1198,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13" type="checkbox" id="nav-3-3-13">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14" type="checkbox" id="nav-3-3-14">
     
-    <label class="md-nav__link" for="nav-3-3-13">
+    <label class="md-nav__link" for="nav-3-3-14">
       Platforms
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-13">
+      <label class="md-nav__title" for="nav-3-3-14">
         Platforms
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1205,13 +1217,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13-1" type="checkbox" id="nav-3-3-13-1">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14-1" type="checkbox" id="nav-3-3-14-1">
     
-    <label class="md-nav__link" for="nav-3-3-13-1">
+    <label class="md-nav__link" for="nav-3-3-14-1">
       iOS
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="4">
-      <label class="md-nav__title" for="nav-3-3-13-1">
+      <label class="md-nav__title" for="nav-3-3-14-1">
         iOS
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1402,13 +1414,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-27" type="checkbox" id="nav-3-3-27">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
     
-    <label class="md-nav__link" for="nav-3-3-27">
+    <label class="md-nav__link" for="nav-3-3-28">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-27">
+      <label class="md-nav__title" for="nav-3-3-28">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1853,10 +1865,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 
                 
                 <h1 id="color">Color<a class="headerlink" href="#color" title="Permanent link">&para;</a></h1>
-<p>Holds an RGBA color. Can be de-/serialized to json.</p>
+<p>Represents an RGBA color. Can be de-/serialized from/to JSON.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/Color.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/Json.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;bdn/Json.h&gt;</span><span class="cp"></span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">Color</span> <span class="n">color</span><span class="p">(</span><span class="s">&quot;royalblue&quot;</span><span class="p">);</span>
@@ -1876,65 +1888,65 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <ul>
 <li>
 <p><strong>Color()</strong></p>
-<p>Creates an opague black Color</p>
+<p>Creates an opaque black color.</p>
 </li>
 <li>
 <p><strong>Color(String color)</strong></p>
 <p>Creates a color from a string. You can specify the color via a hex value: <code>#RRGGBBAA</code> or <code>#RGBA</code>.
-If you omit the alpha value it will default to opague. You can also use up to <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords">CSS Level 4</a> color names including <code>transparent</code>.</p>
+If you omit the alpha value it will default to opaque. You can also use up to <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords">CSS Level 4</a> color names including <code>transparent</code>.</p>
 </li>
 <li>
-<p><strong>constexpr Color(std::array<float, 4> array)</strong></p>
-<p>Initializes the Color with the given array (r,g,b,a)</p>
+<p><strong>constexpr Color(std::array<double, 4> array)</strong></p>
+<p>Initializes the color with the given array of floating point component values in range [0,1] (r,g,b,a).</p>
 </li>
 <li>
-<p><strong>constexpr Color(float r, float g, float b, float a = 1.0f)</strong></p>
-<p>Initializes the Color with the given values.</p>
+<p><strong>constexpr Color(double r, double g, double b, double a = 1.0f)</strong></p>
+<p>Initializes the color with the given floating point component values in range [0,1].</p>
 </li>
 <li>
 <p><strong>constexpr Color(uint32_t color)</strong></p>
-<p>Initializes the color with the give <code>uint32_t</code> value. Red is stored in the highest 8 bits, the alpha is stored in the lowest 8 bits.</p>
+<p>Initializes the color with the give <code>uint32_t</code> value. Red is stored in the highest 8 bits, alpha is stored in the lowest 8 bits.</p>
 </li>
 </ul>
 <h2 id="rgba">RGBA<a class="headerlink" href="#rgba" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>float red() const</strong></p>
-<p>Returns the red component as a float between 0 and 1</p>
+<p><strong>double red() const</strong></p>
+<p>Returns the red component as a floating point value in range [0,1].</p>
 </li>
 <li>
-<p><strong>float green() const</strong></p>
-<p>Returns the green component as a float between 0 and 1</p>
+<p><strong>double green() const</strong></p>
+<p>Returns the green component as a floating point value in range [0,1].</p>
 </li>
 <li>
-<p><strong>float blue() const</strong></p>
-<p>Returns the blue component as a float between 0 and 1</p>
+<p><strong>double blue() const</strong></p>
+<p>Returns the blue component as a floating point value in range [0,1].</p>
 </li>
 <li>
-<p><strong>float alpha() const</strong></p>
-<p>Returns the alpha component as a float between 0 and 1</p>
+<p><strong>double alpha() const</strong></p>
+<p>Returns the alpha component as a floating point value in range [0,1].</p>
 </li>
 </ul>
 <h2 id="array-access">Array access<a class="headerlink" href="#array-access" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>std::array<float, 4> asArray() const</strong></p>
-<p>Returns the components as an <code>std::array</code> of floats</p>
+<p><strong>std::array<double, 4> asArray() const</strong></p>
+<p>Returns the components as an <code>std::array</code> of doubles.</p>
 </li>
 <li>
 <p><strong>template <class T> std::array<T, 4> asIntArray() const</strong></p>
-<p>Returns the components as an <code>std::array&lt;T&gt;</code>. The internal float values are scaled from 0 to <code>std::numerical_limits&lt;T&gt;::max()</code></p>
+<p>Returns the components as an <code>std::array&lt;T&gt;</code> where <code>T</code> is the int type to convert to. The internal floating point values are scaled from 0 to <code>std::numerical_limits&lt;T&gt;::max()</code>.</p>
 </li>
 </ul>
 <h2 id="int32-access">Int32 access<a class="headerlink" href="#int32-access" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p><strong>uint32_t asInt() const</strong> </p>
-<p>Returns all components as one <code>uint32_t</code> as <code>0xRRGGBBAA</code> </p>
+<p>Returns all components as one <code>uint32_t</code> in the form <code>0xRRGGBBAA</code>.</p>
 </li>
 <li>
 <p><strong>uint32_t asIntAlphaFirst() const</strong></p>
-<p>Returns all components as one <code>uint32_t</code> as <code>0xAARRGGBB</code> </p>
+<p>Returns all components as one <code>uint32_t</code> in the form <code>0xAARRGGBB</code>.</p>
 </li>
 </ul>
                 
