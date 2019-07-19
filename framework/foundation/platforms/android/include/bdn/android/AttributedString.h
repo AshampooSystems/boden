@@ -11,8 +11,8 @@ namespace bdn::android
         AttributedString();
 
       public:
-        bool fromHtml(const String &html) override;
-        String toHtml() const override;
+        bool fromHTML(const String &html) override;
+        String toHTML() const override;
 
       public:
         wrapper::Spanned spanned() { return _spanned; }

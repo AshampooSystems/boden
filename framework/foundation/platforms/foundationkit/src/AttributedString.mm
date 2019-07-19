@@ -13,7 +13,7 @@ namespace bdn::fk
 {
     AttributedString::AttributedString() { _nsAttributedString = [[NSMutableAttributedString alloc] init]; }
 
-    bool AttributedString::fromHtml(const String &str)
+    bool AttributedString::fromHTML(const String &str)
     {
         if (NSData *nsData =
                 [[NSData alloc] initWithBytesNoCopy:(void *)str.c_str() length:str.length() freeWhenDone:NO]) {
@@ -44,7 +44,7 @@ namespace bdn::fk
         return false;
     }
 
-    String AttributedString::toHtml() const
+    String AttributedString::toHTML() const
     {
         if (_nsAttributedString) {
 

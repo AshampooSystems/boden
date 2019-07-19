@@ -3,8 +3,7 @@ source: AttributedString.h
 
 # AttributedString
 
-Holds an attributed String.
-
+A string that allows you to set attributes for text ranges. Attributed strings are commonly used to apply formatting to a string.
 
 ## Declaration
 
@@ -20,13 +19,13 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 ## Content
 
-* **virtual bool fromHtml(const String &html)**
+* **virtual bool fromHTML(const String &html)**
 
-	Replaces the contents of the `AttributedString` with the `html` code.
+	Replaces the contents of the `AttributedString` with the given `html` markup code.
 
-* **virtual String toHtml() const**
+* **virtual String toHTML() const**
 
-	Returns the contents encoded as Html.
+	Returns the contents as a string containing HTML markup code.
 
 
 ## Types

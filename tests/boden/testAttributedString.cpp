@@ -14,7 +14,7 @@ namespace bdn
     {
         auto attributedString = std::make_shared<AttributedString>();
 
-        bool result = attributedString->fromHtml("<b>Hello World</b>");
+        bool result = attributedString->fromHTML("<b>Hello World</b>");
 
         EXPECT_TRUE(result);
     }

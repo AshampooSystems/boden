@@ -22,7 +22,7 @@ namespace bdn
 
         logstream() << "<a href=\"http://www.boden.io\">www.boden.io</a>\n"
                     << "became:\n"
-                    << std::get<1>(labelWithLink->text.get())->toHtml();
+                    << std::get<1>(labelWithLink->text.get())->toHTML();
 
         auto testLabel = std::make_shared<ui::Label>();
         testLabel->stylesheet = JsonStringify({"text" : {"html" : "<h1>H1</h1><h2>H2</h2><h3>H3</h3>"}});

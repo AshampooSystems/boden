@@ -12,8 +12,8 @@ namespace bdn::fk
         AttributedString();
 
       public:
-        bool fromHtml(const String &str) override;
-        String toHtml() const override;
+        bool fromHTML(const String &str) override;
+        String toHTML() const override;
 
       public:
         NSAttributedString *nsAttributedString() { return _nsAttributedString; }

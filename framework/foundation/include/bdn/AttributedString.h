@@ -18,8 +18,8 @@ namespace bdn
         virtual ~AttributedString() = default;
 
       public:
-        virtual bool fromHtml(const String &html) = 0;
-        virtual String toHtml() const = 0;
+        virtual bool fromHTML(const String &html) = 0;
+        virtual String toHTML() const = 0;
     };
 }
 
