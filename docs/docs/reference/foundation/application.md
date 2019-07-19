@@ -78,7 +78,7 @@ namespace bdn {
 
 * **virtual String uriToBundledFileUri(const String &uri)**
 
-	Returns a platform specific representation of a resource path ( see: [../../guides/fundamentals/resources.md](Resources) ). If the path cannot be converted, the `uri` parameter is returned.
+	Returns a platform specific representation of a resource path (see: [Resources](../../guides/fundamentals/resources.md)). If the path cannot be converted, the `uri` parameter is returned.
 
 ## Shutdown
 
