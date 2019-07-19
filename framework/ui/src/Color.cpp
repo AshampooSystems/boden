@@ -178,20 +178,20 @@ namespace bdn::ui
                 return;
             }
 
-            std::transform(actual.begin() + 1, actual.end(), _component.begin(), [](auto str) -> float {
+            std::transform(actual.begin() + 1, actual.end(), _component.begin(), [](auto str) -> double {
                 int value;
                 auto text = str.str();
                 std::istringstream stream(text);
                 stream >> std::hex >> value;
 
                 if (text.size() == 1) {
-                    return (float)((value << 4) | value) / 255.0f;
+                    return (double)((value << 4) | value) / 255.0f;
                 }
 
-                return (float)value / 255.0f;
+                return (double)value / 255.0f;
             });
         }
     }
 
-    std::array<float, 4> Color::asArray() const { return _component; }
+    std::array<double, 4> Color::asArray() const { return _component; }
 }

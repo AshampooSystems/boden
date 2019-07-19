@@ -17,8 +17,8 @@ namespace bdn::ui
         Color() = default;
         Color(String color);
 
-        constexpr Color(std::array<float, 4> array) { _component = array; }
-        constexpr Color(float r, float g, float b, float a = 1.0f) { _component = {r, g, b, a}; }
+        constexpr Color(std::array<double, 4> array) { _component = array; }
+        constexpr Color(double r, double g, double b, double a = 1.0f) { _component = {r, g, b, a}; }
         constexpr Color(uint32_t color)
         {
             _component = {((color & 0xFF000000) >> 24) / 255.0f, ((color & 0xFF0000) >> 16) / 255.0f,
@@ -26,12 +26,12 @@ namespace bdn::ui
         }
 
       public:
-        inline float red() const { return _component[0]; }
-        inline float green() const { return _component[1]; }
-        inline float blue() const { return _component[2]; }
-        inline float alpha() const { return _component[3]; }
+        inline double red() const { return _component[0]; }
+        inline double green() const { return _component[1]; }
+        inline double blue() const { return _component[2]; }
+        inline double alpha() const { return _component[3]; }
 
-        std::array<float, 4> asArray() const;
+        std::array<double, 4> asArray() const;
 
         template <class T> std::array<T, 4> asIntArray() const
         {
@@ -60,7 +60,7 @@ namespace bdn::ui
         bool operator!=(const Color &other) const { return other._component != this->_component; }
 
       private:
-        std::array<float, 4> _component = {0.f, 0.f, 0.f, 1.f};
+        std::array<double, 4> _component = {0.f, 0.f, 0.f, 1.f};
 
       private:
         static const std::map<String, Color> _namedColors;
@@ -79,7 +79,7 @@ namespace nlohmann
         static void from_json(const json &j, bdn::ui::Color &color)
         {
             if (j.is_array()) {
-                std::array<float, 4> c = bdn::ui::Color().asArray();
+                std::array<double, 4> c = bdn::ui::Color().asArray();
                 if (j.size() <= 4) {
                     std::copy_if(j.begin(), j.end(), c.begin(), [](auto j) { return j.is_number(); });
                 }
