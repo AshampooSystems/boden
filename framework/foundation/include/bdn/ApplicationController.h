@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <bdn/String.h>
 
 namespace bdn
 {
@@ -17,5 +18,6 @@ namespace bdn
         virtual void onSuspend() {}
         virtual void onResume() {}
         virtual void onTerminate() {}
+        virtual void onOpenURL(const String &url) {}
     };
 }
