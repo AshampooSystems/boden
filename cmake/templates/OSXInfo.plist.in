@@ -37,5 +37,6 @@
     <key>NSHumanReadableCopyright</key>
     <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
 ${MACOSX_NSAPP_TRANSPORT_SECURITY}
+${MACOSX_ADDITIONAL_PLIST_PROPERTIES}
 </dict>
 </plist>
