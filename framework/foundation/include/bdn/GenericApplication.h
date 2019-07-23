@@ -70,6 +70,8 @@ namespace bdn
 
         void openURL(const String &url) override {}
 
+        void copyToClipboard(const String &str) override {}
+
       protected:
         virtual bool shouldExit() const
         {

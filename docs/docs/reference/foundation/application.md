@@ -74,6 +74,10 @@ namespace bdn {
 
 	Opens the given URL in a suitable external application. Web URLs will be opened in the system's standard web browser. Application-specific URLs will open in the respective application.
 
+* **virtual void copyToClipboard(const String &str)**
+
+	Copies the given string to the clipboard.
+
 ## Resources
 
 * **virtual String uriToBundledFileUri(const String &uri)**
