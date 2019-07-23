@@ -30,6 +30,7 @@ namespace bdn::ui::ios
         void _applicationDidEnterBackground();
         void _applicationWillEnterForeground();
         void _applicationWillTerminate();
+        bool _applicationOpenURL(NSURL *url);
 
       private:
         void buildCommandlineArguments(int argCount, char *args[]);
