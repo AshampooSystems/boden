@@ -31,7 +31,6 @@ public class NativeViewGroup extends ViewGroup
         return false;
     }
 
-
     /** Sets the an object that contains data that is needed by the native code side of this object.
      *  This function is used internally and should usually not be called.*/
     public void _setNativeData( Object o)

@@ -2,8 +2,9 @@
 
 #include <bdn/ui/Label.h>
 
+#include <bdn/android/AttributedString.h>
 #include <bdn/android/ViewCore.h>
-#include <bdn/android/wrapper/AppCompatTextView.h>
+#include <bdn/android/wrapper/NativeLabel.h>
 #include <bdn/android/wrapper/RStyle.h>
 
 #include <limits>
@@ -22,7 +23,9 @@ namespace bdn::ui::android
         void textChanged(const Text &text);
 
       private:
-        mutable bdn::android::wrapper::TextView _jTextView;
+        mutable bdn::android::wrapper::NativeLabel _jLabel;
         bool _wrap = true;
+        Notifier<String>::Subscription _linkSubscription;
+        std::shared_ptr<bdn::android::AttributedString> _currentAttributedString;
     };
 }

@@ -14,12 +14,17 @@ namespace bdn::ui
         detail::VIEW_CORE_REGISTER(Label, View::viewCoreFactory());
     }
 
+    Notifier<const String &> &Label::onLinkClick() { return _onLinkClick; }
+
     void Label::bindViewCore()
     {
         View::bindViewCore();
         auto textCore = View::core<Label::Core>();
         textCore->text.bind(text);
         textCore->wrap.bind(wrap);
+
+        _linkClickCallbackReceiver =
+            textCore->_linkClickCallback.set([=](const auto &link) { _onLinkClick.notify(link); });
     }
 
     void Label::updateFromStylesheet()
@@ -28,7 +33,6 @@ namespace bdn::ui
 
         if (stylesheet->count("text")) {
             text = stylesheet->at("text").get<bdn::Text>();
-        } else {
         }
     }
 }

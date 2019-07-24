@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <any>
 #include <cctype>
 #include <chrono>
 #include <codecvt>
@@ -27,6 +28,8 @@ namespace bdn
                    haystack.compare(haystack.size() - needle.size(), needle.size(), needle) == 0;
         }
     }
+
+    String stringFromAny(const std::any &anyString);
 
     String fromUtf32(const std::u32string &utf32String);
 

@@ -29,6 +29,17 @@ namespace bdn {
 
 	Implements a polyfill emulating the [`std::basic_string::ends_with()`](https://en.cppreference.com/w/cpp/string/basic_string/ends_with) function which will be part of the C++20 standard.
 
+## Conversion Functions
+
+* **String stringFromAny(const std::any& anyString)**
+
+	Converts an std::any to String. Throws std::bad_any_cast if no conversion possible.
+
+	| std::any type  | calls |
+	|---|---|
+	| String | String(std::any_cast<String\>(any)) |
+	| json | (String)std::any_cast<json\>(any) |
+
 ## Convenience Functions
 
 * **String fromUtf32(const std::u32string &utf32String)**

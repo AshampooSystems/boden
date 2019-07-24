@@ -1,4 +1,4 @@
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #include <bdn/ios/CheckboxCore.hh>
 
 #define BDN_IOS_CHECKBOX_LABEL_MARGIN 5

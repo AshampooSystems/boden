@@ -7,6 +7,18 @@
 
 namespace bdn::ui::mac
 {
+    class LabelCore;
+}
+
+@interface BodenTextView : NSTextView {
+    bdn::ui::mac::LabelCore *_core;
+}
+
+- (id)initWithCore:(bdn::ui::mac::LabelCore *)core;
+@end
+
+namespace bdn::ui::mac
+{
     class LabelCore : public ViewCore, virtual public Label::Core
     {
       public:
@@ -20,7 +32,7 @@ namespace bdn::ui::mac
         void textPropertyChanged(const Text &text);
 
       private:
-        NSTextView *_nsTextView;
+        BodenTextView *_nsTextView;
         bool _wrap;
     };
 }

@@ -1,7 +1,10 @@
+#include <bdn/Color.h>
+#include <bdn/Font.h>
 #include <bdn/foundationkit/AttributedString.hh>
-#include <bdn/foundationkit/stringUtil.hh>
+#include <bdn/foundationkit/conversionUtil.hh>
 #include <bdn/log.h>
 #include <bdn/platform.h>
+#include <variant>
 
 #ifdef BDN_PLATFORM_IOS
 #import <UIKit/UIKit.h>
@@ -12,6 +15,72 @@
 namespace bdn::fk
 {
     AttributedString::AttributedString() { _nsAttributedString = [[NSMutableAttributedString alloc] init]; }
+
+    NSDictionary *AttributedString::attributeMapToDict(const AttributedString::AttributeMap &attributeMap)
+    {
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+
+        for (auto &attribute : attributeMap) {
+            if (attribute.first == "foreground-color") {
+                auto color = Color::fromAny(attribute.second);
+
+                [dict setObject:colorToFkColor(color) forKey:NSForegroundColorAttributeName];
+            } else if (attribute.first == "font") {
+                auto font = Font::fromAny(attribute.second);
+                auto fkFont = fontToFkFont(font);
+
+                [dict setObject:fkFont forKey:NSFontAttributeName];
+            } else if (attribute.first == "link") {
+                auto string = stringToNSString(stringFromAny(attribute.second));
+                NSURL *url = [NSURL URLWithString:string];
+                [dict setObject:url forKey:NSLinkAttributeName];
+            } else if (attribute.first == "baseline-offset") {
+                float offset = 0.0f;
+                if (attribute.second.type() == typeid(bdn::json)) {
+                    offset = (float)std::any_cast<bdn::json>(attribute.second);
+                } else if (attribute.second.type() == typeid(float)) {
+                    offset = std::any_cast<float>(attribute.second);
+                }
+                [dict setObject:[NSNumber numberWithInteger:offset] forKey:NSBaselineOffsetAttributeName];
+            }
+        }
+
+        return dict;
+    }
+
+    void AttributedString::setAttributes(AttributeMap attributes, Range range)
+    {
+        if (range.length == -1) {
+            range.length = _nsAttributedString.length - range.start;
+        }
+
+        auto nsDict = attributeMapToDict(attributes);
+        if (nsDict) {
+            [_nsAttributedString setAttributes:nsDict range:NSMakeRange(range.start, range.length)];
+        }
+    }
+
+    void AttributedString::addAttribute(String attributeName, std::any value, Range range)
+    {
+        addAttributes({{attributeName, value}}, range);
+    }
+
+    void AttributedString::addAttributes(AttributeMap attributes, Range range)
+    {
+        if (range.length == -1) {
+            range.length = _nsAttributedString.length - range.start;
+        }
+
+        auto nsDict = attributeMapToDict(attributes);
+        if (nsDict) {
+            [_nsAttributedString addAttributes:nsDict range:NSMakeRange(range.start, range.length)];
+        }
+    }
+
+    void AttributedString::fromString(const String &text)
+    {
+        _nsAttributedString = [[NSMutableAttributedString alloc] initWithString:stringToNSString(text)];
+    }
 
     bool AttributedString::fromHTML(const String &str)
     {

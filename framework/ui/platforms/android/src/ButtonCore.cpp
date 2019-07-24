@@ -1,4 +1,5 @@
 
+#include <bdn/android/AttributedString.h>
 #include <bdn/android/ButtonCore.h>
 #include <bdn/android/wrapper/NativeViewCoreClickListener.h>
 
@@ -16,7 +17,7 @@ namespace bdn::ui::android
         _jButton.setSingleLine(true);
 
         label.onChange() += [=](auto &property) {
-            _jButton.setText(property.get());
+            textChanged(property.get());
             scheduleLayout();
         };
 
@@ -27,4 +28,29 @@ namespace bdn::ui::android
     bdn::android::wrapper::Button &ButtonCore::getJButton() { return _jButton; }
 
     void ButtonCore::clicked() { _clickCallback.fire(); }
+
+    void ButtonCore::textChanged(const Text &text)
+    {
+        std::visit(
+            [&jView = this->_jButton](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    // Remove '\r' as android treats them as a space
+                    String textToSet = arg;
+                    textToSet.erase(
+                        std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
+                        textToSet.end());
+                    jView.setText(textToSet);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto attrString = std::dynamic_pointer_cast<bdn::android::AttributedString>(arg)) {
+                        jView.setText(attrString->spanned());
+                    }
+                }
+            },
+            text);
+
+        markDirty();
+        scheduleLayout();
+    }
 }

@@ -102,7 +102,7 @@ namespace bdn::android::wrapper
         JavaMethod<void(int)> setSystemUiVisibility{this, "setSystemUiVisibility"};
         JavaMethod<int()> getSystemUiVisibility{this, "getSystemUiVisibility"};
 
-        JavaMethod<void(int)> setBackgroundColor{this, "setBackgroundColor"};
+        JavaMethod<void(Color)> setBackgroundColor{this, "setBackgroundColor"};
 
         JavaMethod<void(int)> setVisibility{this, "setVisibility"};
         JavaMethod<int()> getVisibility{this, "getVisibility"};

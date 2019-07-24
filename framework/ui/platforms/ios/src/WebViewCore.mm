@@ -1,7 +1,7 @@
 #include <bdn/ui/ViewUtilities.h>
 #include <bdn/ui/WebView.h>
 
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/WebViewCore.hh>
 
 #import <WebKit/WebKit.h>

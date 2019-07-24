@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/include/bdn/ui
+path: tree/master/framework/foundation/include/bdn/
 source: Color.h
 
 # Color
@@ -9,11 +9,11 @@ Represents an RGBA color. Can be de-/serialized from/to JSON.
 ## Example
 
 ```C++
-#include <bdn/ui/Color.h>
+#include <bdn/Color.h>
 #include <bdn/Json.h>
 
 int main() {
-	bdn::ui::Color color("royalblue");
+	bdn::Color color("royalblue");
 	bdn::json j = color;
 
 	return 0;
@@ -23,7 +23,7 @@ int main() {
 ## Declaration
 
 ```C++
-namespace bdn::ui {
+namespace bdn {
 	class Color
 }
 ```
@@ -51,6 +51,22 @@ namespace bdn::ui {
 
 	Initializes the color with the give `uint32_t` value. Red is stored in the highest 8 bits, alpha is stored in the lowest 8 bits.
 
+
+## Conversion
+
+* **static Color fromAny(std::any anyColor)**
+
+	Converts an std::any to Color. Throws std::bad_any_cast if no conversion possible.
+
+	| std::any type  | calls |
+	|---|---|
+	| Color  | Color(std::any_cast<Color\>(any))  |
+	| String | Color(std::any_cast<String\>(any)) |
+	| json  | (Color)std::any_cast<json\>(any)  |
+
+* **static Color fromIntAlphaFirst(uint32_t color)**
+
+	Same as `Color(uint32_t)` but takes the alpha value from the highest 8 bits.
 
 ## RGBA
 

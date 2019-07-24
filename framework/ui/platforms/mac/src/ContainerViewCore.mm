@@ -1,3 +1,4 @@
+#include <bdn/log.h>
 #import <bdn/mac/ContainerViewCore.hh>
 
 /** NSView implementation that is used internally by
@@ -6,8 +7,9 @@
  Sets the flipped property so that the coordinate system has its origin in the
  top left, rather than the bottom left.
  */
+
 @interface BdnMacContainerView_ : NSView
-@property std::weak_ptr<bdn::ui::View::Core> viewCore;
+@property std::weak_ptr<bdn::ui::mac::ContainerViewCore> viewCore;
 @end
 
 @implementation BdnMacContainerView_
@@ -20,7 +22,6 @@
         viewCore->startLayout();
     }
 }
-
 @end
 
 namespace bdn::ui::detail

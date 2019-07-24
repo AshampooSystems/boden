@@ -1,4 +1,5 @@
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/AttributedString.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ButtonCore.hh>
 
 @interface BodenUIButton : UIButton <UIViewWithFrameNotification>
@@ -44,8 +45,7 @@ namespace bdn::ui::ios
         _button = (UIButton *)uiView();
         [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
-        label.onChange() +=
-            [=](auto &property) { [_button setTitle:fk::stringToNSString(label) forState:UIControlStateNormal]; };
+        label.onChange() += [=](auto &property) { textChanged(property.get()); };
     }
 
     ButtonCore::~ButtonCore()
@@ -74,4 +74,23 @@ namespace bdn::ui::ios
     }
 
     float ButtonCore::pointScaleFactor() const { return _button.titleLabel.contentScaleFactor; }
+
+    void ButtonCore::textChanged(const Text &text)
+    {
+        std::visit(
+            [uiButton = this->_button](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    [uiButton setTitle:fk::stringToNSString(arg) forState:UIControlStateNormal];
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
+                        [uiButton setAttributedTitle:fkAttrString->nsAttributedString() forState:UIControlStateNormal];
+                    }
+                }
+            },
+            text);
+
+        markDirty();
+    }
 }

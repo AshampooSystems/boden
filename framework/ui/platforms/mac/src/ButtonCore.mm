@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/mac/ButtonCore.hh>
 
 @interface BdnButtonClickManager : NSObject
@@ -27,6 +28,8 @@ namespace bdn::ui::mac
     {
         NSButton *button = [[NSButton alloc] init];
 
+        button.title = @"";
+
         [button setButtonType:NSButtonTypeMomentaryLight];
         [button setBezelStyle:NSBezelStyleRounded];
 
@@ -49,10 +52,7 @@ namespace bdn::ui::mac
         _heightWithRoundedBezelStyle = (int)macSizeToSize(nsView().fittingSize).height;
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
-        label.onChange() += [=](auto &property) {
-            NSString *macLabel = fk::stringToNSString(label);
-            [(NSButton *)nsView() setTitle:macLabel];
-        };
+        label.onChange() += [=](auto &property) { updateText(property.get()); };
     }
 
     ButtonCore::~ButtonCore() { _clickManager.buttonCore = std::weak_ptr<ButtonCore>(); }
@@ -119,5 +119,25 @@ namespace bdn::ui::mac
         if (bezelStyle != _currBezelStyle) {
             [(NSButton *)nsView() setBezelStyle:bezelStyle];
         }
+    }
+
+    void ButtonCore::updateText(const Text &text)
+    {
+        std::visit(
+            [nsButton = (NSButton *)this->nsView()](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    nsButton.title = fk::stringToNSString(arg);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
+                        nsButton.attributedTitle = fkAttrString->nsAttributedString();
+                    }
+                }
+            },
+            text);
+
+        scheduleLayout();
+        markDirty();
     }
 }

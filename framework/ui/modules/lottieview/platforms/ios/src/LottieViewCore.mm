@@ -1,6 +1,6 @@
 #include <bdn/ui/lottie/View.h>
 
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/LottieViewCore.hh>
 
 #include <LOTAnimationView.h>

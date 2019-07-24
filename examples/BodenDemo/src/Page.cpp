@@ -34,10 +34,11 @@ namespace bdn
 
         auto rowStylesheet = nlohmann::json{{"flex",
                                              {{"direction", FlexStylesheet::Direction::Row},
-                                              {"minimumSize", {"height", 40}},
+                                              {"minimumSize", {{"height", 40}}},
                                               {"alignItems", FlexStylesheet::Align::Center},
                                               {"justifyContent", FlexStylesheet::Align::SpaceBetween},
                                               {"flexShrink", 0},
+                                              {"flexGrow", 0},
                                               {"margin", {{"top", marginTop}, {"bottom", marginBottom}}}}}};
 
         if (baseline) {

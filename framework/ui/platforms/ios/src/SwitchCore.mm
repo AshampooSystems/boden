@@ -1,4 +1,4 @@
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #include <bdn/ios/SwitchCore.hh>
 
 @implementation BdnIosSwitchClickManager

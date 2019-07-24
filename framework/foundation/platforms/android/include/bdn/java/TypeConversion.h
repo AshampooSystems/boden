@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bdn/Color.h>
 #include <bdn/String.h>
 #include <bdn/java/Reference.h>
 #include <list>
@@ -102,6 +103,29 @@ namespace bdn::java
         static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
         {
             return _getStringFromJava(Reference::convertAndDestroyOwnedLocal(arg));
+        }
+    };
+
+    template <> class TypeConversion<bdn::Color> : public TypeConversionBase_
+    {
+      public:
+        using JavaType = jint;
+        using NativeType = bdn::Color;
+
+        static String getJavaSignature()
+        {
+            static String sig("I");
+            return sig;
+        }
+
+        static JavaType nativeToJava(NativeType arg, std::list<Reference> &createdJavaObjects)
+        {
+            return arg.asIntAlphaFirst();
+        }
+
+        static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
+        {
+            return Color::fromIntAlphaFirst(arg);
         }
     };
 

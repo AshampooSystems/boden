@@ -1,6 +1,6 @@
 #import <bdn/applecommon/WebViewNavigationController.hh>
 
-#include <bdn/foundationkit/stringUtil.hh>
+#include <bdn/foundationkit/conversionUtil.hh>
 #include <bdn/log.h>
 
 @implementation WebViewNavigationController

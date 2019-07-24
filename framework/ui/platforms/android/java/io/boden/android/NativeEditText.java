@@ -73,46 +73,46 @@ class NativeEditText extends AppCompatEditText
 
         if(typeFace != null) {
             setTypeface(typeFace);
+        }
 
-            float defaultTextSize = new NativeEditText(this.getContext()).getTextSize();
+        float defaultTextSize = new NativeEditText(this.getContext()).getTextSize();
 
-            float fontSize = defaultTextSize;
+        float fontSize = defaultTextSize;
 
-            switch(sizeType) {
-                case Inherit:
-                    break;
-                case Medium:
-                    break;
-                case Small:
-                    fontSize *= 0.75;
-                    break;
-                case XSmall:
-                    fontSize *= 0.5;
-                    break;
-                case XXSmall:
-                    fontSize *= 0.25;
-                    break;
-                case Large:
-                    fontSize *= 1.25;
-                    break;
-                case XLarge:
-                    fontSize *= 1.5;
-                    break;
-                case XXLarge:
-                    fontSize *= 1.75;
-                    break;
-                case Percent:
-                    fontSize *= size;
-                    break;
-                default:
-                    break;
-            }
+        switch(sizeType) {
+            case Inherit:
+                break;
+            case Medium:
+                break;
+            case Small:
+                fontSize *= 0.75;
+                break;
+            case XSmall:
+                fontSize *= 0.5;
+                break;
+            case XXSmall:
+                fontSize *= 0.25;
+                break;
+            case Large:
+                fontSize *= 1.25;
+                break;
+            case XLarge:
+                fontSize *= 1.5;
+                break;
+            case XXLarge:
+                fontSize *= 1.75;
+                break;
+            case Percent:
+                fontSize *= size;
+                break;
+            default:
+                break;
+        }
 
-            if(sizeType == Points) {
-                setTextSize(TypedValue.COMPLEX_UNIT_PT, fontSize);
-            } else {
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-            }
+        if(sizeType == Points) {
+            setTextSize(TypedValue.COMPLEX_UNIT_PT, fontSize);
+        } else {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
         }
     }
 }

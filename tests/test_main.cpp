@@ -74,7 +74,7 @@ class TestApplicationController : public bdn::ui::UIApplicationController, publi
             if (_testNameLabel)
                 _testNameLabel->text = sTestInfo;
             if (hasFailed) {
-                _window->backgroundColor = bdn::ui::Color(1, 0, 0, 1);
+                _window->backgroundColor = bdn::Color(1, 0, 0, 1);
             }
         });
     }

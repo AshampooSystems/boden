@@ -10,7 +10,7 @@ namespace bdn::android::wrapper
     class BaseAppCompatTextView : public BaseTextView<javaClassName, ConstructorArguments...>
     {
       public:
-        using BaseTextView<javaClassName>::BaseTextView;
+        using BaseTextView<javaClassName, ConstructorArguments...>::BaseTextView;
     };
 
     using AppCompatTextView = BaseAppCompatTextView<>;

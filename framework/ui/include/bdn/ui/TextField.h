@@ -2,8 +2,8 @@
 
 #include <optional>
 
+#include <bdn/Font.h>
 #include <bdn/Notifier.h>
-#include <bdn/ui/Font.h>
 #include <bdn/ui/SubmitEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>

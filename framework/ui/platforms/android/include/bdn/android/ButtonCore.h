@@ -17,6 +17,9 @@ namespace bdn::ui::android
         void clicked() override;
 
       private:
+        void textChanged(const Text &text);
+
+      private:
         mutable bdn::android::wrapper::Button _jButton;
     };
 }

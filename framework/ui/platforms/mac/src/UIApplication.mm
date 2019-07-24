@@ -1,15 +1,14 @@
-
-#import <Cocoa/Cocoa.h>
-
-#include <utility>
-
-#import <bdn/foundationkit/MainDispatcher.hh>
 #import <bdn/mac/UIApplication.hh>
-#import <bdn/mac/util.hh>
-#include <bdn/ui/View.h>
 
 #include <bdn/entry.h>
 #include <bdn/log.h>
+#include <bdn/ui/View.h>
+#include <utility>
+
+#import <Cocoa/Cocoa.h>
+#import <bdn/foundationkit/MainDispatcher.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
+#import <bdn/mac/util.hh>
 
 @interface BdnMacAppDelegate_ : NSObject <NSApplicationDelegate>
 @property(nonatomic) std::weak_ptr<bdn::ui::mac::UIApplication> bdnApplication;

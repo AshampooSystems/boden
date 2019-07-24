@@ -24,4 +24,13 @@ namespace bdn::ui
             _onClick.notify(evt);
         });
     }
+
+    void Button::updateFromStylesheet()
+    {
+        View::updateFromStylesheet();
+
+        if (stylesheet->count("label")) {
+            label = stylesheet->at("label").get<bdn::Text>();
+        }
+    }
 }

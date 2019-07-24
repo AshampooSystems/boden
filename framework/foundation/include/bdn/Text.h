@@ -41,7 +41,7 @@ namespace nlohmann
                     if constexpr (std::is_same_v<T, bdn::String>) {
                         j = arg;
                     } else if constexpr (std::is_same_v<T, std::shared_ptr<bdn::AttributedString>>) {
-                        j = {{"html", arg->toHTML()}};
+                        j = arg->toJSON();
                     }
                 },
                 text);
@@ -52,11 +52,9 @@ namespace nlohmann
             if (j.is_string()) {
                 text = (bdn::String)j;
             } else if (j.is_object()) {
-                if (j.count("html")) {
-                    auto attrString = std::make_shared<bdn::AttributedString>();
-                    attrString->fromHTML(j.at("html"));
-                    text = attrString;
-                }
+                auto attrString = std::make_shared<bdn::AttributedString>();
+                attrString->fromJSON(j);
+                text = attrString;
             }
         }
     };

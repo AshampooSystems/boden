@@ -32,6 +32,7 @@ namespace bdn::ui::mac
 
       private:
         void _updateBezelStyle();
+        void updateText(const Text &text);
 
       private:
         BdnButtonClickManager *_clickManager;

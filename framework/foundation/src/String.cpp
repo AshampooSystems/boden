@@ -1,4 +1,5 @@
 #include <bdn/Factory.h>
+#include <bdn/Json.h>
 #include <bdn/String.h>
 
 namespace bdn
@@ -86,5 +87,18 @@ namespace bdn
     template <> std::string duration_to_string(std::chrono::duration<long double, std::ratio<1>> duration)
     {
         return std::to_string(duration.count()) + "s";
+    }
+
+    String stringFromAny(const std::any &anyString)
+    {
+        if (anyString.type() == typeid(bdn::json)) {
+            return (String)std::any_cast<bdn::json>(anyString);
+        } else if (anyString.type() == typeid(String)) {
+            return std::any_cast<String>(anyString);
+        } else {
+            throw std::bad_any_cast();
+        }
+
+        return "";
     }
 }

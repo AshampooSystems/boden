@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <array>
 #include <limits>
 #include <map>
@@ -9,12 +10,14 @@
 #include <bdn/Json.h>
 #include <bdn/String.h>
 
-namespace bdn::ui
+namespace bdn
 {
     class Color
     {
       public:
         Color() = default;
+        Color(const Color &other) { _component = other._component; }
+
         Color(String color);
 
         constexpr Color(std::array<double, 4> array) { _component = array; }
@@ -23,6 +26,14 @@ namespace bdn::ui
         {
             _component = {((color & 0xFF000000) >> 24) / 255.0f, ((color & 0xFF0000) >> 16) / 255.0f,
                           ((color & 0xFF00) >> 8) / 255.0f, (color & 0xFF) / 255.0f};
+        }
+
+        static Color fromAny(std::any anyColor);
+        static Color fromIntAlphaFirst(uint32_t color)
+        {
+            Color result{(color & 0xFF) / 255.0f, ((color & 0xFF0000) >> 16) / 255.0f, ((color & 0xFF00) >> 8) / 255.0f,
+                         ((color & 0xFF000000) >> 24) / 255.0f};
+            return result;
         }
 
       public:
@@ -69,23 +80,23 @@ namespace bdn::ui
 
 namespace nlohmann
 {
-    template <> struct adl_serializer<bdn::ui::Color>
+    template <> struct adl_serializer<bdn::Color>
     {
-        static void to_json(json &j, const bdn::ui::Color &color)
+        static void to_json(json &j, const bdn::Color &color)
         {
             j = {color.red(), color.green(), color.blue(), color.alpha()};
         }
 
-        static void from_json(const json &j, bdn::ui::Color &color)
+        static void from_json(const json &j, bdn::Color &color)
         {
             if (j.is_array()) {
-                std::array<double, 4> c = bdn::ui::Color().asArray();
+                std::array<double, 4> c = bdn::Color().asArray();
                 if (j.size() <= 4) {
                     std::copy_if(j.begin(), j.end(), c.begin(), [](auto j) { return j.is_number(); });
                 }
-                color = bdn::ui::Color(c);
+                color = bdn::Color(c);
             } else if (j.is_string()) {
-                color = bdn::ui::Color((bdn::String)j);
+                color = bdn::Color((bdn::String)j);
             }
         }
     };

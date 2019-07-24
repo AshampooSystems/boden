@@ -1,3 +1,4 @@
+#include <bdn/log.h>
 #include <bdn/mac/LabelCore.hh>
 
 #import <bdn/foundationkit/AttributedString.hh>
@@ -7,11 +8,68 @@ namespace bdn::ui::detail
     CORE_REGISTER(Label, bdn::ui::mac::LabelCore, Label)
 }
 
+@implementation BodenTextView
+- (id)initWithCore:(bdn::ui::mac::LabelCore *)core
+{
+    self = [super init];
+    if (self) {
+        _core = core;
+    }
+    return self;
+}
+
+- (id)linkAt:(CGPoint)pos
+{
+    if (auto aTxt = self.attributedString) {
+        pos.x -= self.textContainerInset.width;
+        pos.y -= self.textContainerInset.height;
+
+        NSUInteger characterIndex;
+        characterIndex = [self.layoutManager characterIndexForPoint:pos
+                                                    inTextContainer:self.textContainer
+                           fractionOfDistanceBetweenInsertionPoints:NULL];
+
+        auto br = [self.layoutManager boundingRectForGlyphRange:NSMakeRange(characterIndex, 1)
+                                                inTextContainer:self.textContainer];
+
+        if (!CGRectContainsPoint(br, pos)) {
+            return nullptr;
+        }
+
+        id result = [aTxt attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:nullptr];
+
+        return result;
+    }
+
+    return nullptr;
+}
+
+- (NSView *)hitTest:(CGPoint)point
+{
+    if ([self linkAt:point]) {
+        return self;
+    }
+
+    return nil;
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+    auto pos = [self convertPoint:[event locationInWindow] fromView:nil];
+    if (id link = [self linkAt:pos]) {
+        auto url = (NSURL *)link;
+
+        _core->_linkClickCallback.fire(bdn::fk::nsStringToString(url.absoluteString));
+    }
+}
+
+@end
+
 namespace bdn::ui::mac
 {
-    NSTextView *createNSTextView()
+    NSTextView *createNSTextView(LabelCore *core)
     {
-        NSTextView *view = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        auto *view = [[BodenTextView alloc] initWithCore:core];
 
         view.editable = static_cast<BOOL>(false);
         view.selectable = static_cast<BOOL>(false);
@@ -27,9 +85,9 @@ namespace bdn::ui::mac
     }
 
     LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : mac::ViewCore(viewCoreFactory, createNSTextView())
+        : mac::ViewCore(viewCoreFactory, createNSTextView(this))
     {
-        _nsTextView = (NSTextView *)nsView();
+        _nsTextView = (BodenTextView *)nsView();
 
         text.onChange() += [=](auto &property) { textPropertyChanged(property.get()); };
 
@@ -82,7 +140,7 @@ namespace bdn::ui::mac
             },
             text);
 
-        scheduleLayout();
         markDirty();
+        scheduleLayout();
     }
 }

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <any>
 #include <vector>
 
 #include <bdn/Json.h>
 #include <bdn/String.h>
-#include <bdn/property/Property.h>
 
 #ifdef JSON_THROW_USER
 #define JSON_THROW JSON_THROW_USER
@@ -14,7 +14,7 @@
 #define JSON_THROW(exception) throw exception
 #endif
 
-namespace bdn::ui
+namespace bdn
 {
     class Font
     {
@@ -44,7 +44,7 @@ namespace bdn::ui
         {
             enum class Type
             {
-                Inherit = 0, // ?
+                Inherit = 0,
                 Medium = 1,
                 Small = 2,
                 XSmall = 3,
@@ -70,6 +70,8 @@ namespace bdn::ui
         Weight weight = Weight::Inherit;
         Variant variant = Variant::Inherit;
 
+        static Font fromAny(std::any anyFont);
+
       public:
         bool operator!=(const Font &other) const
         {
@@ -81,60 +83,60 @@ namespace bdn::ui
 
 namespace nlohmann
 {
-    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::ui::Font::Style, {
-                                                           {bdn::ui::Font::Style::Inherit, "inherit"},
-                                                           {bdn::ui::Font::Style::Normal, "normal"},
-                                                           {bdn::ui::Font::Style::Italic, "italic"},
-                                                       })
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::Font::Style, {
+                                                       {bdn::Font::Style::Inherit, "inherit"},
+                                                       {bdn::Font::Style::Normal, "normal"},
+                                                       {bdn::Font::Style::Italic, "italic"},
+                                                   })
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::ui::Font::Variant, {
-                                                             {bdn::ui::Font::Variant::Inherit, "inherit"},
-                                                             {bdn::ui::Font::Variant::Normal, "normal"},
-                                                             {bdn::ui::Font::Variant::SmallCaps, "smallcaps"},
-                                                         })
+    NLOHMANN_JSON_SERIALIZE_ENUM(bdn::Font::Variant, {
+                                                         {bdn::Font::Variant::Inherit, "inherit"},
+                                                         {bdn::Font::Variant::Normal, "normal"},
+                                                         {bdn::Font::Variant::SmallCaps, "smallcaps"},
+                                                     })
 
-    template <> struct adl_serializer<bdn::ui::Font::Size>
+    template <> struct adl_serializer<bdn::Font::Size>
     {
-        static void to_json(json &j, const bdn::ui::Font::Size &size)
+        static void to_json(json &j, const bdn::Font::Size &size)
         {
             switch (size.type) {
-            case bdn::ui::Font::Size::Type::Inherit:
+            case bdn::Font::Size::Type::Inherit:
                 j = {};
                 return;
-            case bdn::ui::Font::Size::Type::Medium:
+            case bdn::Font::Size::Type::Medium:
                 j = "Medium";
                 break;
-            case bdn::ui::Font::Size::Type::Small:
+            case bdn::Font::Size::Type::Small:
                 j = "Small";
                 break;
-            case bdn::ui::Font::Size::Type::XSmall:
+            case bdn::Font::Size::Type::XSmall:
                 j = "XSmall";
                 break;
-            case bdn::ui::Font::Size::Type::XXSmall:
+            case bdn::Font::Size::Type::XXSmall:
                 j = "XXSmall";
                 break;
-            case bdn::ui::Font::Size::Type::Large:
+            case bdn::Font::Size::Type::Large:
                 j = "Large";
                 break;
-            case bdn::ui::Font::Size::Type::XLarge:
+            case bdn::Font::Size::Type::XLarge:
                 j = "XLarge";
                 break;
-            case bdn::ui::Font::Size::Type::XXLarge:
+            case bdn::Font::Size::Type::XXLarge:
                 j = "XXLarge";
                 break;
-            case bdn::ui::Font::Size::Type::Percent:
+            case bdn::Font::Size::Type::Percent:
                 j = std::to_string(size.value) + "%";
                 break;
-            case bdn::ui::Font::Size::Type::Points:
+            case bdn::Font::Size::Type::Points:
                 j = std::to_string(size.value) + " pt";
                 break;
-            case bdn::ui::Font::Size::Type::Pixels:
+            case bdn::Font::Size::Type::Pixels:
                 j = size.value;
                 break;
             }
         }
 
-        static void from_json(const json &j, bdn::ui::Font::Size &size)
+        static void from_json(const json &j, bdn::Font::Size &size)
         {
             if (j.is_string()) {
                 auto str = (bdn::String)j;
@@ -148,19 +150,19 @@ namespace nlohmann
                 if (sstream.fail()) {
                     std::transform(str.begin(), str.end(), str.begin(), &::tolower);
                     if (str == "medium") {
-                        size.type = bdn::ui::Font::Size::Type::Medium;
+                        size.type = bdn::Font::Size::Type::Medium;
                     } else if (str == "small") {
-                        size.type = bdn::ui::Font::Size::Type::Small;
+                        size.type = bdn::Font::Size::Type::Small;
                     } else if (str == "xsmall") {
-                        size.type = bdn::ui::Font::Size::Type::XSmall;
+                        size.type = bdn::Font::Size::Type::XSmall;
                     } else if (str == "xxsmall") {
-                        size.type = bdn::ui::Font::Size::Type::XXSmall;
+                        size.type = bdn::Font::Size::Type::XXSmall;
                     } else if (str == "large") {
-                        size.type = bdn::ui::Font::Size::Type::Large;
+                        size.type = bdn::Font::Size::Type::Large;
                     } else if (str == "xlarge") {
-                        size.type = bdn::ui::Font::Size::Type::XLarge;
+                        size.type = bdn::Font::Size::Type::XLarge;
                     } else if (str == "xxlarge") {
-                        size.type = bdn::ui::Font::Size::Type::XXLarge;
+                        size.type = bdn::Font::Size::Type::XXLarge;
                     } else {
                         JSON_THROW(nlohmann::json::other_error::create(501, "Failed parsing: \"" + str + "\""));
                     }
@@ -169,13 +171,13 @@ namespace nlohmann
                     sstream >> unit;
                     if (sstream.fail() || unit == "px") {
                         size.value = v;
-                        size.type = bdn::ui::Font::Size::Type::Pixels;
+                        size.type = bdn::Font::Size::Type::Pixels;
                     } else if (unit == "%") {
                         size.value = v;
-                        size.type = bdn::ui::Font::Size::Type::Percent;
+                        size.type = bdn::Font::Size::Type::Percent;
                     } else if (unit == "pt") {
                         size.value = v;
-                        size.type = bdn::ui::Font::Size::Type::Points;
+                        size.type = bdn::Font::Size::Type::Points;
                     } else {
                         JSON_THROW(nlohmann::json::other_error::create(501, "Invalid unit: \"" + unit + "\""));
                     }
@@ -184,13 +186,13 @@ namespace nlohmann
         }
     };
 
-    template <> struct adl_serializer<bdn::ui::Font::Weight>
+    template <> struct adl_serializer<bdn::Font::Weight>
     {
         inline static const std::map<bdn::String, int> nameToWeight{
             {"thin", 100},      {"extra light", 200}, {"light", 300},      {"normal", 400}, {"medium", 500},
             {"semi bold", 600}, {"bold", 700},        {"extra bold", 800}, {"black", 900}};
 
-        static void to_json(json &j, const bdn::ui::Font::Weight &weight)
+        static void to_json(json &j, const bdn::Font::Weight &weight)
         {
             int w = weight;
 
@@ -204,17 +206,17 @@ namespace nlohmann
             }
         }
 
-        static void from_json(const json &j, bdn::ui::Font::Weight &weight)
+        static void from_json(const json &j, bdn::Font::Weight &weight)
         {
             if (j.is_number()) {
-                weight = (bdn::ui::Font::Weight)((int)j);
+                weight = (bdn::Font::Weight)((int)j);
             } else if (j.is_string()) {
                 auto str = (bdn::String)j;
                 std::transform(str.begin(), str.end(), str.begin(), &::tolower);
 
                 auto it = nameToWeight.find(str);
                 if (it != nameToWeight.end()) {
-                    weight = (bdn::ui::Font::Weight)it->second;
+                    weight = (bdn::Font::Weight)it->second;
                 } else {
                     JSON_THROW(
                         nlohmann::json::other_error::create(501, "Failed parsing weight: \"" + (std::string)j + "\""));
@@ -223,20 +225,18 @@ namespace nlohmann
         }
     };
 
-    template <> struct adl_serializer<bdn::ui::Font>
+    template <> struct adl_serializer<bdn::Font>
     {
-        static void to_json(json &j, const bdn::ui::Font &font)
+        static void to_json(json &j, const bdn::Font &font)
         {
             j = {{"family", font.family},
                  {"size", font.size},
                  {"weight", font.weight},
                  {"style", font.style},
                  {"variant", font.variant}};
-
-            // j = {color.red(), color.green(), color.blue(), color.alpha()};
         }
 
-        static void from_json(const json &j, bdn::ui::Font &font)
+        static void from_json(const json &j, bdn::Font &font)
         {
             if (j.count("family")) {
                 font.family = j.at("family");

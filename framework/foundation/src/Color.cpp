@@ -1,6 +1,6 @@
-#include <bdn/ui/Color.h>
+#include <bdn/Color.h>
 
-namespace bdn::ui
+namespace bdn
 {
     const std::map<String, Color> Color::_namedColors = // css colors
         {{"aliceblue", {0xF0F8FFFF}},
@@ -191,6 +191,21 @@ namespace bdn::ui
                 return (double)value / 255.0f;
             });
         }
+    }
+    Color Color::fromAny(std::any anyColor)
+    {
+        Color result;
+        if (anyColor.type() == typeid(bdn::json)) {
+            result = (Color)std::any_cast<bdn::json>(anyColor);
+        } else if (anyColor.type() == typeid(String)) {
+            result = Color(std::any_cast<String>(anyColor));
+        } else if (anyColor.type() == typeid(Color)) {
+            result = std::any_cast<Color>(anyColor);
+        } else {
+            throw std::bad_any_cast();
+        }
+
+        return result;
     }
 
     std::array<double, 4> Color::asArray() const { return _component; }

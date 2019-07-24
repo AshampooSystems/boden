@@ -45,4 +45,4 @@ int main() {
 You can de-/serialize Text objects into json taking two forms.
 
 * A single string results in a [String](string.md)
-* A dictionary of the form `{"html" : <string> }` results in an [AttributedString](attributed_string.md) filled via [AttributedString::toHtml/AttributedString::fromHtml](attributed_string.md#content)
+* A dictionary results in an [AttributedString](attributed_string.md) (see [AttributedString serialization](attributed_string.md#json) for details)

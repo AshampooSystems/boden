@@ -4,7 +4,7 @@
 #include <bdn/net/HTTPRequest.h>
 #include <bdn/net/HTTPResponse.h>
 
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 
 #import <Foundation/Foundation.h>
 

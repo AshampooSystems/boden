@@ -1,6 +1,6 @@
 
 #import <bdn/foundationkit/MainDispatcher.hh>
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/UIApplication.hh>
 
 #include <bdn/ApplicationController.h>

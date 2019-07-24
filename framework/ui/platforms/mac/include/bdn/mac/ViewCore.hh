@@ -4,6 +4,7 @@
 #include <memory>
 
 #import <Cocoa/Cocoa.h>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/mac/util.hh>
 
 @protocol BdnLayoutable

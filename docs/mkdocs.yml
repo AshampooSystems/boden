@@ -70,7 +70,9 @@ nav:
       - reference/foundation/application.md
       - reference/foundation/application_controller.md
       - reference/foundation/attributed_string.md
+      - reference/foundation/color.md
       - reference/foundation/dispatch_queue.md
+      - reference/foundation/font.md
       - reference/foundation/global_stack.md
       - reference/foundation/needs_init.md
       - reference/foundation/notifier.md
@@ -87,7 +89,6 @@ nav:
       - reference/ui/button.md
       - reference/ui/checkbox.md
       - reference/ui/click_event.md
-      - reference/ui/color.md
       - reference/ui/container_view.md
       - reference/ui/core_less.md
       - reference/ui/image_view.md

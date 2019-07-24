@@ -3,7 +3,7 @@
 #include <bdn/log.h>
 #include <bdn/ui/Slider.h>
 
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ViewCore.hh>
 
 @interface BodenUISlider : UISlider <UIViewWithFrameNotification>

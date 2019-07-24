@@ -1,10 +1,8 @@
 #pragma once
 
-#import <AppKit/AppKit.h>
-#include <Availability.h>
-#import <bdn/foundationkit/stringUtil.hh>
-
 #include <bdn/Rect.h>
+
+#import <AppKit/AppKit.h>
 
 namespace bdn::ui::mac
 {

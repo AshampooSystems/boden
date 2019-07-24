@@ -6,16 +6,13 @@
 #include <bdn/Rect.h>
 
 namespace bdn::ui::ios
-{ /** Converts an iOS rect to a bdn::Rect.
-   */
+{
     inline Rect iosRectToRect(const CGRect &rect)
     {
         // iOS also uses DIPs, so no conversion necessary
-
         return Rect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
     }
 
-    /** Converts a bdn::Rect to an iOS rect. */
     inline CGRect rectToIosRect(const Rect &rect)
     {
         // iOS also uses DIPs, so no conversion necessary

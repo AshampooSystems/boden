@@ -1,6 +1,5 @@
-#include <bdn/android/LabelCore.h>
-
 #include <bdn/android/AttributedString.h>
+#include <bdn/android/LabelCore.h>
 
 namespace bdn::ui::detail
 {
@@ -10,13 +9,13 @@ namespace bdn::ui::detail
 namespace bdn::ui::android
 {
     LabelCore::LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::AppCompatTextView>(viewCoreFactory)),
-          _jTextView(getJViewAS<bdn::android::wrapper::TextView>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeLabel>(viewCoreFactory)),
+          _jLabel(getJViewAS<bdn::android::wrapper::NativeLabel>())
     {
         text.onChange() += [=](auto &property) { textChanged(property.get()); };
 
         wrap.onChange() += [=](auto &property) {
-            _jTextView.setMaxLines(property.get() ? std::numeric_limits<int>::max() : 1);
+            _jLabel.setMaxLines(property.get() ? std::numeric_limits<int>::max() : 1);
             _wrap = property.get();
             scheduleLayout();
         };
@@ -25,7 +24,7 @@ namespace bdn::ui::android
             int widthPixels = property.get().width * getUIScaleFactor();
 
             if (_wrap) {
-                _jTextView.setMaxWidth(widthPixels);
+                _jLabel.setMaxWidth(widthPixels);
             }
         };
     }
@@ -33,13 +32,13 @@ namespace bdn::ui::android
     Size LabelCore::sizeForSpace(Size availableSpace) const
     {
         if (_wrap) {
-            _jTextView.setMaxWidth((int)(availableSpace.width * getUIScaleFactor()));
+            _jLabel.setMaxWidth((int)(availableSpace.width * getUIScaleFactor()));
         }
 
         Size result = ViewCore::sizeForSpace(availableSpace);
 
         if (_wrap) {
-            _jTextView.setMaxWidth((int)(geometry->width * getUIScaleFactor()));
+            _jLabel.setMaxWidth((int)(geometry->width * getUIScaleFactor()));
         }
 
         return result;
@@ -47,8 +46,12 @@ namespace bdn::ui::android
 
     void LabelCore::textChanged(const Text &text)
     {
+        if (_currentAttributedString) {
+            _currentAttributedString->linkClicked().unsubscribe(_linkSubscription);
+        }
+
         std::visit(
-            [&jTextView = this->_jTextView](auto &&arg) {
+            [this](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
                 if constexpr (std::is_same_v<T, String>) {
@@ -57,15 +60,19 @@ namespace bdn::ui::android
                     textToSet.erase(
                         std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
                         textToSet.end());
-                    jTextView.setText(textToSet);
+                    _jLabel.setText(textToSet);
                 } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                     if (auto attrString = std::dynamic_pointer_cast<bdn::android::AttributedString>(arg)) {
-                        jTextView.setText(attrString->spanned());
+                        _currentAttributedString = attrString;
+                        _linkSubscription = _currentAttributedString->linkClicked().subscribe(
+                            [this](auto url) { this->_linkClickCallback.fire(url); });
+                        _jLabel.setText(attrString->spanned());
                     }
                 }
             },
             text);
 
+        markDirty();
         scheduleLayout();
     }
 }

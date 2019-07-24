@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/Notifier.h>
+#include <bdn/Text.h>
 #include <bdn/ui/ClickEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
@@ -15,7 +16,7 @@ namespace bdn::ui
     class Button : public View
     {
       public:
-        Property<String> label;
+        Property<Text> label;
 
       public:
         Button(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -25,6 +26,7 @@ namespace bdn::ui
 
       protected:
         void bindViewCore() override;
+        void updateFromStylesheet() override;
 
       private:
         Notifier<const ClickEvent &> _onClick;
@@ -34,7 +36,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> label;
+            Property<Text> label;
 
           public:
             WeakCallback<void()> _clickCallback;

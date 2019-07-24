@@ -23,6 +23,9 @@ namespace bdn::ui::ios
         float pointScaleFactor() const override;
 
       private:
+        void textChanged(const Text &text);
+
+      private:
         UIButton *_button;
         BdnIosButtonClickManager *_clickManager;
     };

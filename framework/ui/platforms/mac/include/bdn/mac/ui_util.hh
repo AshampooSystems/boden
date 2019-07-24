@@ -2,7 +2,7 @@
 
 #import <AppKit/AppKit.h>
 #include <Availability.h>
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 
 namespace bdn::ui::mac
 {

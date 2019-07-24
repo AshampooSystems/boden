@@ -24,9 +24,9 @@ namespace bdn::ui::android
         backgroundColor.onChange() += [=](auto &property) {
             auto color = property.get();
             if (color) {
-                _jView.setBackgroundColor(color->asIntAlphaFirst());
+                _jView.setBackgroundColor(*color);
             } else {
-                _jView.setBackgroundColor(0x0);
+                _jView.setBackgroundColor(Color(0x0));
             }
         };
 

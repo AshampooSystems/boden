@@ -20,8 +20,6 @@
               initiatedByFrame:(WKFrameInfo *)frame
              completionHandler:(void (^)(NSArray<NSURL *> *URLs))completionHandler
 {
-    bdn::logstream() << "OPEN?";
-
     auto openPanel = [NSOpenPanel openPanel];
 
     openPanel.canChooseFiles = true;

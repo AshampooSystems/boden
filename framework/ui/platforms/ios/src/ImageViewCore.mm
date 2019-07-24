@@ -1,4 +1,4 @@
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ImageViewCore.hh>
 
 #include <bdn/Application.h>

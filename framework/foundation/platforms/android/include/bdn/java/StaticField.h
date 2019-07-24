@@ -23,10 +23,14 @@ namespace bdn::java
 
         operator NativeType() const
         {
-            static StaticFieldImpl<int>::Id id(Class::getStaticClass_(), _kFieldName);
-            static StaticFieldImpl<int> field(Class::getStaticClass_(), id);
-            return (NativeType)field;
+            if (!_field) {
+                _field = std::make_unique<StaticFieldImpl<int>>(
+                    Class::getStaticClass_(), StaticFieldImpl<int>::Id(Class::getStaticClass_(), _kFieldName));
+            }
+            return (NativeType)*_field;
         }
+
+        mutable std::unique_ptr<StaticFieldImpl<int>> _field;
 
         const char *_kFieldName;
     };
@@ -38,12 +42,15 @@ namespace bdn::java
 
         operator NativeType() const
         {
-            static StaticFieldImpl<int>::Id id(Class::getStaticClass_(), _kFieldName);
-            static StaticFieldImpl<int> field(Class::getStaticClass_(), id);
-            static NativeType value = (NativeType)field;
-            return (NativeType)value;
+            if (!_value) {
+                StaticFieldImpl<int>::Id id(Class::getStaticClass_(), _kFieldName);
+                StaticFieldImpl<int> field(Class::getStaticClass_(), id);
+                _value = (NativeType)field;
+            }
+            return *_value;
         }
 
+        mutable std::optional<NativeType> _value;
         const char *_kFieldName;
     };
 }

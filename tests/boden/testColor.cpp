@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <bdn/Color.h>
 #include <bdn/Json.h>
-#include <bdn/ui/Color.h>
 
 namespace bdn::ui
 {

@@ -1,5 +1,5 @@
 #import <UIKit/UIKit.h>
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/NavigationViewCore.hh>
 #import <bdn/ios/UIView+Helper.hh>

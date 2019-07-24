@@ -4,21 +4,18 @@
 #include <bdn/ui/ClickEvent.h>
 #include <bdn/ui/Label.h>
 
-#import <bdn/foundationkit/stringUtil.hh>
+#import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ViewCore.hh>
 
-@interface BodenUILabel : UILabel <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
-@end
-
-@implementation BodenUILabel
-- (void)setFrame:(CGRect)frame
+namespace bdn::ui::ios
 {
-    [super setFrame:frame];
-    if (auto viewCore = self.viewCore.lock()) {
-        viewCore->frameChanged();
-    }
+    class LabelCore;
 }
+
+@interface BodenUILabel : UITextView <UIViewWithFrameNotification>
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
+
+- (id)linkAt:(CGPoint)pos;
 @end
 
 namespace bdn::ui::ios
@@ -26,7 +23,7 @@ namespace bdn::ui::ios
     class LabelCore : public ViewCore, virtual public Label::Core
     {
       private:
-        static BodenUILabel *createUILabel();
+        static BodenUILabel *createUILabel(LabelCore *core);
 
       public:
         LabelCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
@@ -35,13 +32,13 @@ namespace bdn::ui::ios
         float calculateBaseline(Size forSize) const override;
 
       private:
-        UILabel *getUILabel();
+        UITextView *getUILabel();
 
       protected:
         bool canAdjustToAvailableWidth() const override { return wrap.get(); }
         void textChanged(const Text &text);
 
       private:
-        UILabel *_uiLabel;
+        UITextView *_uiLabel;
     };
 }
