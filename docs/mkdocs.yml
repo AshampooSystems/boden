@@ -100,6 +100,7 @@ nav:
       - Platforms:
         - iOS:
           - reference/ui/ios/view_core.md
+      - reference/ui/return_key_type.md
       - reference/ui/scroll_view.md
       - reference/ui/slider.md
       - reference/ui/styler.md

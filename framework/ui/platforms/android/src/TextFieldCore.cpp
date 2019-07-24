@@ -1,7 +1,9 @@
 #include <bdn/android/TextFieldCore.h>
+#include <bdn/android/wrapper/EditorInfo.h>
 #include <bdn/android/wrapper/InputType.h>
 
 using bdn::android::wrapper::Context;
+using bdn::android::wrapper::EditorInfo;
 using bdn::android::wrapper::InputType;
 using bdn::android::wrapper::OnEditorActionListener;
 using bdn::android::wrapper::TextWatcher;
@@ -36,6 +38,8 @@ namespace bdn::ui::android
         font.onChange() += [=](auto &property) { setFont(property.get()); };
 
         autocorrectionType.onChange() += [=](auto &property) { setAutocorrectionType(property.get()); };
+
+        returnKeyType.onChange() += [=](auto &property) { setReturnKeyType(property.get()); };
     }
 
     void TextFieldCore::beforeTextChanged(const String &string, int start, int count, int after) {}
@@ -67,7 +71,7 @@ namespace bdn::ui::android
 
     void TextFieldCore::setAutocorrectionType(const AutocorrectionType autocorrectionType)
     {
-        int currentInputType = _jEditText.getInputType();
+        const int currentInputType = _jEditText.getInputType();
 
         switch (autocorrectionType) {
         case AutocorrectionType::No:
@@ -82,5 +86,55 @@ namespace bdn::ui::android
                                     (int)InputType::TYPE_TEXT_FLAG_AUTO_CORRECT);
             break;
         }
+    }
+
+    void TextFieldCore::setReturnKeyType(const ReturnKeyType returnKeyType)
+    {
+        const int currentIMEOptions = _jEditText.getImeOptions();
+        int imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+
+        switch (returnKeyType) {
+        case ReturnKeyType::Default:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Continue:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Done:
+            imeOption = (int)EditorInfo::IME_ACTION_DONE;
+            break;
+        case ReturnKeyType::EmergencyCall:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Go:
+            imeOption = (int)EditorInfo::IME_ACTION_GO;
+            break;
+        case ReturnKeyType::Join:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Next:
+            imeOption = (int)EditorInfo::IME_ACTION_NEXT;
+            break;
+        case ReturnKeyType::None:
+            imeOption = (int)EditorInfo::IME_ACTION_NONE;
+            break;
+        case ReturnKeyType::Previous:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Route:
+            imeOption = (int)EditorInfo::IME_ACTION_UNSPECIFIED;
+            break;
+        case ReturnKeyType::Search:
+            imeOption = (int)EditorInfo::IME_ACTION_SEARCH;
+            break;
+        case ReturnKeyType::Send:
+            imeOption = (int)EditorInfo::IME_ACTION_SEND;
+            break;
+        }
+
+        imeOption = (int)EditorInfo::IME_ACTION_SEARCH;
+
+        int newOptions = (currentIMEOptions & ~(int)EditorInfo::IME_MASK_ACTION) | imeOption;
+        _jEditText.setImeOptions(newOptions);
     }
 }

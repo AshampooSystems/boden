@@ -5,12 +5,15 @@ The type of autocorrection used by a [`TextField`](text_field.md) or other text 
 ## Definition
 
 ```C++
-enum class AutocorrectionType
+namespace bdn::ui
 {
-    Default,
-    No,
-    Yes
-};
+	enum class AutocorrectionType
+	{
+	    Default,
+	    No,
+	    Yes
+	};	
+}
 ```
 
 ## Enum Values

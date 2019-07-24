@@ -107,6 +107,8 @@ namespace bdn::ui::ios
         font.onChange() += [this](auto &property) { setFont(property.get()); };
 
         autocorrectionType.onChange() += [this](auto &property) { setAutocorrectionType(property.get()); };
+
+        returnKeyType.onChange() += [this](auto &property) { setReturnKeyType(property.get()); };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
@@ -157,5 +159,53 @@ namespace bdn::ui::ios
             textField.autocorrectionType = UITextAutocorrectionTypeYes;
             break;
         }
+    }
+
+    void TextFieldCore::setReturnKeyType(ReturnKeyType returnKeyType)
+    {
+        UITextField *textField = (UITextField *)uiView();
+
+        UIReturnKeyType uiReturnKeyType = UIReturnKeyDefault;
+
+        switch (returnKeyType) {
+        case ReturnKeyType::Default:
+            uiReturnKeyType = UIReturnKeyDefault;
+            break;
+        case ReturnKeyType::Continue:
+            uiReturnKeyType = UIReturnKeyContinue;
+            break;
+        case ReturnKeyType::Done:
+            uiReturnKeyType = UIReturnKeyDone;
+            break;
+        case ReturnKeyType::EmergencyCall:
+            uiReturnKeyType = UIReturnKeyEmergencyCall;
+            break;
+        case ReturnKeyType::Go:
+            uiReturnKeyType = UIReturnKeyGo;
+            break;
+        case ReturnKeyType::Join:
+            uiReturnKeyType = UIReturnKeyJoin;
+            break;
+        case ReturnKeyType::Next:
+            uiReturnKeyType = UIReturnKeyNext;
+            break;
+        case ReturnKeyType::None:
+            uiReturnKeyType = UIReturnKeyDefault;
+            break;
+        case ReturnKeyType::Previous:
+            uiReturnKeyType = UIReturnKeyDefault;
+            break;
+        case ReturnKeyType::Route:
+            uiReturnKeyType = UIReturnKeyRoute;
+            break;
+        case ReturnKeyType::Search:
+            uiReturnKeyType = UIReturnKeySearch;
+            break;
+        case ReturnKeyType::Send:
+            uiReturnKeyType = UIReturnKeySend;
+            break;
+        }
+
+        textField.returnKeyType = uiReturnKeyType;
     }
 }

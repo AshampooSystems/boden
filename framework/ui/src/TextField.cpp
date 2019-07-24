@@ -28,6 +28,7 @@ namespace bdn::ui
         core->text.bind(text);
         core->font.bind(font);
         core->autocorrectionType.bind(autocorrectionType);
+        core->returnKeyType.bind(returnKeyType);
 
         _submitCallbackReceiver = core->submitCallback.set([=]() {
             SubmitEvent evt(shared_from_this());

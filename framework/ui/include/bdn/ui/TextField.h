@@ -7,7 +7,7 @@
 #include <bdn/ui/SubmitEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
-#include <bdn/ui/textTypes.h>
+#include <bdn/ui/textInputTypes.h>
 
 namespace bdn::ui
 {
@@ -22,6 +22,7 @@ namespace bdn::ui
         Property<String> text;
         Property<Font> font;
         Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
+        Property<ReturnKeyType> returnKeyType = ReturnKeyType::Default;
 
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -45,6 +46,7 @@ namespace bdn::ui
             Property<String> text;
             Property<Font> font;
             Property<AutocorrectionType> autocorrectionType;
+            Property<ReturnKeyType> returnKeyType;
 
           public:
             WeakCallback<void()> submitCallback;

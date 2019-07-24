@@ -33,7 +33,9 @@ textField->onSubmit() += [](auto event) {
 
 * **[Property](../foundation/property.md)<[AutocorrectionType](autocorrection_type.md)\> autocorrectionType**
 
-	The autocorrection type used by the text field. If not set, the platform's default behavior will be used. If set to `AutocorrectionType::Yes`, the text field will display typing suggestions and apply platform-specific autocorrection and autocomplete.
+	The autocorrection type used by the text field.
+
+	If not set, the platform's default behavior will be used. If set to `AutocorrectionType::Yes`, the text field will display typing suggestions and apply platform-specific autocorrection and autocomplete.
 
 	Note that on Android, the implementation of the software keyboard may override the behavior indicated by the `autocorrectionType` property.
 
@@ -41,6 +43,14 @@ textField->onSubmit() += [](auto event) {
 
 	!!! warning
 		On Android, this function uses the `EditText` widget's input type flag `TYPE_TEXT_FLAG_NO_SUGGESTIONS` to deactivate autocorrection, autocomplete, and typing suggestions. Based on the software keyboard implementation used by the operating system, this flag may or may not have an effect. Setting the `autocorrectionType` property to `AutocorrectionType::No` is hence not a guarantee that autocorrection will be deactivated on Android.
+
+* **[Property](../foundation/property.md)<[ReturnKeyType](return_key_type.md)\> returnKeyType**
+
+	The type of return key to use when displaying a software keyboard.
+
+	Defaults to `ReturnKeyType::Default` which corresponds to input action `IME_ACTION_UNSPECIFIED` on Android and to `UIReturnKeyDefault` on iOS. The default indicates that the operating system should decide what return key type to display. Typically, iOS will show "return" and Android will show "return" or "done" in the return key button. See [`ReturnKeyType`](return_key_type.md) for details.
+
+	This property is supported on Android and iOS only.
 
 ## Actions
 

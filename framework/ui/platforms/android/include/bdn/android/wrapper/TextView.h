@@ -41,6 +41,8 @@ namespace bdn::android::wrapper
 
         JavaMethod<void(int)> setInputType{this, "setInputType"};
         JavaMethod<int()> getInputType{this, "getInputType"};
+        JavaMethod<void(int)> setImeOptions{this, "setImeOptions"};
+        JavaMethod<int()> getImeOptions{this, "getImeOptions"};
 
         JavaMethod<void(TextWatcher)> addTextChangedListener{this, "addTextChangedListener"};
         JavaMethod<void(TextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
