@@ -58,7 +58,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 * **bdn::json toJSON() const**
 
-	Returns the output of `toHTML()` wrapped in a json object.
+	Returns the output of `toHTML()` wrapped in a `json` object.
 
 ## Attributes
 
@@ -75,7 +75,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 * **virtual void addAttributes(AttributeMap attributes, Range range)**
 
-	Adds all attributes in `attributes` to the specified `range`
+	Adds all attributes in `attributes` to the specified `range`.
 
 ## Types
 
