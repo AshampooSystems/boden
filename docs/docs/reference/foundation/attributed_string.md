@@ -30,7 +30,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 ## Json
 
-* **void fromJson(const bdn::json& json)**
+* **void fromJSON(const bdn::json& json)**
 
 	Replaces the contents of the string with the data from `json`.
 
@@ -56,7 +56,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 	```
 	
 
-* **bdn::json toJson() const**
+* **bdn::json toJSON() const**
 
 	Returns the output of `toHTML()` wrapped in a json object.
 
