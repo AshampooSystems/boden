@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2786879631">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3084077644">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?995572637">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1899033813">
     
     
       
@@ -794,8 +794,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../color/" title="Color" class="md-nav__link">
+      Color
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../dispatch_queue/" title="DispatchQueue" class="md-nav__link">
       DispatchQueue
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../font/" title="Font" class="md-nav__link">
+      Font
     </a>
   </li>
 
@@ -943,6 +967,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#conversion-functions" title="Conversion Functions" class="md-nav__link">
+    Conversion Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#convenience-functions" title="Convenience Functions" class="md-nav__link">
     Convenience Functions
   </a>
@@ -1068,18 +1099,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../ui/color/" title="Color" class="md-nav__link">
-      Color
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../ui/container_view/" title="ContainerView" class="md-nav__link">
       ContainerView
     </a>
@@ -1177,13 +1196,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14" type="checkbox" id="nav-3-3-14">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13" type="checkbox" id="nav-3-3-13">
     
-    <label class="md-nav__link" for="nav-3-3-14">
+    <label class="md-nav__link" for="nav-3-3-13">
       Platforms
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-14">
+      <label class="md-nav__title" for="nav-3-3-13">
         Platforms
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1196,13 +1215,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-14-1" type="checkbox" id="nav-3-3-14-1">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-13-1" type="checkbox" id="nav-3-3-13-1">
     
-    <label class="md-nav__link" for="nav-3-3-14-1">
+    <label class="md-nav__link" for="nav-3-3-13-1">
       iOS
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="4">
-      <label class="md-nav__title" for="nav-3-3-14-1">
+      <label class="md-nav__title" for="nav-3-3-13-1">
         iOS
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1227,6 +1246,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
       </ul>
     </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ui/return_key_type/" title="ReturnKeyType" class="md-nav__link">
+      ReturnKeyType
+    </a>
   </li>
 
         
@@ -1791,6 +1822,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#conversion-functions" title="Conversion Functions" class="md-nav__link">
+    Conversion Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#convenience-functions" title="Convenience Functions" class="md-nav__link">
     Convenience Functions
   </a>
@@ -1843,6 +1881,31 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p><strong>inline bool ends_with(const String &amp;haystack, const String &amp;needle)</strong></p>
 <p>Returns whether <code>haystack</code> ends with <code>needle</code>.</p>
 <p>Implements a polyfill emulating the <a href="https://en.cppreference.com/w/cpp/string/basic_string/ends_with"><code>std::basic_string::ends_with()</code></a> function which will be part of the C++20 standard.</p>
+</li>
+</ul>
+<h2 id="conversion-functions">Conversion Functions<a class="headerlink" href="#conversion-functions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>String stringFromAny(const std::any&amp; anyString)</strong></p>
+<p>Converts an std::any to String. Throws std::bad_any_cast if no conversion possible.</p>
+<table>
+<thead>
+<tr>
+<th>std::any type</th>
+<th>calls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String</td>
+<td>String(std::any_cast&lt;String>(any))</td>
+</tr>
+<tr>
+<td>json</td>
+<td>(String)std::any_cast&lt;json>(any)</td>
+</tr>
+</tbody>
+</table>
 </li>
 </ul>
 <h2 id="convenience-functions">Convenience Functions<a class="headerlink" href="#convenience-functions" title="Permanent link">&para;</a></h2>
