@@ -58,6 +58,10 @@ textField->onSubmit() += [](auto event) {
 
 	Informs observers of the `onSubmit()` notifier about a submit event.
 
+* **void focus()**
+
+	Sets focus to the text field.
+
 ## Events
 
 * **[Notifier](../foundation/notifier.md)<const [SubmitEvent](submit_event.md) &\> &onSubmit()**

@@ -150,6 +150,8 @@ namespace bdn::android::wrapper
         JavaMethod<void(LayoutParams)> setLayoutParams{this, "setLayoutParams"};
 
         JavaMethod<IBinder()> getWindowToken{this, "getWindowToken"};
+
+        JavaMethod<bool()> requestFocus{this, "requestFocus"};
     };
 
     using View = BaseView<>;

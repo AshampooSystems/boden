@@ -84,6 +84,8 @@ namespace bdn::ui::mac
         font.onChange() += [=](auto &property) { setFont(property.get()); };
     }
 
+    void TextFieldCore::focus() { [nsView().window makeFirstResponder:nsView()]; }
+
     float TextFieldCore::calculateBaseline(Size forSize, bool forIndicator) const
     {
         NSTextField *textField = (NSTextField *)nsView();

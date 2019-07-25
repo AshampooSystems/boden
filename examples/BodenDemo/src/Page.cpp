@@ -68,7 +68,8 @@ namespace bdn
                                                    {"justifyContent", FlexStylesheet::Align::FlexStart},
                                                    {"size", {{"width", 1}}},
                                                    {"minimumSize", {{"height", 40}}},
-                                                   {"margin", {{"left", 10}}}}}};
+                                                   {"margin", {{"left", 10}}},
+                                                   {"padding", {{"right", 10}}}}}};
 
         auto label = std::make_shared<Label>();
         label->text = title;

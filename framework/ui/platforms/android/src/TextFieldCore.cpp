@@ -42,6 +42,8 @@ namespace bdn::ui::android
         returnKeyType.onChange() += [=](auto &property) { setReturnKeyType(property.get()); };
     }
 
+    void TextFieldCore::focus() { _jEditText.requestFocus(); }
+
     void TextFieldCore::beforeTextChanged(const String &string, int start, int count, int after) {}
 
     void TextFieldCore::onTextChanged(const String &string, int start, int before, int count) {}

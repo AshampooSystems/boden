@@ -21,6 +21,8 @@ namespace bdn::ui
 
     Notifier<const SubmitEvent &> &TextField::onSubmit() { return _onSubmit; }
 
+    void TextField::focus() { core<TextField::Core>()->focus(); }
+
     void TextField::bindViewCore()
     {
         View::bindViewCore();

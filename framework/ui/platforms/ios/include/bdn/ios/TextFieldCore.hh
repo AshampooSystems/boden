@@ -18,6 +18,9 @@ namespace bdn::ui::ios
         void init() override;
 
       public:
+        void focus() override;
+
+      public:
         float calculateBaseline(Size forSize) const override;
 
       private:

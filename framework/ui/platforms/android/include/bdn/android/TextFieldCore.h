@@ -20,6 +20,9 @@ namespace bdn::ui::android
         TextFieldCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       public:
+        void focus() override;
+
+      public:
         // Called by Java (via JNativeEditTextTextWatcher)
         void beforeTextChanged(const String &string, int start, int count, int after);
 

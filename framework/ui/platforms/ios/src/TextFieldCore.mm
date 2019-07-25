@@ -208,4 +208,6 @@ namespace bdn::ui::ios
 
         textField.returnKeyType = uiReturnKeyType;
     }
+
+    void TextFieldCore::focus() { [this->uiView() becomeFirstResponder]; }
 }

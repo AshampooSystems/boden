@@ -20,7 +20,6 @@ set(MACOSX_BUNDLE_GUI_IDENTIFIER "io.mycompany.KeyboardTest")
 
 add_universal_executable(KeyboardTest SOURCES ${_sources} ${KEYBOARDTEST_ASSETS} ${BODENDEMO_RESOURCES})
 
-
 ios_configure_app_info(TARGET KeyboardTest
     LAUNCHSCREEN "LaunchScreen"
     TARGETED_DEVICES IPHONE IPAD
@@ -28,6 +27,9 @@ ios_configure_app_info(TARGET KeyboardTest
     IPAD_ORIENTATIONS ALL)
 
 set_xcode_appicon_asset(KeyboardTest "ApplicationIcon")
+
+get_git_short_revision(GIT_REV)
+set_target_version(TARGET KeyboardTest VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}" ANDROID_VERSION_ID 1)
 
 use_boden_template_info_plist(KeyboardTest)
 

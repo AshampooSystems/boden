@@ -4,6 +4,7 @@
 #include <bdn/ui/yoga.h>
 
 #include "ColorPage.h"
+#include "FocusPage.h"
 #include "FontPage.h"
 #include "ImagesPage.h"
 #include "ListViewPage.h"
@@ -22,7 +23,7 @@ using namespace bdn;
 class PagesDataSource : public ListViewDataSource
 {
   public:
-    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 9> pages = {
+    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 10> pages = {
         std::make_pair("UI Demo", [=]() { return std::make_shared<UIDemoPage>(needsInit, _window); }),
         std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(needsInit); }),
         std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(needsInit); }),
@@ -32,6 +33,7 @@ class PagesDataSource : public ListViewDataSource
         std::make_pair("Colors", [=]() { return std::make_shared<ColorPage>(needsInit); }),
         std::make_pair("Fonts", [=]() { return std::make_shared<FontPage>(needsInit); }),
         std::make_pair("Styled Text", [=]() { return std::make_shared<StyledTextPage>(needsInit); }),
+        std::make_pair("Focus", [=]() { return std::make_shared<FocusPage>(needsInit); }),
     };
 
   public:

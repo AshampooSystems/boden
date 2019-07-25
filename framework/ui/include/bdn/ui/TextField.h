@@ -31,6 +31,8 @@ namespace bdn::ui
         void submit();
         Notifier<const SubmitEvent &> &onSubmit();
 
+        void focus();
+
       protected:
         void bindViewCore() override;
         void updateFromStylesheet() override;
@@ -47,6 +49,9 @@ namespace bdn::ui
             Property<Font> font;
             Property<AutocorrectionType> autocorrectionType;
             Property<ReturnKeyType> returnKeyType;
+
+          public:
+            virtual void focus() = 0;
 
           public:
             WeakCallback<void()> submitCallback;

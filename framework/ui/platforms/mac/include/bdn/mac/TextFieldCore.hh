@@ -20,6 +20,9 @@ namespace bdn::ui::mac
         void init() override;
 
       public:
+        void focus() override;
+
+      public:
         float calculateBaseline(Size forSize, bool forIndicator) const override;
 
       private:

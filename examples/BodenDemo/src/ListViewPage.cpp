@@ -37,7 +37,7 @@ namespace bdn
 
         auto indexView = std::make_shared<TextField>();
         indexView->text.bind(stringIndex);
-        indexView->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 250}});
+        indexView->stylesheet = FlexJsonStringify({"flexGrow" : 1, "maximumSize" : {"width" : 250}});
         addChildView(makeRow("Current Index", indexView));
 
         _listView->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
