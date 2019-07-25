@@ -13,7 +13,9 @@ namespace bdn
     class TextFieldWithFocusButton : public CoreLess<ContainerView>
     {
       public:
-        using CoreLess<ContainerView>::CoreLess;
+        TextFieldWithFocusButton(const bdn::NeedsInit &ni, std::shared_ptr<FocusPage::FocusGroup> focusGroup)
+            : CoreLess<ContainerView>(ni), _focusGroup(focusGroup)
+        {}
 
       public:
         void init() override
@@ -23,7 +25,9 @@ namespace bdn
             _textField = std::make_shared<TextField>();
             _textField->stylesheet =
                 FlexJsonStringify({"flexGrow" : 1, "maximimumSize" : {"width" : 250}, "margin" : {"right" : 10}});
-
+            _textField->returnKeyType = ReturnKeyType::Next;
+            _focusGroup->add(_textField);
+            _textField->onSubmit() += [=](auto) { _focusGroup->focusNext(_textField); };
             addChildView(_textField);
 
             _focusButton = std::make_shared<Button>();
@@ -34,13 +38,16 @@ namespace bdn
 
         std::shared_ptr<TextField> _textField;
         std::shared_ptr<Button> _focusButton;
+        std::shared_ptr<FocusPage::FocusGroup> _focusGroup;
     };
 
     void FocusPage::init()
     {
         stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
-        addChildView(makeRow("1", std::make_shared<TextFieldWithFocusButton>(needsInit)));
-        addChildView(makeRow("2", std::make_shared<TextFieldWithFocusButton>(needsInit)));
+        _focusGroup = std::make_unique<FocusGroup>();
+
+        addChildView(makeRow("1", std::make_shared<TextFieldWithFocusButton>(needsInit, _focusGroup)));
+        addChildView(makeRow("2", std::make_shared<TextFieldWithFocusButton>(needsInit, _focusGroup)));
     }
 }

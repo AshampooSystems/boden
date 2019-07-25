@@ -14,5 +14,6 @@ namespace bdn::android::wrapper
 
       public:
         JavaMethod<bool(IBinder, int)> hideSoftInputFromWindow{this, "hideSoftInputFromWindow"};
+        JavaMethod<bool(wrapper::View, int)> showSoftInput{this, "showSoftInput"};
     };
 }

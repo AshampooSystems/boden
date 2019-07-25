@@ -42,7 +42,14 @@ namespace bdn::ui::android
         returnKeyType.onChange() += [=](auto &property) { setReturnKeyType(property.get()); };
     }
 
-    void TextFieldCore::focus() { _jEditText.requestFocus(); }
+    void TextFieldCore::focus()
+    {
+        _jEditText.requestFocus();
+
+        bdn::android::wrapper::InputMethodManager inputManager(
+            _jEditText.getContext().getSystemService(Context::INPUT_METHOD_SERVICE).getRef_());
+        inputManager.showSoftInput(_jEditText.cast<bdn::android::wrapper::View>(), 0);
+    }
 
     void TextFieldCore::beforeTextChanged(const String &string, int start, int count, int after) {}
 
@@ -133,8 +140,6 @@ namespace bdn::ui::android
             imeOption = (int)EditorInfo::IME_ACTION_SEND;
             break;
         }
-
-        imeOption = (int)EditorInfo::IME_ACTION_SEARCH;
 
         int newOptions = (currentIMEOptions & ~(int)EditorInfo::IME_MASK_ACTION) | imeOption;
         _jEditText.setImeOptions(newOptions);
