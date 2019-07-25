@@ -19,6 +19,7 @@ namespace bdn::ui::mac
         void disposeMainDispatcher() override;
         void openURL(const String &url) override;
         String uriToBundledFileUri(const String &uri) override;
+        void copyToClipboard(const String &str) override;
 
       public:
         void _applicationWillFinishLaunching(NSNotification *notification);
