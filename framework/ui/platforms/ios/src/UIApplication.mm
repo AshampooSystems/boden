@@ -197,7 +197,7 @@ namespace bdn::ui::ios
     {
         bdn::platformEntryWrapper([&]() { applicationController()->onTerminate(); }, false);
     }
-    
+
     bool UIApplication::_applicationOpenURL(NSURL *url)
     {
         if (!url) {
