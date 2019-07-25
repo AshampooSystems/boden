@@ -4,18 +4,18 @@ macro(configure_app_permissions)
     cmake_parse_arguments(_permissions "${options}" "" "" ${ARGN} )
 
     if(BDN_PLATFORM_IOS OR BDN_PLATFORM_OSX)
-        set(_transport_security "<key>NSAppTransportSecurity</key><dict>")
+        set(_transport_security "    <key>NSAppTransportSecurity</key>\n    <dict>")
 
         # Allow HTTP
-        string(APPEND _transport_security "<key>NSAllowsArbitraryLoadsInWebContent</key>")
+        string(APPEND _transport_security "        <key>NSAllowsArbitraryLoadsInWebContent</key>")
 
         if(_permissions_ALLOW_HTTP)
-            string(APPEND _transport_security "<true/>")
+            string(APPEND _transport_security "        <true/>")
         else()
-            string(APPEND _transport_security "<false/>")
+            string(APPEND _transport_security "        <false/>")
         endif()
 
-        string(APPEND _transport_security "</dict>")
+        string(APPEND _transport_security "    </dict>\n")
         set(MACOSX_NSAPP_TRANSPORT_SECURITY ${_transport_security})
     elseif(BDN_PLATFORM_ANDROID)
         set(ANDROID_PERMISSIONS "")
