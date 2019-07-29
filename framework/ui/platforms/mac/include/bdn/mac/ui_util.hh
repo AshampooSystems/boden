@@ -12,11 +12,11 @@ namespace bdn::ui::mac
         __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_NA)
     {
         switch (state) {
-        case TriState::on:
+        case TriState::On:
             return NSControlStateValueOn;
-        case TriState::off:
+        case TriState::Off:
             return NSControlStateValueOff;
-        case TriState::mixed:
+        case TriState::Mixed:
             return NSControlStateValueMixed;
         }
         return NSControlStateValueOff;
@@ -27,24 +27,24 @@ namespace bdn::ui::mac
     {
         switch (nsState) {
         case NSControlStateValueOn:
-            return TriState::on;
+            return TriState::On;
         case NSControlStateValueOff:
-            return TriState::off;
+            return TriState::Off;
         case NSControlStateValueMixed:
-            return TriState::mixed;
+            return TriState::Mixed;
         }
-        return TriState::off;
+        return TriState::Off;
     }
 
 #else
     inline NSInteger triStateToNSControlStateValue(TriState state)
     {
         switch (state) {
-        case TriState::on:
+        case TriState::On:
             return NSOnState;
-        case TriState::off:
+        case TriState::Off:
             return NSOffState;
-        case TriState::mixed:
+        case TriState::Mixed:
             return NSMixedState;
         }
         return NSOffState;
@@ -54,13 +54,13 @@ namespace bdn::ui::mac
     {
         switch (state) {
         case NSOnState:
-            return TriState::on;
+            return TriState::On;
         case NSOffState:
-            return TriState::off;
+            return TriState::Off;
         case NSMixedState:
-            return TriState::mixed;
+            return TriState::Mixed;
         }
-        return TriState::off;
+        return TriState::Off;
     }
 #endif
 }

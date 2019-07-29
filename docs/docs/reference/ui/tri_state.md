@@ -11,23 +11,23 @@ Represents the on, off, or mixed state of a [Checkbox](checkbox.md).
 namespace bdn::ui {
 	enum TriState
 	{
-	    off,
-	    on,
-	    mixed
+	    Off,
+	    On,
+	    Mixed
 	};
 }
 ```
 
 ## Enum Values
 
-* **TriState::off**
+* **TriState::Off**
 
 	The control is in off state.
 
-* **TriState::on**
+* **TriState::On**
 
 	The control is in on state.
 
-* **TriState::mixed**
+* **TriState::Mixed**
 
 	The control is in mixed state representing a combination of other on/off controls, some of which are turned on and some of which are turned off currently.

@@ -12,7 +12,7 @@ namespace bdn
 {
     void ColorPage::updateColor()
     {
-        if (_checkBox->state == TriState::on) {
+        if (_checkBox->state == TriState::On) {
             Color newColor(_rgbSlider[0]->value, _rgbSlider[1]->value, _rgbSlider[2]->value, _rgbSlider[3]->value);
             _colorBox->backgroundColor = newColor;
         } else {
@@ -25,7 +25,7 @@ namespace bdn
         stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
         _checkBox = std::make_shared<ui::Checkbox>();
-        _checkBox->state = ui::TriState::on;
+        _checkBox->state = ui::TriState::On;
         _checkBox->state.onChange() += [this](auto) { updateColor(); };
 
         addChildView(makeRow("Enable color", _checkBox));

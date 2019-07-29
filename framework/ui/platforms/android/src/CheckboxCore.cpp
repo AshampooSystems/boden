@@ -19,7 +19,7 @@ namespace bdn::ui::android
             scheduleLayout();
         };
 
-        state.onChange() += [=](auto &property) { _jCheckBox.setChecked(property.get() == TriState::on); };
+        state.onChange() += [=](auto &property) { _jCheckBox.setChecked(property.get() == TriState::On); };
 
         bdn::android::wrapper::NativeViewCoreClickListener listener;
         _jCheckBox.setOnClickListener(listener);
@@ -27,7 +27,7 @@ namespace bdn::ui::android
 
     void CheckboxCore::clicked()
     {
-        state = _jCheckBox.isChecked() ? TriState::on : TriState::off;
+        state = _jCheckBox.isChecked() ? TriState::On : TriState::Off;
         _clickCallback.fire();
     }
 }

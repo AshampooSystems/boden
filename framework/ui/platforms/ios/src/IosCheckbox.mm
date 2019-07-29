@@ -90,7 +90,7 @@
                               bgColor:backgroundColor.CGColor
                               context:context];
 
-    if (self.checkboxState == bdn::ui::TriState::on) {
+    if (self.checkboxState == bdn::ui::TriState::On) {
         // Draw checkmark indicating on state
         CGContextSetStrokeColorWithColor(context, checkmarkColor.CGColor);
         CGContextSetLineCap(context, kCGLineCapRound);
@@ -103,7 +103,7 @@
         CGContextAddLineToPoint(context, outerRect.origin.x + outerRect.size.width * 0.75,
                                 outerRect.origin.y + outerRect.size.height * 0.25);
         CGContextStrokePath(context);
-    } else if (self.checkboxState == bdn::ui::TriState::mixed) {
+    } else if (self.checkboxState == bdn::ui::TriState::Mixed) {
         // Draw dash indicating mixed state
         CGContextSetStrokeColorWithColor(context, checkmarkColor.CGColor);
         CGContextSetLineCap(context, kCGLineCapRound);
@@ -138,12 +138,12 @@
     CGPoint touchPoint = [[touches anyObject] locationInView:self];
     if (CGRectContainsPoint(self.bounds, touchPoint)) {
         switch (self.checkboxState) {
-        case bdn::ui::TriState::on:
-            self.checkboxState = bdn::ui::TriState::off;
+        case bdn::ui::TriState::On:
+            self.checkboxState = bdn::ui::TriState::Off;
             break;
-        case bdn::ui::TriState::mixed:
-        case bdn::ui::TriState::off:
-            self.checkboxState = bdn::ui::TriState::on;
+        case bdn::ui::TriState::Mixed:
+        case bdn::ui::TriState::Off:
+            self.checkboxState = bdn::ui::TriState::On;
             break;
         }
 

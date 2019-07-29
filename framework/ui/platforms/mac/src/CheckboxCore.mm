@@ -50,7 +50,7 @@ namespace bdn::ui::mac
         };
 
         state.onChange() += [=](auto &property) {
-            if (state == TriState::mixed) {
+            if (state == TriState::Mixed) {
                 _nsButton.allowsMixedState = static_cast<BOOL>(true);
             }
             _nsButton.state = triStateToNSControlStateValue(state);

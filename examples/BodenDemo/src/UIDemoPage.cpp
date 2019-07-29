@@ -134,7 +134,7 @@ namespace bdn
         slider->value = 0.5;
 
         auto checkbox = std::make_shared<Checkbox>();
-        checkbox->state = TriState::on;
+        checkbox->state = TriState::On;
         addChildView(makeRow("Checkbox", checkbox));
 
         auto btn = std::make_shared<Button>();

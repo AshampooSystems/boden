@@ -12,7 +12,7 @@ namespace bdn::ui
         detail::VIEW_CORE_REGISTER(Switch, View::viewCoreFactory());
     }
 
-    TriState Switch::state() const { return on ? TriState::on : TriState::off; }
+    TriState Switch::state() const { return on ? TriState::On : TriState::Off; }
 
     Notifier<const ClickEvent &> &Switch::onClick() { return _onClick; }
 

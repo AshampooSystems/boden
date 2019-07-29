@@ -52,12 +52,12 @@
         self.checkbox.isTouching = NO;
 
         switch (self.checkbox.checkboxState) {
-        case bdn::ui::TriState::on:
-            self.checkbox.checkboxState = bdn::ui::TriState::off;
+        case bdn::ui::TriState::On:
+            self.checkbox.checkboxState = bdn::ui::TriState::Off;
             break;
-        case bdn::ui::TriState::mixed:
-        case bdn::ui::TriState::off:
-            self.checkbox.checkboxState = bdn::ui::TriState::on;
+        case bdn::ui::TriState::Mixed:
+        case bdn::ui::TriState::Off:
+            self.checkbox.checkboxState = bdn::ui::TriState::On;
             break;
         }
 

@@ -4,8 +4,8 @@ namespace bdn::ui
 {
     enum TriState
     {
-        off,
-        on,
-        mixed
+        Off,
+        On,
+        Mixed
     };
 }
