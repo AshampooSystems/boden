@@ -78,7 +78,7 @@ pipeline {
 
         stage('Platforms') {
             parallel {
-                stage('Android Build') {
+                stage('Android - Linux') {
                     environment {
                         BAUER_PLATFORM = 'android'
                         BAUER_CONFIG = 'Release'
@@ -223,6 +223,30 @@ pipeline {
                         }
                     }
                 }
+                stage('Android - Windows') {
+                    environment {
+                        BAUER_PLATFORM = 'android'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
+                    }
+                    agent { label 'boden-win' }
+                    stages {
+                        stage('Build') {
+                            steps {
+                                bat 'python boden.py prepare -a x86_64'
+                                //bat 'python boden.py prepare -a arm64-v8a'
+                                bat 'python boden.py build -a x86_64 %BUILD_EXTRA_ARGS%'
+                                //bat 'python boden.py build -a arm64-v8a %BUILD_EXTRA_ARGS%'
+                            }
+                        }
+                        stage('Test boden new') {
+                            steps {
+                                bat 'python boden.py new -n testapp && cd testapp && python ../boden.py build -a x86_64'
+                            }
+                        }                        
+                    }
+                }  
             }
         }
 

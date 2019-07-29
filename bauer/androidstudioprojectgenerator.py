@@ -132,6 +132,14 @@ class AndroidStudioProjectGenerator(object):
         targets = [app["name"]]
         cmake_target_list = ", ".join( list(('"%s"' % (target) for target in targets)))
 
+        target_ndk_abi_block = ""
+
+        if android_abi:
+            target_ndk_abi_block = """
+            ndk {
+                abiFilters "%s"
+            }""" % ( android_abi )
+
         result = gradle_template.substitute(
             compile_sdk_version = self.androidBuildApiVersion,
             target_sdk_version = android_target_sdk_version,
@@ -148,7 +156,8 @@ class AndroidStudioProjectGenerator(object):
             jni_src_dir_list = directories[0] + directories[1],
             java_src_dir_list = directories[2] + android_extra_java_directories,
             android_dependencies = android_dependecy_string,
-            android_module_dependency_code = target_dependency_string )
+            android_module_dependency_code = target_dependency_string,
+            ndk_abi_block = target_ndk_abi_block )
 
         open(os.path.join(module_directory, "build.gradle"), "w").write(result)
 

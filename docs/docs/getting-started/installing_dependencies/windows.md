@@ -8,11 +8,11 @@
 
 1. Download and install CMake from [https://cmake.org/download/](https://cmake.org/download/) (ca. 19MB). We recommend using the latest win64-x64 stable release installer binary.
 
+	> Important: When installing CMake, make sure to choose “Add the Cmake binary to the PATH environment variable”.
+
 1. Download and install Ninja from [https://github.com/ninja-build/ninja/releases](https://github.com/ninja-build/ninja/releases). We recommend using the latest Ninja version.
 
-1. Download and install git from [https://git-scm.com/download/win](https://github.com/ninja-build/ninja/releases) (ca. 42MB). If you’re unsure about the available options presented in the installer, just keep the default settings.
-
-	> Important: When installing CMake, make sure to choose “Add the Cmake binary to the PATH environment variable”.
+1. Download and install git from [https://git-scm.com/download/win](https://git-scm.com/download/win) (ca. 42MB). If you’re unsure about the available options presented in the installer, just keep the default settings.
 
 1. Dowload and install JDK 8 from [https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (ca. 200MB).
 

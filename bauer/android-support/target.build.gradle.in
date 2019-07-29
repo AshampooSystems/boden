@@ -21,6 +21,7 @@ android {
         defaultConfig {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            $ndk_abi_block
         }
     }
     externalNativeBuild {
