@@ -1,5 +1,6 @@
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ImageViewCore.hh>
+#import <bdn/ios/UIUtil.hh>
 
 #include <bdn/Application.h>
 #include <bdn/log.h>
@@ -66,63 +67,25 @@ namespace bdn::ui::ios
     void ImageViewCore::setUrl(const String &url)
     {
         ((UIImageView *)this->uiView()).image = nullptr;
+        originalSize = Size{0, 0};
+        aspectRatio = 1.0;
 
-        auto uri = App()->uriToBundledFileUri(url);
+        bool imageChangedImmediately = false;
 
-        if (uri.empty()) {
-            uri = url;
+        if (!url.empty()) {
+            imageChangedImmediately = imageFromUrl(url, [=](auto image) {
+                ((UIImageView *)this->uiView()).image = image;
+                originalSize = iosSizeToSize(image.size);
+                aspectRatio = originalSize->width / originalSize->height;
+
+                scheduleLayout();
+                markDirty();
+            });
         }
 
-        if (cpp20::starts_with(uri, "file:///")) {
-            if (auto nsURL = [NSURL URLWithString:fk::stringToNSString(uri)]) {
-                if (auto localPath = nsURL.relativePath) {
-                    UIImage *image = [[UIImage alloc] initWithContentsOfFile:localPath];
-                    ((UIImageView *)this->uiView()).image = image;
-
-                    if (image) {
-                        originalSize = iosSizeToSize(image.size);
-                        aspectRatio = originalSize->width / originalSize->height;
-                    }
-                }
-            }
-        } else {
-            NSURLSession *session = [NSURLSession sharedSession];
-            NSURL *nsURL = [NSURL URLWithString:fk::stringToNSString(url)];
-
-            if (nsURL == nullptr) {
-                return;
-            }
-
-            ((UIImageView *)this->uiView()).image = nullptr;
-            originalSize = Size{0, 0};
-            aspectRatio = 1.0;
-
-            NSURLSessionDataTask *dataTask = [session
-                  dataTaskWithURL:nsURL
-                completionHandler:^(NSData *_Nullable nsData, NSURLResponse *_Nullable nsResponse,
-                                    NSError *_Nullable error) {
-                  if (auto err = error) {
-                      logstream() << "Failed loading '" << fk::nsStringToString([nsURL absoluteString]) << "' ("
-                                  << fk::nsStringToString([err localizedDescription]) << ")";
-                  } else {
-
-                      App()->dispatchQueue()->dispatchAsync([nsData, self = shared_from_this<ImageViewCore>()]() {
-                          if (self) {
-                              UIImage *image = [[UIImage alloc] initWithData:nsData];
-                              ((UIImageView *)self->uiView()).image = image;
-
-                              if (image) {
-                                  self->originalSize = iosSizeToSize(image.size);
-                                  self->aspectRatio = self->originalSize->width / self->originalSize->height;
-                              }
-                              self->scheduleLayout();
-                              self->markDirty();
-                          }
-                      });
-                  }
-                }];
-
-            [dataTask resume];
+        if (!imageChangedImmediately) {
+            scheduleLayout();
+            markDirty();
         }
     }
 }

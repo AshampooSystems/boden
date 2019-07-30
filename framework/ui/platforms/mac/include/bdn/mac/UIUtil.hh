@@ -1,11 +1,19 @@
 #pragma once
 
 #import <AppKit/AppKit.h>
-#include <Availability.h>
 #import <bdn/foundationkit/conversionUtil.hh>
+
+#include <Availability.h>
+#include <functional>
+
+#include <bdn/Application.h>
+#include <bdn/log.h>
+#include <bdn/ui/TriState.h>
 
 namespace bdn::ui::mac
 {
+    bool imageFromUrl(const String &url, std::function<void(NSImage *)> callback);
+
 #if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
 
     inline NSControlStateValue triStateToNSControlStateValue(TriState state)

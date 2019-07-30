@@ -51,7 +51,7 @@ class Roger(base.Roger):
 
     def copy_file(self, args, lang_folder_name, src, bundle_path, suffix, real_ext = None, flatten_mac = True):
         dest = ''
-        if args.platform == 'ios' or flatten_mac == False:
+        if args.platform == 'ios' or not flatten_mac:
             dest = self.destination_path(args, src, bundle_path, lang_folder_name, suffix, real_ext)
         elif args.platform == 'mac':
             dest = self.destination_path_flattened(args, src, bundle_path, lang_folder_name, suffix, real_ext)
@@ -68,7 +68,7 @@ class Roger(base.Roger):
         if "1.0x" in resolutions and "2.0x" in resolutions:
             if args.action == 'build':
                 handle, temp_file_name = tempfile.mkstemp()
-                fp = os.fdopen(handle,'w')
+                fp = os.fdopen(handle, 'w')
                 fp.close()
 
                 output = subprocess.check_output(
@@ -85,8 +85,8 @@ class Roger(base.Roger):
                 self.copy_file(args, lang_folder_name, self.get_source_image(args, resolutions["1.0x"]), bundle_path, "", ".tiff")
                 self.copy_file(args, lang_folder_name, self.get_source_image(args, resolutions["2.0x"]), bundle_path, "", ".tiff")
         else:
-            self.copy_image(args, lang_folder_name, bundle_path, resolutions, self.get_source_image(args, resolutions["1.0x"]), "")
-            self.copy_image(args, lang_folder_name, bundle_path, resolutions, self.get_source_image(args, resolutions["2.0x"]), "@2x")
+            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "1.0x", "")
+            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "2.0x", "@2x")
 
 
     def add_icon(self, args, resolutions, asset_set, idiom, size, scale):
@@ -116,34 +116,36 @@ class Roger(base.Roger):
                     if len(resources["language"]) > 0:
                         lang_folder_name = resources["language"] + ".lproj"
 
-                images = resources["images"]
+                if "images" in resources:
+                    images = resources["images"]
 
-                for image in images:
-                    bundle_path = image["bundle-path"]
-                    resolutions = image['resolutions']
-                    mac_combine = args.platform == 'mac'
-                    if args.platform == 'mac':
-                        if "mac_combine" in image:
-                            if image['mac_combine']:
-                                mac_combine = image['mac_combine']
+                    for image in images:
+                        bundle_path = image["bundle-path"]
+                        resolutions = image['resolutions']
+                        mac_combine = args.platform == 'mac'
+                        if args.platform == 'mac':
+                            if "mac_combine" in image:
+                                if image['mac_combine']:
+                                    mac_combine = image['mac_combine']
 
 
-                    if mac_combine:
-                        self.combine_images_mac(args, resolutions, lang_folder_name, bundle_path)
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
-                    else:
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "1.0x", "")
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "2.0x", "@2x")
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
-                        self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
+                        if mac_combine:
+                            self.combine_images_mac(args, resolutions, lang_folder_name, bundle_path)
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
+                        else:
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "1.0x", "")
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "2.0x", "@2x")
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "3.0x", "@3x")
+                            self.copy_image(args, lang_folder_name, bundle_path, resolutions, "4.0x", "@4x")
 
-                raws = resources["raw"]
-                for raw in raws:
-                    bundle_path = raw["bundle-path"]
-                    filename = raw["file"]
+                if "raw" in resources:
+                    raws = resources["raw"]
+                    for raw in raws:
+                        bundle_path = raw["bundle-path"]
+                        filename = raw["file"]
 
-                    self.copy_file(args, lang_folder_name, filename, bundle_path, "", flatten_mac=False)
+                        self.copy_file(args, lang_folder_name, filename, bundle_path, "", flatten_mac=False)
 
         if "assets" in self.resource_file.data:
             asset_list = self.resource_file.data["assets"]

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import android.util.Pair;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
@@ -276,6 +277,7 @@ public class NativeRootActivity extends AppCompatActivity
             path = path.replace('/', '_');
             String extension = MimeTypeMap.getFileExtensionFromUrl(path);
             path = path.replace('.', '_');
+            path = path.replace('-', '_');
             path += '.' + extension;
 
             if(scheme.equals("image")) {
@@ -355,6 +357,8 @@ public class NativeRootActivity extends AppCompatActivity
     }
 
     private static native void nativeRegisterAppContext(Context ctxt);
+
+    public static native void nativeViewNeedsLayout(View view);
 
     private NativeRootView _rootView;
     private Bundle _metaData;

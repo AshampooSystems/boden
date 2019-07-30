@@ -13,6 +13,20 @@ namespace bdn
       public:
         using variant<String, std::shared_ptr<AttributedString>>::variant;
 
+        bool empty() const
+        {
+            return std::visit(
+                [](auto &&arg) -> bool {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, String>) {
+                        return arg.empty();
+                    } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                        return arg != nullptr;
+                    }
+                },
+                *this);
+        }
+
         operator String() const
         {
             return std::visit(

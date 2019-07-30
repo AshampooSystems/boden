@@ -2,8 +2,8 @@
 
 #include <bdn/ui/Checkbox.h>
 
+#import <bdn/mac/UIUtil.hh>
 #import <bdn/mac/ViewCore.hh>
-#import <bdn/mac/ui_util.hh>
 #import <bdn/mac/util.hh>
 
 @class BdnCheckboxClickManager;

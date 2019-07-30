@@ -1,6 +1,7 @@
 #import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ButtonCore.hh>
+#import <bdn/ios/UIUtil.hh>
 
 @interface BodenUIButton : UIButton <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ButtonCore> core;
@@ -46,6 +47,7 @@ namespace bdn::ui::ios
         [_button addTarget:_button action:@selector(clicked) forControlEvents:UIControlEventTouchUpInside];
 
         label.onChange() += [=](auto &property) { textChanged(property.get()); };
+        imageURL.onChange() += [=](auto &property) { imageChanged(property.get()); };
     }
 
     ButtonCore::~ButtonCore()
@@ -92,5 +94,27 @@ namespace bdn::ui::ios
             text);
 
         markDirty();
+    }
+
+    void ButtonCore::imageChanged(const String &url)
+    {
+        UIButton *button = ((UIButton *)this->uiView());
+        [button setImage:nullptr forState:UIControlStateNormal];
+
+        bool imageChangedImmediately = false;
+
+        if (!url.empty()) {
+            imageChangedImmediately = imageFromUrl(url, [=](auto image) {
+                [button setImage:image forState:UIControlStateNormal];
+
+                scheduleLayout();
+                markDirty();
+            });
+        }
+
+        if (!imageChangedImmediately) {
+            scheduleLayout();
+            markDirty();
+        }
     }
 }

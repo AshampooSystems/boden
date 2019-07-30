@@ -45,5 +45,27 @@
         "ios-marketing": {
             "1024x1024@1x": "icons/ios-mac/1024.png"
         }
-    }
+    },
+
+    "resources": [
+        {
+            "language": "",
+            "android-qualifiers": "",
+            "images": [
+                {
+                    "bundle-path": "images/black-icon.png",
+                    "resolutions": {
+                        "1.0x": "black.png"
+                    }
+                },
+                {
+                    "bundle-path": "images/white-small-icon.png",
+                    "resolutions": {
+                        "1.0x": "white-small.png",
+                        "2.0x": "white-small@2x.png"
+                    }
+                }
+            ]
+        }
+    ]
 }

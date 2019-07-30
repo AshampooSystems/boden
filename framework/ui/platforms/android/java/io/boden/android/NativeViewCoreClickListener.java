@@ -23,5 +23,4 @@ public class NativeViewCoreClickListener extends Object implements View.OnClickL
     }
 
     public native void viewClicked(View view);
-
 }

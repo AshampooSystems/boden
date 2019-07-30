@@ -19,12 +19,7 @@ namespace bdn::ui::android
         };
     }
 
-    void ImageViewCore::imageLoaded(int width, int height)
-    {
-        _imageSize = Size{(double)width, (double)height};
-
-        scheduleLayout();
-    }
+    void ImageViewCore::imageLoaded(int width, int height) { _imageSize = Size{(double)width, (double)height}; }
 
     Size ImageViewCore::sizeForSpace(Size availableSpace) const
     {

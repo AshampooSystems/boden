@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/mac/ButtonCore.hh>
+#import <bdn/mac/UIUtil.hh>
 
 @interface BdnButtonClickManager : NSObject
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::mac::ButtonCore> buttonCore;
@@ -53,6 +54,7 @@ namespace bdn::ui::mac
 
         geometry.onChange() += [=](auto) { _updateBezelStyle(); };
         label.onChange() += [=](auto &property) { updateText(property.get()); };
+        imageURL.onChange() += [=](auto &property) { updateImage(property.get()); };
     }
 
     ButtonCore::~ButtonCore() { _clickManager.buttonCore = std::weak_ptr<ButtonCore>(); }
@@ -139,5 +141,27 @@ namespace bdn::ui::mac
 
         scheduleLayout();
         markDirty();
+    }
+
+    void ButtonCore::updateImage(const String &url)
+    {
+        auto btn = (NSButton *)this->nsView();
+        btn.image = nullptr;
+        btn.imageScaling = NSImageScaleProportionallyUpOrDown;
+
+        bool imageChangedImmediately = false;
+
+        if (!url.empty()) {
+            imageChangedImmediately = imageFromUrl(url, [=](auto img) {
+                btn.image = img;
+                this->scheduleLayout();
+                this->markDirty();
+            });
+        }
+
+        if (!imageChangedImmediately) {
+            this->scheduleLayout();
+            this->markDirty();
+        }
     }
 }

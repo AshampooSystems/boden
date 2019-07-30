@@ -25,6 +25,7 @@ class Roger(base.Roger):
             dest_path = bundle_path.replace('/', '_')
             dest_name, dest_suffix = os.path.splitext(dest_path)
             dest_path = dest_path.replace('.', '_') + dest_suffix
+            dest_path = dest_path.replace('-', '_')
         else:
             dest_path = bundle_path
 
@@ -43,25 +44,27 @@ class Roger(base.Roger):
                     if len(resources["language"]) > 0:
                         lang_suffix = "-%s" % (resources["language"])
 
-                images = resources["images"]
+                if "images" in resources:
+                    images = resources["images"]
 
-                for image in images:
-                    bundle_path = image["bundle-path"]
-                    resolutions = image['resolutions'];
+                    for image in images:
+                        bundle_path = image["bundle-path"]
+                        resolutions = image['resolutions'];
 
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "0.75x", lang_suffix + "-ldpi")
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "1.0x",  lang_suffix + "-mdpi")
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "1.5x",  lang_suffix + "-hdpi")
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "2.0x",  lang_suffix + "-xhdpi")
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "3.0x",  lang_suffix + "-xxhdpi")
-                    self.copy_image(args, "res/drawable", bundle_path, resolutions, "4.0x",  lang_suffix + "-xxxhdpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "0.75x", lang_suffix + "-ldpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "1.0x",  lang_suffix + "-mdpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "1.5x",  lang_suffix + "-hdpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "2.0x",  lang_suffix + "-xhdpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "3.0x",  lang_suffix + "-xxhdpi")
+                        self.copy_image(args, "res/drawable", bundle_path, resolutions, "4.0x",  lang_suffix + "-xxxhdpi")
 
-                raws = resources["raw"]
-                for raw in raws:
-                    bundle_path = raw["bundle-path"]
-                    filename = raw["file"]
+                if "raw" in resources:
+                    raws = resources["raw"]
+                    for raw in raws:
+                        bundle_path = raw["bundle-path"]
+                        filename = raw["file"]
 
-                    self.copy_file(args, "res/raw", filename, bundle_path, lang_suffix)
+                        self.copy_file(args, "res/raw", filename, bundle_path, lang_suffix)
 
 
         if "assets" in self.resource_file.data:

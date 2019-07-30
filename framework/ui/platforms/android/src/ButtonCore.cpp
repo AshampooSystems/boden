@@ -11,21 +11,21 @@ namespace bdn::ui::detail
 namespace bdn::ui::android
 {
     ButtonCore::ButtonCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
-        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::Button>(viewCoreFactory)),
-          _jButton(getJViewAS<bdn::android::wrapper::Button>())
+        : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeButton>(viewCoreFactory)),
+          _jButton(getJViewAS<bdn::android::wrapper::NativeButton>())
     {
-        _jButton.setSingleLine(true);
-
         label.onChange() += [=](auto &property) {
             textChanged(property.get());
             scheduleLayout();
         };
 
+        imageURL.onChange() += [=](auto &property) { imageChanged(property.get()); };
+
         bdn::android::wrapper::NativeViewCoreClickListener listener;
         _jButton.setOnClickListener(listener.cast<bdn::android::wrapper::OnClickListener>());
     }
 
-    bdn::android::wrapper::Button &ButtonCore::getJButton() { return _jButton; }
+    bdn::android::wrapper::NativeButton &ButtonCore::getJButton() { return _jButton; }
 
     void ButtonCore::clicked() { _clickCallback.fire(); }
 
@@ -53,4 +53,6 @@ namespace bdn::ui::android
         markDirty();
         scheduleLayout();
     }
+
+    void ButtonCore::imageChanged(const String &url) { _jButton.setImage(url); }
 }

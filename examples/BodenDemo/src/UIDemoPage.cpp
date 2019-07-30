@@ -141,6 +141,10 @@ namespace bdn
         btn->label = "Button";
         addChildView(makeRow("Button", btn, 5, 5, 0.62, true));
 
+        auto imgBtn = std::make_shared<Button>();
+        imgBtn->imageURL = "image://main/images/white-small-icon.png";
+        addChildView(makeRow("Image Button", imgBtn, 5, 5, 0.62, false));
+
         auto image = std::make_shared<ImageView>();
 
         image->url = "image://main/images/image.png";

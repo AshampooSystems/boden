@@ -14,48 +14,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class NativeImageView extends AppCompatImageView
+public class NativeImageView extends AppCompatImageView implements io.boden.android.LoadImageToViewTaskCallback
 {
     private Bitmap mBitmap;
 
     public NativeImageView(Context context) {
         super(context);
         this.setScaleType(ScaleType.FIT_XY);
-    }
-
-    public class AsyncTaskLoadImage extends AsyncTask<String, String, Bitmap> {
-        private AppCompatImageView imageView;
-
-        public AsyncTaskLoadImage(AppCompatImageView imageView) {
-            this.imageView = imageView;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            Bitmap bitmap = null;
-
-            try {
-                InputStream stream = NativeRootActivity.getStreamFromURI(params[0]);
-                if(stream != null) {
-                    bitmap = BitmapFactory.decodeStream(stream);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return bitmap;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            try {
-                mBitmap = bitmap;
-                imageView.setImageBitmap(bitmap);
-
-                native_imageLoaded(getImageWidth(), getImageHeight());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public int getImageWidth() {
@@ -76,13 +41,21 @@ public class NativeImageView extends AppCompatImageView
         mBitmap = null;
 
         if(this.loadImageTask != null) {
-            this.loadImageTask.cancel(true);
+            loadImageTask.cancel(true);
         }
-        this.loadImageTask = new AsyncTaskLoadImage(this);
+        loadImageTask = new io.boden.android.LoadImageToViewTask(this);
         loadImageTask.execute(url);
     }
 
-    private AsyncTaskLoadImage loadImageTask;
+    private io.boden.android.LoadImageToViewTask loadImageTask;
 
     private native void native_imageLoaded(int width, int height);
+
+    @Override
+    public void imageLoaded(Bitmap bitmap) {
+        mBitmap = bitmap;
+        setImageBitmap(bitmap);
+        native_imageLoaded(getImageWidth(), getImageHeight());
+        NativeRootActivity.nativeViewNeedsLayout(this);
+    }
 }
