@@ -27,6 +27,7 @@ namespace bdn::ui::ios
         void setFont(const Font &font);
         void setAutocorrectionType(const AutocorrectionType autocorrectionType);
         void setReturnKeyType(const ReturnKeyType returnKeyType);
+        void setPlaceholder(const Text &text);
 
       private:
         BdnTextFieldDelegate *_delegate;

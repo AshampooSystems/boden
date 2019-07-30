@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/TextFieldCore.hh>
 
@@ -109,6 +110,8 @@ namespace bdn::ui::ios
         autocorrectionType.onChange() += [this](auto &property) { setAutocorrectionType(property.get()); };
 
         returnKeyType.onChange() += [this](auto &property) { setReturnKeyType(property.get()); };
+
+        placeholder.onChange() += [this](auto &property) { setPlaceholder(property.get()); };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
@@ -210,4 +213,24 @@ namespace bdn::ui::ios
     }
 
     void TextFieldCore::focus() { [this->uiView() becomeFirstResponder]; }
+
+    void TextFieldCore::setPlaceholder(const Text &text)
+    {
+        std::visit(
+            [textField = (UITextField *)this->uiView()](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    textField.placeholder = fk::stringToNSString(arg);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
+                        textField.attributedPlaceholder = fkAttrString->nsAttributedString();
+                    }
+                }
+            },
+            text);
+
+        markDirty();
+        scheduleLayout();
+    }
 }

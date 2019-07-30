@@ -4,6 +4,7 @@
 
 #include <bdn/Font.h>
 #include <bdn/Notifier.h>
+#include <bdn/Text.h>
 #include <bdn/ui/SubmitEvent.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
@@ -20,6 +21,7 @@ namespace bdn::ui
     {
       public:
         Property<String> text;
+        Property<Text> placeholder;
         Property<Font> font;
         Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
         Property<ReturnKeyType> returnKeyType = ReturnKeyType::Default;
@@ -46,6 +48,7 @@ namespace bdn::ui
         {
           public:
             Property<String> text;
+            Property<Text> placeholder;
             Property<Font> font;
             Property<AutocorrectionType> autocorrectionType;
             Property<ReturnKeyType> returnKeyType;

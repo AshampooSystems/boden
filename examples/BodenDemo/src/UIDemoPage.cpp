@@ -161,7 +161,7 @@ namespace bdn
         lottieView->loop = true;
 
         auto textField = std::make_shared<TextField>();
-        textField->text = "Enter text here";
+        textField->placeholder = "Enter text here";
         textField->stylesheet = FlexJsonStringify({"minimumSize" : {"width" : 150}});
         textField->autocorrectionType = AutocorrectionType::Yes;
         textField->returnKeyType = ReturnKeyType::Done;

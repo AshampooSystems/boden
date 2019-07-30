@@ -27,6 +27,7 @@ namespace bdn::ui::mac
 
       private:
         void setFont(const Font &font);
+        void updatePlaceholder(const Text &text);
 
       private:
         BdnTextFieldDelegate *_delegate;

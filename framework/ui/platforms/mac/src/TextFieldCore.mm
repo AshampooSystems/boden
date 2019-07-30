@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <bdn/foundationkit/AttributedString.hh>
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/mac/TextFieldCore.hh>
 
@@ -81,6 +82,7 @@ namespace bdn::ui::mac
             }
         };
 
+        placeholder.onChange() += [=](const auto &property) { updatePlaceholder(property.get()); };
         font.onChange() += [=](auto &property) { setFont(property.get()); };
     }
 
@@ -98,5 +100,27 @@ namespace bdn::ui::mac
         NSTextField *textField = (NSTextField *)nsView();
         static NSFont *defaultFont = textField.font;
         textField.font = fk::fontToFkFont(font, defaultFont);
+    }
+
+    void TextFieldCore::updatePlaceholder(const Text &text)
+    {
+        NSTextField *textField = (NSTextField *)nsView();
+
+        std::visit(
+            [&textField](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    textField.placeholderString = fk::stringToNSString(arg);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
+                        textField.placeholderAttributedString = fkAttrString->nsAttributedString();
+                    }
+                }
+            },
+            text);
+
+        markDirty();
+        scheduleLayout();
     }
 }

@@ -1,3 +1,4 @@
+#include <bdn/android/AttributedString.h>
 #include <bdn/android/TextFieldCore.h>
 #include <bdn/android/wrapper/EditorInfo.h>
 #include <bdn/android/wrapper/InputType.h>
@@ -40,6 +41,8 @@ namespace bdn::ui::android
         autocorrectionType.onChange() += [=](auto &property) { setAutocorrectionType(property.get()); };
 
         returnKeyType.onChange() += [=](auto &property) { setReturnKeyType(property.get()); };
+
+        placeholder.onChange() += [this](auto &property) { setPlaceholder(property.get()); };
     }
 
     void TextFieldCore::focus()
@@ -143,5 +146,30 @@ namespace bdn::ui::android
 
         int newOptions = (currentIMEOptions & ~(int)EditorInfo::IME_MASK_ACTION) | imeOption;
         _jEditText.setImeOptions(newOptions);
+    }
+
+    void TextFieldCore::setPlaceholder(const Text &text)
+    {
+        std::visit(
+            [&jView = this->_jEditText](auto &&arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, String>) {
+                    // Remove '\r' as android treats them as a space
+                    String textToSet = arg;
+                    textToSet.erase(
+                        std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
+                        textToSet.end());
+                    jView.setHint(textToSet);
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
+                    if (auto attrString = std::dynamic_pointer_cast<bdn::android::AttributedString>(arg)) {
+                        jView.setHint(attrString->spanned());
+                    }
+                }
+            },
+            text);
+
+        markDirty();
+        scheduleLayout();
     }
 }

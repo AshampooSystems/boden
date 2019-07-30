@@ -31,6 +31,10 @@ textField->onSubmit() += [](auto event) {
 
 	The text displayed in the text field.
 
+* **[Property](../foundation/property.md)<[String](../foundation/text.md)\> placeholder**
+
+	The placeholder displayed while the TextField is empty.  
+
 * **[Property](../foundation/property.md)<[AutocorrectionType](autocorrection_type.md)\> autocorrectionType**
 
 	The autocorrection type used by the text field.

@@ -48,6 +48,8 @@ namespace bdn::android::wrapper
         JavaMethod<void(TextWatcher)> removeTextChangedListener{this, "removeTextChangedListener"};
 
         JavaMethod<void(OnEditorActionListener)> setOnEditorActionListener{this, "setOnEditorActionListener"};
+
+        JavaMethod<void(java::wrapper::CharSequence)> setHint{this, "setHint"};
     };
 
     using TextView = BaseTextView<>;
