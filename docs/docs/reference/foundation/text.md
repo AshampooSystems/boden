@@ -46,3 +46,22 @@ You can de-/serialize Text objects into json taking two forms.
 
 * A single string results in a [String](string.md)
 * A dictionary results in an [AttributedString](attributed_string.md) (see [AttributedString serialization](attributed_string.md#json) for details)
+
+## Enums
+
+### TruncateMode
+
+Used to specify the way that text is truncated if it does not fit into a View.
+
+```c++
+enum class TruncateMode
+{
+    Head,    // ... at beginning of text
+    Tail,    // ... at end of text
+    Middle,  // ... in middle of text
+    Clip,    // Just clip text that does not fit
+    ClipWord // Clip the text just before the first word that no longer fits
+};
+```
+
+

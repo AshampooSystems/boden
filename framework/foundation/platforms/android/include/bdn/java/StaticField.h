@@ -24,8 +24,8 @@ namespace bdn::java
         operator NativeType() const
         {
             if (!_field) {
-                _field = std::make_unique<StaticFieldImpl<int>>(
-                    Class::getStaticClass_(), StaticFieldImpl<int>::Id(Class::getStaticClass_(), _kFieldName));
+                _field = std::make_unique<StaticFieldImpl<NativeType>>(
+                    Class::getStaticClass_(), StaticFieldImpl<NativeType>::Id(Class::getStaticClass_(), _kFieldName));
             }
             return (NativeType)*_field;
         }
@@ -43,9 +43,28 @@ namespace bdn::java
         operator NativeType() const
         {
             if (!_value) {
-                StaticFieldImpl<int>::Id id(Class::getStaticClass_(), _kFieldName);
-                StaticFieldImpl<int> field(Class::getStaticClass_(), id);
+                typename StaticFieldImpl<NativeType>::Id id(Class::getStaticClass_(), _kFieldName);
+                StaticFieldImpl<NativeType> field(Class::getStaticClass_(), id);
                 _value = (NativeType)field;
+            }
+            return *_value;
+        }
+
+        mutable std::optional<NativeType> _value;
+        const char *_kFieldName;
+    };
+
+    template <class NativeType> class JavaEnum
+    {
+      public:
+        constexpr JavaEnum(const char *kFieldName) : _kFieldName(kFieldName) {}
+
+        operator NativeType() const
+        {
+            if (!_value) {
+                typename StaticFieldImpl<NativeType>::Id id(NativeType::getStaticClass_(), _kFieldName);
+                StaticFieldImpl<NativeType> field(NativeType::getStaticClass_(), id);
+                _value = field.get();
             }
             return *_value;
         }

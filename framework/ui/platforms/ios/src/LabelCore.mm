@@ -77,7 +77,7 @@ namespace bdn::ui::ios
     BodenUILabel *LabelCore::createUILabel(LabelCore *core)
     {
         BodenUILabel *label = [[BodenUILabel alloc] initWithCore:core];
-        label.textContainer.maximumNumberOfLines = 0;
+        label.textContainer.maximumNumberOfLines = 1;
         label.font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
         label.selectable = false;
         label.editable = false;
@@ -93,9 +93,11 @@ namespace bdn::ui::ios
         text.onChange() += [=](auto &property) { textChanged(property.get()); };
 
         wrap.onChange() += [=](auto &property) {
-            _uiLabel.textContainer.maximumNumberOfLines = wrap ? 0 : 1;
+            _uiLabel.textContainer.maximumNumberOfLines = property.get() ? 0 : 1;
             markDirty();
         };
+
+        truncateMode.onChange() += [=](const auto &property) { setTruncationMode(property.get()); };
     }
 
     UITextView *LabelCore::getUILabel() { return _uiLabel; }
@@ -134,6 +136,13 @@ namespace bdn::ui::ios
                 }
             },
             text);
+
+        setTruncationMode(truncateMode);
+    }
+
+    void LabelCore::setTruncationMode(Text::TruncateMode mode)
+    {
+        _uiLabel.textContainer.lineBreakMode = bdn::fk::truncateModeToLineBreakMode(mode);
 
         markDirty();
         scheduleLayout();

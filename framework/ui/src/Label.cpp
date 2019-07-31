@@ -9,7 +9,7 @@ namespace bdn::ui
         VIEW_CORE_REGISTRY_IMPLEMENTATION(Label)
     }
 
-    Label::Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory)), wrap(true)
+    Label::Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory) : View(std::move(viewCoreFactory))
     {
         detail::VIEW_CORE_REGISTER(Label, View::viewCoreFactory());
     }
@@ -22,6 +22,7 @@ namespace bdn::ui
         auto textCore = View::core<Label::Core>();
         textCore->text.bind(text);
         textCore->wrap.bind(wrap);
+        textCore->truncateMode.bind(truncateMode);
 
         _linkClickCallbackReceiver =
             textCore->_linkClickCallback.set([=](const auto &link) { _onLinkClick.notify(link); });

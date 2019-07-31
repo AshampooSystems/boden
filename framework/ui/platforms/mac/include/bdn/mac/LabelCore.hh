@@ -30,9 +30,9 @@ namespace bdn::ui::mac
 
       private:
         void textPropertyChanged(const Text &text);
+        void setTruncateMode(Text::TruncateMode mode);
 
       private:
         BodenTextView *_nsTextView;
-        bool _wrap;
     };
 }

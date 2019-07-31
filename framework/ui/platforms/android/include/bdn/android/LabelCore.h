@@ -21,10 +21,10 @@ namespace bdn::ui::android
       protected:
         bool canAdjustWidthToAvailableSpace() const override { return false; }
         void textChanged(const Text &text);
+        void updateTruncateAndWrapMode();
 
       private:
         mutable bdn::android::wrapper::NativeLabel _jLabel;
-        bool _wrap = true;
         Notifier<String>::Subscription _linkSubscription;
         std::shared_ptr<bdn::android::AttributedString> _currentAttributedString;
     };

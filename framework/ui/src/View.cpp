@@ -110,13 +110,10 @@ namespace bdn::ui
     {
         if (stylesheet->count("visible")) {
             visible = (bool)stylesheet->at("visible");
-        } else {
-            visible = true;
         }
+
         if (stylesheet->count("background-color")) {
             backgroundColor = stylesheet->at("background-color");
-        } else {
-            backgroundColor = std::nullopt;
         }
 
         if (auto core = viewCore()) {

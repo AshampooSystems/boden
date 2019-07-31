@@ -3,8 +3,10 @@ package io.boden.android;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.appcompat.widget.AppCompatTextView;
@@ -25,5 +27,4 @@ public class NativeLabel extends AppCompatTextView
             setMovementMethod(null);
         }
     }
-
 }

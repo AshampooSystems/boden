@@ -2,6 +2,7 @@
 
 #include <bdn/android/wrapper/Context.h>
 #include <bdn/android/wrapper/TextPaint.h>
+#include <bdn/android/wrapper/TextUtils.h>
 #include <bdn/android/wrapper/TextWatcher.h>
 #include <bdn/android/wrapper/View.h>
 #include <bdn/java/wrapper/String.h>
@@ -50,6 +51,7 @@ namespace bdn::android::wrapper
         JavaMethod<void(OnEditorActionListener)> setOnEditorActionListener{this, "setOnEditorActionListener"};
 
         JavaMethod<void(java::wrapper::CharSequence)> setHint{this, "setHint"};
+        JavaMethod<void(android::wrapper::TextUtils::TruncateAt)> setEllipsize{this, "setEllipsize"};
     };
 
     using TextView = BaseTextView<>;

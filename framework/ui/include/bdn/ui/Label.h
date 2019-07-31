@@ -18,6 +18,7 @@ namespace bdn::ui
       public:
         Property<Text> text;
         Property<bool> wrap = false;
+        Property<Text::TruncateMode> truncateMode = Text::TruncateMode::Tail;
 
       public:
         Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -39,6 +40,7 @@ namespace bdn::ui
           public:
             Property<Text> text;
             Property<bool> wrap = false;
+            Property<Text::TruncateMode> truncateMode;
 
           public:
             virtual ~Core() = default;

@@ -11,6 +11,7 @@
 #include "ListViewPage.h"
 #include "PropertiesPage.h"
 #include "StyledTextPage.h"
+#include "TextTruncationPage.h"
 #include "TimersPage.h"
 #include "UIDemoPage.h"
 #include "WebViewPage.h"
@@ -24,7 +25,7 @@ using namespace bdn;
 class PagesDataSource : public ListViewDataSource
 {
   public:
-    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 11> pages = {
+    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 12> pages = {
         std::make_pair("UI Demo", [=]() { return std::make_shared<UIDemoPage>(needsInit, _window); }),
         std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(needsInit); }),
         std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(needsInit); }),
@@ -36,6 +37,7 @@ class PagesDataSource : public ListViewDataSource
         std::make_pair("Styled Text", [=]() { return std::make_shared<StyledTextPage>(needsInit); }),
         std::make_pair("Focus", [=]() { return std::make_shared<FocusPage>(needsInit); }),
         std::make_pair("Buttons", [=]() { return std::make_shared<ButtonPage>(needsInit); }),
+        std::make_pair("Text truncation", [=]() { return std::make_shared<TextTruncationPage>(needsInit); }),
     };
 
   public:

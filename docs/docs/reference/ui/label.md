@@ -32,6 +32,14 @@ label->text = "Hello World";
 
 	If true, the text will wrap if it exceeds the available width.
 
+	Defaults to `false`
+
+* **[Property](../foundation/property.md)<[Text::TruncateMode](../foundation/text.md#truncatemode)\> truncateMode**
+
+	Changes the way text is truncated if it does not fit the View. 
+
+	Defaults to `Text::TruncateMode::Tail`.
+
 ## Stylesheet
 
 * **{ "text" : [Text](../foundation/text.md) }**

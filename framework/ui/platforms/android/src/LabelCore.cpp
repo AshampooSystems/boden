@@ -1,5 +1,6 @@
 #include <bdn/android/AttributedString.h>
 #include <bdn/android/LabelCore.h>
+#include <bdn/android/wrapper/TextUtils.h>
 
 namespace bdn::ui::detail
 {
@@ -12,32 +13,32 @@ namespace bdn::ui::android
         : ViewCore(viewCoreFactory, createAndroidViewClass<bdn::android::wrapper::NativeLabel>(viewCoreFactory)),
           _jLabel(getJViewAS<bdn::android::wrapper::NativeLabel>())
     {
+        updateTruncateAndWrapMode();
+
         text.onChange() += [=](auto &property) { textChanged(property.get()); };
 
-        wrap.onChange() += [=](auto &property) {
-            _jLabel.setMaxLines(property.get() ? std::numeric_limits<int>::max() : 1);
-            _wrap = property.get();
-            scheduleLayout();
-        };
+        wrap.onChange() += [=](auto &) { updateTruncateAndWrapMode(); };
 
         geometry.onChange() += [=](auto &property) {
             int widthPixels = property.get().width * getUIScaleFactor();
 
-            if (_wrap) {
+            if (wrap) {
                 _jLabel.setMaxWidth(widthPixels);
             }
         };
+
+        truncateMode.onChange() += [=](const auto &) { updateTruncateAndWrapMode(); };
     }
 
     Size LabelCore::sizeForSpace(Size availableSpace) const
     {
-        if (_wrap) {
+        if (wrap) {
             _jLabel.setMaxWidth((int)(availableSpace.width * getUIScaleFactor()));
         }
 
         Size result = ViewCore::sizeForSpace(availableSpace);
 
-        if (_wrap) {
+        if (wrap) {
             _jLabel.setMaxWidth((int)(geometry->width * getUIScaleFactor()));
         }
 
@@ -73,6 +74,44 @@ namespace bdn::ui::android
             text);
 
         markDirty();
+        scheduleLayout();
+    }
+
+    void LabelCore::updateTruncateAndWrapMode()
+    {
+        if (!wrap) {
+            bool useSingleLine = true;
+
+            switch (truncateMode.get()) {
+            case Text::TruncateMode::Head:
+                _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::START);
+                break;
+            case Text::TruncateMode::Tail:
+                _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::END);
+                break;
+            case Text::TruncateMode::Middle:
+                _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::MIDDLE);
+                break;
+            case Text::TruncateMode::Clip:
+                _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt(bdn::java::Reference()));
+                break;
+            case Text::TruncateMode::ClipWord:
+                useSingleLine = false;
+                _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt(bdn::java::Reference()));
+                break;
+            }
+
+            if (useSingleLine) {
+                _jLabel.setSingleLine(true);
+            } else {
+                _jLabel.setSingleLine(false);
+                _jLabel.setMaxLines(1);
+            }
+        } else {
+            _jLabel.setSingleLine(false);
+            _jLabel.setMaxLines(std::numeric_limits<int>::max());
+        }
+
         scheduleLayout();
     }
 }

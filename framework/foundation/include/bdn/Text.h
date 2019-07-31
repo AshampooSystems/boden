@@ -11,6 +11,16 @@ namespace bdn
     class Text : public std::variant<String, std::shared_ptr<AttributedString>>
     {
       public:
+        enum class TruncateMode
+        {
+            Head,
+            Tail,
+            Middle,
+            Clip,
+            ClipWord
+        };
+
+      public:
         using variant<String, std::shared_ptr<AttributedString>>::variant;
 
         bool empty() const

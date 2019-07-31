@@ -89,18 +89,21 @@ namespace bdn::ui::mac
     {
         _nsTextView = (BodenTextView *)nsView();
 
+        setTruncateMode(Text::TruncateMode::Head);
+
         text.onChange() += [=](auto &property) { textPropertyChanged(property.get()); };
 
         wrap.onChange() += [=](auto &property) {
-            _wrap = wrap;
             scheduleLayout();
             markDirty();
         };
+
+        truncateMode.onChange() += [=](const auto &property) { setTruncateMode(property.get()); };
     }
 
     Size LabelCore::sizeForSpace(Size availableSpace) const
     {
-        CGSize boundingRect = CGSizeMake(_wrap ? availableSpace.width : CGFLOAT_MAX, CGFLOAT_MAX);
+        CGSize boundingRect = CGSizeMake(wrap.get() ? availableSpace.width : CGFLOAT_MAX, CGFLOAT_MAX);
 
         CGRect r = [[_nsTextView textStorage]
             boundingRectWithSize:boundingRect
@@ -139,6 +142,21 @@ namespace bdn::ui::mac
                 }
             },
             text);
+
+        setTruncateMode(truncateMode);
+    }
+
+    void LabelCore::setTruncateMode(Text::TruncateMode mode)
+    {
+        NSMutableParagraphStyle *pStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+
+        pStyle.lineBreakMode = bdn::fk::truncateModeToLineBreakMode(mode);
+
+        [_nsTextView.textStorage addAttribute:NSParagraphStyleAttributeName
+                                        value:pStyle
+                                        range:NSMakeRange(0, _nsTextView.textStorage.length)];
+
+        _nsTextView.defaultParagraphStyle = pStyle;
 
         markDirty();
         scheduleLayout();
