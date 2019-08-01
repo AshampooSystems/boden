@@ -307,4 +307,9 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            slackSend (color: '#FF0000', channel: "boden-ci", message: "@here: FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+    }
 }
