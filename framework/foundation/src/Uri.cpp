@@ -7,13 +7,13 @@
 namespace bdn
 {
 
-    String Uri::unescape(const String &s)
+    std::string Uri::unescape(const std::string &s)
     {
         std::regex re("%([0-9a-fA-F]{2})");
         auto matchBegin = std::sregex_iterator(s.begin(), s.end(), re);
         auto matchEnd = std::sregex_iterator();
 
-        String result{};
+        std::string result{};
 
         for (std::sregex_iterator i = matchBegin; i != matchEnd;) {
             std::smatch match = *i;

@@ -42,11 +42,11 @@ namespace bdn::java::wrapper
         virtual ~Object() = default;
 
       public:
-        String toString()
+        std::string toString()
         {
             static MethodId methodId;
 
-            return invoke_<String>(getStaticClass_(), methodId, "toString");
+            return invoke_<std::string>(getStaticClass_(), methodId, "toString");
         }
 
         /** Returns the Reference to the Java-side object.
@@ -69,7 +69,7 @@ namespace bdn::java::wrapper
          *  (e.g. "java.lang.String").
          *
          *  */
-        String getCanonicalClassName_();
+        std::string getCanonicalClassName_();
 
         /** Returns true if the object is an instance of the specified java
          * class.*/
@@ -85,13 +85,13 @@ namespace bdn::java::wrapper
         bool isSameObject_(Object &o);
 
         template <typename ReturnType, typename... Arguments>
-        inline ReturnType invoke_(Class &cls, MethodId &methodId, const String &methodName, Arguments... args);
+        inline ReturnType invoke_(Class &cls, MethodId &methodId, const std::string &methodName, Arguments... args);
 
         template <typename ReturnType, typename... Arguments>
         inline ReturnType invokeWithId_(MethodId &methodId, Arguments... args);
 
         template <typename ReturnType, typename... Arguments>
-        inline static ReturnType invokeStatic_(Class &cls, MethodId &methodId, const String &methodName,
+        inline static ReturnType invokeStatic_(Class &cls, MethodId &methodId, const std::string &methodName,
                                                Arguments... args);
 
         template <typename ReturnType, typename... Arguments>
@@ -131,7 +131,7 @@ namespace bdn::java::wrapper
 namespace bdn::java::wrapper
 {
     template <typename ReturnType, typename... Arguments>
-    inline ReturnType Object::invoke_(Class &cls, MethodId &methodId, const String &methodName, Arguments... args)
+    inline ReturnType Object::invoke_(Class &cls, MethodId &methodId, const std::string &methodName, Arguments... args)
     {
         return cls.invokeObjectMethod_<ReturnType, Arguments...>(methodId, getJObject_(), methodName, args...);
     }
@@ -143,7 +143,8 @@ namespace bdn::java::wrapper
     }
 
     template <typename ReturnType, typename... Arguments>
-    inline ReturnType Object::invokeStatic_(Class &cls, MethodId &methodId, const String &methodName, Arguments... args)
+    inline ReturnType Object::invokeStatic_(Class &cls, MethodId &methodId, const std::string &methodName,
+                                            Arguments... args)
     {
         return cls.invokeStaticMethod_<ReturnType, Arguments...>(methodId, methodName, args...);
     }

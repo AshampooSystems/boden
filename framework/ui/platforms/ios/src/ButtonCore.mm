@@ -83,7 +83,7 @@ namespace bdn::ui::ios
             [uiButton = this->_button](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, String>) {
+                if constexpr (std::is_same_v<T, std::string>) {
                     [uiButton setTitle:fk::stringToNSString(arg) forState:UIControlStateNormal];
                 } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                     if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
@@ -96,7 +96,7 @@ namespace bdn::ui::ios
         markDirty();
     }
 
-    void ButtonCore::imageChanged(const String &url)
+    void ButtonCore::imageChanged(const std::string &url)
     {
         UIButton *button = ((UIButton *)this->uiView());
         [button setImage:nullptr forState:UIControlStateNormal];

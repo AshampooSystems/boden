@@ -24,14 +24,14 @@ namespace bdn
             bdn::java::Env::get().getJniEnv();
         }
 
-        void AndroidHooks::debuggerPrint(const bdn::String &text)
+        void AndroidHooks::debuggerPrint(const std::string &text)
         {
             __android_log_write(ANDROID_LOG_DEBUG, "boden", text.c_str());
         }
 
         bool AndroidHooks::debuggerPrintGoesToStdErr() { return false; }
 
-        void AndroidHooks::log(Severity severity, const String &message)
+        void AndroidHooks::log(Severity severity, const std::string &message)
         {
             switch (severity) {
             case Severity::Error:

@@ -35,11 +35,11 @@ namespace bdn::android::wrapper
         constexpr static const java::StaticFinalField<int, Html> FROM_HTML_MODE_COMPACT{"FROM_HTML_MODE_COMPACT"};
 
       public:
-        constexpr static StaticMethod<Spanned(String, int)> fromHtmlWithFlags{"fromHtml"};
-        constexpr static StaticMethod<String(Spanned, int)> toHtmlWithFlags{"toHtml"};
+        constexpr static StaticMethod<Spanned(std::string, int)> fromHtmlWithFlags{"fromHtml"};
+        constexpr static StaticMethod<std::string(Spanned, int)> toHtmlWithFlags{"toHtml"};
 
         // Deprecated since API 24
-        constexpr static StaticMethod<Spanned(String)> fromHtml{"fromHtml"};
-        constexpr static StaticMethod<String(Spanned)> toHtml{"toHtml"};
+        constexpr static StaticMethod<Spanned(std::string)> fromHtml{"fromHtml"};
+        constexpr static StaticMethod<std::string(Spanned)> toHtml{"toHtml"};
     };
 }

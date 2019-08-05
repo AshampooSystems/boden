@@ -1,6 +1,6 @@
 #pragma once
-#include <bdn/String.h>
 #include <bdn/android/wrapper/AppCompatEditText.h>
+#include <string>
 
 namespace bdn::android::wrapper
 {
@@ -13,7 +13,7 @@ namespace bdn::android::wrapper
         using BaseTextView<javaClassName, ConstructorArguments...>::BaseTextView;
 
       public:
-        JavaMethod<void(String, int, float, int, bool)> setFont{this, "setFont"};
+        JavaMethod<void(std::string, int, float, int, bool)> setFont{this, "setFont"};
     };
 
     using NativeEditText = BaseNativeEditText<>;

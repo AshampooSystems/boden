@@ -55,9 +55,9 @@ namespace bdn::ui::android
             [this](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, String>) {
+                if constexpr (std::is_same_v<T, std::string>) {
                     // Remove '\r' as android treats them as a space
-                    String textToSet = arg;
+                    std::string textToSet = arg;
                     textToSet.erase(
                         std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
                         textToSet.end());

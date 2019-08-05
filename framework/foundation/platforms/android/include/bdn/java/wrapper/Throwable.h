@@ -17,11 +17,11 @@ namespace bdn::java::wrapper
         explicit Throwable(const Reference &javaRef) : Object(javaRef) {}
 
         /** Returns the detail message (=error message) of the throwable.*/
-        String getMessage()
+        std::string getMessage()
         {
             static MethodId methodId;
 
-            return invoke_<String>(getStaticClass_(), methodId, "getMessage");
+            return invoke_<std::string>(getStaticClass_(), methodId, "getMessage");
         }
 
         /** Returns the JClass object for this class.

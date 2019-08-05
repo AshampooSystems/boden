@@ -33,7 +33,7 @@ namespace bdn::ui::mac
       private:
         void _updateBezelStyle();
         void updateText(const Text &text);
-        void updateImage(const String &url);
+        void updateImage(const std::string &url);
 
       private:
         BdnButtonClickManager *_clickManager;

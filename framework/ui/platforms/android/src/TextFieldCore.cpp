@@ -29,7 +29,7 @@ namespace bdn::ui::android
 
         text.onChange() += [=](auto &property) {
             _jEditText.removeTextChangedListener(_watcher.cast<TextWatcher>());
-            String currentText = _jEditText.getText();
+            std::string currentText = _jEditText.getText();
             if (property.get() != currentText) {
                 _jEditText.setText(property.get());
             }
@@ -54,13 +54,13 @@ namespace bdn::ui::android
         inputManager.showSoftInput(_jEditText.cast<bdn::android::wrapper::View>(), 0);
     }
 
-    void TextFieldCore::beforeTextChanged(const String &string, int start, int count, int after) {}
+    void TextFieldCore::beforeTextChanged(const std::string &string, int start, int count, int after) {}
 
-    void TextFieldCore::onTextChanged(const String &string, int start, int before, int count) {}
+    void TextFieldCore::onTextChanged(const std::string &string, int start, int before, int count) {}
 
     void TextFieldCore::afterTextChanged()
     {
-        String newText = _jEditText.getText();
+        std::string newText = _jEditText.getText();
         text = newText;
     }
 
@@ -154,9 +154,9 @@ namespace bdn::ui::android
             [&jView = this->_jEditText](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, String>) {
+                if constexpr (std::is_same_v<T, std::string>) {
                     // Remove '\r' as android treats them as a space
-                    String textToSet = arg;
+                    std::string textToSet = arg;
                     textToSet.erase(
                         std::remove_if(textToSet.begin(), textToSet.end(), [](unsigned char x) { return x == '\r'; }),
                         textToSet.end());

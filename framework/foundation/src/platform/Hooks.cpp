@@ -18,11 +18,11 @@ namespace bdn
 
         void Hooks::initializeThread() {}
 
-        void Hooks::debuggerPrint(const String &text) { std::cerr << text << std::endl; }
+        void Hooks::debuggerPrint(const std::string &text) { std::cerr << text << std::endl; }
 
         bool Hooks::debuggerPrintGoesToStdErr() { return true; }
 
-        void Hooks::log(Severity severity, const String &message)
+        void Hooks::log(Severity severity, const std::string &message)
         {
             try {
                 switch (severity) {

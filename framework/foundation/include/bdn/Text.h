@@ -1,14 +1,14 @@
 #pragma once
 
 #include <bdn/AttributedString.h>
-#include <bdn/String.h>
+#include <string>
 #include <variant>
 
 #include <bdn/Json.h>
 
 namespace bdn
 {
-    class Text : public std::variant<String, std::shared_ptr<AttributedString>>
+    class Text : public std::variant<std::string, std::shared_ptr<AttributedString>>
     {
       public:
         enum class TruncateMode
@@ -21,14 +21,14 @@ namespace bdn
         };
 
       public:
-        using variant<String, std::shared_ptr<AttributedString>>::variant;
+        using variant<std::string, std::shared_ptr<AttributedString>>::variant;
 
         bool empty() const
         {
             return std::visit(
                 [](auto &&arg) -> bool {
                     using T = std::decay_t<decltype(arg)>;
-                    if constexpr (std::is_same_v<T, String>) {
+                    if constexpr (std::is_same_v<T, std::string>) {
                         return arg.empty();
                     } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                         return arg != nullptr;
@@ -37,12 +37,12 @@ namespace bdn
                 *this);
         }
 
-        operator String() const
+        operator std::string() const
         {
             return std::visit(
-                [](auto &&arg) -> String {
+                [](auto &&arg) -> std::string {
                     using T = std::decay_t<decltype(arg)>;
-                    if constexpr (std::is_same_v<T, String>) {
+                    if constexpr (std::is_same_v<T, std::string>) {
                         return arg;
                     } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                         return "";
@@ -62,7 +62,7 @@ namespace nlohmann
             std::visit(
                 [&j](auto &&arg) {
                     using T = std::decay_t<decltype(arg)>;
-                    if constexpr (std::is_same_v<T, bdn::String>) {
+                    if constexpr (std::is_same_v<T, std::string>) {
                         j = arg;
                     } else if constexpr (std::is_same_v<T, std::shared_ptr<bdn::AttributedString>>) {
                         j = arg->toJSON();
@@ -74,7 +74,7 @@ namespace nlohmann
         static void from_json(const json &j, bdn::Text &text)
         {
             if (j.is_string()) {
-                text = (bdn::String)j;
+                text = (std::string)j;
             } else if (j.is_object()) {
                 auto attrString = std::make_shared<bdn::AttributedString>();
                 attrString->fromJSON(j);

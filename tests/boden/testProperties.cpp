@@ -14,8 +14,8 @@ namespace bdn
 
     TEST(Property, Const)
     {
-        Property<String> nonConstProp;
-        const Property<String> cProp(nonConstProp.backing());
+        Property<std::string> nonConstProp;
+        const Property<std::string> cProp(nonConstProp.backing());
 
         nonConstProp = "Hello World"s;
         EXPECT_EQ(nonConstProp.get(), "Hello World"s);
@@ -24,8 +24,8 @@ namespace bdn
 
     TEST(Property, ConstRef)
     {
-        Property<String> nonConstProp;
-        const Property<String> cProp(nonConstProp);
+        Property<std::string> nonConstProp;
+        const Property<std::string> cProp(nonConstProp);
 
         nonConstProp = "Hello World"s;
         EXPECT_EQ(nonConstProp.get(), "Hello World"s);
@@ -34,8 +34,8 @@ namespace bdn
 
     TEST(Property, ConstRefRef)
     {
-        Property<String> nonConstProp;
-        const Property<String> &cProp = nonConstProp;
+        Property<std::string> nonConstProp;
+        const Property<std::string> &cProp = nonConstProp;
 
         nonConstProp = "Hello World"s;
         EXPECT_EQ(nonConstProp.get(), "Hello World"s);
@@ -44,7 +44,7 @@ namespace bdn
 
     TEST(Property, String)
     {
-        Property<String> p1("Hallo Welt"s);
+        Property<std::string> p1("Hallo Welt"s);
         EXPECT_EQ("Hallo Welt", p1.get());
     }
 
@@ -71,8 +71,8 @@ namespace bdn
 
     TEST(Property, onChange)
     {
-        ChangeCounter<String> cc;
-        Property<String> p1("Hallo Welt"s);
+        ChangeCounter<std::string> cc;
+        Property<std::string> p1("Hallo Welt"s);
         p1.onChange() += std::ref(cc);
 
         p1 = "Hallo Welt";
@@ -84,9 +84,9 @@ namespace bdn
 
     TEST(Property, SimpleUnidirectionalBinding)
     {
-        ChangeCounter<String> cc1, cc2;
-        Property<String> p1;
-        Property<String> p2;
+        ChangeCounter<std::string> cc1, cc2;
+        Property<std::string> p1;
+        Property<std::string> p2;
 
         p1.onChange() += std::ref(cc1);
         p2.onChange() += std::ref(cc2);
@@ -110,9 +110,9 @@ namespace bdn
 
     TEST(Property, SimpleBidirectionalBinding)
     {
-        ChangeCounter<String> cc1, cc2;
-        Property<String> p1;
-        Property<String> p2;
+        ChangeCounter<std::string> cc1, cc2;
+        Property<std::string> p1;
+        Property<std::string> p2;
 
         p1.onChange() += std::ref(cc1);
         p2.onChange() += std::ref(cc2);
@@ -136,8 +136,8 @@ namespace bdn
 
     TEST(Property, OverrideValueInOnChange)
     {
-        Property<String> p1;
-        Property<String> p2;
+        Property<std::string> p1;
+        Property<std::string> p2;
 
         p1.bind(p2);
         p2.onChange() += [&p2](auto p) { p2 = "Hello World"; };
@@ -147,7 +147,7 @@ namespace bdn
 
     TEST(Property, SetterBacking)
     {
-        Property<String> p1(SetterBacking<String>([](String &value, String newValue) -> bool {
+        Property<std::string> p1(SetterBacking<std::string>([](std::string &value, std::string newValue) -> bool {
             value = newValue;
             return true;
         }));
@@ -155,7 +155,7 @@ namespace bdn
         p1 = "Hello World";
         EXPECT_EQ("Hello World", p1.get());
 
-        Property<String> p2(SetterBacking<String>("Hello World"));
+        Property<std::string> p2(SetterBacking<std::string>("Hello World"));
         EXPECT_EQ("Hello World", p2.get());
     }
 }

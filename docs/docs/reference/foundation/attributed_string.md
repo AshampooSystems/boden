@@ -19,11 +19,11 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 ## Serializing
 
-* **virtual bool fromHTML(const String &html)**
+* **virtual bool fromHTML(const std::string &html)**
 
 	Replaces the contents of the `AttributedString` with the given `html` markup code.
 
-* **virtual String toHTML() const**
+* **virtual std::string toHTML() const**
 
 	Returns the contents as a string containing HTML markup code.
 
@@ -62,7 +62,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 
 ## Attributes
 
-* **virtual void addAttribute(String attributeName, std::any value, Range range)**
+* **virtual void addAttribute(std::string attributeName, std::any value, Range range)**
 
 	Adds an attribute to the specified `range`. The value is converted using the types `fromAny` function.
 
@@ -70,7 +70,7 @@ To create an instance of `AttributedString` simply call `std::make_shared<Attrib
 	|---|---|
 	| `foreground-color` | [Color](color.md) |
 	| `font` | [Font](font.md) |
-	| `link` | [String](string.md) |
+	| `link` | std::string |
 	| `baseline-offset` | `float` |
 
 * **virtual void addAttributes(AttributeMap attributes, Range range)**

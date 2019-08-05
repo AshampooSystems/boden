@@ -199,7 +199,7 @@ namespace bdn
     {
         std::chrono::seconds testDuration = 10s;
         auto cmdLineArgs = bdn::App()->commandLineArguments.get();
-        if (std::find(cmdLineArgs.begin(), cmdLineArgs.end(), String("--longDispatchQueueStressTest")) !=
+        if (std::find(cmdLineArgs.begin(), cmdLineArgs.end(), std::string("--longDispatchQueueStressTest")) !=
             cmdLineArgs.end()) {
             testDuration = 2 * 60s;
         }

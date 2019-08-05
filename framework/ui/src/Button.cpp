@@ -48,7 +48,7 @@ namespace bdn::ui
         }
 
         if (stylesheet->count("image")) {
-            imageURL = (String)stylesheet->at("image");
+            imageURL = (std::string)stylesheet->at("image");
         }
     }
 }

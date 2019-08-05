@@ -98,7 +98,7 @@ namespace bdn::ui::ios
         }
     }
 
-    void UIApplication::openURL(const String &url)
+    void UIApplication::openURL(const std::string &url)
     {
         if (auto app = [::UIApplication sharedApplication]) {
             if (auto nsUrl = [NSURL URLWithString:fk::stringToNSString(url)]) {
@@ -107,9 +107,9 @@ namespace bdn::ui::ios
         }
     }
 
-    String UIApplication::uriToBundledFileUri(const String &uri)
+    std::string UIApplication::uriToBundledFileUri(const std::string &uri)
     {
-        String result;
+        std::string result;
         std::regex re("(resource|asset|image)://([^/]*)/(.*)");
 
         std::smatch base_match;
@@ -197,7 +197,7 @@ namespace bdn::ui::ios
 
     void UIApplication::buildCommandlineArguments(int argCount, char *args[])
     {
-        std::vector<String> argStrings;
+        std::vector<std::string> argStrings;
         argStrings.reserve(argCount);
         for (int i = 0; i < argCount; i++) {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)

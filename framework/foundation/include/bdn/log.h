@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <sstream>
+#include <string>
 
 namespace bdn
 {
@@ -13,19 +13,19 @@ namespace bdn
         None,
     };
 
-    void log(Severity severity, const String &message) noexcept;
+    void log(Severity severity, const std::string &message) noexcept;
 
     /** Logs an exception as an error entry to the global logging facility.
      *  additionalInfo is a string message that can be used to add additional
      * information about how and when the error occurred.
      * */
-    void logError(const std::exception &e, const String &additionalInfo) noexcept;
+    void logError(const std::exception &e, const std::string &additionalInfo) noexcept;
 
     /** Logs an error message to the global logging facility.*/
-    void logError(const String &message) noexcept;
+    void logError(const std::string &message) noexcept;
 
     /** Logs an info message to the global logging facility.*/
-    void logInfo(const String &message) noexcept;
+    void logInfo(const std::string &message) noexcept;
 
     class logstream : public std::ostringstream
     {
@@ -47,7 +47,7 @@ namespace bdn
         }
     };
 
-    inline void logAndIgnoreException(const std::function<void()> &function, const String &errorContextMessage)
+    inline void logAndIgnoreException(const std::function<void()> &function, const std::string &errorContextMessage)
     {
         try {
             function();

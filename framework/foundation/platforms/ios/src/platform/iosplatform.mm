@@ -18,7 +18,7 @@ namespace bdn
     {
         void IOSHooks::init() { Hooks::get() = std::make_unique<IOSHooks>(); }
 
-        void IOSHooks::debuggerPrint(const bdn::String &text)
+        void IOSHooks::debuggerPrint(const std::string &text)
         {
             // stderr is connected to the debugger.
             std::cerr << text << std::endl;

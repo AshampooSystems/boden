@@ -41,7 +41,7 @@ namespace bdn::ui::android
         };
     }
 
-    void LottieViewCore::loadURL(const String &url)
+    void LottieViewCore::loadURL(const std::string &url)
     {
         auto animationView = getJViewAS<bdn::android::wrapper::NativeLottieAnimationView>();
         animationView.loadFromUrl(url);

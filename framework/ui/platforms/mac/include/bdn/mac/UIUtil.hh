@@ -12,7 +12,7 @@
 
 namespace bdn::ui::mac
 {
-    bool imageFromUrl(const String &url, std::function<void(NSImage *)> callback);
+    bool imageFromUrl(const std::string &url, std::function<void(NSImage *)> callback);
 
 #if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
 

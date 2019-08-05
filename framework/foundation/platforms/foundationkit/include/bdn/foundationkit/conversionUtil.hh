@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 #pragma once
 
@@ -30,7 +30,7 @@ namespace bdn::fk
 
 #endif
 
-    inline NSString *_Nullable stringToNSString(const String &val)
+    inline NSString *_Nullable stringToNSString(const std::string &val)
     {
         if (val.empty()) {
             return [NSString string];
@@ -42,12 +42,12 @@ namespace bdn::fk
         return result;
     }
 
-    inline String nsStringToString(NSString *_Nullable nsString)
+    inline std::string nsStringToString(NSString *_Nullable nsString)
     {
         if (nsString != nullptr) {
             return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
         }
-        return String();
+        return std::string();
     }
 
     inline NSLineBreakMode truncateModeToLineBreakMode(Text::TruncateMode mode)

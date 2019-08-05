@@ -17,7 +17,7 @@ namespace bdn::ui
         url.onChange() += [this](auto) { loadURL(url); };
     }
 
-    void WebView::loadURL(const String &url)
+    void WebView::loadURL(const std::string &url)
     {
         auto webCore = core<WebView::Core>();
         webCore->loadURL(url);

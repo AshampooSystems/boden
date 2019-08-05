@@ -66,9 +66,9 @@ namespace bdn::java
         using JavaType = jobject;
         using NativeType = std::shared_ptr<void>;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String s("Lio/boden/java/NativeStrongPointer;");
+            static std::string s("Lio/boden/java/NativeStrongPointer;");
             return s;
         }
 
@@ -94,9 +94,9 @@ namespace bdn::java
         using JavaType = jobject;
         using NativeType = std::shared_ptr<Actual>;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String s("Lio/boden/java/NativeStrongPointer;");
+            static std::string s("Lio/boden/java/NativeStrongPointer;");
             return s;
         }
 

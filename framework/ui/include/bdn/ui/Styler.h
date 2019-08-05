@@ -13,7 +13,7 @@ namespace bdn::ui
         struct Data // TODO: Find better name
         {
             json json;
-            std::set<String> usedMatchers;
+            std::set<std::string> usedMatchers;
         };
 
       public:
@@ -48,14 +48,14 @@ namespace bdn::ui
 
       public:
         void setStyleSheet(std::shared_ptr<View> view, json stylesheet);
-        void setCondition(String name, std::shared_ptr<condition> condition);
+        void setCondition(std::string name, std::shared_ptr<condition> condition);
 
       private:
         void rematchView(const std::shared_ptr<View> &view);
-        void rematchAllViews(const String &matcherName);
+        void rematchAllViews(const std::string &matcherName);
 
       private:
         std::map<std::weak_ptr<View>, Data, std::owner_less<std::weak_ptr<View>>> _data;
-        std::map<String, std::shared_ptr<condition>> _conditions;
+        std::map<std::string, std::shared_ptr<condition>> _conditions;
     };
 }

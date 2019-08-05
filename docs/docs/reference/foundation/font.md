@@ -45,7 +45,7 @@ namespace bdn {
 
 ## Members
 
-* **String family**
+* **std::string family**
 
 	The font family
 

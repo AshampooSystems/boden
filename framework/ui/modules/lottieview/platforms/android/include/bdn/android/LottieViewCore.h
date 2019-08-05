@@ -14,7 +14,7 @@ namespace bdn::ui::android
 
         void init() override;
 
-        void loadURL(const String &url) override;
+        void loadURL(const std::string &url) override;
 
         void onAnimationEnded();
     };

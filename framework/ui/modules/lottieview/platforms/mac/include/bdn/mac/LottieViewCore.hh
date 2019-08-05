@@ -16,7 +16,7 @@ namespace bdn::ui::mac
 
       public:
         void init() override;
-        void loadURL(const String &url) override;
+        void loadURL(const std::string &url) override;
 
       private:
         void updateGeometry();

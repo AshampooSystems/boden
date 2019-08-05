@@ -17,20 +17,20 @@ namespace bdn::android::wrapper
         constexpr static const char ACTION_VIEW[] = "android.intent.action.VIEW";
 
       public:
-        static bdn::java::Reference createIntentInstance(String string, Uri uri)
+        static bdn::java::Reference createIntentInstance(std::string string, Uri uri)
         {
             static bdn::java::MethodId constructorId;
             return javaClass().newInstance_(constructorId, std::move(string), std::move(uri));
         }
 
-        Intent(String string, Uri uri)
+        Intent(std::string string, Uri uri)
             : JTObject<kIntentClassName>(createIntentInstance(std::move(string), std::move(uri)))
         {}
 
       public:
         using JTObject<kIntentClassName>::JTObject;
 
-        JavaMethod<String()> getAction{this, "getAction"};
+        JavaMethod<std::string()> getAction{this, "getAction"};
         JavaMethod<Bundle()> getExtras{this, "getExtras"};
     };
 }

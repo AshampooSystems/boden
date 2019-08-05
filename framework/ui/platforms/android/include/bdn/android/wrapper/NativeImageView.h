@@ -11,6 +11,6 @@ namespace bdn::android::wrapper
         using BaseView<kNativeImageViewClassName>::BaseView;
 
       public:
-        JavaMethod<void(String)> loadUrl{this, "loadUrl"};
+        JavaMethod<void(std::string)> loadUrl{this, "loadUrl"};
     };
 }

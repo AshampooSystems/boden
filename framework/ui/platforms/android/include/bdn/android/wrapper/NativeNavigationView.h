@@ -13,7 +13,7 @@ namespace bdn::android::wrapper
       public:
         JavaMethod<void()> close{this, "close"};
 
-        JavaMethod<void(String)> setWindowTitle{this, "setWindowTitle"};
+        JavaMethod<void(std::string)> setWindowTitle{this, "setWindowTitle"};
         JavaMethod<void(bool)> enableBackButton{this, "enableBackButton"};
         JavaMethod<void(View, bool, bool)> changeContent{this, "changeContent"};
     };

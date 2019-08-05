@@ -3,14 +3,14 @@ source: Text.h
 
 # Text
 
-A variant of [String](string.md) and std::shared_ptr<[AttributedString](attributed_string.md)>.
+A variant of std::string and std::shared_ptr<[AttributedString](attributed_string.md)>.
 
 
 ## Declaration
 
 ```C++
 namespace bdn {
-	class Text : public std::variant<String, std::shared_ptr<AttributedString>>
+	class Text : public std::variant<std::string, std::shared_ptr<AttributedString>>
 }
 ```
 
@@ -32,9 +32,9 @@ int main() {
 
 ## Operators
 
-* **String operator()**
+* **std::string operator()**
 
-	Returns a [String](string.md) whether the variant holds a [String](string.md) or an [AttributedString](attributed_string.md).
+	Returns a std::string whether the variant holds a std::string or an [AttributedString](attributed_string.md).
 
 * **bool operator!=(const bdn::Text &lhs, const bdn::Text &rhs)**
 
@@ -44,7 +44,7 @@ int main() {
 
 You can de-/serialize Text objects into json taking two forms.
 
-* A single string results in a [String](string.md)
+* A single string results in a std::string
 * A dictionary results in an [AttributedString](attributed_string.md) (see [AttributedString serialization](attributed_string.md#json) for details)
 
 ## Enums

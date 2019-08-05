@@ -16,7 +16,7 @@ namespace bdn
       private:
         void makeLaunchInfo(int argCount, char *args[])
         {
-            std::vector<String> argStrings;
+            std::vector<std::string> argStrings;
             argStrings.reserve(argCount);
             argStrings.assign(args, args + argCount);
 
@@ -68,7 +68,7 @@ namespace bdn
             }
         }
 
-        void openURL(const String &url) override {}
+        void openURL(const std::string &url) override {}
 
       protected:
         virtual bool shouldExit() const

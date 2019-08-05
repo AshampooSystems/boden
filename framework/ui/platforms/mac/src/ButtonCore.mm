@@ -129,7 +129,7 @@ namespace bdn::ui::mac
             [nsButton = (NSButton *)this->nsView()](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, String>) {
+                if constexpr (std::is_same_v<T, std::string>) {
                     nsButton.title = fk::stringToNSString(arg);
                 } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                     if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {
@@ -143,7 +143,7 @@ namespace bdn::ui::mac
         markDirty();
     }
 
-    void ButtonCore::updateImage(const String &url)
+    void ButtonCore::updateImage(const std::string &url)
     {
         auto btn = (NSButton *)this->nsView();
         btn.image = nullptr;

@@ -110,7 +110,7 @@ namespace bdn::ui::mac
             [&textField](auto &&arg) {
                 using T = std::decay_t<decltype(arg)>;
 
-                if constexpr (std::is_same_v<T, String>) {
+                if constexpr (std::is_same_v<T, std::string>) {
                     textField.placeholderString = fk::stringToNSString(arg);
                 } else if constexpr (std::is_same_v<T, std::shared_ptr<AttributedString>>) {
                     if (auto fkAttrString = std::dynamic_pointer_cast<bdn::fk::AttributedString>(arg)) {

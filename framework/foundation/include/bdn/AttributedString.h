@@ -9,7 +9,7 @@
 #include <bdn/GlobalStack.h>
 #include <bdn/Json.h>
 #include <bdn/Notifier.h>
-#include <bdn/String.h>
+#include <string>
 
 namespace bdn
 {
@@ -22,7 +22,7 @@ namespace bdn
             size_t length;
         };
 
-        using AttributeMap = std::map<String, std::any>;
+        using AttributeMap = std::map<std::string, std::any>;
 
       public:
         static std::function<std::shared_ptr<AttributedString>()> defaultCreateAttributedString();
@@ -35,15 +35,15 @@ namespace bdn
         virtual ~AttributedString() = default;
 
       public:
-        virtual void addAttribute(String attributeName, std::any value, Range range) = 0;
+        virtual void addAttribute(std::string attributeName, std::any value, Range range) = 0;
         virtual void addAttributes(AttributeMap attributes, Range range) = 0;
 
       public:
-        virtual void fromString(const String &text) = 0;
+        virtual void fromString(const std::string &text) = 0;
 
       public:
-        virtual bool fromHTML(const String &html) = 0;
-        virtual String toHTML() const = 0;
+        virtual bool fromHTML(const std::string &html) = 0;
+        virtual std::string toHTML() const = 0;
 
       public:
         virtual void fromJSON(const bdn::json &json);

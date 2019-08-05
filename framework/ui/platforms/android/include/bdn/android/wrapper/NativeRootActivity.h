@@ -13,7 +13,7 @@ namespace bdn::android::wrapper
         using JTObject<kNativeRootActivityClassName>::JTObject;
 
       public:
-        constexpr static const JTObject<kNativeRootActivityClassName>::StaticMethod<String(String)>
+        constexpr static const JTObject<kNativeRootActivityClassName>::StaticMethod<std::string(std::string)>
             getResourceURIFromURI{"getResourceURIFromURI"};
 
         // JavaMethod<void(java::wrapper::CharSequence)> setTitle{this, "setTitle"};

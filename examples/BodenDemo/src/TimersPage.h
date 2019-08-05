@@ -19,11 +19,11 @@ namespace bdn
       public:
         Property<Timer::Duration> interval = 10ms;
 
-        Property<String> _stringToDurationProperty{TransformBacking<String, Timer::Duration>{
+        Property<std::string> _stringToDurationProperty{TransformBacking<std::string, Timer::Duration>{
             interval, &TimersPage::durationToString,
             std::bind(&TimersPage::stringToDuration, this, std::placeholders::_1)}};
 
-        static String durationToString(Timer::Duration duration)
+        static std::string durationToString(Timer::Duration duration)
         {
             std::ostringstream stream;
             if (duration < 1000ns) {
@@ -43,7 +43,7 @@ namespace bdn
             return stream.str();
         }
 
-        Timer::Duration stringToDuration(String s)
+        Timer::Duration stringToDuration(std::string s)
         {
             std::istringstream stream(s);
             float v;

@@ -17,7 +17,7 @@ namespace bdn::ui::lottie
         url.onChange() += [this](auto) { loadURL(url); };
     }
 
-    void View::loadURL(const String &url)
+    void View::loadURL(const std::string &url)
     {
         auto lottieCore = core<View::Core>();
         lottieCore->loadURL(url);

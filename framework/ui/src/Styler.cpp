@@ -9,7 +9,7 @@ namespace bdn::ui
         rematchView(view);
     }
 
-    void Styler::setCondition(String name, std::shared_ptr<Styler::condition> condition)
+    void Styler::setCondition(std::string name, std::shared_ptr<Styler::condition> condition)
     {
         _conditions[name] = condition;
         rematchAllViews(name);
@@ -57,7 +57,7 @@ namespace bdn::ui
         }
     }
 
-    void Styler::rematchAllViews(const String &matcherName)
+    void Styler::rematchAllViews(const std::string &matcherName)
     {
         for (auto it = _data.begin(); it != _data.end();) {
             if (it->second.usedMatchers.find(matcherName) != it->second.usedMatchers.end()) {

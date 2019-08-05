@@ -14,11 +14,11 @@ namespace bdn::android::wrapper
         using java::wrapper::JTObject<kUriClassName>::JTObject;
 
       public:
-        static Uri parse(String uriString)
+        static Uri parse(std::string uriString)
         {
             static bdn::java::MethodId methodId;
 
-            return invokeStatic_<Uri, String>(getStaticClass_(), methodId, "parse", std::move(uriString));
+            return invokeStatic_<Uri, std::string>(getStaticClass_(), methodId, "parse", std::move(uriString));
         }
     };
 }

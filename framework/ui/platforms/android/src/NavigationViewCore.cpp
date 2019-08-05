@@ -18,7 +18,7 @@ namespace bdn::ui::android
 
     NavigationViewCore::~NavigationViewCore() { getJViewAS<bdn::android::wrapper::NativeNavigationView>().close(); }
 
-    void NavigationViewCore::pushView(std::shared_ptr<View> view, String title)
+    void NavigationViewCore::pushView(std::shared_ptr<View> view, std::string title)
     {
         auto containerView = std::make_shared<ContainerView>(viewCoreFactory());
         containerView->isLayoutRoot = true;

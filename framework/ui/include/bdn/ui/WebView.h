@@ -16,12 +16,12 @@ namespace bdn::ui
         class RedirectRequest
         {
           public:
-            String url;
+            std::string url;
         };
 
       public:
-        Property<String> url;
-        Property<String> userAgent;
+        Property<std::string> url;
+        Property<std::string> userAgent;
         Property<std::function<bool(RedirectRequest)>> redirectHandler;
 
       public:
@@ -29,7 +29,7 @@ namespace bdn::ui
         ~WebView() override = default;
 
       public:
-        void loadURL(const String &url);
+        void loadURL(const std::string &url);
 
       protected:
         void bindViewCore() override;
@@ -38,13 +38,13 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> userAgent;
+            Property<std::string> userAgent;
 
           public:
             Property<std::function<bool(WebView::RedirectRequest)>> redirectHandler;
 
           public:
-            virtual void loadURL(const String &url) = 0;
+            virtual void loadURL(const std::string &url) = 0;
         };
     };
 }

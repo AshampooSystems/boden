@@ -3,5 +3,5 @@
 
 namespace bdn::java::wrapper
 {
-    CharSequence::CharSequence(const bdn::String &str) : Object(String(str).getRef_()) {}
+    CharSequence::CharSequence(const std::string &str) : Object(String(str).getRef_()) {}
 }

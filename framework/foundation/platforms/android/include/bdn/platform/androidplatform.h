@@ -12,12 +12,12 @@ namespace bdn
 
           public:
             void initializeThread() override;
-            void debuggerPrint(const String &text) override;
+            void debuggerPrint(const std::string &text) override;
             bool debuggerPrintGoesToStdErr() override;
 
             // Hooks interface
           public:
-            void log(Severity severity, const String &message) override;
+            void log(Severity severity, const std::string &message) override;
         };
     }
 }

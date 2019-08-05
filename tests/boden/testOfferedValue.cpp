@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <bdn/OfferedValue.h>
-#include <bdn/String.h>
+#include <string>
 
 using namespace std::string_literals;
 
@@ -9,43 +9,43 @@ namespace bdn
 {
     TEST(OfferedValue, Empty)
     {
-        OfferedValue<String> value;
-        EXPECT_EQ(value.get(), String());
+        OfferedValue<std::string> value;
+        EXPECT_EQ(value.get(), std::string());
     }
 
     TEST(OfferedValue, offered)
     {
-        OfferedValue<String> value;
+        OfferedValue<std::string> value;
         value.setOffered("Hello");
-        EXPECT_EQ(value.get(), String("Hello"));
+        EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
     TEST(OfferedValue, Own)
     {
-        OfferedValue<String> value;
+        OfferedValue<std::string> value;
         value.set("Hello");
-        EXPECT_EQ(value.get(), String("Hello"));
+        EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
     TEST(OfferedValue, OwnOverridesOffered)
     {
-        OfferedValue<String> value;
+        OfferedValue<std::string> value;
         value.setOffered("Test");
         value.set("Hello");
-        EXPECT_EQ(value.get(), String("Hello"));
+        EXPECT_EQ(value.get(), std::string("Hello"));
 
         value.setOffered("Still?");
-        EXPECT_EQ(value.get(), String("Hello"));
+        EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
     TEST(OfferedValue, FallBackToOffered)
     {
-        OfferedValue<String> value;
+        OfferedValue<std::string> value;
         value.setOffered("Test");
         value.set("Hello");
-        EXPECT_EQ(value.get(), String("Hello"));
+        EXPECT_EQ(value.get(), std::string("Hello"));
 
         value.unset();
-        EXPECT_EQ(value.get(), String("Test"));
+        EXPECT_EQ(value.get(), std::string("Test"));
     }
 }

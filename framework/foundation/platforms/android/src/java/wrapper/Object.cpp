@@ -12,7 +12,7 @@ namespace bdn::java::wrapper
         return cls;
     }
 
-    String Object::getCanonicalClassName_()
+    std::string Object::getCanonicalClassName_()
     {
         jclass clazz = Env::get().getJniEnv()->GetObjectClass(getJObject_());
 

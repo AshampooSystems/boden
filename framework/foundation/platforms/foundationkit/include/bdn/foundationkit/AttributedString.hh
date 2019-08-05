@@ -14,15 +14,15 @@ namespace bdn::fk
       public:
         void setAttributes(AttributeMap attributes, Range range);
 
-        void addAttribute(String attributeName, std::any value, Range range) override;
+        void addAttribute(std::string attributeName, std::any value, Range range) override;
         void addAttributes(AttributeMap attributes, Range range) override;
 
       public:
-        void fromString(const String &text) override;
+        void fromString(const std::string &text) override;
 
       public:
-        bool fromHTML(const String &str) override;
-        String toHTML() const override;
+        bool fromHTML(const std::string &str) override;
+        std::string toHTML() const override;
 
       public:
         NSAttributedString *nsAttributedString() { return _nsAttributedString; }

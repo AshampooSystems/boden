@@ -61,9 +61,9 @@ namespace bdn::ui {
 
 ## View Core
 
-* **virtual String viewCoreTypeName() const = 0**
+* **virtual std::string viewCoreTypeName() const = 0**
 
-	Super classes should return a [`String`](../foundation/string.md) presenting the type name of the view's core.
+	Super classes should return a `std::string` presenting the type name of the view's core.
 
 * **std::shared_ptr<ViewCore\> viewCore() const**
 

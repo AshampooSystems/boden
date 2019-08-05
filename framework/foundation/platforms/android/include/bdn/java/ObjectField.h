@@ -10,7 +10,7 @@ namespace bdn::java
      * to it.
      *
      *  The template parameter NativeType is the type of the field. It can
-     * be a simple type like int or bool, a standard type like String, or a
+     * be a simple type like int or bool, a standard type like std::string, or a
      * class derived from JObject.
      *
      *  Field objects are light-weight and can be returned and passed around

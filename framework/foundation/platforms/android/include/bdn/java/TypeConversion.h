@@ -1,9 +1,9 @@
 #pragma once
 
 #include <bdn/Color.h>
-#include <bdn/String.h>
 #include <bdn/java/Reference.h>
 #include <list>
+#include <string>
 
 namespace bdn::java
 {
@@ -11,8 +11,8 @@ namespace bdn::java
     {
       public:
       protected:
-        static jobject _createJString(const String &s, std::list<Reference> &createdJavaObjects);
-        static String _getStringFromJava(const Reference &ref);
+        static jobject _createJString(const std::string &s, std::list<Reference> &createdJavaObjects);
+        static std::string _getStringFromJava(const Reference &ref);
     };
 
     /** Template class that converts between native C++ types and their
@@ -27,8 +27,8 @@ namespace bdn::java
      *jobject.
      *
      *  For some types an automatic convenience conversion is defined. For
-     *example, bdn::String objects will automatically be converted to and
-     *from java.lang.String objects.
+     *example, std::string objects will automatically be converted to and
+     *from java.lang.std::string objects.
      *
      *  The different conversions are implemented via template
      *specializations.
@@ -50,9 +50,9 @@ namespace bdn::java
          *ClassName is the name of the class.
          *
          **/
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig(NativeType::getStaticClass_().getSignature_());
+            static std::string sig(NativeType::getStaticClass_().getSignature_());
 
             return sig;
         }
@@ -83,15 +83,15 @@ namespace bdn::java
         }
     };
 
-    template <> class TypeConversion<String> : public TypeConversionBase_
+    template <> class TypeConversion<std::string> : public TypeConversionBase_
     {
       public:
         using JavaType = jobject;
-        using NativeType = String;
+        using NativeType = std::string;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String s("Ljava/lang/String;");
+            static std::string s("Ljava/lang/String;");
             return s;
         }
 
@@ -112,9 +112,9 @@ namespace bdn::java
         using JavaType = jint;
         using NativeType = bdn::Color;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("I");
+            static std::string sig("I");
             return sig;
         }
 
@@ -135,9 +135,9 @@ namespace bdn::java
         using JavaType = jobject;
         using NativeType = jobject;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("Ljava/lang/Object;");
+            static std::string sig("Ljava/lang/Object;");
             return sig;
         }
 
@@ -152,9 +152,9 @@ namespace bdn::java
         using JavaType = jint;
         using NativeType = int;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("I");
+            static std::string sig("I");
             return sig;
         }
 
@@ -169,9 +169,9 @@ namespace bdn::java
         using JavaType = jshort;
         using NativeType = short;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("S");
+            static std::string sig("S");
             return sig;
         }
 
@@ -186,9 +186,9 @@ namespace bdn::java
         using JavaType = jdouble;
         using NativeType = double;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("D");
+            static std::string sig("D");
             return sig;
         }
 
@@ -203,9 +203,9 @@ namespace bdn::java
         using JavaType = jfloat;
         using NativeType = float;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("F");
+            static std::string sig("F");
             return sig;
         }
 
@@ -220,9 +220,9 @@ namespace bdn::java
         using JavaType = jlong;
         using NativeType = int64_t;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("J");
+            static std::string sig("J");
             return sig;
         }
 
@@ -237,9 +237,9 @@ namespace bdn::java
         using JavaType = jchar;
         using NativeType = char32_t;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("C");
+            static std::string sig("C");
             return sig;
         }
 
@@ -254,9 +254,9 @@ namespace bdn::java
         using JavaType = jbyte;
         using NativeType = int8_t;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("B");
+            static std::string sig("B");
             return sig;
         }
 
@@ -271,9 +271,9 @@ namespace bdn::java
         using JavaType = jboolean;
         using NativeType = bool;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String sig("Z");
+            static std::string sig("Z");
             return sig;
         }
 
@@ -291,9 +291,9 @@ namespace bdn::java
         using JavaType = void;
         using NativeType = void;
 
-        static String getJavaSignature()
+        static std::string getJavaSignature()
         {
-            static String s("V");
+            static std::string s("V");
             return s;
         }
 

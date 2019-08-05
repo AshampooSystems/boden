@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/Json.h>
-#include <bdn/String.h>
 #include <optional>
+#include <string>
 #include <variant>
 
 #ifdef JSON_THROW_USER

@@ -6,7 +6,7 @@
 
 namespace bdn
 {
-    std::shared_ptr<View> createPageContainer(std::shared_ptr<View> page, String nextTitle,
+    std::shared_ptr<View> createPageContainer(std::shared_ptr<View> page, std::string nextTitle,
                                               std::function<void()> nextFunc)
     {
         auto mainContainer = std::make_shared<ContainerView>();
@@ -27,7 +27,7 @@ namespace bdn
         return mainContainer;
     }
 
-    std::shared_ptr<View> makeRow(String title, std::shared_ptr<View> ctrl, double marginTop, double marginBottom,
+    std::shared_ptr<View> makeRow(std::string title, std::shared_ptr<View> ctrl, double marginTop, double marginBottom,
                                   double contentRatio, bool baseline)
     {
         auto row = std::make_shared<ContainerView>();

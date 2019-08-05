@@ -12,31 +12,28 @@
 
 namespace bdn
 {
-    using String = std::string;
-    using StringView = std::string_view;
-
     namespace cpp20
     {
-        inline bool starts_with(const String &haystack, const String &needle)
+        inline bool starts_with(const std::string &haystack, const std::string &needle)
         {
             return haystack.length() >= needle.length() && haystack.find(needle) == 0;
         }
 
-        inline bool ends_with(const String &haystack, const String &needle)
+        inline bool ends_with(const std::string &haystack, const std::string &needle)
         {
             return haystack.size() >= needle.size() &&
                    haystack.compare(haystack.size() - needle.size(), needle.size(), needle) == 0;
         }
     }
 
-    String stringFromAny(const std::any &anyString);
+    std::string stringFromAny(const std::any &anyString);
 
-    String fromUtf32(const std::u32string &utf32String);
+    std::string fromUtf32(const std::u32string &utf32String);
 
-    String fromUtf16(const std::u16string &utf16String);
+    std::string fromUtf16(const std::u16string &utf16String);
 
     // TODO Test
-    std::tuple<StringView, StringView> split(const StringView &view, String::value_type token);
+    std::tuple<std::string_view, std::string_view> split(const std::string_view &view, std::string::value_type token);
 
     // trim from start (in place)
     void ltrim(std::string &s);
@@ -106,20 +103,20 @@ namespace bdn
 
     namespace path // Replace with std::filesystem once its more commonly available
     {
-        inline std::pair<String, String> split(const String &path)
+        inline std::pair<std::string, std::string> split(const std::string &path)
         {
             auto lastSeperatorPos = path.find_last_of('/');
-            if (lastSeperatorPos == String::npos) {
+            if (lastSeperatorPos == std::string::npos) {
                 return std::make_pair("", path);
             }
 
             return std::make_pair(path.substr(0, lastSeperatorPos), path.substr(lastSeperatorPos + 1));
         }
 
-        inline std::pair<String, String> splitExt(const String &filename)
+        inline std::pair<std::string, std::string> splitExt(const std::string &filename)
         {
             auto extpos = filename.find_last_of('.');
-            if (extpos == String::npos || extpos == 0) {
+            if (extpos == std::string::npos || extpos == 0) {
                 return std::make_pair(filename, "");
             }
 

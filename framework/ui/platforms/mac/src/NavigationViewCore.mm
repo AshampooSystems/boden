@@ -69,7 +69,7 @@ namespace bdn::ui::mac
         geometry.onChange() += [self](auto &property) { self->reLayout(); };
     }
 
-    void NavigationViewCore::pushView(std::shared_ptr<View> view, bdn::String title)
+    void NavigationViewCore::pushView(std::shared_ptr<View> view, std::string title)
     {
         _stack.push_back({view, title});
         updateCurrentView();

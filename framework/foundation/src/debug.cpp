@@ -5,5 +5,5 @@
 namespace bdn
 {
     bool debuggerPrintGoesToStdErr() { return platform::Hooks::get()->debuggerPrintGoesToStdErr(); }
-    void debuggerPrint(const String &message) { platform::Hooks::get()->debuggerPrint(message); }
+    void debuggerPrint(const std::string &message) { platform::Hooks::get()->debuggerPrint(message); }
 }

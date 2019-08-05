@@ -16,5 +16,5 @@ namespace bdn::ui::android
             [=](auto &property) { getJViewAS<bdn::android::wrapper::NativeWebView>().setUserAgent(property.get()); };
     }
 
-    void WebViewCore::loadURL(const String &url) { _jWebView.loadUrl(url); }
+    void WebViewCore::loadURL(const std::string &url) { _jWebView.loadUrl(url); }
 }

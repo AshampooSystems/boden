@@ -30,7 +30,7 @@ switchControl->onClick() += [](auto event) {
 
 ## Properties
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> label**
+* **[Property](../foundation/property.md)<std::string\> label**
 	
 	The switch's label.
 

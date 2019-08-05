@@ -18,9 +18,9 @@ namespace bdn::ui::ios
 
         void disposeMainDispatcher() override;
 
-        void openURL(const String &url) override;
+        void openURL(const std::string &url) override;
 
-        String uriToBundledFileUri(const String &uri) override;
+        std::string uriToBundledFileUri(const std::string &uri) override;
 
       public:
         bool _applicationWillFinishLaunching(NSDictionary *launchOptions);

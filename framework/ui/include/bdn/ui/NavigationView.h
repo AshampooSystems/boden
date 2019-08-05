@@ -18,7 +18,7 @@ namespace bdn::ui
         NavigationView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
         ~NavigationView() override = default;
 
-        void pushView(std::shared_ptr<View> view, String title);
+        void pushView(std::shared_ptr<View> view, std::string title);
         void popView();
 
       public:
@@ -31,7 +31,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            virtual void pushView(std::shared_ptr<View> view, String title) = 0;
+            virtual void pushView(std::shared_ptr<View> view, std::string title) = 0;
             virtual void popView() = 0;
 
             virtual std::list<std::shared_ptr<View>> childViews() = 0;

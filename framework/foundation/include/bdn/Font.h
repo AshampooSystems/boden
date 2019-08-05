@@ -64,7 +64,7 @@ namespace bdn
         };
 
       public:
-        String family;
+        std::string family;
         Size size;
         Style style = Style::Inherit;
         Weight weight = Weight::Inherit;
@@ -139,7 +139,7 @@ namespace nlohmann
         static void from_json(const json &j, bdn::Font::Size &size)
         {
             if (j.is_string()) {
-                auto str = (bdn::String)j;
+                auto str = (std::string)j;
 
                 std::istringstream sstream(str);
                 sstream.imbue(std::locale("C"));
@@ -167,7 +167,7 @@ namespace nlohmann
                         JSON_THROW(nlohmann::json::other_error::create(501, "Failed parsing: \"" + str + "\""));
                     }
                 } else {
-                    bdn::String unit;
+                    std::string unit;
                     sstream >> unit;
                     if (sstream.fail() || unit == "px") {
                         size.value = v;
@@ -188,7 +188,7 @@ namespace nlohmann
 
     template <> struct adl_serializer<bdn::Font::Weight>
     {
-        inline static const std::map<bdn::String, int> nameToWeight{
+        inline static const std::map<std::string, int> nameToWeight{
             {"thin", 100},      {"extra light", 200}, {"light", 300},      {"normal", 400}, {"medium", 500},
             {"semi bold", 600}, {"bold", 700},        {"extra bold", 800}, {"black", 900}};
 
@@ -211,7 +211,7 @@ namespace nlohmann
             if (j.is_number()) {
                 weight = (bdn::Font::Weight)((int)j);
             } else if (j.is_string()) {
-                auto str = (bdn::String)j;
+                auto str = (std::string)j;
                 std::transform(str.begin(), str.end(), str.begin(), &::tolower);
 
                 auto it = nameToWeight.find(str);

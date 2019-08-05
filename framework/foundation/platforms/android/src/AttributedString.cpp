@@ -19,7 +19,7 @@ namespace bdn::android
 {
     AttributedString::AttributedString() : _spannedBuilder(bdn::java::Reference()) {}
 
-    void AttributedString::addAttribute(String attributeName, std::any value, AttributedString::Range range)
+    void AttributedString::addAttribute(std::string attributeName, std::any value, AttributedString::Range range)
     {
         visitWithObjectFromAttribute(std::make_pair(attributeName, value),
                                      [range, &builder = _spannedBuilder](auto obj) {
@@ -46,9 +46,12 @@ namespace bdn::android
         }
     }
 
-    void AttributedString::fromString(const String &text) { _spannedBuilder = wrapper::SpannableStringBuilder(text); }
+    void AttributedString::fromString(const std::string &text)
+    {
+        _spannedBuilder = wrapper::SpannableStringBuilder(text);
+    }
 
-    bool AttributedString::fromHTML(const String &html)
+    bool AttributedString::fromHTML(const std::string &html)
     {
         if ((int)wrapper::Build::VERSION::SDK_INT > wrapper::Build::VERSION_CODES::M) {
             _spannedBuilder = wrapper::Html::fromHtmlWithFlags(html, wrapper::Html::FROM_HTML_MODE_COMPACT);
@@ -59,7 +62,7 @@ namespace bdn::android
         return true;
     }
 
-    String AttributedString::toHTML() const
+    std::string AttributedString::toHTML() const
     {
         if ((int)wrapper::Build::VERSION::SDK_INT > wrapper::Build::VERSION_CODES::M) {
             return wrapper::Html::toHtmlWithFlags(_spannedBuilder, wrapper::Html::TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);

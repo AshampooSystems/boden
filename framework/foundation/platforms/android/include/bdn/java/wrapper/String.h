@@ -5,11 +5,11 @@
 
 namespace bdn::java::wrapper
 {
-    /** Wrapper for Java java.lang.String objects.*/
+    /** Wrapper for Java java.lang.std::string objects.*/
     class String : public CharSequence
     {
       private:
-        static Reference newInstance_(const bdn::String &s)
+        static Reference newInstance_(const std::string &s)
         {
             Env &env = Env::get();
 
@@ -27,9 +27,9 @@ namespace bdn::java::wrapper
          *      */
         explicit String(const Reference &objectRef) : CharSequence(objectRef) {}
 
-        String(const bdn::String &inString) : String(newInstance_(inString)) {}
+        String(const std::string &inString) : String(newInstance_(inString)) {}
 
-        bdn::String getValue_()
+        std::string getValue_()
         {
             JNIEnv *env = Env::get().getJniEnv();
 
@@ -41,7 +41,7 @@ namespace bdn::java::wrapper
             // note that GetStringUTFChars does not throw any java-side
             // exceptions.
 
-            bdn::String val(data);
+            std::string val(data);
 
             env->ReleaseStringUTFChars(javaRef, data);
 

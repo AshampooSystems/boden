@@ -18,7 +18,7 @@ namespace bdn::android::wrapper
         using java::wrapper::JTObject<javaClassName>::JTObject;
 
       public:
-        JavaMethod<JavaObject(String)> getSystemService{this, "getSystemService"};
+        JavaMethod<JavaObject(std::string)> getSystemService{this, "getSystemService"};
         JavaMethod<Resources()> getResources{this, "getResources"};
         JavaMethod<void(Intent)> startActivity{this, "startActivity"};
     };

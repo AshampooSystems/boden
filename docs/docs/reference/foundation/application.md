@@ -32,7 +32,7 @@ namespace bdn {
 
 ## Properties
 
-* **Property<std::vector<String\>\> commandLineArguments**
+* **Property<std::vector<std::string\>\> commandLineArguments**
 
 	A list of command-line arguments as specified when the application was launched.
 
@@ -70,13 +70,13 @@ namespace bdn {
 
 ## OS Services
 
-* **virtual void openURL(const String &url)**
+* **virtual void openURL(const std::string &url)**
 
 	Opens the given URL in a suitable external application. Web URLs will be opened in the system's standard web browser. Application-specific URLs will open in the respective application.
 
 ## Resources
 
-* **virtual String uriToBundledFileUri(const String &uri)**
+* **virtual std::string uriToBundledFileUri(const std::string &uri)**
 
 	Returns a platform specific representation of a resource path (see: [Resources](../../guides/fundamentals/resources.md)). If the path cannot be converted, the `uri` parameter is returned.
 

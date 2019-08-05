@@ -19,7 +19,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
                 // and do nothing.
             } else {
                 jboolean isCopy;
-                bdn::String bdnString = env->GetStringUTFChars(string, &isCopy);
+                std::string bdnString = env->GetStringUTFChars(string, &isCopy);
                 core->beforeTextChanged(bdnString, start, count, after);
             }
         },
@@ -39,7 +39,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeEditTextTextWatche
                 // and do nothing.
             } else {
                 jboolean isCopy;
-                bdn::String bdnString = env->GetStringUTFChars(string, &isCopy);
+                std::string bdnString = env->GetStringUTFChars(string, &isCopy);
                 core->onTextChanged(bdnString, start, before, count);
             }
         },

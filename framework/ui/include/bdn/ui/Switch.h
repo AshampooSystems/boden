@@ -16,7 +16,7 @@ namespace bdn::ui
     class Switch : public View
     {
       public:
-        Property<String> label;
+        Property<std::string> label;
         Property<bool> on;
 
       public:
@@ -38,7 +38,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> label;
+            Property<std::string> label;
             Property<bool> on;
 
           public:

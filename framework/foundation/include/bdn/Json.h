@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace bdn
 {

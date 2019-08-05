@@ -2,8 +2,8 @@
 #import <bdn/mac/UIUtil.hh>
 
 #include <bdn/Application.h>
-#include <bdn/String.h>
 #include <bdn/log.h>
+#include <string>
 
 using namespace std::string_literals;
 
@@ -48,7 +48,7 @@ namespace bdn::ui::mac
         return ViewCore::sizeForSpace(availableSize);
     }
 
-    void ImageViewCore::setUrl(const String &url)
+    void ImageViewCore::setUrl(const std::string &url)
     {
         ((NSImageView *)this->nsView()).image = nullptr;
         originalSize = Size{0, 0};

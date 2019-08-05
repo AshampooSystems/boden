@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 #include <functional>
 #include <map>
@@ -24,7 +24,7 @@ namespace bdn
             return new ActualType(args...);
         }
 
-        bool registerConstruction(String name, ConstructionFunction func)
+        bool registerConstruction(std::string name, ConstructionFunction func)
         {
             if (_constructionFunctions.find(name) != _constructionFunctions.end()) {
                 return false;
@@ -34,7 +34,7 @@ namespace bdn
             return true;
         }
 
-        std::optional<ConstructionBaseClass> create(String name, ConstructionArguments... args)
+        std::optional<ConstructionBaseClass> create(std::string name, ConstructionArguments... args)
         {
             auto it = _constructionFunctions.find(name);
             if (it != _constructionFunctions.end()) {
@@ -45,7 +45,7 @@ namespace bdn
         }
 
       private:
-        std::map<String, ConstructionFunction> _constructionFunctions;
+        std::map<std::string, ConstructionFunction> _constructionFunctions;
     };
     /*
         namespace test

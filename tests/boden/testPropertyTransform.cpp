@@ -14,11 +14,11 @@ namespace bdn
 
     TEST(TransformBacking, IntToString)
     {
-        ChangeCounter<String> cc;
+        ChangeCounter<std::string> cc;
         Property<int> test(1);
         Property<int> test1(100);
 
-        auto toFunc = [](int value) -> String {
+        auto toFunc = [](int value) -> std::string {
             switch (value) {
             case 0:
                 return "no"s;
@@ -36,7 +36,7 @@ namespace bdn
             return s.str();
         };
 
-        auto fromFunc = [](String value) -> int {
+        auto fromFunc = [](std::string value) -> int {
             if (value.empty()) {
                 return 0;
             }
@@ -61,10 +61,10 @@ namespace bdn
             return result;
         };
 
-        Property<String> trTest(TransformBacking<String, int>{test, toFunc, fromFunc});
-        Property<String> trTest1(TransformBacking<String, int>{test1, toFunc, fromFunc});
+        Property<std::string> trTest(TransformBacking<std::string, int>{test, toFunc, fromFunc});
+        Property<std::string> trTest1(TransformBacking<std::string, int>{test1, toFunc, fromFunc});
 
-        Property<String> pStream = {StreamBacking() << trTest << ", " << trTest1};
+        Property<std::string> pStream = {StreamBacking() << trTest << ", " << trTest1};
         pStream.onChange() += std::ref(cc);
         EXPECT_EQ(cc.changeCount, 0);
 

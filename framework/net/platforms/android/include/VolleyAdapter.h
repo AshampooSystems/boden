@@ -21,7 +21,8 @@ namespace bdn
                   public:
                     using JTObject<kVolleyAdapterClassName>::JTObject;
 
-                    JavaMethod<void(int, String, std::shared_ptr<bdn::net::HTTPResponse>)> request{this, "request"};
+                    JavaMethod<void(int, std::string, std::shared_ptr<bdn::net::HTTPResponse>)> request{this,
+                                                                                                        "request"};
 
                     static constexpr int toVolleyRequestMethod(bdn::net::http::Method bdnHttpMethod)
                     {

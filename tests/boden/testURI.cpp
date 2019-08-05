@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <bdn/String.h>
 #include <bdn/Uri.h>
+#include <string>
 
 using namespace std::string_literals;
 

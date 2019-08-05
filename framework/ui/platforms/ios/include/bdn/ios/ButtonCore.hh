@@ -24,7 +24,7 @@ namespace bdn::ui::ios
 
       private:
         void textChanged(const Text &text);
-        void imageChanged(const String &url);
+        void imageChanged(const std::string &url);
 
       private:
         UIButton *_button;

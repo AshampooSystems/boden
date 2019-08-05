@@ -44,7 +44,7 @@ namespace bdn::ui::mac
         loop.onChange() += [=](auto &property) { animationView.loopAnimation = property.get(); };
     }
 
-    void LottieViewCore::loadURL(const String &url)
+    void LottieViewCore::loadURL(const std::string &url)
     {
         for (NSView *oldView in nsView().subviews) {
             [oldView removeFromSuperview];

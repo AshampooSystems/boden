@@ -39,7 +39,7 @@ namespace bdn
                           response->header =
                               fk::nsStringToString([NSString stringWithFormat:@"%@", nsHTTPResponse.allHeaderFields]);
 
-                          response->data = String(static_cast<const char *>(nsData.bytes), nsData.length);
+                          response->data = std::string(static_cast<const char *>(nsData.bytes), nsData.length);
 
                           if (response->originalRequest.doneHandler) {
                               response->originalRequest.doneHandler(response);

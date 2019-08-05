@@ -67,7 +67,7 @@ namespace bdn::ui::ios
         loop.onChange() += [=](auto &property) { animationView.loopAnimation = property.get(); };
     }
 
-    void LottieViewCore::loadURL(const String &url)
+    void LottieViewCore::loadURL(const std::string &url)
     {
         [[uiView() subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 

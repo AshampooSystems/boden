@@ -16,7 +16,7 @@ namespace bdn::ui::android
         ~NavigationViewCore() override;
 
       public:
-        void pushView(std::shared_ptr<View> view, String title) override;
+        void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
         std::list<std::shared_ptr<View>> childViews() override;
 
@@ -35,7 +35,7 @@ namespace bdn::ui::android
         {
             std::shared_ptr<ContainerView> container;
             std::shared_ptr<View> view;
-            String title;
+            std::string title;
         };
 
         std::deque<StackEntry> _stack;

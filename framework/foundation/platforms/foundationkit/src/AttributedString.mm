@@ -60,7 +60,7 @@ namespace bdn::fk
         }
     }
 
-    void AttributedString::addAttribute(String attributeName, std::any value, Range range)
+    void AttributedString::addAttribute(std::string attributeName, std::any value, Range range)
     {
         addAttributes({{attributeName, value}}, range);
     }
@@ -77,12 +77,12 @@ namespace bdn::fk
         }
     }
 
-    void AttributedString::fromString(const String &text)
+    void AttributedString::fromString(const std::string &text)
     {
         _nsAttributedString = [[NSMutableAttributedString alloc] initWithString:stringToNSString(text)];
     }
 
-    bool AttributedString::fromHTML(const String &str)
+    bool AttributedString::fromHTML(const std::string &str)
     {
         if (NSData *nsData =
                 [[NSData alloc] initWithBytesNoCopy:(void *)str.c_str() length:str.length() freeWhenDone:NO]) {
@@ -113,7 +113,7 @@ namespace bdn::fk
         return false;
     }
 
-    String AttributedString::toHTML() const
+    std::string AttributedString::toHTML() const
     {
         if (_nsAttributedString) {
 
@@ -126,7 +126,7 @@ namespace bdn::fk
                                                         error:&nsError];
 
             if (data && !nsError) {
-                String s((const char *)[data bytes], [data length]);
+                std::string s((const char *)[data bytes], [data length]);
                 return s;
             }
         }

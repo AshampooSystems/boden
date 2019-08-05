@@ -27,11 +27,11 @@ textField->onSubmit() += [](auto event) {
 
 ## Properties
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> text**
+* **[Property](../foundation/property.md)<std::string\> text**
 
 	The text displayed in the text field.
 
-* **[Property](../foundation/property.md)<[String](../foundation/text.md)\> placeholder**
+* **[Property](../foundation/property.md)<[Text](../foundation/text.md)\> placeholder**
 
 	The placeholder displayed while the TextField is empty.  
 

@@ -3,7 +3,7 @@ source: Streaming.h
 
 # Streaming (Property)
 
-Allows you to create a [String](string.md) property that chains multiple properties and values together.
+Allows you to create a std::string property that chains multiple properties and values together.
 
 ## Declaration
 
@@ -17,8 +17,8 @@ namespace bdn {
 
 ```c++
 Property<int> integerProperty = 10;
-Property<String> type = "posts"s;
-Property<String> streamingProperty(
+Property<std::string> type = "posts"s;
+Property<std::string> streamingProperty(
 	Streaming() << "There are "s << integerProperty << " " << type);
 
 std::cout << streamingProperty.get() << std::endl; // "There are 10 posts"

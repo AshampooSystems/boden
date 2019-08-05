@@ -34,7 +34,7 @@ namespace bdn {
 
 	Creates an opaque black color.
 
-* **Color(String color)**
+* **Color(std::string color)**
 
 	Creates a color from a string. You can specify the color via a hex value: `#RRGGBBAA` or `#RGBA`.
 	If you omit the alpha value it will default to opaque. You can also use up to [CSS Level 4](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords) color names including `transparent`.
@@ -61,7 +61,7 @@ namespace bdn {
 	| std::any type  | calls |
 	|---|---|
 	| Color  | Color(std::any_cast<Color\>(any))  |
-	| String | Color(std::any_cast<String\>(any)) |
+	| std::string | Color(std::any_cast<std::string\>(any)) |
 	| json  | (Color)std::any_cast<json\>(any)  |
 
 * **static Color fromIntAlphaFirst(uint32_t color)**

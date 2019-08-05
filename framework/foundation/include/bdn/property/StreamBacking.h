@@ -8,7 +8,7 @@
 
 namespace bdn
 {
-    class StreamBacking : public Backing<String>
+    class StreamBacking : public Backing<std::string>
     {
       private:
         struct ToStringBase
@@ -94,10 +94,10 @@ namespace bdn
         std::vector<std::unique_ptr<ToStringBase>> _properties;
 
       public:
-        String get() const override { return _value; }
-        void set(const String &value, bool notify) override {}
+        std::string get() const override { return _value; }
+        void set(const std::string &value, bool notify) override {}
 
       private:
-        String _value;
+        std::string _value;
     };
 }

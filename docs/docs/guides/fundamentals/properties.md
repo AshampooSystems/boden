@@ -72,8 +72,8 @@ implement these as outlined in the following example:
 class Person
 {
 public:
-    Property<String> name = {
-        GetterSetter<String>{
+    Property<std::string> name = {
+        GetterSetter<std::string>{
         // Pointer to the instance which provides the getter/setter
         this,
         // Pointer to getter member function
@@ -85,14 +85,14 @@ public:
         }
     };
 
-    String getName() const {
+    std::string getName() const {
         return _name;
     }
 
     // Besides setting the property value, setters must return 
     // a bool indicating whether the property's value has been 
     // changed by the set operation
-    bool setName(const String& name) {
+    bool setName(const std::string& name) {
         if (name != _name) {
             _name = name;
             return true; // value did change
@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    String _name;
+    std::string _name;
 };
 ```
 
@@ -126,7 +126,7 @@ values:
 class ViewModel
 {
 public:
-    Property<String> buttonText = "Hello world!";
+    Property<std::string> buttonText = "Hello world!";
 };
 
 class MainViewController : public Base
@@ -160,15 +160,15 @@ Properties support the C++11 `auto` keyword. However, you have to
 dereference a property using the `*` operator when using `auto`:
 
 ```c++
-Property<String> nameProperty = "John";
+Property<std::string> nameProperty = "John";
 auto name = nameProperty;  // Error: copy constructor is explicitly deleted 
-auto name = *nameProperty; // type of name will be deduced to String 
+auto name = *nameProperty; // type of name will be deduced to std::string 
 ```
 
 Alternatively, `get()` can be used when working with `auto`:
 
 ```c++
-Property<String> nameProperty = "John";
+Property<std::string> nameProperty = "John";
 auto name = nameProperty.get();
 ```
 
@@ -180,12 +180,12 @@ classes and structs. Members can be read using the arrow operator:
 ```c++
 struct Person
 {
-    String name = "John";
+    std::string name = "John";
     int age = 30;
 };
 
 Property<Person> person;
-String name = person->name;
+std::string name = person->name;
 int age = person->age;
 ```
 
@@ -216,7 +216,7 @@ class. Consider the following example:
 class Model : public Base
 {
 public:
-    Property<String> labelText;
+    Property<std::string> labelText;
 };
 
 class ViewModel : public Base
@@ -244,11 +244,11 @@ can be copied by default constructing a `Property` instance and then
 assigning using `operator =`:
 
 ```c++
-Property<String> name;
-Property<String> badNameCopy = name; // Error: copy constructor 
+Property<std::string> name;
+Property<std::string> badNameCopy = name; // Error: copy constructor 
 									 // is explicitly deleted
 
-Property<String> goodNameCopy;
+Property<std::string> goodNameCopy;
 goodNameCopy = name; // OK: value of name is copied to value 
 					 // of goodNameCopy by assignment
 ```
@@ -259,7 +259,7 @@ also not copy constructible:
 ```c++
 struct Person
 {
-    Property<String> name = "John";
+    Property<std::string> name = "John";
 };
 
 Person person;
@@ -279,7 +279,7 @@ struct Person
         name = other.name; // OK: assignment after default construction
     }
 
-    Property<String> name = "John";
+    Property<std::string> name = "John";
 };
 
 Person person;

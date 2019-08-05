@@ -17,7 +17,7 @@ namespace bdn::ui::ios
         void init() override;
 
       public:
-        void loadURL(const String &url) override;
+        void loadURL(const std::string &url) override;
 
       private:
         WebViewNavigationController *_navigationController;

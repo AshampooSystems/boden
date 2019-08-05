@@ -26,7 +26,7 @@ lottieView->loop = true;
 
 ## Properties
 
-* **[Property](../../foundation/property.md)<[String](../../foundation/string.md)\> url**
+* **[Property](../../foundation/property.md)<std::string\> url**
 	
 	URL pointing to the animation file. (Please refer to [Using Resources](../../../guides/fundamentals/resources.md#using-resources) for more information on how to bundle resources with your app.)
 

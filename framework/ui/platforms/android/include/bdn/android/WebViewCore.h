@@ -13,7 +13,7 @@ namespace bdn::ui::android
         WebViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
         ~WebViewCore() override = default;
 
-        void loadURL(const String &url) override;
+        void loadURL(const std::string &url) override;
 
       private:
         bdn::android::wrapper::WebView _jWebView;

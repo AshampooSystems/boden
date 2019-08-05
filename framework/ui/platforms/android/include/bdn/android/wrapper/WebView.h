@@ -14,7 +14,7 @@ namespace bdn::android::wrapper
         using BaseViewGroup<javaClassName, ConstructorArguments...>::BaseViewGroup;
 
       public:
-        JavaMethod<void(bdn::String)> loadUrl{this, "loadUrl"};
+        JavaMethod<void(std::string)> loadUrl{this, "loadUrl"};
     };
 
     using WebView = WebViewBase<>;
@@ -27,6 +27,6 @@ namespace bdn::android::wrapper
         using WebViewBase<kNativeWebViewClassName>::WebViewBase;
 
       public:
-        JavaMethod<void(bdn::String)> setUserAgent{this, "setUserAgent"};
+        JavaMethod<void(std::string)> setUserAgent{this, "setUserAgent"};
     };
 }

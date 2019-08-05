@@ -5,7 +5,7 @@
 
 namespace bdn::java
 {
-    void MethodId::init(wrapper::Class &cls, const String &methodName, const String &methodSignature)
+    void MethodId::init(wrapper::Class &cls, const std::string &methodName, const std::string &methodSignature)
     {
         Env &env = Env::get();
 
@@ -16,7 +16,7 @@ namespace bdn::java
         init(methodId);
     }
 
-    void MethodId::initStatic(wrapper::Class &cls, const String &methodName, const String &methodSignature)
+    void MethodId::initStatic(wrapper::Class &cls, const std::string &methodName, const std::string &methodSignature)
     {
         Env &env = Env::get();
 

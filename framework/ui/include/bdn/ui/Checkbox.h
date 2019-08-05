@@ -15,7 +15,7 @@ namespace bdn::ui
     class Checkbox : public View
     {
       public:
-        Property<String> label;
+        Property<std::string> label;
         Property<TriState> state;
 
       public:
@@ -43,7 +43,7 @@ namespace bdn::ui
 
           public:
             Property<TriState> state;
-            Property<String> label;
+            Property<std::string> label;
 
           protected:
             WeakCallback<void()> _clickCallback;

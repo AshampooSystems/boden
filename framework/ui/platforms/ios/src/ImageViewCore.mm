@@ -64,7 +64,7 @@ namespace bdn::ui::ios
         url.onChange() += [=](auto &property) { setUrl(property.get()); };
     }
 
-    void ImageViewCore::setUrl(const String &url)
+    void ImageViewCore::setUrl(const std::string &url)
     {
         ((UIImageView *)this->uiView()).image = nullptr;
         originalSize = Size{0, 0};

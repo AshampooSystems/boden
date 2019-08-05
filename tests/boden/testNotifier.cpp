@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <bdn/Notifier.h>
-#include <bdn/String.h>
+#include <string>
 
 using namespace std::string_literals;
 
@@ -20,8 +20,8 @@ namespace bdn
 
     TEST(Notifier, String)
     {
-        CallCounter<String> cc;
-        Notifier<String> notifier;
+        CallCounter<std::string> cc;
+        Notifier<std::string> notifier;
 
         notifier += std::ref(cc);
         EXPECT_EQ(0, cc.callCount);
@@ -81,8 +81,8 @@ namespace bdn
 
     TEST(Notifier, UnsubscribeAllDuringNotify)
     {
-        Notifier<String> notifier;
-        CallCounter<String> cc;
+        Notifier<std::string> notifier;
+        CallCounter<std::string> cc;
         notifier.subscribe(std::ref(cc));
         notifier.subscribe(std::ref(cc));
 
@@ -98,13 +98,13 @@ namespace bdn
 
     TEST(Notifier, Swap)
     {
-        Notifier<String> notifier1;
-        Notifier<String> notifier2;
+        Notifier<std::string> notifier1;
+        Notifier<std::string> notifier2;
 
-        CallCounter<String> cc1;
+        CallCounter<std::string> cc1;
         notifier1 += std::ref(cc1);
 
-        CallCounter<String> cc2;
+        CallCounter<std::string> cc2;
         notifier2 += std::ref(cc2);
 
         notifier1.notify("");
@@ -120,14 +120,14 @@ namespace bdn
 
     TEST(Notifier, TakeOverSubs)
     {
-        Notifier<String> notifier1;
-        Notifier<String> notifier2;
+        Notifier<std::string> notifier1;
+        Notifier<std::string> notifier2;
 
-        CallCounter<String> cc1;
+        CallCounter<std::string> cc1;
         notifier1 += std::ref(cc1);
 
-        CallCounter<String> cc2;
-        Notifier<String>::Subscription sub = notifier2.subscribe(std::ref(cc2));
+        CallCounter<std::string> cc2;
+        Notifier<std::string>::Subscription sub = notifier2.subscribe(std::ref(cc2));
 
         notifier1.takeOverSubscriptions(notifier2);
         notifier2.notify("");

@@ -12,12 +12,12 @@ namespace bdn::ui::android
 
     void UIApplication::buildCommandlineArguments(bdn::android::wrapper::Intent intent)
     {
-        std::vector<String> args;
+        std::vector<std::string> args;
 
         // add a dummy arg for the program name
         args.emplace_back();
 
-        if (intent.getAction() == String((const char *)bdn::android::wrapper::Intent::ACTION_MAIN)) {
+        if (intent.getAction() == std::string((const char *)bdn::android::wrapper::Intent::ACTION_MAIN)) {
             bdn::android::wrapper::Bundle extras = intent.getExtras();
 
             if (!extras.isNull_()) {
@@ -28,7 +28,7 @@ namespace bdn::ui::android
                     size_t len = argArray.getLength();
 
                     for (size_t i = 0; i < len; i++) {
-                        String arg = argArray.getElement(i).getValue_();
+                        std::string arg = argArray.getElement(i).getValue_();
 
                         args.push_back(arg);
                     }
@@ -62,16 +62,16 @@ namespace bdn::ui::android
 
     void UIApplication::initiateExitIfPossible(int exitCode) {}
 
-    void UIApplication::openURL(const String &url)
+    void UIApplication::openURL(const std::string &url)
     {
-        bdn::android::wrapper::Intent intent(String((const char *)bdn::android::wrapper::Intent::ACTION_VIEW),
+        bdn::android::wrapper::Intent intent(std::string((const char *)bdn::android::wrapper::Intent::ACTION_VIEW),
                                              bdn::android::wrapper::Uri::parse(url));
         bdn::android::wrapper::NativeRootView rootView(
             WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
         rootView.getContext().startActivity(intent);
     }
 
-    String UIApplication::uriToBundledFileUri(const String &uri)
+    std::string UIApplication::uriToBundledFileUri(const std::string &uri)
     {
         return bdn::android::wrapper::NativeRootActivity::getResourceURIFromURI(uri);
     }

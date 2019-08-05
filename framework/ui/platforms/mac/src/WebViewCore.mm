@@ -63,7 +63,7 @@ namespace bdn::ui::mac
             [=](auto &property) { ((WKWebView *)nsView()).customUserAgent = fk::stringToNSString(property.get()); };
     }
 
-    void WebViewCore::loadURL(const String &url)
+    void WebViewCore::loadURL(const std::string &url)
     {
         WKWebView *webView = (WKWebView *)nsView();
         NSURL *nsURL = [[NSURL alloc] initWithString:bdn::fk::stringToNSString(url)];

@@ -14,7 +14,7 @@ namespace bdn::ui
         VIEW_CORE_REGISTRY_IMPLEMENTATION(Window)
     }
 
-    String Window::orientationToString(Window::Orientation orientation)
+    std::string Window::orientationToString(Window::Orientation orientation)
     {
         using namespace std::string_literals;
         std::stringstream str;

@@ -17,7 +17,7 @@ namespace bdn
     {
         void MacHooks::init() { Hooks::get() = std::make_unique<MacHooks>(); }
 
-        void MacHooks::debuggerPrint(const bdn::String &text) { std::cerr << text << std::endl; }
+        void MacHooks::debuggerPrint(const std::string &text) { std::cerr << text << std::endl; }
 
         bool MacHooks::debuggerPrintGoesToStdErr() { return true; }
     }

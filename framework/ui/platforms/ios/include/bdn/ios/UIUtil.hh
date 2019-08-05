@@ -5,10 +5,10 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/Application.h>
-#include <bdn/String.h>
 #include <bdn/log.h>
+#include <string>
 
 namespace bdn::ui::ios
 {
-    bool imageFromUrl(const String &url, std::function<void(UIImage *)> callback);
+    bool imageFromUrl(const std::string &url, std::function<void(UIImage *)> callback);
 }

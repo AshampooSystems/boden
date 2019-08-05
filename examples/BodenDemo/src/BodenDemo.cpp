@@ -25,7 +25,7 @@ using namespace bdn;
 class PagesDataSource : public ListViewDataSource
 {
   public:
-    std::array<std::pair<String, std::function<std::shared_ptr<View>()>>, 12> pages = {
+    std::array<std::pair<std::string, std::function<std::shared_ptr<View>()>>, 12> pages = {
         std::make_pair("UI Demo", [=]() { return std::make_shared<UIDemoPage>(needsInit, _window); }),
         std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(needsInit); }),
         std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(needsInit); }),
@@ -89,7 +89,7 @@ class Test
   public:
 };
 
-using VVV = std::variant<String, Test>;
+using VVV = std::variant<std::string, Test>;
 
 inline bool operator!=(const VVV &left, const VVV &right) { return true; }
 */
@@ -97,7 +97,7 @@ inline bool operator!=(const VVV &left, const VVV &right) { return true; }
 class MainViewController
 {
   public:
-    void addPage(String title, std::function<std::shared_ptr<View>()> creator)
+    void addPage(std::string title, std::function<std::shared_ptr<View>()> creator)
     {
         auto btn = std::make_shared<Button>();
         btn->label = title;

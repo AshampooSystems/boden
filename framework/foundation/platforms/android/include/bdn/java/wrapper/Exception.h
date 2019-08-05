@@ -8,7 +8,7 @@ namespace bdn::java::wrapper
     class Exception : public Throwable
     {
       private:
-        static Reference newInstance_(const String &message)
+        static Reference newInstance_(const std::string &message)
         {
             static MethodId constructorId;
 
@@ -24,7 +24,7 @@ namespace bdn::java::wrapper
          *      */
         explicit Exception(const Reference &javaRef) : Throwable(javaRef) {}
 
-        explicit Exception(const String &message) : Exception(newInstance_(message)) {}
+        explicit Exception(const std::string &message) : Exception(newInstance_(message)) {}
 
         /** Returns the JClass object for this class.
          *

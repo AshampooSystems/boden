@@ -23,7 +23,7 @@ namespace bdn::ui::ios
         void frameChanged() override;
         void onGeometryChanged(Rect newGeometry) override;
 
-        void pushView(std::shared_ptr<View> view, String title) override;
+        void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
 
         std::list<std::shared_ptr<View>> childViews() override;

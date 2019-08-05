@@ -18,7 +18,7 @@ namespace bdn
         using ApplicationControllerFactory = std::function<std::shared_ptr<ApplicationController>()>;
 
       public:
-        Property<std::vector<String>> commandLineArguments;
+        Property<std::vector<std::string>> commandLineArguments;
 
       public:
         static std::shared_ptr<Application> globalApplication();
@@ -51,8 +51,8 @@ namespace bdn
         static bool isMainThread() { return std::this_thread::get_id() == _mainThreadId; }
 
       public:
-        virtual void openURL(const String &url) = 0;
-        virtual String uriToBundledFileUri(const String &uri) { return uri; }
+        virtual void openURL(const std::string &url) = 0;
+        virtual std::string uriToBundledFileUri(const std::string &uri) { return uri; }
 
       protected:
         virtual void platformSpecificInit() {}

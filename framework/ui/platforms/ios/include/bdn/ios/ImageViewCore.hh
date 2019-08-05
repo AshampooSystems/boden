@@ -11,7 +11,7 @@ namespace bdn::ui::ios
         ImageViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
       protected:
-        void setUrl(const String &url);
+        void setUrl(const std::string &url);
 
       private:
         static UIView<UIViewWithFrameNotification> *createUIImageView();

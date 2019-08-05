@@ -1,11 +1,11 @@
 
-#include <bdn/java/wrapper/Class.h>
-
+#include <bdn/String.h>
 #include <bdn/java/Env.h>
+#include <bdn/java/wrapper/Class.h>
 
 namespace bdn::java::wrapper
 {
-    String Class::nameInSlashNotationToSignature_(const String &nameInSlashNotation)
+    std::string Class::nameInSlashNotationToSignature_(const std::string &nameInSlashNotation)
     {
         if (cpp20::ends_with(nameInSlashNotation, "[]")) {
             return "[" +
@@ -16,14 +16,14 @@ namespace bdn::java::wrapper
         }
     }
 
-    Reference Class::findClass_(const String &nameInSlashNotation)
+    Reference Class::findClass_(const std::string &nameInSlashNotation)
     {
         Env &env = Env::get();
 
         // FindClass wants the name in slash notation UNLESS it is an array.
         // For arrays it wants the type signature.
 
-        String findArg = nameInSlashNotation;
+        std::string findArg = nameInSlashNotation;
         if (cpp20::ends_with(findArg, "[]")) {
             findArg = nameInSlashNotationToSignature_(nameInSlashNotation);
         }

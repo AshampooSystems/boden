@@ -12,7 +12,7 @@ namespace bdn
     class DemoDataSource : public ui::ListViewDataSource
     {
       public:
-        std::array<String, 5> data = {"Entry 1", "Entry 2", "Entry 3", "Entry 4", "Entry 5"};
+        std::array<std::string, 5> data = {"Entry 1", "Entry 2", "Entry 3", "Entry 4", "Entry 5"};
 
       public:
         size_t numberOfRows() override { return data.size(); }

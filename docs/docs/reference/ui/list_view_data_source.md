@@ -25,7 +25,7 @@ namespace bdn::ui {
 class MyDataSource : public bdn::ListViewDataSource
 {
 public:
-	std::array<bdn::String, 2> _data = {"This is a test", "With only two lines of text"};
+	std::array<std::string, 2> _data = {"This is a test", "With only two lines of text"};
 
 	size_t numberOfRows() override { return 2; }
 

@@ -2,7 +2,7 @@
 
 namespace bdn
 {
-    const std::map<String, Color> Color::_namedColors = // css colors
+    const std::map<std::string, Color> Color::_namedColors = // css colors
         {{"aliceblue", {0xF0F8FFFF}},
          {"antiquewhite", {0xFAEBD7FF}},
          {"aqua", {0x00FFFFFF}},
@@ -154,7 +154,7 @@ namespace bdn
          {"rebeccapurple", {0x663399FF}},
          {"transparent", {0x00000000}}};
 
-    Color::Color(String color)
+    Color::Color(std::string color)
     {
         std::transform(color.begin(), color.end(), color.begin(), ::tolower);
 
@@ -197,8 +197,8 @@ namespace bdn
         Color result;
         if (anyColor.type() == typeid(bdn::json)) {
             result = (Color)std::any_cast<bdn::json>(anyColor);
-        } else if (anyColor.type() == typeid(String)) {
-            result = Color(std::any_cast<String>(anyColor));
+        } else if (anyColor.type() == typeid(std::string)) {
+            result = Color(std::any_cast<std::string>(anyColor));
         } else if (anyColor.type() == typeid(Color)) {
             result = std::any_cast<Color>(anyColor);
         } else {

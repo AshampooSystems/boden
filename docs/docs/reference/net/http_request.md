@@ -23,11 +23,11 @@ namespace bdn::net {
 
 ## Constructor
 
-* **HTTPRequest([String](../foundation/string.md) requestUrl, DoneHandler requestDoneHandler)**
+* **HTTPRequest(std::string requestUrl, DoneHandler requestDoneHandler)**
 
 	Creates a HTTP `GET` request with the given request URL and done handler.
 
-* **HTTPRequest([http::Method](http.md) requestMethod, [String](../foundation/string.md) requestUrl, DoneHandler requestDoneHandler)**
+* **HTTPRequest([http::Method](http.md) requestMethod, std::string requestUrl, DoneHandler requestDoneHandler)**
 
 	Creates a HTTP request with the specified request method.
 

@@ -25,7 +25,7 @@ namespace bdn
                 }
                 auto attributes = range.at("attributes");
 
-                std::map<bdn::String, std::any> attributeMap;
+                std::map<std::string, std::any> attributeMap;
                 for (auto attribute : attributes.items()) {
                     attributeMap[attribute.key()] = attribute.value();
                 }

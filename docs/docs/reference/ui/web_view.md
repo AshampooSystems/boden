@@ -24,11 +24,11 @@ webView->url = "https://www.example.com"
 
 ## Properties
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> url**
+* **[Property](../foundation/property.md)<std::string\> url**
 	
 	The URL of the web page to be displayed in the web view. Set this property to load a given URL.
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> userAgent**
+* **[Property](../foundation/property.md)<std::string\> userAgent**
 
 	(Optional.) The user agent string that will be sent as part of the HTTP request made to load the web view's `url`. If not set, the default system user agent will be used.
 
@@ -38,7 +38,7 @@ webView->url = "https://www.example.com"
 
 ## Loading a Web Page
 
-* **void loadURL(const [String](../foundation/string.md) &url)**
+* **void loadURL(const std::string &url)**
 
 	Loads the web page with the given URL and sets the `url` property accordingly.
 
@@ -52,7 +52,7 @@ Represents a redirect request returned by a HTTP server.
 
 #### Public Members
 
-* [String](../foundation/string.md) url
+* std::string url
 
 	The redirect URL requested by the server.
 

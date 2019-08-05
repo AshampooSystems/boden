@@ -13,7 +13,7 @@ namespace bdn::ui::lottie
     class View : public ui::View
     {
       public:
-        Property<String> url;
+        Property<std::string> url;
 
         Property<bool> running;
         Property<bool> loop;
@@ -23,7 +23,7 @@ namespace bdn::ui::lottie
         ~View() override = default;
 
       public:
-        void loadURL(const String &url);
+        void loadURL(const std::string &url);
 
       protected:
         void bindViewCore() override;
@@ -39,7 +39,7 @@ namespace bdn::ui::lottie
             Property<bool> loop;
 
           public:
-            virtual void loadURL(const String &url) = 0;
+            virtual void loadURL(const std::string &url) = 0;
         };
     };
 }

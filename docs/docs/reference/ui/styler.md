@@ -49,7 +49,7 @@ namespace bdn::ui {
 	
 	Sets the `stylesheet` for `view`. The stylesheet root must be an array.
 
-* **void setCondition(String name, std::shared_ptr<condition\> condition)**
+* **void setCondition(std::string name, std::shared_ptr<condition\> condition)**
 
 	Adds a new `condition` named `name` that stylesheets can match against.
 	If a condition with `name` already exists it will be overriden and all

@@ -28,7 +28,7 @@ window->title = "My Awesome App";
 
 	*(Read-only)* The "safe" area that the content view will occupy. 
 
-* **[Property](../foundation/property.md)<[String](../foundation/string.md)\> title**
+* **[Property](../foundation/property.md)<std::string\> title**
 
 	The title of the window. 
 

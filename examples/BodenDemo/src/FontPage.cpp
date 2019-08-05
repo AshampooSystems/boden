@@ -12,7 +12,7 @@ namespace bdn
     class FontTestTextField : public CoreLess<TextField>
     {
       public:
-        FontTestTextField(NeedsInit init, String t, json style = {}, std::shared_ptr<Styler> styler = nullptr)
+        FontTestTextField(NeedsInit init, std::string t, json style = {}, std::shared_ptr<Styler> styler = nullptr)
             : CoreLess<TextField>(init), _style(style), _styler(styler)
         {
             if (styler) {

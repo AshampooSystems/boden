@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <bdn/android/wrapper/Spanned.h>
+#include <string>
 
 namespace bdn::android::wrapper
 {

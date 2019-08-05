@@ -24,15 +24,15 @@ namespace bdn::ui
         Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        Notifier<const String &> &onLinkClick();
+        Notifier<const std::string &> &onLinkClick();
 
       protected:
         void bindViewCore() override;
         void updateFromStylesheet() override;
 
       private:
-        Notifier<const String &> _onLinkClick;
-        WeakCallback<void(String)>::Receiver _linkClickCallbackReceiver;
+        Notifier<const std::string &> _onLinkClick;
+        WeakCallback<void(std::string)>::Receiver _linkClickCallbackReceiver;
 
       public:
         class Core
@@ -46,7 +46,7 @@ namespace bdn::ui
             virtual ~Core() = default;
 
           public:
-            WeakCallback<void(String)> _linkClickCallback;
+            WeakCallback<void(std::string)> _linkClickCallback;
         };
     };
 }

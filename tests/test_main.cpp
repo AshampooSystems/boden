@@ -66,8 +66,8 @@ class TestApplicationController : public bdn::ui::UIApplicationController, publi
             }
         }
 
-        bdn::String sProgress = ssProgress.str();
-        bdn::String sTestInfo = ssTestInfo.str();
+        std::string sProgress = ssProgress.str();
+        std::string sTestInfo = ssTestInfo.str();
         bdn::App()->dispatchQueue()->dispatchAsync([this, sProgress, sTestInfo, hasFailed]() {
             if (_progressLabel)
                 _progressLabel->text = sProgress;

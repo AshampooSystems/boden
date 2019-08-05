@@ -52,7 +52,7 @@ namespace bdn::ui::ios
             [=](auto &property) { ((WKWebView *)uiView()).customUserAgent = fk::stringToNSString(property.get()); };
     }
 
-    void WebViewCore::loadURL(const String &url)
+    void WebViewCore::loadURL(const std::string &url)
     {
         auto webView = (WKWebView *)uiView();
         auto nsURL = [[NSURL alloc] initWithString:fk::stringToNSString(url)];

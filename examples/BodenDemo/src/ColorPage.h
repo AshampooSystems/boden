@@ -20,8 +20,8 @@ namespace bdn
         std::shared_ptr<View> _colorBox;
         std::shared_ptr<Checkbox> _checkBox;
 
-        Property<String> colorText{StreamBacking()
-                                   << "R: " << _rgbSlider[0]->value << "\nG: " << _rgbSlider[1]->value
-                                   << "\nB: " << _rgbSlider[2]->value << "\nA: " << _rgbSlider[3]->value};
+        Property<std::string> colorText{StreamBacking()
+                                        << "R: " << _rgbSlider[0]->value << "\nG: " << _rgbSlider[1]->value
+                                        << "\nB: " << _rgbSlider[2]->value << "\nA: " << _rgbSlider[3]->value};
     };
 }

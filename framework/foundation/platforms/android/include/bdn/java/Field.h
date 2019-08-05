@@ -13,7 +13,7 @@ namespace bdn::java
      * access to it.
      *
      *  The template parameter NativeType is the type of the field. It can
-     * be a simple type like int or bool, a standard type like String, or a
+     * be a simple type like int or bool, a standard type like std::string, or a
      * class derived from JObject.
      *
      *  The template parameter Kind specifies what type of field this is. It

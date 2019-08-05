@@ -27,7 +27,7 @@ namespace bdn::java::wrapper
     class Class : public Object
     {
       private:
-        static Reference findClass_(const String &nameInSlashNotation);
+        static Reference findClass_(const std::string &nameInSlashNotation);
 
       public:
         /** Throws a corresponding JavaException if the specified class was
@@ -38,7 +38,7 @@ namespace bdn::java::wrapper
          * of java.lang.Object. For Java arrays (e.g. MyClass[]) pass the
          * name of the element type (in slash notation) with [] appended.
          *      */
-        explicit Class(const String &classNameInSlashNotation) : Object(findClass_(classNameInSlashNotation))
+        explicit Class(const std::string &classNameInSlashNotation) : Object(findClass_(classNameInSlashNotation))
         {
             _nameInSlashNotation = classNameInSlashNotation;
             _nameInSlashNotationInitialized = true;
@@ -58,13 +58,13 @@ namespace bdn::java::wrapper
 
         /** Returns the canonical name of the java class, as defined by the
          * java language specification.*/
-        String getCanonicalName()
+        std::string getCanonicalName()
         {
             if (!_canonicalNameInitialized) {
                 static MethodId methodId;
 
                 _canonicalName =
-                    getStaticClass_().invokeObjectMethod_<String>(methodId, getJObject_(), "getCanonicalName");
+                    getStaticClass_().invokeObjectMethod_<std::string>(methodId, getJObject_(), "getCanonicalName");
                 _canonicalNameInitialized = true;
             }
 
@@ -77,7 +77,7 @@ namespace bdn::java::wrapper
          *  For arrays this is the name of the element type, in slash
          * notation, with [] appended.
          *  */
-        String getNameInSlashNotation_()
+        std::string getNameInSlashNotation_()
         {
             if (!_nameInSlashNotationInitialized) {
                 _nameInSlashNotation = getCanonicalName();
@@ -97,7 +97,7 @@ namespace bdn::java::wrapper
 
         /** Returns the java signature string that corresponds to this
          * type.*/
-        String getSignature_() { return nameInSlashNotationToSignature_(getNameInSlashNotation_()); }
+        std::string getSignature_() { return nameInSlashNotationToSignature_(getNameInSlashNotation_()); }
 
         /** Invokes the specified method of the specified class instance.
          *
@@ -117,7 +117,7 @@ namespace bdn::java::wrapper
          * by the template parameter ReturnType.
          *  */
         template <typename ReturnType, typename... Arguments>
-        ReturnType invokeObjectMethod_(MethodId &methodId, jobject obj, const String &name, Arguments... args)
+        ReturnType invokeObjectMethod_(MethodId &methodId, jobject obj, const std::string &name, Arguments... args)
         {
             initMethodId<ReturnType, Arguments...>(methodId, name);
 
@@ -141,7 +141,7 @@ namespace bdn::java::wrapper
          * by the template parameter ReturnType.
          *  */
         template <typename ReturnType, typename... Arguments>
-        ReturnType invokeStaticMethod_(MethodId &methodId, const String &name, Arguments... args)
+        ReturnType invokeStaticMethod_(MethodId &methodId, const std::string &name, Arguments... args)
         {
             initStaticMethodId<ReturnType, Arguments...>(methodId, name);
 
@@ -174,10 +174,10 @@ namespace bdn::java::wrapper
             return _newObject((jclass)getJObject_(), constructorId.getId(), nativeToJava(args, tempObjects)...);
         }
 
-        template <typename ReturnType, typename... Arguments> void initMethodId(MethodId &id, const String &name)
+        template <typename ReturnType, typename... Arguments> void initMethodId(MethodId &id, const std::string &name)
         {
             if (!id.isInitialized()) {
-                String methodSignature =
+                std::string methodSignature =
                     "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
 
                 id.init(*this, name, methodSignature);
@@ -187,45 +187,46 @@ namespace bdn::java::wrapper
       private:
         /** Converts a name in slash notation to the corresponding signature
          * string.*/
-        static String nameInSlashNotationToSignature_(const String &nameInSlashNotation);
+        static std::string nameInSlashNotationToSignature_(const std::string &nameInSlashNotation);
 
-        template <typename Dummy> static String _makeTypeSignatureListImpl() { return ""; }
+        template <typename Dummy> static std::string _makeTypeSignatureListImpl() { return ""; }
 
         template <typename Dummy, typename FirstType, typename... RemainingTypes>
-        static String _makeTypeSignatureListImpl()
+        static std::string _makeTypeSignatureListImpl()
         {
-            String firstSig = getTypeSignature<FirstType>();
+            std::string firstSig = getTypeSignature<FirstType>();
 
-            String remainingSigs = _makeTypeSignatureListImpl<Dummy, RemainingTypes...>();
+            std::string remainingSigs = _makeTypeSignatureListImpl<Dummy, RemainingTypes...>();
 
             return firstSig + remainingSigs;
         }
 
-        template <typename... Types> static String _makeTypeSignatureList()
+        template <typename... Types> static std::string _makeTypeSignatureList()
         {
             return _makeTypeSignatureListImpl<int, Types...>();
         }
 
-        template <typename ReturnType, typename... Arguments> void initStaticMethodId(MethodId &id, const String &name)
+        template <typename ReturnType, typename... Arguments>
+        void initStaticMethodId(MethodId &id, const std::string &name)
         {
             if (!id.isInitialized()) {
-                String methodSignature =
+                std::string methodSignature =
                     "(" + _makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
 
                 id.initStatic(*this, name, methodSignature);
             }
         }
 
-        template <typename T> static String getTypeSignature()
+        template <typename T> static std::string getTypeSignature()
         {
             return TypeConversion<typename std::decay<T>::type>::getJavaSignature();
         }
 
         static Reference _newObject(jclass cls, jmethodID methodId, ...);
 
-        mutable String _nameInSlashNotation;
+        mutable std::string _nameInSlashNotation;
         mutable bool _nameInSlashNotationInitialized = false;
-        mutable String _canonicalName;
+        mutable std::string _canonicalName;
         mutable bool _canonicalNameInitialized = false;
     };
 }

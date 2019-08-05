@@ -5,7 +5,7 @@
 
 namespace bdn::java
 {
-    jobject TypeConversionBase_::_createJString(const String &s, std::list<Reference> &createdJavaObjects)
+    jobject TypeConversionBase_::_createJString(const std::string &s, std::list<Reference> &createdJavaObjects)
     {
         // we have to create a new java-side string object.
         // We must ensure that the java object still exists after we return,
@@ -19,7 +19,7 @@ namespace bdn::java
         return ref.getJObject();
     }
 
-    String TypeConversionBase_::_getStringFromJava(const Reference &ref)
+    std::string TypeConversionBase_::_getStringFromJava(const Reference &ref)
     {
         if (ref.isNull()) {
             return "";

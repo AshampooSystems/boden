@@ -19,13 +19,13 @@ class RedditPost
 {
   public:
     RedditPost() = default;
-    RedditPost(const String &title_, const String &url_, const String &thumbnailUrl_)
+    RedditPost(const std::string &title_, const std::string &url_, const std::string &thumbnailUrl_)
         : title(title_), url(url_), thumbnailUrl(thumbnailUrl_)
     {}
 
-    Property<String> title;
-    Property<String> url;
-    Property<String> thumbnailUrl;
+    Property<std::string> title;
+    Property<std::string> url;
+    Property<std::string> thumbnailUrl;
 };
 
 class RedditStore
@@ -43,7 +43,7 @@ class RedditStore
                          post->title = child["data"]["title"];
                          post->url = child["data"]["url"];
 
-                         String thumbnail = child["data"]["thumbnail"];
+                         std::string thumbnail = child["data"]["thumbnail"];
 
                          if (cpp20::starts_with(thumbnail, "https://")) {
                              post->thumbnailUrl = thumbnail;
@@ -70,8 +70,8 @@ class RedditListViewDataSource : public ui::ListViewDataSource
     class Delegate : public ui::CoreLess<ui::ContainerView>
     {
       public:
-        Property<String> text;
-        Property<String> imageUrl;
+        Property<std::string> text;
+        Property<std::string> imageUrl;
 
       public:
         using ui::CoreLess<ui::ContainerView>::CoreLess;
@@ -120,7 +120,7 @@ class RedditListViewDataSource : public ui::ListViewDataSource
             delegate = std::make_shared<Delegate>(needsInit);
         }
 
-        String text = _store->posts.at(rowIndex)->title;
+        std::string text = _store->posts.at(rowIndex)->title;
 
         delegate->text = text;
         delegate->imageUrl = _store->posts.at(rowIndex)->thumbnailUrl;
@@ -134,7 +134,7 @@ class RedditListViewDataSource : public ui::ListViewDataSource
 class PostListViewController
 {
   public:
-    using clickNotifier_t = Notifier<String, String, String>;
+    using clickNotifier_t = Notifier<std::string, std::string, std::string>;
 
     PostListViewController() : _listView(std::make_shared<ui::ListView>())
     {
@@ -187,7 +187,7 @@ class PostListViewController
 class PostDetailController
 {
   public:
-    PostDetailController(const String &title, const String &url, const String &imageUrl)
+    PostDetailController(const std::string &title, const std::string &url, const std::string &imageUrl)
         : _mainColumn(std::make_shared<ui::ContainerView>())
     {
         _mainColumn->stylesheet = FlexJsonStringify({"flexGrow" : 1.0});

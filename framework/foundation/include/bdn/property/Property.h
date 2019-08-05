@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 #include <bdn/property/GetterSetterBacking.h>
 #include <bdn/property/SetterBacking.h>
@@ -152,11 +152,11 @@ namespace bdn
 
         bool operator==(const ValType &value) const { return get() == value; }
 
-        bool operator==(const char *cString) const { return Property<ValType>::operator==(String(cString)); }
+        bool operator==(const char *cString) const { return Property<ValType>::operator==(std::string(cString)); }
 
         bool operator!=(const ValType &value) const { return get() != value; }
 
-        bool operator!=(const char *cString) const { return Property<ValType>::operator!=(String(cString)); }
+        bool operator!=(const char *cString) const { return Property<ValType>::operator!=(std::string(cString)); }
 
         ValType operator*() const { return get(); }
 

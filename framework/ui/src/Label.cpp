@@ -14,7 +14,7 @@ namespace bdn::ui
         detail::VIEW_CORE_REGISTER(Label, View::viewCoreFactory());
     }
 
-    Notifier<const String &> &Label::onLinkClick() { return _onLinkClick; }
+    Notifier<const std::string &> &Label::onLinkClick() { return _onLinkClick; }
 
     void Label::bindViewCore()
     {

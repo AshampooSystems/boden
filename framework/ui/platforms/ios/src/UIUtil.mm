@@ -4,7 +4,7 @@
 
 namespace bdn::ui::ios
 {
-    bool imageFromUrl(const String &url, std::function<void(UIImage *)> callback)
+    bool imageFromUrl(const std::string &url, std::function<void(UIImage *)> callback)
     {
         auto uri = App()->uriToBundledFileUri(url);
 

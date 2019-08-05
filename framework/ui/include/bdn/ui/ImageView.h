@@ -17,7 +17,7 @@ namespace bdn::ui
         Property<float> iAspectRatio;
 
       public:
-        Property<String> url;
+        Property<std::string> url;
         const Property<Size> originalSize = iOriginalSize;
         const Property<float> aspectRatio = iAspectRatio;
 
@@ -32,7 +32,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> url;
+            Property<std::string> url;
             Property<Size> originalSize;
             Property<float> aspectRatio;
         };

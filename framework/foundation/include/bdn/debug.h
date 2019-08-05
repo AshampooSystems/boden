@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 namespace bdn
 {
-    void debuggerPrint(const String &message);
+    void debuggerPrint(const std::string &message);
     bool debuggerPrintGoesToStdErr();
 }

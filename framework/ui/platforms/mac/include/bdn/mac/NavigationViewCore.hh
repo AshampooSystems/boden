@@ -18,7 +18,7 @@ namespace bdn::ui::mac
         void init() override;
 
       public:
-        void pushView(std::shared_ptr<View> view, String title) override;
+        void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
         std::list<std::shared_ptr<View>> childViews() override;
 
@@ -40,7 +40,7 @@ namespace bdn::ui::mac
         struct StackEntry
         {
             std::shared_ptr<View> view;
-            String title;
+            std::string title;
         };
 
         std::deque<StackEntry> _stack;

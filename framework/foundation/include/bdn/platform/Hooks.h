@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 #include <bdn/log.h>
 
@@ -16,10 +16,10 @@ namespace bdn
 
             virtual void initializeThread();
 
-            virtual void debuggerPrint(const String &text);
+            virtual void debuggerPrint(const std::string &text);
             virtual bool debuggerPrintGoesToStdErr();
 
-            virtual void log(Severity severity, const String &message);
+            virtual void log(Severity severity, const std::string &message);
 
           public:
             static std::unique_ptr<Hooks> &get();

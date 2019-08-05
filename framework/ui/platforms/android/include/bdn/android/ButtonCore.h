@@ -18,7 +18,7 @@ namespace bdn::ui::android
 
       private:
         void textChanged(const Text &text);
-        void imageChanged(const String &url);
+        void imageChanged(const std::string &url);
 
       private:
         mutable bdn::android::wrapper::NativeButton _jButton;

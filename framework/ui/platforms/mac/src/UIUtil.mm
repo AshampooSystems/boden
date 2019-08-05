@@ -2,7 +2,7 @@
 
 namespace bdn::ui::mac
 {
-    bool imageFromUrl(const String &url, std::function<void(NSImage *)> callback)
+    bool imageFromUrl(const std::string &url, std::function<void(NSImage *)> callback)
     {
         auto uri = App()->uriToBundledFileUri(url);
 

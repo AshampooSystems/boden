@@ -8,7 +8,7 @@
 #include <sstream>
 
 #include <bdn/Json.h>
-#include <bdn/String.h>
+#include <string>
 
 namespace bdn
 {
@@ -18,7 +18,7 @@ namespace bdn
         Color() = default;
         Color(const Color &other) { _component = other._component; }
 
-        Color(String color);
+        Color(std::string color);
 
         constexpr Color(std::array<double, 4> array) { _component = array; }
         constexpr Color(double r, double g, double b, double a = 1.0f) { _component = {r, g, b, a}; }
@@ -74,7 +74,7 @@ namespace bdn
         std::array<double, 4> _component = {0.f, 0.f, 0.f, 1.f};
 
       private:
-        static const std::map<String, Color> _namedColors;
+        static const std::map<std::string, Color> _namedColors;
     };
 }
 
@@ -96,7 +96,7 @@ namespace nlohmann
                 }
                 color = bdn::Color(c);
             } else if (j.is_string()) {
-                color = bdn::Color((bdn::String)j);
+                color = bdn::Color((std::string)j);
             }
         }
     };

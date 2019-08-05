@@ -26,7 +26,7 @@ namespace bdn::ui
             All = (LandscapeMask | PortraitMask)
         };
 
-        static String orientationToString(Orientation orientation);
+        static std::string orientationToString(Orientation orientation);
 
       public:
         Window(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -36,7 +36,7 @@ namespace bdn::ui
 
       public:
         const Property<Rect> &contentGeometry = internalContentGeometry;
-        Property<String> title;
+        Property<std::string> title;
         Property<std::shared_ptr<View>> contentView;
 
         Property<Orientation> allowedOrientations;
@@ -63,7 +63,7 @@ namespace bdn::ui
           public:
             Property<std::shared_ptr<View>> contentView;
             Property<Rect> contentGeometry;
-            Property<String> title;
+            Property<std::string> title;
 
             Property<Orientation> allowedOrientations;
             Property<Orientation> currentOrientation;

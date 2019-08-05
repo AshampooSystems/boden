@@ -11,21 +11,21 @@ namespace bdn::android
         AttributedString();
 
       public:
-        void addAttribute(String attributeName, std::any value, Range range) override;
+        void addAttribute(std::string attributeName, std::any value, Range range) override;
         void addAttributes(AttributeMap attributes, Range range) override;
 
       public:
-        void fromString(const String &text) override;
+        void fromString(const std::string &text) override;
 
       public:
-        bool fromHTML(const String &html) override;
-        String toHTML() const override;
+        bool fromHTML(const std::string &html) override;
+        std::string toHTML() const override;
 
       public:
         wrapper::Spanned spanned() { return _spannedBuilder; }
 
       public:
-        Notifier<String> &linkClicked() { return _linkClicked; }
+        Notifier<std::string> &linkClicked() { return _linkClicked; }
 
       private:
         void visitWithObjectFromAttribute(AttributeMap::const_reference attribute,
@@ -33,6 +33,6 @@ namespace bdn::android
 
       private:
         wrapper::SpannableStringBuilder _spannedBuilder;
-        Notifier<String> _linkClicked;
+        Notifier<std::string> _linkClicked;
     };
 }

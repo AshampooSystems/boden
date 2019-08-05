@@ -44,7 +44,7 @@ navigationView->pushView(firstButton, "First Page");
 
 ## View manipulation
 
-* **void pushView(std::shared_ptr<[View](view.md)\> view, [String](../foundation/string.md) title)**
+* **void pushView(std::shared_ptr<[View](view.md)\> view, std::string title)**
 
 	Pushes the given view with the specified title to the top of the stack. 
 

@@ -4,23 +4,23 @@
 
 namespace bdn
 {
-    String fromUtf32(const std::u32string &utf32String)
+    std::string fromUtf32(const std::u32string &utf32String)
     {
         std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
         return convert.to_bytes(utf32String);
     }
 
-    String fromUtf16(const std::u16string &utf16String)
+    std::string fromUtf16(const std::u16string &utf16String)
     {
         std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
         return convert.to_bytes(utf16String);
     }
 
-    std::tuple<StringView, StringView> split(const StringView &view, String::value_type token)
+    std::tuple<std::string_view, std::string_view> split(const std::string_view &view, std::string::value_type token)
     {
         auto pos = view.find(token);
-        if (pos == StringView::npos) {
-            return {view, StringView()};
+        if (pos == std::string_view::npos) {
+            return {view, std::string_view()};
         }
 
         return {view.substr(0, pos), view.substr(pos + 1)};
@@ -89,12 +89,12 @@ namespace bdn
         return std::to_string(duration.count()) + "s";
     }
 
-    String stringFromAny(const std::any &anyString)
+    std::string stringFromAny(const std::any &anyString)
     {
         if (anyString.type() == typeid(bdn::json)) {
-            return (String)std::any_cast<bdn::json>(anyString);
-        } else if (anyString.type() == typeid(String)) {
-            return std::any_cast<String>(anyString);
+            return (std::string)std::any_cast<bdn::json>(anyString);
+        } else if (anyString.type() == typeid(std::string)) {
+            return std::any_cast<std::string>(anyString);
         } else {
             throw std::bad_any_cast();
         }

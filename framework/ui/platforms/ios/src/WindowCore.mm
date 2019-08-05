@@ -391,7 +391,7 @@ namespace bdn::ui::ios
             [_rootViewController setNeedsStatusBarAppearanceUpdate];
         }
         if (stylesheet.count("background-color")) {
-            String color = stylesheet.at("background-color");
+            std::string color = stylesheet.at("background-color");
 
             unsigned rgbValue = 0;
             NSScanner *scanner = [NSScanner scannerWithString:fk::stringToNSString(color)];

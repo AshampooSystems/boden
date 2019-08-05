@@ -294,7 +294,7 @@ As an example, add a `label` property so users of your view can set the button's
 class ExampleButtonView : public ui::View
 {
 public:
-	Property<String> label;
+	Property<std::string> label;
 }
 ```
 
@@ -312,7 +312,7 @@ public:
 		class ExampleButtonView : public ui::View
 		{
 		  public:
-			Property<String> label;
+			Property<std::string> label;
 
 		  public:
 			ExampleButtonView(
@@ -332,7 +332,7 @@ To connect the property to the core, replicate the property in the `Core` interf
 class Core
 {
 public:
-	Property<String> label; 
+	Property<std::string> label; 
 }
 ```
 
@@ -350,7 +350,7 @@ public:
 		class ExampleButtonView : public ui::View
 		{
 		  public:
-			Property<String> label;
+			Property<std::string> label;
 
 		  public:
 			ExampleButtonView(
@@ -360,7 +360,7 @@ public:
 			class Core
 			{
 			  public:
-				Property<String> label;
+				Property<std::string> label;
 			};
 		};
 	}
@@ -502,7 +502,7 @@ public:
 		class ExampleButtonView : public ui::View
 		{
 		  public:
-			Property<String> label;
+			Property<std::string> label;
 
 		  public:
 			ExampleButtonView(
@@ -512,7 +512,7 @@ public:
 			class Core
 			{
 			  public:
-				Property<String> label;
+				Property<std::string> label;
 
 		      public:
 		        WeakCallback<void()> _clickCallback;
@@ -612,7 +612,7 @@ class ExampleButtonView
 		class ExampleButtonView : public ui::View
 		{
 		  public:
-			Property<String> label;
+			Property<std::string> label;
 
 		  public:
 			ExampleButtonView(
@@ -626,7 +626,7 @@ class ExampleButtonView
 			class Core
 			{
 			  public:
-				Property<String> label;
+				Property<std::string> label;
 
 		      public:
 		        WeakCallback<void()> _clickCallback;

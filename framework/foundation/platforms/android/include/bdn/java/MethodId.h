@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 namespace bdn::java
 {
@@ -34,7 +34,7 @@ namespace bdn::java
          *  JObject::invoke_() or JClass::invokeObjectMethod_() provide a
          * higher level access that automatically initializes the method Id.
          *  */
-        void init(wrapper::Class &cls, const String &methodName, const String &methodSignature);
+        void init(wrapper::Class &cls, const std::string &methodName, const std::string &methodSignature);
 
         /** Initializes the Id by looking up the static method with the
          * specified name and signature from the specified class.
@@ -47,7 +47,7 @@ namespace bdn::java
          * provide a higher level access that automatically initializes the
          * method Id.
          *  */
-        void initStatic(wrapper::Class &cls, const String &methodName, const String &methodSignature);
+        void initStatic(wrapper::Class &cls, const std::string &methodName, const std::string &methodSignature);
 
         /** Initializes the method Id object.*/
         void init(jmethodID id)

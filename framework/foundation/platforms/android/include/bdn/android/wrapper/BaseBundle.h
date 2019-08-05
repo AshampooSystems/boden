@@ -16,6 +16,6 @@ namespace bdn::android::wrapper
 
       public:
         JavaMethod<JavaString(JavaString)> getString{this, "getString"};
-        JavaMethod<java::wrapper::ArrayOfObjects<JavaString>(String)> getStringArray{this, "getStringArray"};
+        JavaMethod<java::wrapper::ArrayOfObjects<JavaString>(std::string)> getStringArray{this, "getStringArray"};
     };
 }

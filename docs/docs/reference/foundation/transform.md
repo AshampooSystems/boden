@@ -17,7 +17,7 @@ namespace bdn {
 ## Example
 
 ```c++
-auto toFunc = [](int value) -> String {
+auto toFunc = [](int value) -> std::string {
     switch (value) {
     case 0:
         return "no"s;
@@ -35,7 +35,7 @@ auto toFunc = [](int value) -> String {
     return s.str();
 };
 
-auto fromFunc = [](String value) -> int {
+auto fromFunc = [](std::string value) -> int {
 	if(value.empty())
 		return 0;
 	if(value == "no"s)
@@ -55,7 +55,7 @@ auto fromFunc = [](String value) -> int {
 };
 
 Property<int> integerProperty = 1;
-Property<String> transformedProperty(Transform<String, int>{test, toFunc, fromFunc});
+Property<std::string> transformedProperty(Transform<std::string, int>{test, toFunc, fromFunc});
 // transformedProperty now equals "one"s
 
 integerProperty = 42;

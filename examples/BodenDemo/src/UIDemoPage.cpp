@@ -75,7 +75,7 @@ namespace bdn
     class DemoDataSource : public ListViewDataSource
     {
       public:
-        std::vector<String> _data;
+        std::vector<std::string> _data;
 
       public:
         DemoDataSource() { _data = {"List entry 1", "List entry 2"}; }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bdn/String.h>
+#include <string>
 
 namespace bdn
 {
     class Uri
     {
       public:
-        static String unescape(const String &s);
+        static std::string unescape(const std::string &s);
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bdn/java/wrapper/Object.h>
+#include <string>
 
 namespace bdn::java::wrapper
 {
@@ -8,7 +9,7 @@ namespace bdn::java::wrapper
     class CharSequence : public Object
     {
       public:
-        CharSequence(const bdn::String &str);
+        CharSequence(const std::string &str);
 
         /** @param objectRef the reference to the Java object.
          *      The JObject instance will copy this reference and keep its
@@ -36,6 +37,6 @@ namespace bdn::java::wrapper
 
         Class &getClass_() override { return getStaticClass_(); }
 
-        operator bdn::String() { return toString(); }
+        operator std::string() { return toString(); }
     };
 }

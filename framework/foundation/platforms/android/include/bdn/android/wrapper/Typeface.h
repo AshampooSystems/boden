@@ -29,7 +29,7 @@ namespace bdn::android::wrapper
         constexpr static Base::StaticMethod<Typeface(Typeface /*family*/, int /*weight*/, bool /*italic**/)>
             createWithWeightAndItalic{"create"};
         constexpr static Base::StaticMethod<Typeface(Typeface, int)> createWithStyle{"create"};
-        constexpr static Base::StaticMethod<Typeface(String, int)> createWithFamilyAndStyle{"create"};
+        constexpr static Base::StaticMethod<Typeface(std::string, int)> createWithFamilyAndStyle{"create"};
 
       public:
         static Typeface create(Typeface family, int weight, bool italic)

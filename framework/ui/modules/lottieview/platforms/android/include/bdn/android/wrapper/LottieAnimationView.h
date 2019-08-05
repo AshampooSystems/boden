@@ -14,7 +14,7 @@ namespace bdn::android::wrapper
         using BaseView<javaClassName>::BaseView;
 
       public:
-        JavaMethod<void(bdn::String)> setAnimationFromUrl{this, "setAnimationFromUrl"};
+        JavaMethod<void(std::string)> setAnimationFromUrl{this, "setAnimationFromUrl"};
         JavaMethod<void()> playAnimation{this, "playAnimation"};
         JavaMethod<void()> pauseAnimation{this, "pauseAnimation"};
         JavaMethod<void(int)> setRepeatCount{this, "setRepeatCount"};
@@ -29,6 +29,6 @@ namespace bdn::android::wrapper
         using BaseLottieAnimationView<kNativeLottieAnimationViewClassName>::BaseLottieAnimationView;
 
       public:
-        JavaMethod<void(bdn::String)> loadFromUrl{this, "loadFromUrl"};
+        JavaMethod<void(std::string)> loadFromUrl{this, "loadFromUrl"};
     };
 }

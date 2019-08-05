@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <bdn/ui/View.h>
+#include <string>
 
 namespace bdn::ui
 {

@@ -9,9 +9,9 @@ namespace bdn::net
       public:
         HTTPRequest originalRequest;
 
-        String url;
-        String header;
-        String data;
+        std::string url;
+        std::string header;
+        std::string data;
 
         int responseCode{};
     };

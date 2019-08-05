@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bdn/String.h>
 #include <bdn/net/HTTP.h>
 #include <bdn/property/Property.h>
+#include <string>
 
 #include <utility>
 
@@ -19,17 +19,17 @@ namespace bdn::net
 
       public:
         http::Method method{bdn::net::http::Method::GET};
-        String url;
-        String header;
+        std::string url;
+        std::string header;
 
         DoneHandler doneHandler;
 
       public:
         HTTPRequest() = default;
-        HTTPRequest(String requestUrl, DoneHandler requestDoneHandler)
+        HTTPRequest(std::string requestUrl, DoneHandler requestDoneHandler)
             : url(std::move(std::move(requestUrl))), doneHandler(std::move(std::move(requestDoneHandler)))
         {}
-        HTTPRequest(http::Method requestMethod, String requestUrl, DoneHandler requestDoneHandler)
+        HTTPRequest(http::Method requestMethod, std::string requestUrl, DoneHandler requestDoneHandler)
             : method(requestMethod), url(std::move(std::move(requestUrl))),
               doneHandler(std::move(std::move(requestDoneHandler)))
         {}

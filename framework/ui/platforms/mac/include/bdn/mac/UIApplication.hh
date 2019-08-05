@@ -17,8 +17,8 @@ namespace bdn::ui::mac
       public:
         void initiateExitIfPossible(int exitCode) override;
         void disposeMainDispatcher() override;
-        void openURL(const String &url) override;
-        String uriToBundledFileUri(const String &uri) override;
+        void openURL(const std::string &url) override;
+        std::string uriToBundledFileUri(const std::string &uri) override;
 
       public:
         void _applicationWillFinishLaunching(NSNotification *notification);

@@ -20,7 +20,7 @@ namespace bdn::ui
     class TextField : public View
     {
       public:
-        Property<String> text;
+        Property<std::string> text;
         Property<Text> placeholder;
         Property<Font> font;
         Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
@@ -47,7 +47,7 @@ namespace bdn::ui
         class Core
         {
           public:
-            Property<String> text;
+            Property<std::string> text;
             Property<Text> placeholder;
             Property<Font> font;
             Property<AutocorrectionType> autocorrectionType;

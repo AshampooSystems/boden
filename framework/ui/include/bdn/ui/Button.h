@@ -17,7 +17,7 @@ namespace bdn::ui
     {
       public:
         Property<Text> label;
-        Property<String> imageURL;
+        Property<std::string> imageURL;
 
       public:
         Button(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -38,7 +38,7 @@ namespace bdn::ui
         {
           public:
             Property<Text> label;
-            Property<String> imageURL;
+            Property<std::string> imageURL;
 
           public:
             WeakCallback<void()> _clickCallback;

@@ -24,10 +24,10 @@ namespace bdn::ui::android
 
       public:
         // Called by Java (via JNativeEditTextTextWatcher)
-        void beforeTextChanged(const String &string, int start, int count, int after);
+        void beforeTextChanged(const std::string &string, int start, int count, int after);
 
         // Called by Java (via JNativeEditTextTextWatcher)
-        void onTextChanged(const String &string, int start, int before, int count);
+        void onTextChanged(const std::string &string, int start, int before, int count);
 
         // Called by Java (via JNativeEditTextTextWatcher)
         void afterTextChanged();

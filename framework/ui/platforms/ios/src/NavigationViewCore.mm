@@ -226,7 +226,7 @@ namespace bdn::ui::ios
         return nullptr;
     }
 
-    void NavigationViewCore::pushView(std::shared_ptr<View> view, String title)
+    void NavigationViewCore::pushView(std::shared_ptr<View> view, std::string title)
     {
         BodenStackUIViewController *ctrl = [[BodenStackUIViewController alloc] init];
         ctrl.stackCore = shared_from_this<NavigationViewCore>();

@@ -25,7 +25,7 @@ namespace bdn::ui::android
 
       private:
         mutable bdn::android::wrapper::NativeLabel _jLabel;
-        Notifier<String>::Subscription _linkSubscription;
+        Notifier<std::string>::Subscription _linkSubscription;
         std::shared_ptr<bdn::android::AttributedString> _currentAttributedString;
     };
 }

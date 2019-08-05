@@ -14,7 +14,7 @@ namespace bdn::ui
         detail::VIEW_CORE_REGISTER(NavigationView, View::viewCoreFactory());
     }
 
-    void NavigationView::pushView(std::shared_ptr<View> view, String title)
+    void NavigationView::pushView(std::shared_ptr<View> view, std::string title)
     {
         if (auto navigationViewCore = core<NavigationView::Core>()) {
             navigationViewCore->pushView(std::move(view), std::move(title));

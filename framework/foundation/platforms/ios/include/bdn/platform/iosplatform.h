@@ -12,7 +12,7 @@ namespace bdn
             static void init();
 
           public:
-            void debuggerPrint(const String &text) override;
+            void debuggerPrint(const std::string &text) override;
             bool debuggerPrintGoesToStdErr() override;
         };
     }

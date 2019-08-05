@@ -2,21 +2,21 @@
 
 #include <bdn/AttributedString.h>
 #include <bdn/Color.h>
-#include <bdn/String.h>
 #include <bdn/android/AttributedString.h>
 #include <bdn/android/wrapper/CharacterStyle.h>
 #include <bdn/entry.h>
 #include <bdn/java/wrapper/NativeWeakPointer.h>
 #include <bdn/java/wrapper/Object.h>
+#include <string>
 
 namespace bdn::android::wrapper
 {
     constexpr const char kLinkClickSpanClassName[] = "io/boden/android/LinkClickSpan";
 
-    class LinkClickSpan : public BaseCharacterStyle<kLinkClickSpanClassName, java::wrapper::Object, String>
+    class LinkClickSpan : public BaseCharacterStyle<kLinkClickSpanClassName, java::wrapper::Object, std::string>
     {
       public:
-        using BaseCharacterStyle<kLinkClickSpanClassName, java::wrapper::Object, String>::BaseCharacterStyle;
+        using BaseCharacterStyle<kLinkClickSpanClassName, java::wrapper::Object, std::string>::BaseCharacterStyle;
     };
 
     extern "C" JNIEXPORT void JNICALL Java_io_boden_android_LinkClickSpan_linkClicked(JNIEnv *env, jclass cls,
@@ -27,7 +27,7 @@ namespace bdn::android::wrapper
         bdn::platformEntryWrapper(
             [&]() {
                 jboolean isCopy;
-                bdn::String url = env->GetStringUTFChars(rawUrl, &isCopy);
+                std::string url = env->GetStringUTFChars(rawUrl, &isCopy);
 
                 bdn::java::wrapper::NativeWeakPointer attrStrPtr(
                     bdn::java::Reference::convertExternalLocal(rawAttrStr));

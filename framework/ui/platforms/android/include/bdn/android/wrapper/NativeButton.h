@@ -13,7 +13,7 @@ namespace bdn::android::wrapper
         using BaseViewGroup<kNativeButtonClassName>::BaseViewGroup;
 
       public:
-        JavaMethod<bool(String)> setImage{this, "setImage"};
+        JavaMethod<bool(std::string)> setImage{this, "setImage"};
         JavaMethod<void(java::wrapper::CharSequence)> setText{this, "setText"};
     };
 }
