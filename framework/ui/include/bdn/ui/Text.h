@@ -6,20 +6,10 @@
 
 #include <bdn/Json.h>
 
-namespace bdn
+namespace bdn::ui
 {
     class Text : public std::variant<std::string, std::shared_ptr<AttributedString>>
     {
-      public:
-        enum class TruncateMode
-        {
-            Head,
-            Tail,
-            Middle,
-            Clip,
-            ClipWord
-        };
-
       public:
         using variant<std::string, std::shared_ptr<AttributedString>>::variant;
 
@@ -55,9 +45,9 @@ namespace bdn
 
 namespace nlohmann
 {
-    template <> struct adl_serializer<bdn::Text>
+    template <> struct adl_serializer<bdn::ui::Text>
     {
-        static void to_json(json &j, const bdn::Text &text)
+        static void to_json(json &j, const bdn::ui::Text &text)
         {
             std::visit(
                 [&j](auto &&arg) {
@@ -71,7 +61,7 @@ namespace nlohmann
                 text);
         }
 
-        static void from_json(const json &j, bdn::Text &text)
+        static void from_json(const json &j, bdn::ui::Text &text)
         {
             if (j.is_string()) {
                 text = (std::string)j;
@@ -84,7 +74,7 @@ namespace nlohmann
     };
 }
 
-inline bool operator!=(const bdn::Text &lhs, const bdn::Text &rhs)
+inline bool operator!=(const bdn::ui::Text &lhs, const bdn::ui::Text &rhs)
 {
     if (lhs.index() != rhs.index()) {
         return true;

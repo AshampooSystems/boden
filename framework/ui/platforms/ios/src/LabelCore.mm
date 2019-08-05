@@ -1,7 +1,7 @@
+#import <bdn/applecommon/conversionUtil.hh>
 #import <bdn/foundationkit/AttributedString.hh>
-#include <bdn/ios/LabelCore.hh>
 
-#include <bdn/log.h>
+#include <bdn/ios/LabelCore.hh>
 
 namespace bdn::ui::detail
 {
@@ -97,7 +97,7 @@ namespace bdn::ui::ios
             markDirty();
         };
 
-        truncateMode.onChange() += [=](const auto &property) { setTruncationMode(property.get()); };
+        textOverflow.onChange() += [=](const auto &property) { setTextOverflowMode(property.get()); };
     }
 
     UITextView *LabelCore::getUILabel() { return _uiLabel; }
@@ -137,12 +137,12 @@ namespace bdn::ui::ios
             },
             text);
 
-        setTruncationMode(truncateMode);
+        setTextOverflowMode(textOverflow);
     }
 
-    void LabelCore::setTruncationMode(Text::TruncateMode mode)
+    void LabelCore::setTextOverflowMode(TextOverflow mode)
     {
-        _uiLabel.textContainer.lineBreakMode = bdn::fk::truncateModeToLineBreakMode(mode);
+        _uiLabel.textContainer.lineBreakMode = bdn::ui::applecommon::textOverflowToLineBreakMode(mode);
 
         markDirty();
         scheduleLayout();

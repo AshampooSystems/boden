@@ -1,6 +1,7 @@
 #include <bdn/log.h>
 #include <bdn/mac/LabelCore.hh>
 
+#import <bdn/applecommon/conversionUtil.hh>
 #import <bdn/foundationkit/AttributedString.hh>
 
 namespace bdn::ui::detail
@@ -89,7 +90,7 @@ namespace bdn::ui::mac
     {
         _nsTextView = (BodenTextView *)nsView();
 
-        setTruncateMode(Text::TruncateMode::Head);
+        setTextOverflowMode(TextOverflow::EllipsisHead);
 
         text.onChange() += [=](auto &property) { textPropertyChanged(property.get()); };
 
@@ -98,7 +99,7 @@ namespace bdn::ui::mac
             markDirty();
         };
 
-        truncateMode.onChange() += [=](const auto &property) { setTruncateMode(property.get()); };
+        textOverflow.onChange() += [=](const auto &property) { setTextOverflowMode(property.get()); };
     }
 
     Size LabelCore::sizeForSpace(Size availableSpace) const
@@ -143,14 +144,14 @@ namespace bdn::ui::mac
             },
             text);
 
-        setTruncateMode(truncateMode);
+        setTextOverflowMode(textOverflow);
     }
 
-    void LabelCore::setTruncateMode(Text::TruncateMode mode)
+    void LabelCore::setTextOverflowMode(TextOverflow mode)
     {
         NSMutableParagraphStyle *pStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
 
-        pStyle.lineBreakMode = bdn::fk::truncateModeToLineBreakMode(mode);
+        pStyle.lineBreakMode = bdn::ui::applecommon::textOverflowToLineBreakMode(mode);
 
         [_nsTextView.textStorage addAttribute:NSParagraphStyleAttributeName
                                         value:pStyle

@@ -12,10 +12,10 @@ namespace bdn
     {
         stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
-        constexpr std::array<std::pair<const char *, Text::TruncateMode>, 5> modes{
-            std::make_pair("Head", Text::TruncateMode::Head),         std::make_pair("Tail", Text::TruncateMode::Tail),
-            std::make_pair("Middle", Text::TruncateMode::Middle),     std::make_pair("Clip", Text::TruncateMode::Clip),
-            std::make_pair("ClipWord", Text::TruncateMode::ClipWord),
+        constexpr std::array<std::pair<const char *, TextOverflow>, 5> modes{
+            std::make_pair("Head", TextOverflow::EllipsisHead),     std::make_pair("Tail", TextOverflow::EllipsisTail),
+            std::make_pair("Middle", TextOverflow::EllipsisMiddle), std::make_pair("Clip", TextOverflow::Clip),
+            std::make_pair("ClipWord", TextOverflow::ClipWord),
         };
 
         auto slider = std::make_shared<Slider>();
@@ -26,7 +26,7 @@ namespace bdn
         for (auto &mode : modes) {
             auto label = std::make_shared<Label>();
             label->text = "The quick brown fox jumps over the lazy dog";
-            label->truncateMode = mode.second;
+            label->textOverflow = mode.second;
             label->stylesheet = FlexJsonStringify({"flexGrow" : 1});
 
             slider->value.onChange() += [=](const auto &property) {

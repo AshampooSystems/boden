@@ -82,7 +82,6 @@ nav:
       - reference/foundation/size.md
       - reference/foundation/streaming.md
       - reference/foundation/string.md
-      - reference/foundation/text.md
       - reference/foundation/transform.md
     - UI:
       - reference/ui/autocorrection_type.md
@@ -106,7 +105,9 @@ nav:
       - reference/ui/styler.md
       - reference/ui/submit_event.md
       - reference/ui/switch.md
+      - reference/ui/text.md
       - reference/ui/text_field.md
+      - reference/ui/text_overflow.md
       - reference/ui/tri_state.md
       - reference/ui/view.md
       - reference/ui/view_core.md

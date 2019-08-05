@@ -6,7 +6,6 @@
 
 #include <bdn/Color.h>
 #include <bdn/Font.h>
-#include <bdn/Text.h>
 #include <bdn/platform.h>
 
 #ifdef BDN_PLATFORM_IOS
@@ -48,23 +47,5 @@ namespace bdn::fk
             return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
         }
         return std::string();
-    }
-
-    inline NSLineBreakMode truncateModeToLineBreakMode(Text::TruncateMode mode)
-    {
-        switch (mode) {
-        case Text::TruncateMode::Head:
-            return NSLineBreakByTruncatingHead;
-        case Text::TruncateMode::Tail:
-            return NSLineBreakByTruncatingTail;
-        case Text::TruncateMode::Middle:
-            return NSLineBreakByTruncatingMiddle;
-        case Text::TruncateMode::Clip:
-            return NSLineBreakByClipping;
-        case Text::TruncateMode::ClipWord:
-            return NSLineBreakByWordWrapping;
-        }
-
-        return NSLineBreakByWordWrapping;
     }
 }

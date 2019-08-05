@@ -1,7 +1,8 @@
 #pragma once
 
 #include <bdn/Notifier.h>
-#include <bdn/Text.h>
+#include <bdn/ui/Text.h>
+#include <bdn/ui/TextOverflow.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
 
@@ -18,7 +19,7 @@ namespace bdn::ui
       public:
         Property<Text> text;
         Property<bool> wrap = false;
-        Property<Text::TruncateMode> truncateMode = Text::TruncateMode::Tail;
+        Property<TextOverflow> textOverflow = TextOverflow::EllipsisTail;
 
       public:
         Label(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -40,7 +41,7 @@ namespace bdn::ui
           public:
             Property<Text> text;
             Property<bool> wrap = false;
-            Property<Text::TruncateMode> truncateMode;
+            Property<TextOverflow> textOverflow;
 
           public:
             virtual ~Core() = default;

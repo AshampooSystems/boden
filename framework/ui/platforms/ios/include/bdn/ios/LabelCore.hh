@@ -37,7 +37,7 @@ namespace bdn::ui::ios
       protected:
         bool canAdjustToAvailableWidth() const override { return wrap.get(); }
         void textChanged(const Text &text);
-        void setTruncationMode(Text::TruncateMode mode);
+        void setTextOverflowMode(TextOverflow mode);
 
       private:
         UITextView *_uiLabel;

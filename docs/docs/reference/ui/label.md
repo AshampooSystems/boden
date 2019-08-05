@@ -24,7 +24,7 @@ label->text = "Hello World";
 
 ## Properties
 
-* **[Property](../foundation/property.md)<[Text](../foundation/text.md)\> text**
+* **[Property](../foundation/property.md)<[Text](text.md)\> text**
 
 	The label's text.
 
@@ -34,15 +34,14 @@ label->text = "Hello World";
 
 	Defaults to `false`
 
-* **[Property](../foundation/property.md)<[Text::TruncateMode](../foundation/text.md#truncatemode)\> truncateMode**
+* **[Property](../foundation/property.md)<[TextOverflow](text_overflow.md)\> textOverflow**
 
-	Changes the way text is truncated if it does not fit the View. 
-
-	Defaults to `Text::TruncateMode::Tail`.
+	Specifies the way text is cut if it does not fit inside the view.
+	Defaults to `TextOverflow::EllipsisTail`.
 
 ## Stylesheet
 
-* **{ "text" : [Text](../foundation/text.md) }**
+* **{ "text" : [Text](text.md) }**
 
 	Controls the [`text`](#properties) property.
 

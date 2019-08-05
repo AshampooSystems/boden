@@ -30,7 +30,7 @@ namespace bdn::ui::mac
 
       private:
         void textPropertyChanged(const Text &text);
-        void setTruncateMode(Text::TruncateMode mode);
+        void setTextOverflowMode(TextOverflow mode);
 
       private:
         BodenTextView *_nsTextView;

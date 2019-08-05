@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bdn/Notifier.h>
-#include <bdn/Text.h>
 #include <bdn/ui/ClickEvent.h>
+#include <bdn/ui/Text.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewUtilities.h>
 

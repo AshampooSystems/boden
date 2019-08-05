@@ -31,7 +31,7 @@ textField->onSubmit() += [](auto event) {
 
 	The text displayed in the text field.
 
-* **[Property](../foundation/property.md)<[Text](../foundation/text.md)\> placeholder**
+* **[Property](../foundation/property.md)<[Text](text.md)\> placeholder**
 
 	The placeholder displayed while the TextField is empty.  
 

@@ -27,7 +27,7 @@ namespace bdn::ui::android
             }
         };
 
-        truncateMode.onChange() += [=](const auto &) { updateTruncateAndWrapMode(); };
+        textOverflow.onChange() += [=](const auto &) { updateTruncateAndWrapMode(); };
     }
 
     Size LabelCore::sizeForSpace(Size availableSpace) const
@@ -82,20 +82,20 @@ namespace bdn::ui::android
         if (!wrap) {
             bool useSingleLine = true;
 
-            switch (truncateMode.get()) {
-            case Text::TruncateMode::Head:
+            switch (textOverflow.get()) {
+            case TextOverflow::EllipsisHead:
                 _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::START);
                 break;
-            case Text::TruncateMode::Tail:
+            case TextOverflow::EllipsisTail:
                 _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::END);
                 break;
-            case Text::TruncateMode::Middle:
+            case TextOverflow::EllipsisMiddle:
                 _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt::MIDDLE);
                 break;
-            case Text::TruncateMode::Clip:
+            case TextOverflow::Clip:
                 _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt(bdn::java::Reference()));
                 break;
-            case Text::TruncateMode::ClipWord:
+            case TextOverflow::ClipWord:
                 useSingleLine = false;
                 _jLabel.setEllipsize(bdn::android::wrapper::TextUtils::TruncateAt(bdn::java::Reference()));
                 break;
