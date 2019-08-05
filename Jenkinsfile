@@ -4,6 +4,7 @@ pipeline {
     options {
         timeout(time: 4, unit: 'HOURS')
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        parallelsAlwaysFailFast()
     }
 
     environment {
