@@ -43,14 +43,17 @@ namespace bdn
 
         auto testLabel = std::make_shared<ui::Label>();
         testLabel->stylesheet = JsonStringify({"text" : {"html" : "<h1>H1</h1><h2>H2</h2><h3>H3</h3>"}});
+        testLabel->wrap = true;
         addChildView(makeRow("Headings", testLabel, 5., 5., 0.62, true));
 
         auto bulletLabel = std::make_shared<ui::Label>();
+        bulletLabel->wrap = true;
         bulletLabel->stylesheet = JsonStringify(
             {"text" : {"html" : "<ul><li>Hello</li><li>World</li></ul><ol><li>Hello</li><li>World</li></ol>"}});
         addChildView(makeRow("Bullets", bulletLabel, 5., 5., 0.62, true));
 
         auto jsonLabel = std::make_shared<ui::Label>();
+        jsonLabel->wrap = true;
         jsonLabel->stylesheet = JsonStringify({
             "text" : {
                 "string" : "Default\nBold font\nItalic font\nBold & Italic font",

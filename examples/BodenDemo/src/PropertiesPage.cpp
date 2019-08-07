@@ -41,6 +41,7 @@ namespace bdn
         addChildView(header);
 
         auto streamLabel = std::make_shared<Label>();
+        streamLabel->wrap = true;
         streamLabel->text.bind(_streamProperty);
         addChildView(streamLabel);
     }
