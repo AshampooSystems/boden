@@ -28,12 +28,5 @@ namespace bdn::ui
             textCore->_linkClickCallback.set([=](const auto &link) { _onLinkClick.notify(link); });
     }
 
-    void Label::updateFromStylesheet()
-    {
-        View::updateFromStylesheet();
-
-        if (stylesheet->count("text")) {
-            text = stylesheet->at("text").get<bdn::ui::Text>();
-        }
-    }
+    void Label::updateFromStylesheet() { View::updateFromStylesheet(); }
 }

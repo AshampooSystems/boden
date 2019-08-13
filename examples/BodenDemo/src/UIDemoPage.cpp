@@ -172,6 +172,7 @@ namespace bdn
 
         auto scrolledTextView = std::make_shared<Label>();
         scrolledTextView->text = testText;
+        scrolledTextView->textOverflow = TextOverflow::ClipWord;
         scrolledTextView->wrap = true;
 
         _styler->setStyleSheet(scrolledTextView, JsonStringify([

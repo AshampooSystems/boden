@@ -56,6 +56,12 @@ textField->onSubmit() += [](auto event) {
 
 	This property is supported on Android and iOS only.
 
+## Stylesheet
+
+* **{ "font" : [Font](../foundation/font.md) }**
+
+	Controls the background color of the view.
+
 ## Actions
 
 * **void submit()**

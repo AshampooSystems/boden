@@ -31,19 +31,11 @@ namespace bdn::ui {
 
 	Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layouting system. Children are not affected by this setting and will still be layouted. Defaults to `false`.
 
-* **Property<std::optional<[Color](../foundation/color.md)\>\> backgroundColor**
-
-	Set the background color of the view. If set to std::nullopt it returns to the default color.
-
 ## Stylesheet
 
-* **{ "visible" : bool }**
+* **{ "background-color" : [Color](../foundation/color.md) }**
 
-	Controls the [`visible`](#properties) property.
-
-* **{ "background-color" : color }**
-
-	Controls the [`backgroundColor`](#properties) property.
+	Controls the background color of the view.
 
 ## Layout
 

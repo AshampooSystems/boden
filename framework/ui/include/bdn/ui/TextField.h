@@ -22,7 +22,6 @@ namespace bdn::ui
       public:
         Property<std::string> text;
         Property<Text> placeholder;
-        Property<Font> font;
         Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
         Property<ReturnKeyType> returnKeyType = ReturnKeyType::Default;
 

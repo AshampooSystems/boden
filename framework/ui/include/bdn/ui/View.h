@@ -28,7 +28,6 @@ namespace bdn::ui
         Property<bool> visible = true;
         Property<bool> isLayoutRoot = false;
         Property<json> stylesheet;
-        Property<std::optional<Color>> backgroundColor;
 
       public:
         static bool &debugViewEnabled();

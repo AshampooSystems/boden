@@ -1,4 +1,3 @@
-
 #include <bdn/ui/Slider.h>
 
 namespace bdn::ui

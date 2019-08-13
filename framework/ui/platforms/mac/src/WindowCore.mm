@@ -130,6 +130,20 @@ namespace bdn::ui::mac
 
         title.onChange() +=
             [&window = self->_nsWindow](auto &property) { [window setTitle:fk::stringToNSString(property.get())]; };
+
+        backgroundColor.onChange() += [this](auto &property) {
+            auto color = property.get();
+
+            if (color) {
+                _nsContentParent.wantsLayer = YES;
+                _nsContentParent.layer.backgroundColor =
+                    [NSColor colorWithRed:color->red() green:color->green() blue:color->blue() alpha:color->alpha()]
+                        .CGColor;
+            } else {
+                _nsContentParent.layer.backgroundColor = [NSColor clearColor].CGColor;
+                _nsContentParent.wantsLayer = NO;
+            }
+        };
     }
 
     bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const

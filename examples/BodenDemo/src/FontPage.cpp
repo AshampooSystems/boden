@@ -1,4 +1,5 @@
 #include <bdn/Json.h>
+#include <bdn/platform.h>
 #include <bdn/ui/ContainerView.h>
 #include <bdn/ui/ImageView.h>
 #include <bdn/ui/Label.h>
@@ -47,47 +48,61 @@ namespace bdn
         addChildView(makeRow("No-Font", normalTextField, 5., 5., 0.62, true));
 
         auto defaultFontTextField = std::make_shared<FontTestTextField>(needsInit, "default font");
-        defaultFontTextField->font = Font{"Tahoma"};
-        defaultFontTextField->font = Font{};
+        defaultFontTextField->stylesheet |= bdn::json({{"font", Font{"Tahoma"}}});
+        defaultFontTextField->stylesheet |= bdn::json({{"font", nullptr}});
+
         addChildView(makeRow("Default font", defaultFontTextField, 5., 5., 0.62, true));
 
         auto boldTextField = std::make_shared<FontTestTextField>(needsInit, "Bold font");
-        boldTextField->font = Font{"", {}, Font::Style::Inherit, Font::Weight::Bold};
+        boldTextField->stylesheet |= json({{"font", Font{"", {}, Font::Style::Inherit, Font::Weight::Bold}}});
         addChildView(makeRow("Bold", boldTextField, 5., 5., 0.62, true));
 
         auto boldSlider = std::make_shared<Slider>();
         boldSlider->stylesheet = FlexJsonStringify({"size" : {"width" : "66%"}});
 
         boldSlider->value.onChange() += [=](auto p) {
-            Font f = boldTextField->font;
+            Font f = boldTextField->stylesheet.get()["font"];
             f.weight = (Font::Weight)(boldSlider->value.get() * 1000);
-            boldTextField->font = f;
+            boldTextField->stylesheet |= json({{"font", f}});
         };
 
         addChildView(makeRow("Boldness", boldSlider));
 
         auto italicTextField = std::make_shared<FontTestTextField>(needsInit, "Italic font");
-        italicTextField->font = Font{"", {}, Font::Style::Italic};
+        italicTextField->stylesheet |= json({{"font", Font{"", {}, Font::Style::Italic}}});
         addChildView(makeRow("Italic", italicTextField, 5., 5., 0.62, true));
 
         auto smallTextField = std::make_shared<FontTestTextField>(needsInit, "small font");
-        smallTextField->font = Font{"", {Font::Size::Type::Small, 10.f}};
+        smallTextField->stylesheet |= json({{"font", Font{"", {Font::Size::Type::Small, 10.f}}}});
         addChildView(makeRow("Small", smallTextField, 5., 5., 0.62, true));
 
-        auto handwritingTextField = std::make_shared<FontTestTextField>(
-            needsInit, "", JsonStringify([
-                {"text" : "Bradley Hand font", "font" : {"family" : "Bradley Hand"}},
-                {"if" : {"os" : "android"}, "text" : "Cursive", "font" : {"family" : "cursive"}}
-            ]),
-            _styler);
+        auto handwritingTextField =
+            std::make_shared<FontTestTextField>(needsInit, "", JsonStringify([
+                                                    {"font" : {"family" : "Bradley Hand"}}, //
+                                                    {"if" : {"os" : "android"}, "font" : {"family" : "cursive"}}
+                                                ]),
+                                                _styler);
+
+#ifdef BDN_PLATFORM_ANDROID
+        handwritingTextField->text = "Cursive";
+#else
+        handwritingTextField->text = "Bradley Hand font";
+#endif
+
         addChildView(makeRow("Handwriting", handwritingTextField, 5., 5., 0.62, true));
 
-        auto bigHandwritingTextField = std::make_shared<FontTestTextField>(
-            needsInit, "", JsonStringify([
-                {"text" : "Bradley Hand font - Big", "font" : {"family" : "Bradley Hand", "size" : "xxlarge"}},
-                {"if" : {"os" : "android"}, "text" : "Cursive - Big", "font" : {"family" : "cursive"}}
-            ]),
-            _styler);
+        auto bigHandwritingTextField =
+            std::make_shared<FontTestTextField>(needsInit, "", JsonStringify([
+                                                    {"font" : {"family" : "Bradley Hand", "size" : "xxlarge"}}, //
+                                                    {"if" : {"os" : "android"}, "font" : {"family" : "cursive"}}
+                                                ]),
+                                                _styler);
+
+#ifdef BDN_PLATFORM_ANDROID
+        bigHandwritingTextField->text = "Cursive - Big";
+#else
+        bigHandwritingTextField->text = "Bradley Hand font - Big";
+#endif
 
         addChildView(makeRow("Handwriting Big", bigHandwritingTextField, 5., 5., 0.62, true));
     }

@@ -39,16 +39,5 @@ namespace bdn::ui
         });
     }
 
-    void Button::updateFromStylesheet()
-    {
-        View::updateFromStylesheet();
-
-        if (stylesheet->count("label")) {
-            label = stylesheet->at("label").get<bdn::ui::Text>();
-        }
-
-        if (stylesheet->count("image")) {
-            imageURL = (std::string)stylesheet->at("image");
-        }
-    }
+    void Button::updateFromStylesheet() { View::updateFromStylesheet(); }
 }

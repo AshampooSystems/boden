@@ -38,11 +38,11 @@ namespace bdn
     {
         return stream << "(" << r.x << ", " << r.y << " | " << r.width << " x " << r.height << ")";
     }
-}
 
-inline bool operator==(const bdn::Rect &a, const bdn::Rect &b)
-{
-    return (a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height);
-}
+    inline bool operator==(const bdn::Rect &a, const bdn::Rect &b)
+    {
+        return (a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height);
+    }
 
-inline bool operator!=(const bdn::Rect &a, const bdn::Rect &b) { return !operator==(a, b); }
+    inline bool operator!=(const bdn::Rect &a, const bdn::Rect &b) { return !operator==(a, b); }
+}

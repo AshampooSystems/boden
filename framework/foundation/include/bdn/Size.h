@@ -46,20 +46,29 @@ namespace bdn
     {
         return stream << "(" << s.width << " x " << s.height << ")";
     }
+
+    inline bool operator==(const bdn::Size &a, const bdn::Size &b)
+    {
+        return (a.width == b.width && a.height == b.height);
+    }
+
+    inline bool operator!=(const bdn::Size &a, const bdn::Size &b) { return !operator==(a, b); }
+
+    /** Returns true if a's width and height are each smaller than b's */
+    inline bool operator<(const bdn::Size &a, const bdn::Size &b) { return (a.width < b.width && a.height < b.height); }
+
+    /** Returns true if a's width and height are each smaller or equal to b's */
+    inline bool operator<=(const bdn::Size &a, const bdn::Size &b)
+    {
+        return (a.width <= b.width && a.height <= b.height);
+    }
+
+    /** Returns true if a's width and height are each bigger than b's */
+    inline bool operator>(const bdn::Size &a, const bdn::Size &b) { return (a.width > b.width && a.height > b.height); }
+
+    /** Returns true if a's width and height are each bigger or equal to b's */
+    inline bool operator>=(const bdn::Size &a, const bdn::Size &b)
+    {
+        return (a.width >= b.width && a.height >= b.height);
+    }
 }
-
-inline bool operator==(const bdn::Size &a, const bdn::Size &b) { return (a.width == b.width && a.height == b.height); }
-
-inline bool operator!=(const bdn::Size &a, const bdn::Size &b) { return !operator==(a, b); }
-
-/** Returns true if a's width and height are each smaller than b's */
-inline bool operator<(const bdn::Size &a, const bdn::Size &b) { return (a.width < b.width && a.height < b.height); }
-
-/** Returns true if a's width and height are each smaller or equal to b's */
-inline bool operator<=(const bdn::Size &a, const bdn::Size &b) { return (a.width <= b.width && a.height <= b.height); }
-
-/** Returns true if a's width and height are each bigger than b's */
-inline bool operator>(const bdn::Size &a, const bdn::Size &b) { return (a.width > b.width && a.height > b.height); }
-
-/** Returns true if a's width and height are each bigger or equal to b's */
-inline bool operator>=(const bdn::Size &a, const bdn::Size &b) { return (a.width >= b.width && a.height >= b.height); }

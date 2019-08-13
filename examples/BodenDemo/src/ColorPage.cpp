@@ -14,9 +14,9 @@ namespace bdn
     {
         if (_checkBox->state == TriState::On) {
             Color newColor(_rgbSlider[0]->value, _rgbSlider[1]->value, _rgbSlider[2]->value, _rgbSlider[3]->value);
-            _colorBox->backgroundColor = newColor;
+            mergeProperty(_colorBox->stylesheet, {{"background-color", newColor}});
         } else {
-            _colorBox->backgroundColor = std::nullopt;
+            mergeProperty(_colorBox->stylesheet, {{"background-color", nullptr}});
         }
     }
 

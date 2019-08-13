@@ -11,7 +11,12 @@ namespace bdn::ui
     class Text : public std::variant<std::string, std::shared_ptr<AttributedString>>
     {
       public:
-        using variant<std::string, std::shared_ptr<AttributedString>>::variant;
+        Text() = default;
+        Text(const char *str) : std::variant<std::string, std::shared_ptr<AttributedString>>(std::string(str)) {}
+        Text(const std::string &str) : std::variant<std::string, std::shared_ptr<AttributedString>>(str) {}
+        Text(const std::shared_ptr<AttributedString> &attrStr)
+            : std::variant<std::string, std::shared_ptr<AttributedString>>(attrStr)
+        {}
 
         bool empty() const
         {

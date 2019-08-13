@@ -26,28 +26,27 @@ namespace bdn::ui
     void TextField::bindViewCore()
     {
         View::bindViewCore();
-        auto core = View::core<TextField::Core>();
-        core->text.bind(text);
-        core->font.bind(font);
-        core->autocorrectionType.bind(autocorrectionType);
-        core->returnKeyType.bind(returnKeyType);
-        core->placeholder.bind(placeholder);
+        if (auto core = View::core<TextField::Core>()) {
+            core->text.bind(text);
+            core->autocorrectionType.bind(autocorrectionType);
+            core->returnKeyType.bind(returnKeyType);
+            core->placeholder.bind(placeholder);
 
-        _submitCallbackReceiver = core->submitCallback.set([=]() {
-            SubmitEvent evt(shared_from_this());
-            onSubmit().notify(evt);
-        });
+            _submitCallbackReceiver = core->submitCallback.set([=]() {
+                SubmitEvent evt(shared_from_this());
+                onSubmit().notify(evt);
+            });
+        }
     }
 
     void TextField::updateFromStylesheet()
     {
-        if (stylesheet->count("font")) {
-            Font f = stylesheet->at("font");
-            font = f;
-        }
-
-        if (stylesheet->count("text")) {
-            text = stylesheet->at("text");
+        if (auto core = View::core<TextField::Core>()) {
+            if (stylesheet->count("font")) {
+                core->font = (Font)stylesheet->at("font");
+            } else {
+                core->font = Font();
+            }
         }
 
         View::updateFromStylesheet();

@@ -39,12 +39,6 @@ label->text = "Hello World";
 	Specifies the way text is cut if it does not fit inside the view.
 	Defaults to `TextOverflow::EllipsisTail`.
 
-## Stylesheet
-
-* **{ "text" : [Text](text.md) }**
-
-	Controls the [`text`](#properties) property.
-
 ## Relationships
 
 Inherits from: [View](view.md)

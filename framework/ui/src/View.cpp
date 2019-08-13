@@ -1,8 +1,6 @@
-#include <bdn/ui/View.h>
-
-#include <bdn/ui/ViewCoreFactory.h>
-
 #include <bdn/ui/UIApplicationController.h>
+#include <bdn/ui/View.h>
+#include <bdn/ui/ViewCoreFactory.h>
 
 #include <utility>
 
@@ -108,15 +106,13 @@ namespace bdn::ui
 
     void View::updateFromStylesheet()
     {
-        if (stylesheet->count("visible")) {
-            visible = (bool)stylesheet->at("visible");
-        }
-
-        if (stylesheet->count("background-color")) {
-            backgroundColor = stylesheet->at("background-color");
-        }
-
         if (auto core = viewCore()) {
+            if (stylesheet->count("background-color")) {
+                core->backgroundColor = stylesheet->at("background-color");
+            } else {
+                core->backgroundColor = std::nullopt;
+            }
+
             core->updateFromStylesheet(stylesheet.get());
         }
     }
@@ -170,7 +166,6 @@ namespace bdn::ui
     {
         viewCore()->visible.bind(visible);
         viewCore()->geometry.bind(geometry);
-        viewCore()->backgroundColor.bind(backgroundColor);
 
         _layoutCallbackReceiver = viewCore()->_layoutCallback.set([=]() { onCoreLayout(); });
         _dirtyCallbackReceiver = viewCore()->_dirtyCallback.set([=]() { onCoreDirty(); });
