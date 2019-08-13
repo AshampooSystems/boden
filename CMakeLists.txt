@@ -11,7 +11,7 @@ if(POLICY CMP0079)
     cmake_policy(SET CMP0079 NEW) # Remove when minimum reaches 3.13
 endif()
 
-project(boden VERSION 0.2.0 LANGUAGES C CXX)
+project(boden VERSION 0.3.0 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 
