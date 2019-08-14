@@ -12,6 +12,9 @@
 
 namespace bdn
 {
+    using String[[deprecated]] = std::string;
+    using StringView[[deprecated]] = std::string_view;
+
     namespace cpp20
     {
         inline bool starts_with(const std::string &haystack, const std::string &needle)
