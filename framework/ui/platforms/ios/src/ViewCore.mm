@@ -98,8 +98,6 @@ namespace bdn::ui::ios
         return size;
     }
 
-    bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
-
     void ViewCore::addChildViewCore(const std::shared_ptr<ViewCore> &core) { [_view addSubview:core->uiView()]; }
 
     void ViewCore::removeFromUISuperview() { [_view removeFromSuperview]; }

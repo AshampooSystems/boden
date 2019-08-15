@@ -146,12 +146,6 @@ namespace bdn::ui::mac
         };
     }
 
-    bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const
-    {
-        // we don't have a parent. Report that we cannot do this.
-        return false;
-    }
-
     void WindowCore::_movedOrResized()
     {
         _isInMoveOrResize = true;

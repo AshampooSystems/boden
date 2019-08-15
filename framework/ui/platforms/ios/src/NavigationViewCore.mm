@@ -190,7 +190,7 @@ namespace bdn::ui::ios
         [rootViewController.view addSubview:getNavigationController().view];
     }
 
-    UINavigationController *NavigationViewCore::getNavigationController()
+    UINavigationController *NavigationViewCore::getNavigationController() const
     {
         if (auto navView = (BodenUINavigationControllerContainerView *)uiView()) {
             return navView.navController;
@@ -206,7 +206,7 @@ namespace bdn::ui::ios
 
     void NavigationViewCore::onGeometryChanged(Rect newGeometry) { uiView().frame = rectToIosRect(newGeometry); }
 
-    std::shared_ptr<ContainerView> NavigationViewCore::getCurrentContainer()
+    std::shared_ptr<ContainerView> NavigationViewCore::getCurrentContainer() const
     {
         if (UIViewController *topViewController = getNavigationController().topViewController) {
             auto bdnViewController = (BodenStackUIViewController *)topViewController;
@@ -245,7 +245,7 @@ namespace bdn::ui::ios
         markDirty();
     }
 
-    std::list<std::shared_ptr<View>> NavigationViewCore::childViews()
+    std::vector<std::shared_ptr<View>> NavigationViewCore::childViews() const
     {
         if (auto container = getCurrentContainer()) {
             return {container};

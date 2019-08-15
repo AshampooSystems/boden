@@ -16,7 +16,7 @@ namespace bdn::ui
     {
         if (auto containerCore = core<ContainerView::Core>()) {
             containerCore->addChildView(childView);
-            childView->setParentView(shared_from_this());
+            View::setParentViewOfView(childView, shared_from_this());
         }
     }
 
@@ -24,7 +24,7 @@ namespace bdn::ui
     {
         if (auto containerCore = core<ContainerView::Core>()) {
             containerCore->removeChildView(childView);
-            childView->setParentView(nullptr);
+            View::setParentViewOfView(childView, nullptr);
         } else {
             throw std::runtime_error("???");
         }
@@ -39,21 +39,12 @@ namespace bdn::ui
         }
     }
 
-    std::list<std::shared_ptr<View>> ContainerView::childViews()
+    std::vector<std::shared_ptr<View>> ContainerView::childViews() const
     {
         if (auto containerCore = core<ContainerView::Core>()) {
             return containerCore->childViews();
         }
 
         throw std::runtime_error("???");
-    }
-
-    void ContainerView::childViewStolen(const std::shared_ptr<View> &childView)
-    {
-        if (auto containerCore = core<ContainerView::Core>()) {
-            containerCore->removeChildView(childView);
-        } else {
-            throw std::runtime_error("???");
-        }
     }
 }

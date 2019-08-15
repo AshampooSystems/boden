@@ -53,24 +53,13 @@ namespace bdn::ui
         contentView.onChange() += [=](auto &property) { _contentView.update(shared_from_this(), property.get()); };
     }
 
-    std::list<std::shared_ptr<View>> Window::childViews()
+    std::vector<std::shared_ptr<View>> Window::childViews() const
     {
         assert(Application::isMainThread());
         if (contentView.get()) {
             return {contentView.get()};
         }
         return {};
-    }
-
-    void Window::removeAllChildViews() { contentView = nullptr; }
-
-    void Window::childViewStolen(const std::shared_ptr<View> &childView)
-    {
-        assert(Application::isMainThread());
-
-        if (childView == contentView.get()) {
-            contentView = nullptr;
-        }
     }
 
     void Window::bindViewCore()

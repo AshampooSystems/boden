@@ -28,7 +28,7 @@ namespace bdn::ui
         }
     }
 
-    std::list<std::shared_ptr<View>> NavigationView::childViews()
+    std::vector<std::shared_ptr<View>> NavigationView::childViews() const
     {
         if (auto navigationViewCore = core<NavigationView::Core>()) {
             return navigationViewCore->childViews();

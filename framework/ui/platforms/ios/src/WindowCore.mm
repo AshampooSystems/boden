@@ -342,8 +342,6 @@ namespace bdn::ui::ios
 
     UIWindow *WindowCore::getUIWindow() const { return _window; }
 
-    bool WindowCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return false; }
-
     void WindowCore::updateContentGeometry()
     {
         contentGeometry = iosRectToRect(_rootViewController.safeRootView.frame);

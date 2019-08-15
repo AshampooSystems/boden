@@ -45,6 +45,17 @@ namespace bdn
             static bool notEqual(const T &left, const T &right) { return left != right; }
         };
 
+        template <class T> struct Compare<std::weak_ptr<T>>
+        {
+            static const bool isComparable = true;
+            static bool notEqual(const std::weak_ptr<T> &left, const std::weak_ptr<T> &right)
+            {
+                auto locked_left = left.lock();
+                auto locked_right = right.lock();
+                return locked_left != locked_right;
+            }
+        };
+
         template <class _fp> struct Compare<std::function<_fp>>
         {
             static const bool isComparable = false;

@@ -37,8 +37,6 @@ namespace bdn::ui::ios
         float baseline(Size forSize) const override;
         float pointScaleFactor() const override;
 
-        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
-
         virtual void addChildViewCore(const std::shared_ptr<ViewCore> &core);
         virtual void removeFromUISuperview();
 

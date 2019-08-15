@@ -38,7 +38,7 @@ namespace bdn::ui::android
         updateCurrentView(false, false);
     }
 
-    std::list<std::shared_ptr<View>> NavigationViewCore::childViews()
+    std::vector<std::shared_ptr<View>> NavigationViewCore::childViews() const
     {
         if (!_stack.empty()) {
             return {_stack.back().container};

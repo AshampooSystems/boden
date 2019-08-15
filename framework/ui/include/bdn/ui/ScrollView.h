@@ -25,11 +25,7 @@ namespace bdn::ui
         ScrollView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
 
       public:
-        std::list<std::shared_ptr<View>> childViews() override;
-
-        void removeAllChildViews() override { contentView = nullptr; }
-
-        void childViewStolen(const std::shared_ptr<View> &childView) override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
       protected:
         void bindViewCore() override;

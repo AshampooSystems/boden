@@ -20,8 +20,6 @@ namespace bdn::ui::mac
 
         NSWindow *getNSWindow() { return _nsWindow; }
 
-        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
-
         void _movedOrResized();
 
         void scheduleLayout() override;

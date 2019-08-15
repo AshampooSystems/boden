@@ -46,7 +46,6 @@ namespace bdn::ui::ios
         void onGeometryChanged(Rect newGeometry) override;
 
         UIWindow *getUIWindow() const;
-        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
 
         void frameChanged() override;
 

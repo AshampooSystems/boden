@@ -206,7 +206,7 @@ namespace bdn::ui::yoga
 
     void Layout::insert(View *view)
     {
-        if (std::shared_ptr<View> parent = view->getParentView()) {
+        if (std::shared_ptr<View> parent = view->parentView->lock()) {
             auto &viewData = _views[view];
 
             if (viewData->isIn)

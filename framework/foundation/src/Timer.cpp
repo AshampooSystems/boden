@@ -54,14 +54,14 @@ namespace bdn
             _dispatchQueue = App()->dispatchQueue();
         }
 
-        onTriggered() += [=]() {
+        onTriggered() += [this]() {
             if (!repeat && _isRunning) {
                 _isRunning = false;
                 running = false;
             }
         };
 
-        running.onChange() += [=](auto &property) {
+        running.onChange() += [this](auto &property) {
             if (property.get()) {
                 start();
             } else {
@@ -69,13 +69,13 @@ namespace bdn
             }
         };
 
-        interval.onChange() += [=](auto) {
+        interval.onChange() += [this](auto) {
             if (running.get()) {
                 restart();
             }
         };
 
-        repeat.onChange() += [=](auto &property) {
+        repeat.onChange() += [this](auto &property) {
             if (property.get()) {
                 if (_isRunning && running) {
                     restart();

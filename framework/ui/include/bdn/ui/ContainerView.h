@@ -20,11 +20,21 @@ namespace bdn::ui
       public:
         void addChildView(const std::shared_ptr<View> &childView);
         void removeChildView(const std::shared_ptr<View> &childView);
-        void removeAllChildViews() override;
-        std::list<std::shared_ptr<View>> childViews() override;
+        void removeAllChildViews();
 
-      public:
-        void childViewStolen(const std::shared_ptr<View> &childView) override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
+
+        std::optional<std::vector<std::shared_ptr<View>>::size_type> childIndex(const std::shared_ptr<View> &child)
+        {
+            const auto children = childViews();
+
+            const auto it = std::find(children.begin(), children.end(), child);
+            if (it == children.end()) {
+                return std::nullopt;
+            }
+
+            return std::distance(children.begin(), it);
+        }
 
       public:
         class Core
@@ -36,7 +46,7 @@ namespace bdn::ui
             virtual void addChildView(std::shared_ptr<View> child) = 0;
             virtual void removeChildView(std::shared_ptr<View> child) = 0;
 
-            virtual std::list<std::shared_ptr<View>> childViews() = 0;
+            virtual std::vector<std::shared_ptr<View>> childViews() const = 0;
         };
     };
 }

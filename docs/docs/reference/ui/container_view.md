@@ -31,11 +31,11 @@ container->addChildView(button);
 
 ## Managing Child Views
 
-* **void void addChildView(const std::shared_ptr<[View](view.md)\> &childView)**
+* **void addChildView(const std::shared_ptr<[View](view.md)\> &childView)**
 
 	Adds a new child view to the container view.
 
-* **void void removeChildView(const std::shared_ptr<[View](view.md)\> &childView)**
+* **void removeChildView(const std::shared_ptr<[View](view.md)\> &childView)**
 
 	Removes the given child view from the container view.
 
@@ -43,11 +43,11 @@ container->addChildView(button);
 
 	Removes all child views from the container view.
 
-## Accessing children
+* **std::optional<std::vector::size_type> childIndex(const std::shared_ptr<View>& child)**
 
-* **void std::list<std::shared_ptr<[View](view.md)\>\> childViews() override**
+	Returns the index of `child` inside the list of child views or `std::nullopt` if
+	the child cannot be found.
 
-	Returns an `std::list` containg all child views of the container view.
 
 ## Relationships
 

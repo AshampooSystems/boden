@@ -14,7 +14,7 @@ namespace bdn::ui::yoga
 
         childrenChanged();
 
-        if (!view->getParentView() || view->isLayoutRoot) {
+        if (!view->parentView->lock() || view->isLayoutRoot) {
             isRootNode = true;
             YGNodeSetDirtiedFunc(ygNode, &ViewData::onDirtied);
 
@@ -24,7 +24,7 @@ namespace bdn::ui::yoga
                 geometry.bind(view->geometry);
             }
 
-            geometry.onChange() += [=](auto &property) { ygNode->markDirtyAndPropogate(); };
+            geometry.onChange() += [this](auto &property) { ygNode->markDirtyAndPropogate(); };
         }
     }
 

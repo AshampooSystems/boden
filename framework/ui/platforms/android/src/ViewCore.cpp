@@ -95,8 +95,6 @@ namespace bdn::ui::android
 
     float ViewCore::pointScaleFactor() const { return 1.0f; }
 
-    bool ViewCore::canMoveToParentView(std::shared_ptr<View> newParentView) const { return true; }
-
     void ViewCore::layoutChange(int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
                                 int oldBottom)
     {

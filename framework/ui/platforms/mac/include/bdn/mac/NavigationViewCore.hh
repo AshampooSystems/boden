@@ -20,7 +20,7 @@ namespace bdn::ui::mac
       public:
         void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
-        std::list<std::shared_ptr<View>> childViews() override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
       public:
         void setLayout(std::shared_ptr<Layout> layout) override;

@@ -35,7 +35,7 @@ namespace bdn::ui
         scrollCore->scrollClientRectToVisible(area);
     }
 
-    std::list<std::shared_ptr<View>> ScrollView::childViews()
+    std::vector<std::shared_ptr<View>> ScrollView::childViews() const
     {
         assert(Application::isMainThread());
 
@@ -44,14 +44,5 @@ namespace bdn::ui
         }
 
         return {};
-    }
-
-    void ScrollView::childViewStolen(const std::shared_ptr<View> &childView)
-    {
-        assert(Application::isMainThread());
-
-        if (childView == contentView.get()) {
-            contentView = nullptr;
-        }
     }
 }

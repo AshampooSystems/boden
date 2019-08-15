@@ -27,8 +27,6 @@ namespace bdn::ui::mac
         }
 
       public:
-        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override { return true; }
-
         NSView *nsView() const;
 
         void addChildNSView(NSView *childView);

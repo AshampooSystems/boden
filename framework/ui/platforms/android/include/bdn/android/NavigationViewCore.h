@@ -18,7 +18,7 @@ namespace bdn::ui::android
       public:
         void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
-        std::list<std::shared_ptr<View>> childViews() override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
       public:
         void visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function) override;

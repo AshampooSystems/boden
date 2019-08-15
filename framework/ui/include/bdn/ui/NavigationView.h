@@ -22,7 +22,7 @@ namespace bdn::ui
         void popView();
 
       public:
-        std::list<std::shared_ptr<View>> childViews() override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
       protected:
         void bindViewCore() override;
@@ -34,7 +34,7 @@ namespace bdn::ui
             virtual void pushView(std::shared_ptr<View> view, std::string title) = 0;
             virtual void popView() = 0;
 
-            virtual std::list<std::shared_ptr<View>> childViews() = 0;
+            virtual std::vector<std::shared_ptr<View>> childViews() const = 0;
         };
     };
 }

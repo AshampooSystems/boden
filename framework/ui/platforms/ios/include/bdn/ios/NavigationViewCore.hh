@@ -26,14 +26,14 @@ namespace bdn::ui::ios
         void pushView(std::shared_ptr<View> view, std::string title) override;
         void popView() override;
 
-        std::list<std::shared_ptr<View>> childViews() override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
         void removeFromUISuperview() override;
 
       private:
-        UINavigationController *getNavigationController();
+        UINavigationController *getNavigationController() const;
 
-        std::shared_ptr<ContainerView> getCurrentContainer();
+        std::shared_ptr<ContainerView> getCurrentContainer() const;
         std::shared_ptr<View> getCurrentUserView();
     };
 }

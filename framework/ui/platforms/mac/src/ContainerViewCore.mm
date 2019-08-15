@@ -68,12 +68,12 @@ namespace bdn::ui::mac
     {
         if (auto childCore = child->core<ViewCore>()) {
             childCore->removeFromNsSuperview();
-            _children.remove(child);
+            _children.erase(std::remove(_children.begin(), _children.end(), child));
         } else {
             throw std::runtime_error("Cannot remove this type of View");
         }
         scheduleLayout();
     }
 
-    std::list<std::shared_ptr<View>> ContainerViewCore::childViews() { return _children; }
+    std::vector<std::shared_ptr<View>> ContainerViewCore::childViews() const { return _children; }
 }

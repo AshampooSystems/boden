@@ -34,7 +34,7 @@ namespace bdn::ui::android
     void ContainerViewCore::removeChildView(std::shared_ptr<View> child)
     {
         if (auto childCore = child->core<android::ViewCore>()) {
-            _children.remove(child);
+            _children.erase(std::remove(_children.begin(), _children.end(), child));
             auto group = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
             group.removeView(childCore->getJView());
         } else {
@@ -44,7 +44,7 @@ namespace bdn::ui::android
         scheduleLayout();
     }
 
-    std::list<std::shared_ptr<View>> ContainerViewCore::childViews() { return _children; }
+    std::vector<std::shared_ptr<View>> ContainerViewCore::childViews() const { return _children; }
 
     void ContainerViewCore::visitInternalChildren(const std::function<void(std::shared_ptr<View::Core>)> &function)
     {

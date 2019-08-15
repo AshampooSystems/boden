@@ -152,7 +152,7 @@ namespace bdn::ui::mac
         bool imageChangedImmediately = false;
 
         if (!url.empty()) {
-            imageChangedImmediately = imageFromUrl(url, [=](auto img) {
+            imageChangedImmediately = imageFromUrl(url, [this, btn](auto img) {
                 btn.image = img;
                 this->scheduleLayout();
                 this->markDirty();

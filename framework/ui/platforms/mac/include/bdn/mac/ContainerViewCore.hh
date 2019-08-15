@@ -20,9 +20,9 @@ namespace bdn::ui::mac
         void addChildView(std::shared_ptr<View> child) override;
         void removeChildView(std::shared_ptr<View> child) override;
 
-        std::list<std::shared_ptr<View>> childViews() override;
+        std::vector<std::shared_ptr<View>> childViews() const override;
 
       private:
-        std::list<std::shared_ptr<View>> _children;
+        std::vector<std::shared_ptr<View>> _children;
     };
 }

@@ -66,6 +66,10 @@ namespace bdn::ui
 
     void View::updateLayout(const std::shared_ptr<Layout> &oldLayout, const std::shared_ptr<Layout> &newLayout)
     {
+        if (oldLayout == newLayout) {
+            return;
+        }
+
         if (oldLayout) {
             oldLayout->unregisterView(this);
         }
@@ -85,25 +89,6 @@ namespace bdn::ui
 
     std::shared_ptr<Layout> View::getLayout() { return _layout.get(); }
 
-    void View::setParentView(const std::shared_ptr<View> &parentView)
-    {
-        if (!canMoveToParentView(parentView)) {
-            throw std::runtime_error("Cannot move to parent View!");
-        }
-
-        if (auto oldParent = _parentView.lock()) {
-            oldParent->childViewStolen(shared_from_this());
-        }
-
-        _parentView = parentView;
-
-        if (parentView) {
-            offerLayout(parentView->getLayout());
-        } else {
-            offerLayout(nullptr);
-        }
-    }
-
     void View::updateFromStylesheet()
     {
         if (auto core = viewCore()) {
@@ -115,15 +100,6 @@ namespace bdn::ui
 
             core->updateFromStylesheet(stylesheet.get());
         }
-    }
-
-    bool View::canMoveToParentView(const std::shared_ptr<View> &parentView)
-    {
-        if (!parentView) {
-            return true;
-        }
-
-        return _viewCoreFactory == parentView->viewCoreFactory() && viewCore()->canMoveToParentView(parentView);
     }
 
     void View::scheduleLayout()
@@ -169,6 +145,19 @@ namespace bdn::ui
 
         _layoutCallbackReceiver = viewCore()->_layoutCallback.set([=]() { onCoreLayout(); });
         _dirtyCallbackReceiver = viewCore()->_dirtyCallback.set([=]() { onCoreDirty(); });
+    }
+
+    void View::setParentViewOfView(const std::shared_ptr<View> &view, const std::shared_ptr<View> &parentView)
+    {
+        assert(view->parentView.get().lock() == nullptr || parentView == nullptr);
+
+        view->internalParentView = parentView;
+
+        if (parentView) {
+            view->offerLayout(parentView->getLayout());
+        } else {
+            view->offerLayout(nullptr);
+        }
     }
 
     void View::onCoreLayout()

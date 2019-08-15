@@ -5,18 +5,19 @@ file(GLOB property_tests ./properties/*.cpp)
 
 
 add_universal_executable(testBoden TIDY SOURCES ../test_main.cpp
+    testAttributedString.cpp
+    testColor.cpp
+    testContainerView.cpp
+    testDispatchQueue.cpp
     testNotifier.cpp
+    testOfferedValue.cpp
     testProperties.cpp
     testPropertyStreaming.cpp
     testPropertyTransform.cpp
-    testOfferedValue.cpp
-    testDispatchQueue.cpp
-    testTimer.cpp
     testString.cpp
-    testURI.cpp
     testStyler.cpp
-    testColor.cpp
-    testAttributedString.cpp
+    testTimer.cpp
+    testURI.cpp
     ${property_tests}
     TIDY)
 

@@ -37,8 +37,6 @@ namespace bdn::ui::android
 
         Size sizeForSpace(Size availableSpace = Size::none()) const override;
 
-        bool canMoveToParentView(std::shared_ptr<View> newParentView) const override;
-
         virtual void clicked() {}
 
         virtual void layoutChange(int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,

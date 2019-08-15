@@ -18,16 +18,20 @@ namespace bdn::ui
 
     class View : public std::enable_shared_from_this<View>
     {
-        friend class Window;
+        friend class SingleChildHelper;
 
       public:
         class Core;
+
+      protected:
+        Property<std::weak_ptr<View>> internalParentView;
 
       public:
         Property<Rect> geometry;
         Property<bool> visible = true;
         Property<bool> isLayoutRoot = false;
         Property<json> stylesheet;
+        const Property<std::weak_ptr<View>> &parentView = internalParentView;
 
       public:
         static bool &debugViewEnabled();
@@ -51,34 +55,29 @@ namespace bdn::ui
 
         std::shared_ptr<ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
 
-        virtual std::list<std::shared_ptr<View>> childViews() { return std::list<std::shared_ptr<View>>(); }
-        virtual void removeAllChildViews() {}
-        virtual void childViewStolen(const std::shared_ptr<View> &childView) {}
-
-        virtual std::shared_ptr<View> getParentView() { return _parentView.lock(); }
+        virtual std::vector<std::shared_ptr<View>> childViews() const { return {}; }
 
         void scheduleLayout();
 
         template <class T> auto core() { return std::dynamic_pointer_cast<T>(viewCore()); }
+        template <class T> auto core() const { return std::dynamic_pointer_cast<T>(viewCore()); }
 
         std::shared_ptr<View::Core> viewCore();
         std::shared_ptr<View::Core> viewCore() const;
 
         virtual const std::type_info &typeInfoForCoreCreation() const;
 
-        void setParentView(const std::shared_ptr<View> &parentView);
-
         virtual void updateFromStylesheet();
 
       protected:
         virtual void bindViewCore();
+        static void setParentViewOfView(const std::shared_ptr<View> &view, const std::shared_ptr<View> &parentView);
 
       protected:
         void onCoreLayout();
         void onCoreDirty();
 
       private:
-        bool canMoveToParentView(const std::shared_ptr<View> &parentView);
         void updateLayout(const std::shared_ptr<Layout> &oldLayout, const std::shared_ptr<Layout> &newLayout);
 
       private:
@@ -93,7 +92,6 @@ namespace bdn::ui
         WeakCallback<void()>::Receiver _dirtyCallbackReceiver;
 
         std::shared_ptr<ViewCoreFactory> _viewCoreFactory;
-        std::weak_ptr<View> _parentView;
         bool _hasLayoutSchedulePending{false};
 
       public:
@@ -119,8 +117,6 @@ namespace bdn::ui
             virtual float baseline(Size forSize) const { return static_cast<float>(forSize.height); }
             virtual float pointScaleFactor() const = 0;
 
-            virtual bool canMoveToParentView(std::shared_ptr<View> newParentView) const = 0;
-
             virtual void scheduleLayout() = 0;
 
             void startLayout() { _layoutCallback.fire(); }
@@ -135,6 +131,12 @@ namespace bdn::ui
 
             virtual void updateFromStylesheet(json stylesheet) {}
 
+          protected:
+            static void setParentViewOfView(const std::shared_ptr<View> &view, const std::shared_ptr<View> &parentView)
+            {
+                View::setParentViewOfView(view, parentView);
+            }
+
           private:
             std::shared_ptr<ViewCoreFactory> _viewCoreFactory;
             std::shared_ptr<Layout> _layout;
@@ -146,7 +148,7 @@ namespace bdn::ui
 
     template <typename ViewType, typename P> void registerCoreCreatingProperties(ViewType *view, P p)
     {
-        p->onChange() += [=](auto) { view->viewCore(); };
+        p->onChange() += [view](auto) { view->viewCore(); };
     }
 
     template <typename ViewType, typename P, typename... Prest>
@@ -162,14 +164,12 @@ namespace bdn::ui
         void update(const std::shared_ptr<View> &self, const std::shared_ptr<View> &newChild)
         {
             if (_currentChild) {
-                _currentChild->setParentView(nullptr);
-                _currentChild->offerLayout(nullptr);
+                View::setParentViewOfView(_currentChild, nullptr);
             }
             _currentChild = newChild;
 
             if (newChild) {
-                newChild->setParentView(self);
-                newChild->offerLayout(self->getLayout());
+                View::setParentViewOfView(newChild, self);
             }
         }
 

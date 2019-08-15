@@ -81,7 +81,7 @@ namespace bdn::ui::mac
         updateCurrentView();
     }
 
-    std::list<std::shared_ptr<View>> NavigationViewCore::childViews()
+    std::vector<std::shared_ptr<View>> NavigationViewCore::childViews() const
     {
         if (_container) {
             return {_container};
@@ -115,10 +115,6 @@ namespace bdn::ui::mac
         _container->removeAllChildViews();
 
         auto oldCurrentView = _currentView;
-
-        if (_currentView) {
-            _currentView->setParentView(nullptr);
-        }
 
         if (_stack.empty()) {
             _title.stringValue = @"--";
