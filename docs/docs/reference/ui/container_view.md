@@ -43,7 +43,7 @@ container->addChildView(button);
 
 	Removes all child views from the container view.
 
-* **std::optional<std::vector::size_type> childIndex(const std::shared_ptr<View>& child)**
+* **std::optional<std::vector::size_type\> childIndex(const std::shared_ptr<View\>& child)**
 
 	Returns the index of `child` inside the list of child views or `std::nullopt` if
 	the child cannot be found.

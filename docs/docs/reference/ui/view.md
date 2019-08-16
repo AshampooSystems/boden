@@ -25,11 +25,11 @@ namespace bdn::ui {
 
 * **Property<std::shared_ptr<json\>\> stylesheet**
 
-	A stylesheet defining the styling and layout of the View. 
+	A stylesheet defining the styling and layout of the view. 
 
 * **Property<bool\> isLayoutRoot = false**
 
-	Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layouting system. Children are not affected by this setting and will still be layouted. Defaults to `false`.
+	Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layout system. Children are not affected by this setting and will still be processed by the layout system. Defaults to `false`.
 
 * **const Property<std::weak_ptr<View\>\> &parentView**
 
@@ -57,7 +57,7 @@ namespace bdn::ui {
 
 * **void offerLayout(std::shared_ptr<Layout\> layout)**
 
-	Sets the view's [`Layout`](layout.md) fallback.	A view that has no layout set ( via. `setLayout` ) will use the offeredLayout. 
+	Sets the view's [`Layout`](layout.md) fallback.	A view that has no layout set (via `setLayout`) will use the given `layout`. 
 
 ## View Core
 
@@ -71,23 +71,18 @@ namespace bdn::ui {
 
 * **virtual void bindViewCore()**
 
-	Called after a new View Core is created to connect it to the Views properties and notifiers
+	Called after a new [`ViewCore`](view_core.md) is created to connect it to the view's properties and notifiers
 
 * **virtual const std::type_info &typeInfoForCoreCreation() const**
 
-	Returns the **std::type_info** that should be used to determine the ViewCore type.
-	The default implementation returns **typeid(\*this)**. Override if you want to use a different ViewCore.
+	Returns the **std::type_info** that should be used to determine the [`ViewCore`](view_core.md) type.
+	The default implementation returns **typeid(\*this)**. Override if you want to use a different [`ViewCore`](view_core.md).
 
 ## View Hierarchy
 
 * **virtual std::vector<std::shared_ptr<View\>\> childViews() const**
 
 	Returns the view's child views.
-
-* **static void setParentViewOfView(const std::shared_ptr<View\>& view, const std::shared_ptr<View\>& parentView)**
-
-	*(protected)* Changes the internal parent view pointer of `view` to `parentView`.
-	Offers the `parentView`'s layout to `view`.
 
 ## Misc
 
@@ -97,4 +92,4 @@ namespace bdn::ui {
 
 ## Relationships
 
-Inherits from `std::enable_shared_from_this<View\>`.
+Inherits from `std::enable_shared_from_this<View>`.
