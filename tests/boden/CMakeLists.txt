@@ -10,7 +10,7 @@ add_universal_executable(testBoden TIDY SOURCES ../test_main.cpp
     testContainerView.cpp
     testDispatchQueue.cpp
     testNotifier.cpp
-    testOfferedValue.cpp
+    testValueWithFallback.cpp
     testProperties.cpp
     testPropertyStreaming.cpp
     testPropertyTransform.cpp

@@ -4,7 +4,7 @@
 
 namespace bdn
 {
-    template <class T> class OfferedValue
+    template <class T> class ValueWithFallback
     {
       public:
         T set(T v)
@@ -14,10 +14,10 @@ namespace bdn
             return old;
         }
 
-        T setOffered(T v)
+        T setFallback(T v)
         {
             T old = get();
-            _offered = std::move(v);
+            _fallback = std::move(v);
             return old;
         }
 
@@ -26,13 +26,13 @@ namespace bdn
             if (_own) {
                 return *_own;
             }
-            return _offered;
+            return _fallback;
         }
 
         void unset() { _own = std::nullopt; }
 
       private:
-        T _offered;
+        T _fallback;
         std::optional<T> _own;
     };
 }

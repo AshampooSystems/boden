@@ -81,7 +81,7 @@
 
         self.view = _containerView->core<bdn::ui::ios::ViewCore>()->uiView();
 
-        _containerView->offerLayout(core->layout());
+        _containerView->setFallbackLayout(core->layout());
 
         _containerView->addChildView(_safeContent);
         _safeContent->addChildView(_userContent);

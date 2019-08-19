@@ -1,47 +1,47 @@
 #include <gtest/gtest.h>
 
-#include <bdn/OfferedValue.h>
+#include <bdn/ValueWithFallback.h>
 #include <string>
 
 using namespace std::string_literals;
 
 namespace bdn
 {
-    TEST(OfferedValue, Empty)
+    TEST(ValueWithFallback, Empty)
     {
-        OfferedValue<std::string> value;
+        ValueWithFallback<std::string> value;
         EXPECT_EQ(value.get(), std::string());
     }
 
-    TEST(OfferedValue, offered)
+    TEST(ValueWithFallback, fallback)
     {
-        OfferedValue<std::string> value;
-        value.setOffered("Hello");
+        ValueWithFallback<std::string> value;
+        value.setFallback("Hello");
         EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
-    TEST(OfferedValue, Own)
+    TEST(ValueWithFallback, Own)
     {
-        OfferedValue<std::string> value;
+        ValueWithFallback<std::string> value;
         value.set("Hello");
         EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
-    TEST(OfferedValue, OwnOverridesOffered)
+    TEST(ValueWithFallback, OwnOverridesFallback)
     {
-        OfferedValue<std::string> value;
-        value.setOffered("Test");
+        ValueWithFallback<std::string> value;
+        value.setFallback("Test");
         value.set("Hello");
         EXPECT_EQ(value.get(), std::string("Hello"));
 
-        value.setOffered("Still?");
+        value.setFallback("Still?");
         EXPECT_EQ(value.get(), std::string("Hello"));
     }
 
-    TEST(OfferedValue, FallBackToOffered)
+    TEST(ValueWithFallback, FallBackFromOwn)
     {
-        OfferedValue<std::string> value;
-        value.setOffered("Test");
+        ValueWithFallback<std::string> value;
+        value.setFallback("Test");
         value.set("Hello");
         EXPECT_EQ(value.get(), std::string("Hello"));
 

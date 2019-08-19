@@ -91,7 +91,7 @@
 
             containerView = std::make_shared<bdn::ui::ContainerView>(core->viewCoreFactory());
             containerView->isLayoutRoot = true;
-            containerView->offerLayout(core->layout());
+            containerView->setFallbackLayout(core->layout());
 
             [cell.contentView addSubview:containerView->core<bdn::ui::ios::ViewCore>()->uiView()];
             cell.containerView = containerView;

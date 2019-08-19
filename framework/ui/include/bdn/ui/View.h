@@ -4,8 +4,8 @@
 
 #include <bdn/Color.h>
 #include <bdn/Json.h>
-#include <bdn/OfferedValue.h>
 #include <bdn/Rect.h>
+#include <bdn/ValueWithFallback.h>
 #include <bdn/WeakCallback.h>
 #include <bdn/property/Property.h>
 #include <bdn/ui/Layout.h>
@@ -51,7 +51,7 @@ namespace bdn::ui
 
         std::shared_ptr<Layout> getLayout();
         void setLayout(std::shared_ptr<Layout> layout);
-        void offerLayout(std::shared_ptr<Layout> layout);
+        void setFallbackLayout(std::shared_ptr<Layout> layout);
 
         std::shared_ptr<ViewCoreFactory> viewCoreFactory() { return _viewCoreFactory; }
 
@@ -84,7 +84,7 @@ namespace bdn::ui
         void lazyInitCore() const;
 
       protected:
-        OfferedValue<std::shared_ptr<Layout>> _layout;
+        ValueWithFallback<std::shared_ptr<Layout>> _layout;
 
       private:
         mutable std::shared_ptr<View::Core> _core;

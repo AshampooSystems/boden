@@ -55,7 +55,7 @@ namespace bdn::ui {
 
 	Sets the view's [`Layout`](layout.md).
 
-* **void offerLayout(std::shared_ptr<Layout\> layout)**
+* **void setFallbackLayout(std::shared_ptr<Layout\> layout)**
 
 	Sets the view's [`Layout`](layout.md) fallback.	A view that has no layout set (via `setLayout`) will use the given `layout`. 
 

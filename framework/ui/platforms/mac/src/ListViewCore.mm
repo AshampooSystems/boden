@@ -62,7 +62,7 @@
 
                 container = std::make_shared<bdn::ui::ContainerView>(listCore->viewCoreFactory());
                 container->isLayoutRoot = true;
-                container->offerLayout(listCore->layout());
+                container->setFallbackLayout(listCore->layout());
 
                 if (auto core = container->core<bdn::ui::mac::ViewCore>()) {
                     [result addSubview:core->nsView()];

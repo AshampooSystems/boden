@@ -92,7 +92,7 @@ namespace bdn::ui::mac
     void NavigationViewCore::setLayout(std::shared_ptr<Layout> layout)
     {
         if (_container) {
-            _container->offerLayout(layout);
+            _container->setFallbackLayout(layout);
         }
         ViewCore::setLayout(std::move(layout));
     }
@@ -102,7 +102,7 @@ namespace bdn::ui::mac
         if (!_container) {
             _container = std::make_shared<ContainerView>(viewCoreFactory());
             _container->isLayoutRoot = true;
-            _container->offerLayout(layout());
+            _container->setFallbackLayout(layout());
             if (auto containerCore = _container->core<mac::ContainerViewCore>()) {
                 addChildNSView(containerCore->nsView());
             } else {

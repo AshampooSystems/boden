@@ -57,9 +57,9 @@ namespace bdn::ui
         updateLayout(oldLayout, _layout.get());
     }
 
-    void View::offerLayout(std::shared_ptr<Layout> layout)
+    void View::setFallbackLayout(std::shared_ptr<Layout> layout)
     {
-        auto oldLayout = _layout.setOffered(std::move(layout));
+        auto oldLayout = _layout.setFallback(std::move(layout));
 
         updateLayout(oldLayout, _layout.get());
     }
@@ -83,7 +83,7 @@ namespace bdn::ui
         }
 
         for (const auto &child : childViews()) {
-            child->offerLayout(newLayout);
+            child->setFallbackLayout(newLayout);
         }
     }
 
@@ -154,9 +154,9 @@ namespace bdn::ui
         view->internalParentView = parentView;
 
         if (parentView) {
-            view->offerLayout(parentView->getLayout());
+            view->setFallbackLayout(parentView->getLayout());
         } else {
-            view->offerLayout(nullptr);
+            view->setFallbackLayout(nullptr);
         }
     }
 

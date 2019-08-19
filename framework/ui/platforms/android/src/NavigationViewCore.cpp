@@ -24,7 +24,7 @@ namespace bdn::ui::android
         containerView->isLayoutRoot = true;
         containerView->addChildView(view);
         containerView->visible.bind(view->visible);
-        containerView->offerLayout(layout());
+        containerView->setFallbackLayout(layout());
 
         bool isFirst = _stack.empty();
 

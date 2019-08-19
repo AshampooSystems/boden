@@ -82,7 +82,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                     reusableCore->setRowContainerView(reusable);
                 }
 
-                reusable->offerLayout(listCore->layout());
+                reusable->setFallbackLayout(listCore->layout());
                 reusableCore->setUIScaleFactor(listCore->getUIScaleFactor());
 
                 if (auto dataSource = dataSourceFromRawView(rawView)) {
