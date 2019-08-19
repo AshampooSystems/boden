@@ -15,3 +15,29 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeListView_doRefresh
         },
         true, env);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeListView_nativeItemClicked(JNIEnv *env, jobject rawSelf,
+                                                                                         jint position)
+{
+    bdn::platformEntryWrapper(
+        [&]() {
+            if (auto core = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
+                    bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                core->selectedRowIndex = position;
+            }
+        },
+        true, env);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeListView_nativeItemDelete(JNIEnv *env, jobject rawSelf,
+                                                                                        jint position)
+{
+    bdn::platformEntryWrapper(
+        [&]() {
+            if (auto core = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
+                    bdn::java::Reference::convertExternalLocal(rawSelf))) {
+                core->fireDelete(position);
+            }
+        },
+        true, env);
+}

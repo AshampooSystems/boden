@@ -5,8 +5,12 @@ namespace bdn
 {
     void PropertiesPage::init()
     {
-        stylesheet =
-            FlexJsonStringify({"direction" : "Column", "flexGrow" : 1.0, "flexShrink" : 1.0, "alignItems" : "Stretch"});
+        stylesheet = FlexJsonStringify({
+            "direction" : "Column", //
+            "flexGrow" : 1.0,       //
+            "flexShrink" : 1.0,     //
+            "alignItems" : "Stretch"
+        });
 
         auto stringField = std::make_shared<TextField>();
         stringField->text.bind(_stringProperty);
@@ -19,8 +23,12 @@ namespace bdn
         addChildView(makeRow("Int", intField, 5., 5., 0.8));
 
         auto btnContainer = std::make_shared<ContainerView>();
-        btnContainer->stylesheet =
-            FlexJsonStringify({"direction" : "Row", "flexGrow" : 0.0, "flexShrink" : 0.0, "justifyContent" : "lexEnd"});
+        btnContainer->stylesheet = FlexJsonStringify({
+            "direction" : "Row", //
+            "flexGrow" : 0.0,    //
+            "flexShrink" : 0.0,  //
+            "justifyContent" : "flexEnd"
+        });
 
         auto plusBtn = std::make_shared<Button>();
         plusBtn->label = "+";

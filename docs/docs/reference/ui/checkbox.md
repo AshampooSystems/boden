@@ -40,6 +40,10 @@ checkbox->onClick() += [](auto event) {
 	
 	A [TriState](tri_state.md) representing the checkbox's state. Note that Android does not support mixed state checkboxes. Checkboxes in mixed state will be displayed as off on Android.
 
+* **[Property](../foundation/property.md)<bool\> checked**
+	
+	A boolean representing the checkbox's state. It mirrors and updates the `state` property when changed.
+
 ## Events
 
 * **[Notifier](../foundation/notifier.md)<const [ClickEvent](click_event.md) &\> &onClick()**

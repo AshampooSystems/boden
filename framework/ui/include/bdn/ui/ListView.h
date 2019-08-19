@@ -18,9 +18,11 @@ namespace bdn::ui
         Property<std::shared_ptr<ListViewDataSource>> dataSource;
         Property<std::optional<size_t>> selectedRowIndex;
         Property<bool> enableRefresh;
+        Property<bool> enableSwipeToDelete;
 
       public:
         Notifier<> &onRefresh();
+        Notifier<size_t> &onDelete() { return _onDelete; }
 
       public:
         ListView(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -35,7 +37,10 @@ namespace bdn::ui
 
       private:
         Notifier<> _refreshNotifier;
+        Notifier<size_t> _onDelete;
+
         WeakCallback<void()>::Receiver _refreshCallback;
+        WeakCallback<void(size_t)>::Receiver _deleteCallback;
 
       public:
         class Core
@@ -46,6 +51,7 @@ namespace bdn::ui
             Property<bool> enableRefresh;
             Property<std::shared_ptr<ListViewDataSource>> dataSource;
             Property<std::optional<size_t>> selectedRowIndex;
+            Property<bool> enableSwipeToDelete;
 
           public:
             virtual void reloadData() = 0;
@@ -53,6 +59,7 @@ namespace bdn::ui
 
           protected:
             WeakCallback<void()> _refreshCallback;
+            WeakCallback<void(size_t)> _deleteCallback;
         };
     };
 }

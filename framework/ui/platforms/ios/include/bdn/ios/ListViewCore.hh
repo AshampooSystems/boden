@@ -20,6 +20,7 @@ namespace bdn::ui::ios
         void refreshDone() override;
 
         void fireRefresh();
+        void fireDelete(size_t position);
 
       protected:
         void updateRefresh(bool enable);

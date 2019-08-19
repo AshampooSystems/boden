@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/android/wrapper/ListView.h>
+#include <bdn/android/wrapper/RecyclerView.h>
 #include <bdn/android/wrapper/View.h>
 
 namespace bdn::android::wrapper
@@ -13,8 +13,10 @@ namespace bdn::android::wrapper
         using BaseView<kNativeListViewClassName>::BaseView;
 
       public:
-        JavaMethod<ListView()> getListView{this, "getListView"};
+        JavaMethod<RecyclerView()> getRecyclerView{this, "getRecyclerView"};
         JavaMethod<void(bool)> setEnabled{this, "setEnabled"};
         JavaMethod<void(bool)> setRefreshing{this, "setRefreshing"};
+        JavaMethod<void()> reloadData{this, "reloadData"};
+        JavaMethod<void(bool)> setEnableSwipeToDelete{this, "setEnableSwipeToDelete"};
     };
 }

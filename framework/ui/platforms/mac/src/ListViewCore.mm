@@ -263,6 +263,8 @@ namespace bdn::ui::mac
             }
         };
 
+        dataSource.onChange() += [=](auto prop) { reloadData(); };
+
         _nsTableView = (scrollView).documentView;
         _nsTableView.dataSource = nativeDelegate;
         _nsTableView.delegate = nativeDelegate;

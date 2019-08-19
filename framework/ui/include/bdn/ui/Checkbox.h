@@ -17,6 +17,9 @@ namespace bdn::ui
       public:
         Property<std::string> label;
         Property<TriState> state;
+        Property<bool> checked{bdn::TransformBacking<bool, bdn::ui::TriState>{
+            state, [](auto state) { return state == bdn::ui::TriState::On; },
+            [](auto checked) -> TriState { return checked ? bdn::ui::TriState::On : bdn::ui::TriState::Off; }}};
 
       public:
         Checkbox(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);

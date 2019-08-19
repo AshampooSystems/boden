@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bdn/android/wrapper/BaseAdapter.h>
 #include <bdn/android/wrapper/NativeViewGroup.h>
+#include <bdn/android/wrapper/RecyclerView.h>
 #include <bdn/android/wrapper/View.h>
 #include <bdn/java/wrapper/NativeStrongPointer.h>
 #include <bdn/java/wrapper/Object.h>
@@ -10,10 +10,10 @@ namespace bdn::android::wrapper
 {
     constexpr const char kNativeListAdapterClassName[] = "io/boden/android/NativeListAdapter";
 
-    class NativeListAdapter : public BaseAdapter<kNativeListAdapterClassName, View>
+    class NativeListAdapter : public RecyclerView::BaseAdapter<kNativeListAdapterClassName, View>
     {
       public:
-        using BaseAdapter<kNativeListAdapterClassName, View>::BaseAdapter;
+        using RecyclerView::BaseAdapter<kNativeListAdapterClassName, View>::BaseAdapter;
     };
 
     constexpr const char kNativeListAdapterRowContainer[] = "io/boden/android/RowContainer";

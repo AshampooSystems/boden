@@ -35,29 +35,38 @@ listView->reloadData();
 
 	The currently selected row index.
 
-
 ## Reloading the List's Data
 
 * **void reloadData()**
 
 	Reloads the list's data from its data source.
 
-## Enabling Swipe Refresh
+## Swipe to refresh
 
 * **[Property](../foundation/property.md)<bool\> enableRefresh**
 
 	Enables refresh on swipe down.
 
+* **[Notifier](../foundation/notifier.md)<\> &onRefresh()**
+
+	Signals that the user has requested the List to reload its data.
+
 * **void refreshDone()**
 
 	Finishes/hides the refresh animation if it was triggered by the user.
 
-## Events
+## Swipe to delete
 
-* **[Notifier](../foundation/notifier.md)<\> &onRefresh()**
+* **[Property](../foundation/property.md)<bool\> enableSwipeToDelete**
 
-	Signals that the list has updated its data.
+	Enables deletion when swiping an item left.
 
+* **[Notifier](../foundation/notifier.md)<size_t\> &onDelete()**
+
+	Signals that the user has requested the deletion of an element.
+	The `size_t` argument specifies the location of the element to be deleted.
+	The ListView automatically updates itself after the notification is processed, 
+	failure to update the datasource results in undefined behaviour. 
 
 ## Relationships
 

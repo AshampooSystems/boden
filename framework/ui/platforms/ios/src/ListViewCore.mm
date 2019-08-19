@@ -31,6 +31,12 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView
+           editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)tableView
+    commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+     forRowAtIndexPath:(NSIndexPath *)indexPath;
 
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ListViewCore> core;
 @end
@@ -115,16 +121,38 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    auto core = self.core.lock();
-
-    if (core == nullptr) {
-        return;
+    if (auto core = self.core.lock()) {
+        if (indexPath) {
+            core->selectedRowIndex = (size_t)indexPath.row;
+        } else {
+            core->selectedRowIndex = std::nullopt;
+        }
     }
+}
 
-    if (indexPath) {
-        core->selectedRowIndex = (size_t)indexPath.row;
-    } else {
-        core->selectedRowIndex = std::nullopt;
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (auto core = self.core.lock()) {
+        if (core->enableSwipeToDelete) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (void)tableView:(UITableView *)tableView
+    commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+     forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        if (auto core = self.core.lock()) {
+            core->fireDelete((int)indexPath.row);
+        }
     }
 }
 
@@ -233,4 +261,13 @@ namespace bdn::ui::ios
     void ListViewCore::refreshDone() { [((BodenUITableView *)uiView())refreshDone]; }
 
     void ListViewCore::fireRefresh() { _refreshCallback.fire(); }
+
+    void ListViewCore::fireDelete(size_t position)
+    {
+        auto tableView = ((UITableView *)uiView());
+
+        _deleteCallback.fire(position);
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:position inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
 }

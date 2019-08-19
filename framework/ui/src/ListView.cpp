@@ -31,8 +31,10 @@ namespace bdn::ui
         listCore->dataSource.bind(dataSource);
         listCore->selectedRowIndex.bind(selectedRowIndex);
         listCore->enableRefresh.bind(enableRefresh);
+        listCore->enableSwipeToDelete.bind(enableSwipeToDelete);
 
-        _refreshCallback = listCore->_refreshCallback.set([=]() { onRefresh().notify(); });
+        _refreshCallback = listCore->_refreshCallback.set([this]() { onRefresh().notify(); });
+        _deleteCallback = listCore->_deleteCallback.set([this](int index) { onDelete().notify(index); });
     }
 
     Notifier<> &ListView::onRefresh() { return _refreshNotifier; }

@@ -20,12 +20,13 @@ namespace bdn::ui::android
 
         void fireRefresh();
 
+        void fireDelete(size_t position);
+
       protected:
         void initTag() override;
 
       private:
         bdn::android::wrapper::NativeListView _jNativeListView;
-        bdn::android::wrapper::ListView _jListView;
-        bdn::android::wrapper::NativeListAdapter _jNativeListAdapter;
+        bdn::android::wrapper::RecyclerView _jRecyclerView;
     };
 }

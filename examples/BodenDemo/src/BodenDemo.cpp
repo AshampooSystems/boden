@@ -85,17 +85,6 @@ class PagesDataSource : public ListViewDataSource
     std::shared_ptr<Window> _window;
 };
 
-/*
-class Test
-{
-  public:
-};
-
-using VVV = std::variant<std::string, Test>;
-
-inline bool operator!=(const VVV &left, const VVV &right) { return true; }
-*/
-
 class MainViewController
 {
   public:

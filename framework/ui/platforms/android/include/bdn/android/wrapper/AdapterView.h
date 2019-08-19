@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bdn/android/wrapper/NativeListAdapter.h>
+#include <bdn/android/wrapper/ListAdapter.h>
 #include <bdn/android/wrapper/ViewGroup.h>
 
 namespace bdn::android::wrapper

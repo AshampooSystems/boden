@@ -4,6 +4,7 @@
 #include <bdn/android/RowContainerView.h>
 #include <bdn/android/wrapper/NativeListAdapter.h>
 #include <bdn/android/wrapper/NativeViewGroup.h>
+#include <bdn/log.h>
 
 #include <bdn/entry.h>
 #include <bdn/java/Env.h>
