@@ -60,7 +60,7 @@ textField->onSubmit() += [](auto event) {
 
 * **{ "font" : [Font](../foundation/font.md) }**
 
-	Controls the background color of the view.
+	Controls the font of the TextField.
 
 ## Actions
 

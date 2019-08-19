@@ -39,6 +39,12 @@ label->text = "Hello World";
 	Specifies the way text is cut if it does not fit inside the view.
 	Defaults to `TextOverflow::EllipsisTail`.
 
+## Events
+
+* **[Notifier](../foundation/notifier.md)<const std::string &\> &onLinkClick()**
+
+	A notifier that is triggered when the user clicks a link.
+
 ## Relationships
 
 Inherits from: [View](view.md)
