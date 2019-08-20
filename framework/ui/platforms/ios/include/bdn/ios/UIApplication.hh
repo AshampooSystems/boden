@@ -22,6 +22,8 @@ namespace bdn::ui::ios
 
         std::string uriToBundledFileUri(const std::string &uri) override;
 
+        void copyToClipboard(const std::string &str) override;
+
       public:
         bool _applicationWillFinishLaunching(NSDictionary *launchOptions);
         bool _applicationDidFinishLaunching(NSDictionary *launchOptions);

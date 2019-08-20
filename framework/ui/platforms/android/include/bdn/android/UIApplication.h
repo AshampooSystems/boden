@@ -23,6 +23,7 @@ namespace bdn::ui::android
         void initiateExitIfPossible(int exitCode) override;
         void openURL(const std::string &url) override;
         std::string uriToBundledFileUri(const std::string &uri) override;
+        void copyToClipboard(const std::string &str) override;
 
       protected:
         void disposeMainDispatcher() override;

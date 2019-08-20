@@ -137,6 +137,13 @@ namespace bdn::ui::mac
         return "file:///" + result;
     }
 
+    void UIApplication::copyToClipboard(const std::string &str)
+    {
+        NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+        [pasteboard declareTypes:[NSArray arrayWithObjects:NSPasteboardTypeString, nil] owner:nil];
+        [pasteboard setString:bdn::fk::stringToNSString(str) forType:NSPasteboardTypeString];
+    }
+
     void UIApplication::_applicationWillFinishLaunching(NSNotification *notification)
     {
         bdn::platformEntryWrapper(

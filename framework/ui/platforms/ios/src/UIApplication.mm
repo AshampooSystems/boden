@@ -150,6 +150,12 @@ namespace bdn::ui::ios
         return "file:///" + result;
     }
 
+    void UIApplication::copyToClipboard(const std::string &str)
+    {
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        pasteboard.string = bdn::fk::stringToNSString(str);
+    }
+
     bool UIApplication::_applicationWillFinishLaunching(NSDictionary *launchOptions)
     {
         bdn::platformEntryWrapper(
