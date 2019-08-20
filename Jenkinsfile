@@ -224,6 +224,7 @@ pipeline {
                         }
                     }
                 }
+                /*
                 stage('Android - Windows') {
                     environment {
                         BAUER_PLATFORM = 'android'
@@ -248,6 +249,7 @@ pipeline {
                         }                        
                     }
                 }
+                */
             }
         }
 
