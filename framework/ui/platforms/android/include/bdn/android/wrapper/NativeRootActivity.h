@@ -16,6 +16,9 @@ namespace bdn::android::wrapper
         constexpr static const JTObject<kNativeRootActivityClassName>::StaticMethod<String(String)>
             getResourceURIFromURI{"getResourceURIFromURI"};
 
+        constexpr static const JTObject<kNativeRootActivityClassName>::StaticMethod<void(String)> copyToClipboard{
+            "copyToClipboard"};
+
         // JavaMethod<void(java::wrapper::CharSequence)> setTitle{this, "setTitle"};
         // JavaMethod<void(bool)> enableBackButton{this, "enableBackButton"};
     };

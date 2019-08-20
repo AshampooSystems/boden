@@ -75,6 +75,11 @@ namespace bdn::ui::android
     {
         return bdn::android::wrapper::NativeRootActivity::getResourceURIFromURI(uri);
     }
+
+    void UIApplication::copyToClipboard(const String &str)
+    {
+        return bdn::android::wrapper::NativeRootActivity::copyToClipboard(str);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeDestroy(JNIEnv *env, jclass cls,
