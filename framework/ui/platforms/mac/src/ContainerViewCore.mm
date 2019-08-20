@@ -68,7 +68,10 @@ namespace bdn::ui::mac
     {
         if (auto childCore = child->core<ViewCore>()) {
             childCore->removeFromNsSuperview();
-            _children.erase(std::remove(_children.begin(), _children.end(), child));
+            auto it = std::remove(_children.begin(), _children.end(), child);
+            if (it != _children.end()) {
+                _children.erase(it, _children.end());
+            }
         } else {
             throw std::runtime_error("Cannot remove this type of View");
         }

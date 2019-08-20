@@ -34,9 +34,14 @@ namespace bdn::ui::android
     void ContainerViewCore::removeChildView(std::shared_ptr<View> child)
     {
         if (auto childCore = child->core<android::ViewCore>()) {
-            _children.erase(std::remove(_children.begin(), _children.end(), child));
-            auto group = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
-            group.removeView(childCore->getJView());
+            auto it = std::remove(_children.begin(), _children.end(), child);
+
+            if (it != _children.end()) {
+                _children.erase(it, _children.end());
+                auto group = getJViewAS<bdn::android::wrapper::NativeViewGroup>();
+                group.removeView(childCore->getJView());
+            }
+
         } else {
             throw std::runtime_error("Tried removing Child with incompatible core");
         }
