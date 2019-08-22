@@ -14,13 +14,13 @@ class BuildFolder:
         self.logger = logging.getLogger(__name__)
 
         if args.build_folder != None:
-            self.buildfolder = args.build_folder
+            self.buildfolder = os.path.abspath(args.build_folder)
+            self.logger.debug("Build folder: %s" %(self.buildfolder))
         else:
             self.buildfolder = os.path.join(rootPath, "build")
 
     def getBaseBuildDir(self):
         return self.buildfolder
-
 
     # Scans for existing build configurations
     def getExistingBuildConfigurations(self):

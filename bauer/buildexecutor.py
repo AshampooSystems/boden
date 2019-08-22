@@ -109,6 +109,17 @@ class BuildExecutor:
         elif configuration.platform=="ios":
             if generatorName == 'Xcode' and configuration.arch == "std":
                 toolChainFileName = "ios.xcode.toolchain.cmake";
+                xcodeDevPath = subprocess.check_output(['xcode-select', '-p']).decode("utf-8").strip()
+                whichCxx = subprocess.check_output(['which', 'c++']).decode("utf-8").strip()
+
+                self.logger.debug("Environment info:")
+                self.logger.debug('\t"xcode-select -p": "%s"' % (xcodeDevPath))
+                self.logger.debug('\t"which c++": "%s"' % (whichCxx))
+                expected_clangxx_location = os.path.join(xcodeDevPath, "Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++")
+
+                if not os.path.isfile(expected_clangxx_location):
+                    self.logger.warning('Expected file "%s" to exist but it did not' % (expected_clangxx_location))
+
             else:
                 if configuration.arch == "std" or configuration.arch == "simulator":
                     cmakeArguments.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
