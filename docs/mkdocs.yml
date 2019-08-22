@@ -76,6 +76,7 @@ nav:
       - reference/foundation/global_stack.md
       - reference/foundation/needs_init.md
       - reference/foundation/notifier.md
+      - reference/foundation/path.md
       - reference/foundation/point.md
       - reference/foundation/property.md
       - reference/foundation/rect.md

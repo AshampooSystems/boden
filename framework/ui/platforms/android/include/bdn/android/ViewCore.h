@@ -9,8 +9,8 @@
 #include <bdn/android/wrapper/NativeViewGroup.h>
 #include <bdn/android/wrapper/View.h>
 
+#include <bdn/Context.h>
 #include <bdn/android/ContextWrapper.h>
-#include <bdn/ui/UIContext.h>
 #include <bdn/ui/ViewCoreFactory.h>
 
 #include <utility>
@@ -78,7 +78,7 @@ namespace bdn::ui::android
     template <class T>
     bdn::android::wrapper::View createAndroidViewClass(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory)
     {
-        T view(viewCoreFactory->getContextStackTop<UIContext>()->_contextWrapper->getContext());
+        T view(viewCoreFactory->getContextStackTop<bdn::android::Context>()->_contextWrapper->getContext());
         return bdn::android::wrapper::View(view.getRef_());
     }
 }

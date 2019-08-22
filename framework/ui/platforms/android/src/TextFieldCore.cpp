@@ -50,7 +50,7 @@ namespace bdn::ui::android
         _jEditText.requestFocus();
 
         bdn::android::wrapper::InputMethodManager inputManager(
-            _jEditText.getContext().getSystemService(Context::INPUT_METHOD_SERVICE).getRef_());
+            _jEditText.getContext().getSystemService(bdn::android::wrapper::Context::INPUT_METHOD_SERVICE).getRef_());
         inputManager.showSoftInput(_jEditText.cast<bdn::android::wrapper::View>(), 0);
     }
 
@@ -67,7 +67,7 @@ namespace bdn::ui::android
     bool TextFieldCore::onEditorAction(int actionId, const bdn::android::wrapper::KeyEvent &keyEvent)
     {
         bdn::android::wrapper::InputMethodManager inputManager(
-            _jEditText.getContext().getSystemService(Context::INPUT_METHOD_SERVICE).getRef_());
+            _jEditText.getContext().getSystemService(bdn::android::wrapper::Context::INPUT_METHOD_SERVICE).getRef_());
         inputManager.hideSoftInputFromWindow(_jEditText.getWindowToken(), 0);
 
         submitCallback.fire();

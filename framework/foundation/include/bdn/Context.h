@@ -3,10 +3,10 @@
 #include <bdn/platform.h>
 #include <memory>
 
-namespace bdn::ui
+namespace bdn
 {
 
-    class UIContext : std::enable_shared_from_this<UIContext>
+    class Context : std::enable_shared_from_this<Context>
     {
     };
 
@@ -15,10 +15,10 @@ namespace bdn::ui
     {
         class ContextWrapper;
 
-        class UIContext : public bdn::ui::UIContext
+        class Context : public bdn::Context
         {
           public:
-            UIContext(std::unique_ptr<android::ContextWrapper> &&contextWrapper);
+            Context(std::unique_ptr<android::ContextWrapper> &&contextWrapper);
 
           public:
             const std::unique_ptr<android::ContextWrapper> _contextWrapper;

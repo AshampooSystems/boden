@@ -5,8 +5,8 @@ namespace bdn::ui
     class ViewCoreFactory;
 }
 
+#include <bdn/Context.h>
 #include <bdn/Factory.h>
-#include <bdn/ui/UIContext.h>
 #include <bdn/ui/View.h>
 #include <bdn/ui/ViewCoreTypeNotSupportedError.h>
 
@@ -16,7 +16,7 @@ namespace bdn::ui
                             public std::enable_shared_from_this<ViewCoreFactory>
     {
       public:
-        using ContextStack = std::vector<std::shared_ptr<UIContext>>;
+        using ContextStack = std::vector<std::shared_ptr<Context>>;
 
       public:
         std::shared_ptr<View::Core> createViewCore(const std::type_info &viewType);
@@ -28,20 +28,20 @@ namespace bdn::ui
         }
 
       public:
-        static void pushContext(std::shared_ptr<UIContext> &context);
+        static void pushContext(std::shared_ptr<Context> &context);
         static void popContext();
 
         template <class T> static std::shared_ptr<T> getContextStackTop()
         {
             auto stack = contextStack();
             if (stack->empty()) {
-                throw std::runtime_error("No UIContext available");
+                throw std::runtime_error("No Context available");
             }
             if (auto top = std::static_pointer_cast<T>(stack->back())) {
                 return top;
             }
 
-            throw std::runtime_error("Invalid UIContext");
+            throw std::runtime_error("Invalid Context");
         }
 
       private:

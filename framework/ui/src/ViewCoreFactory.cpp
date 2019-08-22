@@ -19,7 +19,7 @@ namespace bdn::ui
         return &s_contextStack;
     }
 
-    void ViewCoreFactory::pushContext(std::shared_ptr<UIContext> &context)
+    void ViewCoreFactory::pushContext(std::shared_ptr<Context> &context)
     {
         auto stack = contextStack();
         stack->push_back(context);

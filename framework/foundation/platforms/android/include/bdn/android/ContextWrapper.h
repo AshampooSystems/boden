@@ -4,7 +4,7 @@
 
 #include <utility>
 
-namespace bdn::ui::android
+namespace bdn::android
 {
     class ContextWrapper
     {

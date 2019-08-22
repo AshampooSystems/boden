@@ -35,19 +35,6 @@ import java.util.Vector;
 
 import static android.content.res.Configuration.UI_MODE_NIGHT_MASK;
 
-/** An activity that is controlled by native code.
- *
- *  You can directly specify this activity in your AndroidManifest.xml.
- *
- *  The activity will load the native code library and initialize everything to allow
- *  the native code size to control the contents and behaviour of the activity.
- *
- *  In your manifest you can specify a meta value called "android.app.lib_name"
- *  to control the name of the native library that the activity will load. If no lib_name
- *  is given then the activity will try to load a lib called "main".
- *
- *
- * */
 public class NativeRootActivity extends AppCompatActivity
 {
     public interface BackButtonListener extends EventListener {

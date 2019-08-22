@@ -9,7 +9,6 @@
 
 namespace bdn::ui::android
 {
-
     void UIApplication::buildCommandlineArguments(bdn::android::wrapper::Intent intent)
     {
         std::vector<std::string> args;
@@ -79,6 +78,13 @@ namespace bdn::ui::android
     void UIApplication::copyToClipboard(const std::string &str)
     {
         return bdn::android::wrapper::NativeRootActivity::copyToClipboard(str);
+    }
+
+    bdn::android::wrapper::Context UIApplication::context()
+    {
+        bdn::android::wrapper::NativeRootView rootView(
+            WindowCore::getRootViewRegistryForCurrentThread().getNewestValidRootView());
+        return rootView.getContext();
     }
 }
 

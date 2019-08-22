@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bdn/Application.h>
+#include <bdn/android/Application.h>
 #include <bdn/android/MainDispatcher.h>
 #include <bdn/android/wrapper/Intent.h>
 
 namespace bdn::ui::android
 {
-    class UIApplication : public Application
+    class UIApplication : public bdn::android::Application
     {
       private:
         void buildCommandlineArguments(bdn::android::wrapper::Intent intent);
@@ -24,6 +24,7 @@ namespace bdn::ui::android
         void openURL(const std::string &url) override;
         std::string uriToBundledFileUri(const std::string &uri) override;
         void copyToClipboard(const std::string &str) override;
+        bdn::android::wrapper::Context context() override;
 
       protected:
         void disposeMainDispatcher() override;
