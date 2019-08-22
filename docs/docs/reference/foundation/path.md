@@ -13,7 +13,7 @@ Provides functions to retrieve platform-specific directory paths.
 ## Declaration
 
 ```C++
-namespace path
+namespace bdn::path
 ```
 
 ## Retrieving Directory Paths
