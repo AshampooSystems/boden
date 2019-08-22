@@ -19,12 +19,14 @@ namespace bdn {
 ```C++
 #include <bdn/GlobalStack.h>
 
+using namespace bdn;
+
 int defaultInt() {
     return 0;
 }
 
 int main() {
-    using MyStack = bdn::GlobalStack<int, &defaultInt>;
+    using MyStack = GlobalStack<int, &defaultInt>;
  
     std::cout << MyStack::top() << std::endl; // "0"
     MyStack::push(10);    

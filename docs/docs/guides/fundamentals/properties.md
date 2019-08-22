@@ -5,6 +5,8 @@
 Properties are intended to be exposed as public data members of a class:
 
 ```c++
+using namespace bdn;
+
 class Circle
 {
 public:
@@ -23,6 +25,8 @@ double radius = circle.radius; // value will be 10.
 Properties can be initialized in the member initialization list of a class:
 
 ```c++
+using namespace bdn;
+
 class Circle
 {
 public:
@@ -33,6 +37,8 @@ public:
 Alternatively, a property's value can also be initialzed in the constructor of a class:
 
 ```c++
+using namespace bdn;
+
 class Circle
 {
 public:
@@ -49,6 +55,8 @@ If you want to provide users of your class with read access to certain propertie
 you can declare `Property` private and provide a public `const Property` reference:
 
 ```c++
+using namespace bdn;
+
 class Circle
 {
 public:
@@ -69,6 +77,8 @@ Properties allow for custom getter and/or setter functions. You may
 implement these as outlined in the following example:
 
 ```c++
+using namespace bdn;
+
 class Person
 {
 public:
@@ -77,7 +87,7 @@ public:
         // Pointer to the instance which provides the getter/setter
         this,
         // Pointer to getter member function
-        &Person::getName,
+        &Person::name,
         // Pointer to setter member function
         &person::setName,
         // Pointer to data member storing name's value
@@ -85,7 +95,7 @@ public:
         }
     };
 
-    std::string getName() const {
+    std::string name() const {
         return _name;
     }
 
@@ -123,6 +133,9 @@ A property can be bound to another property so as to synchronize their
 values:
 
 ```c++
+using namespace bdn;
+using namespace bdn::ui;
+
 class ViewModel
 {
 public:
@@ -160,6 +173,8 @@ Properties support the C++11 `auto` keyword. However, you have to
 dereference a property using the `*` operator when using `auto`:
 
 ```c++
+using namespace bdn;
+
 Property<std::string> nameProperty = "John";
 auto name = nameProperty;  // Error: copy constructor is explicitly deleted 
 auto name = *nameProperty; // type of name will be deduced to std::string 
@@ -168,6 +183,8 @@ auto name = *nameProperty; // type of name will be deduced to std::string
 Alternatively, `get()` can be used when working with `auto`:
 
 ```c++
+using namespace bdn;
+
 Property<std::string> nameProperty = "John";
 auto name = nameProperty.get();
 ```
@@ -178,6 +195,8 @@ Properties support non-primitive value types such as user-defined
 classes and structs. Members can be read using the arrow operator:
 
 ```c++
+using namespace bdn;
+
 struct Person
 {
     std::string name = "John";
@@ -193,6 +212,8 @@ Writing to a member of a non-primitive type inside a property is not
 supported:
 
 ```c++
+using namespace bdn;
+
 Property<Person> person;
 person->name = "Jack"; // Error: no viable overloaded =
 ```
@@ -201,6 +222,8 @@ If you want to write to a property holding a non-primitive type, use
 `get()` and `set()` to copy and modify the property's value:
 
 ```c++
+using namespace bdn;
+
 Property<Person> personProperty;
 Person person = personProperty.get();
 person.name = "Jack";
@@ -213,6 +236,8 @@ Pointer types, including smart pointers, are supported by the `Property`
 class. Consider the following example:
 
 ```c++
+using namespace bdn;
+
 class Model : public Base
 {
 public:
@@ -244,6 +269,8 @@ can be copied by default constructing a `Property` instance and then
 assigning using `operator =`:
 
 ```c++
+using namespace bdn;
+
 Property<std::string> name;
 Property<std::string> badNameCopy = name; // Error: copy constructor 
 									 // is explicitly deleted
@@ -257,6 +284,8 @@ Consequently, structs or classes containing `Property` data members are
 also not copy constructible:
 
 ```c++
+using namespace bdn;
+
 struct Person
 {
     Property<std::string> name = "John";
@@ -271,6 +300,8 @@ If your struct or class needs to be copy constructible, you may
 implement a custom copy constructor:
 
 ```c++
+using namespace bdn;
+
 struct Person
 {
     Person() = default;

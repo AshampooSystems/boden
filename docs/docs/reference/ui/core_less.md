@@ -40,8 +40,8 @@ public:
 	}
 
 private:
-	Label _firstLabel;
-	Label _secondLabel;
+	std::shared_ptr<Label> _firstLabel;
+	std::shared_ptr<Label> _secondLabel;
 };
 
 void test() {

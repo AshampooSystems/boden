@@ -17,8 +17,10 @@ namespace bdn::ui::lottie {
 
 ```C++
 #include <bdn/ui/lottie/View.h>
+
+using namespace bdn::ui;
 // ...
-auto lottieView  = std::make_shared<bdn::ui::lottie::View>();
+auto lottieView  = std::make_shared<lottie::View>();
 lottieView->url = "resource://main/images/animation.json";
 lottieView->running = true;
 lottieView->loop = true;

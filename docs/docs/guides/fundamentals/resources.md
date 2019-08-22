@@ -164,6 +164,8 @@ All Boden classes will understand how to interpret these paths. Borrowing the re
 from the previous sections json example:
 
 ```c++
+using namespace bdn::ui;
+
 auto image = std::make_shared<ImageView>();
 image->url = "image://main/images/image.png";
 ```

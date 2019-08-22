@@ -12,9 +12,11 @@ Represents an RGBA color. Can be de-/serialized from/to JSON.
 #include <bdn/Color.h>
 #include <bdn/Json.h>
 
+using namespace bdn;
+
 int main() {
-	bdn::Color color("royalblue");
-	bdn::json j = color;
+	Color color("royalblue");
+	json j = color;
 
 	return 0;
 }

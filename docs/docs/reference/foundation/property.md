@@ -36,13 +36,13 @@ namespace bdn {
 
 	Constructs a `Property` instance from a `GetterSetter` object. This can be used to define custom getter and setter methods. See the [Property Guide](../../guides/fundamentals/properties.md#getters-and-setters) for details.
 
-* **Property([Streaming](streaming.md) &stream)**
+* **Property([StreamBacking](stream_backing.md) &stream)**
 
-	Constructs a `Property` instance with the given [`Streaming`](streaming.md) object.
+	Constructs a `Property` instance with the given [`Streaming`](stream_backing.md) object.
 
-* **template <class U\> Property(const [Transform](transform.md)<ValType, U\> &transform)**
+* **template <class U\> Property(const [TransformBacking](transform_backing.md)<ValType, U\> &transform)**
 
-	Constructs a `Property` instance with the given [`Transform`](transform.md) object.
+	Constructs a `Property` instance with the given [`Transform`](transform_backing.md) object.
 
 
 ## Getting and Modifying the Value

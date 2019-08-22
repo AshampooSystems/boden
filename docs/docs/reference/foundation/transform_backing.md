@@ -1,7 +1,7 @@
 path: tree/master/framework/foundation/include/bdn/property
-source: Transform.h
+source: TransformBacking.h
 
-# Transform (Property)
+# TransformBacking
 
 Allows you to create a [Property](property.md) that represents a custom transformation from another property's value.
 
@@ -10,13 +10,15 @@ Allows you to create a [Property](property.md) that represents a custom transfor
 ```C++
 namespace bdn {
 	template<class T, class U>
-	class Transform
+	class TransformBacking
 }
 ```
 
 ## Example
 
 ```c++
+using namespace bdn;
+
 auto toFunc = [](int value) -> std::string {
     switch (value) {
     case 0:
@@ -55,7 +57,9 @@ auto fromFunc = [](std::string value) -> int {
 };
 
 Property<int> integerProperty = 1;
-Property<std::string> transformedProperty(Transform<std::string, int>{test, toFunc, fromFunc});
+Property<std::string> transformedProperty(
+	TransformBacking<std::string, int>{test, toFunc, fromFunc}
+);
 // transformedProperty now equals "one"s
 
 integerProperty = 42;
@@ -72,8 +76,8 @@ transformedProperty = "12345";
 
 ## Constructor
 
-* **Transform(const Property<U\> &p, ToFunc to, FromFunc from)**
+* **TransformBacking(const [Property](property.md)<U\> &p, ToFunc to, FromFunc from)**
 
-	Creates a Transform object that can be passed to a Property<T>.
+	Creates a TransformBacking object that can be passed to a Property<T>.
 	Whenever the `Property<U>& p` changes, that value of the `Property<T>` will be changed to reflect 
 	the value of the `Property<U>& p` based on the result of the `Backing::ToFunc to` and vice versa

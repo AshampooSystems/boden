@@ -81,9 +81,9 @@ nav:
       - reference/foundation/property.md
       - reference/foundation/rect.md
       - reference/foundation/size.md
-      - reference/foundation/streaming.md
+      - reference/foundation/stream_backing.md
       - reference/foundation/string.md
-      - reference/foundation/transform.md
+      - reference/foundation/transform_backing.md
     - UI:
       - reference/ui/autocorrection_type.md
       - reference/ui/button.md

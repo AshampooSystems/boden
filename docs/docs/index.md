@@ -11,22 +11,26 @@ Write your mobile apps in modern C++17 and compile 100% native Android and iOS a
 
 ```C++
 // MainViewController.cpp
+#include <bdn/ui.h>
+#include <bdn/ui/yoga.h>
 
-#include <bdn/Button.h>
-#include <bdn/Window.h>
 #include "MainViewController.h"
+
+using namespace bdn;
+using namespace bdn::ui;
 
 MainViewController::MainViewController()
 {
-    _window = std::make_shared<bdn::Window>();
+    _window = std::make_shared<Window>();
     _window->title = "AwesomeApp";
-    _window->geometry = bdn::Rect{0, 0, 400, 300};
+    _window->geometry = Rect{0, 0, 400, 300};
+    _window->setLayout(std::make_shared<yoga::Layout>());
 
-    std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
+    auto button = std::make_shared<Button>();
     button->label = "Hello World";
-    button->geometry = bdn::Rect{150, 129, 100, 22};
 
-    _window->content = button;
+    _window->contentView = button;
+
     _window->visible = true;
 }
 ```
@@ -43,28 +47,30 @@ With Boden laying out your UI is a breeze. Just define your layouts using Flex s
 
 ```C++
 // MainViewController.cpp
+#include <bdn/ui.h>
+#include <bdn/ui/yoga.h>
 
-#include <bdn/Button.h>
-#include <bdn/Window.h>
-#include <bdn/yogalayout.h>
 #include "MainViewController.h"
+
+using namespace bdn;
+using namespace bdn::ui;
 
 MainViewController::MainViewController()
 {
-    _window = std::make_shared<bdn::Window>();
+    _window = std::make_shared<Window>();
     _window->title = "AwesomeApp";
-    _window->geometry = bdn::Rect{0, 0, 400, 300};
-    _window->setLayout(std::make_shared<yogalayout::Layout>());
-    _window->setLayoutStylesheet(
+    _window->geometry = Rect{0, 0, 400, 300};
+    _window->setLayout(std::make_shared<yoga::Layout>());
+    _window->stylesheet =
                 FlexJsonStringify({
-                                      "justifyContent" : "Center", 
-                                      "alignItems" : "Center"
-                                  }));
-    
-    std::shared_ptr<bdn::Button> button = std::make_shared<bdn::Button>();
+                                      "justifyContent": "Center", 
+                                      "alignItems": "Center"
+                                  });
+
+    std::shared_ptr<Button> button = std::make_shared<Button>();
     button->label = "Hello World";
-    
-    _window->content = button;
+
+    _window->contentView = button;
     _window->visible = true;
 }
 ```

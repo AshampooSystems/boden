@@ -1,7 +1,7 @@
 path: tree/master/framework/foundation/include/bdn/property
-source: Streaming.h
+source: StreamBacking.h
 
-# Streaming (Property)
+# StreamBacking
 
 Allows you to create a std::string property that chains multiple properties and values together.
 
@@ -9,17 +9,21 @@ Allows you to create a std::string property that chains multiple properties and 
 
 ```C++
 namespace bdn {
-	class Streaming
+	class StreamBacking
 }
 ```
 
 ## Example
 
 ```c++
+#include <bdn/property/Property.h>
+
+using namespace bdn;
+
 Property<int> integerProperty = 10;
 Property<std::string> type = "posts"s;
 Property<std::string> streamingProperty(
-	Streaming() << "There are "s << integerProperty << " " << type);
+	StreamBacking() << "There are "s << integerProperty << " " << type);
 
 std::cout << streamingProperty.get() << std::endl; // "There are 10 posts"
 
@@ -33,10 +37,10 @@ std::cout << streamingProperty.get() << std::endl; // "There are 42 messages"
 
 ## Operators
 
-* **template <class T\> Streaming &operator<<(const Property<T\> &property)**
+* **template <class T\> StreamBacking &operator<<(const [Property](property.md)<T\> &property)**
 
 	Appends a `Property<T> property` to the stream
 
-* **template <class T\> Streaming &operator<<(T value)**
+* **template <class T\> StreamBacking &operator<<(T value)**
 
 	Appends a value `T value` to the stream

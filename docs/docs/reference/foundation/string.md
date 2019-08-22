@@ -1,7 +1,7 @@
 path: tree/master/framework/foundation/include/bdn
 source: String.h
 
-# std::string
+# String
 
 All string operations in the Boden Framework are based on UTF-8 `std::string`s. The `String.h` header file is provided to make working with `std::string` more convenient.
 

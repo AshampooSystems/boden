@@ -13,6 +13,9 @@ Multiple conditional parts can be active, in which case they will be merged from
 #include <bdn/ui/Styler.h>
 #include <bdn/ui/Button.h>
 
+using namespace bdn;
+using namespace bdn::ui;
+
 auto styler = std::make_shared<Styler>();
 auto button = std::make_shared<Button>();
 
