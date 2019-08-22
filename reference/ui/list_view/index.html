@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4100958971">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3715511393">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2051599124">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?3506948588">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1149,15 +1149,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
-  <a href="#enabling-swipe-refresh" title="Enabling Swipe Refresh" class="md-nav__link">
-    Enabling Swipe Refresh
+  <a href="#swipe-to-refresh" title="Swipe to refresh" class="md-nav__link">
+    Swipe to refresh
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#events" title="Events" class="md-nav__link">
-    Events
+  <a href="#swipe-to-delete" title="Swipe to delete" class="md-nav__link">
+    Swipe to delete
   </a>
   
 </li>
@@ -1348,8 +1348,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1445,13 +1469,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1857,15 +1881,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
-  <a href="#enabling-swipe-refresh" title="Enabling Swipe Refresh" class="md-nav__link">
-    Enabling Swipe Refresh
+  <a href="#swipe-to-refresh" title="Swipe to refresh" class="md-nav__link">
+    Swipe to refresh
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#events" title="Events" class="md-nav__link">
-    Events
+  <a href="#swipe-to-delete" title="Swipe to delete" class="md-nav__link">
+    Swipe to delete
   </a>
   
 </li>
@@ -1937,22 +1961,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Reloads the list's data from its data source.</p>
 </li>
 </ul>
-<h2 id="enabling-swipe-refresh">Enabling Swipe Refresh<a class="headerlink" href="#enabling-swipe-refresh" title="Permanent link">&para;</a></h2>
+<h2 id="swipe-to-refresh">Swipe to refresh<a class="headerlink" href="#swipe-to-refresh" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p><strong><a href="../../foundation/property/">Property</a>&lt;bool> enableRefresh</strong></p>
 <p>Enables refresh on swipe down.</p>
 </li>
 <li>
+<p><strong><a href="../../foundation/notifier/">Notifier</a>&lt;> &amp;onRefresh()</strong></p>
+<p>Signals that the user has requested the List to reload its data.</p>
+</li>
+<li>
 <p><strong>void refreshDone()</strong></p>
 <p>Finishes/hides the refresh animation if it was triggered by the user.</p>
 </li>
 </ul>
-<h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
+<h2 id="swipe-to-delete">Swipe to delete<a class="headerlink" href="#swipe-to-delete" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong><a href="../../foundation/notifier/">Notifier</a>&lt;> &amp;onRefresh()</strong></p>
-<p>Signals that the list has updated its data.</p>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;bool> enableSwipeToDelete</strong></p>
+<p>Enables deletion when swiping an item left.</p>
+</li>
+<li>
+<p><strong><a href="../../foundation/notifier/">Notifier</a>&lt;size_t> &amp;onDelete()</strong></p>
+<p>Signals that the user has requested the deletion of an element.
+The <code>size_t</code> argument specifies the location of the element to be deleted.
+The ListView automatically updates itself after the notification is processed, 
+failure to update the datasource results in undefined behaviour. </p>
 </li>
 </ul>
 <h2 id="relationships">Relationships<a class="headerlink" href="#relationships" title="Permanent link">&para;</a></h2>

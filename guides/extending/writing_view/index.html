@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4679601395">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5257683718">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1625196403">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2100338878">
     
     
       
@@ -1013,6 +1013,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../reference/foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../reference/foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -1061,8 +1073,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../reference/foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../../reference/foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -1085,20 +1097,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../reference/foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../../reference/foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../../reference/foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1409,8 +1409,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../reference/ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../reference/ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1506,13 +1530,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -2280,7 +2304,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -2296,7 +2320,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
     <span class="p">{</span>
 <span class="hll">      <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">        <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+</span><span class="hll">        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 </span>
       <span class="k">public</span><span class="o">:</span>
         <span class="n">ExampleButtonView</span><span class="p">(</span>
@@ -2315,7 +2339,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Core</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span> 
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span> 
 <span class="p">}</span>
 </pre></div>
 
@@ -2331,7 +2355,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
     <span class="p">{</span>
       <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 
       <span class="k">public</span><span class="o">:</span>
         <span class="n">ExampleButtonView</span><span class="p">(</span>
@@ -2341,7 +2365,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <span class="k">class</span> <span class="nc">Core</span>
         <span class="p">{</span>
 <span class="hll">          <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">            <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+</span><span class="hll">            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 </span>        <span class="p">};</span>
     <span class="p">};</span>
 <span class="p">}</span>
@@ -2471,7 +2495,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
     <span class="p">{</span>
       <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 
       <span class="k">public</span><span class="o">:</span>
         <span class="n">ExampleButtonView</span><span class="p">(</span>
@@ -2481,7 +2505,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <span class="k">class</span> <span class="nc">Core</span>
         <span class="p">{</span>
           <span class="k">public</span><span class="o">:</span>
-            <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 
 <span class="hll">          <span class="k">public</span><span class="o">:</span>
 </span><span class="hll">            <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">_clickCallback</span><span class="p">;</span>
@@ -2575,7 +2599,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
     <span class="p">{</span>
       <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 
       <span class="k">public</span><span class="o">:</span>
         <span class="n">ExampleButtonView</span><span class="p">(</span>
@@ -2589,7 +2613,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <span class="k">class</span> <span class="nc">Core</span>
         <span class="p">{</span>
           <span class="k">public</span><span class="o">:</span>
-            <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
 
           <span class="k">public</span><span class="o">:</span>
             <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">_clickCallback</span><span class="p">;</span>

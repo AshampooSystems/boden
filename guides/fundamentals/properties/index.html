@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2331974760">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2892998119">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2596661497">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1292674702">
     
     
       
@@ -974,6 +974,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../reference/foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../reference/foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -1022,8 +1034,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../reference/foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../../reference/foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -1046,20 +1058,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../reference/foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../../reference/foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../../reference/foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1370,8 +1370,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../reference/ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../reference/ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1467,13 +1491,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1949,7 +1973,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h1>
 <h2 id="intro">Intro<a class="headerlink" href="#intro" title="Permanent link">&para;</a></h2>
 <p>Properties are intended to be exposed as public data members of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Circle</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Circle</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">radius</span><span class="p">;</span>
@@ -1964,7 +1990,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <h2 id="initial-property-values">Initial Property Values<a class="headerlink" href="#initial-property-values" title="Permanent link">&para;</a></h2>
 <p>Properties can be initialized in the member initialization list of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Circle</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Circle</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">radius</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">;</span>
@@ -1972,7 +2000,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </pre></div>
 
 <p>Alternatively, a property's value can also be initialzed in the constructor of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Circle</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Circle</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="n">Circle</span><span class="p">()</span> <span class="o">:</span> <span class="n">radius</span><span class="p">(</span><span class="mf">10.</span><span class="p">)</span> <span class="p">{}</span>
@@ -1985,7 +2015,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="read-only-access">Read-only Access<a class="headerlink" href="#read-only-access" title="Permanent link">&para;</a></h2>
 <p>If you want to provide users of your class with read access to certain properties only,
 you can declare <code>Property</code> private and provide a public <code>const Property</code> reference:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Circle</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Circle</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="n">Circle</span><span class="p">(</span><span class="kt">double</span> <span class="n">initRadius</span><span class="p">)</span> <span class="o">:</span> <span class="n">_radius</span><span class="p">(</span><span class="n">initRadius</span><span class="p">)</span> <span class="p">{}</span>
@@ -2002,15 +2034,17 @@ you can declare <code>Property</code> private and provide a public <code>const P
 <h2 id="getters-and-setters">Getters and Setters<a class="headerlink" href="#getters-and-setters" title="Permanent link">&para;</a></h2>
 <p>Properties allow for custom getter and/or setter functions. You may
 implement these as outlined in the following example:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Person</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Person</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">GetterSetter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">{</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">GetterSetter</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span>
         <span class="c1">// Pointer to the instance which provides the getter/setter</span>
         <span class="k">this</span><span class="p">,</span>
         <span class="c1">// Pointer to getter member function</span>
-        <span class="o">&amp;</span><span class="n">Person</span><span class="o">::</span><span class="n">getName</span><span class="p">,</span>
+        <span class="o">&amp;</span><span class="n">Person</span><span class="o">::</span><span class="n">name</span><span class="p">,</span>
         <span class="c1">// Pointer to setter member function</span>
         <span class="o">&amp;</span><span class="n">person</span><span class="o">::</span><span class="n">setName</span><span class="p">,</span>
         <span class="c1">// Pointer to data member storing name&#39;s value</span>
@@ -2018,14 +2052,14 @@ implement these as outlined in the following example:</p>
         <span class="p">}</span>
     <span class="p">};</span>
 
-    <span class="n">String</span> <span class="nf">getName</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
         <span class="k">return</span> <span class="n">_name</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="c1">// Besides setting the property value, setters must return </span>
     <span class="c1">// a bool indicating whether the property&#39;s value has been </span>
     <span class="c1">// changed by the set operation</span>
-    <span class="kt">bool</span> <span class="nf">setName</span><span class="p">(</span><span class="k">const</span> <span class="n">String</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">setName</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">!=</span> <span class="n">_name</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
             <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="c1">// value did change</span>
@@ -2035,7 +2069,7 @@ implement these as outlined in the following example:</p>
     <span class="p">}</span>
 
 <span class="k">private</span><span class="o">:</span>
-    <span class="n">String</span> <span class="n">_name</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">_name</span><span class="p">;</span>
 <span class="p">};</span>
 </pre></div>
 
@@ -2050,10 +2084,13 @@ substitute both functions with default implementations.</p>
 <h2 id="data-bindings">Data Bindings<a class="headerlink" href="#data-bindings" title="Permanent link">&para;</a></h2>
 <p>A property can be bound to another property so as to synchronize their
 values:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ViewModel</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">ViewModel</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">buttonText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">buttonText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">class</span> <span class="nc">MainViewController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
@@ -2082,39 +2119,49 @@ register for receiving notifications using the onChange() method.</p>
 <h2 id="auto-keyword"><code>auto</code> Keyword<a class="headerlink" href="#auto-keyword" title="Permanent link">&para;</a></h2>
 <p>Properties support the C++11 <code>auto</code> keyword. However, you have to
 dereference a property using the <code>*</code> operator when using <code>auto</code>:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
 <span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="n">nameProperty</span><span class="p">;</span>  <span class="c1">// Error: copy constructor is explicitly deleted </span>
-<span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="o">*</span><span class="n">nameProperty</span><span class="p">;</span> <span class="c1">// type of name will be deduced to String </span>
+<span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="o">*</span><span class="n">nameProperty</span><span class="p">;</span> <span class="c1">// type of name will be deduced to std::string </span>
 </pre></div>
 
 <p>Alternatively, <code>get()</code> can be used when working with <code>auto</code>:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
 <span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="n">nameProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
 </pre></div>
 
 <h2 id="non-primitive-value-types">Non-Primitive Value Types<a class="headerlink" href="#non-primitive-value-types" title="Permanent link">&para;</a></h2>
 <p>Properties support non-primitive value types such as user-defined
 classes and structs. Members can be read using the arrow operator:</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="n">Person</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Person</span>
 <span class="p">{</span>
-    <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
-<span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span>
 <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">;</span>
 </pre></div>
 
 <p>Writing to a member of a non-primitive type inside a property is not
 supported:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
 <span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Jack&quot;</span><span class="p">;</span> <span class="c1">// Error: no viable overloaded =</span>
 </pre></div>
 
 <p>If you want to write to a property holding a non-primitive type, use
 <code>get()</code> and <code>set()</code> to copy and modify the property's value:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personProperty</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personProperty</span><span class="p">;</span>
 <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="n">personProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
 <span class="n">person</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Jack&quot;</span><span class="p">;</span>
 <span class="n">personProperty</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">person</span><span class="p">);</span>
@@ -2123,10 +2170,12 @@ supported:</p>
 <h2 id="pointer-types">Pointer Types<a class="headerlink" href="#pointer-types" title="Permanent link">&para;</a></h2>
 <p>Pointer types, including smart pointers, are supported by the <code>Property</code>
 class. Consider the following example:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Model</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Model</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">labelText</span><span class="p">;</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">labelText</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">class</span> <span class="nc">ViewModel</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
@@ -2149,20 +2198,24 @@ write to nested properties:</p>
 <p>The Property class is not copy constructible. However, property values
 can be copied by default constructing a <code>Property</code> instance and then
 assigning using <code>operator =</code>:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">badNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// Error: copy constructor </span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">badNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// Error: copy constructor </span>
                                      <span class="c1">// is explicitly deleted</span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">goodNameCopy</span><span class="p">;</span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">goodNameCopy</span><span class="p">;</span>
 <span class="n">goodNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// OK: value of name is copied to value </span>
                      <span class="c1">// of goodNameCopy by assignment</span>
 </pre></div>
 
 <p>Consequently, structs or classes containing <code>Property</code> data members are
 also not copy constructible:</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="n">Person</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Person</span>
 <span class="p">{</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="n">Person</span> <span class="n">person</span><span class="p">;</span>
@@ -2172,7 +2225,9 @@ also not copy constructible:</p>
 
 <p>If your struct or class needs to be copy constructible, you may
 implement a custom copy constructor:</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="n">Person</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Person</span>
 <span class="p">{</span>
     <span class="n">Person</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
     <span class="n">Person</span><span class="p">(</span><span class="k">const</span> <span class="n">Person</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="o">:</span> <span class="n">Person</span><span class="p">()</span>
@@ -2180,7 +2235,7 @@ implement a custom copy constructor:</p>
         <span class="n">name</span> <span class="o">=</span> <span class="n">other</span><span class="p">.</span><span class="n">name</span><span class="p">;</span> <span class="c1">// OK: assignment after default construction</span>
     <span class="p">}</span>
 
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="n">Person</span> <span class="n">person</span><span class="p">;</span>

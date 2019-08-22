@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1172488430">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4351623326">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5141307057">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?3511546939">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1262,8 +1262,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1464,13 +1488,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1958,11 +1982,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../../foundation/string/">String</a>> url</strong></p>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;std::string> url</strong></p>
 <p>The URL of the web page to be displayed in the web view. Set this property to load a given URL.</p>
 </li>
 <li>
-<p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../../foundation/string/">String</a>> userAgent</strong></p>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;std::string> userAgent</strong></p>
 <p>(Optional.) The user agent string that will be sent as part of the HTTP request made to load the web view's <code>url</code>. If not set, the default system user agent will be used.</p>
 </li>
 <li>
@@ -1973,7 +1997,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="loading-a-web-page">Loading a Web Page<a class="headerlink" href="#loading-a-web-page" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>void loadURL(const <a href="../../foundation/string/">String</a> &amp;url)</strong></p>
+<p><strong>void loadURL(const std::string &amp;url)</strong></p>
 <p>Loads the web page with the given URL and sets the <code>url</code> property accordingly.</p>
 <p>Calling <code>loadURL()</code> is essentially identical to setting the <code>url</code> property directly. Once the URL is set, the framework will load the resource asynchronously and display it to the user when it becomes ready.</p>
 </li>
@@ -1984,7 +2008,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h4 id="public-members">Public Members<a class="headerlink" href="#public-members" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><a href="../../foundation/string/">String</a> url</p>
+<p>std::string url</p>
 <p>The redirect URL requested by the server.</p>
 </li>
 </ul>

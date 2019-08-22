@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5770120069">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?78876941">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?984641751">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?5822638468">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1260,8 +1260,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1357,13 +1381,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1865,11 +1889,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>HTTPRequest(<a href="../../foundation/string/">String</a> requestUrl, DoneHandler requestDoneHandler)</strong></p>
+<p><strong>HTTPRequest(std::string requestUrl, DoneHandler requestDoneHandler)</strong></p>
 <p>Creates a HTTP <code>GET</code> request with the given request URL and done handler.</p>
 </li>
 <li>
-<p><strong>HTTPRequest(<a href="../http/">http::Method</a> requestMethod, <a href="../../foundation/string/">String</a> requestUrl, DoneHandler requestDoneHandler)</strong></p>
+<p><strong>HTTPRequest(<a href="../http/">http::Method</a> requestMethod, std::string requestUrl, DoneHandler requestDoneHandler)</strong></p>
 <p>Creates a HTTP request with the specified request method.</p>
 </li>
 </ul>

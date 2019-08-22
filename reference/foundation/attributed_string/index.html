@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4880490181">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1037278035">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3739328145">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2172179698">
     
     
       
@@ -945,6 +945,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -993,8 +1005,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -1017,20 +1029,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1341,8 +1341,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1438,13 +1462,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1901,11 +1925,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="serializing">Serializing<a class="headerlink" href="#serializing" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>virtual bool fromHTML(const String &amp;html)</strong></p>
+<p><strong>virtual bool fromHTML(const std::string &amp;html)</strong></p>
 <p>Replaces the contents of the <code>AttributedString</code> with the given <code>html</code> markup code.</p>
 </li>
 <li>
-<p><strong>virtual String toHTML() const</strong></p>
+<p><strong>virtual std::string toHTML() const</strong></p>
 <p>Returns the contents as a string containing HTML markup code.</p>
 </li>
 </ul>
@@ -1940,7 +1964,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>virtual void addAttribute(String attributeName, std::any value, Range range)</strong></p>
+<p><strong>virtual void addAttribute(std::string attributeName, std::any value, Range range)</strong></p>
 <p>Adds an attribute to the specified <code>range</code>. The value is converted using the types <code>fromAny</code> function.</p>
 <table>
 <thead>
@@ -1960,7 +1984,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </tr>
 <tr>
 <td><code>link</code></td>
-<td> <a href="../string/">String</a></td>
+<td> std::string</td>
 </tr>
 <tr>
 <td><code>baseline-offset</code></td>

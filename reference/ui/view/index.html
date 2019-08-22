@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3471860303">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5547927302">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1743956765">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?5337222201">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1262,8 +1262,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1452,13 +1476,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1936,26 +1960,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
 <li>
 <p><strong>Property&lt;std::shared_ptr&lt;json>> stylesheet</strong></p>
-<p>A stylesheet defining the styling and layout of the View. </p>
+<p>A stylesheet defining the styling and layout of the view. </p>
 </li>
 <li>
 <p><strong>Property&lt;bool> isLayoutRoot = false</strong></p>
-<p>Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layouting system. Children are not affected by this setting and will still be layouted. Defaults to <code>false</code>.</p>
+<p>Whether the view is treated as a layout root. If set to true, the view's geometry will not be changed by the layout system. Children are not affected by this setting and will still be processed by the layout system. Defaults to <code>false</code>.</p>
 </li>
 <li>
-<p><strong>Property&lt;std::optional&lt;<a href="../../foundation/color/">Color</a>>> backgroundColor</strong></p>
-<p>Set the background color of the view. If set to std::nullopt it returns to the default color.</p>
+<p><strong>const Property&lt;std::weak_ptr&lt;View>> &amp;parentView</strong></p>
+<p><em>(read-only)</em> The current parent view.</p>
 </li>
 </ul>
 <h2 id="stylesheet">Stylesheet<a class="headerlink" href="#stylesheet" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>{ "visible" : bool }</strong></p>
-<p>Controls the <a href="#properties"><code>visible</code></a> property.</p>
-</li>
-<li>
-<p><strong>{ "background-color" : color }</strong></p>
-<p>Controls the <a href="#properties"><code>backgroundColor</code></a> property.</p>
+<p><strong>{ "background-color" : <a href="../../foundation/color/">Color</a> }</strong></p>
+<p>Controls the background color of the view.</p>
 </li>
 </ul>
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
@@ -1972,50 +1992,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p><strong>void setLayout(std::shared_ptr&lt;Layout> layout)</strong></p>
 <p>Sets the view's <a href="../layout/"><code>Layout</code></a>.</p>
 </li>
+<li>
+<p><strong>void setFallbackLayout(std::shared_ptr&lt;Layout> layout)</strong></p>
+<p>Sets the view's <a href="../layout/"><code>Layout</code></a> fallback. A view that has no layout set (via <code>setLayout</code>) will use the given <code>layout</code>. </p>
+</li>
 </ul>
 <h2 id="view-core">View Core<a class="headerlink" href="#view-core" title="Permanent link">&para;</a></h2>
 <ul>
-<li>
-<p><strong>virtual String viewCoreTypeName() const = 0</strong></p>
-<p>Super classes should return a <a href="../../foundation/string/"><code>String</code></a> presenting the type name of the view's core.</p>
-</li>
 <li>
 <p><strong>std::shared_ptr&lt;ViewCore> viewCore() const</strong></p>
 <p>Returns the view's <a href="../view_core/"><code>ViewCore</code></a>.</p>
 </li>
 <li>
-<p><strong>sstd::shared_ptr&lt;ViewCoreFactory> viewCoreFactory()</strong></p>
+<p><strong>std::shared_ptr&lt;ViewCoreFactory> viewCoreFactory()</strong></p>
 <p>Returns the view's <a href="../view_core_factory/"><code>ViewCoreFactory</code></a>.</p>
 </li>
 <li>
 <p><strong>virtual void bindViewCore()</strong></p>
-<p>Called after a new View Core is created to connect it to the Views properties and notifiers</p>
+<p>Called after a new <a href="../view_core/"><code>ViewCore</code></a> is created to connect it to the view's properties and notifiers</p>
 </li>
 <li>
 <p><strong>virtual const std::type_info &amp;typeInfoForCoreCreation() const</strong></p>
-<p>Returns the <strong>std::type_info</strong> that should be used to determine the ViewCore type.
-The default implementation returns <strong>typeid(*this)</strong>. Override if you want to 
-use a different ViewCore.</p>
+<p>Returns the <strong>std::type_info</strong> that should be used to determine the <a href="../view_core/"><code>ViewCore</code></a> type.
+The default implementation returns <strong>typeid(*this)</strong>. Override if you want to use a different <a href="../view_core/"><code>ViewCore</code></a>.</p>
 </li>
 </ul>
 <h2 id="view-hierarchy">View Hierarchy<a class="headerlink" href="#view-hierarchy" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>virtual std::list&lt;std::shared_ptr&lt;View>> childViews() const</strong></p>
+<p><strong>virtual std::vector&lt;std::shared_ptr&lt;View>> childViews() const</strong></p>
 <p>Returns the view's child views.</p>
-</li>
-<li>
-<p><strong>virtual void removeAllChildViews()</strong></p>
-<p>Removes all child views.</p>
-</li>
-<li>
-<p><strong>virtual void _childViewStolen(std::shared_ptr&lt;View&gt; childView)</strong></p>
-</li>
-<li>
-<p><strong>virtual std::shared_ptr&lt;View> getParentView()</strong></p>
-</li>
-<li>
-<p><strong>void _setParentView(std::shared_ptr&lt;View> parentView)</strong></p>
 </li>
 </ul>
 <h2 id="misc">Misc<a class="headerlink" href="#misc" title="Permanent link">&para;</a></h2>
@@ -2026,7 +2032,7 @@ use a different ViewCore.</p>
 </li>
 </ul>
 <h2 id="relationships">Relationships<a class="headerlink" href="#relationships" title="Permanent link">&para;</a></h2>
-<p>Inherits from <code>std::enable_shared_from_this&lt;View\&gt;</code>.</p>
+<p>Inherits from <code>std::enable_shared_from_this&lt;View&gt;</code>.</p>
                 
                   
                     <h2 id="__source">Source</h2>

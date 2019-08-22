@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?2281626104">
+      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?2887841932">
     
-      <link rel="stylesheet" href="../../../../stylesheets/boden.css?3759537878">
+      <link rel="stylesheet" href="../../../../stylesheets/boden.css?1370399451">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1260,8 +1260,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../../ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../../ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1357,13 +1381,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1872,8 +1896,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/lottie/View.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
 <span class="c1">// ...</span>
-<span class="k">auto</span> <span class="n">lottieView</span>  <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">lottie</span><span class="o">::</span><span class="n">View</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">lottieView</span>  <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">lottie</span><span class="o">::</span><span class="n">View</span><span class="o">&gt;</span><span class="p">();</span>
 <span class="n">lottieView</span><span class="o">-&gt;</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;resource://main/images/animation.json&quot;</span><span class="p">;</span>
 <span class="n">lottieView</span><span class="o">-&gt;</span><span class="n">running</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 <span class="n">lottieView</span><span class="o">-&gt;</span><span class="n">loop</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
@@ -1882,7 +1908,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong><a href="../../../foundation/property/">Property</a>&lt;<a href="../../../foundation/string/">String</a>> url</strong></p>
+<p><strong><a href="../../../foundation/property/">Property</a>&lt;std::string> url</strong></p>
 <p>URL pointing to the animation file. (Please refer to <a href="../../../../guides/fundamentals/resources/#using-resources">Using Resources</a> for more information on how to bundle resources with your app.)</p>
 </li>
 <li>

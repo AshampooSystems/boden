@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1687129175">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1203920095">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5591541621">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?544206126">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1077,13 +1077,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#managing-child-views" title="Managing Child Views" class="md-nav__link">
     Managing Child Views
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#accessing-children" title="Accessing children" class="md-nav__link">
-    Accessing children
   </a>
   
 </li>
@@ -1334,8 +1327,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1431,13 +1448,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1836,13 +1853,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
-  <a href="#accessing-children" title="Accessing children" class="md-nav__link">
-    Accessing children
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#relationships" title="Relationships" class="md-nav__link">
     Relationships
   </a>
@@ -1899,23 +1909,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="managing-child-views">Managing Child Views<a class="headerlink" href="#managing-child-views" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>void void addChildView(const std::shared_ptr&lt;<a href="../view/">View</a>> &amp;childView)</strong></p>
+<p><strong>void addChildView(const std::shared_ptr&lt;<a href="../view/">View</a>> &amp;childView)</strong></p>
 <p>Adds a new child view to the container view.</p>
 </li>
 <li>
-<p><strong>void void removeChildView(const std::shared_ptr&lt;<a href="../view/">View</a>> &amp;childView)</strong></p>
+<p><strong>void removeChildView(const std::shared_ptr&lt;<a href="../view/">View</a>> &amp;childView)</strong></p>
 <p>Removes the given child view from the container view.</p>
 </li>
 <li>
 <p><strong>void removeAllChildViews()</strong></p>
 <p>Removes all child views from the container view.</p>
 </li>
-</ul>
-<h2 id="accessing-children">Accessing children<a class="headerlink" href="#accessing-children" title="Permanent link">&para;</a></h2>
-<ul>
 <li>
-<p><strong>void std::list&lt;std::shared_ptr&lt;<a href="../view/">View</a>>> childViews() override</strong></p>
-<p>Returns an <code>std::list</code> containg all child views of the container view.</p>
+<p><strong>std::optional&lt;std::vector::size_type> childIndex(const std::shared_ptr&lt;View>&amp; child)</strong></p>
+<p>Returns the index of <code>child</code> inside the list of child views or <code>std::nullopt</code> if
+the child cannot be found.</p>
 </li>
 </ul>
 <h2 id="relationships">Relationships<a class="headerlink" href="#relationships" title="Permanent link">&para;</a></h2>

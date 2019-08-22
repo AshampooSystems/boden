@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5638300247">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3829997843">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5900528552">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1848160500">
     
     
       
@@ -864,6 +864,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../foundation/path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../foundation/point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -912,8 +924,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../../foundation/stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -936,20 +948,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../../foundation/text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../foundation/transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../../foundation/transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1260,6 +1260,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           
           
 
+
+  <li class="md-nav__item">
+    <a href="../text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
   
 
 
@@ -1310,6 +1322,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#stylesheet" title="Stylesheet" class="md-nav__link">
+    Stylesheet
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#actions" title="Actions" class="md-nav__link">
     Actions
   </a>
@@ -1344,6 +1363,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   
 </nav>
     
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
+    </a>
   </li>
 
         
@@ -1438,13 +1469,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1843,6 +1874,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#stylesheet" title="Stylesheet" class="md-nav__link">
+    Stylesheet
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#actions" title="Actions" class="md-nav__link">
     Actions
   </a>
@@ -1909,8 +1947,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../../foundation/string/">String</a>> text</strong></p>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;std::string> text</strong></p>
 <p>The text displayed in the text field.</p>
+</li>
+<li>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../text/">Text</a>> placeholder</strong></p>
+<p>The placeholder displayed while the TextField is empty.  </p>
 </li>
 <li>
 <p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../autocorrection_type/">AutocorrectionType</a>> autocorrectionType</strong></p>
@@ -1928,6 +1970,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>The type of return key to use when displaying a software keyboard.</p>
 <p>Defaults to <code>ReturnKeyType::Default</code> which corresponds to input action <code>IME_ACTION_UNSPECIFIED</code> on Android and to <code>UIReturnKeyDefault</code> on iOS. The default indicates that the operating system should decide what return key type to display. Typically, iOS will show "return" and Android will show "return" or "done" in the return key button. See <a href="../return_key_type/"><code>ReturnKeyType</code></a> for details.</p>
 <p>This property is supported on Android and iOS only.</p>
+</li>
+</ul>
+<h2 id="stylesheet">Stylesheet<a class="headerlink" href="#stylesheet" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>{ "font" : <a href="../../foundation/font/">Font</a> }</strong></p>
+<p>Controls the font of the TextField.</p>
 </li>
 </ul>
 <h2 id="actions">Actions<a class="headerlink" href="#actions" title="Permanent link">&para;</a></h2>
@@ -1982,7 +2031,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../switch/" title="Switch" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../text/" title="Text" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1991,19 +2040,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Switch
+                Text
               </span>
             </div>
           </a>
         
         
-          <a href="../tri_state/" title="TriState" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../text_overflow/" title="TextOverflow" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                TriState
+                TextOverflow
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

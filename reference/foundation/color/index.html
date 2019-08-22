@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3922121921">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2086457136">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1369616863">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?4621766184">
     
     
       
@@ -952,6 +952,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -1000,8 +1012,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -1024,20 +1036,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1348,8 +1348,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1445,13 +1469,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1908,9 +1932,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/Color.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;bdn/Json.h&gt;</span><span class="cp"></span>
 
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">bdn</span><span class="o">::</span><span class="n">Color</span> <span class="n">color</span><span class="p">(</span><span class="s">&quot;royalblue&quot;</span><span class="p">);</span>
-    <span class="n">bdn</span><span class="o">::</span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+    <span class="n">Color</span> <span class="n">color</span><span class="p">(</span><span class="s">&quot;royalblue&quot;</span><span class="p">);</span>
+    <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
 
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
@@ -1929,7 +1955,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Creates an opaque black color.</p>
 </li>
 <li>
-<p><strong>Color(String color)</strong></p>
+<p><strong>Color(std::string color)</strong></p>
 <p>Creates a color from a string. You can specify the color via a hex value: <code>#RRGGBBAA</code> or <code>#RGBA</code>.
 If you omit the alpha value it will default to opaque. You can also use up to <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords">CSS Level 4</a> color names including <code>transparent</code>.</p>
 </li>
@@ -1964,8 +1990,8 @@ If you omit the alpha value it will default to opaque. You can also use up to <a
 <td>Color(std::any_cast&lt;Color>(any))</td>
 </tr>
 <tr>
-<td>String</td>
-<td>Color(std::any_cast&lt;String>(any))</td>
+<td>std::string</td>
+<td>Color(std::any_cast&lt;std::string>(any))</td>
 </tr>
 <tr>
 <td>json</td>

@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1584553908">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4650743134">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3340570880">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?3055140007">
     
     
       
@@ -866,6 +866,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../path/" title="path" class="md-nav__link">
+      path
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../point/" title="Point" class="md-nav__link">
       Point
     </a>
@@ -914,8 +926,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../streaming/" title="Streaming (Property)" class="md-nav__link">
-      Streaming (Property)
+    <a href="../stream_backing/" title="StreamBacking" class="md-nav__link">
+      StreamBacking
     </a>
   </li>
 
@@ -1003,20 +1015,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="../text/" title="Text" class="md-nav__link">
-      Text
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../transform/" title="Transform (Property)" class="md-nav__link">
-      Transform (Property)
+    <a href="../transform_backing/" title="TransformBacking" class="md-nav__link">
+      TransformBacking
     </a>
   </li>
 
@@ -1327,8 +1327,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../../ui/text/" title="Text" class="md-nav__link">
+      Text
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../ui/text_field/" title="TextField" class="md-nav__link">
       TextField
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ui/text_overflow/" title="TextOverflow" class="md-nav__link">
+      TextOverflow
     </a>
   </li>
 
@@ -1424,13 +1448,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-28" type="checkbox" id="nav-3-3-28">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
     
-    <label class="md-nav__link" for="nav-3-3-28">
+    <label class="md-nav__link" for="nav-3-3-30">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-28">
+      <label class="md-nav__title" for="nav-3-3-30">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1861,24 +1885,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 
                 
                 <h1 id="string">String<a class="headerlink" href="#string" title="Permanent link">&para;</a></h1>
-<p><code>String</code> is essentially <code>std::string</code> in Boden.</p>
-<p>In the Boden Framework, all strings operations are based on UTF-8 <code>std::string</code>s. The <code>String.h</code> header file is provided to make working with <code>std::string</code> more convenient. It is recommended that you use <code>String</code> instead of <code>std::string</code> in your projects so future changes with regard to the evolving C++ standard will be hassle-free to implement in your apps.</p>
+<p>All string operations in the Boden Framework are based on UTF-8 <code>std::string</code>s. The <code>String.h</code> header file is provided to make working with <code>std::string</code> more convenient.</p>
 <h2 id="types">Types<a class="headerlink" href="#types" title="Permanent link">&para;</a></h2>
+<p>The following types are deprecated and should no longer be used.</p>
 <div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span> <span class="p">{</span>
-    <span class="k">using</span> <span class="n">String</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
-    <span class="k">using</span> <span class="n">StringView</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">String</span> <span class="p">[[</span><span class="n">deprecated</span><span class="p">(</span><span class="s">&quot;Use std::string instead&quot;</span><span class="p">)]]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">StringView</span> <span class="p">[[</span><span class="n">deprecated</span><span class="p">(</span><span class="s">&quot;Use std::string_view instead&quot;</span><span class="p">)]]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 
 <h2 id="c20-polyfills">C++20 Polyfills<a class="headerlink" href="#c20-polyfills" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>inline bool starts_with(const String &amp;haystack, const String &amp;needle)</strong></p>
+<p><strong>inline bool starts_with(const std::string &amp;haystack, const std::string &amp;needle)</strong></p>
 <p>Returns whether <code>haystack</code> starts with <code>needle</code>.</p>
 <p>Implements a polyfill emulating the <a href="https://en.cppreference.com/w/cpp/string/basic_string/starts_with"><code>std::basic_string::starts_with()</code></a> function which will be part of the C++20 standard.</p>
 </li>
 <li>
-<p><strong>inline bool ends_with(const String &amp;haystack, const String &amp;needle)</strong></p>
+<p><strong>inline bool ends_with(const std::string &amp;haystack, const std::string &amp;needle)</strong></p>
 <p>Returns whether <code>haystack</code> ends with <code>needle</code>.</p>
 <p>Implements a polyfill emulating the <a href="https://en.cppreference.com/w/cpp/string/basic_string/ends_with"><code>std::basic_string::ends_with()</code></a> function which will be part of the C++20 standard.</p>
 </li>
@@ -1886,8 +1910,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="conversion-functions">Conversion Functions<a class="headerlink" href="#conversion-functions" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>String stringFromAny(const std::any&amp; anyString)</strong></p>
-<p>Converts an std::any to String. Throws std::bad_any_cast if no conversion possible.</p>
+<p><strong>std::string stringFromAny(const std::any&amp; anyString)</strong></p>
+<p>Converts an std::any to std::string. Throws std::bad_any_cast if no conversion possible.</p>
 <table>
 <thead>
 <tr>
@@ -1897,12 +1921,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </thead>
 <tbody>
 <tr>
-<td>String</td>
-<td>String(std::any_cast&lt;String>(any))</td>
+<td>std::string</td>
+<td>std::string(std::any_cast&lt;std::string>(any))</td>
 </tr>
 <tr>
 <td>json</td>
-<td>(String)std::any_cast&lt;json>(any)</td>
+<td>(std::string)std::any_cast&lt;json>(any)</td>
 </tr>
 </tbody>
 </table>
@@ -1911,15 +1935,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="convenience-functions">Convenience Functions<a class="headerlink" href="#convenience-functions" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>String fromUtf32(const std::u32string &amp;utf32String)</strong></p>
+<p><strong>std::string fromUtf32(const std::u32string &amp;utf32String)</strong></p>
 <p>Converts the given UTF-32 string to an UTF-8 string.</p>
 </li>
 <li>
-<p><strong>String fromUtf16(const std::u16string &amp;utf16String)</strong></p>
+<p><strong>std::string fromUtf16(const std::u16string &amp;utf16String)</strong></p>
 <p>Converts the given UTF-16 string to an UTF-8 string.</p>
 </li>
 <li>
-<p><strong>std::tuple<StringView, StringView> split(const StringView &amp;view, String::value_type token)</strong></p>
+<p><strong>std::tuple<StringView, StringView> split(const StringView &amp;view, std::string::value_type token)</strong></p>
 <p>Splits the given string view using the specified token as a delimiter.</p>
 </li>
 <li>
@@ -1956,7 +1980,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     
                     
                     
-                    <a href="https://github.com/AshampooSystems/boden/tree/master/framework/ui/include/bdn//String.h" title="String.h" class="md-source-file">
+                    <a href="https://github.com/AshampooSystems/boden/tree/master/framework/foundation/include/bdn/String.h" title="String.h" class="md-source-file">
                       String.h
                     </a>
                   
@@ -1978,7 +2002,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../streaming/" title="Streaming (Property)" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../stream_backing/" title="StreamBacking" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1987,19 +2011,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Streaming (Property)
+                StreamBacking
               </span>
             </div>
           </a>
         
         
-          <a href="../text/" title="Text" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../transform_backing/" title="TransformBacking" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Text
+                TransformBacking
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
