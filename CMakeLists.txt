@@ -6,6 +6,8 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./ )
 
 option(BDN_BUILD_TESTS "Build boden tests" ON)
 option(BDN_BUILD_EXAMPLES "Build boden examples" ON)
+option(BDN_WARNINGS_AS_ERRORS "Enable warnings as errors" ON)
+
 
 if(POLICY CMP0079)
     cmake_policy(SET CMP0079 NEW) # Remove when minimum reaches 3.13

@@ -111,17 +111,31 @@ namespace bdn::ui::yoga
     void Layout::unregisterView(View *view)
     {
         remove(view);
-        auto it = _views.find(view);
-        if (it != _views.end()) {
+        if (auto it = _views.find(view); it != _views.end()) {
             _views.erase(it);
         }
     }
 
-    void Layout::markDirty(View *view) { _views[view]->ygNode->markDirtyAndPropogate(); }
+    void Layout::markDirty(View *view)
+    {
+        if (auto it = _views.find(view); it != _views.end()) {
+            it->second->ygNode->markDirtyAndPropogate();
+        }
+    }
 
-    void Layout::updateStylesheet(View *view) { applyStyle(view, _views[view]->ygNode); }
+    void Layout::updateStylesheet(View *view)
+    {
+        if (auto it = _views.find(view); it != _views.end()) {
+            applyStyle(view, it->second->ygNode);
+        }
+    }
 
-    void Layout::layout(View *view) { _views[view]->doLayout(); }
+    void Layout::layout(View *view)
+    {
+        if (auto it = _views.find(view); it != _views.end()) {
+            it->second->doLayout();
+        }
+    }
 
     FlexStylesheet fromStyleSheet(const json &jsonStyleSheet)
     {

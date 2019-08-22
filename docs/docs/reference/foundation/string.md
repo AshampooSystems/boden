@@ -5,6 +5,17 @@ source: String.h
 
 All string operations in the Boden Framework are based on UTF-8 `std::string`s. The `String.h` header file is provided to make working with `std::string` more convenient.
 
+## Types
+
+The following types are deprecated and should no longer be used.
+
+```c++
+namespace bdn {
+    using String [[deprecated("Use std::string instead")]] = std::string;
+    using StringView [[deprecated("Use std::string_view instead")]] = std::string_view;
+}
+```
+
 ## C++20 Polyfills
 
 * **inline bool starts_with(const std::string &haystack, const std::string &needle)**

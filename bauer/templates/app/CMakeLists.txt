@@ -5,6 +5,7 @@ set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 
 set(BDN_BUILD_TESTS OFF CACHE BOOL "Don't include boden tests")
 set(BDN_BUILD_EXAMPLES OFF CACHE BOOL "Don't include boden examples")
+set(BDN_WARNINGS_AS_ERRORS OFF CACHE BOOL "Don't treat warnings as errors")
 
 project({project_name})
 
@@ -42,4 +43,6 @@ ios_configure_app_info(TARGET {project_name}
 set_xcode_appicon_asset({project_name} "ApplicationIcon")
 use_boden_template_info_plist({project_name})
 
-target_link_libraries({project_name} ui yoga)
+set_target_version(TARGET {project_name} VERSION "1.0.0" SHORTVERSION "1.0" LONGVERSION "1.0.0.0" ANDROID_VERSION_ID 1)
+
+target_link_libraries({project_name} Boden::All)

@@ -2,6 +2,12 @@
 buildscript {
     repositories {
         google()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://maven.google.com" }
+        maven { url "http://dl.bintray.com/riteshakya037/maven" }
         jcenter()
     }
     dependencies {
@@ -15,7 +21,17 @@ buildscript {
 allprojects {
     repositories {
         google()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://maven.google.com" }
+        maven { url "http://dl.bintray.com/riteshakya037/maven" }
         jcenter()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
 }
 

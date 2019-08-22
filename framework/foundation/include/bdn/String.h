@@ -12,8 +12,8 @@
 
 namespace bdn
 {
-    using String[[deprecated]] = std::string;
-    using StringView[[deprecated]] = std::string_view;
+    using String[[deprecated("Use std::string instead")]] = std::string;
+    using StringView[[deprecated("Use std::string_view instead")]] = std::string_view;
 
     namespace cpp20
     {

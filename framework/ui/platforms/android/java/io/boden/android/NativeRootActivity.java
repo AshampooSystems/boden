@@ -3,6 +3,7 @@ package io.boden.android;
 import io.boden.android.NativeInit;
 import io.boden.android.NativeRootView;
 
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -285,7 +286,7 @@ public class NativeRootActivity extends AppCompatActivity
     public static final void copyToClipboard(String str)
     {
         ClipboardManager clipboard = (ClipboardManager)getRootActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboard.setText(str);
+        clipboard.setPrimaryClip(ClipData.newPlainText(null, str));
     }
 
     @Override
