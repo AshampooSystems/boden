@@ -13,16 +13,19 @@
 * **ui/Button**: The [`Button`](https://www.boden.io/reference/ui/button/#properties) now supports an imageURL to display an Image instead of Text.
 * **ui/TextField**: The [`TextField`](https://www.boden.io/reference/ui/text_field/#properties) now supports a placeholder text that is displayed while no text was entered.
 * **ui/Label**: The [`Label`](https://www.boden.io/reference/ui/label/#properties)'s method of handling overflow can now be set with the `textOverflow` property.
-* **Application**: The new function [`Application::copyToClipboard`](https://www.boden.io/reference/foundation/application#os-services) copies a string to the Global Clipboard. Thanks [@mrexodia](https://github.com/mrexodia)!
+* **Application**: The new function [`Application::copyToClipboard`](https://www.boden.io/reference/foundation/application#os-services) copies a string to the global clipboard. Thanks [@mrexodia](https://github.com/mrexodia)!
+* **foundation/path**: Added the `bdn::path` namespace featuring functions to retrieve platform-specific paths like e.g. the path of the temporary directory readable/writable by the application.
+* **foundation/Application**: Added `Application` base class to the foundation module to make `Context` accessible from within the module.
 
 ### ⚠️ Changed
 
-* **ui/View**: The View hierarchy functions have been reworked extensively. [`View::childViews`](https://www.boden.io/reference/ui/view/#view-hierarchy) returns a `std::vector` instead of a `std::list` and the parent [`View`](https://www.boden.io/reference/ui/view/) is accessible via a read-only Property [`View::parentView`](https://www.boden.io/reference/ui/view/#properties). Functions that change the hierarchy have been moved out of [`View`](https://www.boden.io/reference/ui/view/).
+* **ui/View**: The View hierarchy functions have been reworked extensively. [`View::childViews`](https://www.boden.io/reference/ui/view/#view-hierarchy) returns a `std::vector` instead of a `std::list` and the parent [`View`](https://www.boden.io/reference/ui/view/) is accessible via a read-only property [`View::parentView`](https://www.boden.io/reference/ui/view/#properties). Functions that change the hierarchy have been moved out of [`View`](https://www.boden.io/reference/ui/view/).
 * **ui/View**: The `offerLayout` function has been renamed to [`setFallbackLayout`](https://www.boden.io/reference/ui/view/#layout)
+* **foudnation/Context**: Renamed `UIContext` to `Context` and moved it to foundation.
 
 ### 🔥 Deprecated
 
-* **String**: The [`String`](https://www.boden.io/reference/foundation/string/#types) alias has been deprecated and replaced with `std::string`
+* **String**: The [`String`](https://www.boden.io/reference/foundation/string/#types) alias has been deprecated and replaced with `std::string`.
 
 ### 🐞 Fixed
 
