@@ -33,7 +33,7 @@ textField->onSubmit() += [](auto event) {
 
 * **[Property](../foundation/property.md)<[Text](text.md)\> placeholder**
 
-	The placeholder displayed while the TextField is empty.  
+	A placeholder text displayed while the TextField is empty.  
 
 * **[Property](../foundation/property.md)<[AutocorrectionType](autocorrection_type.md)\> autocorrectionType**
 
@@ -66,11 +66,11 @@ textField->onSubmit() += [](auto event) {
 
 * **[Property](../foundation/property.md)<bool\> obscureInput**
 
-	Controls whether the TextField should hide the users input or not.
+	Controls whether the text field should hide the users input or not.
 
 	The default is false.
 
-	Note that on Android this is only supported for certain `TextInputType`'s (namely: `Text` and `Number`).
+	Note that on Android this is only supported for certain `TextInputType`s, namely `Text` and `Number`.
 
 	This property is supported on Android and iOS only.
 
