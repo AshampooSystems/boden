@@ -112,6 +112,11 @@ namespace bdn::ui::ios
         returnKeyType.onChange() += [this](auto &property) { setReturnKeyType(property.get()); };
 
         placeholder.onChange() += [this](auto &property) { setPlaceholder(property.get()); };
+
+        textInputType.onChange() += [this](auto &property) { setTextInputType(property.get()); };
+
+        obscureInput.onChange() +=
+            [this](auto &property) { ((UITextField *)uiView()).secureTextEntry = property.get(); };
     }
 
     TextFieldCore::~TextFieldCore() { _delegate = nil; }
@@ -232,5 +237,31 @@ namespace bdn::ui::ios
 
         markDirty();
         scheduleLayout();
+    }
+
+    void TextFieldCore::setTextInputType(const TextInputType &textInputType)
+    {
+        auto textField = (UITextField *)this->uiView();
+        textField.secureTextEntry = NO;
+
+        switch (textInputType) {
+        case TextInputType::MultiLine:
+        case TextInputType::DateTime:
+        case TextInputType::Text:
+            textField.keyboardType = UIKeyboardTypeDefault;
+            break;
+        case TextInputType::Number:
+            textField.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+            break;
+        case TextInputType::Phone:
+            textField.keyboardType = UIKeyboardTypePhonePad;
+            break;
+        case TextInputType::EMail:
+            textField.keyboardType = UIKeyboardTypeEmailAddress;
+            break;
+        case TextInputType::URL:
+            textField.keyboardType = UIKeyboardTypeURL;
+            break;
+        }
     }
 }

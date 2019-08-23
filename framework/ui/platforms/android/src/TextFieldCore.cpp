@@ -38,11 +38,15 @@ namespace bdn::ui::android
 
         font.onChange() += [=](auto &property) { setFont(property.get()); };
 
-        autocorrectionType.onChange() += [=](auto &property) { setAutocorrectionType(property.get()); };
+        autocorrectionType.onChange() += [=](auto &property) { updateInputType(); };
 
         returnKeyType.onChange() += [=](auto &property) { setReturnKeyType(property.get()); };
 
         placeholder.onChange() += [this](auto &property) { setPlaceholder(property.get()); };
+
+        textInputType.onChange() += [this](auto &property) { updateInputType(); };
+
+        obscureInput.onChange() += [this](auto &property) { updateInputType(); };
     }
 
     void TextFieldCore::focus()
@@ -79,25 +83,6 @@ namespace bdn::ui::android
     {
         _jEditText.setFont(font.family, (int)font.size.type, font.size.value, font.weight,
                            font.style == Font::Style::Italic);
-    }
-
-    void TextFieldCore::setAutocorrectionType(const AutocorrectionType autocorrectionType)
-    {
-        const int currentInputType = _jEditText.getInputType();
-
-        switch (autocorrectionType) {
-        case AutocorrectionType::No:
-            _jEditText.setInputType((currentInputType & ~((int)InputType::TYPE_TEXT_FLAG_AUTO_COMPLETE |
-                                                          (int)InputType::TYPE_TEXT_FLAG_AUTO_CORRECT)) |
-                                    (int)InputType::TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-            break;
-        case AutocorrectionType::Yes:
-        case AutocorrectionType::Default:
-            _jEditText.setInputType((currentInputType & ~(int)InputType::TYPE_TEXT_FLAG_NO_SUGGESTIONS) |
-                                    (int)InputType::TYPE_TEXT_FLAG_AUTO_COMPLETE |
-                                    (int)InputType::TYPE_TEXT_FLAG_AUTO_CORRECT);
-            break;
-        }
     }
 
     void TextFieldCore::setReturnKeyType(const ReturnKeyType returnKeyType)
@@ -171,5 +156,51 @@ namespace bdn::ui::android
 
         markDirty();
         scheduleLayout();
+    }
+
+    void TextFieldCore::updateInputType()
+    {
+        int newInputType = textInputTypeToInt(textInputType.get());
+        newInputType |= autocorrectionTypeToInt(autocorrectionType.get());
+
+        _jEditText.setInputType(newInputType);
+    }
+
+    int TextFieldCore::textInputTypeToInt(const TextInputType textInputType)
+    {
+        switch (textInputType) {
+        case TextInputType::Text:
+            return (int)InputType::TYPE_CLASS_TEXT |
+                   (obscureInput.get() ? (int)InputType::TYPE_TEXT_VARIATION_PASSWORD : 0);
+        case TextInputType::Number:
+            return (int)InputType::TYPE_CLASS_NUMBER | (int)InputType::TYPE_NUMBER_FLAG_DECIMAL |
+                   (int)InputType::TYPE_NUMBER_FLAG_SIGNED |
+                   (obscureInput.get() ? (int)InputType::TYPE_NUMBER_VARIATION_PASSWORD : 0);
+        case TextInputType::Phone:
+            return (int)InputType::TYPE_CLASS_PHONE;
+        case TextInputType::EMail:
+            return (int)InputType::TYPE_CLASS_TEXT | (int)InputType::TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+        case TextInputType::URL:
+            return (int)InputType::TYPE_CLASS_TEXT | (int)InputType::TYPE_TEXT_VARIATION_URI;
+        case TextInputType::MultiLine:
+            return (int)InputType::TYPE_CLASS_TEXT | (int)InputType::TYPE_TEXT_VARIATION_LONG_MESSAGE;
+        case TextInputType::DateTime:
+            return (int)InputType::TYPE_CLASS_DATETIME;
+        }
+
+        return 0;
+    }
+
+    int TextFieldCore::autocorrectionTypeToInt(const AutocorrectionType autocorrectionType)
+    {
+        switch (autocorrectionType) {
+        case AutocorrectionType::No:
+            return (int)InputType::TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+        case AutocorrectionType::Yes:
+        case AutocorrectionType::Default:
+            return (int)InputType::TYPE_TEXT_FLAG_AUTO_COMPLETE | (int)InputType::TYPE_TEXT_FLAG_AUTO_CORRECT;
+        }
+
+        return 0;
     }
 }

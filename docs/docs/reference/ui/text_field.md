@@ -56,6 +56,24 @@ textField->onSubmit() += [](auto event) {
 
 	This property is supported on Android and iOS only.
 
+* **[Property](../foundation/property.md)<[TextInputType](text_input_type.md)\> textInputType**
+
+	The type of content that the user is supposed to enter.
+
+	Defaults to `TextInputType::Text` which corresponds to `UIKeyboardTypeDefault` on iOS and `InputType::TYPE_CLASS_TEXT` on Android.
+
+	This property is supported on Android and iOS only.
+
+* **[Property](../foundation/property.md)<bool\> obscureInput**
+
+	Controls whether the TextField should hide the users input or not.
+
+	The default is false.
+
+	Note that on Android this is only supported for certain `TextInputType`'s (namely: `Text` and `Number`).
+
+	This property is supported on Android and iOS only.
+
 ## Stylesheet
 
 * **{ "font" : [Font](../foundation/font.md) }**

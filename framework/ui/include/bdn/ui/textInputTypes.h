@@ -27,4 +27,15 @@ namespace bdn::ui
         Search,        // Android: IME_ACTION_SEARCH, iOS: UIReturnKeySearch
         Send           // Android: IME_ACTION_SEND, iOS: UIReturnKeySend
     };
+
+    enum class TextInputType
+    {
+        Text,
+        URL,
+        Number,
+        Phone,
+        EMail,
+        DateTime,
+        MultiLine,
+    };
 }

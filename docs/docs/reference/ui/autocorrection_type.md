@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/ui
+source: textInputTypes.h
+
 # AutocorrectionType
 
 The type of autocorrection used by a [`TextField`](text_field.md) or other text input control.

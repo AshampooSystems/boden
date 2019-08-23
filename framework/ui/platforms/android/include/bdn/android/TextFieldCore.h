@@ -36,9 +36,13 @@ namespace bdn::ui::android
 
       public:
         void setFont(const Font &font);
-        void setAutocorrectionType(const AutocorrectionType autocorrectionType);
         void setReturnKeyType(const ReturnKeyType returnKeyType);
         void setPlaceholder(const Text &text);
+
+      private:
+        void updateInputType();
+        int textInputTypeToInt(const TextInputType textInputType);
+        int autocorrectionTypeToInt(const AutocorrectionType autocorrectionType);
 
       private:
         mutable bdn::android::wrapper::NativeEditText _jEditText;

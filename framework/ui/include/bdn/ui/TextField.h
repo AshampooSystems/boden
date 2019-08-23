@@ -24,6 +24,8 @@ namespace bdn::ui
         Property<Text> placeholder;
         Property<AutocorrectionType> autocorrectionType = AutocorrectionType::Default;
         Property<ReturnKeyType> returnKeyType = ReturnKeyType::Default;
+        Property<TextInputType> textInputType = TextInputType::Text;
+        Property<bool> obscureInput = false;
 
       public:
         TextField(std::shared_ptr<ViewCoreFactory> viewCoreFactory = nullptr);
@@ -51,6 +53,8 @@ namespace bdn::ui
             Property<Font> font;
             Property<AutocorrectionType> autocorrectionType;
             Property<ReturnKeyType> returnKeyType;
+            Property<TextInputType> textInputType;
+            Property<bool> obscureInput;
 
           public:
             virtual void focus() = 0;

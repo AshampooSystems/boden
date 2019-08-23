@@ -12,6 +12,7 @@
 
 * **ui/Button**: The [`Button`](https://www.boden.io/reference/ui/button/#properties) now supports an imageURL to display an Image instead of Text.
 * **ui/TextField**: The [`TextField`](https://www.boden.io/reference/ui/text_field/#properties) now supports a placeholder text that is displayed while no text was entered.
+* **ui/TextField**: The [`TextField`](https://www.boden.io/reference/ui/text_field/#properties) now supports obscuring the users input and configuring the appearance of the Keyboard.
 * **ui/Label**: The [`Label`](https://www.boden.io/reference/ui/label/#properties)'s method of handling overflow can now be set with the `textOverflow` property.
 * **Application**: The new function [`Application::copyToClipboard`](https://www.boden.io/reference/foundation/application#os-services) copies a string to the global clipboard. Thanks [@mrexodia](https://github.com/mrexodia)!
 * **foundation/path**: Added the `bdn::path` namespace featuring functions to retrieve platform-specific paths like e.g. the path of the temporary directory readable/writable by the application.

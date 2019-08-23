@@ -1,3 +1,6 @@
+path: tree/master/framework/ui/include/bdn/ui
+source: textInputTypes.h
+
 # ReturnKeyType
 
 The type of return key to use when displaying a software keyboard.
