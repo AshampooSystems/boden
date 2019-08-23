@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3829997843">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4754904102">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?1848160500">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?5287624657">
     
     
       
@@ -1372,6 +1372,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
+    <a href="../text_input_type/" title="TextInputType" class="md-nav__link">
+      TextInputType
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../text_overflow/" title="TextOverflow" class="md-nav__link">
       TextOverflow
     </a>
@@ -1469,13 +1481,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-30" type="checkbox" id="nav-3-3-30">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3-3-31" type="checkbox" id="nav-3-3-31">
     
-    <label class="md-nav__link" for="nav-3-3-30">
+    <label class="md-nav__link" for="nav-3-3-31">
       Yoga
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
-      <label class="md-nav__title" for="nav-3-3-30">
+      <label class="md-nav__title" for="nav-3-3-31">
         Yoga
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -1952,7 +1964,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
 <li>
 <p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../text/">Text</a>> placeholder</strong></p>
-<p>The placeholder displayed while the TextField is empty.  </p>
+<p>A placeholder text displayed when the text field is empty.  </p>
 </li>
 <li>
 <p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../autocorrection_type/">AutocorrectionType</a>> autocorrectionType</strong></p>
@@ -1969,6 +1981,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../return_key_type/">ReturnKeyType</a>> returnKeyType</strong></p>
 <p>The type of return key to use when displaying a software keyboard.</p>
 <p>Defaults to <code>ReturnKeyType::Default</code> which corresponds to input action <code>IME_ACTION_UNSPECIFIED</code> on Android and to <code>UIReturnKeyDefault</code> on iOS. The default indicates that the operating system should decide what return key type to display. Typically, iOS will show "return" and Android will show "return" or "done" in the return key button. See <a href="../return_key_type/"><code>ReturnKeyType</code></a> for details.</p>
+<p>This property is supported on Android and iOS only.</p>
+</li>
+<li>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;<a href="../text_input_type/">TextInputType</a>> textInputType</strong></p>
+<p>The type of content that the user is supposed to enter.</p>
+<p>Defaults to <code>TextInputType::Text</code> which corresponds to <code>UIKeyboardTypeDefault</code> on iOS and <code>InputType::TYPE_CLASS_TEXT</code> on Android.</p>
+<p>This property is supported on Android and iOS only.</p>
+</li>
+<li>
+<p><strong><a href="../../foundation/property/">Property</a>&lt;bool> obscureInput</strong></p>
+<p>Controls whether the text field should hide the users input or not.</p>
+<p>The default is false.</p>
+<p>Note that on Android this is only supported for certain <code>TextInputType</code>s, namely <code>Text</code> and <code>Number</code>.</p>
 <p>This property is supported on Android and iOS only.</p>
 </li>
 </ul>
@@ -2046,13 +2071,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </a>
         
         
-          <a href="../text_overflow/" title="TextOverflow" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../text_input_type/" title="TextInputType" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                TextOverflow
+                TextInputType
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
