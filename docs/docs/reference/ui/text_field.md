@@ -33,7 +33,7 @@ textField->onSubmit() += [](auto event) {
 
 * **[Property](../foundation/property.md)<[Text](text.md)\> placeholder**
 
-	A placeholder text displayed while the TextField is empty.  
+	A placeholder text displayed when the text field is empty.  
 
 * **[Property](../foundation/property.md)<[AutocorrectionType](autocorrection_type.md)\> autocorrectionType**
 
