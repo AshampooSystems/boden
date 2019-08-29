@@ -3,7 +3,7 @@ source: Application.h
 
 # Application
 
-Represents the Application.
+Represents the application.
 
 To define the setup and behavior of your own app, inherit from [ApplicationController](application_controller.md).
 
