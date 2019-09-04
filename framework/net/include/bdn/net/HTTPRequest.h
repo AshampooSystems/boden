@@ -26,12 +26,7 @@ namespace bdn::net
 
       public:
         HTTPRequest() = default;
-        HTTPRequest(std::string requestUrl, DoneHandler requestDoneHandler)
-            : url(std::move(std::move(requestUrl))), doneHandler(std::move(std::move(requestDoneHandler)))
-        {}
-        HTTPRequest(http::Method requestMethod, std::string requestUrl, DoneHandler requestDoneHandler)
-            : method(requestMethod), url(std::move(std::move(requestUrl))),
-              doneHandler(std::move(std::move(requestDoneHandler)))
-        {}
+        HTTPRequest(std::string requestUrl, DoneHandler requestDoneHandler);
+        HTTPRequest(http::Method requestMethod, std::string requestUrl, DoneHandler requestDoneHandler);
     };
 }

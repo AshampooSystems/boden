@@ -7,6 +7,7 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./ )
 option(BDN_BUILD_TESTS "Build boden tests" ON)
 option(BDN_BUILD_EXAMPLES "Build boden examples" ON)
 option(BDN_WARNINGS_AS_ERRORS "Enable warnings as errors" ON)
+option(BDN_NEVER_INCLUDE_STD_FILESYSTEM_POLYFILL "Do not try to workaround platforms that don't support std::filesystem" OFF)
 
 
 if(POLICY CMP0079)

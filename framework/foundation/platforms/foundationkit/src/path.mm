@@ -3,7 +3,7 @@
 
 namespace bdn::path
 {
-    namespace ios
+    namespace fk
     {
         std::string pathForDirectoryOfType(NSSearchPathDirectory directoryType)
         {
@@ -12,9 +12,9 @@ namespace bdn::path
         }
     }
 
-    std::string temporaryDirectoryPath() { return ios::pathForDirectoryOfType(NSCachesDirectory); }
+    std::string temporaryDirectoryPath() { return fk::pathForDirectoryOfType(NSCachesDirectory); }
 
-    std::string applicationSupportDirectoryPath() { return ios::pathForDirectoryOfType(NSApplicationSupportDirectory); }
+    std::string applicationSupportDirectoryPath() { return fk::pathForDirectoryOfType(NSApplicationSupportDirectory); }
 
-    std::string documentDirectoryPath() { return ios::pathForDirectoryOfType(NSDocumentDirectory); }
+    std::string documentDirectoryPath() { return fk::pathForDirectoryOfType(NSDocumentDirectory); }
 }
