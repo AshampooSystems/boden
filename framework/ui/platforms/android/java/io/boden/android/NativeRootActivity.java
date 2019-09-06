@@ -118,6 +118,7 @@ public class NativeRootActivity extends AppCompatActivity
         loadMetaData();
 
         _libName = getMetaString(META_DATA_LIB_NAME, "main");
+        _packageName = getApplicationContext().getPackageName();
 
         NativeInit.baseInit(_libName);
 
@@ -158,8 +159,8 @@ public class NativeRootActivity extends AppCompatActivity
 
     private static int getResourceIdFromString(String resName, String type) {
         try {
-            String libName = NativeRootActivity.getRootActivity()._libName;
-            Class<?> cls = Class.forName("io.boden.android." + libName + ".R$" + type);
+            String packageName = NativeRootActivity.getRootActivity()._packageName;
+            Class<?> cls = Class.forName(packageName + ".R$" + type);
 
             Field idField = cls.getDeclaredField(resName);
             return idField.getInt(idField);
@@ -358,6 +359,7 @@ public class NativeRootActivity extends AppCompatActivity
     private NativeRootView _rootView;
     private Bundle _metaData;
     private String _libName;
+    private String _packageName;
     private static NativeRootActivity _rootActivity;
     private int _currentDayNightMode;
     private BackButtonHandlers _backButtonHandlers;

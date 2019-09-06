@@ -6,11 +6,18 @@ import time
 import random
 import tempfile
 
+from androidstudioprojectgenerator import find_defines, from_defines
+
 class AndroidRunner:
     def __init__(self, buildFolder, buildExecutor):
         self.logger = logging.getLogger(__name__)
         self.buildFolder = buildFolder
         self.buildExecutor = buildExecutor
+
+        self.subprocess_out = None
+        if not self.logger.isEnabledFor(logging.DEBUG):
+            fnull = open(os.devnull, 'w')
+            self.subprocess_out = fnull
 
         self.androidHome = self.buildExecutor.getAndroidHome()
         self.androidEnvironment = self.buildExecutor.getToolEnv()
@@ -19,14 +26,34 @@ class AndroidRunner:
         self.sdkManagerPath = self.buildExecutor.getBuildToolPath(self.androidHome, "tools/bin/sdkmanager")
         self.emulatorPath = self.buildExecutor.getBuildToolPath(self.androidHome, "emulator/emulator")
 
+    def find_target(self, targetName, configuration):
+        for config in self.buildExecutor.cmake.codeModel["configurations"]:
+            for project in config["projects"]:
+                for target in project["targets"]:
+                    if target["name"] == targetName:
+                        return target
+
+        return None;
 
     def run(self, configuration, args):
 
         if args.run_output_file and not args.run_android_fetch_output_from:
             raise Exception("For android, --run-output-file can only be used with --run-android-fetch-output-from.")
 
+        target = self.find_target(args.target, configuration)
+        if not target:
+            raise "Could not find target %s in cmake codemodel" % (args.target)
+
+        target_defines = find_defines(target)
+        packageId = from_defines(target_defines, "ANDROID_PACKAGEID", None)
+
+        if not packageId:
+            raise "Could not find package id for target %s (should be a compile definition called ANDROID_PACKAGEID)" % (args.target) 
+
+        self.logger.debug("Package Id: %s" %(packageId))
+
         androidAbi = self.buildExecutor.getAndroidABI(configuration)
-        appIdToRun = "io.boden.android.%s" % args.target
+        appIdToRun = packageId
         buildDir = self.buildFolder.getBuildDir(configuration)
 
         moduleNameInFileSystem = args.target
@@ -56,11 +83,9 @@ class AndroidRunner:
                 self.closeEmulator(deviceName, emulatorProcess)
 
             self.logger.info("Deleting virtual device for emulator...")
-            deleteDeviceCommand = '"%s" delete avd --name %s' % \
-            (   self.avdManagerPath,
-                deviceName )
+            deleteDeviceCommand = '"%s" delete avd --name %s' % (self.avdManagerPath, deviceName)
 
-            subprocess.call(deleteDeviceCommand, shell=True, env=self.androidEnvironment )
+            subprocess.call(deleteDeviceCommand, stdout=self.subprocess_out, shell=True, env=self.androidEnvironment )
 
         return 0
 
@@ -79,7 +104,7 @@ class AndroidRunner:
             self.buildExecutor.androidEmulatorApiVersion,
             emulatorAbi )
 
-        subprocess.check_call( sdkManagerCommand, shell=True, env=self.androidEnvironment )
+        subprocess.check_call( sdkManagerCommand, stdout=self.subprocess_out, shell=True, env=self.androidEnvironment )
 
         self.logger.info("Done updating packages.")
 
@@ -106,7 +131,7 @@ class AndroidRunner:
             os.close(answerFile)
 
             with open(answerFilePath, "r") as answerFile:
-                subprocess.check_call(createDeviceCommand, shell=True, stdin=answerFile, env=self.androidEnvironment)
+                subprocess.check_call(createDeviceCommand, stdout=self.subprocess_out, shell=True, stdin=answerFile, env=self.androidEnvironment)
 
         finally:
             os.remove(answerFilePath)
@@ -146,9 +171,9 @@ class AndroidRunner:
         # the emulator process will not exit. So we just open it without
         # waiting.
         if sys.platform == "win32":
-            emulatorProcess = subprocess.Popen(startEmulatorCommand, shell=False, env=self.androidEnvironment )
+            emulatorProcess = subprocess.Popen(startEmulatorCommand, stdout=self.subprocess_out, shell=False, env=self.androidEnvironment )
         else:
-            emulatorProcess = subprocess.Popen(startEmulatorCommand, shell=True, env=self.androidEnvironment )
+            emulatorProcess = subprocess.Popen(startEmulatorCommand, stdout=self.subprocess_out, shell=True, env=self.androidEnvironment )
 
         # wait for the emulator  to finish booting (at most 60 seconds)
         self.logger.info("Waiting for android emulator to finish booting...");
@@ -226,7 +251,7 @@ class AndroidRunner:
         installAppCommand = '"%s" install -t "%s"' % \
             (   self.adbPath,
                 moduleFilePath )
-        subprocess.check_call(installAppCommand, shell=True, env=self.androidEnvironment )
+        subprocess.check_call(installAppCommand, stdout=self.subprocess_out, shell=True, env=self.androidEnvironment )
 
         self.logger.debug("Waiting 10 seconds...")
         time.sleep(10)
@@ -334,7 +359,7 @@ class AndroidRunner:
         self.logger.warning("Killing emulator")
 
         killEmulatorCommand = '"%s" -s "%s" emu kill' % ( self.adbPath, "emulator-5554" )
-        subprocess.check_call(killEmulatorCommand, shell=True, env=self.androidEnvironment )
+        subprocess.check_call(killEmulatorCommand, stdout=self.subprocess_out, shell=True, env=self.androidEnvironment )
 
         self.logger.debug("Waiting for emulator to exit...")
 
