@@ -1,5 +1,7 @@
 package io.boden.android;
 
+import android.content.Context;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -9,6 +11,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class NativeListAdapter extends RecyclerView.Adapter<NativeListAdapter.NativeViewHolder>
 {
+    public class ViewHolderViewGroup extends io.boden.android.NativeViewGroup
+    {
+        public ViewHolderViewGroup(Context context) {
+            super(context);
+        }
+
+        public ViewHolderViewGroup(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public ViewHolderViewGroup(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+        }
+
+        public RecyclerView.ViewHolder _viewHolder;
+    }
+
     private static abstract class ClickHandler implements View.OnClickListener {
         public int _position;
         ClickHandler(int position) {
@@ -19,7 +38,7 @@ public class NativeListAdapter extends RecyclerView.Adapter<NativeListAdapter.Na
     @NonNull
     @Override
     public NativeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        io.boden.android.NativeViewGroup viewGroup = new io.boden.android.NativeViewGroup(parent.getContext());
+        ViewHolderViewGroup viewGroup = new ViewHolderViewGroup(parent.getContext());
 
         NativeViewHolder vh = new NativeViewHolder(viewGroup);
         viewGroup.setClickable(true);
@@ -67,14 +86,15 @@ public class NativeListAdapter extends RecyclerView.Adapter<NativeListAdapter.Na
 
     public static class NativeViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public io.boden.android.NativeViewGroup _viewGroup;
+        public ViewHolderViewGroup _viewGroup;
         public View _userView = null;
         public int position;
 
 
-        public NativeViewHolder(io.boden.android.NativeViewGroup viewGroup) {
+        public NativeViewHolder(ViewHolderViewGroup viewGroup) {
             super(viewGroup);
             _viewGroup = viewGroup;
+            _viewGroup._viewHolder = this;
         }
     }
 

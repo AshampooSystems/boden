@@ -12,6 +12,12 @@ namespace bdn::ui
         detail::VIEW_CORE_REGISTER(ListView, View::viewCoreFactory());
     }
 
+    std::optional<size_t> ListView::rowIndexForView(const std::shared_ptr<View> &view) const
+    {
+        auto listCore = core<ListView::Core>();
+        return listCore->rowIndexForView(view);
+    }
+
     void ListView::reloadData()
     {
         auto listCore = core<ListView::Core>();
@@ -32,6 +38,7 @@ namespace bdn::ui
         listCore->selectedRowIndex.bind(selectedRowIndex);
         listCore->enableRefresh.bind(enableRefresh);
         listCore->enableSwipeToDelete.bind(enableSwipeToDelete);
+        listCore->listView = std::static_pointer_cast<ListView>(shared_from_this());
 
         _refreshCallback = listCore->_refreshCallback.set([this]() { onRefresh().notify(); });
         _deleteCallback = listCore->_deleteCallback.set([this](int index) { onDelete().notify(index); });

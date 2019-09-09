@@ -110,7 +110,8 @@ class RedditListViewDataSource : public ui::ListViewDataSource
 
     float heightForRowIndex(size_t rowIndex) override { return 50; }
 
-    std::shared_ptr<ui::View> viewForRowIndex(size_t rowIndex, std::shared_ptr<ui::View> reusableView) override
+    std::shared_ptr<ui::View> viewForRowIndex(const std::shared_ptr<ui::ListView> &, size_t rowIndex,
+                                              std::shared_ptr<ui::View> reusableView) override
     {
         std::shared_ptr<Delegate> delegate;
 

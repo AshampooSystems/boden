@@ -16,6 +16,9 @@ namespace bdn::ui::ios
         void init() override;
 
       public:
+        std::optional<size_t> rowIndexForView(const std::shared_ptr<View> &view) const override;
+
+      public:
         void reloadData() override;
         void refreshDone() override;
 

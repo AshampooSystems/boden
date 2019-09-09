@@ -29,6 +29,9 @@ namespace bdn::ui
         ~ListView() override = default;
 
       public:
+        std::optional<size_t> rowIndexForView(const std::shared_ptr<View> &view) const;
+
+      public:
         void reloadData();
         void refreshDone();
 
@@ -52,6 +55,11 @@ namespace bdn::ui
             Property<std::shared_ptr<ListViewDataSource>> dataSource;
             Property<std::optional<size_t>> selectedRowIndex;
             Property<bool> enableSwipeToDelete;
+
+            Property<std::weak_ptr<ListView>> listView;
+
+          public:
+            virtual std::optional<size_t> rowIndexForView(const std::shared_ptr<View> &view) const = 0;
 
           public:
             virtual void reloadData() = 0;

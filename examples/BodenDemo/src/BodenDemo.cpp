@@ -52,7 +52,8 @@ class PagesDataSource : public ListViewDataSource
   public:
     size_t numberOfRows() override { return pages.size(); }
 
-    std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+    std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
+                                          std::shared_ptr<View> reusableView) override
     {
         auto itemView = std::dynamic_pointer_cast<ItemView>(reusableView);
 

@@ -19,6 +19,19 @@ namespace bdn::ui::android
         enableSwipeToDelete.onChange() += [this](auto &property) { _jNativeListView.setEnableSwipeToDelete(true); };
     }
 
+    std::optional<size_t> ListViewCore::rowIndexForView(const std::shared_ptr<View> &view) const
+    {
+        if (auto viewCore = view->core<ViewCore>()) {
+            auto non_const = const_cast<bdn::android::wrapper::NativeListView *>(&_jNativeListView);
+            int pos = non_const->getRowIndexForView(viewCore->getJView());
+
+            if (pos != -1) {
+                return pos;
+            }
+        }
+        return std::nullopt;
+    }
+
     void ListViewCore::refreshDone() { _jNativeListView.setRefreshing(false); }
 
     void ListViewCore::fireRefresh() { _refreshCallback.fire(); }

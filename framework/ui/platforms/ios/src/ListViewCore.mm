@@ -9,6 +9,10 @@
 
 #include <bdn/log.h>
 
+@interface BodenUITableView : UITableView <UIViewWithFrameNotification>
+@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
+@end
+
 @interface FollowSizeUITableViewCell : UITableViewCell
 @property std::shared_ptr<bdn::ui::ContainerView> containerView;
 @end
@@ -74,6 +78,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+
+    BodenUITableView *bdnTableView = (BodenUITableView *)tableView;
+
+    auto listViewCore = std::dynamic_pointer_cast<bdn::ui::ios::ListViewCore>(bdnTableView.viewCore.lock());
+    auto listView = listViewCore->listView->lock();
+
     if (auto dataSource = self.outerDataSource) {
         FollowSizeUITableViewCell *cell =
             (FollowSizeUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
@@ -106,7 +116,7 @@
         }
 
         if (containerView) {
-            view = self.outerDataSource->viewForRowIndex(indexPath.row, view);
+            view = self.outerDataSource->viewForRowIndex(listView, indexPath.row, view);
             if (!reuse) {
                 containerView->removeAllChildViews();
                 containerView->addChildView(view);
@@ -156,10 +166,6 @@
     }
 }
 
-@end
-
-@interface BodenUITableView : UITableView <UIViewWithFrameNotification>
-@property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
 
 @implementation BodenUITableView
@@ -252,6 +258,29 @@ namespace bdn::ui::ios
         };
 
         enableRefresh.onChange() += [=](auto &property) { updateRefresh(property.get()); };
+    }
+
+    std::optional<size_t> ListViewCore::rowIndexForView(const std::shared_ptr<View> &view) const
+    {
+        UITableView *uiTableView = (UITableView *)uiView();
+
+        if (auto core = view->core<ViewCore>()) {
+            auto uiView = core->uiView();
+            while (uiView) {
+                if ([uiView isKindOfClass:[UITableViewCell class]]) {
+                    break;
+                }
+                uiView = uiView.superview;
+            }
+
+            if (uiView) {
+                if (auto indexPath = [uiTableView indexPathForCell:(UITableViewCell *)uiView]) {
+                    return indexPath.row;
+                }
+            }
+        }
+
+        return std::nullopt;
     }
 
     void ListViewCore::updateRefresh(bool enable) { [((BodenUITableView *)uiView()) updateRefresh:enable]; }

@@ -19,6 +19,8 @@ namespace bdn::ui::mac
         void reloadData() override;
         void refreshDone() override;
 
+        std::optional<size_t> rowIndexForView(const std::shared_ptr<View> &view) const override;
+
       public:
         void fireRefresh();
 

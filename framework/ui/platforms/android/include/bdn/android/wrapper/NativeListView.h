@@ -18,5 +18,6 @@ namespace bdn::android::wrapper
         JavaMethod<void(bool)> setRefreshing{this, "setRefreshing"};
         JavaMethod<void()> reloadData{this, "reloadData"};
         JavaMethod<void(bool)> setEnableSwipeToDelete{this, "setEnableSwipeToDelete"};
+        JavaMethod<int(bdn::android::wrapper::View)> getRowIndexForView{this, "getRowIndexForView"};
     };
 }

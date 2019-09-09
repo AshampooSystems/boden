@@ -20,7 +20,8 @@ namespace bdn
 
       public:
         size_t numberOfRows() override { return data.size(); }
-        std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+        std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
+                                              std::shared_ptr<View> reusableView) override
         {
             if (!reusableView) {
                 reusableView = std::make_shared<Label>();
@@ -32,6 +33,7 @@ namespace bdn
             }
             return reusableView;
         }
+
         float heightForRowIndex(size_t rowIndex) override { return 25; }
 
         void remove(int pos)

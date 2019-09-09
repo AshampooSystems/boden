@@ -15,6 +15,10 @@ namespace bdn::ui::android
       public:
         ListViewCore(const std::shared_ptr<ViewCoreFactory> &viewCoreFactory);
 
+      public:
+        std::optional<size_t> rowIndexForView(const std::shared_ptr<View> &view) const override;
+
+      public:
         void reloadData() override;
         void refreshDone() override;
 

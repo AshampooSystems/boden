@@ -35,7 +35,8 @@ extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_native
 
 namespace bdn::ui::android
 {
-    jobject viewForRowIndex(const std::shared_ptr<bdn::ui::ListViewDataSource> &dataSource, int rowIndex,
+    jobject viewForRowIndex(const std::shared_ptr<ListView> &listView,
+                            const std::shared_ptr<bdn::ui::ListViewDataSource> &dataSource, int rowIndex,
                             const std::shared_ptr<RowContainerView> &reusable)
     {
 
@@ -47,7 +48,7 @@ namespace bdn::ui::android
 
             reusable->removeAllChildViews();
 
-            if (auto delegate = dataSource->viewForRowIndex(rowIndex, clientView)) {
+            if (auto delegate = dataSource->viewForRowIndex(listView, rowIndex, clientView)) {
                 reusable->addChildView(delegate);
             }
         }
@@ -89,7 +90,8 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                     float height = dataSource->heightForRowIndex(rowIndex);
 
                     reusable->geometry.set(bdn::Rect{0, 0, listCore->geometry->width, height});
-                    return bdn::ui::android::viewForRowIndex(dataSource, rowIndex, reusable);
+                    return bdn::ui::android::viewForRowIndex(listCore->listView->lock(), dataSource, rowIndex,
+                                                             reusable);
                 }
             }
 

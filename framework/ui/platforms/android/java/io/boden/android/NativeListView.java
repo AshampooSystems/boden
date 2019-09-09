@@ -129,6 +129,21 @@ public class NativeListView extends SwipeRefreshLayout {
         }
     }
 
+    public int getRowIndexForView(View v) {
+        while(v != null) {
+            if(v instanceof io.boden.android.NativeListAdapter.ViewHolderViewGroup) {
+                break;
+            }
+            v = (View)v.getParent();
+        }
+
+        if(v != null) {
+            int pos = ((io.boden.android.NativeListAdapter.ViewHolderViewGroup) v)._viewHolder.getAdapterPosition();
+            return pos;
+        }
+        return -1;
+    }
+
     public void reloadData() {
         _adapter.notifyDataSetChanged();
     }

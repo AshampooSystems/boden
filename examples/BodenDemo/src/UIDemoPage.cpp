@@ -79,7 +79,8 @@ namespace bdn
 
         size_t numberOfRows() override { return _data.size(); }
 
-        std::shared_ptr<View> viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) override
+        std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
+                                              std::shared_ptr<View> reusableView) override
         {
             std::shared_ptr<DemoListItemView> itemView = std::dynamic_pointer_cast<DemoListItemView>(reusableView);
 

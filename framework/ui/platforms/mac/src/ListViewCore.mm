@@ -78,7 +78,7 @@
                 }
             }
 
-            view = dataSource->viewForRowIndex(row, view);
+            view = dataSource->viewForRowIndex(listCore->listView->lock(), row, view);
 
             container->removeAllChildViews();
             container->addChildView(view);
@@ -270,6 +270,19 @@ namespace bdn::ui::mac
         _nsTableView.delegate = nativeDelegate;
         _nsTableView.headerView = nil;
         _nativeDelegate = nativeDelegate;
+    }
+
+    std::optional<size_t> ListViewCore::rowIndexForView(const std::shared_ptr<View> &view) const
+    {
+        if (auto viewCore = view->core<ViewCore>()) {
+            auto v = viewCore->nsView();
+            NSInteger row = [_nsTableView rowForView:v];
+            if (row != -1) {
+                return row;
+            }
+        }
+
+        return std::nullopt;
     }
 
     void ListViewCore::reloadData() { [_nsTableView reloadData]; }
