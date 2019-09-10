@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?184927088">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1459105240">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3348979467">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?124591435">
     
     
       
@@ -1903,7 +1903,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <span class="kt">size_t</span> <span class="nf">numberOfRows</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">viewForRowIndex</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">rowIndex</span><span class="p">,</span> 
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">viewForRowIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;&amp;</span> <span class="n">listView</span><span class="p">,</span>
+                                          <span class="kt">size_t</span> <span class="n">rowIndex</span><span class="p">,</span> 
                                           <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">reusableView</span><span class="p">)</span> <span class="k">override</span>
     <span class="p">{</span>
         <span class="k">auto</span> <span class="n">label</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">(</span><span class="n">reusableView</span><span class="p">);</span>
@@ -1929,7 +1930,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Return the number of available rows in your data source implementation.</p>
 </li>
 <li>
-<p><strong>virtual std::shared_ptr&lt;<a href="../view/">View</a>> viewForRowIndex(size_t rowIndex, std::shared_ptr&lt;<a href="../view/">View</a>> reusableView) = 0</strong></p>
+<p><strong>virtual std::shared_ptr&lt;<a href="../view/">View</a>> viewForRowIndex(const std::shared_ptr&lt;<a href="../list_view/">ListView</a>&gt;&amp; listView, size_t rowIndex, std::shared_ptr&lt;<a href="../view/">View</a>> reusableView) = 0</strong></p>
 <p>Return the item view for the given row index in your data source implementation.</p>
 </li>
 <li>
