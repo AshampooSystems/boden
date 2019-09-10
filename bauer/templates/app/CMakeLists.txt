@@ -11,13 +11,7 @@ project({project_name})
 
 add_subdirectory({boden_relative_path} boden)
 
-set(_sources 
-	./source/AppController.h
-	./source/AppController.cpp
-	./source/MainViewController.h
-	./source/MainViewController.cpp
-	./source/main.cpp
-)
+file(GLOB_RECURSE _sources source/*.cpp source/*.h)
 
 ios_configure_asset(_assets ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 ios_configure_asset(_assets DemoIcon/black.png)

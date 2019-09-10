@@ -27,6 +27,7 @@
 * **ui/ListView**: Added `listView` parameter to `ListViewDataSource::viewForRowIndex`
 * **cmake**: use_boden_template_info_plist() now accepts a bundle id and bundle name.
 * **cmake**: Renamed ANDROID_PACKAGEID to ANDROID_APP_ID.
+* **tooling** The template used by `./boden new` now uses file(GLOB_RECURSE ...) to discover sources instead of manually listing the files.  
 
 ### 🔥 Deprecated
 
