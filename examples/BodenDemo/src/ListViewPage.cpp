@@ -19,7 +19,7 @@ namespace bdn
         std::vector<std::string> data = {"Entry 1", "Entry 2", "Entry 3", "Entry 4", "Entry 5"};
 
       public:
-        size_t numberOfRows() override { return data.size(); }
+        size_t numberOfRows(const std::shared_ptr<ui::ListView> &) override { return data.size(); }
         std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
                                               std::shared_ptr<View> reusableView) override
         {
@@ -34,7 +34,7 @@ namespace bdn
             return reusableView;
         }
 
-        float heightForRowIndex(size_t rowIndex) override { return 25; }
+        float heightForRowIndex(const std::shared_ptr<ui::ListView> &, size_t rowIndex) override { return 25; }
 
         void remove(int pos)
         {

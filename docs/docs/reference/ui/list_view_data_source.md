@@ -27,9 +27,9 @@ class MyDataSource : public bdn::ListViewDataSource
 public:
 	std::array<std::string, 2> _data = {"This is a test", "With only two lines of text"};
 
-	size_t numberOfRows() override { return 2; }
+	size_t numberOfRows(const std::shared_ptr<ListView>&) override { return 2; }
 
-	std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView>& listView,
+	std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView>&,
 										  size_t rowIndex, 
 		 								  std::shared_ptr<bdn::View> reusableView) override
 	{
@@ -41,7 +41,7 @@ public:
 		return std::dynamic_pointer_cast<bdn::View>(label);
 	}
 	
-	float heightForRowIndex(size_t rowIndex) override { return 25; }
+	float heightForRowIndex(const std::shared_ptr<ListView>&, size_t rowIndex) override { return 25; }
 };
 // ...
 auto listView = std::make_shared<bdn::ListView>();
@@ -51,7 +51,7 @@ listView->reloadData();
 
 ## Implementing a Data Source
 
-* **virtual size_t numberOfRows() = 0**
+* **virtual size_t numberOfRows(const std::shared_ptr<[ListView](list_view.md)>& listView) = 0**
 
 	Return the number of available rows in your data source implementation.
 
@@ -59,6 +59,6 @@ listView->reloadData();
 
 	Return the item view for the given row index in your data source implementation.
 
-* **virtual float heightForRowIndex(size_t rowIndex) = 0**
+* **virtual float heightForRowIndex(const std::shared_ptr<[ListView](list_view.md)>& listView, size_t rowIndex) = 0**
 
 	Return the height of the row at the given row index in your data source implementation.

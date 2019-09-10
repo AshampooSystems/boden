@@ -50,7 +50,7 @@ class PagesDataSource : public ListViewDataSource
     PagesDataSource(std::shared_ptr<Window> window) : _window(window) {}
 
   public:
-    size_t numberOfRows() override { return pages.size(); }
+    size_t numberOfRows(const std::shared_ptr<ListView> &) override { return pages.size(); }
 
     std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
                                           std::shared_ptr<View> reusableView) override
@@ -66,7 +66,7 @@ class PagesDataSource : public ListViewDataSource
         return itemView;
     }
 
-    float heightForRowIndex(size_t rowIndex) override { return 50; }
+    float heightForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex) override { return 50; }
 
   private:
     class ItemView : public CoreLess<ContainerView>

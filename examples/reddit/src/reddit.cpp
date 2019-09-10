@@ -106,9 +106,9 @@ class RedditListViewDataSource : public ui::ListViewDataSource
   public:
     explicit RedditListViewDataSource(std::shared_ptr<RedditStore> store) { _store = std::move(store); }
 
-    size_t numberOfRows() override { return _store->posts.size(); }
+    size_t numberOfRows(const std::shared_ptr<bdn::ui::ListView> &) override { return _store->posts.size(); }
 
-    float heightForRowIndex(size_t rowIndex) override { return 50; }
+    float heightForRowIndex(const std::shared_ptr<bdn::ui::ListView> &, size_t rowIndex) override { return 50; }
 
     std::shared_ptr<ui::View> viewForRowIndex(const std::shared_ptr<ui::ListView> &, size_t rowIndex,
                                               std::shared_ptr<ui::View> reusableView) override

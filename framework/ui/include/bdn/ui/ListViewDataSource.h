@@ -12,18 +12,24 @@ namespace bdn::ui
       public:
         virtual ~ListViewDataSource() = default;
 
-        virtual size_t numberOfRows() = 0;
-
         virtual std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &listView, size_t rowIndex,
                                                       std::shared_ptr<View> reusableView) = 0;
 
-        // viewForRowIndex is deprecated, override viewForRowIndex(ListView, size_t, View) instead
+        virtual size_t numberOfRows(const std::shared_ptr<ListView> &listView) = 0;
+        virtual float heightForRowIndex(const std::shared_ptr<ListView> &listView, size_t rowIndex) = 0;
+
+      public:
         [[deprecated("Use viewForRowIndex(ListView, size_t, View) instead")]] virtual std::shared_ptr<View>
         viewForRowIndex(size_t rowIndex, std::shared_ptr<View> reusableView) final
         {
             return nullptr;
         }
 
-        virtual float heightForRowIndex(size_t rowIndex) = 0;
+        [[deprecated("Use numberOfRows(ListView) instead")]] virtual size_t numberOfRows() final { return 0; };
+        [[deprecated("Use heightForRowIndex(ListView, size_t) instead")]] virtual float
+        heightForRowIndex(size_t rowIndex) final
+        {
+            return 0;
+        };
     };
 }

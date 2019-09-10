@@ -57,12 +57,20 @@
     return core->dataSource;
 }
 
+- (std::shared_ptr<bdn::ui::ListView>)listView
+{
+    if (auto listViewCore = self.core.lock()) {
+        return listViewCore->listView->lock();
+    }
+    return nullptr;
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 1; }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (auto dataSource = self.outerDataSource) {
-        return (NSInteger)dataSource->numberOfRows();
+        return (NSInteger)dataSource->numberOfRows(self.listView);
     }
     return 0;
 }
@@ -70,7 +78,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (auto dataSource = self.outerDataSource) {
-        return dataSource->heightForRowIndex(indexPath.row);
+        return dataSource->heightForRowIndex(self.listView, indexPath.row);
     }
 
     return 20.0;
@@ -78,12 +86,6 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-
-    BodenUITableView *bdnTableView = (BodenUITableView *)tableView;
-
-    auto listViewCore = std::dynamic_pointer_cast<bdn::ui::ios::ListViewCore>(bdnTableView.viewCore.lock());
-    auto listView = listViewCore->listView->lock();
-
     if (auto dataSource = self.outerDataSource) {
         FollowSizeUITableViewCell *cell =
             (FollowSizeUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
@@ -116,7 +118,7 @@
         }
 
         if (containerView) {
-            view = self.outerDataSource->viewForRowIndex(listView, indexPath.row, view);
+            view = self.outerDataSource->viewForRowIndex(self.listView, indexPath.row, view);
             if (!reuse) {
                 containerView->removeAllChildViews();
                 containerView->addChildView(view);

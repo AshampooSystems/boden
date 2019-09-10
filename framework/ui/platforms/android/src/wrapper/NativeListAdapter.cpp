@@ -11,37 +11,32 @@
 
 #include <bdn/Rect.h>
 
-std::shared_ptr<bdn::ui::ListViewDataSource> dataSourceFromRawView(jobject rawView)
+namespace
 {
-    if (auto listCore = std::dynamic_pointer_cast<bdn::ui::android::ListViewCore>(
-            bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)))) {
-        return listCore->dataSource.get();
+    std::shared_ptr<bdn::ui::android::ListViewCore> coreFromRawView(jobject rawView)
+    {
+        if (auto listCore = std::dynamic_pointer_cast<bdn::ui::android::ListViewCore>(
+                bdn::ui::android::viewCoreFromJavaViewRef(bdn::java::Reference::convertExternalLocal(rawView)))) {
+            return listCore;
+        }
+        return nullptr;
     }
-    return nullptr;
-}
 
-extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_nativeGetCount(JNIEnv *env, jobject rawSelf,
-                                                                                         jobject rawView)
-{
-    return bdn::nonVoidPlatformEntryWrapper<jint>(
-        [&]() -> jint {
-            if (auto dataSource = dataSourceFromRawView(rawView)) {
-                return dataSource->numberOfRows();
-            }
-            return 0;
-        },
-        true, env);
-}
+    std::shared_ptr<bdn::ui::ListViewDataSource> dataSourceFromRawView(jobject rawView)
+    {
+        if (auto listCore = coreFromRawView(rawView)) {
+            return listCore->dataSource.get();
+        }
+        return nullptr;
+    }
 
-namespace bdn::ui::android
-{
-    jobject viewForRowIndex(const std::shared_ptr<ListView> &listView,
+    jobject viewForRowIndex(const std::shared_ptr<bdn::ui::ListView> &listView,
                             const std::shared_ptr<bdn::ui::ListViewDataSource> &dataSource, int rowIndex,
-                            const std::shared_ptr<RowContainerView> &reusable)
+                            const std::shared_ptr<bdn::ui::android::RowContainerView> &reusable)
     {
 
         if (dataSource) {
-            std::shared_ptr<View> clientView;
+            std::shared_ptr<bdn::ui::View> clientView;
             if (!reusable->childViews().empty()) {
                 clientView = reusable->childViews().front();
             }
@@ -53,8 +48,23 @@ namespace bdn::ui::android
             }
         }
 
-        return reusable->core<RowContainerView::Core>()->getJView().getJObject_();
+        return reusable->core<bdn::ui::android::RowContainerView::Core>()->getJView().getJObject_();
     }
+}
+
+extern "C" JNIEXPORT jint JNICALL Java_io_boden_android_NativeListAdapter_nativeGetCount(JNIEnv *env, jobject rawSelf,
+                                                                                         jobject rawView)
+{
+    return bdn::nonVoidPlatformEntryWrapper<jint>(
+        [&]() -> jint {
+            if (auto listCore = coreFromRawView(rawView)) {
+                if (auto dataSource = dataSourceFromRawView(rawView)) {
+                    return dataSource->numberOfRows(listCore->listView->lock());
+                }
+            }
+            return 0;
+        },
+        true, env);
 }
 
 extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nativeViewForRowIndex(
@@ -63,8 +73,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
 {
     return bdn::nonVoidPlatformEntryWrapper<jobject>(
         [&]() -> jobject {
-            if (auto listCore = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
-                    bdn::java::Reference::convertExternalLocal(rawView))) {
+            if (auto listCore = coreFromRawView(rawView)) {
 
                 std::shared_ptr<bdn::ui::android::RowContainerView> reusable;
                 std::shared_ptr<bdn::ui::android::RowContainerView::Core> reusableCore;
@@ -87,11 +96,10 @@ extern "C" JNIEXPORT jobject JNICALL Java_io_boden_android_NativeListAdapter_nat
                 reusableCore->setUIScaleFactor(listCore->getUIScaleFactor());
 
                 if (auto dataSource = dataSourceFromRawView(rawView)) {
-                    float height = dataSource->heightForRowIndex(rowIndex);
+                    float height = dataSource->heightForRowIndex(listCore->listView->lock(), rowIndex);
 
                     reusable->geometry.set(bdn::Rect{0, 0, listCore->geometry->width, height});
-                    return bdn::ui::android::viewForRowIndex(listCore->listView->lock(), dataSource, rowIndex,
-                                                             reusable);
+                    return viewForRowIndex(listCore->listView->lock(), dataSource, rowIndex, reusable);
                 }
             }
 

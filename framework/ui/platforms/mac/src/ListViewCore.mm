@@ -41,7 +41,11 @@
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
     if (auto dataSource = self.outerDataSource) {
-        return (NSInteger)dataSource->numberOfRows();
+        if (auto core = self.listCore.lock()) {
+            if (auto listView = core->listView->lock()) {
+                return (NSInteger)dataSource->numberOfRows(listView);
+            }
+        }
     }
 
     return 0;
@@ -104,10 +108,15 @@
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
 {
-    if (self.outerDataSource == nullptr) {
-        return 20.0f;
+    if (auto dataSource = self.outerDataSource) {
+        if (auto core = self.listCore.lock()) {
+            if (auto listView = core->listView->lock()) {
+                return dataSource->heightForRowIndex(listView, row);
+            }
+        }
     }
-    return self.outerDataSource->heightForRowIndex(row);
+
+    return 20.0f;
 }
 
 @end

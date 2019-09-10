@@ -77,7 +77,7 @@ namespace bdn
       public:
         DemoDataSource() { _data = {"List entry 1", "List entry 2"}; }
 
-        size_t numberOfRows() override { return _data.size(); }
+        size_t numberOfRows(const std::shared_ptr<ListView> &) override { return _data.size(); }
 
         std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex,
                                               std::shared_ptr<View> reusableView) override
@@ -102,7 +102,7 @@ namespace bdn
             return itemView;
         }
 
-        float heightForRowIndex(size_t rowIndex) override { return 40.0f; }
+        float heightForRowIndex(const std::shared_ptr<ListView> &, size_t rowIndex) override { return 40.0f; }
     };
 
     UIDemoPage::UIDemoPage(bdn::NeedsInit needsInit, std::shared_ptr<Window> window)
