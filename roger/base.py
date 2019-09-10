@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import shutil
-
+import errno
 
 from resource_file import ResourceFile
 import Exe2Img
@@ -16,14 +16,24 @@ class Roger:
             return path
         return os.path.normpath(os.path.join(self.resource_file.root_path, path))
 
+    def make_directories(self, folder):
+        if not os.path.exists(folder):
+            try:
+                os.makedirs(folder)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+            except FileExistsError:
+                pass 
+
     def copy(self, args, src, dest):
         folder = os.path.dirname(dest)
         src = self.full_path(src)
 
         if args.action == 'build':
             logging.debug("Copying %s => %s" % ( src, dest ))
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+            self.make_directories(folder)  
+
             shutil.copyfile(src, dest)
         else:
             sys.stdout.write(os.path.abspath(src).replace('\\', '/'))

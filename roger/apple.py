@@ -101,8 +101,7 @@ class Roger(base.Roger):
     def build(self, args):
         logging.debug("Building ...");
 
-        if not os.path.exists(args.output_directory):
-            os.makedirs(args.output_directory)
+        self.make_directories(args.output_directory)  
 
         if args.action == 'build':
             open(os.path.join(args.output_directory, 'resource-timestamp'), 'w')
