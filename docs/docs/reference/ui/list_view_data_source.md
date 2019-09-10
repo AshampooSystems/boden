@@ -29,7 +29,8 @@ public:
 
 	size_t numberOfRows() override { return 2; }
 
-	std::shared_ptr<View> viewForRowIndex(size_t rowIndex, 
+	std::shared_ptr<View> viewForRowIndex(const std::shared_ptr<ListView>& listView,
+										  size_t rowIndex, 
 		 								  std::shared_ptr<bdn::View> reusableView) override
 	{
 		auto label = std::dynamic_pointer_cast<bdn::Label>(reusableView);
@@ -53,14 +54,11 @@ listView->reloadData();
 * **virtual size_t numberOfRows() = 0**
 
 	Return the number of available rows in your data source implementation.
-	
-* **virtual std::shared_ptr<[View](view.md)\> viewForRowIndex(size_t rowIndex, std::shared_ptr<[View](view.md)\> reusableView) = 0**
+
+* **virtual std::shared_ptr<[View](view.md)\> viewForRowIndex(const std::shared_ptr<[ListView](list_view.md)>& listView, size_t rowIndex, std::shared_ptr<[View](view.md)\> reusableView) = 0**
 
 	Return the item view for the given row index in your data source implementation.
 
 * **virtual float heightForRowIndex(size_t rowIndex) = 0**
 
 	Return the height of the row at the given row index in your data source implementation.
-
-
- 
