@@ -106,9 +106,14 @@ class CMake:
 
         self.codeModel = payload
         
+        realSourceDirectory = os.path.realpath(self.sourceDirectory)
+        self.logger.debug("Comparing: %s" % (realSourceDirectory))
+
         for cmakeConfig in self.codeModel['configurations']:
             for project in cmakeConfig['projects']:
-                if project["sourceDirectory"] == self.sourceDirectory:
+                realProjectSourceDirectory = os.path.realpath(project["sourceDirectory"])
+                self.logger.debug("with:     %s" % (realProjectSourceDirectory))
+                if realProjectSourceDirectory == realSourceDirectory:
                     cmakeConfig['main-project'] = project
                     self.logger.debug("Main project for '%s' : %s" % (cmakeConfig['name'], project['name']))
 
