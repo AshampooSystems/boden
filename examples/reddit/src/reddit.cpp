@@ -118,7 +118,7 @@ class RedditListViewDataSource : public ui::ListViewDataSource
         if (reusableView) {
             delegate = std::dynamic_pointer_cast<Delegate>(reusableView);
         } else {
-            delegate = std::make_shared<Delegate>(needsInit);
+            delegate = std::make_shared<Delegate>();
         }
 
         std::string text = _store->posts.at(rowIndex)->title;

@@ -30,20 +30,20 @@ class PagesDataSource : public ListViewDataSource
   public:
     std::array<std::pair<std::string, std::function<std::shared_ptr<View>()>>, 15> pages = {
         std::make_pair("UI Demo", [=]() { return std::make_shared<UIDemoPage>(needsInit, _window); }),
-        std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(needsInit); }),
-        std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(needsInit); }),
-        std::make_pair("ImageView demo", [=]() { return std::make_shared<ImagesPage>(needsInit); }),
-        std::make_pair("Properties", [=]() { return std::make_shared<PropertiesPage>(needsInit); }),
-        std::make_pair("ListView", [=]() { return std::make_shared<ListViewPage>(needsInit); }),
-        std::make_pair("Colors", [=]() { return std::make_shared<ColorPage>(needsInit); }),
-        std::make_pair("Fonts", [=]() { return std::make_shared<FontPage>(needsInit); }),
-        std::make_pair("Styled Text", [=]() { return std::make_shared<StyledTextPage>(needsInit); }),
-        std::make_pair("Focus", [=]() { return std::make_shared<FocusPage>(needsInit); }),
-        std::make_pair("Buttons", [=]() { return std::make_shared<ButtonPage>(needsInit); }),
-        std::make_pair("Text truncation", [=]() { return std::make_shared<TextTruncationPage>(needsInit); }),
-        std::make_pair("Visibility", [=]() { return std::make_shared<VisibilityPage>(needsInit); }),
-        std::make_pair("Misc", [=]() { return std::make_shared<MiscPage>(needsInit); }),
-        std::make_pair("Keyboard", [=]() { return std::make_shared<KeyboardPage>(needsInit); }),
+        std::make_pair("Timer demo", [=]() { return std::make_shared<TimersPage>(); }),
+        std::make_pair("WebView demo", [=]() { return std::make_shared<WebViewPage>(); }),
+        std::make_pair("ImageView demo", [=]() { return std::make_shared<ImagesPage>(); }),
+        std::make_pair("Properties", [=]() { return std::make_shared<PropertiesPage>(); }),
+        std::make_pair("ListView", [=]() { return std::make_shared<ListViewPage>(); }),
+        std::make_pair("Colors", [=]() { return std::make_shared<ColorPage>(); }),
+        std::make_pair("Fonts", [=]() { return std::make_shared<FontPage>(); }),
+        std::make_pair("Styled Text", [=]() { return std::make_shared<StyledTextPage>(); }),
+        std::make_pair("Focus", [=]() { return std::make_shared<FocusPage>(); }),
+        std::make_pair("Buttons", [=]() { return std::make_shared<ButtonPage>(); }),
+        std::make_pair("Text truncation", [=]() { return std::make_shared<TextTruncationPage>(); }),
+        std::make_pair("Visibility", [=]() { return std::make_shared<VisibilityPage>(); }),
+        std::make_pair("Misc", [=]() { return std::make_shared<MiscPage>(); }),
+        std::make_pair("Keyboard", [=]() { return std::make_shared<KeyboardPage>(); }),
     };
 
   public:
@@ -58,7 +58,7 @@ class PagesDataSource : public ListViewDataSource
         auto itemView = std::dynamic_pointer_cast<ItemView>(reusableView);
 
         if (!itemView) {
-            itemView = std::make_shared<ItemView>(needsInit);
+            itemView = std::make_shared<ItemView>();
         }
 
         itemView->_label->text = pages[rowIndex].first;

@@ -18,6 +18,8 @@
 * **foundation/path**: Added the `bdn::path` namespace featuring functions to retrieve platform-specific paths like e.g. the path of the temporary directory readable/writable by the application.
 * **foundation/Application**: Added `Application` base class to the foundation module to make `Context` accessible from within the module.
 * **ui/ListView**: Added `std::optional<size_t> ListView::rowIndexForView(const std::shared_ptr<View>& view) const`
+* **foundation/NeedsInit**: Added specialization of std::make_shared for types that have an init function but no Constructor Arguments to allow calling std::make_shared<>() without having to specify bdn::needsInit.
+
 
 ### ⚠️ Changed
 
