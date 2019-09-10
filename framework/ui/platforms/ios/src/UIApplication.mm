@@ -78,6 +78,16 @@ static std::weak_ptr<bdn::ui::ios::UIApplication> s_staticApplication;
     }
 }
 
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+    if (auto app = self.bdnApplication.lock()) {
+        return app->_applicationOpenURL(url) ? YES : NO;
+    }
+    return NO;
+}
+
 @end
 
 namespace bdn::ui::ios
@@ -192,6 +202,16 @@ namespace bdn::ui::ios
     void UIApplication::_applicationWillTerminate()
     {
         bdn::platformEntryWrapper([&]() { applicationController()->onTerminate(); }, false);
+    }
+
+    bool UIApplication::_applicationOpenURL(NSURL *url)
+    {
+        if (!url) {
+            return false;
+        }
+        bdn::String bdnUrl = [url absoluteString].UTF8String;
+        bdn::platformEntryWrapper([&]() { applicationController()->onOpenURL(bdnUrl); }, false);
+        return true;
     }
 
     void UIApplication::initiateExitIfPossible(int exitCode) {}
