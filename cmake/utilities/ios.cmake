@@ -1,11 +1,52 @@
-macro(use_boden_template_info_plist TARGETNAME)
+macro(use_boden_template_info_plist)
+    set(options )
+    set(oneValueArgs
+        TARGET
+        IOS_BUNDLE_NAME IOS_BUNDLE_ID
+        MACOS_BUNDLE_NAME MACOS_BUNDLE_ID
+        BUNDLE_NAME BUNDLE_ID)
+    set(multiValueArgs)
+    cmake_parse_arguments(_INFO "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
     if(BDN_PLATFORM_IOS)
         get_target_property(BODEN_CMAKE_SOURCE_DIR boden_cmake SOURCE_DIR)
-        set_target_properties(${TARGETNAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${BODEN_CMAKE_SOURCE_DIR}/templates/IOSInfo.plist.in)
+        set_target_properties(${_INFO_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${BODEN_CMAKE_SOURCE_DIR}/templates/IOSInfo.plist.in)
     elseif(BDN_PLATFORM_OSX)
         get_target_property(BODEN_CMAKE_SOURCE_DIR boden_cmake SOURCE_DIR)
-        set_target_properties(${TARGETNAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${BODEN_CMAKE_SOURCE_DIR}/templates/OSXInfo.plist.in)
+        set_target_properties(${_INFO_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${BODEN_CMAKE_SOURCE_DIR}/templates/OSXInfo.plist.in)
     endif()
+
+    set(BUNDLE_NAME ${_INFO_BUNDLE_NAME})
+    if(BDN_PLATFORM_IOS)
+        if(NOT "${_INFO_IOS_BUNDLE_NAME}" STREQUAL "")
+            set(BUNDLE_NAME ${_INFO_IOS_BUNDLE_NAME})
+        endif()
+    elseif(BDN_PLATFORM_OSX)
+        if(NOT "${_INFO_MACOS_BUNDLE_NAME}" STREQUAL "")
+            set(BUNDLE_NAME ${_INFO_MACOS_BUNDLE_NAME})
+        endif()
+    endif()
+
+    set_target_properties(${_INFO_TARGET} PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${BUNDLE_NAME}")
+
+    set(BUNDLE_ID "io.boden.${_INFO_TARGET}")
+
+    if(NOT "${_INFO_BUNDLE_ID}" STREQUAL "")
+        set(BUNDLE_ID ${_INFO_BUNDLE_ID})
+    endif()
+
+    if(BDN_PLATFORM_IOS)
+        if(NOT "${_INFO_IOS_BUNDLE_ID}" STREQUAL "")
+            set(BUNDLE_ID ${_INFO_IOS_BUNDLE_ID})
+        endif()
+    elseif(BDN_PLATFORM_OSX)
+        if(NOT "${_INFO_MACOS_BUNDLE_ID}" STREQUAL "")
+            set(BUNDLE_ID ${_INFO_MACOS_BUNDLE_ID})
+        endif()
+    endif()
+
+    set_target_properties(${_INFO_TARGET} PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "${BUNDLE_ID}")
+
 endmacro()
 
 macro(ios_setup_code_signing TARGETNAME)
@@ -115,7 +156,6 @@ endmacro()
 
 macro(ios_fix_lib_build_folder TARGET)
     if(BDN_PLATFORM_IOS AND XCODE)
-
         set_target_properties(${TARGET} PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY_DEBUG "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
         set_target_properties(${TARGET} PROPERTIES
@@ -124,6 +164,5 @@ macro(ios_fix_lib_build_folder TARGET)
             ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
         set_target_properties(${TARGET} PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/")
-
     endif()
 endmacro()

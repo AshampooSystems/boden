@@ -256,7 +256,7 @@ class AndroidStudioProjectGenerator(object):
             defines = find_defines(app)
             android_version = from_defines(defines, "ANDROID_VERSION", "1.0")
             android_version_id = from_defines(defines, "ANDROID_VERSION_ID", "1")
-            android_package_id = from_defines(defines, "ANDROID_PACKAGEID", "io.boden.android.notset")
+            android_package_id = from_defines(defines, "ANDROID_APP_ID", "io.boden.android.notset")
 
             resource_directory = os.path.join(module_directory, "src", "main", "res")
             if os.path.exists(resource_directory):

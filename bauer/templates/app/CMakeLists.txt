@@ -19,9 +19,6 @@ set(_sources
 	./source/main.cpp
 )
 
-set(MACOSX_BUNDLE_BUNDLE_NAME {project_name})
-set(MACOSX_BUNDLE_GUI_IDENTIFIER "io.mycompany.{project_name}")
-
 ios_configure_asset(_assets ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 ios_configure_asset(_assets DemoIcon/black.png)
 
@@ -39,6 +36,13 @@ ios_configure_app_info(TARGET {project_name}
     TARGETED_DEVICES IPHONE IPAD
     IPHONE_ORIENTATIONS ALL
     IPAD_ORIENTATIONS ALL)
+
+use_boden_template_info_plist(
+    TARGET {project_name}
+    BUNDLE_NAME "{project_name}"
+    BUNDLE_ID "io.mycompany.{project_name}"
+    )
+set(ANDROID_APP_ID "io.mycompany.{project_name}")
 
 set_xcode_appicon_asset({project_name} "ApplicationIcon")
 use_boden_template_info_plist({project_name})

@@ -2,9 +2,6 @@ file(GLOB _REDDIT_SOURCES ./src/*.cpp ./src/*.h)
 
 list(APPEND REDDIT_FILES ${_REDDIT_SOURCES})
 
-SET(MACOSX_BUNDLE_BUNDLE_NAME reddit)
-SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.reddit")
-
 ios_configure_asset(REDDIT_ASSETS ./ios-assets/Base.lproj/LaunchScreen.storyboard)
 ios_configure_asset(REDDIT_ASSETS ${CMAKE_CURRENT_LIST_DIR}/../DemoIcon/black.png)
 
@@ -30,8 +27,12 @@ set_xcode_appicon_asset(reddit "ApplicationIcon")
 get_git_short_revision(GIT_REV)
 set_target_version(TARGET reddit VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
 
-
-use_boden_template_info_plist(reddit)
+use_boden_template_info_plist(
+    TARGET reddit
+    BUNDLE_NAME "Reddit"
+    BUNDLE_ID "io.boden.reddit"
+    )
+set(ANDROID_APP_ID "io.boden.reddit")
 
 target_link_libraries(reddit PRIVATE Boden::All)
 

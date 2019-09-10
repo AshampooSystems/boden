@@ -45,10 +45,10 @@ class AndroidRunner:
             raise "Could not find target %s in cmake codemodel" % (args.target)
 
         target_defines = find_defines(target)
-        packageId = from_defines(target_defines, "ANDROID_PACKAGEID", None)
+        packageId = from_defines(target_defines, "ANDROID_APP_ID", None)
 
         if not packageId:
-            raise "Could not find package id for target %s (should be a compile definition called ANDROID_PACKAGEID)" % (args.target) 
+            raise "Could not find package id for target %s (should be a compile definition called ANDROID_APP_ID)" % (args.target) 
 
         self.logger.debug("Package Id: %s" %(packageId))
 

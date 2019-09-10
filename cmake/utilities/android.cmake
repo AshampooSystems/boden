@@ -17,11 +17,11 @@ macro(android_manifest TARGET_NAME)
             set(ANDROID_MODULE_NAME ${TARGET_NAME})
         endif()
 
-        if("${ANDROID_PACKAGEID}" STREQUAL "")
-            set(ANDROID_PACKAGEID "io.boden.android.${TARGET_NAME}")
+        if("${ANDROID_APP_ID}" STREQUAL "")
+            set(ANDROID_APP_ID "io.boden.${TARGET_NAME}")
         endif()
 
-        target_compile_definitions(${TARGET_NAME} PRIVATE -DANDROID_PACKAGEID=${ANDROID_PACKAGEID})
+        target_compile_definitions(${TARGET_NAME} PRIVATE -DANDROID_APP_ID=${ANDROID_APP_ID})
 
         if("${ANDROID_THEME}" STREQUAL "")
             set(ANDROID_THEME "@style/Theme.AppCompat.DayNight")

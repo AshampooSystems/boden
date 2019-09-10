@@ -25,6 +25,8 @@
 * **ui/View**: The `offerLayout` function has been renamed to [`setFallbackLayout`](https://www.boden.io/reference/ui/view/#layout)
 * **foundation/Context**: Renamed `UIContext` to `Context` and moved it to foundation.
 * **ui/ListView**: Added `listView` parameter to `ListViewDataSource::viewForRowIndex`
+* **cmake**: use_boden_template_info_plist() now accepts a bundle id and bundle name.
+* **cmake**: Renamed ANDROID_PACKAGEID to ANDROID_APP_ID.
 
 ### 🔥 Deprecated
 
@@ -33,7 +35,7 @@
 ### 🐞 Fixed
 
 * **ui/Label**: The [`Label`](https://www.boden.io/reference/ui/label/#properties)'s wrap property is now by default `false` on all platforms. 
-
+* **cmake**: Setting ANDROID_PACKAGEID to custom values no longer breaks resource lookup.
 
 ## [0.3]
 

@@ -32,7 +32,7 @@
     <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
     <key>UILaunchStoryboardName</key>
     <string>${MACOSX_BUNDLE_LAUNCH_STORYBOARD}</string>
-    ${MACOSX_NSAPP_TRANSPORT_SECURITY}
+    ${APPLE_NSAPP_TRANSPORT_SECURITY}
     ${IOS_SUPPORTED_INTERFACE_ORIENTATIONS}
 </dict>
 </plist>

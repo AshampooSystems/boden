@@ -16,7 +16,7 @@ macro(configure_app_permissions)
         endif()
 
         string(APPEND _transport_security "</dict>")
-        set(MACOSX_NSAPP_TRANSPORT_SECURITY ${_transport_security})
+        set(APPLE_NSAPP_TRANSPORT_SECURITY ${_transport_security})
     elseif(BDN_PLATFORM_ANDROID)
         set(ANDROID_PERMISSIONS "")
 

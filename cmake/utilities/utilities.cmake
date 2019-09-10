@@ -28,7 +28,7 @@ macro(set_target_version )
     cmake_parse_arguments(_ARGUMENTS "${options}" "${oneValueArgs}"
         "${multiValueArgs}" ${ARGN} )
 
-    if(BDN_PLATFORM_IOS)
+    if(BDN_PLATFORM_IOS OR BDN_PLATFORM_OSX)
         set_target_properties(${_ARGUMENTS_TARGET} PROPERTIES
             MACOSX_BUNDLE_LONG_VERSION_STRING "${_ARGUMENTS_LONGVERSION}"
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${_ARGUMENTS_SHORTVERSION}"
