@@ -7,6 +7,19 @@ import zipfile
 import shutil
 import stat
 
+def download_file(url, file_path):
+    if sys.version_info[0]>=3:
+        import urllib.request
+        urllib.request.urlretrieve(
+                        url,
+                        file_path)
+    else:
+        import urllib2
+        resp = urllib2.urlopen(url)
+
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(resp, f)
+
 class Gradle:
     def __init__(self, rootPath):
         self.logger = logging.getLogger(__name__)
@@ -54,7 +67,7 @@ class Gradle:
 
                     gradle_download_file = os.path.join(gradle_base_dir, gradle_zip_file_name)
 
-                    self.download_file(
+                    download_file(
                         "https://services.gradle.org/distributions/"+gradle_zip_file_name,
                         gradle_download_file)
 
@@ -77,16 +90,3 @@ class Gradle:
 
         return self.gradlePath
 
-    def download_file(self, url, file_path):
-        if sys.version_info[0]>=3:
-            import urllib.request
-            urllib.request.urlretrieve(
-                            url,
-                            file_path)
-
-        else:
-            import urllib2
-            resp = urllib2.urlopen(url)
-
-            with open(file_path, "wb") as f:
-                shutil.copyfileobj(resp, f)

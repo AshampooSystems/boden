@@ -2,13 +2,42 @@ import os, sys
 import logging
 import subprocess
 import shutil
+import re
+import tempfile
+from zipfile import ZipFile, ZipInfo
 
 from buildexecutor import BuildExecutor
 from androidstudioprojectgenerator import AndroidStudioProjectGenerator
 from cmake import CMake
 from gradle import Gradle
+from gradle import download_file
 
 import error
+
+class MyZipFile(ZipFile):
+
+    def extract(self, member, path=None, pwd=None):
+        if not isinstance(member, ZipInfo):
+            member = self.getinfo(member)
+
+        if path is None:
+            path = os.getcwd()
+
+        ret_val = self._extract_member(member, path, pwd)
+        attr = member.external_attr >> 16
+        if attr != 0:
+            os.chmod(ret_val, attr)
+        return ret_val
+
+    def extractall(self, path=None, members=None, pwd=None):
+        if members is None:
+            members = self.namelist()
+
+        if path is None:
+            path = os.getcwd()
+
+        for zipinfo in members:
+            self.extract(zipinfo, path, pwd)
 
 class AndroidExecutor:
     def __init__(self, buildExecutor, generatorInfo, sourceDirectory, buildFolder, rootPath):
@@ -293,10 +322,46 @@ class AndroidExecutor:
             line = line.strip()
             if line.startswith("cmake;"):
                 last_cmake_component_name = line.partition(" ")[0]
+                break
 
         return last_cmake_component_name
 
+    def workaroundPlatformTools2903(self):
+        try:
+            androidHome = self.getAndroidHome()
+            sdkManagerPath = self.getBuildToolPath(androidHome, "tools/bin/sdkmanager")
 
+            sdkManagerCommand = '"%s" --list' % (sdkManagerPath)
+            output =  subprocess.check_output(sdkManagerCommand, shell=True, env=self.getToolEnv() )
+
+            for line in output.splitlines():
+                parts = line.decode('utf-8').split('|')
+                if len(parts) == 3:
+                    if parts[0].strip() == 'platform-tools':
+                        version = parts[1].strip()
+                        if version == '29.0.3':
+                            self.logger.info("Since platform-tools 29.0.3 breaks debugging native apps, we manually download 29.0.2")
+                            tf = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+
+                            sourceName = "https://dl.google.com/android/repository/platform-tools_r29.0.2-"
+                            if "linux" in sys.platform :
+                                sourceName += "linux"
+                            elif sys.platform == "win32":
+                                sourceName += "windows"
+                            elif sys.platform == "darwin":
+                                sourceName += "darwin"
+                            sourceName += ".zip"
+
+                            download_file(sourceName, tf.name)
+
+                            zipf = MyZipFile(tf.name, 'r')
+                            zipf.extractall(androidHome)
+                            zipf.close()
+
+                            return True
+            return False
+        except:
+            return False
 
     def prepareAndroidEnvironment(self, configuration, accept_terms):
         self.logger.info("Preparing android environment...")
@@ -318,8 +383,14 @@ class AndroidExecutor:
         
         self.logger.info("Ensuring that all necessary android packages are installed...")
 
-        sdkManagerCommand = '"%s" "platform-tools" "ndk-bundle" "extras;android;m2repository" "extras;google;m2repository" "build-tools;%s" "platforms;android-%s"' % (
-            sdkManagerPath,
+        platformToolsPackageName = '"platform-tools"'
+
+        if self.workaroundPlatformTools2903():
+            platformToolsPackageName = ""
+
+        sdkManagerCommand = '"%s" %s "ndk-bundle" "extras;android;m2repository" "extras;google;m2repository" "build-tools;%s" "platforms;android-%s"' % (
+            sdkManagerPath, 
+            platformToolsPackageName,
             self.androidBuildToolsVersion,
             self.androidBuildApiVersion )
 
@@ -333,5 +404,3 @@ class AndroidExecutor:
             self.logger.warning("Failed getting emulator, you will not be able to 'run' this configuration")
 
         self.logger.info("Done updating packages.")
-
-
