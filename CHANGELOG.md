@@ -8,37 +8,39 @@
 
 ## [0.4]
 
-### 🎉 Added
+#### 🎉 Added
 
 * **ui/Button**: The [`Button`](https://www.boden.io/reference/ui/button/#properties) now supports an imageURL to display an Image instead of Text.
 * **ui/TextField**: The [`TextField`](https://www.boden.io/reference/ui/text_field/#properties) now supports a placeholder text that is displayed while no text was entered.
 * **ui/TextField**: The [`TextField`](https://www.boden.io/reference/ui/text_field/#properties) now supports obscuring the users input and configuring the appearance of the Keyboard.
+* **ui/TextField**: Added textInputType and obscureInput properties.
 * **ui/Label**: The [`Label`](https://www.boden.io/reference/ui/label/#properties)'s method of handling overflow can now be set with the `textOverflow` property.
-* **Application**: The new function [`Application::copyToClipboard`](https://www.boden.io/reference/foundation/application#os-services) copies a string to the global clipboard. Thanks [@mrexodia](https://github.com/mrexodia)!
+* **foundation/Application**: The new function [`Application::copyToClipboard`](https://www.boden.io/reference/foundation/application#os-services) copies a string to the global clipboard. Thanks [@mrexodia](https://github.com/mrexodia)!
 * **foundation/path**: Added the `bdn::path` namespace featuring functions to retrieve platform-specific paths like e.g. the path of the temporary directory readable/writable by the application.
 * **foundation/Application**: Added `Application` base class to the foundation module to make `Context` accessible from within the module.
 * **ui/ListView**: Added `std::optional<size_t> ListView::rowIndexForView(const std::shared_ptr<View>& view) const`
 * **foundation/NeedsInit**: Added specialization of std::make_shared for types that have an init function but no Constructor Arguments to allow calling std::make_shared<>() without having to specify bdn::needsInit.
+* **foundation/c++**: Added std:filesystem implementation.
 
-
-### ⚠️ Changed
+#### ⚠️ Changed
 
 * **ui/View**: The View hierarchy functions have been reworked extensively. [`View::childViews`](https://www.boden.io/reference/ui/view/#view-hierarchy) returns a `std::vector` instead of a `std::list` and the parent [`View`](https://www.boden.io/reference/ui/view/) is accessible via a read-only property [`View::parentView`](https://www.boden.io/reference/ui/view/#properties). Functions that change the hierarchy have been moved out of [`View`](https://www.boden.io/reference/ui/view/).
 * **ui/View**: The `offerLayout` function has been renamed to [`setFallbackLayout`](https://www.boden.io/reference/ui/view/#layout)
 * **foundation/Context**: Renamed `UIContext` to `Context` and moved it to foundation.
-* **ui/ListView**: Added `listView` parameter to `ListViewDataSource::viewForRowIndex`
+* **ui/ListView**: Added `listView` parameter to `ListViewDataSource` functions
 * **cmake**: use_boden_template_info_plist() now accepts a bundle id and bundle name.
 * **cmake**: Renamed ANDROID_PACKAGEID to ANDROID_APP_ID.
 * **tooling** The template used by `./boden new` now uses file(GLOB_RECURSE ...) to discover sources instead of manually listing the files.  
 
-### 🔥 Deprecated
+#### 🔥 Deprecated
 
 * **String**: The [`String`](https://www.boden.io/reference/foundation/string/#types) alias has been deprecated and replaced with `std::string`.
 
-### 🐞 Fixed
+#### 🐞 Fixed
 
 * **ui/Label**: The [`Label`](https://www.boden.io/reference/ui/label/#properties)'s wrap property is now by default `false` on all platforms. 
 * **cmake**: Setting ANDROID_PACKAGEID to custom values no longer breaks resource lookup.
+* **tooling**: Various path related issues fixed in `./boden.
 
 ## [0.3]
 
