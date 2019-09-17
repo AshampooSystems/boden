@@ -82,7 +82,7 @@
             return nil;
         }
     }
-    
+
     return indexPath;
 }
 
