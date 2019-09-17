@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1459105240">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2718734194">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?124591435">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1273081650">
     
     
       
@@ -1901,9 +1901,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="k">public</span><span class="o">:</span>
     <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span> <span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;This is a test&quot;</span><span class="p">,</span> <span class="s">&quot;With only two lines of text&quot;</span><span class="p">};</span>
 
-    <span class="kt">size_t</span> <span class="nf">numberOfRows</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">size_t</span> <span class="nf">numberOfRows</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;&amp;</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">viewForRowIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;&amp;</span> <span class="n">listView</span><span class="p">,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">viewForRowIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;&amp;</span><span class="p">,</span>
                                           <span class="kt">size_t</span> <span class="n">rowIndex</span><span class="p">,</span> 
                                           <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">reusableView</span><span class="p">)</span> <span class="k">override</span>
     <span class="p">{</span>
@@ -1915,7 +1915,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">View</span><span class="o">&gt;</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
     <span class="p">}</span>
 
-    <span class="kt">float</span> <span class="n">heightForRowIndex</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">rowIndex</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">25</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">float</span> <span class="n">heightForRowIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;&amp;</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">rowIndex</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">25</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">};</span>
 <span class="c1">// ...</span>
 <span class="k">auto</span> <span class="n">listView</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ListView</span><span class="o">&gt;</span><span class="p">();</span>
@@ -1926,7 +1926,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="implementing-a-data-source">Implementing a Data Source<a class="headerlink" href="#implementing-a-data-source" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>virtual size_t numberOfRows() = 0</strong></p>
+<p><strong>virtual size_t numberOfRows(const std::shared_ptr&lt;<a href="../list_view/">ListView</a>&gt;&amp; listView) = 0</strong></p>
 <p>Return the number of available rows in your data source implementation.</p>
 </li>
 <li>
@@ -1934,7 +1934,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Return the item view for the given row index in your data source implementation.</p>
 </li>
 <li>
-<p><strong>virtual float heightForRowIndex(size_t rowIndex) = 0</strong></p>
+<p><strong>virtual float heightForRowIndex(const std::shared_ptr&lt;<a href="../list_view/">ListView</a>&gt;&amp; listView, size_t rowIndex) = 0</strong></p>
 <p>Return the height of the row at the given row index in your data source implementation.</p>
 </li>
 </ul>
