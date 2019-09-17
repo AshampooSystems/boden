@@ -39,7 +39,9 @@ use_boden_template_info_plist(
 set(ANDROID_APP_ID "io.mycompany.{project_name}")
 
 set_xcode_appicon_asset({project_name} "ApplicationIcon")
-use_boden_template_info_plist({project_name})
+use_boden_template_info_plist(TARGET {project_name}
+                              BUNDLE_NAME "{project_name}"
+                              BUNDLE_ID "com.mycompany.{project_name}")
 
 set_target_version(TARGET {project_name} VERSION "1.0.0" SHORTVERSION "1.0" LONGVERSION "1.0.0.0" ANDROID_VERSION_ID 1)
 
