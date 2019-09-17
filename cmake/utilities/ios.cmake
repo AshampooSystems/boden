@@ -8,6 +8,10 @@ macro(use_boden_template_info_plist)
     set(multiValueArgs)
     cmake_parse_arguments(_INFO "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
+    if(NOT _INFO_TARGET)
+        message(FATAL_ERROR "No TARGET was set for use_boden_template_info_plist()")
+    endif()
+
     if(BDN_PLATFORM_IOS)
         get_target_property(BODEN_CMAKE_SOURCE_DIR boden_cmake SOURCE_DIR)
         set_target_properties(${_INFO_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${BODEN_CMAKE_SOURCE_DIR}/templates/IOSInfo.plist.in)
