@@ -23,7 +23,14 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeListView_nativeIte
         [&]() {
             if (auto core = bdn::ui::android::viewCoreFromJavaReference<bdn::ui::android::ListViewCore>(
                     bdn::java::Reference::convertExternalLocal(rawSelf))) {
-                core->selectedRowIndex = position;
+
+                if (auto dataSource = core->dataSource.get()) {
+                    if (dataSource->shouldSelectRow(core->listView->lock(), position)) {
+                        core->selectedRowIndex = position;
+                    }
+                } else {
+                    core->selectedRowIndex = position;
+                }
             }
         },
         true, env);

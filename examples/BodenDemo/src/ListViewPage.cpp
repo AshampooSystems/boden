@@ -16,7 +16,7 @@ namespace bdn
     class DemoDataSource : public ui::ListViewDataSource
     {
       public:
-        std::vector<std::string> data = {"Entry 1", "Entry 2", "Entry 3", "Entry 4", "Entry 5"};
+        std::vector<std::string> data = {"Entry 1", "Entry 2", "Entry 3 (not selectable)", "Entry 4", "Entry 5"};
 
       public:
         size_t numberOfRows(const std::shared_ptr<ui::ListView> &) override { return data.size(); }
@@ -34,12 +34,19 @@ namespace bdn
             return reusableView;
         }
 
-        float heightForRowIndex(const std::shared_ptr<ui::ListView> &, size_t rowIndex) override { return 25; }
+        float heightForRowIndex(const std::shared_ptr<ui::ListView> &, size_t rowIndex) override { return 30; }
 
         void remove(int pos)
         {
             assert(pos >= 0 && pos < data.size());
             data.erase(data.begin() + pos);
+        }
+
+        bool shouldSelectRow(const std::shared_ptr<ListView> &listView, size_t rowIndex) override
+        {
+            if (rowIndex == 2)
+                return false;
+            return true;
         }
     };
 

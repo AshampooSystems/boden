@@ -119,6 +119,19 @@
     return 20.0f;
 }
 
+- (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row
+{
+    if (auto dataSource = self.outerDataSource) {
+        if (auto core = self.listCore.lock()) {
+            if (auto listView = core->listView->lock()) {
+                return dataSource->shouldSelectRow(listView, row);
+            }
+        }
+    }
+
+    return true;
+}
+
 @end
 
 @interface ListScrollView : NSScrollView

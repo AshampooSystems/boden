@@ -17,6 +17,7 @@ namespace bdn::ui
 
         virtual size_t numberOfRows(const std::shared_ptr<ListView> &listView) = 0;
         virtual float heightForRowIndex(const std::shared_ptr<ListView> &listView, size_t rowIndex) = 0;
+        virtual bool shouldSelectRow(const std::shared_ptr<ListView> &listView, size_t rowIndex) { return true; }
 
       public:
         [[deprecated("Use viewForRowIndex(ListView, size_t, View) instead")]] virtual std::shared_ptr<View>

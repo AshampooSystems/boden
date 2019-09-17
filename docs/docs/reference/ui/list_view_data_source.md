@@ -62,3 +62,9 @@ listView->reloadData();
 * **virtual float heightForRowIndex(const std::shared_ptr<[ListView](list_view.md)>& listView, size_t rowIndex) = 0**
 
 	Return the height of the row at the given row index in your data source implementation.
+
+* **virtual bool shouldSelectRow(const std::shared_ptr<[ListView](list_view.md)>& listView, size_t rowIndex)**
+
+	Return whether the user can select the specified row.
+
+	The default implementation returns `true`.

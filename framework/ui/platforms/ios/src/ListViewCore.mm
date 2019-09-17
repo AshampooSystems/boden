@@ -75,6 +75,17 @@
     return 0;
 }
 
+- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (auto dataSource = self.outerDataSource) {
+        if (!dataSource->shouldSelectRow(self.listView, indexPath.row)) {
+            return nil;
+        }
+    }
+    
+    return indexPath;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (auto dataSource = self.outerDataSource) {
