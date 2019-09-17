@@ -40,14 +40,14 @@ scrollView->contentView = image;
 
 	Whether horizontal scrolling is enabled.
 
-* **[Property](../foundation/property.md)<Rect\> visibleClientRect**
+* **[Property](../foundation/property.md)<[Rect](../foundation/rect.md)\> visibleClientRect**
 
 	The currently visible part of the content view.
 
 
 ## Actions
 
-* **void scrollClientRectToVisible(const Rect &area)**
+* **void scrollClientRectToVisible(const [Rect](../foundation/rect.md) &area)**
 
 	Scrolls the view so that the area of the content view is visible.
 
