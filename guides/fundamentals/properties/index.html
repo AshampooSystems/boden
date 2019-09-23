@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2707924181">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3525285020">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3976311731">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?793039540">
     
     
       
@@ -641,29 +641,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intro" title="Intro" class="md-nav__link">
-    Intro
+  <a href="#exposing-properties" title="Exposing Properties" class="md-nav__link">
+    Exposing Properties
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#initial-property-values" title="Initial Property Values" class="md-nav__link">
-    Initial Property Values
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#read-only-access" title="Read-only Access" class="md-nav__link">
-    Read-only Access
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getters-and-setters" title="Getters and Setters" class="md-nav__link">
-    Getters and Setters
+  <a href="#initializing-property-values" title="Initializing Property Values" class="md-nav__link">
+    Initializing Property Values
   </a>
   
 </li>
@@ -678,6 +664,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#change-notifications" title="Change Notifications" class="md-nav__link">
     Change Notifications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-only-access" title="Read-Only Access" class="md-nav__link">
+    Read-Only Access
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getters-and-setters" title="Getters and Setters" class="md-nav__link">
+    Getters and Setters
   </a>
   
 </li>
@@ -706,6 +706,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#copying" title="Copying" class="md-nav__link">
     Copying
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thread-safety" title="Thread-Safety" class="md-nav__link">
+    Thread-Safety
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" title="Further Reading" class="md-nav__link">
+    Further Reading
   </a>
   
 </li>
@@ -1887,29 +1901,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intro" title="Intro" class="md-nav__link">
-    Intro
+  <a href="#exposing-properties" title="Exposing Properties" class="md-nav__link">
+    Exposing Properties
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#initial-property-values" title="Initial Property Values" class="md-nav__link">
-    Initial Property Values
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#read-only-access" title="Read-only Access" class="md-nav__link">
-    Read-only Access
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getters-and-setters" title="Getters and Setters" class="md-nav__link">
-    Getters and Setters
+  <a href="#initializing-property-values" title="Initializing Property Values" class="md-nav__link">
+    Initializing Property Values
   </a>
   
 </li>
@@ -1924,6 +1924,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <li class="md-nav__item">
   <a href="#change-notifications" title="Change Notifications" class="md-nav__link">
     Change Notifications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-only-access" title="Read-Only Access" class="md-nav__link">
+    Read-Only Access
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getters-and-setters" title="Getters and Setters" class="md-nav__link">
+    Getters and Setters
   </a>
   
 </li>
@@ -1957,6 +1971,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </li>
       
         <li class="md-nav__item">
+  <a href="#thread-safety" title="Thread-Safety" class="md-nav__link">
+    Thread-Safety
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" title="Further Reading" class="md-nav__link">
+    Further Reading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reference" title="Reference" class="md-nav__link">
     Reference
   </a>
@@ -1983,7 +2011,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 
                 
                 <h1 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h1>
-<h2 id="intro">Intro<a class="headerlink" href="#intro" title="Permanent link">&para;</a></h2>
+<p>The Boden Framework provides the <a href="../../../reference/foundation/property/"><code>Property</code></a> class to make working with data displayed on the user interface of an application easier.</p>
+<p>A property represents a public value of arbitrary type that can be observed by <a href="#change-notifications">notification listeners</a> and bound to other properties using a built-in <a href="#data-bindings">data binding mechanism</a>. This is useful especially for user interface code as data is commonly shared between multiple widgets and other class instances like view models.</p>
+<p>Properties also make it easy to expose a <a href="#read-only-access">read-only</a> version of a data member publicly and keep write access private. They can be extended with <a href="#getters-and-setters">getter and setter functions</a> transparently and they come with support for the <a href="#auto-keyword"><code>auto</code> keyword</a> and <code>std::optional</code>.</p>
+<h2 id="exposing-properties">Exposing Properties<a class="headerlink" href="#exposing-properties" title="Permanent link">&para;</a></h2>
 <p>Properties are intended to be exposed as public data members of a class:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
@@ -2000,7 +2031,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="kt">double</span> <span class="n">radius</span> <span class="o">=</span> <span class="n">circle</span><span class="p">.</span><span class="n">radius</span><span class="p">;</span> <span class="c1">// value will be 10.</span>
 </pre></div>
 
-<h2 id="initial-property-values">Initial Property Values<a class="headerlink" href="#initial-property-values" title="Permanent link">&para;</a></h2>
+<h2 id="initializing-property-values">Initializing Property Values<a class="headerlink" href="#initializing-property-values" title="Permanent link">&para;</a></h2>
 <p>Properties can be initialized in the member initialization list of a class:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
@@ -2024,7 +2055,57 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="p">};</span>
 </pre></div>
 
-<h2 id="read-only-access">Read-only Access<a class="headerlink" href="#read-only-access" title="Permanent link">&para;</a></h2>
+<h2 id="data-bindings">Data Bindings<a class="headerlink" href="#data-bindings" title="Permanent link">&para;</a></h2>
+<p>Two property values can easily be synchronized by setting up a binding:</p>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">ViewModel</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">buttonText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">MainViewController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">MainViewController</span><span class="p">(</span><span class="n">ViewModel</span><span class="o">*</span> <span class="n">viewModel</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// Create the button</span>
+        <span class="n">_button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+
+        <span class="c1">// Update the button&#39;s label when the buttonText property of</span>
+        <span class="c1">// ViewModel changes </span>
+        <span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">);</span>
+
+        <span class="c1">// [...]</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">_button</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+
+<p>The <code>bind()</code> method sets up a bidirectional (or two-way) data binding by default. That is, regardless of whether you change the value of <code>viewModel-&gt;buttonText</code> or <code>button-&gt;label</code>, the other property will automatically be updated to the new value.</p>
+<p>You can also set up a unidirectional (or one-way) data binding:</p>
+<div class="codehilite"><pre><span></span><span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">,</span> <span class="n">BindMode</span><span class="o">::</span><span class="n">unidirectional</span><span class="p">);</span>
+</pre></div>
+
+<p>In this case, <code>viewModel-&gt;buttonText</code> will be updated when changing <code>button-&gt;label</code>, but not the other way around.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Data bindings update the values of bound properties synchronously. You should use <code>bind()</code> only when working with properties on the same thread. See <a href="#thread-safety">Thread-Safety</a> for more information.</p>
+</div>
+<h2 id="change-notifications">Change Notifications<a class="headerlink" href="#change-notifications" title="Permanent link">&para;</a></h2>
+<p>Properties can notify observers when their value changes. Observers can register for receiving notifications using the <code>onChange()</code> method:</p>
+<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
+<span class="n">name</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span> <span class="o">+=</span> <span class="p">[](</span><span class="k">auto</span> <span class="n">property</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">property</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+<p><code>onChange()</code> returns a <a href="../../../reference/foundation/notifier/"><code>Notifier</code></a> object which can be used to subscribe or unsubscribe notification handler functions.</p>
+<h2 id="read-only-access">Read-Only Access<a class="headerlink" href="#read-only-access" title="Permanent link">&para;</a></h2>
 <p>If you want to provide users of your class with read access to certain properties only,
 you can declare <code>Property</code> private and provide a public <code>const Property</code> reference:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
@@ -2038,14 +2119,13 @@ you can declare <code>Property</code> private and provide a public <code>const P
     <span class="k">const</span> <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">radius</span> <span class="o">=</span> <span class="n">_radius</span><span class="p">;</span>
 
 <span class="k">private</span><span class="o">:</span>
-    <span class="c1">// Property accessible for reading and writing from inside the</span>
-    <span class="n">Circle</span> <span class="k">class</span> <span class="nc">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">_radius</span><span class="p">;</span>
+    <span class="c1">// Property accessible for reading and writing from inside the Circle class</span>
+    <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">_radius</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 
 <h2 id="getters-and-setters">Getters and Setters<a class="headerlink" href="#getters-and-setters" title="Permanent link">&para;</a></h2>
-<p>Properties allow for custom getter and/or setter functions. You may
-implement these as outlined in the following example:</p>
+<p>You can implement custom getter and/or setter functions and <code>Property</code> will call them when its value is updated or retrieved:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="k">class</span> <span class="nc">Person</span>
@@ -2085,49 +2165,13 @@ implement these as outlined in the following example:</p>
 <span class="p">};</span>
 </pre></div>
 
-<p>In the example above, we provided simple custom implementations for both
-a getter and a setter function.</p>
-<p>It is also legal to provide only a getter with no setter and no member
-pointer. In that case the property is runtime read-only. That is, an
-exception is thrown when the setter is called.</p>
-<p>If no getter is provided, then a member pointer must be given. If
-neither getter nor setter are specified, the Property class will
-substitute both functions with default implementations.</p>
-<h2 id="data-bindings">Data Bindings<a class="headerlink" href="#data-bindings" title="Permanent link">&para;</a></h2>
-<p>A property can be bound to another property so as to synchronize their
-values:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
-
-<span class="k">class</span> <span class="nc">ViewModel</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">buttonText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="k">class</span> <span class="nc">MainViewController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">MainViewController</span><span class="p">(</span><span class="n">ViewModel</span><span class="o">*</span> <span class="n">viewModel</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="c1">// Create the button</span>
-        <span class="n">_button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
-
-        <span class="c1">// Update the button&#39;s label when the buttonText property of</span>
-        <span class="c1">// ViewModel changes </span>
-        <span class="n">button</span><span class="p">.</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModle</span><span class="p">.</span><span class="n">buttonText</span><span class="p">);</span>
-
-        <span class="c1">// [...]</span>
-    <span class="p">}</span>
-
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">_button</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
-<h2 id="change-notifications">Change Notifications<a class="headerlink" href="#change-notifications" title="Permanent link">&para;</a></h2>
-<p>Properties can notify observers when their value changes. Observers can
-register for receiving notifications using the onChange() method.</p>
+<p>While the example above contains both a getter and a setter, it is also OK to provide only a getter with no setter and no member pointer. In that case the property is runtime read-only and an exception is thrown when you try to call its setter.</p>
+<p>If no getter is provided, a member pointer must be given. If neither getter nor setter are specified, <code>Property</code> will automatically substitute both functions with a default implementation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <code>Property</code> makes it easier for you to refactor your application when you need to use custom getter or setter logic instead of the default implementation. You can add a getter and/or setter to your <code>Property</code> instance without having to change the code using your property.</p>
+<p>Please also note that getters return a copy of the property's data. Hence, you cannot write to non-primitive value types returned from a getter. See <a href="#non-primitive-value-types">Non-Primitive Value Types</a> for details.</p>
+</div>
 <h2 id="auto-keyword"><code>auto</code> Keyword<a class="headerlink" href="#auto-keyword" title="Permanent link">&para;</a></h2>
 <p>Properties support the C++11 <code>auto</code> keyword. However, you have to
 dereference a property using the <code>*</code> operator when using <code>auto</code>:</p>
@@ -2146,8 +2190,7 @@ dereference a property using the <code>*</code> operator when using <code>auto</
 </pre></div>
 
 <h2 id="non-primitive-value-types">Non-Primitive Value Types<a class="headerlink" href="#non-primitive-value-types" title="Permanent link">&para;</a></h2>
-<p>Properties support non-primitive value types such as user-defined
-classes and structs. Members can be read using the arrow operator:</p>
+<p>Properties support non-primitive value types such as user-defined classes and structs. Members can be read using the arrow operator:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="k">struct</span> <span class="n">Person</span>
@@ -2161,16 +2204,14 @@ classes and structs. Members can be read using the arrow operator:</p>
 <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">;</span>
 </pre></div>
 
-<p>Writing to a member of a non-primitive type inside a property is not
-supported:</p>
+<p>Writing to a member of a non-primitive type inside a property is not supported since property getters return copies of the property's value:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
 <span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Jack&quot;</span><span class="p">;</span> <span class="c1">// Error: no viable overloaded =</span>
 </pre></div>
 
-<p>If you want to write to a property holding a non-primitive type, use
-<code>get()</code> and <code>set()</code> to copy and modify the property's value:</p>
+<p>If you want to write to a property holding a non-primitive type, use <code>get()</code> and <code>set()</code> to copy and modify the property's value:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personProperty</span><span class="p">;</span>
@@ -2180,8 +2221,7 @@ supported:</p>
 </pre></div>
 
 <h2 id="pointer-types">Pointer Types<a class="headerlink" href="#pointer-types" title="Permanent link">&para;</a></h2>
-<p>Pointer types, including smart pointers, are supported by the <code>Property</code>
-class. Consider the following example:</p>
+<p>Pointer types, including smart pointers, are supported by the <code>Property</code> class. Consider the following example:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="k">class</span> <span class="nc">Model</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
@@ -2207,14 +2247,12 @@ write to nested properties:</p>
 </pre></div>
 
 <h2 id="copying">Copying<a class="headerlink" href="#copying" title="Permanent link">&para;</a></h2>
-<p>The Property class is not copy constructible. However, property values
-can be copied by default constructing a <code>Property</code> instance and then
-assigning using <code>operator =</code>:</p>
+<p><code>Property</code> is not copy constructible, but property values can be copied by default constructing a <code>Property</code> instance and then assigning another property's value using <code>operator =</code>:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
 
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">badNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// Error: copy constructor </span>
-                                     <span class="c1">// is explicitly deleted</span>
+                                          <span class="c1">// is explicitly deleted</span>
 
 <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">goodNameCopy</span><span class="p">;</span>
 <span class="n">goodNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// OK: value of name is copied to value </span>
@@ -2255,8 +2293,20 @@ implement a custom copy constructor:</p>
                          <span class="c1">// data member is never called </span>
 </pre></div>
 
+<h2 id="thread-safety">Thread-Safety<a class="headerlink" href="#thread-safety" title="Permanent link">&para;</a></h2>
+<p><code>Property</code> is currently not thread-safe.</p>
+<p>If you want to work with properties from multiple threads, make a copy of the respective property object's data and then use that copy on your worker thread. Do not read a single <code>Property</code> instance's value among different threads as this may cause undefined behavior.</p>
+<p>If you need to write to a property instance from more than one thread, use <a href="../../../reference/foundation/dispatch_queue/"><code>DispatchQueue</code></a> to queue a property value change on the thread the property is being read on. Writing to a single property instance from multiple threads simultaneously may result in undefined behavior.</p>
+<p>Do not use <code>bind()</code> to set up a data binding with properties that are accessed from different threads. Doing so may also result in undefined behavior.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you find that you need to frequently read/write to properties from multiple threads, consider using a plain data member or <code>std::shared_ptr</code> instead of <code>Property</code>. Also, you might want to rearchitect your design to not use multiple threads operating directly on the user interface as this can lead to very complex code without a real benefit.</p>
+<p>As a rule of thumb, implement all UI logic on one thread and offload CPU intensive work to worker threads operating on data only. Copy data instead of sharing it between the UI thread and workers. Use <a href="../../../reference/foundation/dispatch_queue/"><code>DispatchQueue</code></a> to update the UI. Keep your design simple.</p>
+</div>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h2>
+<p>To see the use of <code>Property</code> in a real application example, please refer to our <a href="https://medium.com/ashampoo-systems/getting-started-with-c-17-mobile-cross-platform-development-using-boden-b47cb0f9a9a1">TodoMVC Tutorial on Medium</a>.</p>
 <h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
-<p><a href="../../../reference/foundation/property/">Property reference</a></p>
+<p><a href="../../../reference/foundation/property/">Property Reference</a></p>
                 
                   
                 
