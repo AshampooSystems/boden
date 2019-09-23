@@ -63,7 +63,7 @@ namespace bdn {
 
 	Returns the property's value when casting explicitly or implicitly.
 
-## Accessing Non-primitive Value Types
+## Accessing Non-Primitive Value Types
 
 * **template<...> const ValType operator-\>() const**
 * **template<...> const typename backing_t::Proxy operator-\>() const**
