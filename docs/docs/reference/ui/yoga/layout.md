@@ -1,4 +1,4 @@
-path: tree/master/framework/ui/modules/yoga/include/bdn/ui
+path: tree/master/framework/ui/modules/yoga/include/bdn/ui/yoga
 source: Layout.h
 
 # Layout
