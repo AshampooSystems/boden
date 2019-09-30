@@ -7,8 +7,6 @@
 #include <bdn/ui/ContainerView.h>
 #include <bdn/ui/ListViewDataSource.h>
 
-#include <bdn/log.h>
-
 @interface BodenUITableView : UITableView <UIViewWithFrameNotification>
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ViewCore> viewCore;
 @end
@@ -17,18 +15,6 @@
 @property std::shared_ptr<bdn::ui::ContainerView> containerView;
 @end
 @implementation FollowSizeUITableViewCell
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-    self.contentView.frame = frame;
-    for (UIView *subview in self.contentView.subviews) {
-        frame.origin.x = 0;
-        frame.origin.y = 0;
-        subview.frame = frame;
-    }
-}
-
 @end
 
 @interface ListViewDelegateIOS : NSObject <UITableViewDataSource, UITableViewDelegate>
@@ -116,9 +102,12 @@
             containerView->isLayoutRoot = true;
             containerView->setFallbackLayout(core->layout());
 
-            [cell.contentView addSubview:containerView->core<bdn::ui::ios::ViewCore>()->uiView()];
-            cell.containerView = containerView;
+            auto childUIView = containerView->core<bdn::ui::ios::ViewCore>()->uiView();
+            childUIView.frame = cell.contentView.bounds;
+            childUIView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+            [cell.contentView addSubview:childUIView];
+            cell.containerView = containerView;
         } else {
             reuse = true;
             containerView = cell.containerView;

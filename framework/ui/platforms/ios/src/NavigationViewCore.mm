@@ -2,7 +2,7 @@
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/NavigationViewCore.hh>
-#import <bdn/ios/UIView+Helper.hh>
+#import <bdn/ios/UIView+BdnHelper.hh>
 #import <bdn/ios/util.hh>
 
 @interface BodenStackUIViewController : UIViewController
@@ -96,7 +96,11 @@
             c->uiView().clipsToBounds = YES;
         }
 
-        self.view.backgroundColor = UIColor.whiteColor;
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_13_0 || !defined(__IPHONE_13_0)
+        self.view.backgroundColor = [UIColor whiteColor];
+#else
+        self.view.backgroundColor = [UIColor systemBackgroundColor];
+#endif
     }
 }
 
@@ -183,11 +187,20 @@ namespace bdn::ui::ios
     {
         ViewCore::init();
 
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+        UIWindow *keyWindow = nullptr;
 
-        UIViewController *rootViewController = window.rootViewController;
-        [rootViewController addChildViewController:getNavigationController()];
-        [rootViewController.view addSubview:getNavigationController().view];
+        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+            if ([window isKeyWindow]) {
+                keyWindow = window;
+                break;
+            }
+        }
+
+        if (keyWindow) {
+            UIViewController *rootViewController = keyWindow.rootViewController;
+            [rootViewController addChildViewController:getNavigationController()];
+            [rootViewController.view addSubview:getNavigationController().view];
+        }
     }
 
     UINavigationController *NavigationViewCore::getNavigationController() const

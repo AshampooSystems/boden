@@ -108,7 +108,8 @@ class BuildExecutor:
 
         elif configuration.platform=="ios":
             if generatorName == 'Xcode' and configuration.arch == "std":
-                toolChainFileName = "ios.xcode.toolchain.cmake";
+                cmakeArguments += ['-DCMAKE_SYSTEM_NAME=iOS']
+
                 xcodeDevPath = subprocess.check_output(['xcode-select', '-p']).decode("utf-8").strip()
                 whichCxx = subprocess.check_output(['which', 'c++']).decode("utf-8").strip()
 

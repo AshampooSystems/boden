@@ -1,5 +1,5 @@
 #import <bdn/ios/ScrollViewCore.hh>
-#import <bdn/ios/UIView+Helper.hh>
+#import <bdn/ios/UIView+BdnHelper.hh>
 
 @interface BdnIosScrollViewDelegate_ : UIResponder <UIScrollViewDelegate>
 @property(nonatomic, assign) std::weak_ptr<bdn::ui::ios::ScrollViewCore> core;

@@ -11,7 +11,7 @@ namespace bdn
     {
         stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
-        auto obscureCheckbox = std::make_shared<Checkbox>();
+        auto obscureCheckbox = std::make_shared<Switch>();
         addChildView(makeRow("Obscure", obscureCheckbox));
 
         auto fields = {
@@ -31,7 +31,7 @@ namespace bdn
             textField->stylesheet =
                 FlexJsonStringify({"flexGrow" : 1, "maximimumSize" : {"width" : 250}, "margin" : {"right" : 10}});
 
-            textField->obscureInput.bind(obscureCheckbox->checked, BindMode::unidirectional);
+            textField->obscureInput.bind(obscureCheckbox->on, BindMode::unidirectional);
 
             addChildView(makeRow(field.first, textField));
         }
@@ -42,7 +42,7 @@ namespace bdn
         noAutoCorrect->stylesheet =
             FlexJsonStringify({"flexGrow" : 1, "maximimumSize" : {"width" : 250}, "margin" : {"right" : 10}});
 
-        noAutoCorrect->obscureInput.bind(obscureCheckbox->checked, BindMode::unidirectional);
+        noAutoCorrect->obscureInput.bind(obscureCheckbox->on, BindMode::unidirectional);
         addChildView(makeRow("No a/c", noAutoCorrect));
     }
 }

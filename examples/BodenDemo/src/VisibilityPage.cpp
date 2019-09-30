@@ -10,8 +10,8 @@ namespace bdn
     {
         stylesheet = FlexJsonStringify({"flexGrow" : 1.0});
 
-        auto checkbox = std::make_shared<Checkbox>();
-        checkbox->state = TriState::On;
+        auto checkbox = std::make_shared<Switch>();
+        checkbox->on = true;
 
         addChildView(makeRow("Toggle Visibility", checkbox));
 
@@ -25,8 +25,8 @@ namespace bdn
         label2->text = "I stay visible";
         addChildView(makeRow("2.", label2));
 
-        checkbox->state.onChange() += [visRow](auto &p) {
-            if (p.get() == TriState::On) {
+        checkbox->on.onChange() += [visRow](auto &p) {
+            if (p.get()) {
                 visRow->visible = true;
             } else {
                 visRow->visible = false;

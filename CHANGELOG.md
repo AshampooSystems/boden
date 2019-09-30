@@ -6,6 +6,23 @@
 
 <p align="center">Find our new <a href="http://www.boden.io/reference">Documentation</a> at <a href="https://www.boden.io">boden.io</a>!
 
+## [0.5]
+
+#### 🎉 Added
+
+* **ui/ListView** Added `ListViewDataSource::shouldSelectRow` function to allow customising row selection behaviour.
+
+#### ⚠️ Changed
+
+* **cmake**: cmake minimum version for iOS is now 3.15.
+
+#### 🐞 Fixed
+
+* **ui/iOS 13**: Fixed deprecated functions being used and fixed Color selection to comply with dark mode.
+* **ui/iOS 13**: Fixed detection of std::filesystem implementation.
+* **ui/ListView**: Fixed iOS ListView implementation on iOS 13.0 where the list entries would randomly appear/disappear.
+* **cmake**: Fixed std::filesystem check for iOS 13 / XCode 11
+
 ## [0.4]
 
 #### 🎉 Added

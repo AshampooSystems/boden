@@ -19,7 +19,6 @@ foreach(_utility ${_CMAKE_UTILITIES})
 endforeach()
 
 set(_CMAKE_TOOLCHAINS
-    toolchains/ios.xcode.toolchain.cmake
     toolchains/ios.make.toolchain.cmake
     toolchains/emscripten.toolchain.cmake)
 

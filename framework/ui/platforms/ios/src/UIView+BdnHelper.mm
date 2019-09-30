@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@implementation UIView (FindViewThatIsFirstResponder)
+@implementation UIView (BdnHelper)
 - (UIView *)findViewThatIsFirstResponder
 {
     if (self.isFirstResponder) {

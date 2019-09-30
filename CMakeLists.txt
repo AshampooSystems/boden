@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    cmake_minimum_required(VERSION 3.15)
+else()
+    cmake_minimum_required(VERSION 3.10)
+endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

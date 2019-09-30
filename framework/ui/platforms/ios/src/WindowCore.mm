@@ -1,7 +1,7 @@
 
 #import <bdn/foundationkit/conversionUtil.hh>
 #import <bdn/ios/ContainerViewCore.hh>
-#import <bdn/ios/UIView+Helper.hh>
+#import <bdn/ios/UIView+BdnHelper.hh>
 #import <bdn/ios/WindowCore.hh>
 
 #include <bdn/log.h>
@@ -33,15 +33,12 @@
 {
     [super loadView];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(updateCurrentOrientation)
-                                                 name:UIApplicationDidChangeStatusBarOrientationNotification
-                                               object:nil];
-
     _rootView = [[BodenUIView alloc] init];
     _rootView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_rootView];
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_13_0 || !defined(__IPHONE_13_0)
     _rootView.backgroundColor = [UIColor whiteColor];
+#endif
 
     _safeRootView = [[BodenUIView alloc] init];
     _safeRootView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -76,7 +73,7 @@
             a.active = YES;
         }
     }
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0 || !defined(__IPHONE_11_0)
     else {
         UILayoutGuide *margins = self.view.layoutMarginsGuide;
         [_safeRootView.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
@@ -166,7 +163,7 @@
 
 - (void)updateCurrentOrientation
 {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    auto orientation = [self orientationFromWindow];
 
     if (auto core = self.windowCore.lock()) {
         if (orientation == UIInterfaceOrientationPortrait) {
@@ -222,10 +219,19 @@
     return bdn::ui::Window::Core::Orientation::Portrait;
 }
 
+- (UIInterfaceOrientation)orientationFromWindow
+{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_13_0 || !defined(__IPHONE_13_0)
+    return [UIApplication sharedApplication].statusBarOrientation;
+#else
+    return self.myWindow.windowScene.interfaceOrientation;
+#endif
+}
+
 - (void)changeOrientation
 {
     if (auto core = self.windowCore.lock()) {
-        auto currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        auto currentOrientation = [self orientationFromWindow];
         auto bdnCurrentOrientation = [self toBdnOrientation:currentOrientation];
         auto targetOrientation = core->allowedOrientations.get();
 
