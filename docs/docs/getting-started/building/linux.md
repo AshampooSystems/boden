@@ -21,7 +21,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 		git clone --recurse-submodules https://github.com/AshampooSystems/boden.git
 
-2. Run the `boden` build tool to generate an Xcode project:
+2. Run the `boden` build tool to generate an Android Studio project:
 
 		cd boden
 		./boden open -p android -t bodendemo
