@@ -112,8 +112,9 @@ namespace bdn
             if ((!ValueBacking<ValType>::template Compare<ValType>::isComparable ||
                  !ValueBacking<ValType>::template Compare<OtherType>::isComparable) &&
                 bindMode == BindMode::bidirectional) {
-                throw std::logic_error("You cannot bind this type of Property bidirectionally, its == operator is faked "
-                                       "and therefore would end up in an endless loop.");
+                throw std::logic_error(
+                    "You cannot bind this type of Property bidirectionally, its == operator is faked "
+                    "and therefore would end up in an endless loop.");
             }
 
             _backing->bind(sourceProperty.backing());
