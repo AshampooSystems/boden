@@ -10,7 +10,8 @@
 
 #### 🎉 Added
 
-* **ui/ListView** Added `ListViewDataSource::shouldSelectRow` function to allow customising row selection behaviour.
+* **ui/ListView**: Added `ListViewDataSource::shouldSelectRow` function to allow customizing row selection behaviour.
+* **ui/Checkbox**: Added support for dark mode to the Checkbox control. 
 
 #### ⚠️ Changed
 

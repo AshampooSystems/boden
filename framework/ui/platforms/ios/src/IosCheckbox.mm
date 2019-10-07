@@ -70,6 +70,7 @@
     const CGFloat strokeWidth = 2.5;
     CGRect outerRect = CGRectInset(rect, 1, 1);
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_13_0 || !defined(__IPHONE_13_0)
     UIColor *borderColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
     UIColor *checkmarkColor;
     UIColor *backgroundColor;
@@ -80,6 +81,17 @@
         checkmarkColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
         backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0];
     }
+#else
+    UIColor *borderColor = [UIColor systemFillColor];
+    UIColor *checkmarkColor;
+    UIColor *backgroundColor = [[UIColor labelColor] colorWithAlphaComponent:0.7];
+    if (self.isTouching) {
+        checkmarkColor = [UIColor systemFillColor];
+    } else {
+        checkmarkColor = [UIColor labelColor];
+        backgroundColor = [UIColor clearColor];
+    }
+#endif
 
     CGContextRef context = UIGraphicsGetCurrentContext();
 
