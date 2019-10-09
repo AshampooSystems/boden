@@ -7,7 +7,7 @@ To build iOS apps on macOS, the following dependencies need to be installed:
 1. macOS 10.14 Mojave or newer
 2. [Xcode 10.1+](https://developer.apple.com/xcode/) (with Command Line Tools installed)
 3. [Python 3.4+](https://www.python.org/downloads/)
-4. [CMake 3.10.2+](https://cmake.org/download/)
+4. [CMake 3.15.0+](https://cmake.org/download/)
 
 !!! note
 	If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for iOS on macOS](../installing_dependencies/mac-ios.md) and follow the steps listed there.

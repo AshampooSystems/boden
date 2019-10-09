@@ -123,9 +123,9 @@ class BuildExecutor:
 
             else:
                 if configuration.arch == "std" or configuration.arch == "simulator":
-                    cmakeArguments.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
+                    cmakeArguments.extend( [ "-DPLATFORM=SIMULATOR64" ] );
                 elif configuration.arch == "device":
-                    cmakeArguments.extend( [ "-DIOS_PLATFORM=OS64" ] );
+                    cmakeArguments.extend( [ "-DPLATFORM=OS64" ] );
                 else:
                     raise error.InvalidArchitectureError(arch);
 

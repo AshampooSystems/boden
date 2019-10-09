@@ -26,7 +26,15 @@ use_boden_template_info_plist(
     )
 set(ANDROID_APP_ID "io.boden.testboden")
 
-#get_git_short_revision(GIT_REV)
-#set_target_version(TARGET testBoden VERSION "0.1.0" SHORTVERSION "0.1" LONGVERSION "0.1.0.${GIT_REV}")
+
+ios_configure_app_info(TARGET testBoden
+    LAUNCHSCREEN "LaunchScreen"
+    TARGETED_DEVICES IPHONE IPAD
+    IPHONE_ORIENTATIONS ALL
+    IPAD_ORIENTATIONS ALL)
+
+get_git_short_revision(GIT_REV)
+set_target_version(TARGET testBoden VERSION "1.2.3" SHORTVERSION "1.2" LONGVERSION "1.2.3.${GIT_REV}")
+
 
 add_test( testBoden testBoden )

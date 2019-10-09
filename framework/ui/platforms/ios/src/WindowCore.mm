@@ -38,6 +38,8 @@
     [self.view addSubview:_rootView];
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_13_0 || !defined(__IPHONE_13_0)
     _rootView.backgroundColor = [UIColor whiteColor];
+#else
+    _rootView.backgroundColor = [UIColor systemBackgroundColor];
 #endif
 
     _safeRootView = [[BodenUIView alloc] init];

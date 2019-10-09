@@ -38,7 +38,7 @@
 
 ### Prerequisites
 
-**On a Mac**: macOS 10.14+, [Xcode 10.1+](https://developer.apple.com/xcode/), [Python 3.4+](https://www.python.org/downloads/), [CMake 3.10.2+](https://cmake.org/download/).
+**On a Mac**: macOS 10.14+, [Xcode 10.1+](https://developer.apple.com/xcode/), [Python 3.4+](https://www.python.org/downloads/), [CMake 3.15.0+](https://cmake.org/download/).
 
 **On Windows**: Windows 10, [Python 3.4+](https://www.python.org/downloads/), [CMake 3.10.2+](https://cmake.org/download/), [Ninja](https://github.com/ninja-build/ninja/releases), [Git](https://git-scm.com/download/win), [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), and [Android Studio](https://developer.android.com/studio) (with Android NDK, see the [installation instructions](https://www.boden.io/getting-started/installing_dependencies/windows/) for further details).
 
