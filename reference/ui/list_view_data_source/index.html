@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2743024059">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4391236071">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3620437291">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?1302828086">
     
     
       
@@ -1936,6 +1936,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <li>
 <p><strong>virtual float heightForRowIndex(const std::shared_ptr&lt;<a href="../list_view/">ListView</a>&gt;&amp; listView, size_t rowIndex) = 0</strong></p>
 <p>Return the height of the row at the given row index in your data source implementation.</p>
+</li>
+<li>
+<p><strong>virtual bool shouldSelectRow(const std::shared_ptr&lt;<a href="../list_view/">ListView</a>&gt;&amp; listView, size_t rowIndex)</strong></p>
+<p>Return whether the user can select the specified row.</p>
+<p>The default implementation returns <code>true</code>.</p>
 </li>
 </ul>
                 
