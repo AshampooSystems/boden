@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Ashampoo Systems GmbH & Co. KG (“Ashampoo Systems” or “We”) would like to inform the visitors and users of our web pages and services about how we process their personal data and about the purpose, the nature and the scope of such processing. The entity responsible for data processing on our websites or in connection with our services within the meaning of the General Data Protection Regulation (GDPR) is Ashampoo Systems GmbH & Co. KG, Felix-Wankel-Str. 16, 26125 Oldenburg, Germany.
+Ashampoo Systems GmbH & Co. KG (“Ashampoo Systems” or “We”) would like to inform the visitors and users of our web pages and services about how we process their personal data and about the purpose, the nature and the scope of such processing. The entity responsible for data processing on our websites or in connection with our services within the meaning of the General Data Protection Regulation (GDPR) is Ashampoo Systems GmbH & Co. KG, Schafjückenweg 2, 26180 Rastede, Germany.
 
 ## Our web pages and services
 
