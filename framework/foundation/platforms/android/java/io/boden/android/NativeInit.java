@@ -28,7 +28,7 @@ public class NativeInit
      *  native code of the app and provides the app controller.
      *
      */
-    static void baseInit(String nativeLibName)
+    public static void baseInit(String nativeLibName)
     {
         if(!mBaseInitialized)
         {
