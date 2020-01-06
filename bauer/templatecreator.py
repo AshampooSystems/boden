@@ -48,7 +48,7 @@ class TemplateCreator:
         vars = {
             'project_name' : args.project_name,
             'project_folder' : project_folder,
-            'boden_relative_path' : boden_relative_path.replace('\\', '\\\\')
+            'boden_relative_path' : boden_relative_path.replace('\\', '/')
         }
 
         self.logger.info("Creating project in %s", project_folder)
