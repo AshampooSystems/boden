@@ -1,6 +1,6 @@
 set(CPACK_IFW_PACKAGE_TITLE "Boden Framework")
-set(CPACK_IFW_PACKAGE_PUBLISHER "Ashampoo Systems")
-set(CPACK_IFW_PRODUCT_URL "http://www.ashampoo-systems.com")
+set(CPACK_IFW_PACKAGE_PUBLISHER "Personizer")
+set(CPACK_IFW_PRODUCT_URL "http://www.personizer.com")
 set(CPACK_IFW_TARGET_DIRECTORY "/tmp/boden-${CPACK_PACKAGE_VERSION}")
 set(CPACK_IFW_PACKAGE_GROUP boden)
 

@@ -1,5 +1,5 @@
 Boden Cross-platform Framework\
-Copyright (C) 2019 Ashampoo Systems GmbH & Co. KG
+Copyright (C) 2021 Personizer GmbH & Co. KG
 
 ---
 

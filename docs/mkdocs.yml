@@ -127,7 +127,7 @@ nav:
       - Lottie:
         - reference/extra-modules/lottie/lottie_view.md
   - Legal:
-    - Legal: 'https://www.ashampoo-systems.com/base/about'
+    - Legal: 'https://www.personizer.com/en/legal/'
     - legal/privacy_policy.md
     - Licensing: 
       - Overview: 'legal/licensing/index.md'
@@ -145,5 +145,5 @@ google_analytics:
   - 'GTM-MP93ZKM'
   - 'auto'
 
-copyright: 'Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG'
+copyright: 'Copyright &copy; 2021 Personizer GmbH & Co. KG'
 site_description: 'Boden is the new cross-platform framework for building real native mobile apps using native widgets and modern C++17. Boden is free and open source.'

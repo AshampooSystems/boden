@@ -1,5 +1,5 @@
 Boden Cross-platform Framework\
-Copyright (C) 2019 Ashampoo Systems GmbH & Co. KG
+Copyright (C) 2021 Personizer GmbH & Co. KG
 
 *This license makes reference to the version 3 of the GNU General Public License, which you can find in the LICENSE.GPL3.md file.*
 

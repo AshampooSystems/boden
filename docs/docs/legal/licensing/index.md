@@ -1,7 +1,7 @@
 # Overview
 
 **Boden Cross-Platform Framework**  
-Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+Copyright &copy; 2019 Personizer GmbH & Co. KG
 
 ## Open Source Framework License
 
