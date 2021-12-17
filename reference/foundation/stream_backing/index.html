@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5606832979">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5965162588">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5510898978">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?405215119">
     
     
       
@@ -1637,7 +1637,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1885,29 +1885,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="streambacking">StreamBacking<a class="headerlink" href="#streambacking" title="Permanent link">&para;</a></h1>
 <p>Allows you to create a std::string property that chains multiple properties and values together.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span> <span class="p">{</span>
-    <span class="k">class</span> <span class="nc">StreamBacking</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">StreamBacking</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/property/Property.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/property/Property.h&gt;</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">integerProperty</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&quot;posts&quot;</span><span class="n">s</span><span class="p">;</span>
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">streamingProperty</span><span class="p">(</span>
-    <span class="n">StreamBacking</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;There are &quot;</span><span class="n">s</span> <span class="o">&lt;&lt;</span> <span class="n">integerProperty</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">type</span><span class="p">);</span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">integerProperty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;posts&quot;</span><span class="n">s</span><span class="p">;</span><span class="w"></span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">streamingProperty</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">StreamBacking</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;There are &quot;</span><span class="n">s</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">integerProperty</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">streamingProperty</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// &quot;There are 10 posts&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">streamingProperty</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"> </span><span class="c1">// &quot;There are 10 posts&quot;</span>
 
-<span class="n">integerProperty</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
-<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;messages&quot;</span><span class="n">s</span><span class="p">;</span>
+<span class="n">integerProperty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span><span class="w"></span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;messages&quot;</span><span class="n">s</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">streamingProperty</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// &quot;There are 42 messages&quot;</span>
-</pre></div>
-
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">streamingProperty</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"> </span><span class="c1">// &quot;There are 42 messages&quot;</span>
+</code></pre></div>
 <h2 id="operators">Operators<a class="headerlink" href="#operators" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
@@ -1987,7 +1985,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -1998,7 +1996,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2026,7 +2024,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

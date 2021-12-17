@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4426229785">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2998161371">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?4004285150">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?468124053">
     
     
       
@@ -1631,7 +1631,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1875,71 +1875,64 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 There are two classes, <code>Object</code> and <code>JTObject</code>. <code>JTObject</code> is a convenience class that uses templates to make creating new wrapper simpler. </p>
 <h2 id="first-steps">First Steps<a class="headerlink" href="#first-steps" title="Permanent link">&para;</a></h2>
 <p>In this example we show the simplest way to wrap a java class:</p>
-<div class="codehilite"><pre><span></span><span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">kMyJavaClassName</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span>
-<span class="k">using</span> <span class="n">MyJavaClass</span> <span class="o">=</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span><span class="p">;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">kMyJavaClassName</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">MyJavaClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
 <p>With these definitions you can now instantiate a Java class from C++ in your code:</p>
-<div class="codehilite"><pre><span></span><span class="n">MyJavaClass</span> <span class="n">myClass</span><span class="p">;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">MyJavaClass</span><span class="w"> </span><span class="n">myClass</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
 <p>This will automatically instantiate the Java class for you.</p>
 <h2 id="wrapping-java-class-methods">Wrapping Java Class Methods<a class="headerlink" href="#wrapping-java-class-methods" title="Permanent link">&para;</a></h2>
 <p>To be able to add methods to your wrapper class, add the following to the previous example code:</p>
-<div class="codehilite"><pre><span></span><span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">kMyJavaClassName</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span>
-<span class="k">class</span> <span class="nc">MyJavaClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">using</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">kMyJavaClassName</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">class</span> <span class="nc">MyJavaClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>Now that you have your class ready, you can start to add methods to it. Boden provides the convenience class <code>JavaMethod</code> to simplify the process.</p>
-<div class="codehilite"><pre><span></span><span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">kMyJavaClassName</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span>
-<span class="k">class</span> <span class="nc">MyJavaClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">using</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="hll">    <span class="n">bdn</span><span class="o">::</span><span class="n">JavaMethod</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaString</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">testFunction</span><span class="p">{</span><span class="k">this</span><span class="p">,</span> <span class="s">&quot;testFunction&quot;</span><span class="p">};</span>
-</span><span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">kMyJavaClassName</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">class</span> <span class="nc">MyJavaClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">kMyJavaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaMethod</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaString</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">testFunction</span><span class="p">{</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testFunction&quot;</span><span class="p">};</span><span class="w"></span>
+</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>JavaMethod itself is a template that takes a function pointer style argument. It needs to be initialized with a pointer to the object (<code>this</code>) and the name of the function has be be provided as a string (in this case <code>testFunction</code>).</p>
 <p>Now you can call the function:</p>
-<div class="codehilite"><pre><span></span><span class="n">MyJavaClass</span> <span class="n">myClass</span><span class="p">;</span>
-<span class="n">myClass</span><span class="p">.</span><span class="n">testFunction</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">);</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">MyJavaClass</span><span class="w"> </span><span class="n">myClass</span><span class="p">;</span><span class="w"></span>
+<span class="n">myClass</span><span class="p">.</span><span class="n">testFunction</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <h2 id="deriving-from-jtobject-base-classes">Deriving from JTObject Base Classes<a class="headerlink" href="#deriving-from-jtobject-base-classes" title="Permanent link">&para;</a></h2>
 <p>To derive from a class, you pass through the new class name as a template argument. Building on the previous example you change <code>MyJavaClass</code> to the following (changes are highlighted below):</p>
-<div class="codehilite"><pre><span></span><span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">kMyJavaClassName</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span>
-<span class="hll"><span class="k">template</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">javaClassName</span> <span class="o">=</span> <span class="n">kMyJavaClassName</span><span class="o">&gt;</span>
-</span><span class="hll"><span class="k">class</span> <span class="nc">BaseMyJavaClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">javaClassName</span><span class="o">&gt;</span>
-</span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="hll">    <span class="k">using</span> <span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">javaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span>
-</span><span class="k">public</span><span class="o">:</span>
-    <span class="n">bdn</span><span class="o">::</span><span class="n">JavaMethod</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaString</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">testFunction</span><span class="p">{</span><span class="k">this</span><span class="p">,</span> <span class="s">&quot;testFunction&quot;</span><span class="p">};</span>
-<span class="p">};</span>
-<span class="hll"><span class="k">using</span> <span class="n">MyJavaClass</span> <span class="o">=</span> <span class="n">BaseMyJavaClass</span><span class="o">&lt;&gt;</span><span class="p">;</span>
-</span></pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">kMyJavaClassName</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;io/mycompany/MyJavaClass&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="hll"><span class="k">template</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">javaClassName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kMyJavaClassName</span><span class="o">&gt;</span><span class="w"></span>
+</span><span class="hll"><span class="k">class</span> <span class="nc">BaseMyJavaClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">javaClassName</span><span class="o">&gt;</span><span class="w"></span>
+</span><span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">java</span><span class="o">::</span><span class="n">wrapper</span><span class="o">::</span><span class="n">JTObject</span><span class="o">&lt;</span><span class="n">javaClassName</span><span class="o">&gt;::</span><span class="n">JTObject</span><span class="p">;</span><span class="w"></span>
+</span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaMethod</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">bdn</span><span class="o">::</span><span class="n">JavaString</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">testFunction</span><span class="p">{</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testFunction&quot;</span><span class="p">};</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+<span class="hll"><span class="k">using</span><span class="w"> </span><span class="n">MyJavaClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BaseMyJavaClass</span><span class="o">&lt;&gt;</span><span class="p">;</span><span class="w"></span>
+</span></code></pre></div>
 <p>In the first highlighted line you change MyJavaClass to be a template class taking a <code>const char*</code> so you can override the Java class name. For convenience, we set the original name as a default argument.</p>
 <p>In the second line you change the class name to <code>BaseMyJavaClass</code>. This again is for convenience. In the end we create a <code>using</code> declaration so our code can continue to use <code>MyJavaClass</code> as a class name.</p>
 <p>Now, just as before, you can create a new class that derives from <code>BaseMyJavaClass</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">kDerivedJavaClassName</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;io/mycompany/DervivedJavaClass&quot;</span><span class="p">;</span>
-<span class="k">class</span> <span class="nc">DerivedJavaClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseMyJavaClass</span><span class="o">&lt;</span><span class="n">kDerivedJavaClassName</span><span class="o">&gt;</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">using</span> <span class="n">BaseMyJavaClass</span><span class="o">&lt;</span><span class="n">kDerivedJavaClassName</span><span class="o">&gt;::</span><span class="n">BaseMyJavaClass</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">kDerivedJavaClassName</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;io/mycompany/DervivedJavaClass&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">class</span> <span class="nc">DerivedJavaClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">BaseMyJavaClass</span><span class="o">&lt;</span><span class="n">kDerivedJavaClassName</span><span class="o">&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">BaseMyJavaClass</span><span class="o">&lt;</span><span class="n">kDerivedJavaClassName</span><span class="o">&gt;::</span><span class="n">BaseMyJavaClass</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>You can now instantiate the derived class. You do not need to redefine methods in the derived class if your Java class overloads them. They will work automatically as long as they are defined in the base class.</p>
-<div class="codehilite"><pre><span></span><span class="n">DerivedJavaClass</span> <span class="n">object</span><span class="p">;</span>
-<span class="n">object</span><span class="p">.</span><span class="n">testFunction</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">);</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">DerivedJavaClass</span><span class="w"> </span><span class="n">object</span><span class="p">;</span><span class="w"></span>
+<span class="n">object</span><span class="p">.</span><span class="n">testFunction</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
                 
                   
                 
@@ -1997,7 +1990,7 @@ There are two classes, <code>Object</code> and <code>JTObject</code>. <code>JTOb
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2008,7 +2001,7 @@ There are two classes, <code>Object</code> and <code>JTObject</code>. <code>JTOb
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2036,7 +2029,7 @@ There are two classes, <code>Object</code> and <code>JTObject</code>. <code>JTOb
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?601831331">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1963518808">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2623007825">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2049408454">
     
     
       
@@ -1665,7 +1665,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1942,19 +1942,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>A view displaying items in a scrollable single-column list.</p>
 <p>See also: <a href="../list_view_data_source/">ListViewDataSource</a>.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span> <span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ListView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">View</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ListView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">View</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/ListView.h&gt;</span><span class="cp"></span>
-<span class="p">...</span>
-<span class="k">auto</span> <span class="n">listView</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">listView</span><span class="o">-&gt;</span><span class="n">dataSource</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MyDataSource</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">listView</span><span class="o">-&gt;</span><span class="n">reloadData</span><span class="p">();</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/ListView.h&gt;</span><span class="cp"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="k">auto</span><span class="w"> </span><span class="n">listView</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ListView</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">listView</span><span class="o">-&gt;</span><span class="n">dataSource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MyDataSource</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">listView</span><span class="o">-&gt;</span><span class="n">reloadData</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
@@ -2072,7 +2070,7 @@ failure to update the datasource results in undefined behaviour. </p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2083,7 +2081,7 @@ failure to update the datasource results in undefined behaviour. </p>
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2111,7 +2109,7 @@ failure to update the datasource results in undefined behaviour. </p>
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

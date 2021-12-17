@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4179917208">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1765947786">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?3855202657">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2778057968">
     
     
       
@@ -1658,7 +1658,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1927,11 +1927,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="attributedstring">AttributedString<a class="headerlink" href="#attributedstring" title="Permanent link">&para;</a></h1>
 <p>A string that allows you to set attributes for text ranges. Attributed strings are commonly used to apply formatting to a string.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span> <span class="p">{</span>
-    <span class="k">class</span> <span class="nc">AttributedString</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">AttributedString</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="construction">Construction<a class="headerlink" href="#construction" title="Permanent link">&para;</a></h2>
 <p>To create an instance of <code>AttributedString</code> simply call <code>std::make_shared&lt;AttributedString&gt;()</code>. A special implementation of <code>std::make_shared</code> will create the platform specific version of an <code>AttributedString</code>. </p>
 <h2 id="serializing">Serializing<a class="headerlink" href="#serializing" title="Permanent link">&para;</a></h2>
@@ -1951,22 +1950,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p><strong>void fromJSON(const bdn::json&amp; json)</strong></p>
 <p>Replaces the contents of the string with the data from <code>json</code>.</p>
 <p>HTML form:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span><span class="nt">&quot;html&quot;</span> <span class="p">:</span> <span class="err">&lt;html-string&gt;</span><span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;html&quot;</span> <span class="p">:</span> <span class="err">&lt;h</span><span class="kc">t</span><span class="err">ml</span><span class="mi">-</span><span class="err">s</span><span class="kc">tr</span><span class="err">i</span><span class="kc">n</span><span class="err">g&gt;</span><span class="p">}</span>
+</code></pre></div>
 <p>Raw form:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span><span class="nt">&quot;string&quot;</span> <span class="p">:</span> <span class="err">&lt;raw</span> <span class="err">string&gt;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;string&quot;</span> <span class="p">:</span> <span class="err">&lt;raw</span> <span class="err">s</span><span class="kc">tr</span><span class="err">i</span><span class="kc">n</span><span class="err">g&gt;</span><span class="p">,</span>
  <span class="nt">&quot;ranges&quot;</span> <span class="p">:</span> <span class="p">[</span>
   <span class="p">{</span>
-    <span class="nt">&quot;start&quot;</span> <span class="p">:</span> <span class="err">&lt;int&gt;</span><span class="p">,</span>
-    <span class="nt">&quot;length&quot;</span> <span class="p">:</span> <span class="err">&lt;int&gt;</span><span class="p">,</span>
-    <span class="err">attributes:</span> <span class="err">{</span> <span class="err">&lt;name&gt;</span> <span class="err">:</span> <span class="err">&lt;value&gt;,</span> <span class="err">...</span> <span class="p">}</span>
-  <span class="err">}</span><span class="p">,</span> 
+    <span class="nt">&quot;start&quot;</span> <span class="p">:</span> <span class="err">&lt;i</span><span class="kc">nt</span><span class="err">&gt;</span><span class="p">,</span>
+    <span class="nt">&quot;length&quot;</span> <span class="p">:</span> <span class="err">&lt;i</span><span class="kc">nt</span><span class="err">&gt;</span><span class="p">,</span>
+    <span class="err">a</span><span class="kc">ttr</span><span class="err">ibu</span><span class="kc">tes</span><span class="p">:</span> <span class="p">{</span> <span class="err">&lt;</span><span class="kc">na</span><span class="err">me&gt;</span> <span class="p">:</span> <span class="err">&lt;value&gt;</span><span class="p">,</span> <span class="err">...</span> <span class="p">}</span>
+  <span class="p">},</span> 
   <span class="err">...</span>
  <span class="p">]</span>
 <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 </li>
 <li>
 <p><strong>bdn::json toJSON() const</strong></p>
@@ -2085,7 +2082,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2096,7 +2093,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2124,7 +2121,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

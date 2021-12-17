@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?3557619816">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?823438641">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?5034677907">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?4954820750">
     
     
       
@@ -1701,7 +1701,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -2016,81 +2016,76 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Properties also make it easy to expose a <a href="#read-only-access">read-only</a> version of a data member publicly and keep write access private. They can be extended with <a href="#getters-and-setters">getter and setter functions</a> transparently and they come with support for the <a href="#auto-keyword"><code>auto</code> keyword</a> and <code>std::optional</code>.</p>
 <h2 id="exposing-properties">Exposing Properties<a class="headerlink" href="#exposing-properties" title="Permanent link">&para;</a></h2>
 <p>Properties are intended to be exposed as public data members of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Circle</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">radius</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">class</span> <span class="nc">Circle</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">radius</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
 <span class="c1">// Usage</span>
 
-<span class="n">Circle</span> <span class="n">circle</span><span class="p">;</span>
-<span class="n">circle</span><span class="p">.</span><span class="n">radius</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">;</span>
-<span class="kt">double</span> <span class="n">radius</span> <span class="o">=</span> <span class="n">circle</span><span class="p">.</span><span class="n">radius</span><span class="p">;</span> <span class="c1">// value will be 10.</span>
-</pre></div>
-
+<span class="n">Circle</span><span class="w"> </span><span class="n">circle</span><span class="p">;</span><span class="w"></span>
+<span class="n">circle</span><span class="p">.</span><span class="n">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10.</span><span class="p">;</span><span class="w"></span>
+<span class="kt">double</span><span class="w"> </span><span class="n">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">circle</span><span class="p">.</span><span class="n">radius</span><span class="p">;</span><span class="w"> </span><span class="c1">// value will be 10.</span>
+</code></pre></div>
 <h2 id="initializing-property-values">Initializing Property Values<a class="headerlink" href="#initializing-property-values" title="Permanent link">&para;</a></h2>
 <p>Properties can be initialized in the member initialization list of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Circle</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">radius</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<span class="k">class</span> <span class="nc">Circle</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10.</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>Alternatively, a property's value can also be initialzed in the constructor of a class:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Circle</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Circle</span><span class="p">()</span> <span class="o">:</span> <span class="n">radius</span><span class="p">(</span><span class="mf">10.</span><span class="p">)</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">Circle</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Circle</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">radius</span><span class="p">(</span><span class="mf">10.</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">radius</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">radius</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <h2 id="data-bindings">Data Bindings<a class="headerlink" href="#data-bindings" title="Permanent link">&para;</a></h2>
 <p>Two property values can easily be synchronized by setting up a binding:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">ViewModel</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">buttonText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">class</span> <span class="nc">ViewModel</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buttonText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world!&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">MainViewController</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">MainViewController</span><span class="p">(</span><span class="n">ViewModel</span><span class="o">*</span> <span class="n">viewModel</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="c1">// Create the button</span>
-        <span class="n">_button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">class</span> <span class="nc">MainViewController</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Base</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">MainViewController</span><span class="p">(</span><span class="n">ViewModel</span><span class="o">*</span><span class="w"> </span><span class="n">viewModel</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Create the button</span>
+<span class="w">        </span><span class="n">_button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 
-        <span class="c1">// Update the button&#39;s label when the buttonText property of</span>
-        <span class="c1">// ViewModel changes </span>
-        <span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Update the button&#39;s label when the buttonText property of</span>
+<span class="w">        </span><span class="c1">// ViewModel changes </span>
+<span class="w">        </span><span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// [...]</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="c1">// [...]</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span> <span class="n">_button</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_button</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>The <code>bind()</code> method sets up a bidirectional (or two-way) data binding by default. That is, regardless of whether you change the value of <code>viewModel-&gt;buttonText</code> or <code>button-&gt;label</code>, the other property will automatically be updated to the new value.</p>
 <p>You can also set up a unidirectional (or one-way) data binding:</p>
-<div class="codehilite"><pre><span></span><span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">,</span> <span class="n">BindMode</span><span class="o">::</span><span class="n">unidirectional</span><span class="p">);</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">button</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">buttonText</span><span class="p">,</span><span class="w"> </span><span class="n">BindMode</span><span class="o">::</span><span class="n">unidirectional</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <p>In this case, <code>viewModel-&gt;buttonText</code> will be updated when changing <code>button-&gt;label</code>, but not the other way around.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2098,73 +2093,70 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </div>
 <h2 id="change-notifications">Change Notifications<a class="headerlink" href="#change-notifications" title="Permanent link">&para;</a></h2>
 <p>Properties can notify observers when their value changes. Observers can register for receiving notifications using the <code>onChange()</code> method:</p>
-<div class="codehilite"><pre><span></span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
-<span class="n">name</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span> <span class="o">+=</span> <span class="p">[](</span><span class="k">auto</span> <span class="n">property</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">property</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="n">name</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="n">property</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">property</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <p><code>onChange()</code> returns a <a href="../../../reference/foundation/notifier/"><code>Notifier</code></a> object which can be used to subscribe or unsubscribe notification handler functions.</p>
 <h2 id="read-only-access">Read-Only Access<a class="headerlink" href="#read-only-access" title="Permanent link">&para;</a></h2>
 <p>If you want to provide users of your class with read access to certain properties only,
 you can declare <code>Property</code> private and provide a public <code>const Property</code> reference:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Circle</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Circle</span><span class="p">(</span><span class="kt">double</span> <span class="n">initRadius</span><span class="p">)</span> <span class="o">:</span> <span class="n">_radius</span><span class="p">(</span><span class="n">initRadius</span><span class="p">)</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">Circle</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Circle</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">initRadius</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">_radius</span><span class="p">(</span><span class="n">initRadius</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
 
-    <span class="c1">// Property accessible for reading only from the outside</span>
-    <span class="k">const</span> <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">radius</span> <span class="o">=</span> <span class="n">_radius</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Property accessible for reading only from the outside</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_radius</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="c1">// Property accessible for reading and writing from inside the Circle class</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">_radius</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Property accessible for reading and writing from inside the Circle class</span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_radius</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="getters-and-setters">Getters and Setters<a class="headerlink" href="#getters-and-setters" title="Permanent link">&para;</a></h2>
 <p>You can implement custom getter and/or setter functions and <code>Property</code> will call them when its value is updated or retrieved:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Person</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">GetterSetter</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span>
-        <span class="c1">// Pointer to the instance which provides the getter/setter</span>
-        <span class="k">this</span><span class="p">,</span>
-        <span class="c1">// Pointer to getter member function</span>
-        <span class="o">&amp;</span><span class="n">Person</span><span class="o">::</span><span class="n">name</span><span class="p">,</span>
-        <span class="c1">// Pointer to setter member function</span>
-        <span class="o">&amp;</span><span class="n">person</span><span class="o">::</span><span class="n">setName</span><span class="p">,</span>
-        <span class="c1">// Pointer to data member storing name&#39;s value</span>
-        <span class="o">&amp;</span><span class="n">_name</span>
-        <span class="p">}</span>
-    <span class="p">};</span>
+<span class="k">class</span> <span class="nc">Person</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">GetterSetter</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Pointer to the instance which provides the getter/setter</span>
+<span class="w">        </span><span class="k">this</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Pointer to getter member function</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">Person</span><span class="o">::</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Pointer to setter member function</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">person</span><span class="o">::</span><span class="n">setName</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Pointer to data member storing name&#39;s value</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">_name</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">_name</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">name</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_name</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="c1">// Besides setting the property value, setters must return </span>
-    <span class="c1">// a bool indicating whether the property&#39;s value has been </span>
-    <span class="c1">// changed by the set operation</span>
-    <span class="kt">bool</span> <span class="n">setName</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">!=</span> <span class="n">_name</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
-            <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="c1">// value did change</span>
-        <span class="p">}</span>
+<span class="w">    </span><span class="c1">// Besides setting the property value, setters must return </span>
+<span class="w">    </span><span class="c1">// a bool indicating whether the property&#39;s value has been </span>
+<span class="w">    </span><span class="c1">// changed by the set operation</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">setName</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"> </span><span class="c1">// value did change</span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// value did not change</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="c1">// value did not change</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">_name</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">_name</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 <p>While the example above contains both a getter and a setter, it is also OK to provide only a getter with no setter and no member pointer. In that case the property is runtime read-only and an exception is thrown when you try to call its setter.</p>
 <p>If no getter is provided, a member pointer must be given. If neither getter nor setter are specified, <code>Property</code> will automatically substitute both functions with a default implementation.</p>
 <div class="admonition note">
@@ -2175,124 +2167,114 @@ you can declare <code>Property</code> private and provide a public <code>const P
 <h2 id="auto-keyword"><code>auto</code> Keyword<a class="headerlink" href="#auto-keyword" title="Permanent link">&para;</a></h2>
 <p>Properties support the C++11 <code>auto</code> keyword. However, you have to
 dereference a property using the <code>*</code> operator when using <code>auto</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
-<span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="n">nameProperty</span><span class="p">;</span>  <span class="c1">// Error: copy constructor is explicitly deleted </span>
-<span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="o">*</span><span class="n">nameProperty</span><span class="p">;</span> <span class="c1">// type of name will be deduced to std::string </span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">nameProperty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;John&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">auto</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nameProperty</span><span class="p">;</span><span class="w">  </span><span class="c1">// Error: copy constructor is explicitly deleted </span>
+<span class="k">auto</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">nameProperty</span><span class="p">;</span><span class="w"> </span><span class="c1">// type of name will be deduced to std::string </span>
+</code></pre></div>
 <p>Alternatively, <code>get()</code> can be used when working with <code>auto</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">nameProperty</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
-<span class="k">auto</span> <span class="n">name</span> <span class="o">=</span> <span class="n">nameProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">nameProperty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;John&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">auto</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nameProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
 <h2 id="non-primitive-value-types">Non-Primitive Value Types<a class="headerlink" href="#non-primitive-value-types" title="Permanent link">&para;</a></h2>
 <p>Properties support non-primitive value types such as user-defined classes and structs. Members can be read using the arrow operator:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">struct</span> <span class="n">Person</span>
-<span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">struct</span> <span class="nc">Person</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;John&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">;</span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
 <p>Writing to a member of a non-primitive type inside a property is not supported since property getters return copies of the property's value:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">person</span><span class="p">;</span>
-<span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Jack&quot;</span><span class="p">;</span> <span class="c1">// Error: no viable overloaded =</span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"></span>
+<span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Jack&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// Error: no viable overloaded =</span>
+</code></pre></div>
 <p>If you want to write to a property holding a non-primitive type, use <code>get()</code> and <code>set()</code> to copy and modify the property's value:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personProperty</span><span class="p">;</span>
-<span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="n">personProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
-<span class="n">person</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Jack&quot;</span><span class="p">;</span>
-<span class="n">personProperty</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">person</span><span class="p">);</span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personProperty</span><span class="p">;</span><span class="w"></span>
+<span class="n">Person</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">personProperty</span><span class="p">.</span><span class="n">get</span><span class="p">();</span><span class="w"></span>
+<span class="n">person</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Jack&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">personProperty</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">person</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <h2 id="pointer-types">Pointer Types<a class="headerlink" href="#pointer-types" title="Permanent link">&para;</a></h2>
 <p>Pointer types, including smart pointers, are supported by the <code>Property</code> class. Consider the following example:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">Model</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">labelText</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Base</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">labelText</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="k">class</span> <span class="nc">ViewModel</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Model</span><span class="o">&gt;&gt;</span> <span class="n">model</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">class</span> <span class="nc">ViewModel</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Base</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Model</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">model</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span> <span class="n">viewModel</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 <span class="c1">// Do something with the view model</span>
-</pre></div>
-
+</code></pre></div>
 <p>When using pointer types, <code>Property</code>'s arrow operator can be used to
 write to nested properties:</p>
-<div class="codehilite"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span> <span class="n">viewModel</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">labelText</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ViewModel</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">viewModel</span><span class="o">-&gt;</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">labelText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world!&quot;</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
 <h2 id="copying">Copying<a class="headerlink" href="#copying" title="Permanent link">&para;</a></h2>
 <p><code>Property</code> is not copy constructible, but property values can be copied by default constructing a <code>Property</code> instance and then assigning another property's value using <code>operator =</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">badNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// Error: copy constructor </span>
-                                          <span class="c1">// is explicitly deleted</span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">badNameCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"> </span><span class="c1">// Error: copy constructor </span>
+<span class="w">                                          </span><span class="c1">// is explicitly deleted</span>
 
-<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">goodNameCopy</span><span class="p">;</span>
-<span class="n">goodNameCopy</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="c1">// OK: value of name is copied to value </span>
-                     <span class="c1">// of goodNameCopy by assignment</span>
-</pre></div>
-
+<span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">goodNameCopy</span><span class="p">;</span><span class="w"></span>
+<span class="n">goodNameCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"> </span><span class="c1">// OK: value of name is copied to value </span>
+<span class="w">                     </span><span class="c1">// of goodNameCopy by assignment</span>
+</code></pre></div>
 <p>Consequently, structs or classes containing <code>Property</code> data members are
 also not copy constructible:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">struct</span> <span class="n">Person</span>
-<span class="p">{</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="k">struct</span> <span class="nc">Person</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;John&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">Person</span> <span class="n">person</span><span class="p">;</span>
-<span class="n">Person</span> <span class="n">person2</span> <span class="o">=</span> <span class="n">person</span><span class="p">;</span> <span class="c1">// Error: copy constructor of Person</span>
-                         <span class="c1">// is implicitly deleted </span>
-</pre></div>
-
+<span class="n">Person</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"></span>
+<span class="n">Person</span><span class="w"> </span><span class="n">person2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"> </span><span class="c1">// Error: copy constructor of Person</span>
+<span class="w">                         </span><span class="c1">// is implicitly deleted </span>
+</code></pre></div>
 <p>If your struct or class needs to be copy constructible, you may
 implement a custom copy constructor:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">struct</span> <span class="n">Person</span>
-<span class="p">{</span>
-    <span class="n">Person</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-    <span class="n">Person</span><span class="p">(</span><span class="k">const</span> <span class="n">Person</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="o">:</span> <span class="n">Person</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">other</span><span class="p">.</span><span class="n">name</span><span class="p">;</span> <span class="c1">// OK: assignment after default construction</span>
-    <span class="p">}</span>
+<span class="k">struct</span> <span class="nc">Person</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">Person</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">Person</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Person</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Person</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">other</span><span class="p">.</span><span class="n">name</span><span class="p">;</span><span class="w"> </span><span class="c1">// OK: assignment after default construction</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span><span class="p">;</span>
-<span class="p">};</span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;John&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">Person</span> <span class="n">person</span><span class="p">;</span>
-<span class="n">Person</span> <span class="n">person2</span> <span class="o">=</span> <span class="n">person</span><span class="p">;</span> <span class="c1">// OK: copy constructor of name </span>
-                         <span class="c1">// data member is never called </span>
-</pre></div>
-
+<span class="n">Person</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"></span>
+<span class="n">Person</span><span class="w"> </span><span class="n">person2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">person</span><span class="p">;</span><span class="w"> </span><span class="c1">// OK: copy constructor of name </span>
+<span class="w">                         </span><span class="c1">// data member is never called </span>
+</code></pre></div>
 <h2 id="thread-safety">Thread-Safety<a class="headerlink" href="#thread-safety" title="Permanent link">&para;</a></h2>
 <p><code>Property</code> is currently not thread-safe.</p>
 <p>If you want to work with properties from multiple threads, make a copy of the respective property object's data and then use that copy on your worker thread. Do not read a single <code>Property</code> instance's value among different threads as this may cause undefined behavior.</p>
@@ -2364,7 +2346,7 @@ implement a custom copy constructor:</p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2375,7 +2357,7 @@ implement a custom copy constructor:</p>
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2403,7 +2385,7 @@ implement a custom copy constructor:</p>
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

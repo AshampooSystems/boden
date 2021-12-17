@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2962902498">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5516162960">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?4248585737">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?4216260850">
     
     
       
@@ -1658,7 +1658,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1956,113 +1956,103 @@ The asset folders structure can be defined by users and it can house any type of
 However, a downside is that its content cannot be automatically localized.</p>
 <h2 id="boden-representation-of-resources">Boden representation of resources<a class="headerlink" href="#boden-representation-of-resources" title="Permanent link">&para;</a></h2>
 <p>Boden abstracts all these intricacies into a platform agnostic json file:</p>
-<div class="superfences-tabs">
-<input name="__tabs_1" type="radio" id="__tab_1_0" checked="checked" />
-<label for="__tab_1_0">Basic layout</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;root-path&quot;</span> <span class="p">:</span> <span class="s2">&quot;./Resources&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;resources&quot;</span> <span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;language&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;android-qualifiers&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;images&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">],</span>
-            <span class="nt">&quot;raw&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">]</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;language&quot;</span> <span class="p">:</span> <span class="s2">&quot;de&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;android-qualifiers&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;images&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">],</span>
-            <span class="nt">&quot;raw&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">]</span>
-        <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;assets&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">]</span>
-<span class="p">}</span>
-</pre></div></div>
-<input name="__tabs_1" type="radio" id="__tab_1_1" />
-<label for="__tab_1_1">Full example</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;root-path&quot;</span> <span class="p">:</span> <span class="s2">&quot;./Resources&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;resources&quot;</span> <span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;language&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;android-qualifiers&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;images&quot;</span> <span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="nt">&quot;bundle_path&quot;</span> <span class="p">:</span> <span class="s2">&quot;images/image.png&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;resolutions&quot;</span> <span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;0.75x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;1.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;image.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;1.5x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;2.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;image@2x.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;3.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;image@3x.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;4.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">],</span>
-            <span class="nt">&quot;raw&quot;</span> <span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="nt">&quot;bundle_path&quot;</span> <span class="p">:</span> <span class="s2">&quot;images/animation.json&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;flag.json&quot;</span>
-                <span class="p">}</span>
-            <span class="p">]</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;language&quot;</span> <span class="p">:</span> <span class="s2">&quot;de&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;android-qualifiers&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;images&quot;</span> <span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="nt">&quot;bundle_path&quot;</span> <span class="p">:</span> <span class="s2">&quot;images/image.png&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;resolutions&quot;</span> <span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;0.75x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;1.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;de/image.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;1.5x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;2.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;de/image@2x.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;3.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;de/image@3x.png&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;4.0x&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">],</span>
-            <span class="nt">&quot;raw&quot;</span> <span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="nt">&quot;bundle_path&quot;</span> <span class="p">:</span> <span class="s2">&quot;images/animation.json&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;de/flag.json&quot;</span>
-                <span class="p">}</span>
-            <span class="p">]</span>
-        <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;assets&quot;</span> <span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;bundle_path&quot;</span> <span class="p">:</span> <span class="s2">&quot;images/asset_image.png&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;image.png&quot;</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</pre></div></div>
-</div>
+<p>```json tab="Basic layout"
+{
+    "name" : "main",
+    "root-path" : "./Resources",
+    "resources" : [
+        {
+            "language" : "",
+            "android-qualifiers" : "",
+            "images" : [ ],
+            "raw" : [ ]
+        },
+        {
+            "language" : "de",
+            "android-qualifiers" : "",
+            "images" : [ ],
+            "raw" : [ ]
+        }
+    ],
+    "assets" : [ ]
+}
+<div class="highlight"><pre><span></span><code>```json tab=&quot;Full example&quot;
+{
+    &quot;name&quot; : &quot;main&quot;,
+    &quot;root-path&quot; : &quot;./Resources&quot;,
+    &quot;resources&quot; : [
+        {
+            &quot;language&quot; : &quot;&quot;,
+            &quot;android-qualifiers&quot; : &quot;&quot;,
+            &quot;images&quot; : [
+                {
+                    &quot;bundle_path&quot; : &quot;images/image.png&quot;,
+                    &quot;resolutions&quot; : {
+                        &quot;0.75x&quot; : &quot;&quot;,
+                        &quot;1.0x&quot; : &quot;image.png&quot;,
+                        &quot;1.5x&quot; : &quot;&quot;,
+                        &quot;2.0x&quot; : &quot;image@2x.png&quot;,
+                        &quot;3.0x&quot; : &quot;image@3x.png&quot;,
+                        &quot;4.0x&quot; : &quot;&quot;
+                    }
+                }
+            ],
+            &quot;raw&quot; : [
+                {
+                    &quot;bundle_path&quot; : &quot;images/animation.json&quot;,
+                    &quot;file&quot;: &quot;flag.json&quot;
+                }
+            ]
+        },
+        {
+            &quot;language&quot; : &quot;de&quot;,
+            &quot;android-qualifiers&quot; : &quot;&quot;,
+            &quot;images&quot; : [
+                {
+                    &quot;bundle_path&quot; : &quot;images/image.png&quot;,
+                    &quot;resolutions&quot; : {
+                        &quot;0.75x&quot; : &quot;&quot;,
+                        &quot;1.0x&quot; : &quot;de/image.png&quot;,
+                        &quot;1.5x&quot; : &quot;&quot;,
+                        &quot;2.0x&quot; : &quot;de/image@2x.png&quot;,
+                        &quot;3.0x&quot; : &quot;de/image@3x.png&quot;,
+                        &quot;4.0x&quot; : &quot;&quot;
+                    }
+                }
+            ],
+            &quot;raw&quot; : [
+                {
+                    &quot;bundle_path&quot; : &quot;images/animation.json&quot;,
+                    &quot;file&quot;: &quot;de/flag.json&quot;
+                }
+            ]
+        }
+    ],
+    &quot;assets&quot; : [
+        {
+            &quot;bundle_path&quot; : &quot;images/asset_image.png&quot;,
+            &quot;file&quot;: &quot;image.png&quot;
+        }
+    ]
+}
+</code></pre></div></p>
 <p>To include a <code>resource.json</code> file into the targets build process use the following code in your CMake file:</p>
-<div class="superfences-tabs">
-<input name="__tabs_2" type="radio" id="__tab_2_0" checked="checked" />
-<label for="__tab_2_0">Basic</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="nb">roger_add</span><span class="p">(</span> <span class="s2">&quot;TARGET_NAME&quot;</span> <span class="s">OUTPUT</span> <span class="s2">&quot;PATH_TO_JSON&quot;</span><span class="p">)</span>
-<span class="nb">add_executable</span><span class="p">(</span> <span class="s2">&quot;TARGET_NAME&quot;</span> <span class="s">main.cpp</span> <span class="o">${</span><span class="nv">OUTPUT</span><span class="o">}</span><span class="p">)</span>
-</pre></div></div>
-<input name="__tabs_2" type="radio" id="__tab_2_1" />
-<label for="__tab_2_1">NavigationViewDemo example</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="nb">roger_add</span><span class="p">(</span>
-    <span class="s">navigationviewdemo</span>
-    <span class="s">NAVIGATIONVIEWDEMO_RESOURCES</span>
-    <span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/../DemoAssets/demo_resources.json</span><span class="p">)</span>
-<span class="c"># ...</span>
-<span class="nb">add_universal_executable</span><span class="p">(</span>
-    <span class="s">navigationviewdemo</span> 
-    <span class="s">TIDY</span> <span class="s">SOURCES</span> 
-    <span class="o">${</span><span class="nv">NAVIGATIONVIEWDEMO_FILES</span><span class="o">}</span> 
-    <span class="o">${</span><span class="nv">NAVIGATIONVIEWDEMO_ASSETS</span><span class="o">}</span> 
-    <span class="o">${</span><span class="nv">NAVIGATIONVIEWDEMO_RESOURCES</span><span class="o">}</span><span class="p">)</span>
-</pre></div></div>
-</div>
+<p>```cmake tab="Basic"
+roger_add( "TARGET_NAME" OUTPUT "PATH_TO_JSON")
+add_executable( "TARGET_NAME" main.cpp ${OUTPUT})
+<div class="highlight"><pre><span></span><code>```cmake tab=&quot;NavigationViewDemo example&quot;
+roger_add(
+    navigationviewdemo
+    NAVIGATIONVIEWDEMO_RESOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/../DemoAssets/demo_resources.json)
+# ...
+add_universal_executable(
+    navigationviewdemo 
+    TIDY SOURCES 
+    ${NAVIGATIONVIEWDEMO_FILES} 
+    ${NAVIGATIONVIEWDEMO_ASSETS} 
+    ${NAVIGATIONVIEWDEMO_RESOURCES})
+</code></pre></div></p>
 <h2 id="using-resources">Using resources<a class="headerlink" href="#using-resources" title="Permanent link">&para;</a></h2>
 <p>To reference resource files inside your code use one of the following schemes:</p>
 <table>
@@ -2089,18 +2079,16 @@ However, a downside is that its content cannot be automatically localized.</p>
 </table>
 <p>All Boden classes will understand how to interpret these paths. Borrowing the resource file
 from the previous sections json example:</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">auto</span> <span class="n">image</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ImageView</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">image</span><span class="o">-&gt;</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;image://main/images/image.png&quot;</span><span class="p">;</span>
-</pre></div>
-
+<span class="k">auto</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ImageView</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">image</span><span class="o">-&gt;</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;image://main/images/image.png&quot;</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
 <p>To get a platform specific representation of the path use the 
 <a href="../../../reference/foundation/application/#resources">Application::uriToBundledFileUri</a> function:</p>
-<div class="codehilite"><pre><span></span><span class="c1">// On Android this will return &quot;file:///android_asset/test/index.html&quot;</span>
-<span class="n">bdn</span><span class="o">::</span><span class="n">App</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">uriToBundledFileUri</span><span class="p">(</span><span class="s">&quot;asset://main/test/index.html&quot;</span><span class="p">)</span> 
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="c1">// On Android this will return &quot;file:///android_asset/test/index.html&quot;</span>
+<span class="n">bdn</span><span class="o">::</span><span class="n">App</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">uriToBundledFileUri</span><span class="p">(</span><span class="s">&quot;asset://main/test/index.html&quot;</span><span class="p">)</span><span class="w"> </span>
+</code></pre></div>
 <h2 id="automatic-flattening">Automatic flattening<a class="headerlink" href="#automatic-flattening" title="Permanent link">&para;</a></h2>
 <p>As discussed previously, Android does not support subdirectories in its resource folders. Therefore the <code>roger</code> utility
 will flatten any directory structure by replacing all <code>/</code> with <code>_</code>. Additionally, when accessing resources, 
@@ -2177,7 +2165,7 @@ as well:</p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2188,7 +2176,7 @@ as well:</p>
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2216,7 +2204,7 @@ as well:</p>
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

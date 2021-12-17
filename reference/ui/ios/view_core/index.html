@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?536111239">
+      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?4612263628">
     
-      <link rel="stylesheet" href="../../../../stylesheets/boden.css?1150546790">
+      <link rel="stylesheet" href="../../../../stylesheets/boden.css?2491443415">
     
     
       
@@ -1663,7 +1663,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1934,11 +1934,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Base class for iOS view cores.</p>
 <p>This effectively wraps <code>UIView</code> and serves as a foundation for all other iOS view cores.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span> <span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ViewCore</span> <span class="o">:</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">View</span><span class="o">::</span><span class="n">Core</span><span class="p">,</span> <span class="k">public</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_shared_from_this</span><span class="o">&lt;</span><span class="n">ViewCore</span><span class="o">&gt;</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ios</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ViewCore</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">View</span><span class="o">::</span><span class="n">Core</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">enable_shared_from_this</span><span class="o">&lt;</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="construction">Construction<a class="headerlink" href="#construction" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>ViewCore(const std::shared_ptr&lt;bdn::ViewCoreFactory> &amp;viewCoreFactory, id&lt;UIViewWithFrameNotification> uiView)</strong></li>
@@ -2000,33 +1999,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>The Boden Framework supports native layout updates from the target platform. This is especially useful in cases where native widget layouts should be reused to eliminate the need for custom non-native layout implementations, e.g. in list views (<code>UITableView</code> on iOS).</p>
 <p>When an iOS view changes its size, the framework therefore needs to be informed so it can update the view's <code>geometry</code> property.</p>
 <p>To accommodate for native layout updates, <code>ios::ViewCore</code> and all subclasses wrapping native <code>UIView</code>s must implement the <code>UIViewWithFrameNotification</code> protocol:</p>
-<div class="codehilite"><pre><span></span><span class="k">@protocol</span> <span class="nc">UIViewWithFrameNotification</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="p">;</span>
-<span class="k">@end</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">@protocol</span> <span class="nc">UIViewWithFrameNotification</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
+</code></pre></div>
 <p>The <code>ios::ViewCore</code> constructor will call <code>setViewCore</code> on its native <code>UIView</code> instance. The <code>UIView</code> subclass then needs to call back the core's <code>frameChanged</code> method when its frame changes. For instance, this is the implementation used by <code>ios::ButtonCore</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">@interface</span> <span class="nc">BodenUIButton</span> : <span class="bp">UIButton</span> <span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span>
-<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span> <span class="k">assign</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ButtonCore</span><span class="o">&gt;</span> <span class="n">core</span><span class="p">;</span>
-<span class="k">@end</span>
+<div class="highlight"><pre><span></span><code><span class="k">@interface</span> <span class="nc">BodenUIButton</span> : <span class="bp">UIButton</span><span class="w"> </span><span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span><span class="w"> </span><span class="k">assign</span><span class="p">)</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ButtonCore</span><span class="o">&gt;</span><span class="w"> </span><span class="n">core</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@implementation</span> <span class="nc">BodenUIButton</span>
+<span class="k">@implementation</span> <span class="nc">BodenUIButton</span><span class="w"></span>
 
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span>
-<span class="p">{</span>
-    <span class="nb">self</span><span class="p">.</span><span class="n">core</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ButtonCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span>
-<span class="p">}</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ButtonCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="bp">CGRect</span><span class="p">)</span><span class="nv">frame</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="nb">super</span> <span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nb">super</span><span class="w"> </span><span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 <span class="c1">//...</span>
-<span class="k">@end</span>
-</pre></div>
+<span class="k">@end</span><span class="w"></span>
+</code></pre></div>
                 
                   
                 
@@ -2084,7 +2082,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2095,7 +2093,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../../legal/licensing">Licensing</a></li>
@@ -2123,7 +2121,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
       <script src="../../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../../.."}})</script>
       
         <script src="../../../../javascripts/cookieconsent.min.js"></script>
       

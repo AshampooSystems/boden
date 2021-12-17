@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4738384131">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?2693510825">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?4389817674">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?4856328488">
     
     
       
@@ -1631,7 +1631,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1880,24 +1880,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </ol>
 <h2 id="the-module-structure">The Module Structure<a class="headerlink" href="#the-module-structure" title="Permanent link">&para;</a></h2>
 <p>A view module consists of the public part (mostly the <code>View</code> class), and a number of platform-specific implementations:</p>
-<div class="codehilite"><pre><span></span><span class="nv">lottieview</span>
-├── <span class="k">include</span>
-│── <span class="nv">src</span>
-├── <span class="nv">platforms</span>
-│  ├── <span class="nv">android</span>
-│  │  ├── <span class="k">include</span>
-│  │  ├── <span class="nv">java</span>
-│  │  └── <span class="nv">src</span>
-│  ├── <span class="nv">ios</span>
-│  │  ├── <span class="k">include</span>
-│  │  └── <span class="nv">src</span>
-│  └── <span class="nv">mac</span>
-│     ├── <span class="k">include</span>
-│     └── <span class="nv">src</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>lottieview
+├── include
+│── src
+├── platforms
+│  ├── android
+│  │  ├── include
+│  │  ├── java
+│  │  └── src
+│  ├── ios
+│  │  ├── include
+│  │  └── src
+│  └── mac
+│     ├── include
+│     └── src
+</code></pre></div>
 <h2 id="main-cmakeliststxt">Main CMakeLists.txt<a class="headerlink" href="#main-cmakeliststxt" title="Permanent link">&para;</a></h2>
-<details class="note"><summary>Full CMakeLists.txt</summary><div class="codehilite"><pre><span></span><span class="nb">add_sources</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_FILES</span> <span class="s">_BDN_LOTTIEVIEW_HEADERS</span> <span class="s">./</span><span class="p">)</span>
+<details class="note">
+<summary>Full CMakeLists.txt</summary>
+<div class="highlight"><pre><span></span><code><span class="nb">add_sources</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_FILES</span> <span class="s">_BDN_LOTTIEVIEW_HEADERS</span> <span class="s">./</span><span class="p">)</span>
 <span class="nb">GenerateTopLevelIncludeFile</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_COMBINED</span>
     <span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span><span class="s">/include/bdn/lottieview-module.h</span>
     <span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/include</span>
@@ -1918,28 +1919,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">platforms</span><span class="p">)</span>
 <span class="nb">add_library</span><span class="p">(</span><span class="s">Boden::LottieView</span> <span class="s">ALIAS</span> <span class="s">lottieview</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">Boden_All</span> <span class="s">INTERFACE</span> <span class="s">lottieview</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 </details>
-<div class="codehilite"><pre><span></span><span class="nb">add_sources</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_FILES</span> <span class="s">_BDN_LOTTIEVIEW_HEADERS</span> <span class="s">./</span><span class="p">)</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="nb">add_sources</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_FILES</span> <span class="s">_BDN_LOTTIEVIEW_HEADERS</span> <span class="s">./</span><span class="p">)</span>
+</code></pre></div>
 <p><code>add_sources</code> gathers all files from the <code>./include</code> and <code>./src</code> folders.</p>
-<div class="codehilite"><pre><span></span><span class="nb">GenerateTopLevelIncludeFile</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_COMBINED</span>
+<div class="highlight"><pre><span></span><code><span class="nb">GenerateTopLevelIncludeFile</span><span class="p">(</span><span class="s">_BDN_LOTTIEVIEW_COMBINED</span>
     <span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span><span class="s">/include/bdn/lottieview-module.h</span>
     <span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/include</span>
     <span class="o">${</span><span class="nv">_BDN_LOTTIEVIEW_HEADERS</span><span class="o">}</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 <p><code>GenerateTopLevelIncludeFile</code> creates a convenience header file that includes all files from the <code>./include</code> folder</p>
-<div class="codehilite"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span> <span class="s">_BDN_LOTTIEVIEW_FILES</span>
+<div class="highlight"><pre><span></span><code><span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span> <span class="s">_BDN_LOTTIEVIEW_FILES</span>
     <span class="o">${</span><span class="nv">_BDN_LOTTIEVIEW_COMBINED</span><span class="o">}</span>
     <span class="o">${</span><span class="nv">_BDN_LOTTIEVIEW_HEADERS</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">add_universal_library</span><span class="p">(</span><span class="s">lottieview</span> <span class="s">TIDY</span> <span class="s">SOURCES</span> <span class="o">${</span><span class="nv">_BDN_LOTTIEVIEW_FILES</span><span class="o">}</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 <p>All files are then combined and the main library is created. The <code>TIDY</code> option includes the source files in clang-tidy runs.</p>
-<div class="codehilite"><pre><span></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">lottieview</span> <span class="s">PUBLIC</span> <span class="s">Boden::UI</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">lottieview</span> <span class="s">PUBLIC</span> <span class="s">Boden::UI</span><span class="p">)</span>
 <span class="nb">target_include_directories</span><span class="p">(</span><span class="s">lottieview</span>
     <span class="s">PUBLIC</span>
     <span class="o">$&lt;</span><span class="nv">INSTALL_INTERFACE:include</span><span class="o">&gt;</span>
@@ -1948,8 +1945,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <span class="nb">target_include_directories</span><span class="p">(</span><span class="s">lottieview</span> <span class="s">PUBLIC</span>
     <span class="o">$&lt;</span><span class="nv">BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include</span><span class="o">&gt;</span><span class="p">)</span>
 <span class="nb">include</span><span class="p">(</span><span class="s">install.cmake</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 <p>We link the library against the <code>Boden::UI</code> library. The include directories are specified here such that they work whether Boden is included in source form or as a bundled installation</p>
 <p>Now you can write your view as described in <a href="../writing_view/">Writing a New View</a>. </p>
                 
@@ -2009,7 +2005,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2020,7 +2016,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2048,7 +2044,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

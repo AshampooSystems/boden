@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?4924773923">
+      <link rel="stylesheet" href="../../../../stylesheets/cookieconsent.min.css?5529805375">
     
-      <link rel="stylesheet" href="../../../../stylesheets/boden.css?5115982855">
+      <link rel="stylesheet" href="../../../../stylesheets/boden.css?796227783">
     
     
       
@@ -1687,7 +1687,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1983,53 +1983,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <h1 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h1>
 <p>A Flexbox layout implementation based on <a href="https://yogalayout.com/playground/">Facebook's Yoga library</a>.</p>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">yoga</span>
-<span class="p">{</span>
-    <span class="k">class</span> <span class="nc">Layout</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">Layout</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="o">::</span><span class="nn">yoga</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">Layout</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">Layout</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <p>First, create the layout object and apply it to the window:</p>
-<div class="codehilite"><pre><span></span><span class="k">auto</span> <span class="n">window</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">window</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">yoga</span><span class="o">::</span><span class="n">Layout</span><span class="o">&gt;</span><span class="p">());</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">window</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">window</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="o">::</span><span class="n">yoga</span><span class="o">::</span><span class="n">Layout</span><span class="o">&gt;</span><span class="p">());</span><span class="w"></span>
+</code></pre></div>
 <p>Then set the stylesheet:</p>
-<div class="superfences-tabs">
-<input name="__tabs_1" type="radio" id="__tab_1_0" checked="checked" />
-<label for="__tab_1_0">C++</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">jsonStylesheet</span> <span class="o">=</span> 
-    <span class="p">{{</span><span class="s">&quot;flex&quot;</span><span class="p">,</span>
-      <span class="p">{{</span><span class="s">&quot;direction&quot;</span><span class="p">,</span> <span class="n">FlexStylesheet</span><span class="o">::</span><span class="n">Direction</span><span class="o">::</span><span class="n">Column</span><span class="p">},</span>
-       <span class="p">{</span><span class="s">&quot;flexGrow&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">},</span>
-       <span class="p">{</span><span class="s">&quot;flexShrink&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">},</span>
-       <span class="p">{</span><span class="s">&quot;alignItems&quot;</span><span class="p">,</span> <span class="n">FlexStylesheet</span><span class="o">::</span><span class="n">Align</span><span class="o">::</span><span class="n">Stretch</span><span class="p">},</span>
-       <span class="p">{</span><span class="s">&quot;padding&quot;</span><span class="p">,</span> <span class="p">{{</span><span class="s">&quot;all&quot;</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">}}},</span>
-      <span class="p">}</span>
-     <span class="p">}};</span>
-
-<span class="n">window</span><span class="o">-&gt;</span><span class="n">styleSheet</span> <span class="o">=</span> <span class="n">jsonStylesheet</span><span class="p">;</span>
-</pre></div></div>
-<input name="__tabs_1" type="radio" id="__tab_1_1" />
-<label for="__tab_1_1">Stringify</label>
-<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">window</span><span class="o">-&gt;</span><span class="n">styleSheet</span> <span class="o">=</span> 
-    <span class="n">FlexJsonStringify</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="s">&quot;direction&quot;</span> <span class="o">:</span> <span class="s">&quot;Column&quot;</span><span class="p">,</span> 
-        <span class="s">&quot;flexGrow&quot;</span> <span class="o">:</span> <span class="mf">1.0</span><span class="p">,</span> 
-        <span class="s">&quot;flexShrink&quot;</span> <span class="o">:</span> <span class="mf">1.0</span><span class="p">,</span> 
-        <span class="s">&quot;alignItems&quot;</span> <span class="o">:</span> <span class="s">&quot;Stretch&quot;</span><span class="p">,</span>
-        <span class="s">&quot;padding&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;all&quot;</span> <span class="o">:</span> <span class="mf">20.0</span><span class="p">}</span>
-    <span class="p">});</span>
-</pre></div></div>
-</div>
+<p>```C++ tab="C++"
+nlohmann::json jsonStylesheet = 
+    {{"flex",
+      {{"direction", FlexStylesheet::Direction::Column},
+       {"flexGrow", 1.0},
+       {"flexShrink", 1.0},
+       {"alignItems", FlexStylesheet::Align::Stretch},
+       {"padding", {{"all", 20.0}}},
+      }
+     }};</p>
+<p>window-&gt;styleSheet = jsonStylesheet;
+<div class="highlight"><pre><span></span><code>```C++ tab=&quot;Stringify&quot;
+window-&gt;styleSheet = 
+    FlexJsonStringify(
+    {
+        &quot;direction&quot; : &quot;Column&quot;, 
+        &quot;flexGrow&quot; : 1.0, 
+        &quot;flexShrink&quot; : 1.0, 
+        &quot;alignItems&quot; : &quot;Stretch&quot;,
+        &quot;padding&quot; : {&quot;all&quot; : 20.0}
+    });
+</code></pre></div></p>
 <h2 id="stylesheet">Stylesheet<a class="headerlink" href="#stylesheet" title="Permanent link">&para;</a></h2>
 <p>The layout is configured using the <a href="../../view/"><code>View</code></a>'s <a href="../../view/#properties"><code>stylesheet</code></a> property.
 The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <h3 id="defaults">Defaults<a class="headerlink" href="#defaults" title="Permanent link">&para;</a></h3>
 <p>If the <a href="../../view/"><code>View</code></a>'s stylesheet does not specify a value, the following defaults are used:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
   <span class="nt">&quot;flex&quot;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;alignContents&quot;</span><span class="p">:</span> <span class="s2">&quot;Stretch&quot;</span><span class="p">,</span>
     <span class="nt">&quot;alignItems&quot;</span><span class="p">:</span> <span class="s2">&quot;Stretch&quot;</span><span class="p">,</span>
@@ -2070,8 +2062,7 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
     <span class="nt">&quot;aspectRatio&quot;</span><span class="p">:</span> <span class="kc">null</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 <h3 id="container">Container<a class="headerlink" href="#container" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
@@ -2260,11 +2251,10 @@ The layout retrieves its setting from the <code>"flex"</code> entry.</p>
 <p>Specifies the default size of the item along the containers main axis. 
 Similar to size/width for row containers or size/height for column containers.
 <code>flexBasis</code> can be specified in pixels or as percentage value (string):</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">}</span><span class="err">,</span>
-<span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span> <span class="p">}</span><span class="err">,</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">},</span>
+<span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span> <span class="p">},</span>
 <span class="p">{</span> <span class="nt">&quot;flexBasis&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span> <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 </li>
 <li>
 <p><strong><code>flexGrow</code></strong></p>
@@ -2278,16 +2268,14 @@ The default value is 0.</p>
 </ul>
 <h3 id="border">Border<a class="headerlink" href="#border" title="Permanent link">&para;</a></h3>
 <p>Margin and padding can be specified as pixels or percentage value (string):</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
-<span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">},</span>
+<span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">},</span>
 <span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;all&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span><span class="p">}</span> <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 <p>As a shorthand for <code>all</code> you can also use this form:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">}</span><span class="err">,</span>
-<span class="p">{</span> <span class="nt">&quot;padding&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">}</span><span class="err">,</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="nt">&quot;margin&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">},</span>
+<span class="p">{</span> <span class="nt">&quot;padding&quot;</span> <span class="p">:</span> <span class="mi">100</span> <span class="p">},</span>
+</code></pre></div>
 <ul>
 <li>
 <p><strong><code>margin</code></strong></p>
@@ -2323,11 +2311,10 @@ The default value is 0.</p>
 </tbody>
 </table>
 <p><code>minimumSize</code>/<code>maximumSize</code> can be specified as pixels or percentage value (string):</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span> <span class="nt">&quot;size&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
-<span class="p">{</span> <span class="nt">&quot;minimumSize&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">}</span><span class="err">,</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="nt">&quot;size&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">},</span>
+<span class="p">{</span> <span class="nt">&quot;minimumSize&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="s2">&quot;100px&quot;</span><span class="p">}</span> <span class="p">},</span>
 <span class="p">{</span> <span class="nt">&quot;maximumSize&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;width&quot;</span> <span class="p">:</span> <span class="s2">&quot;100%&quot;</span><span class="p">}</span> <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 <ul>
 <li>
 <p><strong><code>size</code></strong></p>
@@ -2426,7 +2413,7 @@ The default value is 0.</p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2437,7 +2424,7 @@ The default value is 0.</p>
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../../legal/licensing">Licensing</a></li>
@@ -2465,7 +2452,7 @@ The default value is 0.</p>
     
       <script src="../../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../../.."}})</script>
       
         <script src="../../../../javascripts/cookieconsent.min.js"></script>
       

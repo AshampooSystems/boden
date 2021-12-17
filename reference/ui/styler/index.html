@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?4501334234">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?5641103161">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2730643617">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?2846862803">
     
     
       
@@ -1644,7 +1644,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -1900,40 +1900,38 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Enables you to change a <a href="../view/"><code>View</code></a>'s stylesheet based on a set of conditions.</p>
 <p>Multiple conditional parts can be active, in which case they will be merged from first to last. </p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/Styler.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/Button.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/Styler.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/Button.h&gt;</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">auto</span> <span class="n">styler</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Styler</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="k">auto</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">styler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Styler</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="k">auto</span><span class="w"> </span><span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 
-<span class="n">styler</span><span class="o">-&gt;</span><span class="n">setCondition</span><span class="p">(</span><span class="s">&quot;os&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Styler</span><span class="o">::</span><span class="n">equals_condition</span><span class="o">&gt;</span><span class="p">(</span><span class="n">BDN_TARGET</span><span class="p">));</span>
+<span class="n">styler</span><span class="o">-&gt;</span><span class="n">setCondition</span><span class="p">(</span><span class="s">&quot;os&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Styler</span><span class="o">::</span><span class="n">equals_condition</span><span class="o">&gt;</span><span class="p">(</span><span class="n">BDN_TARGET</span><span class="p">));</span><span class="w"></span>
 
 <span class="c1">// If &#39;os&#39; equals &#39;ios&#39; the button will get a 5px padding</span>
 <span class="c1">// The margin will always be 5px</span>
-<span class="n">_styler</span><span class="o">-&gt;</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="n">addButton</span><span class="p">,</span>
-    <span class="n">JsonStringify</span><span class="p">(</span>
-        <span class="p">[</span> 
-            <span class="p">{</span>
-                <span class="s">&quot;flex&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;margin&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;all&quot;</span> <span class="o">:</span> <span class="mi">5</span><span class="p">}}</span>
-            <span class="p">},</span>
-            <span class="p">{</span> 
-                <span class="s">&quot;if&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;os&quot;</span> <span class="o">:</span> <span class="s">&quot;ios&quot;</span><span class="p">},</span> 
-                <span class="s">&quot;flex&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;padding&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;all&quot;</span> <span class="o">:</span> <span class="mi">5</span><span class="p">}}</span>
-            <span class="p">}</span> 
-        <span class="p">]</span>
-    <span class="p">)</span>
-<span class="p">);</span>
-</pre></div>
-
+<span class="n">_styler</span><span class="o">-&gt;</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="n">addButton</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">JsonStringify</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span>
+<span class="w">            </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;flex&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;margin&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;all&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}}</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span>
+<span class="w">                </span><span class="s">&quot;if&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;os&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;ios&quot;</span><span class="p">},</span><span class="w"> </span>
+<span class="w">                </span><span class="s">&quot;flex&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;padding&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;all&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}}</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <h2 id="declaration">Declaration<a class="headerlink" href="#declaration" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ui</span> <span class="p">{</span>
-    <span class="k">class</span> <span class="nc">Styler</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ui</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">Styler</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
@@ -1952,61 +1950,57 @@ registered stylesheets will be updated accordingly.</p>
 <li>
 <p><strong>condition</strong></p>
 <p>Base class for conditions. Overload the <code>bool operator()</code> for your own custom conditions.</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="n">condition</span>
-<span class="p">{</span>
-    <span class="k">virtual</span> <span class="o">~</span><span class="n">condition</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-    <span class="k">virtual</span> <span class="kt">bool</span> <span class="nf">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">condition</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">condition</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 </li>
 <li>
 <p><strong>equals_condition</strong></p>
 <p>Returns true if the value is equal to the target value.</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="nl">equals_condition</span> <span class="p">:</span> <span class="k">public</span> <span class="n">condition</span>
-<span class="p">{</span>
-    <span class="n">equals_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">targetValue</span><span class="p">)</span> 
-        <span class="o">:</span> <span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span> <span class="p">{}</span>
-    <span class="kt">bool</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span> <span class="k">override</span> 
-    <span class="p">{</span> 
-        <span class="k">return</span> <span class="n">value</span> <span class="o">==</span> <span class="n">_targetValue</span><span class="p">;</span> 
-    <span class="p">}</span>
-    <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_targetValue</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">equals_condition</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">condition</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">equals_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"> </span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"> </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 </li>
 <li>
 <p><strong>less_condition</strong></p>
 <p>Returns true if the value is less than the target value.</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="nl">less_condition</span> <span class="p">:</span> <span class="k">public</span> <span class="n">condition</span>
-<span class="p">{</span>
-    <span class="n">less_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">targetValue</span><span class="p">)</span> 
-        <span class="o">:</span> <span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span> <span class="p">{}</span>
-    <span class="kt">bool</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span> <span class="k">override</span> 
-    <span class="p">{</span> 
-        <span class="k">return</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">_targetValue</span><span class="p">;</span> 
-    <span class="p">}</span>
-    <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_targetValue</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">less_condition</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">condition</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">less_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"> </span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"> </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 </li>
 <li>
 <p><strong>greater_equal_condition</strong></p>
 <p>Returns true if the value is greater or equal to the target value.</p>
-<div class="codehilite"><pre><span></span><span class="k">struct</span> <span class="nl">greater_equal_condition</span> <span class="p">:</span> <span class="k">public</span> <span class="n">condition</span>
-<span class="p">{</span>
-    <span class="n">greater_equal_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">targetValue</span><span class="p">)</span> 
-        <span class="o">:</span> <span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span> <span class="p">{}</span>
-    <span class="kt">bool</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span> <span class="k">override</span> 
-    <span class="p">{</span> 
-        <span class="k">return</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="n">_targetValue</span><span class="p">;</span> 
-    <span class="p">}</span>
-    <span class="n">json</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_targetValue</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">greater_equal_condition</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">condition</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">greater_equal_condition</span><span class="p">(</span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">(</span><span class="n">targetValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"> </span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"> </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="o">::</span><span class="n">value_type</span><span class="w"> </span><span class="n">_targetValue</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
 </li>
 </ul>
                 
@@ -2077,7 +2071,7 @@ registered stylesheets will be updated accordingly.</p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2088,7 +2082,7 @@ registered stylesheets will be updated accordingly.</p>
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2116,7 +2110,7 @@ registered stylesheets will be updated accordingly.</p>
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       

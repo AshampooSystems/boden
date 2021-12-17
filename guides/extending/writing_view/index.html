@@ -40,7 +40,7 @@
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
       <meta name="msapplication-TileColor" content="#1b1b1b">
       <meta name="theme-color" content="#1b1b1b">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.3.0">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-3.3.0">
     
     
       
@@ -71,9 +71,9 @@
     <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?1681749078">
+      <link rel="stylesheet" href="../../../stylesheets/cookieconsent.min.css?20669020">
     
-      <link rel="stylesheet" href="../../../stylesheets/boden.css?2442969361">
+      <link rel="stylesheet" href="../../../stylesheets/boden.css?4420425171">
     
     
       
@@ -1726,7 +1726,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <li class="md-nav__item">
-    <a href="https://www.ashampoo-systems.com/base/about" title="Legal" class="md-nav__link">
+    <a href="https://www.personizer.com/en/legal/" title="Legal" class="md-nav__link">
       Legal
     </a>
   </li>
@@ -2073,119 +2073,115 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>The first step in writing a new view is to create a new class derived from <a href="../../../reference/ui/view/"><code>View</code></a>.</p>
 <h3 id="header">Header<a class="headerlink" href="#header" title="Permanent link">&para;</a></h3>
 <p>Create a new header in <code>framework/ui/include/bdn</code> called <code>ExampleButtonView.h</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h3 id="source">Source<a class="headerlink" href="#source" title="Permanent link">&para;</a></h3>
 <p>In <code>boden/framework/ui/src</code>, create a file called <code>ExampleButtonView.cpp</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span> 
-<span class="p">{</span>
-    <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
-     <span class="o">:</span> <span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-    <span class="p">{</span>
-    <span class="p">}</span> 
-<span class="p">}</span>
-</pre></div>
-
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="o">:</span><span class="w"> </span><span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h2 id="the-view-core">The View Core<a class="headerlink" href="#the-view-core" title="Permanent link">&para;</a></h2>
 <p>Create a new <code>Core</code> interface as an inner class of <code>ExampleButtonView</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-        <span class="c1">// ...</span>
-    <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
-<details class="note"><summary>Full</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
-      <span class="k">public</span><span class="o">:</span>
-<span class="hll">        <span class="k">class</span> <span class="nc">Core</span>
-</span><span class="hll">        <span class="p">{</span>
-</span><span class="hll">        <span class="p">};</span>
-</span>    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>Full</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="hll"><span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="p">};</span><span class="w"></span>
+</span><span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <h2 id="the-ios-implementation">The iOS Implementation<a class="headerlink" href="#the-ios-implementation" title="Permanent link">&para;</a></h2>
 <h3 id="header_1">Header<a class="headerlink" href="#header_1" title="Permanent link">&para;</a></h3>
 <p>The core's actual implementation is platform-specific. Create a new Objective-C++ header in <code>framework/ui/platforms/ios/include/bdn/ios/</code> called <code>ExampleButtonViewCore.hh</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
 
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonViewCore.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonViewCore.h&gt;</span><span class="cp"></span>
 <span class="cp">#import &lt;bdn/ios/ViewCore.hh&gt;</span>
 
-<span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span>
-<span class="p">{</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonViewCore</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ViewCore</span><span class="p">,</span> 
-                                  <span class="k">virtual</span> <span class="k">public</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonViewCore</span><span class="p">(</span>
-            <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">);</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ios</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonViewCore</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ViewCore</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                  </span><span class="k">virtual</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <h3 id="source_1">Source<a class="headerlink" href="#source_1" title="Permanent link">&para;</a></h3>
 <p>Create a new Objective-C++ source file in <code>framework/ui/platforms/ios/src</code> called <code>ExampleButtonViewCore.mm</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
 
-<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span> <span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span>
-<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span> <span class="k">assign</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span> <span class="n">core</span><span class="p">;</span>
-<span class="k">@end</span>
+<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span><span class="w"> </span><span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span><span class="w"> </span><span class="k">assign</span><span class="p">)</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="w"> </span><span class="n">core</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span>
-<span class="p">{</span>
-    <span class="nb">self</span><span class="p">.</span><span class="n">core</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span>
-<span class="p">}</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="bp">CGRect</span><span class="p">)</span><span class="nv">frame</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="nb">super</span> <span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span>
-    <span class="k">if</span><span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nb">super</span><span class="w"> </span><span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span>
-<span class="p">{</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;&amp;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
-    <span class="o">:</span> <span class="n">ViewCore</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">,</span> <span class="p">[</span><span class="n">ExampleUIButton</span> <span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span>
-    <span class="p">{</span>
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">ViewCore</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">ExampleUIButton</span><span class="w"> </span><span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
 
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <div class="admonition note viewcores">
 <p class="admonition-title">Note</p>
 <p>For more information about the intricacies of implementing view cores please refer to <a href="../../../reference/ui/view_core/">ViewCore</a> and <a href="../../../reference/ui/ios/view_core/">iOS ViewCore</a>.</p>
@@ -2194,487 +2190,487 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <p>Boden uses the <a href="../../../reference/ui/view_core_factory/"><code>ViewCoreFactory</code></a> to create instances of the view core. To create the connection between a view and its core, add the following boilerplate to the classes:</p>
 <h3 id="view-header">View Header<a class="headerlink" href="#view-header" title="Permanent link">&para;</a></h3>
 <p>Add the following code to <code>ExampleButtonView.h</code>:</p>
-<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ViewUtilities.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ViewUtilities.h&gt;</span><span class="cp"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-<span class="p">{</span>
-    <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-
-<details class="note"><summary>ExampleButtonView.h</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
-<span class="hll"><span class="cp">#include</span> <span class="cpf">&lt;bdn/ViewUtilities.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">detail</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.h</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ViewUtilities.h&gt;</span><span class="cp"></span>
 </span>
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-<span class="hll">    <span class="k">namespace</span> <span class="n">detail</span>
-</span><span class="hll">    <span class="p">{</span>
-</span><span class="hll">        <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-</span><span class="hll">    <span class="p">}</span>
-</span>    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span><span class="w"></span>
+</span><span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <h3 id="view-implementation">View Implementation<a class="headerlink" href="#view-implementation" title="Permanent link">&para;</a></h3>
 <p>Add the following code to <code>ExampleButtonView.cpp</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-<span class="p">{</span>
-    <span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">detail</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
- <span class="o">:</span> <span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span>
-<span class="p">}</span>
-</pre></div>
+<span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.cpp</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.cpp</summary><div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
-
-<span class="k">namespace</span> <span class="n">bdn</span> 
-<span class="p">{</span>
-<span class="hll">    <span class="k">namespace</span> <span class="n">detail</span>
-</span><span class="hll">    <span class="p">{</span>
-</span><span class="hll">        <span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-</span><span class="hll">    <span class="p">}</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span>
+<span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span><span class="w"></span>
 </span>
-    <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
-     <span class="o">:</span> <span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-    <span class="p">{</span>
-<span class="hll">        <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span>
-</span>    <span class="p">}</span> 
-<span class="p">}</span>
-</pre></div>
-
+<span class="w">    </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="o">:</span><span class="w"> </span><span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">        </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span><span class="w"></span>
+</span><span class="w">    </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <h3 id="view-core-implementation">View Core Implementation<a class="headerlink" href="#view-core-implementation" title="Permanent link">&para;</a></h3>
 <p>Add the following code to <code>ExampleButtonViewCore.mm</code>:</p>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-<span class="p">{</span>
-    <span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> 
-                  <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span> 
-                  <span class="n">ExampleButtonView</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">detail</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                  </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                  </span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonViewCore.mm</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
 
-<details class="note"><summary>ExampleButtonViewCore.mm</summary><div class="codehilite"><pre><span></span><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
+<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span><span class="w"> </span><span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span><span class="w"> </span><span class="k">assign</span><span class="p">)</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="w"> </span><span class="n">core</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span> <span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span>
-<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span> <span class="k">assign</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span> <span class="n">core</span><span class="p">;</span>
-<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nb">super</span><span class="w"> </span><span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span>
-<span class="p">{</span>
-    <span class="nb">self</span><span class="p">.</span><span class="n">core</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span>
-<span class="p">}</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="bp">CGRect</span><span class="p">)</span><span class="nv">frame</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="nb">super</span> <span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="k">@end</span>
-
-<span class="hll"><span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-</span><span class="hll"><span class="p">{</span>
-</span><span class="hll">    <span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span> <span class="n">ExampleButtonView</span><span class="p">)</span>
-</span><span class="hll"><span class="p">}</span>
+<span class="hll"><span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="w"></span>
+</span><span class="hll"><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span><span class="w"> </span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+</span><span class="hll"><span class="p">}</span><span class="w"></span>
 </span>
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span>
-<span class="p">{</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-        <span class="o">:</span> <span class="n">ViewCore</span><span class="p">(</span>
-            <span class="n">viewCoreFactory</span><span class="p">,</span> 
-            <span class="p">[</span><span class="n">ExampleUIButton</span> <span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">ViewCore</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">viewCoreFactory</span><span class="p">,</span><span class="w"> </span>
+<span class="w">            </span><span class="p">[</span><span class="n">ExampleUIButton</span><span class="w"> </span><span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <h2 id="adding-properties">Adding Properties<a class="headerlink" href="#adding-properties" title="Permanent link">&para;</a></h2>
 <p>To represent properties of a view, use the <a href="../../../reference/foundation/property/"><code>Property</code></a> class.</p>
 <p>As an example, add a <code>label</code> property so users of your view can set the button's label.</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.h</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.h</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
-
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-<span class="hll">      <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 </span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
 
-      <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>To connect the property to the core, replicate the property in the <code>Core</code> interface:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Core</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span> 
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.h</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.h</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
 
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
-
-      <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-<span class="hll">          <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
-</span>        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">          </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
+</span><span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>To bind the two label properties in <code>View</code> and <code>Core</code> properties, override the <a href="../../../reference/ui/view/#view-core"><code>View::bindViewCore()</code></a> function:</p>
-<div class="codehilite"><pre><span></span><span class="kt">void</span> <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span>
-    <span class="k">auto</span> <span class="n">buttonCore</span> <span class="o">=</span> <span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">ExampleButtonView::bindViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">buttonCore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.cpp</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.cpp</summary><div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span> 
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="o">:</span><span class="w"> </span><span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span><span class="w">            </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
-     <span class="o">:</span> <span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span>            
-    <span class="p">}</span>
-
-<span class="hll">    <span class="kt">void</span> <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span>
-</span><span class="hll">    <span class="p">{</span>
-</span><span class="hll">        <span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span>
-</span><span class="hll">        <span class="k">auto</span> <span class="n">buttonCore</span> <span class="o">=</span> <span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class="hll">        <span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-</span><span class="hll">    <span class="p">}</span>
-</span><span class="p">}</span>
-</pre></div>
-
+<span class="hll"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">buttonCore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span><span class="w"></span>
+</span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>Now it is easy to react to changes to <code>label</code> in the iOS Implementation by adding an <code>onChange()</code> handler in the view core's init function. </p>
-<div class="codehilite"><pre><span></span><span class="k">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span> <span class="p">{</span>
-    <span class="kt">void</span> <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span>
-        <span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span> <span class="o">+=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span> <span class="n">newValue</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">auto</span> <span class="n">uiButton</span> <span class="o">=</span> <span class="p">(</span><span class="n">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span>
-            <span class="p">[</span><span class="n">uiButton</span> <span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span>
-        <span class="p">};</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-<details class="note"><summary>ExampleButtonViewCore.mm</summary><div class="codehilite"><pre><span></span><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="o">::</span><span class="nn">ios</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">ExampleButtonViewCore::init</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span><span class="w"> </span><span class="n">newValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">auto</span><span class="w"> </span><span class="n">uiButton</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="n">uiButton</span><span class="w"> </span><span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonViewCore.mm</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
 <span class="hll"><span class="cp">#import &lt;bdn/foundationkit/stringUtil.hh&gt;</span>
 </span>
-<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span> <span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span>
-<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span> <span class="k">assign</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span> <span class="n">core</span><span class="p">;</span>
-<span class="k">@end</span>
+<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span><span class="w"> </span><span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span><span class="w"> </span><span class="k">assign</span><span class="p">)</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="w"> </span><span class="n">core</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span>
-<span class="p">{</span>
-    <span class="nb">self</span><span class="p">.</span><span class="n">core</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span>
-<span class="p">}</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="bp">CGRect</span><span class="p">)</span><span class="nv">frame</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="nb">super</span> <span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nb">super</span><span class="w"> </span><span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-<span class="p">{</span>
-    <span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span> <span class="n">ExampleButtonView</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span><span class="w"> </span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span>
-<span class="p">{</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-        <span class="o">:</span> <span class="n">ViewCore</span><span class="p">(</span>
-            <span class="n">viewCoreFactory</span><span class="p">,</span> 
-            <span class="p">[</span><span class="n">ExampleUIButton</span> <span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-<span class="hll">    <span class="kt">void</span> <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">()</span>
-</span><span class="hll">    <span class="p">{</span>
-</span><span class="hll">        <span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span>
-</span><span class="hll">        <span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span> <span class="o">+=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span> <span class="n">newValue</span><span class="p">)</span> <span class="p">{</span>
-</span><span class="hll">            <span class="k">auto</span> <span class="n">uiButton</span> <span class="o">=</span> <span class="p">(</span><span class="bp">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span>
-</span><span class="hll">            <span class="p">[</span><span class="n">uiButton</span> <span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span>
-</span><span class="hll">        <span class="p">};</span>
-</span><span class="hll">    <span class="p">}</span>
-</span><span class="p">}</span>
-</pre></div>
-
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">ViewCore</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">viewCoreFactory</span><span class="p">,</span><span class="w"> </span>
+<span class="w">            </span><span class="p">[</span><span class="n">ExampleUIButton</span><span class="w"> </span><span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">()</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span><span class="w"> </span><span class="n">newValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="k">auto</span><span class="w"> </span><span class="n">uiButton</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="bp">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="p">[</span><span class="n">uiButton</span><span class="w"> </span><span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="p">};</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span><span class="w"></span>
+</span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <h2 id="sending-notifications-to-the-view">Sending Notifications to the View<a class="headerlink" href="#sending-notifications-to-the-view" title="Permanent link">&para;</a></h2>
 <p>To allow users of your new class to react to button clicks, you can use a combination of a <a href="../../../reference/foundation/notifier/">Notifier</a> and a <code>WeakCallback</code>.</p>
 <p>First, add the <code>WeakCallback</code> to your Core:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-<span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">class</span> <span class="nc">Core</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">_clickCallback</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_clickCallback</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.h</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.h</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
 
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 
-      <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-          <span class="k">public</span><span class="o">:</span>
-            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
-
-<span class="hll">          <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">            <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">_clickCallback</span><span class="p">;</span>
-</span>        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="hll"><span class="w">          </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_clickCallback</span><span class="p">;</span><span class="w"></span>
+</span><span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>Now you can fire the callback from your <code>UIButton</code> subclass:</p>
-<div class="codehilite"><pre><span></span><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">clicked</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">fire</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-<details class="note"><summary>ExampleButtonViewCore.mm</summary><div class="codehilite"><pre><span></span><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">clicked</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">fire</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonViewCore.mm</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#import &lt;bdn/ios/ExampleButtonViewCore.hh&gt;</span>
 <span class="cp">#import &lt;bdn/foundationkit/stringUtil.hh&gt;</span>
-<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span> <span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span>
-<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span> <span class="k">assign</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span> <span class="n">core</span><span class="p">;</span>
-<span class="k">@end</span>
+<span class="k">@interface</span> <span class="nc">ExampleUIButton</span> : <span class="bp">UIButton</span><span class="w"> </span><span class="o">&lt;</span><span class="n">UIViewWithFrameNotification</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">@property</span><span class="p">(</span><span class="k">nonatomic</span><span class="p">,</span><span class="w"> </span><span class="k">assign</span><span class="p">)</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="w"> </span><span class="n">core</span><span class="p">;</span><span class="w"></span>
+<span class="k">@end</span><span class="w"></span>
 
-<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span>
-<span class="p">{</span>
-    <span class="nb">self</span><span class="p">.</span><span class="n">core</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span>
-<span class="p">}</span>
-<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="bp">CGRect</span><span class="p">)</span><span class="nv">frame</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="nb">super</span> <span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-        <span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="hll"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">clicked</span>
-</span><span class="hll"><span class="p">{</span>
-</span><span class="hll">    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span> <span class="n">core</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span> <span class="p">{</span>
-</span><span class="hll">        <span class="n">core</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">fire</span><span class="p">();</span>
-</span><span class="hll">    <span class="p">}</span>
-</span><span class="hll"><span class="p">}</span>
-</span><span class="hll"><span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">ExampleUIButton</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setViewCore:</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ViewCore</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">viewCore</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="o">&gt;</span><span class="p">(</span><span class="n">viewCore</span><span class="p">.</span><span class="n">lock</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setFrame:</span><span class="p">(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nb">super</span><span class="w"> </span><span class="nl">setFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">frameChanged</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="hll"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">clicked</span><span class="w"></span>
+</span><span class="hll"><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">lock</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">core</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">fire</span><span class="p">();</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span><span class="w"></span>
+</span><span class="hll"><span class="p">}</span><span class="w"></span>
+</span><span class="hll"><span class="k">@end</span><span class="w"></span>
 </span>
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span>
-<span class="p">{</span>
-    <span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span> <span class="n">ExampleButtonView</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">,</span><span class="w"> </span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">namespace</span> <span class="n">bdn</span><span class="o">::</span><span class="n">ios</span>
-<span class="p">{</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-        <span class="o">:</span> <span class="n">ViewCore</span><span class="p">(</span>
-            <span class="n">viewCoreFactory</span><span class="p">,</span> 
-            <span class="p">[</span><span class="n">ExampleUIButton</span> <span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-    <span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span>
-    <span class="p">{</span>
-    <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span>
-        <span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span> <span class="o">+=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span> <span class="n">newValue</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">auto</span> <span class="n">uiButton</span> <span class="o">=</span> <span class="p">(</span><span class="bp">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span>
-            <span class="p">[</span><span class="n">uiButton</span> <span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span>
-        <span class="p">};</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="n">namespace</span><span class="w"> </span><span class="n">bdn</span><span class="o">::</span><span class="n">ios</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">ExampleButtonViewCore</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bdn</span><span class="o">::</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">ViewCore</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">viewCoreFactory</span><span class="p">,</span><span class="w"> </span>
+<span class="w">            </span><span class="p">[</span><span class="n">ExampleUIButton</span><span class="w"> </span><span class="nl">buttonWithType</span><span class="p">:</span><span class="n">UIButtonTypeSystem</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExampleButtonViewCore</span><span class="o">::~</span><span class="n">ExampleButtonViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">ExampleButtonViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">ViewCore</span><span class="o">::</span><span class="n">init</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">label</span><span class="p">.</span><span class="n">onChange</span><span class="p">()</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span><span class="w"> </span><span class="n">newValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">auto</span><span class="w"> </span><span class="n">uiButton</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="bp">UIButton</span><span class="o">*</span><span class="p">)</span><span class="n">uiView</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="n">uiButton</span><span class="w"> </span><span class="nl">setTitle</span><span class="p">:</span><span class="n">bdn</span><span class="o">::</span><span class="n">fk</span><span class="o">::</span><span class="n">stringToNSString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="nl">forState</span><span class="p">:</span><span class="n">UIControlStateNormal</span><span class="p">]];</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>Add the notifier and the callback receiver to your <code>View</code> class:</p>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExampleButtonView</span>
-<span class="p">{</span>
-  <span class="k">public</span><span class="o">:</span>
-    <span class="n">Notifier</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">ClickEvent</span> <span class="o">&amp;&gt;</span> <span class="n">_onClick</span><span class="p">;</span>
-    <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;::</span><span class="n">Receiver</span> <span class="n">_clickCallbackReceiver</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">Notifier</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">ClickEvent</span><span class="w"> </span><span class="o">&amp;&gt;</span><span class="w"> </span><span class="n">_onClick</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;::</span><span class="n">Receiver</span><span class="w"> </span><span class="n">_clickCallbackReceiver</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.h</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.h</summary><div class="codehilite"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span> <span class="cpf">&lt;bdn/ui/View.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span> <span class="nc">ExampleButtonView</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ui</span><span class="o">::</span><span class="n">View</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span>
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_DECLARATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">class</span> <span class="nc">ExampleButtonView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ui</span><span class="o">::</span><span class="n">View</span>
-    <span class="p">{</span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span><span class="w"></span>
 
-      <span class="k">public</span><span class="o">:</span>
-        <span class="n">ExampleButtonView</span><span class="p">(</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">);</span>
-
-<span class="hll">      <span class="k">public</span><span class="o">:</span>
-</span><span class="hll">        <span class="n">Notifier</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">ClickEvent</span> <span class="o">&amp;&gt;</span> <span class="n">_onClick</span><span class="p">;</span>
-</span><span class="hll">        <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;::</span><span class="n">Receiver</span> <span class="n">_clickCallbackReceiver</span><span class="p">;</span>
+<span class="hll"><span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">Notifier</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">ClickEvent</span><span class="w"> </span><span class="o">&amp;&gt;</span><span class="w"> </span><span class="n">_onClick</span><span class="p">;</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;::</span><span class="n">Receiver</span><span class="w"> </span><span class="n">_clickCallbackReceiver</span><span class="p">;</span><span class="w"></span>
 </span>
-      <span class="k">public</span><span class="o">:</span>
-        <span class="k">class</span> <span class="nc">Core</span>
-        <span class="p">{</span>
-          <span class="k">public</span><span class="o">:</span>
-            <span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">label</span><span class="p">;</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span> <span class="nc">Core</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">Property</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 
-          <span class="k">public</span><span class="o">:</span>
-            <span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">_clickCallback</span><span class="p">;</span>
-        <span class="p">};</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="w">          </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">WeakCallback</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_clickCallback</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>Finally, connect it to the <code>WeakCallback</code>:</p>
-<div class="codehilite"><pre><span></span><span class="kt">void</span> <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="n">_clickCallbackReceiver</span> <span class="o">=</span> <span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">set</span><span class="p">([</span><span class="o">=</span><span class="p">](){</span>
-        <span class="n">ClickEvent</span> <span class="n">evt</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">());</span>
-        <span class="n">_onClick</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="n">evt</span><span class="p">);</span>
-    <span class="p">});</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">ExampleButtonView::bindViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">_clickCallbackReceiver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">set</span><span class="p">([</span><span class="o">=</span><span class="p">](){</span><span class="w"></span>
+<span class="w">        </span><span class="n">ClickEvent</span><span class="w"> </span><span class="n">evt</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">());</span><span class="w"></span>
+<span class="w">        </span><span class="n">_onClick</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="n">evt</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">});</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<details class="note">
+<summary>ExampleButtonView.cpp</summary>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
 
-<details class="note"><summary>ExampleButtonView.cpp</summary><div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;bdn/ExampleButtonView.h&gt;</span><span class="cp"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bdn</span><span class="w"> </span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">detail</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="k">namespace</span> <span class="n">bdn</span> 
-<span class="p">{</span>
-    <span class="k">namespace</span> <span class="n">detail</span>
-    <span class="p">{</span>
-        <span class="n">VIEW_CORE_REGISTRY_IMPLEMENTATION</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span><span class="w"> </span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="o">:</span><span class="w"> </span><span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span><span class="w"> </span><span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span><span class="w">            </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">ExampleButtonView</span><span class="p">(</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ViewCoreFactory</span><span class="o">&gt;</span> <span class="n">viewCoreFactory</span><span class="p">)</span>
-     <span class="o">:</span> <span class="n">View</span><span class="p">(</span><span class="n">viewCoreFactory</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">bdn</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">VIEW_CORE_REGISTER</span><span class="p">(</span><span class="n">ExampleButtonView</span><span class="p">,</span> <span class="n">View</span><span class="o">::</span><span class="n">viewCoreFactory</span><span class="p">());</span>            
-    <span class="p">}</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">buttonCore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="n">View</span><span class="o">::</span><span class="n">bindViewCore</span><span class="p">();</span>
-        <span class="k">auto</span> <span class="n">buttonCore</span> <span class="o">=</span> <span class="n">core</span><span class="o">&lt;</span><span class="n">ExampleButtonView</span><span class="o">::</span><span class="n">Core</span><span class="o">&gt;</span><span class="p">();</span>
-        <span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">label</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-
-<span class="hll">        <span class="n">_clickCallbackReceiver</span> <span class="o">=</span> <span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">set</span><span class="p">([</span><span class="o">=</span><span class="p">](){</span>
-</span><span class="hll">            <span class="n">ClickEvent</span> <span class="n">evt</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">());</span>
-</span><span class="hll">            <span class="n">_onClick</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="n">evt</span><span class="p">);</span>
-</span><span class="hll">        <span class="p">});</span>
-</span>    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
+<span class="hll"><span class="w">        </span><span class="n">_clickCallbackReceiver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buttonCore</span><span class="o">-&gt;</span><span class="n">_clickCallback</span><span class="p">.</span><span class="n">set</span><span class="p">([</span><span class="o">=</span><span class="p">](){</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="n">ClickEvent</span><span class="w"> </span><span class="nf">evt</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">());</span><span class="w"></span>
+</span><span class="hll"><span class="w">            </span><span class="n">_onClick</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="n">evt</span><span class="p">);</span><span class="w"></span>
+</span><span class="hll"><span class="w">        </span><span class="p">});</span><span class="w"></span>
+</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 </details>
 <p>Congratulations, your first custom view should be working now!</p>
                 
@@ -2734,7 +2730,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2019 Ashampoo Systems GmbH & Co. KG
+            Copyright &copy; 2021 Personizer GmbH & Co. KG
           </div>
         
         powered by
@@ -2745,7 +2741,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="md-legal">
           <ul>
-            <li><a href="https://www.ashampoo-systems.com/base/about">Legal</a></li>
+            <li><a href="https://www.personizer.com/en/legal/">Legal</a></li>
             <li><a href="../../../legal/privacy_policy">Privacy Policy</a></li>
             <li><a href="../../../getting-started/faq">FAQ</a></li>
             <li><a href="../../../legal/licensing">Licensing</a></li>
@@ -2773,7 +2769,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
       <script src="../../../assets/javascripts/application.a353778b.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.2.3",url:{base:"../../.."}})</script>
       
         <script src="../../../javascripts/cookieconsent.min.js"></script>
       
